@@ -140,7 +140,9 @@ public class IngestCommand extends CatalogCommands {
 
     // DDF-535: remove "Transformer" alias in ddf-3.0
     @Option(name = "--transformer", required = false, aliases = {"-t",
-            "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform data files into metacards. The default metacard transformer is the Java serialization transformer.")
+            "Transformer"}, multiValued = false, description =
+            "The metacard transformer ID to use to transform data files into metacards. "
+                    + "The default metacard transformer is the XML transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
     // DDF-535: Remove "Multithreaded" alias in ddf-3.0
@@ -217,22 +219,11 @@ public class IngestCommand extends CatalogCommands {
             batchSize = 1;
         }
 
-        BundleContext bundleContext = getBundleContext();
-        if (!DEFAULT_TRANSFORMER_ID.equals(transformerId)) {
-            ServiceReference[] refs;
-
-            try {
-                refs = bundleContext.getServiceReferences(InputTransformer.class.getName(),
-                        "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
-            } catch (InvalidSyntaxException e) {
-                throw new IllegalArgumentException(
-                        "Invalid transformer transformerId: " + transformerId, e);
-            }
-
-            if (refs == null || refs.length == 0) {
-                throw new IllegalArgumentException("Transformer " + transformerId + " not found");
-            } else {
-                transformer = (InputTransformer) bundleContext.getService(refs[0]);
+        if (!SERIALIZED_OBJECT_ID.matches(transformerId)) {
+            transformer = getTransformer();
+            if (transformer == null) {
+                console.println(transformerId + " is an invalid input transformer.");
+                return null;
             }
         }
 
@@ -376,7 +367,7 @@ public class IngestCommand extends CatalogCommands {
         ObjectInputStream ois = null;
 
         try {
-            if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
+            if (SERIALIZED_OBJECT_ID.matches(transformerId)) {
                 ois = new ObjectInputStream(new FileInputStream(file));
                 result = (Metacard) ois.readObject();
                 ois.close();
@@ -473,8 +464,7 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private void moveToFailedIngestDirectory(File source) {
-        File destination = new File(
-                failedIngestDirectory.getAbsolutePath() + File.separator + source.getName());
+        File destination = new File(failedIngestDirectory.getAbsolutePath() + File.separator + source.getName());
 
         if (!source.renameTo(destination)) {
             printErrorMessage("Unable to move source file [" + source.getAbsolutePath() + "] to ["
@@ -707,5 +697,24 @@ public class IngestCommand extends CatalogCommands {
         }
 
         return null;
+    }
+
+    private InputTransformer getTransformer() {
+        BundleContext bundleContext = getBundleContext();
+        ServiceReference[] refs;
+
+        try {
+            refs = bundleContext.getServiceReferences(InputTransformer.class.getName(),
+                    "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
+        } catch (InvalidSyntaxException e) {
+            throw new IllegalArgumentException(
+                    "Invalid transformer transformerId: " + transformerId, e);
+        }
+
+        if (refs == null || refs.length == 0) {
+            throw new IllegalArgumentException("Transformer " + transformerId + " not found");
+        } else {
+            return (InputTransformer) bundleContext.getService(refs[0]);
+        }
     }
 }

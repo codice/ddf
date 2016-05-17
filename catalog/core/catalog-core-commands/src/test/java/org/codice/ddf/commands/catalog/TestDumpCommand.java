@@ -83,6 +83,7 @@ public class TestDumpCommand extends TestAbstractCommand {
             }
         };
         command.dirPath = "nosuchdirectoryanywherehereman";
+        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
 
         // when
         command.doExecute();
@@ -122,7 +123,7 @@ public class TestDumpCommand extends TestAbstractCommand {
         File testFile = testFolder.newFile("somefile.txt");
         String testFilePath = testFile.getAbsolutePath();
         command.dirPath = testFilePath;
-
+        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
         // when
         command.doExecute();
 
@@ -174,7 +175,7 @@ public class TestDumpCommand extends TestAbstractCommand {
         File outputDirectory = testFolder.newFolder("somedirectory");
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
         command.dirPath = outputDirectoryPath;
-
+        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
         // when
         command.doExecute();
 
@@ -221,7 +222,7 @@ public class TestDumpCommand extends TestAbstractCommand {
         File outputDirectory = testFolder.newFolder("somedirectory");
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
         command.dirPath = outputDirectoryPath;
-
+        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
         // when
         command.doExecute();
 
@@ -289,7 +290,8 @@ public class TestDumpCommand extends TestAbstractCommand {
         File outputDirectory = testFolder.newFolder("somedirectory");
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
         command.dirPath = outputDirectoryPath;
-
+        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+        
         // when
         command.doExecute();
 
