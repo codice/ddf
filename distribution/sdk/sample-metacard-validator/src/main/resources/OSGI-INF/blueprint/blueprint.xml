@@ -11,34 +11,15 @@
  *
  **/
 -->
-<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <!-- Register in the OSGi Service Registry -->
     <service interface="ddf.catalog.validation.MetacardValidator" >
         <bean class="org.codice.ddf.sdk.validation.metacard.SampleMetacardValidator">
-            <!--<cm:managed-properties persistent-id="SampleMetacardValidator"-->
-                                   <!--update-strategy="container-managed"/>-->
             <property name="validWords">
-                <array value-type="java.lang.String">
+                <set value-type="java.lang.String">
                     <value>Metacard-1</value>
-                </array>
-            </property>
-        </bean>
-    </service>
-
-    <service interface="ddf.catalog.validation.MetacardValidator" >
-        <bean class="org.codice.ddf.sdk.validation.metacard.SampleMetacardValidator">
-            <!--<cm:managed-properties persistent-id="SampleMetacardValidator"-->
-            <!--update-strategy="container-managed"/>-->
-            <property name="validWords">
-                <array value-type="java.lang.String">
-                    <value>Metacard-1</value>
-                </array>
-            </property>
-            <property name="id">
-                <value>sample-validator2</value>
+                </set>
             </property>
         </bean>
     </service>

@@ -28,9 +28,8 @@ import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
-import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_WARNINGS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 import static ddf.common.test.WaitCondition.expect;
-import static ddf.test.itests.common.CswQueryBuilder.AND;
 import static ddf.test.itests.common.CswQueryBuilder.NOT;
 import static ddf.test.itests.common.CswQueryBuilder.OR;
 import static ddf.test.itests.common.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
@@ -45,6 +44,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -60,6 +60,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -1113,13 +1114,12 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testValidationEnforced() throws Exception {
         getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
         // Update metacardMarkerPlugin config with enforcedMetacardValidators
-        configureEnforcedMetacardValidators(Arrays.asList("sample-validator"));
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
         String id2 = ingestXmlFromResource("/metacard2.xml", false);
 
         try {
-
             // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
             // should get added by ValidationQueryFactory
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1193,10 +1193,9 @@ public class TestCatalog extends AbstractIntegrationTest {
             response.body(not(hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
-
         } finally {
             deleteMetacard(id1);
-            configureEnforcedMetacardValidators(Arrays.asList(""));
+            configureEnforcedMetacardValidators(Collections.singletonList(""));
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
         }
     }
@@ -1204,14 +1203,13 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testValidationUnenforced() throws Exception {
         getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
-        configureEnforcedMetacardValidators(Arrays.asList(""));
+        configureEnforcedMetacardValidators(Collections.singletonList(""));
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
         String id2 = ingestXmlFromResource("/metacard2.xml");
 
         try {
-            // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-
+            // metacardMarkerPlugin has no enforcedMetacardValidators
             // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
             // should get added by ValidationQueryFactory
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1251,8 +1249,6 @@ public class TestCatalog extends AbstractIntegrationTest {
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
                     VALIDATION_WARNINGS,
                     "sampleWarnings")
-                    .addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "sampleWarnings")
-                    .addLogicalOperator(AND)
                     .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
                     .addLogicalOperator(OR)
                     .getQuery();
@@ -1261,7 +1257,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .body(query)
                     .post(CSW_PATH.getUrl())
                     .then();
-            // Assert Metacard2 is in results AND not Metacard1
+            // Assert Metacard1 AND Metacard2 are in results
             response.body(hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
@@ -1302,13 +1298,119 @@ public class TestCatalog extends AbstractIntegrationTest {
             response.body(not(hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1))));
-
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
         }
+    }
 
+    @Test
+    public void testValidationEnforcedUpdate() throws Exception {
+        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        // metacardMarkerPlugin has no enforced validators so both metacards can be ingested
+        final String id1 = ingestXmlFromResource("/metacard1.xml");
+        final String id2 = ingestXmlFromResource("/metacard2.xml");
+
+        try {
+            // Enforce the sample metacard validator
+            configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
+
+            String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard2.xml"), UTF_8.name());
+            given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                    .body(metacard2Xml)
+                    .put(new DynamicUrl(REST_PATH, id1).getUrl())
+                    .then()
+                    .assertThat()
+                    .statusCode(HttpStatus.SC_BAD_REQUEST);
+
+            String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard1.xml"), UTF_8.name());
+            given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                    .body(metacard1Xml)
+                    .put(new DynamicUrl(REST_PATH, id2).getUrl())
+                    .then()
+                    .assertThat()
+                    .statusCode(HttpStatus.SC_OK);
+
+            String metacard1Path = String.format(METACARD_X_PATH, id1);
+            String metacard2Path = String.format(METACARD_X_PATH, id2);
+
+            executeOpenSearch("xml", "q=*").log()
+                    .all()
+                    .assertThat()
+                    .body(hasXPath(metacard1Path))
+                    .body(hasXPath(metacard1Path + "/string[@name='title']/value",
+                            is("Metacard-1")))
+                    .body(not(hasXPath(metacard1Path + "/string[@name='validation-errors']")))
+                    .body(not(hasXPath(metacard1Path + "/string[@name='validation-warnings']")))
+                    .body(hasXPath(metacard2Path))
+                    .body(hasXPath(metacard2Path + "/string[@name='title']/value",
+                            is("Metacard-1")))
+                    .body(not(hasXPath(metacard2Path + "/string[@name='validation-errors']")))
+                    .body(not(hasXPath(metacard2Path + "/string[@name='validation-warnings']")));
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
+            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+        }
+    }
+
+    @Test
+    public void testValidationUnenforcedUpdate() throws Exception {
+        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        // metacardMarkerPlugin has no enforced validators so both metacards can be ingested
+        final String id1 = ingestXmlFromResource("/metacard1.xml");
+        final String id2 = ingestXmlFromResource("/metacard2.xml");
+
+        try {
+            String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard2.xml"), UTF_8.name());
+            given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                    .body(metacard2Xml)
+                    .put(new DynamicUrl(REST_PATH, id1).getUrl())
+                    .then()
+                    .assertThat()
+                    .statusCode(HttpStatus.SC_OK);
+
+            String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard1.xml"), UTF_8.name());
+            given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                    .body(metacard1Xml)
+                    .put(new DynamicUrl(REST_PATH, id2).getUrl())
+                    .then()
+                    .assertThat()
+                    .statusCode(HttpStatus.SC_OK);
+
+            configureShowInvalidMetacards("true", "true");
+
+            String metacard1Path = String.format(METACARD_X_PATH, id1);
+            String metacard2Path = String.format(METACARD_X_PATH, id2);
+
+            executeOpenSearch("xml", "q=*").log()
+                    .all()
+                    .assertThat()
+                    .body(hasXPath(metacard1Path))
+                    .body(hasXPath(metacard1Path + "/string[@name='title']/value",
+                            is("Metacard-2")))
+                    .body(hasXPath(
+                            "count(" + metacard1Path + "/string[@name='validation-errors']/value)",
+                            is("1")))
+                    .body(hasXPath("count(" + metacard1Path
+                            + "/string[@name='validation-warnings']/value)", is("1")))
+                    .body(hasXPath(metacard2Path))
+                    .body(hasXPath(metacard2Path + "/string[@name='title']/value",
+                            is("Metacard-1")))
+                    .body(not(hasXPath(metacard2Path + "/string[@name='validation-errors']")))
+                    .body(not(hasXPath(metacard2Path + "/string[@name='validation-warnings']")));
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
+            configureShowInvalidMetacards("false", "true");
+            getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+        }
     }
 
     @Test

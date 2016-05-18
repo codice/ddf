@@ -14,10 +14,10 @@
 
 package org.codice.ddf.sdk.validation.metacard;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.util.Describable;
@@ -26,8 +26,7 @@ import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
 
 public class SampleMetacardValidator implements MetacardValidator, Describable {
-
-    private static String[] validWords = new String[] {"test", "default", "sample"};
+    private Set<String> validWords = Sets.newHashSet("test", "default", "sample");
 
     private String id = "sample-validator";
 
@@ -62,32 +61,27 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
 
     @Override
     public void validate(Metacard metacard) throws ValidationException {
-        if (!checkMetacard(metacard.getTitle(), new ArrayList<>(Arrays.asList(validWords)))) {
+        if (!checkMetacard(metacard.getTitle())) {
             ValidationExceptionImpl validationException = new ValidationExceptionImpl(
-                    "Metacard title does not contain any of: " + Arrays.toString(validWords));
-            validationException.setErrors(new ArrayList<String>(Arrays.asList("sampleError")));
-            validationException.setWarnings(new ArrayList<String>(Arrays.asList("sampleWarnings")));
+                    "Metacard title does not contain any of: " + validWords);
+            validationException.setErrors(Collections.singletonList("sampleError"));
+            validationException.setWarnings(Collections.singletonList("sampleWarnings"));
             throw validationException;
         }
-
     }
 
-    private Boolean checkMetacard(String metacardAttribute, ArrayList<String> toCheck) {
-        List<String> result = toCheck.stream()
-                .filter(metacardAttribute::contains)
-                .collect(Collectors.toList());
-        return !result.isEmpty();
+    private boolean checkMetacard(String title) {
+        return validWords.stream()
+                .anyMatch(title::contains);
     }
 
-    public void setValidWords(String... validWords) {
-        SampleMetacardValidator.validWords = validWords;
-    }
-
-    public String[] getValidWords() {
-        String[] resultValidWords = null;
+    public void setValidWords(Set<String> validWords) {
         if (validWords != null) {
-            resultValidWords = Arrays.copyOf(validWords, validWords.length);
+            this.validWords = validWords;
         }
-        return resultValidWords;
+    }
+
+    public Set<String> getValidWords() {
+        return validWords;
     }
 }
