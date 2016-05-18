@@ -54,8 +54,10 @@ public class RegistryPackageUtilsTest {
 
     private ParserConfigurator configurator;
 
+    private RegistryObjectType registryObject;
+
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         parser = new XmlParser();
 
         configurator = parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
@@ -68,26 +70,22 @@ public class RegistryPackageUtilsTest {
                         .getName()),
                 this.getClass()
                         .getClassLoader());
+
+        registryObject = getRegistryObjectFromResource(
+                "/csw-registry-package-smaller.xml");
     }
 
     @Test
     public void testGetBindingTypesFromPackage() throws Exception {
-        RegistryObjectType registryObjectType = getRegistryObjectFromResource(
-                "/csw-registry-package-smaller.xml");
-
         List<ServiceBindingType> bindings =
-                RegistryPackageUtils.getBindingTypes((RegistryPackageType) registryObjectType);
+                RegistryPackageUtils.getBindingTypes((RegistryPackageType) registryObject);
 
         assertBindings(bindings);
     }
 
     @Test
     public void testGetBindingTypesFromRegistryObjectList() throws Exception {
-        RegistryPackageType registryObjectType =
-                (RegistryPackageType) getRegistryObjectFromResource(
-                        "/csw-registry-package-smaller.xml");
-
-        RegistryObjectListType registryObjectList = registryObjectType.getRegistryObjectList();
+        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
 
         List<ServiceBindingType> bindings =
                 RegistryPackageUtils.getBindingTypes(registryObjectList);
@@ -107,22 +105,15 @@ public class RegistryPackageUtilsTest {
 
     @Test
     public void testGetExtrinsicObjectTypesFromPackage() throws Exception {
-        RegistryObjectType registryObjectType = getRegistryObjectFromResource(
-                "/csw-registry-package-smaller.xml");
-
         List<ExtrinsicObjectType> extrinsicObjects =
-                RegistryPackageUtils.getExtrinsicObjects((RegistryPackageType) registryObjectType);
+                RegistryPackageUtils.getExtrinsicObjects((RegistryPackageType) registryObject);
 
         assertExtrinsicObjects(extrinsicObjects);
     }
 
     @Test
     public void testGetExtrinsicObjectTypesFromRegistryObjectList() throws Exception {
-        RegistryPackageType registryObjectType =
-                (RegistryPackageType) getRegistryObjectFromResource(
-                        "/csw-registry-package-smaller.xml");
-
-        RegistryObjectListType registryObjectList = registryObjectType.getRegistryObjectList();
+        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
 
         List<ExtrinsicObjectType> extrinsicObjects = RegistryPackageUtils.getExtrinsicObjects(
                 registryObjectList);
@@ -142,22 +133,15 @@ public class RegistryPackageUtilsTest {
 
     @Test
     public void testGetOrganizationsFromPackage() throws Exception {
-        RegistryObjectType registryObjectType = getRegistryObjectFromResource(
-                "/csw-registry-package-smaller.xml");
-
         List<OrganizationType> organizations =
-                RegistryPackageUtils.getOrganizations((RegistryPackageType) registryObjectType);
+                RegistryPackageUtils.getOrganizations((RegistryPackageType) registryObject);
 
         assertOrganizations(organizations);
     }
 
     @Test
     public void testGetOrganizationsFromRegistryObjectList() throws Exception {
-        RegistryPackageType registryObjectType =
-                (RegistryPackageType) getRegistryObjectFromResource(
-                        "/csw-registry-package-smaller.xml");
-
-        RegistryObjectListType registryObjectList = registryObjectType.getRegistryObjectList();
+        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
 
         List<OrganizationType> organizations = RegistryPackageUtils.getOrganizations(
                 registryObjectList);
@@ -177,22 +161,15 @@ public class RegistryPackageUtilsTest {
 
     @Test
     public void testGetPersonsFromPackage() throws Exception {
-        RegistryObjectType registryObjectType = getRegistryObjectFromResource(
-                "/csw-registry-package-smaller.xml");
-
         List<PersonType> persons =
-                RegistryPackageUtils.getPersons((RegistryPackageType) registryObjectType);
+                RegistryPackageUtils.getPersons((RegistryPackageType) registryObject);
 
         assertPersons(persons);
     }
 
     @Test
     public void testGetPersonsFromRegistryObjectList() throws Exception {
-        RegistryPackageType registryObjectType =
-                (RegistryPackageType) getRegistryObjectFromResource(
-                        "/csw-registry-package-smaller.xml");
-
-        RegistryObjectListType registryObjectList = registryObjectType.getRegistryObjectList();
+        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
 
         List<PersonType> persons = RegistryPackageUtils.getPersons(registryObjectList);
 
@@ -210,22 +187,15 @@ public class RegistryPackageUtilsTest {
 
     @Test
     public void testGetAssociationsFromPackage() throws Exception {
-        RegistryObjectType registryObjectType = getRegistryObjectFromResource(
-                "/csw-registry-package-smaller.xml");
-
         List<AssociationType1> associations =
-                RegistryPackageUtils.getAssociations((RegistryPackageType) registryObjectType);
+                RegistryPackageUtils.getAssociations((RegistryPackageType) registryObject);
 
         assertAssociations(associations);
     }
 
     @Test
     public void testGetAssociationsFromRegistryObjectList() throws Exception {
-        RegistryPackageType registryObjectType =
-                (RegistryPackageType) getRegistryObjectFromResource(
-                        "/csw-registry-package-smaller.xml");
-
-        RegistryObjectListType registryObjectList = registryObjectType.getRegistryObjectList();
+        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
 
         List<AssociationType1> associations = RegistryPackageUtils.getAssociations(
                 registryObjectList);
@@ -245,11 +215,8 @@ public class RegistryPackageUtilsTest {
 
     @Test
     public void testGetSlotByName() throws Exception {
-        RegistryObjectType registryObjectType = getRegistryObjectFromResource(
-                "/csw-registry-package-smaller.xml");
-
         List<ServiceBindingType> bindings =
-                RegistryPackageUtils.getBindingTypes((RegistryPackageType) registryObjectType);
+                RegistryPackageUtils.getBindingTypes((RegistryPackageType) registryObject);
 
         ServiceBindingType binding = bindings.get(0);
         assertThat(binding.isSetSlot(), is(true));
@@ -265,11 +232,8 @@ public class RegistryPackageUtilsTest {
 
     @Test
     public void testGetSlotFromString() throws Exception {
-        RegistryObjectType registryObjectType = getRegistryObjectFromResource(
-                "/csw-registry-package-smaller.xml");
-
         List<ExtrinsicObjectType> bindings =
-                RegistryPackageUtils.getExtrinsicObjects((RegistryPackageType) registryObjectType);
+                RegistryPackageUtils.getExtrinsicObjects((RegistryPackageType) registryObject);
 
         ExtrinsicObjectType binding = bindings.get(0);
         assertThat(binding.isSetSlot(), is(true));
