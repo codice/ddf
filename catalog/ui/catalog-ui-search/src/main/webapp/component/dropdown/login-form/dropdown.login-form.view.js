@@ -19,12 +19,13 @@ define([
     '../dropdown',
     '../dropdown.view',
     'text!./dropdown.login-form.hbs',
+    'js/CustomElements',
     'component/login-form/login-form.view'
-], function (_, store, Dropdown, DropdownView, template, ComponentView) {
+], function (_, store, Dropdown, DropdownView, template, CustomElements, ComponentView) {
 
     var getName = function (user) {
         if (user.get('isGuest') === 'true') {
-            return 'guest';
+            return 'Sign In';
         }
 
         return user.get('username');
@@ -32,6 +33,7 @@ define([
 
     return DropdownView.extend({
         template: template,
+        tagName: CustomElements.register('login-dropdown'),
         componentToShow: ComponentView,
         initializeComponentModel: function () {
             this.modelForComponent = store.get('user');

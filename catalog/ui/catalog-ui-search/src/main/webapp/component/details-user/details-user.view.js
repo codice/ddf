@@ -22,11 +22,11 @@ define([
     'js/CustomElements',
     'component/dropdown/dropdown',
     'component/dropdown/login-form/dropdown.login-form.view'
-], function (Marionette, _, $, store, template, CustomElements, DropdownModel, loginForm) {
+], function (Marionette, _, $, store, template, CustomElements, DropdownModel, LoginForm) {
 
     return Marionette.LayoutView.extend({
         regions: {
-            'userInfo': '#user-info-region'
+            'userInfo': '.user-info-region'
         },
         setDefaultModel: function(){
             //override
@@ -39,7 +39,7 @@ define([
             }
         },
         onRender: function () {
-            this.userInfo.show(new loginForm({
+            this.userInfo.show(new LoginForm({
                 model: new DropdownModel()
             }));
         }

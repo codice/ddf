@@ -19,13 +19,16 @@ define([
     'underscore',
     'jquery',
     'text!./home-menu.hbs',
-    'js/CustomElements'
-], function (wreqr, Marionette, _, $, template, CustomElements) {
+    'js/CustomElements',
+    'component/dropdown/dropdown',
+    'component/dropdown/login-form/dropdown.login-form.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, LoginForm) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('home-menu'),
         regions: {
+            'userInfo': '.user-info-region'
         },
         modelEvents: {
         },
@@ -36,6 +39,9 @@ define([
         initialize: function(){
         },
         onRender: function(){
+            this.userInfo.show(new LoginForm({
+                model: new DropdownModel()
+            }));
         }
     });
 });
