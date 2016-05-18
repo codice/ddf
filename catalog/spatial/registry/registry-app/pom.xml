@@ -53,6 +53,10 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
+            <artifactId>registry-federation-admin-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-identification-plugin</artifactId>
         </dependency>
         <dependency>

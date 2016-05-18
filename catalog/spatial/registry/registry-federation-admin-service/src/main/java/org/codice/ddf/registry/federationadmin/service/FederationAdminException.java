@@ -11,8 +11,19 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.registry.federationadmin.service.impl;
+package org.codice.ddf.registry.federationadmin.service;
 
-public class FederationAdminServiceImplTest {
+public class FederationAdminException extends Exception {
+    public FederationAdminException() {
+        super();
+    }
+
+    public FederationAdminException(String message) {
+        super(message);
+    }
+
+    public FederationAdminException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }
