@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -114,6 +115,17 @@ public class ConfigurationStore {
         return readOnly;
     }
 
+    public List<String> getAttributeAliases() {
+        return attributeAliases.entrySet()
+                .stream()
+                .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getHiddenAttributes() {
+        return hiddenAttributes;
+    }
+
     public void setReadOnly(List<String> readOnly) {
         this.readOnly = readOnly;
     }
@@ -122,9 +134,23 @@ public class ConfigurationStore {
         this.summaryShow = summaryShow;
     }
 
+    public void setAttributeAliases(List<String> attributeAliases) {
+        this.attributeAliases = attributeAliases.stream()
+                .map(str -> str.split("="))
+                .collect(Collectors.toMap(list -> list[0].trim(), list -> list[1].trim()));
+    }
+
+    public void setHiddenAttributes(List<String> hiddenAttributes) {
+        this.hiddenAttributes = hiddenAttributes;
+    }
+
     private List<String> readOnly = Collections.emptyList();
 
     private List<String> summaryShow = Collections.emptyList();
+
+    private Map<String, String> attributeAliases = Collections.emptyMap();
+
+    private List<String> hiddenAttributes = Collections.emptyList();
 
     public ConfigurationStore() {
 
@@ -186,6 +212,8 @@ public class ConfigurationStore {
         config.put("externalAuthentication", isExternalAuthentication);
         config.put("readOnly", readOnly);
         config.put("summaryShow", summaryShow);
+        config.put("hiddenAttributes", hiddenAttributes);
+        config.put("attributeAliases", attributeAliases);
 
         return config;
     }

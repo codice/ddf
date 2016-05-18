@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.codice.proxy.http.HttpProxyService;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.osgi.framework.Bundle;
@@ -37,6 +38,13 @@ public class ConfigurationStoreTest {
     private static final String PROXY_SERVER = "http://www.example.com/wms";
 
     private static final String BUNDLE_SYMBOLIC_NAME = "mySymbolicName";
+
+    private ConfigurationStore configurationStore;
+
+    @Before
+    public void setUp() {
+        configurationStore = new ConfigurationStore();
+    }
 
     @Test
     public void testSetImageryProviders() throws Exception {
@@ -50,7 +58,6 @@ public class ConfigurationStoreTest {
                 anyString(),
                 anyInt())).thenReturn(PROXY_SERVER);
 
-        ConfigurationStore configurationStore = new ConfigurationStore();
         configurationStore.setHttpProxy(mockHttpProxyService);
         configurationStore.setImageryProviders(IOUtils.toString(getClass().getResourceAsStream(
                 "/imagery-providers.json")));
@@ -75,7 +82,6 @@ public class ConfigurationStoreTest {
                 anyString(),
                 anyInt())).thenReturn(PROXY_SERVER);
 
-        ConfigurationStore configurationStore = new ConfigurationStore();
         configurationStore.setHttpProxy(mockHttpProxyService);
         configurationStore.setTerrainProvider(IOUtils.toString(getClass().getResourceAsStream(
                 "/terrain-provider.json")));
@@ -90,7 +96,6 @@ public class ConfigurationStoreTest {
     @Test
     public void testContentTypeMappings() throws Exception {
         // Setup
-        ConfigurationStore configurationStore = new ConfigurationStore();
         configurationStore.setTypeNameMapping((String[]) Arrays.asList("foo=bar,foo=baz",
                 "foo=qux",
                 "alpha=beta, alpha = omega ",
@@ -111,7 +116,6 @@ public class ConfigurationStoreTest {
     @Test
     public void testContentTypeMappingsList() throws Exception {
         // Setup
-        ConfigurationStore configurationStore = new ConfigurationStore();
         configurationStore.setTypeNameMapping(Arrays.asList("foo=bar,foo=baz",
                 "foo=qux",
                 "alpha=beta, alpha = omega ",
@@ -131,7 +135,6 @@ public class ConfigurationStoreTest {
     @Test
     public void testContentTypeMappingsListString() throws Exception {
         // Setup
-        ConfigurationStore configurationStore = new ConfigurationStore();
         configurationStore.setTypeNameMapping(
                 "foo=bar,foo=baz,foo=qux,alpha=beta, alpha = omega , =,=,bad,input,name=,=type");
 
@@ -142,6 +145,12 @@ public class ConfigurationStoreTest {
                 hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
         assertThat(configurationStore.getTypeNameMapping(),
                 hasEntry("alpha", Sets.newSet("beta", "omega")));
+    }
+
+    @Test
+    public void testsetAttributeAliases() throws Exception {
+        configurationStore.setAttributeAliases(Arrays.asList(" a = b ", " x = y "));
+        assertThat(configurationStore.getAttributeAliases(), is(Arrays.asList("a=b", "x=y")));
     }
 
 }

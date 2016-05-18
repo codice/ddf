@@ -83,6 +83,21 @@
             type="String"
             cardinality="10000"
             required="false" />
+
+        <AD id="attributeAliases"
+            name="Attribute Aliases"
+            description="List of attribute aliases. Example 'title=Title'"
+            type="String"
+            cardinality="10000"
+            required="false" />
+
+        <AD id="hiddenAttributes"
+            name="Hidden Attributes"
+            description="List of attributes to be hidden in the UI."
+            type="String"
+            cardinality="10000"
+            required="false" />
+
     </OCD>
 
     <Designate pid="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore">
