@@ -24,10 +24,13 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -37,15 +40,16 @@ import com.vividsolutions.jts.io.WKTReader;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardTypeRegistry;
-import ddf.catalog.data.QualifiedMetacardType;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
-import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGeoJsonExtensible {
+
+    private GeoJsonInputTransformer transformer = new GeoJsonInputTransformer();
+
     public static final String DEFAULT_TITLE = "myTitle";
 
     public static final String DEFAULT_ID = "myId";
@@ -100,6 +104,7 @@ public class TestGeoJsonExtensible {
 
     private static final String sampleJsonExtensibleA() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
+                + "        \"multi-string\":[\"foo\", \"bar\"],"
                 + "        \"frequency\":\"14000000\"," + "        \"min-frequency\":\"10000000\","
                 + "        \"max-frequency\":\"20000000\"," + "        \"angle\":\"180\","
                 + "        \"id\":\"myId\"," + "        \"metacard-type\":\"MetacardTypeA\""
@@ -195,13 +200,16 @@ public class TestGeoJsonExtensible {
                 + "        ]" + "    }" + "}";
     }
 
+    @Before
+    public void setup() {
+        transformer.setMetacardTypes(prepareMetacardTypes());
+    }
+
     @Test
     public void testExtensibleGeoJsonA() throws IOException, CatalogTransformerException {
-        MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
-
         ByteArrayInputStream geoJsonInput =
                 new ByteArrayInputStream(sampleJsonExtensibleA().getBytes());
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
+        Metacard metacard = transformer.transform(geoJsonInput);
 
         assertEquals(DEFAULT_TITLE, metacard.getTitle());
         assertEquals(DEFAULT_ID, metacard.getId());
@@ -234,11 +242,9 @@ public class TestGeoJsonExtensible {
 
     @Test
     public void testExtensibleGeoJsonB() throws IOException, CatalogTransformerException {
-        MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
-
         ByteArrayInputStream geoJsonInput =
                 new ByteArrayInputStream(sampleJsonExtensibleB().getBytes());
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
+        Metacard metacard = transformer.transform(geoJsonInput);
 
         assertEquals(DEFAULT_TITLE, metacard.getTitle());
         assertEquals(DEFAULT_ID, metacard.getId());
@@ -289,11 +295,9 @@ public class TestGeoJsonExtensible {
     @Test
     public void testExtensibleGeoJsonBNonParseableField()
             throws IOException, CatalogTransformerException {
-        MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
-
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
                 sampleJsonExtensibleBWithBadField().getBytes());
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
+        Metacard metacard = transformer.transform(geoJsonInput);
 
         // all sample B fields should be added to metacard except the non-parseable one
         assertEquals(DEFAULT_TITLE, metacard.getTitle());
@@ -337,11 +341,9 @@ public class TestGeoJsonExtensible {
     @Test
     public void testExtensibleGeoJsonNoMetacardType()
             throws IOException, CatalogTransformerException {
-        MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
-
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
                 sampleJsonExtensibleANoMetacardType().getBytes());
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
+        Metacard metacard = transformer.transform(geoJsonInput);
 
         // since no metacard type was specified only the Basic Metacard Type attributes should be
         // available. These are defined in BasicTypes.BASIC_METACARD
@@ -362,20 +364,17 @@ public class TestGeoJsonExtensible {
     @Test(expected = CatalogTransformerException.class)
     public void testExtensibleGeoJsonUnregisteredMetacardType()
             throws IOException, CatalogTransformerException {
-        MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
-
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
                 sampleJsonExtensibleAUnregisteredMetacardType().getBytes());
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
+        Metacard metacard = transformer.transform(geoJsonInput);
     }
 
     @Test
     public void testBasicMetacardType()
             throws IOException, CatalogTransformerException, ParseException {
-        MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
         ByteArrayInputStream geoJsonInput =
                 new ByteArrayInputStream(sampleBasicMetacard().getBytes());
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
+        Metacard metacard = transformer.transform(geoJsonInput);
 
         verifyBasics(metacard);
     }
@@ -383,22 +382,17 @@ public class TestGeoJsonExtensible {
     @Test
     public void testBasicMetacardTypeNoMetacardType()
             throws IOException, CatalogTransformerException, ParseException {
-        MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
         ByteArrayInputStream geoJsonInput =
                 new ByteArrayInputStream(sampleBasicMetacardNoMetacard().getBytes());
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
+        Metacard metacard = transformer.transform(geoJsonInput);
 
         verifyBasics(metacard);
     }
 
-    private MetacardTypeRegistry prepareMetacardTypeRegistry() {
-
-        MetacardTypeRegistry mtr = MetacardTypeRegistryImpl.getInstance();
-        mtr.register(sampleMetacardTypeA());
-        mtr.register(sampleMetacardTypeB());
-        mtr.register(new QualifiedMetacardTypeImpl(BasicTypes.BASIC_METACARD));
-
-        return mtr;
+    private List<MetacardType> prepareMetacardTypes() {
+        return Arrays.asList(sampleMetacardTypeA(),
+                sampleMetacardTypeB(),
+                BasicTypes.BASIC_METACARD);
     }
 
     protected void verifyBasics(Metacard metacard) throws ParseException {
@@ -437,7 +431,7 @@ public class TestGeoJsonExtensible {
         assertThat(coords[2].y, is(40.0));
     }
 
-    private QualifiedMetacardType sampleMetacardTypeA() {
+    private MetacardType sampleMetacardTypeA() {
         Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
         descriptors.add(new AttributeDescriptorImpl("frequency",
                 true /* indexed */,
@@ -463,6 +457,12 @@ public class TestGeoJsonExtensible {
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
+        descriptors.add(new AttributeDescriptorImpl("multi-string",
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.ID,
                 true /* indexed */,
                 true /* stored */,
@@ -476,10 +476,10 @@ public class TestGeoJsonExtensible {
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
 
-        return new QualifiedMetacardTypeImpl("", SAMPLE_A_METACARD_TYPE_NAME, descriptors);
+        return new MetacardTypeImpl(SAMPLE_A_METACARD_TYPE_NAME, descriptors);
     }
 
-    private QualifiedMetacardType sampleMetacardTypeB() {
+    private MetacardType sampleMetacardTypeB() {
         Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
         descriptors.add(new AttributeDescriptorImpl(COLUMNS_ATTRIBUTE_KEY,
                 true /* indexed */,
@@ -536,6 +536,6 @@ public class TestGeoJsonExtensible {
                 false /* multivalued */,
                 BasicTypes.SHORT_TYPE));
 
-        return new QualifiedMetacardTypeImpl("", "MetacardTypeB", descriptors);
+        return new MetacardTypeImpl("MetacardTypeB", descriptors);
     }
 }
