@@ -104,6 +104,7 @@ public class TestGeoJsonExtensible {
 
     private static final String sampleJsonExtensibleA() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
+                + "        \"multi-string\":[\"foo\", \"bar\"],"
                 + "        \"frequency\":\"14000000\"," + "        \"min-frequency\":\"10000000\","
                 + "        \"max-frequency\":\"20000000\"," + "        \"angle\":\"180\","
                 + "        \"id\":\"myId\"," + "        \"metacard-type\":\"MetacardTypeA\""
@@ -456,6 +457,12 @@ public class TestGeoJsonExtensible {
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
+        descriptors.add(new AttributeDescriptorImpl("multi-string",
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.ID,
                 true /* indexed */,
                 true /* stored */,

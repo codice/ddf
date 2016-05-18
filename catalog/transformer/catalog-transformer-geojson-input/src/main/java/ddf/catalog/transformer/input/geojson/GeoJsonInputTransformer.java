@@ -15,7 +15,10 @@ package ddf.catalog.transformer.input.geojson;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -160,58 +163,9 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
             try {
                 if (properties.containsKey(ad.getName())) {
-
                     Object attributeValue = properties.get(ad.getName());
                     if (attributeValue != null) {
-
-                        String attributeString = attributeValue.toString();
-
-                        switch (ad.getType()
-                                .getAttributeFormat()) {
-                        case BINARY:
-                            metacard.setAttribute(ad.getName(),
-                                    DatatypeConverter.parseBase64Binary(attributeString));
-                            break;
-                        case DATE:
-                            try {
-                                SimpleDateFormat dateFormat = new SimpleDateFormat(
-                                        ISO_8601_DATE_FORMAT);
-                                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                                metacard.setAttribute(ad.getName(),
-                                        dateFormat.parse(attributeString));
-                            } catch (java.text.ParseException e) {
-                                throw new CatalogTransformerException("Could not parse Date:", e);
-                            }
-                            break;
-                        case GEOMETRY:
-                            break;
-                        case STRING:
-                        case XML:
-                            metacard.setAttribute(ad.getName(), attributeString);
-                            break;
-                        case BOOLEAN:
-                            metacard.setAttribute(ad.getName(),
-                                    Boolean.parseBoolean(attributeString));
-                            break;
-                        case SHORT:
-                            metacard.setAttribute(ad.getName(), Short.parseShort(attributeString));
-                            break;
-                        case INTEGER:
-                            metacard.setAttribute(ad.getName(), Integer.parseInt(attributeString));
-                            break;
-                        case LONG:
-                            metacard.setAttribute(ad.getName(), Long.parseLong(attributeString));
-                            break;
-                        case FLOAT:
-                            metacard.setAttribute(ad.getName(), Float.parseFloat(attributeString));
-                            break;
-                        case DOUBLE:
-                            metacard.setAttribute(ad.getName(),
-                                    Double.parseDouble(attributeString));
-                            break;
-                        default:
-                            break;
-                        }
+                        metacard.setAttribute(ad.getName(), convertProperty(attributeValue, ad));
                     }
                 }
             } catch (NumberFormatException e) {
@@ -242,6 +196,60 @@ public class GeoJsonInputTransformer implements InputTransformer {
     public String toString() {
         return "InputTransformer {Impl=" + this.getClass()
                 .getName() + ", id=" + ID + ", mime-type=" + MIME_TYPE + "}";
+    }
+
+    private Serializable convertProperty(Object property, AttributeDescriptor descriptor)
+            throws CatalogTransformerException {
+        AttributeFormat format = descriptor.getType()
+                .getAttributeFormat();
+        if (descriptor.isMultiValued() && property instanceof List) {
+            List<Serializable> values = new ArrayList<>();
+            for (Object value : (List) property) {
+                values.add(convertValue(value, format));
+            }
+            return (Serializable) values;
+        } else {
+            return convertValue(property, format);
+        }
+    }
+
+    private Serializable convertValue(Object value, AttributeFormat format)
+            throws CatalogTransformerException {
+        if (value == null) {
+            return null;
+        }
+
+        switch (format) {
+        case BINARY:
+            return DatatypeConverter.parseBase64Binary(value.toString());
+        case DATE:
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                return dateFormat.parse(value.toString());
+            } catch (ParseException e) {
+                throw new CatalogTransformerException("Could not parse Date:" + value.toString(),
+                        e);
+            }
+        case GEOMETRY:
+        case STRING:
+        case XML:
+            return value.toString();
+        case BOOLEAN:
+            return Boolean.parseBoolean(value.toString());
+        case SHORT:
+            return Short.parseShort(value.toString());
+        case INTEGER:
+            return Integer.parseInt(value.toString());
+        case LONG:
+            return Long.parseLong(value.toString());
+        case FLOAT:
+            return Float.parseFloat(value.toString());
+        case DOUBLE:
+            return Double.parseDouble(value.toString());
+        default:
+            return null;
+        }
     }
 
 }
