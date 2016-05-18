@@ -1,0 +1,126 @@
+@{customElementNamespace}property {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  padding: 10px;
+
+  .property-label,
+  .property-value {
+    width: 50%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+
+  .property-label {
+    text-align: right;
+  }
+
+  .property-label label {
+    cursor: auto;
+    color: grey;
+    font-weight: bold;
+    max-width: ~'calc(100% - 44px)';
+    margin: 0px;
+    line-height: @minimumButtonSize;
+    padding-right: 10px;
+    word-wrap: normal;
+    white-space: normal;
+  }
+
+  .property-revert {
+    display: none;
+  }
+
+  .property-revert {
+    font-size: 2rem;
+    vertical-align: bottom;
+    color: orange;
+  }
+
+  .property-revert:hover {
+    color: shade(orange, 10%);
+  }
+
+  .property-revert:focus {
+    color: shade(orange, 25%);
+  }
+
+  .input-validation:nth-of-type(2){
+    display: none;
+  }
+
+  .input-validation {
+    line-height: @minimumButtonSize;
+    padding: 0px 10px;
+  }
+}
+
+@{customElementNamespace}property.is-readOnly {
+
+}
+
+@{customElementNamespace}property.is-editing:not(.is-readOnly) {
+  .property-label label {
+    cursor: pointer;
+  }
+}
+
+@{customElementNamespace}property.is-editing.is-changed {
+  .property-revert {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}property.has-limited-width {
+  white-space: normal;
+
+  .property-value,
+  .property-label {
+    width: 100%;
+  }
+
+  .property-label {
+    text-align: left;
+  }
+
+  .property-label label {
+    padding-right: 0px;
+  }
+
+  .if-inline {
+    display: none;
+  }
+
+  .if-block {
+    display: inherit;
+  }
+}
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}property {
+
+    white-space: normal;
+
+    .property-value,
+    .property-label {
+      width: 100%;
+    }
+
+    .property-label {
+      text-align: left;
+    }
+
+    .property-label > label {
+      padding-right: 0px;
+    }
+
+    .if-inline {
+      display: none;
+    }
+
+    .if-block {
+      display: inherit;
+    }
+  }
+}

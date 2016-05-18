@@ -52,7 +52,7 @@ define([
             var loadingView = new LoadingView();
             var self = this;
             setTimeout(function(){
-                $.get('/services/search/catalog/history/'+self.model.id).then(function(response){
+                $.get('/services/search/catalog/history/'+self.model.get('metacard').get('id')).then(function(response){
                     self._history = response;
                 }).always(function(){
                     loadingView.remove();
@@ -92,7 +92,7 @@ define([
         revertToSelectedVersion: function(){
             var loadingView = new LoadingView();
             var self = this;
-            $.get('/services/search/catalog/history/'+this.model.id+'/revert/'+selectedVersion).then(function(response){
+            $.get('/services/search/catalog/history/'+this.model.get('metacard').get('id')+'/revert/'+selectedVersion).then(function(response){
                 if (!self.isDestroyed){
 
                 }

@@ -171,13 +171,13 @@ define([
                 self.$el.find('.resultSelector-list > .resultSelector-result[data-metacard-id="'+metacard.id+'"]').addClass('is-selected');
             });
             if (store.getSelectedResults().length === 1) {
-                this.scrollIntoView(store.getSelectedResults().at(0).get('metacard'));
+               // this.scrollIntoView(store.getSelectedResults().at(0).get('metacard'));
             }
         },
         scrollIntoView: function(metacard){
             var result = this.$el.find('.resultSelector-list > .resultSelector-result[data-metacard-id="'+metacard.id + metacard.get('properties>source-id')+'"]');
             if (result && result.length > 0) {
-                result[0].scrollIntoView();
+                //result[0].scrollIntoView();
             }
         },
         onRender: function(){

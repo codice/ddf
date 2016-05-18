@@ -48,7 +48,7 @@ define([
             var loadingView = new LoadingView();
             var self = this;
             this.determinePossibleAssociations();
-            $.get('/services/search/catalog/associations/'+this.model.id).then(function(response){
+            $.get('/services/search/catalog/associations/'+this.model.get('metacard').get('id')).then(function(response){
                 self._originalAssociations = JSON.parse(JSON.stringify(response));
                 self._associations = response;
             }).always(function(){
@@ -101,8 +101,8 @@ define([
                 return blob.result.toJSON().results;
             }).forEach(function(resultList){
                 resultList.forEach(function(metacard){
-                    possibleAssociations[metacard.id] = {
-                        id: metacard.id,
+                    possibleAssociations[metacard.metacard.id] = {
+                        id: metacard.metacard.id,
                         title: metacard.metacard.properties.title
                     }
                 });
@@ -113,9 +113,10 @@ define([
             var loadingView = new LoadingView();
             var self = this;
             $.ajax({
-               url: '/services/search/catalog/associations/'+this.model.id,
+               url: '/services/search/catalog/associations/'+this.model.get('metacard').get('id'),
                 data: JSON.stringify(this._associations),
-                method: 'PUT'
+                method: 'PUT',
+                contentType: 'application/json'
             }).always(function(response){
                 loadingView.remove();
                 self._originalAssociations = JSON.parse(JSON.stringify(response));

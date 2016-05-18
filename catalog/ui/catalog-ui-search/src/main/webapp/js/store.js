@@ -93,8 +93,7 @@ define([
                 } else if (workspaceCollection.length > 0) {
                     this.get('content').set('currentWorkspace', workspaceCollection.first());
                 } else {
-                    console.log('creating a workspace for you');
-                    this.get('content').set('currentWorkspace', this.get('workspaces').createWorkspace('My First Workspace'));
+                    this.get('workspaces').createWorkspace('My First Workspace');
                 }
             }
         },

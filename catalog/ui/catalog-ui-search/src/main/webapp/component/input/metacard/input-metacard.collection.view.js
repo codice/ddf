@@ -21,12 +21,14 @@ define([
     '../input.view',
     '../thumbnail/input-thumbnail.view',
     '../date/input-date.view',
-    '../bulk/input-bulk.view'
-], function (Marionette, _, $, CustomElements, InputView, InputThumbnailView, InputDateView, InputBulkView) {
+    '../bulk/input-bulk.view',
+    'component/property/property.view'
+], function (Marionette, _, $, CustomElements, InputView, InputThumbnailView, InputDateView, InputBulkView, PropertyView) {
 
     var InputCollectionView = Marionette.CollectionView.extend({
         tagName: CustomElements.register('input-metacard-collection'),
-        getChildView: function (item) {
+        childView: PropertyView,
+        /*getChildView: function (item) {
             switch (item.type) {
                 case 'date':
                     return InputDateView;
@@ -37,7 +39,7 @@ define([
                 case 'bulk':
                     return InputBulkView;
             }
-        },
+        },*/
         turnOnLimitedWidth: function(){
             this.children.forEach(function(childView){
                 childView.turnOnLimitedWidth();

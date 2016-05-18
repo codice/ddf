@@ -11,11 +11,22 @@
  *
  **/
  --}}
-<div class="if-editing">
-    <input id="{{cid}}" value="{{value}}">
-</div>
-<div class="if-viewing">
-    <label>
-        {{value}}
+<div class="property-label">
+    <div class="if-inline">
+        <span class="if-editing fa fa-undo property-revert is-button"></span>
+        <span class="property-validation fa fa-exclamation-triangle is-hidden"></span>
+    </div>
+    <label for="{{cid}}">
+        {{label}}
+        {{#unless label}}
+            {{id}}
+        {{/unless}}
     </label>
+    <div class="if-block">
+        <span class="if-editing fa fa-undo property-revert is-button"></span>
+        <span class="property-validation fa fa-exclamation-triangle is-hidden"></span>
+    </div>
+</div>
+<div class="property-value">
+
 </div>

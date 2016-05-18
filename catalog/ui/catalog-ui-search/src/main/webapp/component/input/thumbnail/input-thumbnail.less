@@ -1,153 +1,62 @@
-@{customElementNamespace}input-thumbnail {
+@{customElementNamespace}input.is-thumbnail {
   display: block;
   width: 100%;
   white-space: nowrap;
-  padding: 10px;
 
-  &:hover {
-    //background: @select-background-color;
+  position: relative;
+  min-height: @minimumButtonSize;
+  white-space: nowrap;
+  vertical-align: top;
+  text-align: center;
+  font-size: 0px;
+
+  input {
+    display: none;
   }
-
-  .inlineFix;
-
-  > div {
-    width: 50%;
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  label {
-    cursor: auto;
-  }
-
-  .input-label {
-    text-align: right;
-    > label {
-      color: grey;
-      font-weight: bold;
-      width: 100%;
-      margin: 0px;
-      line-height: @minimumButtonSize;
-      padding-right: 10px;
-    }
-  }
-
-  .input-value {
+  button {
+    background: rgba(0, 0, 0, .8);
     position: relative;
+    width: 100%;
+    height: 100%;
     min-height: @minimumButtonSize;
-    white-space: nowrap;
-    vertical-align: top;
-    text-align: center;
-    > input {
-      display: none;
-    }
-    > button {
-      background: rgba(0, 0, 0, .8);
-      position: relative;
-      width: 100%;
-      height: 100%;
-      min-height: @minimumButtonSize;
-      width: @minimumButtonSize;
-      color: white;
-      display: none;
-      font-size: 2rem;
-      vertical-align: top;
-    }
-    > span {
-      cursor: pointer;
-      color: orange;
-      line-height: @minimumButtonSize;
-      text-align: center;
-      height: @minimumButtonSize;
-      width: @minimumButtonSize;
-      display: none;
-    }
-    > img {
-      width: 100%;
-      text-align: center;
-      line-height: @minimumButtonSize;
-      margin: 0px;
-      white-space: nowrap;
-      overflow: hidden;
-      -ms-text-overflow: ellipsis;
-      text-overflow: ellipsis;
-    }
-    > canvas {
-      margin: auto;
-      display: inline-block;
-      min-height: @minimumButtonSize;
-      max-width: ~'calc(100% - 2*@{minimumButtonSize})';
-    }
-  }
-
-  .input-revert {
+    width: @minimumButtonSize;
+    color: white;
+    display: none;
     font-size: 2rem;
-    vertical-align: bottom;
-    &:hover {
-      color: shade(orange, 10%);
-    }
-
-    &:focus {
-      color: shade(orange, 25%);
-    }
+    vertical-align: top;
   }
-
-  &.is-readOnly {
-
-    .input-value {
-      button {
-        display: none;
-      }
-      label {
-        display: block;
-      }
-    }
+  img {
+    width: 100%;
+    text-align: center;
+    line-height: @minimumButtonSize;
+    margin: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
   }
-
-  &.is-editing:not(.is-readOnly) {
-    label {
-      cursor: pointer;
-    }
-
-    .input-value {
-      button {
-        display: inline-block;
-      }
-    }
-    .input-value:hover {
-      button {
-        height: 100%;
-      }
-    }
-  }
-
-  &.is-editing.is-changed {
-    .input-revert {
-      display: inline-block;
-    }
-  }
-
-  &.has-limited-width {
-    white-space: normal;
-    > div {
-      width: 100%;
-    }
-    .input-label {
-      text-align: left;
-    }
+  canvas {
+    margin: auto;
+    display: inline-block;
+    min-height: @minimumButtonSize;
+    max-width: ~'calc(100% - @{minimumButtonSize})';
   }
 }
 
-@media (max-width: @mediumScreenSize) {
-  @{customElementNamespace}input-thumbnail {
-
-    white-space: normal;
-    > div {
-      width: 100%;
-    }
-    .input-label {
-      text-align: left;
-    }
+@{customElementNamespace}input.is-thumbnail.is-editing {
+  button {
+    display: inline-block;
   }
+}
 
+@{customElementNamespace}input.is-thumbnail.is-empty {
+  canvas {
+    display: none;
+  }
+}
+
+@{customElementNamespace}input.is-thumbnail.is-empty {
+  button {
+    width: 100%;
+  }
 }

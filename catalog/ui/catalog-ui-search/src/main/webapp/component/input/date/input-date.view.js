@@ -31,20 +31,11 @@ define([
 
     return InputView.extend({
         template: template,
-        tagName: CustomElements.register('input-date'),
-        attributes: function(){
-            return {
-                'data-id': this.model.get('id')
-            }
-        },
         events: {
             'click .input-revert': 'revert',
             'dp.change .input-group.date': 'handleRevert',
             'dp.show .input-group.date': 'handleOpen',
             'dp.hide .input-group.date': 'removeResizeHandler'
-        },
-        modelEvents: {
-            'change:value': 'render'
         },
         regions: {},
         serializeData: function () {
@@ -55,10 +46,7 @@ define([
         },
         onRender: function () {
             this.initializeDatepicker();
-            this.handleEdit();
-            this.handleReadOnly();
-            this.handleValue();
-            this.handleRevert();
+            InputView.prototype.onRender.call(this);
         },
         initializeDatepicker: function(){
             this.$el.find('.input-group.date').datetimepicker({
@@ -69,25 +57,8 @@ define([
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
         },
-        handleEdit: function () {
-            this.$el.toggleClass('is-editing', this._editMode);
-        },
         handleValue: function(){
             this.$el.find('.input-group.date').data('DateTimePicker').date(getHumanReadableDate(this.model.getValue()));
-        },
-        turnOnEditing: function(){
-            this._editMode = true;
-            this.handleEdit();
-        },
-        turnOffEditing: function(){
-            this._editMode = false;
-            this.handleEdit();
-        },
-        turnOnLimitedWidth: function(){
-            this.$el.addClass('has-limited-width');
-        },
-        revert: function(){
-            this.model.revert();
         },
         save: function(){
             var value = this.$el.find('input').val();
@@ -99,13 +70,6 @@ define([
         hasChanged: function(){
             var value = this.$el.find('input').val();
             return value !== getHumanReadableDate(this.model.getInitialValue());
-        },
-        handleRevert: function(){
-            if (this.hasChanged()){
-                this.$el.addClass('is-changed');
-            } else {
-                this.$el.removeClass('is-changed');
-            }
         },
         handleOpen: function(){
             this.updatePosition();
@@ -123,6 +87,13 @@ define([
         removeResizeHandler: function(){
             $(window).off('resize.datePicker');
         },
-        _editMode: false
+        getCurrentValue: function(){
+            var currentValue = this.$el.find('input').val();
+            if (currentValue){
+                return (new Date(this.$el.find('input').val())).getTime();
+            } else {
+                return null;
+            }
+        }
     });
 });

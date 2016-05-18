@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,12 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="if-editing">
-    <input id="{{cid}}" value="{{value}}">
-</div>
-<div class="if-viewing">
-    <label>
-        {{value}}
-    </label>
-</div>
+/*global define*/
+define([
+    'underscore',
+    'backbone',
+    './property'
+], function (_, Backbone, Property) {
+
+    return Backbone.Collection.extend({
+        model: Property
+    });
+});

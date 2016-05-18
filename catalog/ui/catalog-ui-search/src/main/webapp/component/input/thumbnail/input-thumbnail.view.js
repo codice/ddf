@@ -20,25 +20,14 @@ define([
     'text!./input-thumbnail.hbs',
     '../input.view',
     'js/CustomElements'
-], function (Marionette, _, $, template, InputView, CustomElements) {
+], function (Marionette, _, $, template, InputView) {
 
     return InputView.extend({
         template: template,
-        tagName: CustomElements.register('input-thumbnail'),
-        attributes: function(){
-            return {
-                'data-id': this.model.get('id')
-            }
-        },
         events: {
-            'click .input-revert': 'revert',
             'click button': 'upload',
             'change input': 'handleUpload'
         },
-        modelEvents: {
-            'change:value': 'render'
-        },
-        regions: {},
         serializeData: function () {
             return _.extend(this.model.toJSON(), {cid: this.cid});
         },
@@ -54,7 +43,7 @@ define([
                 img.onload = function(){
                     var width = img.width;
                     var height = img.height;
-                    var scaleFactor = img.width / (self.el.querySelector('.input-value').clientWidth - 88);
+                    var scaleFactor = img.width / (self.el.clientWidth - 64);
                     if (scaleFactor > 1){
                         width = width / scaleFactor;
                         height = height / scaleFactor;
@@ -66,17 +55,12 @@ define([
                     revert.css('line-height', Math.max(height,44) + 'px');
                     ctx.drawImage(img,0,0, width, height);
                     self.hasUploaded = true;
-                    self.handleRevert();
+                    self.$el.trigger('change');
+                    self.handleEmpty();
                 }
                 img.src = event.target.result;
             }
             reader.readAsDataURL(e.target.files[0]);
-        },
-        handleReadOnly: function () {
-            this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
-        },
-        handleEdit: function () {
-            this.$el.toggleClass('is-editing', this._editMode);
         },
         handleValue: function(){
             var self = this;
@@ -88,7 +72,7 @@ define([
             img.onload = function() {
                 var width = img.width;
                 var height = img.height;
-                var scaleFactor = img.width / (self.el.querySelector('.input-value').clientWidth -88);
+                var scaleFactor = img.width / (self.el.clientWidth - 64);
                 if (scaleFactor > 1){
                     width = width / scaleFactor;
                     height = height / scaleFactor;
@@ -101,22 +85,18 @@ define([
                 ctx.drawImage(img,0,0, width, height);
                 self.handleRevert();
             };
-            if (this.model.get('value') && this.model.get('value').substring(0, 4) === 'http') {
+            //self.resizeButton();
+            if (this.model.getValue() && this.model.getValue().constructor === String && this.model.getValue().substring(0, 4) === 'http') {
                 img.src = this.model.get('value');
-            } else {
-                img.src = "data:image/png;base64,"+this.model.get('value');
+            } else if (this.model.getValue() && this.model.getValue().constructor === String){
+                img.src = "data:image/png;base64,"+this.model.getValue();
             }
+            this.handleEmpty();
         },
-        turnOnEditing: function(){
-            this._editMode = true;
-            this.handleEdit();
-        },
-        turnOffEditing: function(){
-            this._editMode = false;
-            this.handleEdit();
-        },
-        turnOnLimitedWidth: function(){
-            this.$el.addClass('has-limited-width');
+        resizeButton: function(){
+            var button = this.$el.find('button');
+            var canvas = this.el.querySelector('canvas');
+            button.css('height', canvas.height);
         },
         revert: function(){
             this.hasUploaded = false;
@@ -139,10 +119,27 @@ define([
                 this.$el.removeClass('is-changed');
             }
         },
+        handleEdit: function () {
+            this.$el.toggleClass('is-editing', this.model.isEditing());
+            if (!this.model.isEditing()){
+                this.hasUploaded = false;
+                this.$el.trigger('change');
+            }
+        },
+        handleEmpty: function(){
+            if (this.hasUploaded){
+                this.$el.toggleClass('is-empty', false);
+            } else if (!(this.model.getValue() && this.model.getValue().constructor === String)){
+                this.$el.toggleClass('is-empty', true);
+            }
+        },
         upload: function(){
             this.$el.find('input').click();
         },
-        hasUploaded: false,
-        _editMode: false
+        getCurrentValue: function(){
+            var canvas = this.el.querySelector('canvas');
+            return canvas.toDataURL('image/png').split(',')[1];
+        },
+        hasUploaded: false
     });
 });

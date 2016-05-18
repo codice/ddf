@@ -19,46 +19,56 @@ define([
     'jquery',
     '../editor.view',
     'js/store',
-    'component/input/metacard/input-metacard.collection.view',
-    'component/input/metacard/input-metacard.collection',
+    'component/property/property.collection.view',
     'component/loading/loading.view'
-], function (Marionette, _, $, EditorView, store, InputMetacardCollectionView, InputMetacardCollection, LoadingView) {
+], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingView) {
 
     return EditorView.extend({
         className: 'is-metacard-basic',
         setDefaultModel: function(){
             this.model = store.getSelectedResults().first();
         },
-        onBeforeShow: function(){
-            this.editorProperties.show(new InputMetacardCollectionView({
-                collection: InputMetacardCollection.createBasic(this.model)
-            }));
-            this.editorProperties.currentView.turnOnLimitedWidth();
-        },
         initialize: function(options){
             EditorView.prototype.initialize.call(this, options);
-            this.getValidation();
+            this.getMetacardDetails();
+        },
+        getMetacardDetails: function(){
+            var loadingView = new LoadingView();
+            var self = this;
+            $.when( $.get('/services/search/catalog/metacard/'+this.model.get('metacard').id +'/validation'),
+                $.ajax({
+                    url: '/services/search/catalog/metacards/',
+                    data: JSON.stringify([this.model.get('metacard').id]),
+                    method: 'POST',
+                    contentType: 'application/json'
+                })).done(function(validationResponse, metacardResponse){
+                    self.editorProperties.show(PropertyCollectionView.generateSummaryPropertyCollectionView(metacardResponse[0]));
+                    self.editorProperties.currentView.turnOnLimitedWidth();
+                    self.editorProperties.currentView.$el.addClass("is-list");
+                    self.editorProperties.currentView.updateValidation(validationResponse[0]);
+                    loadingView.remove();
+            });
         },
         getValidation: function(){
             var self = this;
             $.get('/services/search/catalog/metacard/'+this.model.get('metacard').id+'/validation').then(function(response){
-                if (!self.isDestroyed){
+                if (!self.isDestroyed && self.editorProperties.currentView){
                     self.editorProperties.currentView.updateValidation(response);
                 }
             }).always(function(){
                 if (!self.isDestroyed){
-                    
+
                 }
             });
         },
         afterCancel: function(){
-            this.getValidation();
+
         },
         afterSave: function(editorJSON){
            if (editorJSON.length > 0){
                var payload = [
                    {
-                       ids: [this.model.get('id')],
+                       ids: [this.model.get('metacard').get('id')],
                        attributes: editorJSON
                    }
                ];
@@ -73,13 +83,15 @@ define([
                    }).always(function(response){
                        var attributeMap = response.reduce(function(attributeMap, changes){
                            return changes.attributes.reduce(function(attrMap, chnges){
-                               attrMap[chnges.attribute] = chnges.values[0];
+                               attrMap[chnges.attribute] = chnges.values;
                                return attrMap;
                            }, attributeMap);
                        }, {});
                        self.model.get('metacard').get('properties').set(attributeMap);
-                       loadingView.remove();
-                       self.onBeforeShow();
+                       setTimeout(function(){  //let solr flush
+                           loadingView.remove();
+                           self.getMetacardDetails();
+                       }, 1000);
                    });
                }, 1000);
            }

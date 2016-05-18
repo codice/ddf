@@ -221,6 +221,40 @@ define([
                 }
             });
             return metacardInputCollection;
+        },
+        createMultivaluedBasic: function(metacards){
+            var self = this;
+            var metacardInputCollection = new MetacardInputCollection();
+            var propertyIntersection = _.intersection.apply(_, metacards['metacard-types'].map(function(metacardType){
+                return Object.keys(metacardType.type);
+            })).filter(function(property){
+                return property.indexOf('metadata')!==0 && self.blacklist.indexOf(property) === -1
+                    && self.hiddenTypes.indexOf(metacardsJSON[0].propertyTypes[property].type) === -1
+                    && self.bulkHiddenTypes.indexOf(metacardsJSON[0].propertyTypes[property].type) === -1;
+            });
+            var propertyArray = [];
+            propertyIntersection.forEach(function(property){
+                propertyArray.push({
+                    id: property,
+                    type: metacards['metacard-types'][0].types[property].type,
+                    values: {},
+                    multivalued: metacards['metacard-types'][0].types[property].multivalued
+                });
+            });
+            propertyArray.forEach(function(property){
+                metacards.metacards.forEach(function(metacard){
+                    var value = metacard[property.id];
+                    property.values[value] = property.values[value] || {
+                            value: value,
+                            hits: 0
+                        };
+                    property.values[value].hits++;
+                });
+            });
+            propertyArray.forEach(function(property){
+                metacardInputCollection.add(property);
+            });
+            return metacardInputCollection;
         }
     });
 

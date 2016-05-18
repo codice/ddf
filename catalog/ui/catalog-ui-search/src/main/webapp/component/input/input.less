@@ -1,154 +1,45 @@
+@transitionTiming: s;
 @{customElementNamespace}input {
-  display: block;
-  width: 100%;
+  .customElement;
+  padding-right: 10px;
   white-space: nowrap;
-  padding: 10px;
-  
-  &:hover {
-    //background: @select-background-color;
-  }
+  line-height: @minimumButtonSize;
+  position: relative;
 
-  .inlineFix;
-
-  > div {
-    width: 50%;
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  label {
-    cursor: auto;
-  }
-
-  .input-label {
-    text-align: right;
-    > label {
-      color: grey;
-      font-weight: bold;
-      max-width: ~'calc(100% - 44px)';
-      margin: 0px;
-      line-height: @minimumButtonSize;
-      padding-right: 10px;
-      word-break: break-all;
-      word-wrap: normal;
-      white-space: normal;
-    }
-  }
-
-  .input-value {
-    padding-right: 10px;
-    input {
-      width: ~'calc(100% - @{minimumButtonSize})';
-      color: black;
-      display: none;
-      height: @minimumButtonSize;
-    }
-    span {
-      cursor: pointer;
-      color: orange;
-      line-height: @minimumButtonSize;
-      text-align: center;
-      height: @minimumButtonSize;
-      width: @minimumButtonSize;
-      display: none;
-    }
-    label {
-      padding-left: 10px;
-      line-height: @minimumButtonSize;
-      margin: 0px;
-      white-space: nowrap;
-      overflow: hidden;
-      -ms-text-overflow: ellipsis;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .input-revert {
-    font-size: 2rem;
-    vertical-align: bottom;
-    &:hover {
-      color: shade(orange, 10%);
-    }
-
-    &:focus {
-      color: shade(orange, 25%);
-    }
-  }
-
-  &.is-readOnly {
-
-    .input-value {
-      input {
-        display: none;
-      }
-      label {
-        display: block;
-      }
-    }
-  }
-
-  &.is-editing:not(.is-readOnly) {
-    label {
-      cursor: pointer;
-    }
-
-    .input-value {
-      input {
-        display: inline-block;
-      }
-      label {
-        display: none;
-      }
-    }
-  }
-
-  &.is-editing.is-changed {
-    .input-revert {
-      display: inline-block;
-    }
-  }
-
-  &.has-limited-width {
-    white-space: normal;
-    > div {
-      width: 100%;
-    }
-    .input-label {
-      text-align: left;
-
-      > label {
-        padding-right: 0px;
-      }
-    }
-
-    .input-validation:first-of-type{
-      display: none;
-    }
-    .input-validation:nth-of-type(2) {
-      display: inherit;
-    }
-  }
-
-  .input-validation:nth-of-type(2){
+  > .if-editing {
     display: none;
+    width: 100%;
   }
-
-  .input-validation {
-    line-height: @minimumButtonSize;
-    padding: 0px 10px;
+  > .if-viewing {
+    display: block;
   }
 }
 
-@media (max-width: @mediumScreenSize) {
-  @{customElementNamespace}input {
-
-    white-space: normal;
-    > div {
-      width: 100%;
-    }
-    .input-label {
-      text-align: left;
-    }
+@{customElementNamespace}input.is-editing {
+  > .if-editing {
+    display: block;
+    position: absolute;
+    top: ~'calc(50% - 22px)';
+    z-index: 1;
   }
+  > .if-viewing {
+    display: block;
+    opacity: 0;
+  }
+}
 
+@{customElementNamespace}input.is-text {
+  input {
+    color: black;
+    height: @minimumButtonSize;
+    width: 100%;
+  }
+  label {
+    padding-left: 10px;
+    line-height: @minimumButtonSize;
+    margin: 0px;
+    white-space: normal;
+    word-break: break-all;
+    min-height: @minimumButtonSize;
+  }
 }

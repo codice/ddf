@@ -19,26 +19,37 @@ define([
     'jquery',
     '../editor.view',
     'js/store',
-    'component/input/metacard/input-metacard.collection.view',
-    'component/input/metacard/input-metacard.collection',
+    'component/property/property.collection.view',
     'component/loading/loading.view'
-], function (Marionette, _, $, EditorView, store, InputMetacardCollectionView, InputMetacardCollection, LoadingView) {
+], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingView) {
 
     return EditorView.extend({
         className: 'is-metacards-basic',
         setDefaultModel: function(){
             this.model = store.getSelectedResults();
         },
-        onBeforeShow: function(){
-            this.editorProperties.show(new InputMetacardCollectionView({
-                collection: InputMetacardCollection.createBulkBasic(this.model)
-            }));
-            this.editorProperties.currentView.$el.addClass("is-list");
-            //this.editorProperties.currentView.turnOnLimitedWidth();
-        },
         initialize: function(options){
             EditorView.prototype.initialize.call(this, options);
+            this.getMetacardDetails();
             //this.getValidation();
+        },
+        getMetacardDetails: function(){
+            var loadingView = new LoadingView();
+            var self = this;
+            $.when(
+                $.ajax({
+                    url: '/services/search/catalog/metacards/',
+                    data: JSON.stringify(this.model.map(function(metacardResult){
+                        return metacardResult.get('metacard').id;
+                    })),
+                    method: 'POST',
+                    contentType: 'application/json'
+                })).done(function(metacardResponse){
+                self.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(metacardResponse));
+                self.editorProperties.currentView.turnOnLimitedWidth();
+                self.editorProperties.currentView.$el.addClass("is-list");
+                loadingView.remove();
+            });
         },
         getValidation: function(){
             var self = this;
@@ -53,14 +64,14 @@ define([
             });
         },
         afterCancel: function(){
-            this.getValidation();
+            //this.getValidation();
         },
         afterSave: function(editorJSON){
             if (editorJSON.length > 0){
                 var payload = [
                     {
                         ids: this.model.map(function(metacard){
-                            return metacard.id;
+                            return metacard.get('metacard').get('id');
                         }),
                         attributes: editorJSON
                     }
@@ -83,8 +94,10 @@ define([
                         self.model.forEach(function(metacard){
                            metacard.get('metacard').get('properties').set(attributeMap);
                         });
-                        loadingView.remove();
-                        self.onBeforeShow();
+                        setTimeout(function(){  //let solr flush
+                            loadingView.remove();
+                            self.getMetacardDetails();
+                        }, 1000);
                     });
                 }, 1000);
             }

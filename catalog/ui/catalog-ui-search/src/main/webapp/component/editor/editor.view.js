@@ -53,15 +53,14 @@ define([
         },
         cancel: function(){
             this.$el.removeClass('is-editing');
-            this.editorProperties.currentView.turnOffEditing();
             this.editorProperties.currentView.revert();
+            this.editorProperties.currentView.turnOffEditing();
             this.afterCancel();
         },
         save: function(){
             this.$el.removeClass('is-editing');
-            this.editorProperties.currentView.turnOffEditing();
-            this.editorProperties.currentView.save();
             this.afterSave(this.editorProperties.currentView.toPatchJSON());
+            this.editorProperties.currentView.turnOffEditing();
         },
         afterCancel: function(){
             //override

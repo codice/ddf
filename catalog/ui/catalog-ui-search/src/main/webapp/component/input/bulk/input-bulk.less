@@ -1,75 +1,17 @@
-@{customElementNamespace}input-bulk {
-
+@{customElementNamespace}input.is-bulk {
   display: block;
   width: 100%;
-  white-space: nowrap;
-  padding: 10px;
-
-  .inlineFix;
-
-  > div {
-    width: 50%;
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  label {
-    cursor: auto;
-  }
 
   select {
     color: black;
-    max-width: ~'calc(100% - 44px)';
     height: 44px;
     line-height: 44px;
     vertical-align: top;
     -webkit-appearance: menulist-button;
+    width: 100%;
   }
   option::after {
     content: 'hey'
-  }
-
-  .input-value {
-    padding-right: 10px;
-  }
-
-  .input-label {
-    text-align: right;
-    > label {
-      color: grey;
-      font-weight: bold;
-      max-width: ~'calc(100% - 44px)';
-      margin: 0px;
-      line-height: @minimumButtonSize;
-      padding-right: 10px;
-      word-break: break-all;
-      word-wrap: normal;
-      white-space: normal;
-    }
-  }
-
-  .input-revert {
-    display: none;
-    color: orange;
-  }
-
-  .input-revert {
-    font-size: 2rem;
-    line-height: 44px;
-    vertical-align: top;
-    &:hover {
-      color: shade(orange, 10%);
-    }
-
-    &:focus {
-      color: shade(orange, 25%);
-    }
-  }
-
-  .input-edit {
-    display: none;
-    max-width: 100%;
-    line-height: 44px;
   }
 
   .value-list-header {
@@ -114,56 +56,40 @@
     right: 20px;
   }
 
-  .input-other {
+  .if-homogeneous,
+  .if-other {
     display: none;
   }
 }
 
-@{customElementNamespace}input-bulk.has-limited-width {
-  .input-label {
-    text-align: left;
-  }
-}
 
-@{customElementNamespace}input-bulk.is-other {
+@{customElementNamespace}input.is-bulk.is-homogeneous {
 
-  .input-other {
+  .if-homogeneous,
+  .if-other {
     display: block;
   }
 
-  .input-other .input-revert {
-    display: none !important;
-  }
-
-  .input-other > @{customElementNamespace}input,
-  .input-other > @{customElementNamespace}input-date {
-    padding: 10px 0px;
-  }
-
-  .input-other .input-label {
-    display: none;
-  }
-
-  .input-other .input-value {
-    display: block;
-    width: 100%;
-    padding-right: 0px;
+  > .if-editing,
+  > .if-viewing {
+    display: none
   }
 }
 
-@{customElementNamespace}input-bulk.is-editing {
-
-  &.is-changed {
-    .input-revert {
-      display: inline-block;
-    }
+@{customElementNamespace}input.is-bulk.is-other.is-editing {
+  .if-homogeneous,
+  .if-other {
+    display: block;
   }
 
-  .input-edit {
-    display: inherit;
+  > .if-editing {
+    display: block;
+    position: relative;
+    top: 0px;
+    z-index: 1;
   }
 
-  .input-view {
+  > .if-viewing {
     display: none;
   }
 }

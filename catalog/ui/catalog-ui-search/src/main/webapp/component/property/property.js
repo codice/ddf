@@ -15,25 +15,31 @@ define([
     'backbone'
 ], function (_, Backbone) {
 
-    var Input = Backbone.Model.extend({
+    return Backbone.Model.extend({
         defaults: {
-            value: '',
+            value: {},
+            values: {},
             label: undefined,
             description: '',
             _initialValue: '',
             readOnly: false,
             validation: '',
             id: '',
-            isEditing: false
+            isEditing: false,
+            bulk: false,
+            multivalued: false,
+            type: 'STRING',
+            calculatedType: 'text'
         },
         initialize: function(){
             this._setInitialValue();
+            this._setCalculatedType();
             this.setDefaultLabel();
         },
         setDefaultLabel: function(){
-          if (!this.get('label')){
-              this.set('label', this.get('id'));
-          }
+            if (!this.get('label')){
+                this.set('label', this.get('id'));
+            }
         },
         getValue: function(){
             return this.get('value');
@@ -47,14 +53,20 @@ define([
         getId: function(){
             return this.get('id');
         },
-        _setInitialValue: function(){
-            this.set('_initialValue', this.getValue());
-        },
         getInitialValue: function(){
             return this.get('_initialValue');
         },
         isReadOnly: function(){
             return this.get('readOnly');
+        },
+        isEditing: function(){
+            return this.get('isEditing');  
+        },
+        isMultivalued: function(){
+            return this.get('multivalued');
+        },
+        isHomogeneous: function(){
+            return !this.get('bulk') || Object.keys(this.get('values')).length <= 1;
         },
         revert: function(){
             this.set('value',this.getInitialValue());
@@ -64,8 +76,27 @@ define([
             this.set('value', value);
             this.trigger('change:value');
         },
-        type: 'text'
+        _setInitialValue: function(){
+            this.set('_initialValue', this.getValue());
+        },
+        _setCalculatedType: function() {
+            switch (this.get('type')) {
+                case 'DATE':
+                    this.set('calculatedType', 'date');
+                    break;
+                case 'BINARY':
+                    this.set('calculatedType', 'thumbnail');
+                    break;
+                case 'STRING':
+                case 'GEOMETRY':
+                case 'XML':
+                default:
+                    this.set('calculatedType', 'text');
+                    break;
+            }
+        },
+        getCalculatedType: function(){
+            return this.get('calculatedType');
+        }
     });
-
-    return Input;
 });

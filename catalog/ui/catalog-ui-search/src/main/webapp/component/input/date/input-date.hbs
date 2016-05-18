@@ -11,24 +11,15 @@
  *
  **/
  --}}
-<div class="input-label">
-    <span class="input-validation fa fa-exclamation-triangle is-hidden"></span>
-    <label for="{{cid}}">
-        {{label}}
-        {{#unless label}}
-            {{id}}
-        {{/unless}}
-    </label>
-    <span class="input-validation fa fa-exclamation-triangle is-hidden"></span>
-</div>
-<div class="input-value">
+<div class="if-editing">
     <div class='input-group date'>
         <input type='text' class="form-control"/>
         <span class="input-group-addon">
             <span class="glyphicon glyphicon-calendar"></span>
         </span>
     </div>
-    <span class="fa fa-undo input-revert is-button"></span>
+</div>
+<div class="if-viewing">
     <label>
         {{humanReadableDate}}
     </label>

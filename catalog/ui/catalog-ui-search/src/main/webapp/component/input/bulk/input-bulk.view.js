@@ -19,98 +19,67 @@ define([
     'jquery',
     'text!./input-bulk.hbs',
     'js/CustomElements',
-    '../input.view',
-    '../thumbnail/input-thumbnail.view',
-    '../date/input-date.view',
-    'component/input/input',
-    'component/input/thumbnail/input-thumbnail',
-    'component/input/date/input-date',
-], function (Marionette, _, $, template, CustomElements, InputView, ThumbnailInputView, DateInputView,
-        InputModel, ThumbnailInputModel, DateInputModel) {
+    'component/input/input.view',
+    'component/multivalue/multivalue.view'
+], function (Marionette, _, $, template, CustomElements, InputView, MultivalueView) {
 
     return InputView.extend({
+        className: 'is-bulk',
         template: template,
-        tagName: CustomElements.register('input-bulk'),
         regions: {
             otherInput: '.input-other'
         },
         events: {
-            'click .input-revert': 'revert',
             'change select': 'handleChange'
         },
-        onRender: function(){
-            switch (this.model.get('type')) {
-                case 'DATE':
-                    this._otherInputModel = new DateInputModel(this.model.attributes);
-                    this._otherInputView = new DateInputView({
-                        model: this._otherInputModel
-                    });
-                    this._otherInputView.turnOnEditing();
-                    this.otherInput.show(this._otherInputView);
-                    break;
-                case 'STRING':
-                    this._otherInputModel = new InputModel(this.model.attributes);
-                    this._otherInputView = new InputView({
-                        model: this._otherInputModel
-                    });
-                    this._otherInputView.turnOnEditing();
-                    this.otherInput.show(this._otherInputView);
-                    break;
-                case 'GEOMETRY':
-                    this._otherInputModel = new InputModel(this.model.attributes);
-                    this._otherInputView = new InputView({
-                        model: this._otherInputModel
-                    });
-                    this._otherInputView.turnOnEditing();
-                    this.otherInput.show(this._otherInputView);
-                    break;
-                case 'XML':
-                    this._otherInputModel = new InputModel(this.model.attributes);
-                    this._otherInputView = new InputView({
-                        model: this._otherInputModel
-                    });
-                    this._otherInputView.turnOnEditing();
-                    this.otherInput.show(this._otherInputView);
-                    break;
-                case 'BINARY':
-                    this._otherInputModel = new ThumbnailInputModel(this.model.attributes);
-                    this._otherInputView = new ThumbnailInputView({
-                        model: this._otherInputModel
-                    });
-                    this._otherInputView.turnOnEditing();
-                    this.otherInput.show(this._otherInputView);
-                    break;
-                default:
-                    this._otherInputModel = new InputModel(this.model.attributes);
-                    this._otherInputView = new InputView({
-                        model: this._otherInputModel
-                    });
-                    this._otherInputView.turnOnEditing();
-                    this.otherInput.show(this._otherInputView);
-                    break;
-            }
+        onRender: function () {
             this.handleEdit();
             this.handleReadOnly();
             this.handleValue();
-            this.handleRevert();
+            this.handleOther();
+            this.handleBulk();
+        },
+        onBeforeShow: function () {
+            this.otherInput.show(new MultivalueView({
+                model: this.model
+            }));
+        },
+        handleChange: function () {
             this.handleOther();
         },
-        handleRevert: function(){
-            if (this.$el.find(':selected[data-bulkdefault]').length > 0){
-                this.$el.removeClass('is-changed');
-            } else {
-                this.$el.addClass('is-changed');
-            }
-        },
-        handleChange: function(){
-            this.handleRevert();
-            this.handleOther();
-        },
-        handleOther: function(){
-            if (this.$el.find(':selected[data-bulkcustom]').length > 0){
+        handleOther: function () {
+            if (this.$el.find(':selected[data-bulkcustom]').length > 0) {
                 this.$el.addClass('is-other');
             } else {
                 this.$el.removeClass('is-other');
+            }
+        },
+        handleBulk: function(){
+            if (this.model.isHomogeneous()){
+                this.turnOffBulk();
+            }
+        },
+        turnOffBulk: function(){
+            this.$el.addClass('is-homogeneous')
+        },
+        hasChanged: function(){
+            if (this.model.isHomogeneous()) {
+                return this.otherInput.currentView.hasChanged();
+            } else if (this.$el.find(':selected[data-bulkdefault]').length > 0) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+        getCurrentValue: function(){
+            if (this.model.isHomogeneous()) {
+                return this.otherInput.currentView.getCurrentValue();
+            } else if (this.$el.find(':selected[data-bulkdefault]').length > 0) {
+                return false;
+            } else if (this.$el.find(':selected[data-bulkcustom]').length > 0) {
+                return this.otherInput.currentView.getCurrentValue();
+            } else {
+                return this.model.get('values')[this.$el.find(':selected').val()].value;
             }
         }
     });

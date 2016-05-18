@@ -11,48 +11,37 @@
  *
  **/
  --}}
-<div class="input-label">
-    <span class="input-validation fa fa-exclamation-triangle is-hidden"></span>
-    <label for="{{cid}}">
-        {{label}}
-        {{#unless label}}
-            {{id}}
-        {{/unless}}
-    </label>
-    <span class="input-validation fa fa-exclamation-triangle is-hidden"></span>
+<div class="if-editing">
+    <select>
+        <option value="" selected data-bulkDefault>
+            Multiple Values
+        </option>
+        {{#each values}}
+            <option value="{{this.value}}">
+                {{this.value}} <span>({{this.hits}})</span>
+            </option>
+        {{/each}}
+        <option value="" data-bulkCustom>
+            Other
+        </option>
+    </select>
 </div>
-<div class="input-value">
-    <div class="input-edit">
-        <select>
-            <option value="" selected data-bulkDefault>
-                Multiple Values
-            </option>
-            {{#each values}}
-                <option value="{{this.value}}">
-                    {{this.value}} <span>({{this.hits}})</span>
-                </option>
-            {{/each}}
-            <option value="" data-bulkCustom>
-                Other
-            </option>
-        </select>
-        <span class="fa fa-undo input-revert is-button"></span>
-        <div class="input-other">
-
-        </div>
+<div class="if-viewing">
+    <label class="value-list-header">
+        (Multiple Values)
+    </label>
+    <div class="value-list is-list">
+        {{#each values}}
+            <div class="list-value">
+                <span class="cell-value">{{this.value}}</span>
+                <span class="cell-hits">({{this.hits}})</span>
+                <span class="value-validation"></span>
+            </div>
+        {{/each}}
     </div>
-    <div class="input-view">
-        <label class="value-list-header">
-            (Multiple Values)
-        </label>
-        <div class="value-list is-list">
-            {{#each values}}
-                <div class="list-value">
-                    <span class="cell-value">{{this.value}}</span>
-                    <span class="cell-hits">({{this.hits}})</span>
-                    <span class="value-validation"></span>
-                </div>
-            {{/each}}
-        </div>
+</div>
+<div class="if-homogeneous if-other">
+    <div class="input-other">
+
     </div>
 </div>
