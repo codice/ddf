@@ -69,6 +69,9 @@ import ddf.security.SubjectUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class RealEndpoint {
+
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
     private final CatalogFramework catalogFramework;
 
     private final ReportingMetacardValidator reportingMetacardValidator;
@@ -76,8 +79,6 @@ public class RealEndpoint {
     private final FilterBuilder filterBuilder;
 
     private final EndpointUtil endpointUtil;
-
-    private final static int DEFAULT_PAGE_SIZE = 10;
 
     public RealEndpoint(CatalogFramework catalogFramework,
             ReportingMetacardValidator reportingMetacardValidator, FilterBuilder filterBuilder,
@@ -227,6 +228,7 @@ public class RealEndpoint {
         return Collections.emptyList();
     }
 
+    @SuppressFBWarnings
     protected UpdateResponse patchMetacards(List<MetacardChanges> metacardChanges)
             throws SourceUnavailableException, IngestException, FederationException,
             UnsupportedQueryException {
@@ -285,7 +287,8 @@ public class RealEndpoint {
                 .text(emailAddress);
 
         int startIndex = 1 + ((pageNumber - 1) * pageSize);
-        QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(userFilter,
+        QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
+                userFilter,
                 startIndex,
                 pageSize,
                 SortBy.NATURAL_ORDER,
