@@ -19,9 +19,10 @@ define([
     'component/metacard-history/metacard-history.view',
     'component/metacard-associations/metacard-associations.view',
     'component/metacard-quality/metacard-quality.view',
-    'component/metacard-actions/metacard-actions.view'
+    'component/metacard-actions/metacard-actions.view',
+    'component/metacard-archive/metacard-archive.view'
 ], function (_, Tabs, store, MetacardBasicView, MetacardAdvancedView, MetacardHistoryView,
-             MetacardAssociationsView, MetacardQualityView, MetacardActionsView) {
+             MetacardAssociationsView, MetacardQualityView, MetacardActionsView, MetacardArchiveView) {
 
     return Tabs.extend({
         defaults: {
@@ -32,7 +33,8 @@ define([
                 'Associations': MetacardAssociationsView,
                 'Quality': MetacardQualityView,
                 'Sharing': MetacardBasicView,
-                'Actions': MetacardActionsView
+                'Actions': MetacardActionsView,
+                'Archive': MetacardArchiveView
             }
         }
     });
