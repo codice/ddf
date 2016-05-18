@@ -15,7 +15,11 @@ package ddf.catalog.transformer.input.geojson;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -30,8 +34,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.MetacardTypeRegistry;
-import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -58,11 +60,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonInputTransformer.class);
 
-    private MetacardTypeRegistry mTypeRegistry;
-
-    public GeoJsonInputTransformer(MetacardTypeRegistry mTypeRegistry) {
-        this.mTypeRegistry = mTypeRegistry;
-    }
+    private List<MetacardType> metacardTypes;
 
     /**
      * Transforms GeoJson (http://www.geojson.org/) into a {@link Metacard}
@@ -96,28 +94,28 @@ public class GeoJsonInputTransformer implements InputTransformer {
             throw new CatalogTransformerException("Properties are required to create a Metacard.");
         }
 
-        String metacardTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
+        final String propertyTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
         MetacardImpl metacard = null;
 
-        if (metacardTypeName == null || metacardTypeName.isEmpty() || mTypeRegistry == null) {
+        if (propertyTypeName == null || propertyTypeName.isEmpty() || metacardTypes == null) {
             LOGGER.debug(
                     "MetacardType specified in input is null or empty.  Assuming default MetacardType");
             metacard = new MetacardImpl();
         } else {
-            QualifiedMetacardType metacardType = mTypeRegistry.lookup(metacardTypeName);
-            if (metacardType == null) {
-                String message =
-                        "MetacardType specified in input has not been registered with the system.  Cannot parse input.  MetacardType name: "
-                                + metacardTypeName;
-                LOGGER.warn(message);
-                throw new CatalogTransformerException(message);
-            }
-            LOGGER.debug("Found registered MetacardType: {}", metacardTypeName);
+            MetacardType metacardType = metacardTypes.stream()
+                    .filter(type -> type.getName()
+                            .equals(propertyTypeName))
+                    .findFirst()
+                    .orElseThrow(() -> new CatalogTransformerException(
+                            "MetacardType specified in input has not been registered with the system.  Cannot parse input.  MetacardType name: "
+                                    + propertyTypeName));
+
+            LOGGER.debug("Found registered MetacardType: {}", propertyTypeName);
             metacard = new MetacardImpl(metacardType);
         }
 
         MetacardType metacardType = metacard.getMetacardType();
-        metacardTypeName = metacardType.getName();
+        String metacardTypeName = metacardType.getName();
         LOGGER.debug("Metacard type name: {}", metacardType.getName());
 
         // retrieve geometry
@@ -125,8 +123,9 @@ public class GeoJsonInputTransformer implements InputTransformer {
                 (Map<String, Object>) rootObject.get(CompositeGeometry.GEOMETRY_KEY);
         CompositeGeometry geoJsonGeometry = null;
         if (geometryJson != null) {
-            if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null && geometryJson.get(
-                    CompositeGeometry.COORDINATES_KEY) != null) {
+            if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null && (geometryJson.get(
+                    CompositeGeometry.COORDINATES_KEY) != null || geometryJson.get(
+                    CompositeGeometry.GEOMETRIES_KEY) != null)) {
 
                 String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY)
                         .toString();
@@ -164,58 +163,9 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
             try {
                 if (properties.containsKey(ad.getName())) {
-
                     Object attributeValue = properties.get(ad.getName());
                     if (attributeValue != null) {
-
-                        String attributeString = attributeValue.toString();
-
-                        switch (ad.getType()
-                                .getAttributeFormat()) {
-                        case BINARY:
-                            metacard.setAttribute(ad.getName(),
-                                    DatatypeConverter.parseBase64Binary(attributeString));
-                            break;
-                        case DATE:
-                            try {
-                                SimpleDateFormat dateFormat = new SimpleDateFormat(
-                                        ISO_8601_DATE_FORMAT);
-                                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                                metacard.setAttribute(ad.getName(),
-                                        dateFormat.parse(attributeString));
-                            } catch (java.text.ParseException e) {
-                                throw new CatalogTransformerException("Could not parse Date:", e);
-                            }
-                            break;
-                        case GEOMETRY:
-                            break;
-                        case STRING:
-                        case XML:
-                            metacard.setAttribute(ad.getName(), attributeString);
-                            break;
-                        case BOOLEAN:
-                            metacard.setAttribute(ad.getName(),
-                                    Boolean.parseBoolean(attributeString));
-                            break;
-                        case SHORT:
-                            metacard.setAttribute(ad.getName(), Short.parseShort(attributeString));
-                            break;
-                        case INTEGER:
-                            metacard.setAttribute(ad.getName(), Integer.parseInt(attributeString));
-                            break;
-                        case LONG:
-                            metacard.setAttribute(ad.getName(), Long.parseLong(attributeString));
-                            break;
-                        case FLOAT:
-                            metacard.setAttribute(ad.getName(), Float.parseFloat(attributeString));
-                            break;
-                        case DOUBLE:
-                            metacard.setAttribute(ad.getName(),
-                                    Double.parseDouble(attributeString));
-                            break;
-                        default:
-                            break;
-                        }
+                        metacard.setAttribute(ad.getName(), convertProperty(attributeValue, ad));
                     }
                 }
             } catch (NumberFormatException e) {
@@ -238,10 +188,68 @@ public class GeoJsonInputTransformer implements InputTransformer {
         return metacard;
     }
 
+    public void setMetacardTypes(List<MetacardType> metacardTypes) {
+        this.metacardTypes = metacardTypes;
+    }
+
     @Override
     public String toString() {
         return "InputTransformer {Impl=" + this.getClass()
                 .getName() + ", id=" + ID + ", mime-type=" + MIME_TYPE + "}";
+    }
+
+    private Serializable convertProperty(Object property, AttributeDescriptor descriptor)
+            throws CatalogTransformerException {
+        AttributeFormat format = descriptor.getType()
+                .getAttributeFormat();
+        if (descriptor.isMultiValued() && property instanceof List) {
+            List<Serializable> values = new ArrayList<>();
+            for (Object value : (List) property) {
+                values.add(convertValue(value, format));
+            }
+            return (Serializable) values;
+        } else {
+            return convertValue(property, format);
+        }
+    }
+
+    private Serializable convertValue(Object value, AttributeFormat format)
+            throws CatalogTransformerException {
+        if (value == null) {
+            return null;
+        }
+
+        switch (format) {
+        case BINARY:
+            return DatatypeConverter.parseBase64Binary(value.toString());
+        case DATE:
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                return dateFormat.parse(value.toString());
+            } catch (ParseException e) {
+                throw new CatalogTransformerException("Could not parse Date:" + value.toString(),
+                        e);
+            }
+        case GEOMETRY:
+        case STRING:
+        case XML:
+            return value.toString();
+        case BOOLEAN:
+            return Boolean.parseBoolean(value.toString());
+        case SHORT:
+            return Short.parseShort(value.toString());
+        case INTEGER:
+            return Integer.parseInt(value.toString());
+        case LONG:
+            return Long.parseLong(value.toString());
+        case FLOAT:
+            return Float.parseFloat(value.toString());
+        case DOUBLE:
+            return Double.parseDouble(value.toString());
+        default:
+            return null;
+        }
     }
 
 }

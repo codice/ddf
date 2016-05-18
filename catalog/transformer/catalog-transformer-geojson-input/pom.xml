@@ -33,12 +33,6 @@
             <artifactId>geo-formatter</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>metacard-type-registry</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
             <version>0.33</version>
@@ -52,15 +46,15 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            boon,
+                            catalog-core-api-impl
+                        </Embed-Dependency>
                         <Import-Package>
-                          !com.sun.management,
-                          *
+                            !org.codice.ddf.platform.util,
+                            !com.sun.management,
+                            *
                         </Import-Package>
-                        <Private-Package>
-                            ddf.catalog.transformer.input.geojson,
-                            ddf.catalog.data.impl
-                        </Private-Package>
-                        <Embed-Dependency>boon</Embed-Dependency>
                         <Export-Package/>
                     </instructions>
                 </configuration>

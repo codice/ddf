@@ -18,7 +18,9 @@
 
 	<bean id="transformer"
           class="ddf.catalog.transformer.input.geojson.GeoJsonInputTransformer">
-		<argument ref="metacardTypeRegistry"/>	
+		<property name="metacardTypes">
+			<reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
+		</property>
 	</bean>
 
 	<service ref="transformer" interface="ddf.catalog.transform.InputTransformer">
@@ -32,7 +34,5 @@
 			</entry>
 		</service-properties>
 	</service>
-	
-	<reference id="metacardTypeRegistry" interface="ddf.catalog.data.MetacardTypeRegistry"/>
 
 </blueprint>
