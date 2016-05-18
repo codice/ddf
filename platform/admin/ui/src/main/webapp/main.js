@@ -38,6 +38,7 @@
 
             // jquery
             jquery: 'lib/jquery/jquery.min',
+            jsCookie: 'lib/js-cookie/src/js.cookie',
             jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
             'jquery.ui.widget': 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
             multiselect: 'lib/bootstrap-multiselect/js/bootstrap-multiselect',
@@ -106,6 +107,7 @@
             fileupload: ['jquery', 'jquery.ui.widget'],
 
             jqueryui: ['jquery'],
+            jsCookie: ['jquery'],
             bootstrap: ['jqueryui'],
             moment: {exports: 'moment'},
 
