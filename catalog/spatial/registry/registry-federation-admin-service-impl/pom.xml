@@ -33,8 +33,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-api</artifactId>
+            <groupId>org.codice.ddf.registry</groupId>
+            <artifactId>registry-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
