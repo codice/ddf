@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.libs.klv.data.numerical;
 
+import java.util.Optional;
+
 import org.codice.ddf.libs.klv.data.Klv;
 
 /**
@@ -30,6 +32,18 @@ public class KlvUnsignedByte extends KlvNumericalDataElement<Short> {
         super(key, name);
     }
 
+    /**
+     * Constructs a {@code KlvUnsignedByte} representing a KLV element that has an unsigned
+     * <strong>byte</strong> value.
+     *
+     * @param key  the data element's key
+     * @param name a name describing the data element's value
+     * @param errorIndicatorValue value that indicates an encoded error
+     */
+    public KlvUnsignedByte(final byte[] key, final String name, Optional<Short> errorIndicatorValue) {
+        super(key, name, errorIndicatorValue);
+    }
+
     @Override
     protected void decodeValue(final Klv klv) {
         value = (short) klv.getValueAs8bitUnsignedInt();
@@ -37,6 +51,6 @@ public class KlvUnsignedByte extends KlvNumericalDataElement<Short> {
 
     @Override
     protected KlvUnsignedByte copy() {
-        return new KlvUnsignedByte(keyBytes, name);
+        return new KlvUnsignedByte(keyBytes, name, errorIndicatorValue);
     }
 }
