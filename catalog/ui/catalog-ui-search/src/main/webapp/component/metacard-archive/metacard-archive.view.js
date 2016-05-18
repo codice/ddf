@@ -20,11 +20,12 @@ define([
     'text!./metacard-archive.hbs',
     'js/CustomElements',
     'js/store',
-    'component/loading/loading.view'
-], function (Marionette, _, $, template, CustomElements, store, LoadingView) {
+    'component/loading/loading.view',
+    'component/confirmation/confirmation.view'
+], function (Marionette, _, $, template, CustomElements, store, LoadingView, ConfirmationView) {
 
     return Marionette.ItemView.extend({
-        setDefaultModel: function(){
+        setDefaultModel: function () {
             this.model = store.getSelectedResults().first();
         },
         template: template,
@@ -35,25 +36,35 @@ define([
         events: {
             'click button': 'archive'
         },
-        ui: {
-        },
-        initialize: function(options){
-            if (!options.model){
+        ui: {},
+        initialize: function (options) {
+            if (!options.model) {
                 this.setDefaultModel();
             }
         },
-        archive: function(){
-            var loadingView =  new LoadingView();
-            $.ajax({
-                url: '/services/search/catalog/metacards',
-                type: 'DELETE',
-                data: JSON.stringify([this.model.get('metacard').get('id')]),
-                contentType: 'application/json'
-            }).always(function(response){
-                setTimeout(function(){  //let solr flush
-                    loadingView.remove();
-                }, 1000);
-            }.bind(this));
+        archive: function () {
+            var self = this;
+            this.listenTo(ConfirmationView.generateConfirmation({
+                    prompt: 'Are you sure you want to archive this metacard?  Doing so will remove it from future search results.',
+                    no: 'Cancel',
+                    yes: 'Archive'
+                }),
+                'change:choice',
+                function (confirmation) {
+                    if (confirmation.get('choice')) {
+                        var loadingView = new LoadingView();
+                        $.ajax({
+                            url: '/services/search/catalog/metacards',
+                            type: 'DELETE',
+                            data: JSON.stringify([self.model.get('metacard').get('id')]),
+                            contentType: 'application/json'
+                        }).always(function (response) {
+                            setTimeout(function () {  //let solr flush
+                                loadingView.remove();
+                            }, 1000);
+                        });
+                    }
+                });
         }
     });
 });
