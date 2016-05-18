@@ -41,6 +41,12 @@ import net.minidev.json.JSONValue;
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
+    public static final String SYSTEM_USAGE_TITLE = "systemUsageTitle";
+
+    public static final String SYSTEM_USAGE_MESSAGE = "systemUsageMessage";
+
+    public static final String SYSTEM_USAGE_ONCE_PER_SESSION = "systemUsageOncePerSession";
+
     private static Configuration uniqueInstance;
 
     private static final String JSON_MIME_TYPE_STRING = "application/json";
@@ -64,6 +70,14 @@ public class Configuration {
     private String style = "";
 
     private String textColor = "";
+
+    private boolean systemUsageEnabled;
+
+    private String systemUsageTitle;
+
+    private String systemUsageMessage;
+
+    private boolean systemUsageOncePerSession;
 
     private String disabledInstallerApps = "";
 
@@ -94,6 +108,13 @@ public class Configuration {
     public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
         Response response;
         JSONObject configObj = new JSONObject();
+
+        if (systemUsageEnabled) {
+            configObj.put(SYSTEM_USAGE_TITLE, systemUsageTitle);
+            configObj.put(SYSTEM_USAGE_MESSAGE, systemUsageMessage);
+            configObj.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
+        }
+
         configObj.put("text", header);
         configObj.put("footer", footer);
         configObj.put("style", style);
@@ -148,6 +169,38 @@ public class Configuration {
 
     public void setDisabledInstallerApps(String disabledInstallerApps) {
         this.disabledInstallerApps = disabledInstallerApps;
+    }
+
+    public boolean getSystemUsageEnabled() {
+        return systemUsageEnabled;
+    }
+
+    public void setSystemUsageEnabled(boolean systemUsageEnabled) {
+        this.systemUsageEnabled = systemUsageEnabled;
+    }
+
+    public String getSystemUsageTitle() {
+        return systemUsageTitle;
+    }
+
+    public void setSystemUsageTitle(String systemUsageTitle) {
+        this.systemUsageTitle = systemUsageTitle;
+    }
+
+    public String getSystemUsageMessage() {
+        return systemUsageMessage;
+    }
+
+    public void setSystemUsageMessage(String systemUsageMessage) {
+        this.systemUsageMessage = systemUsageMessage;
+    }
+
+    public boolean getSystemUsageOncePerSession() {
+        return systemUsageOncePerSession;
+    }
+
+    public void setSystemUsageOncePerSession(boolean systemUsageOncePerSession) {
+        this.systemUsageOncePerSession = systemUsageOncePerSession;
     }
 
     public String getProductName() {

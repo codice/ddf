@@ -10,18 +10,75 @@ This includes adding, removing, starting, stopping, and showing status.
 
 The ${ddf-admin} application is installed by default with a standard installation.
 
-=== Configuring ${ddf-admin}
+==== Configurable Properties ${ddf-admin}
 
-[cols="1,1,3" options="header"]
+The following configuration properties can be changed under the Configuration tab under Admin UI
+
+[cols="6" options="header"]
 |===
 
-|Configuration
-|ID
+|Title
+|Property
+|Type
 |Description
+|Default Value
+|Required
 
-|${admin-console} Configuration
-|`org.codice.admin.ui.configuration`
-|Customization options for ${admin-console} elements.
+|Enable System Usage Message
+|`systemUsageEnabled`
+|Boolean
+|Turns on a system usage message, which is shown when the Admin Application is opened
+|
+|yes
+
+|System Usage Message Title
+|`systemUsageTitle`
+|String
+|A title for the system usage Message when the application is opened
+|
+|yes
+
+|System Usage Message
+|`systemUsageMessage`
+|String
+|A system usage message to be displayed to the user each time the user opens the application
+|
+|yes
+
+|Show System Usage Message once per session
+|`systemUsageOncePerSession`
+|Boolean
+|With this selected, the system usage message will be shown once for each browser session. Uncheck this to have the usage message appear every time the admin page is opened or refreshed.
+|true
+|yes
+
+|Header
+|`header`
+|String
+|Specifies the header text to be rendered on all pages.
+|
+|yes
+
+|Footer
+|`footer`
+|String
+|Specifies the footer text to be rendered on all pages.
+|
+|yes
+
+|Style
+|`color`
+|String
+|Specifies the Style of the Header and Footer. Use html css colors or `#rrggbb`.
+|
+|yes
+
+|Text Color
+|`color`
+|String
+|Specifies the Text Color of the Header and Footer. Use html css colors or `#rrggbb`.
+|
+|yes
 
 |===
 

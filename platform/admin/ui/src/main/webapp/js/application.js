@@ -26,8 +26,10 @@ define([
     'text!templates/appHeader.handlebars',
     'text!templates/header.handlebars',
     'text!templates/footer.handlebars',
+    'js/controllers/Modal.controller',
+    'js/controllers/SystemUsage.controller',
     'text!templates/moduleTab.handlebars'
-    ],function (_, Backbone, Marionette, ich, $, poller, wreqr, Module, AppModel, tabs, appHeader, header, footer, moduleTab) {
+    ],function (_, Backbone, Marionette, ich, $, poller, wreqr, Module, AppModel, tabs, appHeader, header, footer, ModalController, SystemUsageController, moduleTab) {
     'use strict';
 
     var Application = {};
@@ -48,6 +50,10 @@ define([
 
     Application.App = new Marionette.Application();
 
+    Application.Controllers = {
+        modalController: new ModalController({application: Application.App})
+    };
+
     //add regions
     Application.App.addRegions({
         pageHeader: '#pageHeader',
@@ -55,6 +61,7 @@ define([
         footerRegion: 'footer',
         mainRegion: 'main',
         appHeader: '#appHeader',
+        modalRegion: '#modalRegion',
         alertsRegion: '.alerts'
     });
 
@@ -101,6 +108,11 @@ define([
 
     wreqr.vent.on('modulePoller:stop', function(){
         modulePoller.stop();
+    });
+
+    // show System Notification Banner
+    Application.App.addInitializer(function () {
+        new SystemUsageController();
     });
 
     //configure the router (we aren't using this yet)
