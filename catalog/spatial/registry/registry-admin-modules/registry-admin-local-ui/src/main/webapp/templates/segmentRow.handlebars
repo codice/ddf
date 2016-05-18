@@ -1,0 +1,63 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="segment">
+    {{#if editableSegment}}
+        <table class="segment-header-table">
+            <tr>
+                <td>
+                    <div data-toggle="collapse" data-target="#{{simpleId}}"
+                         class="clickable segment-title {{simpleId}}">
+                        <table class="segment-header-table">
+                            <tr>
+                                <td>
+                                    {{#if errors}}<i class="segment-title-error-{{simpleId}} validation-error-icon fa fa-exclamation-triangle" aria-hidden="true"></i>{{/if}}
+                                    <label class="segment-title-{{simpleId}} nested-label{{nestedLevel}}">{{title}}</label>
+                                </td>
+                                <td>
+                                    <span class="chevron-{{simpleId}} fa fa-chevron-right pull-right"></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                <td>
+                    <div class="segment-delete">
+                        <a href="#"
+                           class="button-icon remove-segment minus-button fa fa-lg fa-trash-o"></a>
+                    </div>
+                </td>
+        </table>
+    {{/if}}
+    <div id="{{simpleId}}" class="segment-content {{#if editableSegment}}collapse{{/if}}">
+        {{#if showFields}}
+            <table class='table align-middle'>
+                <tbody class="form-fields">
+
+                </tbody>
+            </table>
+        {{/if}}
+        <table class='table align-middle'>
+            <tbody class="form-segments">
+            </tbody>
+        </table>
+
+        {{#if customizable}}
+            <div id="customizable-{{simpleId}}"/>
+        {{/if}}
+
+        {{#if showAssociations}}
+            <div id="associations-{{simpleId}}"/>
+        {{/if}}
+    </div>
+</div>

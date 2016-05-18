@@ -1,0 +1,89 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"
+                    aria-hidden="true">&times;</button>
+            <h4 class="modal-title">
+                {{#is mode 'edit'}}
+                    Edit {{name}}
+                {{else}}
+                    Add Local Node
+                {{/is}}
+            </h4>
+        </div>
+        <div class="modal-body">
+            <ul class="nav nav-tabs">
+                <li class="active"><a class="{{#if generalErrors}}validation-error-text{{/if}}"
+                                      id="generalTabLink" data-toggle="tab"
+                                      href="#general">General</a></li>
+                <li><a class="{{#if serviceErrors}}validation-error-text{{/if}}" id="serviceTabLink"
+                       data-toggle="tab" href="#service">Services</a></li>
+                <li><a class="{{#if organizationErrors}}validation-error-text{{/if}}"
+                       id="organizationTabLink" data-toggle="tab" href="#organizations">Organizations</a>
+                </li>
+                <li><a class="{{#if contactErrors}}validation-error-text{{/if}}" id="contactTabLink"
+                       data-toggle="tab" href="#contacts">Contacts</a></li>
+                <li><a class="{{#if collectionErrors}}validation-error-text{{/if}}"
+                       id="collectionTabLink" data-toggle="tab" href="#collections">Collections</a>
+                </li>
+            </ul>
+            <form class="form-horizontal add-federated-source container-fluid">
+                <div class="tab-content">
+                    <div id="general" class="tab-pane fade in active">
+                        <div id="generalInfo"></div>
+                    </div>
+                    <div id="service" class="tab-pane fade">
+                        <div id="serviceInfo"></div>
+                    </div>
+                    <div id="organizations" class="tab-pane fade">
+                        <div id="organizationInfo"></div>
+                    </div>
+                    <div id="contacts" class="tab-pane fade">
+                        <div id="contactInfo"></div>
+                    </div>
+                    <div id="collections" class="tab-pane fade">
+                        <div id="contentInfo"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            {{#if validationErrors}}
+                <div class="error-list">
+                    <label class="validation-error-text">Input validation errors. Please correct
+                        before saving.</label>
+                </div>
+            {{/if}}
+            {{#if saveErrors}}
+                <div class="error-list">
+                    <label class="validation-error-text">Saving data to server failed.</label>
+                </div>
+            {{/if}}
+            <div class="btn-group">
+                {{#is mode 'edit'}}
+                    <button type="button" class="btn btn-primary submit-button">Save</button>
+                {{else}}
+                    <button type="button" class="btn btn-primary submit-button">Add</button>
+                {{/is}}
+                <button type="button" class="btn btn-default cancel-button" data-dismiss="modal">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
