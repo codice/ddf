@@ -13,7 +13,11 @@
  */
 package ddf.catalog.metacard.versioning;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.shiro.SecurityUtils;
@@ -31,6 +35,7 @@ import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
@@ -43,6 +48,8 @@ import ddf.security.common.util.Security;
 public class HistorianPlugin implements PostIngestPlugin, PreIngestPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(HistorianPlugin.class);
 
+    private static final String HISTORY_METACARDS = "history-metacards";
+
     private final CatalogFramework catalogFramework;
 
     public HistorianPlugin(CatalogFramework catalogFramework) {
@@ -51,7 +58,28 @@ public class HistorianPlugin implements PostIngestPlugin, PreIngestPlugin {
 
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        return input;
+        List<Metacard> historyMetacards = input.getCreatedMetacards()
+                .stream()
+                .filter(m -> HistoryMetacardImpl.getVersionHistoryMetacardType()
+                        .getName()
+                        .equals(m.getMetacardType()
+                                .getName()))
+                .collect(Collectors.toList());
+
+        if (historyMetacards.isEmpty()) {
+            return input;
+        }
+
+        List<Metacard> resultMetacards = new ArrayList<>(input.getCreatedMetacards());
+        resultMetacards.removeAll(historyMetacards);
+
+        Map<String, Serializable> properties =
+                input.getProperties() != null ? input.getProperties() : new HashMap<>();
+        properties.put(HISTORY_METACARDS, new ArrayList<Serializable>(historyMetacards));
+        return new CreateResponseImpl(input.getRequest(),
+                properties,
+                resultMetacards,
+                input.getProcessingErrors());
     }
 
     @Override
