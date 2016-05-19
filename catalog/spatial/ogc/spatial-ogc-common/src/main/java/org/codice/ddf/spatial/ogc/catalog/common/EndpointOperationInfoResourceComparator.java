@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
  * HTTP method, Consumes Media Type, and Produces Media Type to determine which method to execute.
  * The {@link WfsEndpoint} and {@link CswEndpoint} require the decision to made based on the
  * "request" query parameter or the type of XML document.
- *
  */
 public class EndpointOperationInfoResourceComparator extends OperationResourceInfoComparator
         implements ResourceComparator {
@@ -85,7 +84,7 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
     public int compare(OperationResourceInfo oper1, OperationResourceInfo oper2, Message message) {
         if (null == oper1 || null == oper2 || null == message) {
             LOGGER.warn("Found NULL parameters in the compare method.");
-            return 0;
+            return -1;
         }
         String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
         LOGGER.debug("HTTP METHOD = {}", httpMethod);
@@ -153,16 +152,15 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
 
         } else {
             LOGGER.warn("Got unknown HTTP Method {}", httpMethod);
-            return 0;
-        }
-
-        if (StringUtils.isEmpty(requestName)) {
-            LOGGER.warn("Unable to determine the request name");
-            return 0;
+            return -1;
         }
 
         int op1Rank = getOperationRank(oper1, requestName, requestedService);
         int op2Rank = getOperationRank(oper2, requestName, requestedService);
+
+        if (op1Rank == -1 && op2Rank == -1) {
+            return -1;
+        }
 
         return (op1Rank == op2Rank) ? 0 : (op1Rank < op2Rank) ? 1 : -1;
     }
@@ -184,5 +182,4 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
                         .getName()
                         .equalsIgnoreCase(UNKNOWN_OPERATION) ? 0 : -1);
     }
-
 }
