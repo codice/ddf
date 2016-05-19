@@ -1,0 +1,122 @@
+@activeColor: #18BC9C;
+@highlightColor : lighten(@activeColor, 35);
+
+
+table.align-middle{
+  td {
+    vertical-align: middle !important;
+  }
+}
+
+#registriesRegion {
+  a {
+    text-decoration: none;
+  }
+  .table-striped > tbody {
+    tr.highlight-on-hover:hover td {
+      background-color: @highlightColor;
+    }
+
+    tr:nth-child(odd) > td{
+      .configurationSelect {
+        border: none;
+        background-color: #f9f9f9;
+      }
+    }
+
+    tr:nth-child(even) > td{
+      .configurationSelect {
+        border: none;
+        background-color: white;
+      }
+    }
+  }
+}
+#registries-modal {
+  a {
+    text-decoration: none;
+  }
+  .modal {
+    overflow-y: auto;
+  }
+  .endpointUrl {
+    width: 100%;
+  }
+  .error-text {
+    display: none;
+  }
+  .control-group {
+    [class*='col-md-'] {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .btn-group.card-style-toggle {
+      .btn-xs {
+        padding: 1px 5px;
+        font-size: 10px;
+      }
+    }
+    .btn-group {
+      .btn.active {
+        background-color: @activeColor;
+        border-color: darken(@activeColor, 10);
+      }
+    }
+
+    .description > i {
+      margin-top: 8px;
+    }
+  }
+  .delete-registry-name {
+    padding: 8px 0px 0px 0px;
+    color: @activeColor;
+    width: 100%;
+    font-weight: 700;
+  }
+  .delete-registry-config {
+    padding: 4px 10px 4px 10px;
+    .label.label-danger {
+      margin-left: 16px;
+    }
+  }
+}
+
+.IframeModalDOM {
+  padding-top: 30px;
+  padding-bottom: 30px
+}
+
+.btn.status {
+  padding: 4px;
+  font-size: 8px;
+  float: right;
+}
+
+.newLink {
+  text-decoration: none!important;
+  width: 100%;
+  font-weight: 700;
+}
+
+.card-style-toggle .btn {
+  color: #fff;
+  background-color: #95a5a6;
+  border-color: #95a5a6;
+  padding: 7px 6px 4px;
+}
+
+.delete-modal-body {
+  min-height: 400px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.no-results {
+  height: 100px;
+  display: table;
+  .message {
+    display: table-cell;
+    vertical-align: middle;
+  }
+}
