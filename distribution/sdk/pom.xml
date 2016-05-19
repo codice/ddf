@@ -26,6 +26,7 @@
     <modules>
         <module>sample-plugins</module>
         <module>sample-transformers</module>
+        <module>ddf-sso-widget</module>
         <module>ddf-sso-query-widget</module>
         <module>sample-metrics</module>
         <module>sample-soap-endpoint</module>
