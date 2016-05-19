@@ -71,6 +71,10 @@
             <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-publication-update-handler</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.registry</groupId>
+            <artifactId>registry-report-action-provider</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

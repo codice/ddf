@@ -1,0 +1,295 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p/>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package org.codice.ddf.registry.report.action.provider;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.codice.ddf.registry.common.RegistryConstants;
+import org.junit.Before;
+import org.junit.Test;
+
+import ddf.action.Action;
+import ddf.catalog.data.impl.MetacardImpl;
+
+public class TestRegistryMetacardActionProvider {
+
+    private static final String SAMPLE_PATH = "/registries/";
+
+    private static final String SAMPLE_SERVICES_ROOT = "/services";
+
+    private static final String SAMPLE_PROTOCOL = "http://";
+
+    private static final String SAMPLE_SECURE_PROTOCOL = "https://";
+
+    private static final String SAMPLE_PORT = "8181";
+
+    private static final String SAMPLE_SECURE_PORT = "8993";
+
+    private static final String SAMPLE_IP = "192.168.1.1";
+
+    private static final String SAMPLE_ID = "abcdef1234567890abdcef1234567890";
+
+    private static final String ACTION_PROVIDER_ID = "catalog.view.metacard";
+
+    private static final Set<String> SAMPLE_REGISTRY_TAGS = new HashSet<>(Collections.singletonList(
+            RegistryConstants.REGISTRY_TAG));
+
+    private static final String PATH_AND_FORMAT = "/report.html";
+
+    private static final String SAMPLE_SOURCE_ID = "ddf.distribution";
+
+    private static final String SOURCE_ID_QUERY_PARAM = "?sourceId=";
+
+    private RegistryMetacardActionProvider actionProvider;
+
+    private MetacardImpl metacard;
+
+    @Before
+    public void setup() {
+        metacard = new MetacardImpl();
+        actionProvider = new RegistryMetacardActionProvider(ACTION_PROVIDER_ID);
+        metacard.setId(SAMPLE_ID);
+        metacard.setTags(SAMPLE_REGISTRY_TAGS);
+        metacard.setSourceId(SAMPLE_SOURCE_ID);
+    }
+
+    @Test
+    public void testMetacardNull() {
+        assertThat(new RegistryMetacardActionProvider(ACTION_PROVIDER_ID).getActions(null),
+                hasSize(0));
+    }
+
+    @Test
+    public void testUriSyntaxException() {
+        this.configureActionProvider(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT);
+
+        assertThat("A bad url should have been caught and an empty list returned.",
+                actionProvider.getActions(metacard),
+                hasSize(0));
+
+    }
+
+    @Test
+    public void testMetacardIdUrlEncodedSpace() {
+        metacard.setId("abd ef");
+
+        this.configureActionProvider();
+
+        String url = actionProvider.getActions(metacard)
+                .get(0)
+                .getUrl()
+                .toString();
+
+        assertThat(url, is(expectedDefaultAddressWith("abd+ef")));
+
+    }
+
+    @Test
+    public void testMetacardIdUrlEncodedAmpersand() {
+        metacard.setId("abd&ef");
+
+        this.configureActionProvider();
+
+        String url = actionProvider.getActions(metacard)
+                .get(0)
+                .getUrl()
+                .toString();
+
+        assertThat(url, is(expectedDefaultAddressWith("abd%26ef")));
+
+    }
+
+    @Test
+    public void testMetacardIdNull() {
+        metacard.setId(null);
+
+        this.configureActionProvider();
+
+        assertThat("An action should not have been created when no id is provided.",
+                actionProvider.getActions(metacard),
+                hasSize(0));
+
+    }
+
+    @Test
+    public void testIpNull() {
+        this.configureActionProvider(SAMPLE_PROTOCOL, null, SAMPLE_PORT, SAMPLE_SERVICES_ROOT);
+
+        assertThat(actionProvider.getActions(metacard)
+                .get(0)
+                .getUrl()
+                .toString(), containsString("localhost"));
+
+    }
+
+    @Test
+    public void testIpUnknown() {
+        this.configureActionProvider(SAMPLE_PROTOCOL, "0.0.0.0", SAMPLE_PORT, SAMPLE_SERVICES_ROOT);
+
+        assertThat("An action should not have been created when ip is unknown (0.0.0.0).",
+                actionProvider.getActions(metacard),
+                hasSize(0));
+    }
+
+    @Test
+    public void testPortNull() {
+        this.configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, null, SAMPLE_SERVICES_ROOT);
+
+        assertThat(actionProvider.getActions(metacard)
+                .get(0)
+                .getUrl()
+                .toString(), containsString("8181"));
+    }
+
+    @Test
+    public void testContextRootNull() {
+        this.configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT, null);
+
+        assertThat(actionProvider.getActions(metacard)
+                .get(0)
+                .getUrl()
+                .toString(), not(containsString("/services")));
+    }
+
+    @Test
+    public void testNonMetacard() {
+        this.configureActionProvider();
+
+        assertThat("An action when metacard was not provided.",
+                actionProvider.getActions(new Date()),
+                hasSize(0));
+
+    }
+
+    @Test
+    public void testMetacard() {
+        this.configureActionProvider();
+
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
+
+        assertEquals(RegistryMetacardActionProvider.TITLE, action.getTitle());
+        assertEquals(RegistryMetacardActionProvider.DESCRIPTION, action.getDescription());
+        assertThat(action.getUrl()
+                .toString(), is(expectedDefaultAddressWith(metacard.getId())));
+        assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
+
+    }
+
+    @Test
+    public void testFederatedMetacard() {
+        metacard.setTags(new HashSet<>());
+
+        String newSourceName = "newSource";
+        metacard.setSourceId(newSourceName);
+
+        this.configureActionProvider();
+
+        List<Action> action = actionProvider.getActions(metacard);
+
+        assertThat(action.size(), is(0));
+
+    }
+
+    @Test
+    public void testSecureMetacard() {
+        this.configureSecureActionProvider();
+
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
+
+        assertEquals(RegistryMetacardActionProvider.TITLE, action.getTitle());
+        assertEquals(RegistryMetacardActionProvider.DESCRIPTION, action.getDescription());
+        assertEquals(
+                SAMPLE_SECURE_PROTOCOL + SAMPLE_IP + ":" + SAMPLE_SECURE_PORT + SAMPLE_SERVICES_ROOT
+                        + SAMPLE_PATH + metacard.getId() + PATH_AND_FORMAT + SOURCE_ID_QUERY_PARAM
+                        + SAMPLE_SOURCE_ID,
+                action.getUrl()
+                        .toString());
+        assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
+
+    }
+
+    @Test
+    public void testNullProtocol() {
+        this.configureActionProvider(null, SAMPLE_IP, SAMPLE_SECURE_PORT, SAMPLE_SERVICES_ROOT);
+
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
+
+        assertThat(action.getUrl()
+                .toString(), containsString("https"));
+
+    }
+
+    @Test
+    public void testSourceIdPresent() {
+        this.configureActionProvider();
+
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
+
+        assertEquals(RegistryMetacardActionProvider.TITLE, action.getTitle());
+        assertEquals(RegistryMetacardActionProvider.DESCRIPTION, action.getDescription());
+        assertThat(action.getUrl()
+                .toString(), is(expectedDefaultAddressWith(metacard.getId())));
+        assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
+
+    }
+
+    private String expectedDefaultAddressWith(String id) {
+        return SAMPLE_PROTOCOL + SAMPLE_IP + ":" + SAMPLE_PORT + SAMPLE_SERVICES_ROOT + SAMPLE_PATH
+                + id + PATH_AND_FORMAT + SOURCE_ID_QUERY_PARAM + SAMPLE_SOURCE_ID;
+    }
+
+    private void configureActionProvider() {
+        configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT, SAMPLE_SERVICES_ROOT);
+    }
+
+    private void configureSecureActionProvider() {
+        configureActionProvider(SAMPLE_SECURE_PROTOCOL,
+                SAMPLE_IP,
+                SAMPLE_SECURE_PORT,
+                SAMPLE_SERVICES_ROOT);
+    }
+
+    private void configureActionProvider(String protocol, String host, String port,
+            String contextRoot) {
+
+        setProperty("org.codice.ddf.system.hostname", host);
+        setProperty("org.codice.ddf.system.httpPort", port);
+        setProperty("org.codice.ddf.system.httpsPort", port);
+        setProperty("org.codice.ddf.system.protocol", protocol);
+        setProperty("org.codice.ddf.system.rootContext", contextRoot);
+    }
+
+    private void setProperty(String key, String value) {
+        if (value == null) {
+            System.clearProperty(key);
+        } else {
+            System.setProperty(key, value);
+        }
+    }
+}
