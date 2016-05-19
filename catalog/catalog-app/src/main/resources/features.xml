@@ -271,6 +271,12 @@
         <bundle>mvn:commons-collections/commons-collections/3.2.1</bundle>
     </feature>
 
+    <feature name="catalog-transformer-zip" install="auto" version="${project.version}"
+             description="ZIP Transformer">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-zip/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-security-filter" install="auto" version="${project.version}"
              description="DDF Catalog Security Filtering">
         <feature prerequisite="true">catalog-app</feature>

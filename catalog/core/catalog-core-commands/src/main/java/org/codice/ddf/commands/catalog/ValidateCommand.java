@@ -62,16 +62,21 @@ public class ValidateCommand implements Action {
 
     // These constants are to help in trying to make the output
     // both uniform and readable.
-    private static final String INDENT =       "|   ";
-    private static final String LAST_INDENT =  "    ";
-    private static final String ELEMENT =      "+-- ";
+    private static final String INDENT = "|   ";
+
+    private static final String LAST_INDENT = "    ";
+
+    private static final String ELEMENT = "+-- ";
+
     private static final String LAST_ELEMENT = "`-- ";
 
     private static final String WARNING_TITLE = "Warnings";
-    private static final String ERROR_TITLE =   "Errors";
+
+    private static final String ERROR_TITLE = "Errors";
 
     private static final String WARNING_COLOR = COLOR_CYAN;
-    private static final String ERROR_COLOR =   COLOR_RED;
+
+    private static final String ERROR_COLOR = COLOR_RED;
 
     @Override
     public Object execute() throws Exception {
@@ -121,7 +126,8 @@ public class ValidateCommand implements Action {
             metacard = new MetacardImpl();
             metacard.setMetadata(metadata);
         } catch (IOException e) {
-            console.println(ERROR_COLOR + "Error reading file. Check the log for the stacktrace" + COLOR_DEFAULT);
+            console.println(ERROR_COLOR + "Error reading file. Check the log for the stacktrace"
+                    + COLOR_DEFAULT);
             LOGGER.error("Error trying to read file {}", filename, e);
         }
         return metacard;
@@ -148,14 +154,16 @@ public class ValidateCommand implements Action {
     }
 
     private void printValidator(MetacardValidator validator, String prefix) {
-        String name = validator.getClass().getName();
+        String name = validator.getClass()
+                .getName();
         if (validator instanceof Describable && ((Describable) validator).getId() != null) {
             name = ((Describable) validator).getId();
         }
         prettyPrint(prefix, name);
     }
 
-    private void printErrorsAndWarnings(MetacardValidator validator, Metacard metacard, String prefix) {
+    private void printErrorsAndWarnings(MetacardValidator validator, Metacard metacard,
+            String prefix) {
         try {
             validator.validate(metacard);
             prettyPrint(prefix + LAST_ELEMENT, "No errors or warnings");

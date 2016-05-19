@@ -24,6 +24,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
@@ -152,15 +153,9 @@ public class MigrateCommand extends DuplicateCommands {
 
             do {
                 LOGGER.debug("In loop at iteration {}", queryIndex.get());
-                executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        int count = queryAndIngest(framework,
-                                ingestProvider,
-                                queryIndex.get(),
-                                filter);
-                        printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
-                    }
+                executorService.submit(() -> {
+                    int count = queryAndIngest(framework, ingestProvider, queryIndex.get(), filter);
+                    printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
                 });
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
             executorService.shutdown();
@@ -223,11 +218,10 @@ public class MigrateCommand extends DuplicateCommands {
             }
             return null;
         }
-        List<Metacard> metacards = new ArrayList<>();
-        for (Result result : response.getResults()) {
-            metacards.add(result.getMetacard());
-        }
-        return metacards;
+        return response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toList());
     }
 
     private List<CatalogProvider> getCatalogProviders() {
