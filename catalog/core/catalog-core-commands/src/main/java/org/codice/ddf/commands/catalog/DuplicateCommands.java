@@ -14,7 +14,6 @@
 package org.codice.ddf.commands.catalog;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -281,8 +280,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
         return result;
     }
 
-    protected void writeFailedMetacards(List<Metacard> failedMetacards)
-            throws FileNotFoundException, IOException {
+    protected void writeFailedMetacards(List<Metacard> failedMetacards) throws IOException {
         File directory = new File(failedDir);
         if (!directory.exists()) {
             if (!directory.mkdirs()) {

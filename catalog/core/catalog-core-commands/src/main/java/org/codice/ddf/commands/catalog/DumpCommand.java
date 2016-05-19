@@ -31,6 +31,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -58,13 +60,19 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transform.QueryResponseTransformer;
+import ddf.security.common.audit.SecurityLogger;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.\n\tDate filters are ANDed together, and are exclusive for range.\n\tISO8601 format includes YYYY-MM-dd, YYYY-MM-ddTHH, YYYY-MM-ddTHH:mm, YYYY-MM-ddTHH:mm:ss, YYY-MM-ddTHH:mm:ss.sss, THH:mm:sss. See documentation for full syntax and examples.")
 public class DumpCommand extends CatalogCommands {
 
+    public static final String FILE_PATH = "filePath";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpCommand.class);
 
     private static List<MetacardTransformer> transformers = null;
+
+    private static final String ZIP_COMPRESSION = "zipCompression";
 
     private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder().printZeroRarelyLast()
             .appendDays()
@@ -79,6 +87,10 @@ public class DumpCommand extends CatalogCommands {
             .appendSeconds()
             .appendSuffix(" second", " seconds")
             .toFormatter();
+
+    private QueryResponseTransformer zipCompression;
+
+    private Map<String, Serializable> zipArgs;
 
     @Argument(name = "Dump directory path", description = "Directory to export Metacards into. Paths are absolute and must be in quotes.  Files in directory will be overwritten if they already exist.", index = 0, multiValued = false, required = true)
     String dirPath = null;
@@ -130,8 +142,17 @@ public class DumpCommand extends CatalogCommands {
                     + "will be used to name each subdirectory level.")
     int dirLevel = 0;
 
+    @Option(name = "--include-content", required = false, aliases = {}, multiValued = false,
+            description = "Dump the entire catalog and local content into a zip file with the specified name using the default transformer.")
+    String zipFileName;
+
     @Override
     protected Object executeWithSubject() throws Exception {
+        if (FilenameUtils.getExtension(dirPath)
+                .equals("") && !dirPath.endsWith(File.separator)) {
+            dirPath += File.separator;
+        }
+
         final File dumpDir = new File(dirPath);
 
         if (!dumpDir.exists()) {
@@ -152,6 +173,13 @@ public class DumpCommand extends CatalogCommands {
                 return null;
             }
         }
+
+        if(StringUtils.isNotBlank(zipFileName) && new File(dirPath + zipFileName).exists()) {
+            console.println("Cannot dump catalog.  Zip file " + zipFileName + " already exists.");
+            return null;
+        }
+
+        SecurityLogger.audit("Called catalog:dump command with path : {}", dirPath);
 
         CatalogFacade catalog = getCatalog();
         FilterBuilder builder = getFilterBuilder();
@@ -200,7 +228,7 @@ public class DumpCommand extends CatalogCommands {
                     .date(modifiedEndDateTime.toDate());
         }
 
-        Filter filter = null;
+        Filter filter;
         if ((createdFilter != null) && (modifiedFilter != null)) {
             // Filter by both created and modified dates
             filter = builder.allOf(createdFilter, modifiedFilter);
@@ -222,11 +250,22 @@ public class DumpCommand extends CatalogCommands {
             filter = CQL.toFilter(cqlFilter);
         }
 
-        QueryImpl query = new QueryImpl(filter);
+        if (StringUtils.isNotBlank(zipFileName)) {
+            zipArgs = new HashMap<>();
+            zipArgs.put(FILE_PATH, dirPath + zipFileName);
+        }
+
+        Filter metacardTagFilter = builder.attribute(Metacard.TAGS)
+                .is()
+                .like()
+                .text(WILDCARD);
+        Filter combinedFilter = builder.allOf(metacardTagFilter, filter);
+
+        QueryImpl query = new QueryImpl(combinedFilter);
         query.setRequestsTotalResultsCount(false);
         query.setPageSize(pageSize);
 
-        Map<String, Serializable> props = new HashMap<String, Serializable>();
+        Map<String, Serializable> props = new HashMap<>();
         // Avoid caching all results while dumping with native query mode
         props.put("mode", "native");
 
@@ -235,7 +274,7 @@ public class DumpCommand extends CatalogCommands {
 
         SourceResponse response = catalog.query(new QueryRequestImpl(query, props));
 
-        BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(multithreaded);
+        BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(multithreaded);
         RejectedExecutionHandler rejectedExecutionHandler =
                 new ThreadPoolExecutor.CallerRunsPolicy();
         final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
@@ -249,27 +288,34 @@ public class DumpCommand extends CatalogCommands {
                 .size() > 0) {
             response = catalog.query(new QueryRequestImpl(query, props));
 
-            if (multithreaded > 1) {
-                final List<Result> results = new ArrayList<Result>(response.getResults());
-                executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean transformationFailed = false;
-                        for (final Result result : results) {
-                            Metacard metacard = result.getMetacard();
-                            try {
-                                exportMetacard(dumpDir, metacard);
-                            } catch (IOException | CatalogTransformerException e) {
-                                transformationFailed = true;
-                                LOGGER.debug("Failed to dump metacard {}", metacard.getId(), e);
-                                executorService.shutdownNow();
-                            }
-                            printStatus(resultCount.incrementAndGet());
+            if (StringUtils.isNotBlank(zipFileName)) {
+                zipCompression = getZipCompression();
+                if (zipCompression != null) {
+                    zipCompression.transform(response, zipArgs);
+                    Long resultSize = Long.valueOf(response.getResults()
+                            .size());
+                    printStatus(resultCount.addAndGet(resultSize));
+                } else {
+                    LOGGER.error("No Zip Transformer found.  Unable export metacards to a zip file.");
+                }
+            } else if (multithreaded > 1) {
+                final List<Result> results = new ArrayList<>(response.getResults());
+                executorService.submit(() -> {
+                    boolean transformationFailed = false;
+                    for (final Result result : results) {
+                        Metacard metacard = result.getMetacard();
+                        try {
+                            exportMetacard(dumpDir, metacard);
+                        } catch (IOException | CatalogTransformerException e) {
+                            transformationFailed = true;
+                            LOGGER.debug("Failed to dump metacard {}", metacard.getId(), e);
+                            executorService.shutdownNow();
                         }
-                        if (transformationFailed) {
-                            LOGGER.error(
-                                    "One or more metacards failed to transform. Enable debug log for more details.");
-                        }
+                        printStatus(resultCount.incrementAndGet());
+                    }
+                    if (transformationFailed) {
+                        LOGGER.error(
+                                "One or more metacards failed to transform. Enable debug log for more details.");
                     }
                 });
             } else {
@@ -305,7 +351,7 @@ public class DumpCommand extends CatalogCommands {
         console.printf(" %d file(s) dumped in %s\t%n", resultCount.get(), elapsedTime);
         LOGGER.info("{} file(s) dumped in {}", resultCount.get(), elapsedTime);
         console.println();
-
+        SecurityLogger.audit("Exported {} files to {}", resultCount.get(), dirPath);
         return null;
     }
 
@@ -376,7 +422,7 @@ public class DumpCommand extends CatalogCommands {
             return null;
         }
 
-        List<MetacardTransformer> metacardTransformerList = new ArrayList<MetacardTransformer>();
+        List<MetacardTransformer> metacardTransformerList = new ArrayList<>();
         for (int i = 0; i < refs.length; i++) {
 
             metacardTransformerList.add((MetacardTransformer) bundleContext.getService(refs[i]));
@@ -385,4 +431,19 @@ public class DumpCommand extends CatalogCommands {
         return metacardTransformerList;
     }
 
+    private QueryResponseTransformer getZipCompression() {
+        List<QueryResponseTransformer> queryResponseTransformerList = null;
+        try {
+            queryResponseTransformerList = getAllServices(QueryResponseTransformer.class,
+                    "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
+        } catch (InvalidSyntaxException e) {
+            LOGGER.error("Unable to get transformer id={}", ZIP_COMPRESSION, e);
+        }
+
+        if (queryResponseTransformerList != null && queryResponseTransformerList.size() > 0) {
+            return queryResponseTransformerList.get(0);
+        }
+
+        return null;
+    }
 }

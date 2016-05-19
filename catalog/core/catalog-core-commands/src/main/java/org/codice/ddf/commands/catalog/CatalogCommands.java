@@ -66,19 +66,15 @@ public abstract class CatalogCommands extends SubjectCommands {
 
     protected SolrCacheMBean getCacheProxy()
             throws IOException, MalformedObjectNameException, InstanceNotFoundException {
-
         ObjectName solrCacheObjectName = new ObjectName(SolrCacheMBean.OBJECTNAME);
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-
         return MBeanServerInvocationHandler.newProxyInstance(mBeanServer,
                 solrCacheObjectName,
                 SolrCacheMBean.class,
                 false);
-
     }
 
     protected CatalogFacade getCatalog() throws InterruptedException {
-
         if (isProvider) {
             return new Provider(getService(CatalogProvider.class));
         } else {
@@ -90,5 +86,4 @@ public abstract class CatalogCommands extends SubjectCommands {
     protected FilterBuilder getFilterBuilder() throws InterruptedException {
         return getService(FilterBuilder.class);
     }
-
 }

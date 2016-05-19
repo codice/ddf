@@ -68,7 +68,7 @@ public class RangeCommand extends CatalogCommands {
         CatalogFacade catalogProvider = getCatalog();
         FilterBuilder builder = getFilterBuilder();
 
-        Filter filter = null;
+        Filter filter;
 
         Date wayInTheFuture = new DateTime().plusYears(5000)
                 .toDate();
