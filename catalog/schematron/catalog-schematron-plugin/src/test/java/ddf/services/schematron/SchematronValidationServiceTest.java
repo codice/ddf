@@ -19,6 +19,9 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +35,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.validation.ValidationException;
@@ -166,6 +170,61 @@ public class SchematronValidationServiceTest {
                 "dog_3leg_3paw.xml"));
     }
 
+    @Test
+    public void testWarningsAndErrorsAreSanitized()
+            throws ValidationException, IOException, SchematronInitializationException {
+        SchematronValidationService service = getService("dog_legs.sch", "dog_paws.sch");
+        // test warnings
+        try {
+            service.validate(getMetacard("dog_4leg_3paw.xml"));
+        } catch (SchematronValidationException ex) {
+            assertThat(service.getSchematronReport(), is(notNullValue()));
+            for (String warning : ex.getWarnings()) {
+                assertThat(warning.equals(SchematronValidationService.sanitize(warning)), is(true));
+            }
+        }
+        // test errors
+        try {
+            service.validate(getMetacard("dog_3leg_3paw.xml"));
+        } catch (SchematronValidationException ex) {
+            assertThat(service.getSchematronReport(), is(notNullValue()));
+            for (String error : ex.getErrors()) {
+                assertThat(error.equals(SchematronValidationService.sanitize(error)), is(true));
+            }
+        }
+        // sanitize is called twice for each validate call
+        verify(service, times(4)).sanitize(anyString());
+    }
+
+    @Test
+    public void testSanitizationChangesNothing() {
+        String str = "ontattoinewerunfromsandpeople";
+        // verify that nothing changes
+        assertThat(str,
+                is(SchematronValidationService.sanitize(str)));
+        str = "princess leia";
+        // verify that nothing changes again
+        assertThat(str, is(SchematronValidationService.sanitize(str)));
+    }
+
+    @Test
+    public void testSanitizationChangesInput() {
+        String toTrimString = " luke skywalker     ";
+        String trimmedString = "luke skywalker";
+        // verify the trim
+        assertThat(trimmedString, is(SchematronValidationService.sanitize(toTrimString)));
+        String extraWhitespace = "dagobah  system";
+        String singleWhitespace = "dagobah system";
+        // verify that a double whitespace gets truncated to single whitespace
+        assertThat(singleWhitespace, is(SchematronValidationService.sanitize(extraWhitespace)));
+        String delimiters =
+                " Return \t\t    of the Jedi was originally called\n  Revenge of the Jedi\nBut Jedi\n\r don't\r\n take revenge\n   ";
+        String noDelimiters =
+                "Return of the Jedi was originally called Revenge of the Jedi But Jedi don't take revenge";
+        // verify that newlines, tabs, and extra whitespace are removed
+        assertThat(noDelimiters, is(SchematronValidationService.sanitize(delimiters)));
+    }
+
     private MetacardImpl getMetacard(String filename) throws IOException {
         String metadata = IOUtils.toString(getClass().getClassLoader()
                 .getResourceAsStream(filename));
@@ -183,7 +242,7 @@ public class SchematronValidationServiceTest {
             boolean useClassLoader, String... schematronFiles)
             throws SchematronInitializationException {
 
-        SchematronValidationService service = new SchematronValidationService();
+        SchematronValidationService service = Mockito.spy(new SchematronValidationService());
         service.setSuppressWarnings(suppressWarnings);
         service.setNamespace(namespace);
 
