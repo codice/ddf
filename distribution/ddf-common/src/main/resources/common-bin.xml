@@ -13,203 +13,203 @@
 -->
 <component>
 
-  <fileSets>
+    <fileSets>
 
-    <!-- Expanded Karaf Standard Distribution -->
-    <fileSet>
-      <directory>${setup.folder}/${karaf.folder}
-      </directory>
-      <outputDirectory>/</outputDirectory>
-      <excludes>
-        <exclude>**/demos/**</exclude>
-        <exclude>bin/**</exclude>
-        <!-- Don't copy over config files that are customized -->
-        <exclude>etc/custom.properties</exclude>
-        <exclude>etc/jetty.xml</exclude>
-        <exclude>etc/profile.cfg</exclude>
-        <exclude>etc/org.apache.karaf.features.cfg</exclude>
-        <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
-        <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
-        <exclude>etc/org.apache.karaf.log.cfg</exclude>
-        <exclude>etc/org.ops4j.pax.web.cfg</exclude>
-        <exclude>etc/users.properties</exclude>
-        <exclude>etc/system.properties</exclude>
-        <exclude>etc/shell.init.script</exclude>
-        <exclude>etc/org.apache.karaf.kar.cfg</exclude>
-        <!--
-        Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
-        when running client script it logs in as "karaf" user without requiring a password.
-        So exclude this file from DDF distro to prevent unauthorized access.
-        -->
-        <exclude>etc/keys.properties</exclude>
-        <!-- Karaf comes with a README in deploy folder which throws warnings in log -->
-        <exclude>deploy/*</exclude>
-        <!-- All Karaf distributions take out the extra files when being distributed -->
-        <exclude>LICENSE</exclude>
-        <exclude>NOTICE</exclude>
-        <exclude>README</exclude>
-        <exclude>RELEASE-NOTES</exclude>
-        <exclude>karaf-manual*.html</exclude>
-        <exclude>karaf-manual*.pdf</exclude>
-      </excludes>
-    </fileSet>
+        <!-- Expanded Karaf Standard Distribution -->
+        <fileSet>
+            <directory>${setup.folder}/${karaf.folder}
+            </directory>
+            <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>**/demos/**</exclude>
+                <exclude>bin/**</exclude>
+                <!-- Don't copy over config files that are customized -->
+                <exclude>etc/custom.properties</exclude>
+                <exclude>etc/jetty.xml</exclude>
+                <exclude>etc/profile.cfg</exclude>
+                <exclude>etc/org.apache.karaf.features.cfg</exclude>
+                <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
+                <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
+                <exclude>etc/org.apache.karaf.log.cfg</exclude>
+                <exclude>etc/org.ops4j.pax.web.cfg</exclude>
+                <exclude>etc/users.properties</exclude>
+                <exclude>etc/system.properties</exclude>
+                <exclude>etc/shell.init.script</exclude>
+                <exclude>etc/org.apache.karaf.kar.cfg</exclude>
+                <!--
+                Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
+                when running client script it logs in as "karaf" user without requiring a password.
+                So exclude this file from DDF distro to prevent unauthorized access.
+                -->
+                <exclude>etc/keys.properties</exclude>
+                <!-- Karaf comes with a README in deploy folder which throws warnings in log -->
+                <exclude>deploy/*</exclude>
+                <!-- All Karaf distributions take out the extra files when being distributed -->
+                <exclude>LICENSE</exclude>
+                <exclude>NOTICE</exclude>
+                <exclude>README</exclude>
+                <exclude>RELEASE-NOTES</exclude>
+                <exclude>karaf-manual*.html</exclude>
+                <exclude>karaf-manual*.pdf</exclude>
+            </excludes>
+        </fileSet>
 
-    <!-- Copy over unix bin/* separately to get the correct file mode -->
-    <fileSet>
-      <directory>${setup.folder}/${karaf.folder}
-      </directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>bin/admin</include>
-        <include>bin/karaf</include>
-        <include>bin/start</include>
-        <include>bin/stop</include>
-        <include>bin/shell</include>
-        <include>bin/client</include>
-      </includes>
-      <fileMode>0755</fileMode>
-    </fileSet>
-    
-    <!-- Copy over windows executable scripts -->
-    <fileSet>
-      <directory>${win.setup.folder}/${karaf.folder}
-      </directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>bin/admin.bat</include>
-        <include>bin/karaf.bat</include>
-        <include>bin/start.bat</include>
-        <include>bin/stop.bat</include>
-        <include>bin/shell.bat</include>
-        <include>bin/client.bat</include>
-      </includes>
-      <lineEnding>dos</lineEnding>
-      <fileMode>0755</fileMode>
-    </fileSet>
+        <!-- Copy over unix bin/* separately to get the correct file mode -->
+        <fileSet>
+            <directory>${setup.folder}/${karaf.folder}
+            </directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>bin/admin</include>
+                <include>bin/karaf</include>
+                <include>bin/start</include>
+                <include>bin/stop</include>
+                <include>bin/shell</include>
+                <include>bin/client</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
 
-    <!-- HTML & PDF Documentation -->
-    <fileSet>
-      <directory>${setup.folder}/docs</directory>
-      <outputDirectory>/documentation</outputDirectory>
-    </fileSet>
+        <!-- Copy over windows executable scripts -->
+        <fileSet>
+            <directory>${win.setup.folder}/${karaf.folder}
+            </directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>bin/admin.bat</include>
+                <include>bin/karaf.bat</include>
+                <include>bin/start.bat</include>
+                <include>bin/stop.bat</include>
+                <include>bin/shell.bat</include>
+                <include>bin/client.bat</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0755</fileMode>
+        </fileSet>
 
-    <!-- Javadoc -->
-    <fileSet>
-      <directory>${setup.folder}/catalog_api_javadoc</directory>
-      <outputDirectory>/docs/sdk/catalog_api_javadoc</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${setup.folder}/mime_api_javadoc</directory>
-      <outputDirectory>/docs/sdk/mime_api_javadoc</outputDirectory>
-    </fileSet>
-	<fileSet>
-      <directory>${setup.folder}/content_api_javadoc</directory>
-      <outputDirectory>/docs/sdk/content_api_javadoc</outputDirectory>
-    </fileSet>
-	<fileSet>
-      <directory>${setup.folder}/action_api_javadoc</directory>
-      <outputDirectory>/docs/sdk/action_api_javadoc</outputDirectory>
-    </fileSet>
-	<fileSet>
-      <directory>${setup.folder}/security_api_javadoc</directory>
-      <outputDirectory>/docs/sdk/security_api_javadoc</outputDirectory>
-    </fileSet>
-	<fileSet>
-      <directory>${setup.folder}/encryption_api_javadoc</directory>
-      <outputDirectory>/docs/sdk/encryption_api_javadoc</outputDirectory>
-    </fileSet>
-    
-    <!-- Console Branding -->
-    <fileSet>
-      <directory>${setup.folder}</directory>
-      <includes>
-        <include>ddf-branding.jar</include>
-      </includes>
-      <outputDirectory>/lib/</outputDirectory>
-    </fileSet>
-    
-    <!-- Endorsed Libraries -->
-    <fileSet>
-      <directory>${setup.folder}/ext</directory>
-      <outputDirectory>/lib/ext</outputDirectory>
-    </fileSet>
-    
-    <!-- Deployable Files -->
-    <fileSet>
-      <directory>${setup.folder}/deploy</directory>
-      <outputDirectory>/deploy</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
-    
- 	 <!-- Static Config Files -->
-    <fileSet>
-      <directory>${setup.folder}/etc</directory>
-      <outputDirectory>/etc</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
+        <!-- HTML & PDF Documentation -->
+        <fileSet>
+            <directory>${setup.folder}/docs</directory>
+            <outputDirectory>/documentation</outputDirectory>
+        </fileSet>
 
-    <!-- Dynamic Config Files -->
-    <fileSet>
-      <directory>target/classes/etc</directory>
-      <outputDirectory>/etc</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
+        <!-- Javadoc -->
+        <fileSet>
+            <directory>${setup.folder}/catalog_api_javadoc</directory>
+            <outputDirectory>/docs/sdk/catalog_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/mime_api_javadoc</directory>
+            <outputDirectory>/docs/sdk/mime_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/content_api_javadoc</directory>
+            <outputDirectory>/docs/sdk/content_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/action_api_javadoc</directory>
+            <outputDirectory>/docs/sdk/action_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/security_api_javadoc</directory>
+            <outputDirectory>/docs/sdk/security_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/encryption_api_javadoc</directory>
+            <outputDirectory>/docs/sdk/encryption_api_javadoc</outputDirectory>
+        </fileSet>
 
-    <!-- Static Executable Files -->
-    <fileSet>
-      <directory>${setup.folder}/bin</directory>
-      <outputDirectory>/bin</outputDirectory>
-      <fileMode>0755</fileMode>
-    </fileSet>
-	
-	<!-- Schema Files -->
-    <fileSet>
-      <directory>${setup.folder}/schema</directory>
-      <outputDirectory>/schema</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
-	
-	<!-- License Files -->
-	<fileSet>
-	  <directory>${setup.folder}/licenses</directory>
-      <outputDirectory>/licenses</outputDirectory>
-      <fileMode>0444</fileMode>
-	</fileSet>
-	
-	<!-- Legal files -->
-    <fileSet>
-	  <directory>${setup.folder}</directory>
-      <outputDirectory>/</outputDirectory>
-       <includes>
-        <include>*.txt</include> 
-        <include>README</include>
-        <include>NOTICE</include>      
-      </includes>
-      <fileMode>0444</fileMode>
-	</fileSet>
-	
-	<fileSet>
-      <directory>target/classes</directory>
-      <outputDirectory>/</outputDirectory>
-       <includes>
-        <include>*.txt</include>  
-       </includes>
-      <fileMode>0644</fileMode>
-    </fileSet>
-    
-    <!-- DDF Files -->
-    <fileSet>
-      <directory>${setup.folder}/security</directory>
-      <outputDirectory>/security</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
+        <!-- Console Branding -->
+        <fileSet>
+            <directory>${setup.folder}</directory>
+            <includes>
+                <include>ddf-branding.jar</include>
+            </includes>
+            <outputDirectory>/lib/</outputDirectory>
+        </fileSet>
 
-    <fileSet>
-      <directory>${setup.folder}/data</directory>
-      <outputDirectory>/data</outputDirectory>
-      <directoryMode>0775</directoryMode>
-    </fileSet>
-    
-  </fileSets>
-  
+        <!-- Endorsed Libraries -->
+        <fileSet>
+            <directory>${setup.folder}/ext</directory>
+            <outputDirectory>/lib/ext</outputDirectory>
+        </fileSet>
+
+        <!-- Deployable Files -->
+        <fileSet>
+            <directory>${setup.folder}/deploy</directory>
+            <outputDirectory>/deploy</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <!-- Static Config Files -->
+        <fileSet>
+            <directory>${setup.folder}/etc</directory>
+            <outputDirectory>/etc</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <!-- Dynamic Config Files -->
+        <fileSet>
+            <directory>target/classes/etc</directory>
+            <outputDirectory>/etc</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <!-- Static Executable Files -->
+        <fileSet>
+            <directory>${setup.folder}/bin</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
+
+        <!-- Schema Files -->
+        <fileSet>
+            <directory>${setup.folder}/schema</directory>
+            <outputDirectory>/schema</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <!-- License Files -->
+        <fileSet>
+            <directory>${setup.folder}/licenses</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <fileMode>0444</fileMode>
+        </fileSet>
+
+        <!-- Legal files -->
+        <fileSet>
+            <directory>${setup.folder}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.txt</include>
+                <include>README</include>
+                <include>NOTICE</include>
+            </includes>
+            <fileMode>0444</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.txt</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <!-- DDF Files -->
+        <fileSet>
+            <directory>${setup.folder}/security</directory>
+            <outputDirectory>/security</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>${setup.folder}/data</directory>
+            <outputDirectory>/data</outputDirectory>
+            <directoryMode>0775</directoryMode>
+        </fileSet>
+
+    </fileSets>
+
 </component>
