@@ -30,31 +30,24 @@ define([
         },
         initialize: function(options){
             EditorView.prototype.initialize.call(this, options);
-            this.getMetacardDetails();
-            //this.getValidation();
         },
-        getMetacardDetails: function(){
-            var loadingView = new LoadingView();
-            var self = this;
-            $.when(
-                $.ajax({
-                    url: '/services/search/catalog/metacards/',
-                    data: JSON.stringify(this.model.map(function(metacardResult){
-                        return metacardResult.get('metacard').id;
-                    })),
-                    method: 'POST',
-                    contentType: 'application/json'
-                })).done(function(metacardResponse){
-                self.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(metacardResponse));
-                self.editorProperties.currentView.turnOnLimitedWidth();
-                self.editorProperties.currentView.$el.addClass("is-list");
-                loadingView.remove();
+        onBeforeShow: function() {
+            var results = store.getSelectedResults();
+            var types = results.map(function (result) {
+                return result.get('propertyTypes');
             });
+            var metacards = results.map(function (result) {
+                return result.get('metacard>properties').toJSON();
+            });
+            this.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(types, metacards));
+            this.editorProperties.currentView.turnOnLimitedWidth();
+            this.editorProperties.currentView.$el.addClass("is-list");
+            //this.getValidation();
         },
         getValidation: function(){
             var self = this;
             $.get('/services/search/catalog/metacard/'+this.model.get('metacard').id+'/validation').then(function(response){
-                if (!self.isDestroyed){
+                if (validationResponse && !_.isEmpty(validationResponse.length) && !self.isDestroyed){
                     self.editorProperties.currentView.updateValidation(response);
                 }
             }).always(function(){

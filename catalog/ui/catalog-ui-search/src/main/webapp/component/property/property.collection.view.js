@@ -87,21 +87,21 @@ define([
          blacklist: ['metacard-type', 'source-id', 'cached'],
          thumbnail: 'thumbnail',
          summaryWhiteList: ['created','modified','thumbnail'],
-         generateSummaryPropertyCollectionView: function(metacards){
+         generateSummaryPropertyCollectionView: function(types, metacards){
              var propertyCollection = new PropertyCollection();
              var propertyArray = [];
              this.summaryWhiteList.forEach(function(property){
                  propertyArray.push({
                      id: property,
-                     type: metacards['metacard-types'][0].type[property].type,
+                     type: types[0][property].format,
                      values: {},
-                     multivalued: metacards['metacard-types'][0].type[property].multivalued
+                     multivalued: types[0][property].multivalued
                  });
              });
              propertyArray.forEach(function(property){
-                 metacards.metacards.forEach(function(metacard){
+                 metacards.forEach(function(metacard){
                      var value = metacard[property.id];
-                     if (!metacards['metacard-types'][0].type[property.id].multivalued){
+                     if (!types[0][property.id].multivalued){
                          value = [value];
                      }
                      value.sort();
@@ -112,7 +112,7 @@ define([
                          };
                      property.values[value].hits++;
                  });
-                 if (metacards.metacards.length > 1){
+                 if (metacards.length > 1){
                      property.bulk = true;
                      if (Object.keys(property.values).length > 1){
                          property.value = [''];
@@ -124,22 +124,22 @@ define([
                  collection: propertyCollection
              });
          },
-         generatePropertyCollectionView: function(metacards){
+         generatePropertyCollectionView: function(types, metacards){
              var propertyCollection = new PropertyCollection();
-             var propertyIntersection = this.determinePropertyIntersection(metacards);
+             var propertyIntersection = this.determinePropertyIntersection(types, metacards);
              var propertyArray = [];
              propertyIntersection.forEach(function(property){
                  propertyArray.push({
                      id: property,
-                     type: metacards['metacard-types'][0].type[property].type,
+                     type: types[0][property].format,
                      values: {},
-                     multivalued: metacards['metacard-types'][0].type[property].multivalued
+                     multivalued: types[0][property].multivalued
                  });
              });
              propertyArray.forEach(function(property){
-                 metacards.metacards.forEach(function(metacard){
+                 metacards.forEach(function(metacard){
                      var value = metacard[property.id];
-                     if (!metacards['metacard-types'][0].type[property.id].multivalued){
+                     if (!types[0][property.id].multivalued){
                          value = [value];
                      }
                      value.sort();
@@ -150,7 +150,7 @@ define([
                          };
                      property.values[value].hits++;
                  });
-                 if (metacards.metacards.length > 1){
+                 if (metacards.length > 1){
                      property.bulk = true;
                      if (Object.keys(property.values).length > 1){
                          property.value = [''];
@@ -162,24 +162,24 @@ define([
                  collection: propertyCollection
              });
          },
-         determinePropertyIntersection: function(metacards){
+         determinePropertyIntersection: function(types, metacards){
              var self = this;
-             var propertyIntersection = metacards['metacard-types'].map(function(metacardType){
-                 return Object.keys(metacardType.type);
+             var attributeKeys = metacards.map(function(metacard){
+                 return Object.keys(metacard);
              });
-             if (propertyIntersection.length === 1){
-                 propertyIntersection = propertyIntersection[0];
-             } else {
-                 propertyIntersection = _.intersection.apply(_, propertyIntersection);
-             }
+             var typeKeys = types.map(function(type){
+                 return Object.keys(type);
+             });
+             var propertyIntersection = attributeKeys.concat(typeKeys);
+             propertyIntersection = _.intersection.apply(_, propertyIntersection);
              propertyIntersection = propertyIntersection.filter(function(property){
                  return property === self.thumbnail ||  (property.indexOf('metacard') === -1 &&
                      property.indexOf('.') === -1
                      && property.indexOf('metadata') === -1
                      && property.indexOf('validation') === -1
                      && self.blacklist.indexOf(property) === -1
-                     && self.hiddenTypes.indexOf(metacards['metacard-types'][0].type[property].type) === -1
-                     && self.bulkHiddenTypes.indexOf(metacards['metacard-types'][0].type[property].type) === -1);
+                     && self.hiddenTypes.indexOf(types[0][property].format) === -1
+                     && self.bulkHiddenTypes.indexOf(types[0][property].format) === -1);
              });
              return propertyIntersection;
          }

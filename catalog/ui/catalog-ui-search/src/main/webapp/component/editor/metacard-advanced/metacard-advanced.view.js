@@ -30,23 +30,19 @@ define([
         },
         initialize: function(options){
             EditorView.prototype.initialize.call(this, options);
-            this.getMetacardDetails();
         },
-        getMetacardDetails: function(){
-            var loadingView = new LoadingView();
+        onBeforeShow: function() {
+            this.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(
+                [this.model.get('propertyTypes')],
+                [this.model.get('metacard>properties').toJSON()]));
+            this.editorProperties.currentView.turnOnLimitedWidth();
+            this.editorProperties.currentView.$el.addClass("is-list");
+
             var self = this;
-            $.when( $.get('/services/search/catalog/metacard/'+this.model.get('metacard').id +'/validation'),
-                $.ajax({
-                    url: '/services/search/catalog/metacards/',
-                    data: JSON.stringify([this.model.get('metacard').id]),
-                    method: 'POST',
-                    contentType: 'application/json'
-                })).done(function(validationResponse, metacardResponse){
-                self.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(metacardResponse[0]));
-                self.editorProperties.currentView.turnOnLimitedWidth();
-                self.editorProperties.currentView.$el.addClass("is-list");
-                self.editorProperties.currentView.updateValidation(validationResponse[0]);
-                loadingView.remove();
+            $.when( $.get('/services/search/catalog/metacard/'+this.model.get('metacard').id +'/validation')).done(function(validationResponse){
+                if (validationResponse && !_.isEmpty(validationResponse.length)) {
+                    self.editorProperties.currentView.updateValidation(validationResponse[0]);
+                }
             });
         },
         getValidation: function(){
