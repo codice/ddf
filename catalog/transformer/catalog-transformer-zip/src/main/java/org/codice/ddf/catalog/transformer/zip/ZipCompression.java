@@ -61,6 +61,8 @@ public class ZipCompression implements QueryResponseTransformer {
 
     public CatalogFramework catalogFramework;
 
+    public static final String METACARD_PATH = "metacards" + File.separator;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ZipCompression.class);
 
     /**
@@ -103,7 +105,7 @@ public class ZipCompression implements QueryResponseTransformer {
                 .forEach(metacard -> {
                     ZipParameters zipParameters = new ZipParameters();
                     zipParameters.setSourceExternalStream(true);
-                    zipParameters.setFileNameInZip(metacard.getId());
+                    zipParameters.setFileNameInZip(METACARD_PATH + metacard.getId());
 
                     try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                             ObjectOutputStream objectOutputStream = new ObjectOutputStream(

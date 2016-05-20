@@ -97,6 +97,8 @@ public class IngestCommand extends CatalogCommands {
 
     private static final String ZIP_DECOMPRESSION = "zipDecompression";
 
+    private static final String METACARD_PATH = "metacards" + File.separator;
+
     private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder().printZeroRarelyLast()
             .appendDays()
             .appendSuffix(" day", " days")
@@ -432,8 +434,7 @@ public class IngestCommand extends CatalogCommands {
 
     private void makeFailedIngestDirectory() {
         if (!failedIngestDirectory.mkdirs()) {
-            printErrorMessage(
-                    "Unable to create directory [" + failedIngestDirectory.getAbsolutePath()
+            printErrorMessage("Unable to create directory [" + failedIngestDirectory.getAbsolutePath()
                             + "].");
         }
     }
@@ -490,7 +491,7 @@ public class IngestCommand extends CatalogCommands {
                     List<Metacard> metacardList = zipDecompression.transform(inputStream,
                             arguments);
                     if (metacardList.size() != 0) {
-                        metacardFileMapping = generateFileMap(inputFile.getParentFile());
+                        metacardFileMapping = generateFileMap(new File(inputFile.getParent(), METACARD_PATH));
                         fileCount.set(metacardList.size());
                         metacardQueue.addAll(metacardList);
                     }
