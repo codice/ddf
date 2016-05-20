@@ -18,7 +18,7 @@ define(['jquery', 'jquerycometd'], function ($) {
 
     Cometd.Comet = $.cometd;
     Cometd.Comet.websocketEnabled = false;
-    var path = location.protocol + '//' + location.hostname+(location.port ? ':' + location.port : '') + '/cometd';
+    var path = location.protocol + '//' + location.hostname+(location.port ? ':' + location.port : '') + '/search/cometd';
     Cometd.Comet.configure({
         url: path,
         maxNetworkDelay: 30000

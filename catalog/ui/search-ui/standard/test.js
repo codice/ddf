@@ -37,7 +37,7 @@ app.all('/services/store/config', server.mockRequest);
 app.all('/services/platform/config/ui', server.mockRequest);
 app.all('/services/user', server.mockRequest);
 
-var bayeux = new faye.NodeAdapter({mount: '/cometd', timeout: 60});
+var bayeux = new faye.NodeAdapter({mount: '/search/cometd', timeout: 60});
 app.listen = function() {
     var server = http.createServer(this);
     bayeux.attach(server);

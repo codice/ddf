@@ -56,7 +56,7 @@ public class AsyncClient {
 
     private static final String DOWNLOADS_CHANNEL = NOTIFICATIONS_CHANNEL + "/downloads";
 
-    private static final String COMETD_CONTEXT = "/cometd";
+    private static final String COMETD_CONTEXT = "/search/cometd";
 
     private static final String DOWNLOAD_CONTEXT = "/services/catalog/sources/";
 

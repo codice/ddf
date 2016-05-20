@@ -71,7 +71,7 @@ import ddf.test.itests.AbstractIntegrationTest;
 public class TestSingleSignOn extends AbstractIntegrationTest {
 
     private static final String IDP_AUTH_TYPES =
-            "/=SAML|GUEST,/search=IDP,/cometd=IDP,/solr=SAML|PKI|basic,/services/whoami=IDP|GUEST";
+            "/=SAML|GUEST,/search=IDP,/solr=SAML|PKI|basic,/services/whoami=IDP|GUEST";
 
     private static final String KEY_STORE_PATH = System.getProperty("javax.net.ssl.keyStore");
 
