@@ -983,9 +983,16 @@
         <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
+    <!-- This can be removed when we have upgraded to Karaf 4.1.0
+    https://codice.atlassian.net/browse/DDF-2132 -->
+    <feature name="log4j2-temporary" install="manual" version="${project.version}" hidden="true">
+        <!-- This bundle can be removed when Karaf moves to Log4J2 as its default platform -->
+        <bundle>mvn:org.ops4j.pax.logging/pax-logging-log4j2/1.8.5</bundle>
+    </feature>
+
     <feature name="platform-all" install="manual" version="${project.version}" hidden="true">
         <feature prerequisite="true">platform-api</feature>
-        <bundle>mvn:ddf.platform/platform-logging/${project.version}</bundle>        
+        <bundle>mvn:ddf.platform/platform-logging/${project.version}</bundle>
         <feature prerequisite="true">platform-security-session</feature>
         <feature prerequisite="true">platform-migrate-all</feature>
         <feature>platform-scheduler</feature>
