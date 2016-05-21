@@ -126,11 +126,19 @@
     {{/each}}
 </div>
 <div class="paging">
-    <button class="first" {{#unless hasPreviousPage}}disabled{{/unless}}>First</button>
-    <button class="previous" {{#unless hasPreviousPage}}disabled{{/unless}}>Previous</button>
-    <button class="next" {{#unless hasNextPage}}disabled{{/unless}}>Next</button>
-    <button class="last" {{#unless hasNextPage}}disabled{{/unless}}>Last</button>
-    <div class="status">
+    <button class="first" {{#unless hasPreviousPage}}disabled{{/unless}}>
+        <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+    </button>
+    <button class="previous" {{#unless hasPreviousPage}}disabled{{/unless}}>
+        <i class="fa fa-angle-left" aria-hidden="true"></i>
+    </button>
+    <span class="status">
         {{pages}}
-    </div>
+    </span>
+    <button class="next" {{#unless hasNextPage}}disabled{{/unless}}>
+        <i class="fa fa-angle-right" aria-hidden="true"></i>
+    </button>
+    <button class="last" {{#unless hasNextPage}}disabled{{/unless}}>
+        <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+    </button>
 </div>
