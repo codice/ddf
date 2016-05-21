@@ -291,7 +291,6 @@ define(['application',
                     collection: results,
                     geoController: this
                 });
-                this.mapViews.listenTo(results, 'sync', this.mapViews.render);
                 this.mapViews.render();
             },
 

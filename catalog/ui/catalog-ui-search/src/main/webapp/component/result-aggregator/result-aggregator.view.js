@@ -41,6 +41,7 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
+            // TODO replace nested-change with sync
             //this.listenTo(this.model.get('queries'), 'nested-change', _.debounce(this.handleUpdate,200));
             //this.listenTo(store.get('content').get('results'), 'all', this.rerender);
             //this.handleUpdate();

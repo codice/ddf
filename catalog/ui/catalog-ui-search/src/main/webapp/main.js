@@ -26,6 +26,7 @@ require.config({
         // backbone
         backbone: 'lib/components-backbone/backbone',
         backboneassociations: 'lib/backbone-associations/backbone-associations',
+        backbonepaginator: 'lib/backbone.paginator/lib/backbone.paginator.min',
         backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
         backboneundo: 'lib/Backbone.Undo.js/Backbone.Undo',
         poller: 'lib/backbone-poller/backbone.poller',
@@ -81,6 +82,7 @@ require.config({
             ],
             exports: 'Backbone'
         },
+        backbonepaginator: { deps: ['backbone'] },
         bootstrapDatepicker: {
             deps: [
                 'jquery',
@@ -196,7 +198,6 @@ require([
         'defer': _.defer || lodash.defer,
         'pluck': _.pluck || lodash.pluck
     });
-    Backbone.Associations.EVENTS_NC = true;
     var document = window.document;
     //in here we drop in any top level patches, etc.
     var cache = {};

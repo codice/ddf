@@ -3,9 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "backbone": "1.3.3",
     "backbone-poller": "0.3.0",
     "backbone-associations": "v0.6.2",
     "backbone.modelbinder": "v1.0.5",
+    "backbone.paginator": "2.0.5",
     "Backbone.Undo.js": "osartun/Backbone.Undo.js#cb50f8da0968b699b8507bcd3b9254c7a3e2c2b5",
     "bootswatch": "v3.2.0",
     "cesiumjs": "v1.11.0",
@@ -42,6 +44,7 @@
     "eonasdan-bootstrap-datetimepicker": "~4.17.37"
   },
   "resolutions": {
+    "backbone": "1.3.3",
     "jquery": "~1.11.0",
     "underscore": "~1.8.2"
   }

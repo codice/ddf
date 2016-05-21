@@ -15,7 +15,8 @@ define([
         'backbone',
         'underscore',
         'wreqr',
-        'backboneassociations'
+        'backboneassociations',
+        'backbonepaginator'
     ],
     function (Backbone, _, wreqr) {
         "use strict";
@@ -235,6 +236,11 @@ define([
             }
         });
 
+        MetaCard.Results = Backbone.PageableCollection.extend({
+            model: MetaCard.MetacardResult,
+            mode: "client"
+        });
+
         MetaCard.SourceStatus = Backbone.AssociatedModel.extend({
 
         });
@@ -248,6 +254,7 @@ define([
                 {
                     type: Backbone.Many,
                     key: 'results',
+                    collectionType: MetaCard.Results,
                     relatedModel: MetaCard.MetacardResult
                 },
                 {

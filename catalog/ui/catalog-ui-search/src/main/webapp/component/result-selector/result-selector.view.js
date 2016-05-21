@@ -31,7 +31,11 @@ define([
         },
         events: {
             'click .resultSelector-list > .resultSelector-result': 'handleClick',
-            'mousedown .resultSelector-list > .resultSelector-result': 'stopTextSelection'
+            'mousedown .resultSelector-list > .resultSelector-result': 'stopTextSelection',
+            'click .first': 'firstPage',
+            'click .previous': 'previousPage',
+            'click .next': 'nextPage',
+            'click .last': 'lastPage'
         },
         ui: {
         },
@@ -61,19 +65,39 @@ define([
                 store.get('content').setActiveSearchResult(searchResult);
             }
         },
+        firstPage: function() {
+            this.model.get('result').get('results').getFirstPage();
+            this.render();
+        },
+        previousPage: function() {
+            this.model.get('result').get('results').getPreviousPage();
+            this.render();
+        },
+        nextPage: function() {
+            this.model.get('result').get('results').getNextPage();
+            this.render();
+        },
+        lastPage: function() {
+            this.model.get('result').get('results').getLastPage();
+            this.render();
+        },
         serializeData: function(){
             var status = _.filter(this.model.get('result').get('status').toJSON(), function (status) {
                 return status.id !== 'cache';
             });
-            var results = _.map(this.model.get('result').get('results').slice(0, properties.resultCount), function (model) {
+            var resultsCollection = this.model.get('result').get('results');
+            var results = _.map(resultsCollection.models, function (model) {
                 return this.massageResult(model.toJSON());
             }, this);
             return {
                 results: results,
                 status: status,
-                resultCount: this.resultsFound(status),
+                resultCount: this.resultsFound(resultsCollection.state.totalRecords, status),
+                pages: this.currentPages(resultsCollection.state.currentPage, resultsCollection.state.totalPages),
                 pending: this.someStatusSuccess(status, undefined),
-                failed: this.someStatusSuccess(status, false)
+                failed: this.someStatusSuccess(status, false),
+                hasPreviousPage: resultsCollection.hasPreviousPage(),
+                hasNextPage: resultsCollection.hasNextPage()
             };
         },
         massageResult: function(result){
@@ -94,24 +118,28 @@ define([
             }
             return result;
         },
-        resultsFound: function(data){
+        currentPages: function(current, total){
+            var pages = '';
+            if (current && total && total > 1) {
+                pages = current + ' of ' + total;
+            }
+            return pages;
+        },
+        resultsFound: function(total, data){
             var hits = _.reduce(data, function(hits, status) {
                 return status.hits ? hits + status.hits : hits;
             }, 0);
-            var count = _.reduce(data, function(count, status) {
-                return status.count ? count + status.count : count;
-            }, 0);
+            var count = total ? total : 0;
             var searching = _.every(data, function(status) {
                 return _.isUndefined(status.count);
             });
             if (searching) {
                 return 'Seraching...'
             }
-            if (hits === count) {
+            if (hits === count || count > hits) {
                 return count + ' results';
             } else {
-                var displayed = count > properties.resultCount ? properties.resultCount : count;
-                return 'Top ' + displayed + ' of ' + hits + ' results displayed';
+                return 'Top ' + count + ' of ' + hits + ' results';
             }
         },
         someStatusSuccess: function(status, value) {

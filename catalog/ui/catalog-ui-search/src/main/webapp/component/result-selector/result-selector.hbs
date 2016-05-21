@@ -125,3 +125,12 @@
             </div>
     {{/each}}
 </div>
+<div class="paging">
+    <button class="first" {{#unless hasPreviousPage}}disabled{{/unless}}>First</button>
+    <button class="previous" {{#unless hasPreviousPage}}disabled{{/unless}}>Previous</button>
+    <button class="next" {{#unless hasNextPage}}disabled{{/unless}}>Next</button>
+    <button class="last" {{#unless hasNextPage}}disabled{{/unless}}>Last</button>
+    <div class="status">
+        {{pages}}
+    </div>
+</div>

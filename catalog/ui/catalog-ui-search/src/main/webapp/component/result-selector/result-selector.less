@@ -3,14 +3,14 @@
   .customElement;
   padding: 10px;
 
-  .resultSelector-status {
+  .resultSelector-status, .paging .status {
     text-align: center;
     color: @muted-color;
   }
 
   .resultSelector-list {
     overflow: auto;
-    height: ~'calc(100% - 115px)';
+    height: ~'calc(100% - 185px)';
   }
 
   .resultSelector-result-example {
@@ -99,6 +99,18 @@
 
   .resultSelector-menu-action-descriptor {
     padding: 3px;
+  }
+
+  .paging {
+    width: 100%;
+    text-align: center;
+    padding: 5px 0;
+
+    button {
+      .button-mixin(@primary-color);
+      width: 24%;
+    }
+
   }
 
 }

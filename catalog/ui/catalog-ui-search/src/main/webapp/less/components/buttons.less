@@ -31,7 +31,7 @@ button.is-primary {
     border: 0px 0px 2px shade(@buttonColor, 50%);
   }
 
-  &.is-disabled {
+  &.is-disabled, &:disabled {
     background: tint(@buttonColor, 50%);
     cursor: not-allowed;
   }

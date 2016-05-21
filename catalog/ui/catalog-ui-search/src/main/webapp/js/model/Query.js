@@ -577,6 +577,7 @@ define([
                     result = this.get('result');
                     result.setColor(this.getColor());
                     result.setQueryId(this.getId());
+                    result.get('results').fullCollection.reset();
                     result.get('results').reset();
                     result.get('status').reset(initialStatus);
                 } else {
@@ -585,6 +586,7 @@ define([
                         color: this.getColor(),
                         status: initialStatus
                     });
+                    result.get('results').state.pageSize = 50;
                     this.set({result: result});
                 }
 
@@ -593,17 +595,17 @@ define([
 
                 switch (sortField) {
                     case 'RELEVANCE':
-                        result.get('results').comparator = function (a, b) {
+                        result.get('results').fullCollection.comparator = function (a, b) {
                             return sortOrder * (a.get('relevance') - b.get('relevance'));
                         };
                         break;
                     case 'DISTANCE':
-                        result.get('results').comparator = function (a, b) {
+                        result.get('results').fullCollection.comparator = function (a, b) {
                             return sortOrder * (a.get('distance') - b.get('distance'));
                         };
                         break;
                     default:
-                        result.get('results').comparator = function (a, b) {
+                        result.get('results').fullCollection.comparator = function (a, b) {
                             var aVal = a.get('metacard>properties>' + sortField);
                             var bVal = b.get('metacard>properties>' + sortField);
                             if (aVal < bVal) {
@@ -617,6 +619,7 @@ define([
                 }
 
                 result.set('initiated', moment().format('lll'));
+                result.get('results').fullCollection.sort();
 
                 sources.unshift("cache");
                 sources.forEach(function (src) {
@@ -629,6 +632,10 @@ define([
                         method: "POST",
                         processData: false,
                         timeout: properties.timeout,
+                        success: function() {
+                            result.get('results').state.totalRecords = result.get('results').fullCollection.length;
+                            result.get('results').fullCollection.sort();
+                        },
                         error: function () {
                             if (typeof console !== 'undefined') {
                                 console.error(arguments);

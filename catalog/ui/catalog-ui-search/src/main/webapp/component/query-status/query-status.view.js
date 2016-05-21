@@ -36,7 +36,7 @@ define([
         },
         initialize: function(options){
             if (store.getQueryById(this.model.id)) {
-                this.listenTo(store.getQueryById(this.model.id), 'nested-change', this.render);
+                this.listenTo(store.getQueryById(this.model.id).get('result'), 'sync', this.render);
             }
         },
         loadData: function(){
