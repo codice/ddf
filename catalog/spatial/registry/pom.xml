@@ -82,6 +82,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.codice.ddf.registry</groupId>
+                <artifactId>registry-publication-update-handler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-ogc-common</artifactId>
                 <version>${project.version}</version>
@@ -141,6 +146,6 @@
         <module>registry-federation-admin-api</module>
         <module>registry-app</module>
         <module>registry-admin-modules</module>
-
+        <module>registry-publication-update-handler</module>
     </modules>
 </project>
