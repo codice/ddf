@@ -25,7 +25,7 @@
         <bean id="mapConverter" class="ddf.catalog.util.impl.MapConverter"/>
     </type-converters>
 
-    <ext:property-placeholder/>
+    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]" />
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
@@ -215,12 +215,12 @@
 
     <bean id="cacheThreadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
-        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
     </bean>
 
     <bean id="downloadThreadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
-        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
     </bean>
 
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider"

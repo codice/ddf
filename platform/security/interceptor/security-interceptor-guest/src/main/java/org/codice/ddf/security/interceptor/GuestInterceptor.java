@@ -13,10 +13,9 @@
  */
 package org.codice.ddf.security.interceptor;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.soap.SOAPElement;
@@ -50,18 +49,18 @@ import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.common.Security;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 /**
@@ -81,18 +80,24 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
 
     private boolean guestAccessDenied = false;
 
-    private final Map<String, Subject> cachedGuestSubjectMap = new ConcurrentHashMap<>();
+    private static final Cache<String, Subject> CACHED_GUEST_SUBJECT = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.DAYS)
+            .maximumSize(1000)
+            .build();
+
+    private Security security;
 
     private final PolicyBasedWSS4JOutInterceptor.PolicyBasedWSS4JOutInterceptorInternal
             policyBasedWss4jOutInterceptor =
             new PolicyBasedWSS4JOutInterceptor().createEndingInterceptor();
 
     public GuestInterceptor(SecurityManager securityManager,
-            ContextPolicyManager contextPolicyManager) {
+            ContextPolicyManager contextPolicyManager, Security security) {
         super();
         LOGGER.trace("Constructing GuestInterceptor");
         this.securityManager = securityManager;
         this.contextPolicyManager = contextPolicyManager;
+        this.security = security;
         setPhase(Phase.PRE_PROTOCOL);
         //make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't work
         Set<String> before = getBefore();
@@ -208,19 +213,10 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
     }
 
     private Subject getSubject(String ipAddress) {
-        Subject subject = cachedGuestSubjectMap.get(ipAddress);
-        if (Security.getInstance()
-                .tokenAboutToExpire(subject)) {
-            GuestAuthenticationToken token =
-                    new GuestAuthenticationToken(BaseAuthenticationToken.DEFAULT_REALM, ipAddress);
-            LOGGER.debug("Getting new Guest user token for {}", ipAddress);
-            try {
-                subject = securityManager.getSubject(token);
-                cachedGuestSubjectMap.put(ipAddress, subject);
-            } catch (SecurityServiceException sse) {
-                LOGGER.warn("Unable to request subject for guest user.", sse);
-            }
-
+        Subject subject = CACHED_GUEST_SUBJECT.getIfPresent(ipAddress);
+        if (security.tokenAboutToExpire(subject)) {
+            subject = security.getGuestSubject(ipAddress);
+            CACHED_GUEST_SUBJECT.put(ipAddress, subject);
         } else {
             LOGGER.debug("Using cached Guest user token for {}", ipAddress);
         }

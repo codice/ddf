@@ -13,10 +13,16 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,6 +31,7 @@ import static org.mockito.Mockito.when;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -33,6 +40,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
@@ -61,6 +69,8 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 public class SendEventTest {
 
+    private Security mockSecurity;
+
     private URL callbackURI;
 
     private GetRecordsType request;
@@ -69,7 +79,7 @@ public class SendEventTest {
 
     private TransformerManager transformerManager;
 
-    private SendEvent sendEvent;
+    private SendEventExtension sendEvent;
 
     private Metacard metacard;
 
@@ -83,7 +93,7 @@ public class SendEventTest {
 
     private WebClient webclient;
 
-    private SecureCxfClientFactory<CswSubscribe> cxfClientFactory;
+    private SecureCxfClientFactory<CswSubscribe> mockCxfClientFactory;
 
     private Response response;
 
@@ -91,8 +101,11 @@ public class SendEventTest {
 
     private List<AccessPlugin> accessPlugins = new ArrayList<>();
 
+    private Subject subject;
+
     @Before
     public void setUp() throws Exception {
+        System.setProperty("ddf.home", ".");
         callbackURI = new URL("https://localhost:12345/services/csw/subscription/event");
         ObjectFactory objectFactory = new ObjectFactory();
         request = new GetRecordsType();
@@ -116,13 +129,16 @@ public class SendEventTest {
 
         metacard = mock(Metacard.class);
         webclient = mock(WebClient.class);
-        cxfClientFactory = mock(SecureCxfClientFactory.class);
+        mockCxfClientFactory = mock(SecureCxfClientFactory.class);
         response = mock(Response.class);
-        headers.put(Subject.class.toString(), Arrays.asList(new Subject[] {mock(Subject.class)}));
+        subject = mock(Subject.class);
+
+        mockSecurity = mock(Security.class);
+        headers.put(Subject.class.toString(), Arrays.asList(new Subject[] {subject}));
         AccessPlugin accessPlugin = mock(AccessPlugin.class);
         accessPlugins.add(accessPlugin);
-        when(cxfClientFactory.getWebClient()).thenReturn(webclient);
-        when(webclient.head()).thenReturn(response);
+        when(mockCxfClientFactory.getWebClient()).thenReturn(webclient);
+        //        when(webclient.head()).thenReturn(response);
         when(webclient.invoke(anyString(), any(QueryResponse.class))).thenReturn(response);
         when(response.getHeaders()).thenReturn(headers);
         when(accessPlugin.processPostQuery(any(QueryResponse.class))).thenAnswer(new Answer<QueryResponse>() {
@@ -132,12 +148,16 @@ public class SendEventTest {
             }
         });
 
-        sendEvent = new SendEventExtension(transformerManager, request, query, cxfClientFactory);
+        sendEvent = new SendEventExtension(transformerManager,
+                request,
+                query,
+                mockCxfClientFactory);
+        sendEvent.setSubject(subject);
 
     }
 
     public void verifyResults() throws Exception {
-        verify(webclient, times(2)).invoke(anyString(), anyObject());
+        verify(webclient, times(1)).invoke(anyString(), anyObject());
     }
 
     @Test
@@ -165,17 +185,86 @@ public class SendEventTest {
         verifyResults();
     }
 
+    @Test
+    public void testIsAvailableRetryBackoff() throws Exception {
+        when(webclient.invoke(eq("HEAD"), isNull())).thenThrow(new RuntimeException("test"));
+        sendEvent.setSubject(subject);
+        long lastPing = sendEvent.getLastPing();
+        boolean available = true;
+        //loop until we get to a backoff that will be long enough not to cause intermitent test failures
+        while (sendEvent.getRetryCount() < 7) {
+            available = sendEvent.ping();
+        }
+        assertFalse(available);
+        assertNotEquals(lastPing, sendEvent.getLastPing());
+        lastPing = sendEvent.getLastPing();
+        //run again this time within a backoff period and verify that it doesn't retry this is
+        available = sendEvent.ping();
+        assertFalse(available);
+        assertEquals(7, sendEvent.getRetryCount());
+        assertEquals(lastPing, sendEvent.getLastPing());
+
+    }
+
+    @Test
+    public void testIsAvailableSubjectExperation() throws Exception {
+        when(webclient.invoke(eq("HEAD"), isNull())).thenReturn(response);
+        when(mockSecurity.getExpires(subject)).thenReturn(new Date(
+                System.currentTimeMillis() + 600000L))
+                .thenReturn(new Date(System.currentTimeMillis() + 600000L))
+                .thenReturn(new Date());
+        sendEvent.setSubject(subject);
+        boolean available = false;
+        while (!sendEvent.ping()) {
+
+        }
+        long lastPing = sendEvent.getLastPing();
+        //sleep incase the test runs too fast we want to make sure their is a time difference
+        Thread.sleep(1);
+        //run within the expiration period of the assertion
+        available = sendEvent.ping();
+        assertTrue(available);
+        assertEquals(lastPing, sendEvent.getLastPing());
+        //sleep incase the test runs too fast we want to make sure their is a time difference
+        Thread.sleep(1);
+        //run with expired assertion
+        available = sendEvent.ping();
+        assertTrue(available);
+        assertNotEquals(lastPing, sendEvent.getLastPing());
+    }
+
+    @Test
+    public void testIsAvailableNoExperation() throws Exception {
+        long lastPing = sendEvent.getLastPing();
+        when(webclient.invoke(eq("HEAD"), isNull())).thenReturn(response);
+        boolean available = false;
+        while (!sendEvent.ping()) {
+
+        }
+        assertNotEquals(lastPing, sendEvent.getLastPing());
+        lastPing = sendEvent.getLastPing();
+        //run within the expiration period of the assertion
+        available = sendEvent.ping();
+        assertTrue(available);
+        assertEquals(lastPing, sendEvent.getLastPing());
+    }
+
     private class SendEventExtension extends SendEvent {
 
         public SendEventExtension(TransformerManager transformerManager, GetRecordsType request,
-                QueryRequest query, SecureCxfClientFactory<CswSubscribe> cxfClientFactory)
+                QueryRequest query, SecureCxfClientFactory<CswSubscribe> mockCxfClientFactory)
                 throws CswException {
             super(transformerManager, request, query);
-            this.cxfClientFactory = cxfClientFactory;
+            super.cxfClientFactory = mockCxfClientFactory;
+            super.security = mockSecurity;
         }
 
         List<AccessPlugin> getAccessPlugins() throws InvalidSyntaxException {
             return accessPlugins;
+        }
+
+        public void setSubject(Subject subject) {
+            super.subject = subject;
         }
     }
 }

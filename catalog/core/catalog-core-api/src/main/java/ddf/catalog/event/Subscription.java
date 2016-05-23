@@ -20,7 +20,7 @@ import ddf.catalog.federation.Federatable;
 /**
  * A Subscription is used for a "subscriber" to subscribe to events based on a particular type of
  * filter. For example, a Subscription can be created to receive events within the last hour.
- *
+ * <p>
  * Since the {@code Subscription} extends the {@link Filter} class, the {@code Subscription} must
  * conform to the OGC Filter structure.
  *
@@ -35,5 +35,4 @@ public interface Subscription extends Filter, Federatable {
      * @return the delivery method
      */
     public DeliveryMethod getDeliveryMethod();
-
 }
