@@ -188,9 +188,7 @@ define([
         },
         handleNormalClick: function(metacardId){
             store.clearSelectedResults();
-            console.log('clear on click');
             store.addSelectedResult(this.model.get('result').get('results').get(metacardId));
-            console.log('add on click');
         },
         handleSelectionChange: function(){
             var self = this;

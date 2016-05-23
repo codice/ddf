@@ -69,7 +69,6 @@ define([
             return store.get('content').get('results').toJSON();
         },
         render: function(){
-            console.log('overriding render');
         }
     });
 

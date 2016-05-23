@@ -295,8 +295,6 @@ define([
                     return value.split(',');
                 }
             }, datetimeConverter = function(direction, value){
-                console.log(direction);
-                console.log(value);
                 if (direction === 'ViewToModel'){
                     return getHumanReadableDate(value);
                 } else {

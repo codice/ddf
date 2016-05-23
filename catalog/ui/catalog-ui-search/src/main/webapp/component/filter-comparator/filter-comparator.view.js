@@ -52,8 +52,6 @@ define([
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         serializeData: function(){
-            console.log(store.metacardTypes[this.model.get('type')]);
-            console.log(this.model.get('type'));
             switch(store.metacardTypes[this.model.get('type')].type) {
                 case 'GEOMETRY':
                     if (geometryComparators.indexOf(this.model.get('comparator')) === -1){

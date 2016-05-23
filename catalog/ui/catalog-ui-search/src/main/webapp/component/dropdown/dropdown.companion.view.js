@@ -45,7 +45,6 @@ define([
                 if (!this.isDestroyed){
                     this.destroy();
                 }
-                console.log('destroy');
             }.bind(this));
             this.listenForClose();
         },

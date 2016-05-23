@@ -97,8 +97,10 @@ define([
         },
         determinePossibleAssociations: function(){
             var possibleAssociations = {};
-            store.getCurrentQueries().toJSON().map(function(blob){
-                return blob.result.toJSON().results;
+            store.getCurrentQueries().filter(function(query) {
+                return query.get('result');
+            }).map(function(query){
+                return query.get('result').toJSON().results;
             }).forEach(function(resultList){
                 resultList.forEach(function(metacard){
                     possibleAssociations[metacard.metacard.id] = {
