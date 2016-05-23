@@ -80,14 +80,14 @@ define([
                    }).always(function(response){
                        var attributeMap = response.reduce(function(attributeMap, changes){
                            return changes.attributes.reduce(function(attrMap, chnges){
-                               attrMap[chnges.attribute] = chnges.values;
+                               attrMap[chnges.attribute] = store.metacardTypes[chnges.attribute].multivalued ? chnges.values : chnges.values[0];
                                return attrMap;
                            }, attributeMap);
                        }, {});
                        self.model.get('metacard').get('properties').set(attributeMap);
                        setTimeout(function(){  //let solr flush
                            loadingView.remove();
-                           self.getMetacardDetails();
+                           self.onBeforeShow();
                        }, 1000);
                    });
                }, 1000);

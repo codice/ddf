@@ -32,6 +32,15 @@ define([
                 case 'thumbnail':
                     return this.children.first().hasChanged();
                     break;
+                case 'date':
+                    var currentValue = this.children.map(function(childView){
+                        return childView.getCurrentValue();
+                    });
+                    currentValue.sort();
+                    return currentValue.toString() !==  this.model.getInitialValue().map(function(dateValue){
+                            return (new Date(dateValue)).toISOString();
+                        }).toString();
+                    break;
                 default:
                     var currentValue = this.children.map(function(childView){
                         return childView.getCurrentValue();

@@ -134,7 +134,7 @@ define([
                 return _.isUndefined(status.count);
             });
             if (searching) {
-                return 'Seraching...'
+                return 'Searching...'
             }
             if (hits === count || count > hits) {
                 return count + ' results';
