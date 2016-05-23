@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.libs.klv.data.numerical;
 
+import java.util.Optional;
+
 import org.codice.ddf.libs.klv.data.Klv;
 
 /**
@@ -30,6 +32,18 @@ public class KlvDouble extends KlvNumericalDataElement<Double> {
         super(key, name);
     }
 
+    /**
+     * Constructs a {@code KlvDouble} representing a KLV data element that has a
+     * <strong>double</strong> value.
+     *
+     * @param key  the data element's key
+     * @param name a name describing data element's value
+     * @param errorIndicatorValue value that indicates an encoded error
+     */
+    public KlvDouble(final byte[] key, final String name, Optional<Double> errorIndicatorValue) {
+        super(key, name, errorIndicatorValue);
+    }
+
     @Override
     protected void decodeValue(final Klv klv) {
         value = klv.getValueAsDouble();
@@ -37,6 +51,6 @@ public class KlvDouble extends KlvNumericalDataElement<Double> {
 
     @Override
     protected KlvDouble copy() {
-        return new KlvDouble(keyBytes, name);
+        return new KlvDouble(keyBytes, name, errorIndicatorValue);
     }
 }
