@@ -29,13 +29,20 @@ define([
              MultivalueView, store, PropertyModel, DropdownModel) {
 
     var comparatorToCQL = {
-        before: 'BEFORE',
-        after: 'AFTER',
-        intersects: 'INTERSECTS',
-        contains: 'ILIKE',
-        matchcase: 'LIKE',
-        equals: '='
+        BEFORE: 'BEFORE',
+        AFTER: 'AFTER',
+        INTERSECTS: 'INTERSECTS',
+        CONTAINS: 'ILIKE',
+        MATCHCASE: 'LIKE',
+        EQUALS: '='
     };
+
+    var CQLtoComparator = {};
+    for (var key in comparatorToCQL){
+        CQLtoComparator[comparatorToCQL[key]] = key;
+    }
+
+
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -72,9 +79,10 @@ define([
         },
         determineInput: function(){
             this.filterInput.show(new MultivalueView({
-                model: new PropertyModel(_.extend({
-                    value: this.model.get('value')
-                },store.metacardTypes[this.model.get('type')]))
+                model: new PropertyModel(_.extend(store.metacardTypes[this.model.get('type')], {
+                    value: this.model.get('value'),
+                    multivalued: false
+                }))
             }));
             this.filterInput.currentView.model.set('isEditing',true);
            // this.filterInput.currentView.addNewValue();
@@ -96,7 +104,7 @@ define([
                     filters: this.filterInput.currentView.getCurrentValue().map(function(currentValue){
                         return {
                             type: type,
-                            property: property,
+                            property: '"'+property+'"',
                             value: currentValue
                         }
                     })
@@ -104,7 +112,7 @@ define([
             } else {
                 return {
                     type: type,
-                    property: property,
+                    property: '"'+property+'"',
                     value: this.filterInput.currentView.getCurrentValue()[0]
                 }
             }
@@ -113,8 +121,8 @@ define([
             setTimeout(function(){
                 this.model.set({
                     value: [filter.value],
-                    type: filter.property,
-                    comparator: filter.type
+                    type: filter.property.split('"').join(''),
+                    comparator: CQLtoComparator[filter.type]
                 });
             }.bind(this),0);
         },
