@@ -22,9 +22,9 @@ define([
     'js/store'
 ], function (Marionette, _, $, template, CustomElements, store) {
 
-    var geometryComparators = ['intersects'];
-    var dateComparators = ['before', 'after'];
-    var stringComparators = ['contains', 'matchcase', 'equals'];
+    var geometryComparators = ['INTERSECTS'];
+    var dateComparators = ['BEFORE', 'AFTER'];
+    var stringComparators = ['CONTAINS', 'MATCHCASE', 'EQUALS'];
 
     return Marionette.ItemView.extend({
         template: template,

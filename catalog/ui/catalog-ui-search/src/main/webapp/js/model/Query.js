@@ -398,8 +398,8 @@ define([
                     offset = this.get('dtoffset'),
                     timeType = this.get('timeType');
                 if (start && end) {
-                    filters.push(timeType + ' DURING ' + this.getValue(new Date(start)) + '/' +
-                        this.getValue(new Date(end)));
+                    filters.push(timeType + ' AFTER ' + this.getValue(new Date(start)));
+                    filters.push(timeType + ' BEFORE ' + this.getValue(new Date(end)));
                 } else if (start) {
                     filters.push(timeType + ' AFTER ' + this.getValue(new Date(start)));
                 } else if (end) {
