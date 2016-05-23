@@ -35,7 +35,9 @@ define([
         ui: {
         },
         initialize: function(options){
-            this.listenTo(store.getQueryById(this.model.id), 'change:result', this.listenToStatus);
+            if (store.getQueryById(this.model.id)){
+                this.listenTo(store.getQueryById(this.model.id), 'change:result', this.listenToStatus);
+            }
         },
         listenToStatus: function(model) {
             if (model.has('result') && _.isUndefined(model.previous('result'))) {
