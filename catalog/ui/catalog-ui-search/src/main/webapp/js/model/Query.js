@@ -44,24 +44,27 @@ define([
             //only contains 5 items to know if we can search or not
             //as soon as the model contains more than 5 items, we assume
             //that we have enough values to search
-            defaults: {
-                title: 'Untitled',
-                offsetTimeUnits: 'hours',
-                scheduleUnits: 'minutes',
-                timeType: 'modified',
-                radiusUnits: 'meters',
-                radius: 0,
-                count: properties.resultCount,
-                start: 1,
-                format: "geojson",
-                locationType: 'latlon',
-                lat: undefined,
-                lon: undefined,
-                federation: 'enterprise',
-                sortField: 'modified',
-                sortOrder: 'desc',
-                dtstart: undefined,
-                dtend: undefined
+            defaults: function() {
+                return {
+                    title: 'Untitled',
+                    offsetTimeUnits: 'hours',
+                    scheduleUnits: 'minutes',
+                    timeType: 'modified',
+                    radiusUnits: 'meters',
+                    radius: 0,
+                    count: properties.resultCount,
+                    start: 1,
+                    format: "geojson",
+                    locationType: 'latlon',
+                    lat: undefined,
+                    lon: undefined,
+                    federation: 'enterprise',
+                    sortField: 'modified',
+                    sortOrder: 'desc',
+                    dtstart: undefined,
+                    dtend: undefined,
+                    result: undefined
+                };
             },
 
             drawing: false,
