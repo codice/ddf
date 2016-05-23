@@ -23,8 +23,8 @@ define([
     'component/menu-vertical/popout/menu-vertical.popout.view',
     'component/content-toolbar/content-toolbar',
     'moment'
-], function (Marionette, _, $, template, CustomElements, store, MenuView, ContentToolbar,
-             moment) {
+], function (Marionette, _, $, template, CustomElements, store, MenuView,
+             ContentToolbar, moment) {
 
     function getResultsFound(data){
         var hits = _.reduce(data, function(hits, status) {
@@ -39,11 +39,10 @@ define([
         if (searching) {
             return 'Searching...'
         }
-        if (hits === count) {
+        if (hits === count || count > hits) {
             return count + ' results';
         } else {
-            var displayed = count > properties.resultCount ? properties.resultCount : count;
-            return 'Top ' + displayed + ' of ' + hits + ' results displayed';
+            return count + ' of ' + hits + ' results';
         }
     }
 
@@ -77,13 +76,29 @@ define([
         ui: {
         },
         initialize: function(options){
-            this.listenTo(this.model, 'all', _.throttle(function(){
-                if (!this.isDestroyed){
-                    this.render();
-                }
-            }.bind(this), 200));
+            var query = store.getQueryById(this.model.id);
+            this.listenTo(query, 'change', this.updateQuery);
+            if (query.has('result')) {
+                this.listenToStatus(query);
+            } else {
+                this.listenTo(query, 'change:result', this.resultAdded);
+            }
             this.listenTo(store.get('content'), 'change:query', this.highlight);
             this._menuModel = new ContentToolbar();
+        },
+        updateQuery: function() {
+            if (!this.isDestroyed){
+                this.render();
+            }
+        },
+        resultAdded: function(model) {
+            if (model.has('result') && _.isUndefined(model.previous('result'))) {
+                this.listenToStatus(model);
+            }
+        },
+        listenToStatus: function(model) {
+            this.listenTo(model.get('result>results'), 'reset', this.updateQuery);
+            this.listenTo(model.get('result'), 'sync', this.updateQuery);
         },
         initializeMenus: function(){
             MenuView.getNewQueryMenu(this._menuModel,
@@ -132,7 +147,7 @@ define([
             } else {
                 return {
                     query: query,
-                    resultCount: '0 results',
+                    resultCount: '',
                     queryStatus: 'Has not been run'
                 };
             }

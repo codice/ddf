@@ -35,8 +35,12 @@ define([
         ui: {
         },
         initialize: function(options){
-            if (store.getQueryById(this.model.id)) {
-                this.listenTo(store.getQueryById(this.model.id).get('result'), 'sync', this.render);
+            this.listenTo(store.getQueryById(this.model.id), 'change:result', this.listenToStatus);
+        },
+        listenToStatus: function(model) {
+            if (model.has('result') && _.isUndefined(model.previous('result'))) {
+                this.listenTo(model.get('result>results'), 'reset', this.render);
+                this.listenTo(model.get('result'), 'sync', this.render);
             }
         },
         loadData: function(){
