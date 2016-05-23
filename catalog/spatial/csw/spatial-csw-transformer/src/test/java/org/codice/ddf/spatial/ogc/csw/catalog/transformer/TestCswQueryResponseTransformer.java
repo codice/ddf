@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
@@ -35,11 +36,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.MimeType;
 import javax.ws.rs.WebApplicationException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
@@ -57,6 +60,7 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.Query;
@@ -69,7 +73,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.api.PrintWriter;
 import ddf.catalog.transformer.api.PrintWriterProvider;
-
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
@@ -201,6 +204,8 @@ public class TestCswQueryResponseTransformer {
         when(mockQueryRequest.getQuery()).thenReturn(mockQuery);
         when(mockArguments.get(CswConstants.RESULT_TYPE_PARAMETER)).thenReturn(ResultType.RESULTS);
         when(mockArguments.get(CswConstants.IS_BY_ID_QUERY)).thenReturn(true);
+        when(mockTransformerManager.getTransformerBySchema(anyString())).thenReturn(
+                mockMetacardTransformer);
 
         // given
         transformer.init();
@@ -268,6 +273,8 @@ public class TestCswQueryResponseTransformer {
         when(mockSourceResponse.getRequest()).thenReturn(mockQueryRequest);
         when(mockQueryRequest.getQuery()).thenReturn(mockQuery);
         when(mockArguments.get(CswConstants.RESULT_TYPE_PARAMETER)).thenReturn(ResultType.RESULTS);
+        when(mockTransformerManager.getTransformerBySchema(anyString())).thenReturn(
+                mockMetacardTransformer);
 
         // given
         transformer.init();
@@ -276,7 +283,7 @@ public class TestCswQueryResponseTransformer {
 
         // then
         ArgumentCaptor<String> tmCaptor = ArgumentCaptor.forClass(String.class);
-        verify(mockTransformerManager, never()).getTransformerBySchema(tmCaptor.capture());
+        verify(mockTransformerManager, times(1)).getTransformerBySchema(tmCaptor.capture());
 
         ArgumentCaptor<Map> mapCaptor = ArgumentCaptor.forClass(Map.class);
         ArgumentCaptor<Metacard> mcCaptor = ArgumentCaptor.forClass(Metacard.class);
@@ -294,6 +301,8 @@ public class TestCswQueryResponseTransformer {
         when(mockSourceResponse.getRequest()).thenReturn(mockQueryRequest);
         when(mockQueryRequest.getQuery()).thenReturn(mockQuery);
         when(mockArguments.get(CswConstants.RESULT_TYPE_PARAMETER)).thenReturn(ResultType.RESULTS);
+        when(mockTransformerManager.getTransformerBySchema(anyString())).thenReturn(
+                mockMetacardTransformer);
 
         // given
         transformer.init();
@@ -347,6 +356,51 @@ public class TestCswQueryResponseTransformer {
         JAXBElement<?> jaxB = (JAXBElement<?>) response.getEchoedRequest()
                 .getAny();
         assertThat(jaxB.getValue(), is(instanceOf(GetRecordsType.class)));
+    }
+
+    @Test
+    public void verifyResultOrderIsMaintained() throws CatalogTransformerException, IOException {
+        // when
+        when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
+        when(mockPrintWriter.makeString()).thenReturn(new String());
+        when(mockSourceResponse.getResults()).thenReturn(createResults(1, 10));
+        when(mockSourceResponse.getRequest()).thenReturn(mockQueryRequest);
+        when(mockQueryRequest.getQuery()).thenReturn(mockQuery);
+        when(mockArguments.get(CswConstants.RESULT_TYPE_PARAMETER)).thenReturn(ResultType.RESULTS);
+
+        when(mockTransformerManager.getTransformerBySchema(anyString())).thenReturn(
+                mockMetacardTransformer);
+
+        when(mockMetacardTransformer.transform(any(Metacard.class), any(Map.class))).thenAnswer(
+                invocationOnMock -> {
+                    Metacard metacard = (Metacard) invocationOnMock.getArguments()[0];
+                    BinaryContentImpl bci = new BinaryContentImpl(IOUtils.toInputStream(
+                            metacard.getId() + ","), new MimeType("application/xml"));
+                    return bci;
+                });
+
+        // given
+        transformer.init();
+        BinaryContent bc = transformer.transform(mockSourceResponse, mockArguments);
+        transformer.destroy();
+
+        // then
+        ArgumentCaptor<String> tmCaptor = ArgumentCaptor.forClass(String.class);
+        verify(mockTransformerManager, times(1)).getTransformerBySchema(tmCaptor.capture());
+
+        ArgumentCaptor<Map> mapCaptor = ArgumentCaptor.forClass(Map.class);
+        ArgumentCaptor<Metacard> mcCaptor = ArgumentCaptor.forClass(Metacard.class);
+        verify(mockMetacardTransformer, times(10)).transform(mcCaptor.capture(),
+                mapCaptor.capture());
+
+        ArgumentCaptor<String> strCaptor = ArgumentCaptor.forClass(String.class);
+        verify(mockPrintWriter, times(2)).setRawValue(strCaptor.capture());
+        String order = strCaptor.getAllValues()
+                .get(1);
+        String[] ids = order.split(",");
+        for (int i = 1; i < ids.length; i++) {
+            assertThat(ids[i - 1], is(String.valueOf("id_" + i)));
+        }
     }
 
     private SourceResponse createSourceResponse(GetRecordsType request, int resultCount) {

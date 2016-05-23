@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,13 +17,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -261,34 +262,39 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 queryExecutor);
 
         try {
+            final MetacardTransformer transformer =
+                    metacardTransformerManager.getTransformerBySchema(recordSchema);
+            if (transformer == null) {
+                throw new CatalogTransformerException(
+                        "Cannot find transformer for schema: " + recordSchema);
+            }
+
+            Map<Future<BinaryContent>, Result> futures = new HashMap<>(results.size());
             for (Result result : results) {
                 final Metacard mc = result.getMetacard();
 
-                final MetacardTransformer transformer =
-                        metacardTransformerManager.getTransformerBySchema(recordSchema);
-
-                if (transformer == null) {
-                    throw new CatalogTransformerException(
-                            "Cannot find transformer for schema: " + recordSchema);
-                }
-
                 // the "current" thread will run submitted task when queueSize exceeded; effectively
                 // blocking enqueue of more tasks.
-                completionService.submit(new Callable<BinaryContent>() {
-                    @Override
-                    public BinaryContent call() throws Exception {
-                        BinaryContent content = transformer.transform(mc, arguments);
-                        return content;
-                    }
-                });
+                futures.put(completionService.submit(() -> {
+                    BinaryContent content = transformer.transform(mc, arguments);
+                    return content;
+                }), result);
             }
 
-            int metacardCount = results.size();
+            // TODO - really? I can't use a list of some sort?
+            InputStream[] contents = new InputStream[results.size()];
+
+            while (!futures.isEmpty()) {
+                Future<BinaryContent> completedFuture = completionService.take();
+                int index = results.indexOf(futures.get(completedFuture));
+                contents[index] = completedFuture.get()
+                        .getInputStream();
+                futures.remove(completedFuture);
+            }
+
             CharArrayWriter accum = new CharArrayWriter(ACCUM_INITIAL_SIZE);
-            for (int i = 0; i < metacardCount; i++) {
-                Future<BinaryContent> binaryContentFuture = completionService.take(); // blocks
-                BinaryContent binaryContent = binaryContentFuture.get();
-                IOUtils.copy(binaryContent.getInputStream(), accum);
+            for (InputStream is : contents) {
+                IOUtils.copy(is, accum);
             }
 
             return accum.toString();
