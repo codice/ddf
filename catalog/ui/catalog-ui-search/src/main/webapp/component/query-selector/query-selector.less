@@ -27,6 +27,16 @@
       max-height: ~"calc(100% - @{minimumButtonSize} - @{buttonMargin})";
     }
   }
+
+  .if-empty {
+    display: none;
+  }
+}
+
+@{customElementNamespace}query-selector.is-empty {
+  .if-empty {
+    display: block;
+  }
 }
 
 @media (max-width: @smallScreenSize) {

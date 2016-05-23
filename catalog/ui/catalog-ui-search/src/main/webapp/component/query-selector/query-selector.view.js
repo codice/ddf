@@ -51,10 +51,10 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            this.handleMaxQueries();
-            this.listenTo(this.model, 'add', this.handleMaxQueries);
-            this.listenTo(this.model, 'remove', this.handleMaxQueries);
-            this.listenTo(this.model, 'update', this.handleMaxQueries);
+            this.handleUpdate();
+            this.listenTo(this.model, 'add', this.handleUpdate);
+            this.listenTo(this.model, 'remove', this.handleUpdate);
+            this.listenTo(this.model, 'update', this.handleUpdate);
         },
         addQuery: function(){
             if (this.model.canAddQuery()){
@@ -67,8 +67,15 @@ define([
             var queryId = event.currentTarget.getAttribute('data-queryId');
             store.setQueryById(queryId);
         },
+        handleUpdate: function(){
+            this.handleMaxQueries();
+            this.handleEmptyQueries();
+        },
         handleMaxQueries: function(){
             this.$el.toggleClass('can-addQuery', this.model.canAddQuery());
+        },
+        handleEmptyQueries: function(){
+            this.$el.toggleClass('is-empty', this.model.isEmpty());
         }
     });
 
