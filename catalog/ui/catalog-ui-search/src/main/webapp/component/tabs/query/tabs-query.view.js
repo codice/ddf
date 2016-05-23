@@ -18,8 +18,9 @@ define([
     'underscore',
     'jquery',
     '../tabs.view',
-    './tabs-query'
-], function (Marionette, _, $, TabsView, QueryTabsModel) {
+    './tabs-query',
+    'js/store'
+], function (Marionette, _, $, TabsView, QueryTabsModel, store) {
 
     var QueryTabsView = TabsView.extend({
         setDefaultModel: function(){
@@ -29,7 +30,8 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            TabsView.prototype.initialize.call(this)
+            this.listenTo(store.get('content'), 'change:query', this.determineContent);
+            TabsView.prototype.initialize.call(this);
         },
         determineContent: function(){
             var activeTab = this.model.getActiveView();

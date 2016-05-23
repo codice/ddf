@@ -41,8 +41,6 @@ define([
         },
         ui: {
         },
-        initialize: function(){
-        },
         onBeforeShow: function(){
             this.queryAdvanced.show(new FilterBuilderView({
                 model: new FilterBuilderModel()

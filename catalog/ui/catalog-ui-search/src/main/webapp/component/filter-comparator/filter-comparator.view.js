@@ -30,7 +30,7 @@ define([
         template: template,
         tagName: CustomElements.register('filter-comparator'),
         modelEvents: {
-            'all': 'render'
+            'change': 'render'
         },
         events: {
             'click .choice': 'handleChoice'

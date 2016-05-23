@@ -159,7 +159,9 @@ define([
             } else if (queryRef !== undefined) {
                 this.updatePanelTwoQueryTitle();
                 this.showPanelTwo();
-                this.panelTwo.show(new QueryTabsView());
+                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== QueryTabsView) {
+                    this.panelTwo.show(new QueryTabsView());
+                }
             } else if (selectedResults.length === 1) {
                 this.updatePanelTwoSelectedResultTitle();
                 this.showPanelTwo();

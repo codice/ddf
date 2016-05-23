@@ -26,7 +26,7 @@ define([
         template: template,
         tagName: CustomElements.register('filter-attribute'),
         modelEvents: {
-            'all': 'render'
+            'change': 'render'
         },
         events: {
             'click .choice': 'handleChoice'
