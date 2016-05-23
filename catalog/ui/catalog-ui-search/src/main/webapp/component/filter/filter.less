@@ -27,3 +27,31 @@
     display: inline-block;
   }
 }
+
+@{customElementNamespace}filter-collection.can-delete {
+  > @{customElementNamespace}filter {
+    > .filter-remove {
+      display: inline-block;
+    }
+  }
+
+  > @{customElementNamespace}filter.is-editing {
+    > .filter-remove {
+      display: inline-block;
+    }
+  }
+}
+
+@{customElementNamespace}filter-collection {
+  > @{customElementNamespace}filter.is-editing {
+    > .filter-remove {
+      display: none;
+    }
+  }
+
+  > @{customElementNamespace}filter {
+    > .filter-remove {
+      display: none;
+    }
+  }
+}

@@ -58,10 +58,7 @@ define([
         },
         cancel: function(){
             this.$el.removeClass('is-editing');
-            if (this.model.get('cql')) {
-                this.queryAdvanced.currentView.deserialize(cql.simplify(cql.read(this.model.get('cql'))));
-            }
-            this.queryAdvanced.currentView.turnOffEditing();
+            this.onBeforeShow();
         },
         save: function(){
             this.$el.removeClass('is-editing');

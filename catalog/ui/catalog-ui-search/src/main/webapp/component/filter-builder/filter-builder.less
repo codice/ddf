@@ -62,3 +62,31 @@
     }
   }
 }
+
+@{customElementNamespace}filter-collection.can-delete {
+  > @{customElementNamespace}filter-builder {
+    > .filter-remove {
+      display: inline-block;
+    }
+  }
+
+  > @{customElementNamespace}filter-builder.is-editing {
+    > .filter-remove {
+      display: inline-block;
+    }
+  }
+}
+
+@{customElementNamespace}filter-collection {
+  > @{customElementNamespace}filter-builder.is-editing {
+    > .filter-remove {
+      display: none;
+    }
+  }
+
+  > @{customElementNamespace}filter-builder {
+    > .filter-remove {
+      display: none;
+    }
+  }
+}

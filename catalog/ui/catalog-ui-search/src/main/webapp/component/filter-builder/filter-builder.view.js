@@ -62,10 +62,14 @@ define([
             this.model.destroy();
         },
         addFilter: function() {
-            return this.filterContents.currentView.addFilter(new FilterModel());
+            var FilterView = this.filterContents.currentView.addFilter(new FilterModel());
+            this.handleEditing();
+            return FilterView;
         },
         addFilterBuilder: function(){
-            return this.filterContents.currentView.addFilterBuilder(new FilterBuilderModel());
+            var FilterBuilderView = this.filterContents.currentView.addFilterBuilder(new FilterBuilderModel());
+            this.handleEditing();
+            return FilterBuilderView;
         },
         filterView: FilterView,
         printValue: function(){
@@ -90,7 +94,7 @@ define([
             return text;
         },
         transformToCql: function(){
-            return cql.write(this.getFilters());
+            return cql.write(cql.simplify(cql.read(cql.write(this.getFilters()))));
         },
         getFilters: function(){
             var operator = this.model.get('operator');
@@ -127,12 +131,7 @@ define([
                             filterView.setFilter(filter);
                         }
                     }.bind(this));
-                    var isEditing = this.$el.hasClass('is-editing');
-                    if (isEditing){
-                        this.turnOnEditing();
-                    } else {
-                        this.turnOffEditing();
-                    }
+                    this.handleEditing();
                 }
             }.bind(this),0);
         },
@@ -159,6 +158,14 @@ define([
         },
         onBeforeDestroy: function(){
             this._operatorDropdownModel.destroy();
+        },
+        handleEditing: function(){
+            var isEditing = this.$el.hasClass('is-editing');
+            if (isEditing){
+                this.turnOnEditing();
+            } else {
+                this.turnOffEditing();
+            }
         },
         turnOnEditing: function(){
             this.$el.addClass('is-editing');

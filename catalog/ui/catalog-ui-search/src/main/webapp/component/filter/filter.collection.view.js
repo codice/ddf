@@ -34,6 +34,11 @@ define([
             }
         },
         tagName: CustomElements.register('filter-collection'),
+        initialize: function(){
+            this.listenTo(this.collection, 'remove', this.handleMinusButton);
+            this.listenTo(this.collection, 'add', this.handleMinusButton);
+            this.handleMinusButton();
+        },
         addFilter: function(filterModel) {
             filterModel = filterModel || new FilterModel();
             this.collection.add(filterModel);
@@ -53,6 +58,9 @@ define([
             this.children.forEach(function(childView){
                  childView.turnOffEditing();
             });
+        },
+        handleMinusButton: function(){
+            this.$el.toggleClass('can-delete', this.collection.length > 1);
         }
     });
 });
