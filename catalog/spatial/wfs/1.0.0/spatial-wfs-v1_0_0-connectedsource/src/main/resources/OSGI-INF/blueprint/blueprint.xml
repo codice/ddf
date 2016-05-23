@@ -20,26 +20,18 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-
     <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-    <reference-list id="metacardToFeatureMappers"
-                    interface="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"
-                    availability="optional"/>
-
-
     <reference-list id="converterList"
-                    interface="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.FeatureConverterFactory"
+                    interface="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory"
                     availability="optional"/>
-
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <cm:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.WfsFederatedSource.id"
-            factory-pid="Wfs_v2_0_0_Federated_Source"
-            interface="ddf.catalog.source.FederatedSource">
-        <cm:managed-component class="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.WfsSource"
+            id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsConnectedSource.id"
+            factory-pid="Wfs_v1_0_0_Connected_Source"
+            interface="ddf.catalog.source.ConnectedSource">
+        <cm:managed-component class="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsSource"
                               init-method="init" destroy-method="destroy">
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterAdapter" ref="filterAdapter"/>
@@ -54,15 +46,10 @@
             <property name="featureConverterFactoryList" ref="converterList"/>
             <property name="pollInterval" value="5"/>
             <property name="forceSpatialFilter" value=""/>
-            <property name="metacardToFeatureMapper" ref="metacardToFeatureMappers"/>
-            <property name="coordinateOrder" value="LAT_LON"/>
-            <property name="disableSorting" value="false"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
-            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
     </cm:managed-service-factory>
-
 </blueprint>

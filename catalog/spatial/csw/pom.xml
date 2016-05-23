@@ -27,6 +27,7 @@
         <module>spatial-csw-common</module>
         <module>spatial-csw-transformer</module>
         <module>spatial-csw-source</module>
+        <module>spatial-csw-connectedsource</module>
         <module>spatial-csw-endpoint</module>
         <module>spatial-csw-source-common</module>
     </modules>

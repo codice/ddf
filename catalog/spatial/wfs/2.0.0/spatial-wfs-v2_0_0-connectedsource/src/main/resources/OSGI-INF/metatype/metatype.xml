@@ -14,22 +14,31 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="WFS v1.0.0 Federated Source" id="Wfs_v1_0_0_Federated_Source"
-         description="WFS v1.0.0 Federated Source">
+    <OCD description="WFS 2.0.0 Connected Source" name="WFS 2.0.0 Connected Source"
+         id="Wfs_v2_0_0_Connected_Source">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
-            type="String" default="WFS_v1_0_0"/>
+            type="String"
+            default="WFS"/>
 
-        <AD description="URL to the endpoint implementing the Web Feature Service (WFS) spec"
+        <AD description="URL to the endpoint implementing the Web Feature Service (WFS) 2.0.0 spec"
             name="WFS URL" id="wfsUrl" required="true" type="String"/>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
 
-        <AD description="Username for WFS Service (optional)" name="Username" id="username"
+        <AD description="Force Longitude/Latitude coordinate order"
+            name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting even when the capabilities states 'ImplementsSorting' is supported."
+            name="Disable Sorting" id="disableSorting" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="Username for the WFS Service (optional)" name="Username" id="username"
             required="false" type="String"/>
-        <AD description="Password for WFS Service (optional)" name="Password" id="password"
+        <AD description="Password for the WFS Service (optional)" name="Password" id="password"
             required="false" type="Password"/>
         <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false"
             type="String"
@@ -54,7 +63,7 @@
             <Option label="Overlaps" value="Overlaps"/>
             <Option label="Touches" value="Touches"/>
             <Option label="Within" value="Within"/>
-		</AD>
+        </AD>
 
         <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
             name="Connection Timeout" id="connectionTimeout"
@@ -66,8 +75,8 @@
 
     </OCD>
 
-    <Designate pid="Wfs_v1_0_0_Federated_Source" factoryPid="Wfs_v1_0_0_Federated_Source">
-        <Object ocdref="Wfs_v1_0_0_Federated_Source"/>
+    <Designate pid="Wfs_v2_0_0_Connected_Source" factoryPid="Wfs_v2_0_0_Connected_Source">
+        <Object ocdref="Wfs_v2_0_0_Connected_Source"/>
     </Designate>
 
 </metatype:MetaData>
