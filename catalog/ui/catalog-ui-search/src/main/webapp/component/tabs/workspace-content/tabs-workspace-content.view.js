@@ -19,9 +19,17 @@ define([
     'jquery',
     '../tabs.view',
     'js/store'
-], function (Marionette, _, $, TabsView) {
+], function (Marionette, _, $, TabsView, store) {
 
     var WorkspaceContentTabsView = TabsView.extend({
+        initialize: function(){
+            TabsView.prototype.initialize.call(this);
+            this.listenTo(this.model, 'change:activeTab', this.closePanelTwo);
+        },
+        closePanelTwo: function(){
+            store.get('content').set('query', undefined);
+            store.clearSelectedResults();
+        }
     });
 
     return WorkspaceContentTabsView;

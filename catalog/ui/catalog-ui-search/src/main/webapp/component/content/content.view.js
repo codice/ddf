@@ -165,11 +165,15 @@ define([
             } else if (selectedResults.length === 1) {
                 this.updatePanelTwoSelectedResultTitle();
                 this.showPanelTwo();
-                this.panelTwo.show(new MetacardTabsView());
+                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardTabsView) {
+                    this.panelTwo.show(new MetacardTabsView());
+                }
             } else {
                 this.updatePanelTwoSelectedResultsTitle();
                 this.showPanelTwo();
-                this.panelTwo.show(new MetacardsTabsView());
+                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardsTabsView) {
+                    this.panelTwo.show(new MetacardsTabsView());
+                }
             }
             Common.repaintForTimeframe(500, function(){
                 wreqr.vent.trigger('resize');

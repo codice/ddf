@@ -39,10 +39,17 @@ define([
                 this.setDefaultModel();
             }
             TabsView.prototype.initialize.call(this);
+            var debounceDetermineContent = _.debounce(this.determineContent, 200);
+            this.listenTo(store.getSelectedResults(), 'update',debounceDetermineContent);
+            this.listenTo(store.getSelectedResults(), 'add', debounceDetermineContent);
+            this.listenTo(store.getSelectedResults(), 'remove', debounceDetermineContent);
+            this.listenTo(store.getSelectedResults(), 'reset', debounceDetermineContent);
         },
         determineContent: function(){
-            var activeTab = this.model.getActiveView();
-            this.tabsContent.show(new activeTab());
+            if (store.getSelectedResults().length === 1) {
+                var activeTab = this.model.getActiveView();
+                this.tabsContent.show(new activeTab());
+            }
         },
         saveToWorkspace: function(event){
             store.saveCurrentSelection();

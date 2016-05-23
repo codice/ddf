@@ -34,10 +34,12 @@ define([
             TabsView.prototype.initialize.call(this);
         },
         determineContent: function(){
-            var activeTab = this.model.getActiveView();
-            this.tabsContent.show(new activeTab({
-                model: this.model.getAssociatedQuery()
-            }));
+            if (store.get('content').get('query')){
+                var activeTab = this.model.getActiveView();
+                this.tabsContent.show(new activeTab({
+                    model: this.model.getAssociatedQuery()
+                }));
+            }
         }
     });
 
