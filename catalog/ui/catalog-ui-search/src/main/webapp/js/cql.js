@@ -23,7 +23,7 @@ define(function () {
         temporalClass = "Temporal",
         timePatter = /([0-9]{4})(-([0-9]{2})(-([0-9]{2})(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?/i,
         patterns = {
-            PROPERTY: /^([_a-zA-Z]\w*|"\w*")/,
+            PROPERTY: /^([_a-zA-Z]\w*|"[^"]+")/,
             COMPARISON: /^(=|<>|<=|<|>=|>|LIKE|ILIKE)/i,
             IS_NULL: /^IS NULL/i,
             COMMA: /^,/,
