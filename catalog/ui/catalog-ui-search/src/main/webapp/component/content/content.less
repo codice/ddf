@@ -3,7 +3,7 @@
   @contentMenuHeight: 60px;
   @panelTwoSpacing: 20px;
   @panelOneWidth: 420px;
-  @panelTwoWidth: 520px;
+  @panelTwoWidth: 1000px;
 
   .customElement;
 
@@ -27,24 +27,19 @@
     background: @niceBlack;
     width: @panelOneWidth;
     position: relative;
-    z-index: 103;
+    transition: width @coreTransitionTime ease-in-out;
   }
 
   .content-panel.content-panelTwo {
     width: @panelTwoWidth;
-    height: ~'calc(100% - 2*@{panelTwoSpacing})';
-    position: absolute;
-    left: ~'calc(@{panelOneWidth} + @{panelTwoSpacing})';
-    top: @panelTwoSpacing;
-    z-index: 102;
+    position: relative;
     background: @niceBlack;
-    box-shadow: 0px 3px 3px 10px @niceBlack;
-    transition: transform @coreTransitionTime ease-in-out;
-    transform: translateX(0%) scaleX(1);
+    transition: width @coreTransitionTime ease-in-out;
   }
 
   .content-panelThree {
-    width: ~'calc(100% - 420px)';
+    width: ~'calc(100% - @{panelOneWidth} - @{panelTwoWidth})';
+    transition: width @coreTransitionTime ease-in-out;
   }
 
   .content-panel {
@@ -54,11 +49,12 @@
   }
 
   &.hide-panelTwo {
+
     .content-panelTwo {
-      transform: translateX(-@panelTwoWidth - 2*@panelTwoSpacing) scaleX(1);
+      width: 0px;
     }
     .content-panelThree {
-      width: ~'calc(100% - 420px)';
+      width: ~'calc(100% - @{panelOneWidth})';
     }
   }
 

@@ -1,0 +1,22 @@
+@{customElementNamespace}filter {
+  .customElement;
+  white-space: nowrap;
+  margin: 10px;
+
+  > .filter-remove,
+  > .filter-attribute,
+  > .filter-comparator,
+  > .filter-input {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  > .filter-remove {
+    width: @minimumButtonSize;
+    height: @minimumButtonSize;
+  }
+
+  > .filter-input {
+    width: 200px;
+  }
+}

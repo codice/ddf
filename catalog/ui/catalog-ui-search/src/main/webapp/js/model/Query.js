@@ -495,14 +495,6 @@ define([
                 }
             },
 
-            toJSON: function (options) {
-                var json = Backbone.Model.prototype.toJSON.call(this, options);
-
-                json.cql = this.getCql();
-
-                return json;
-            },
-
             startScheduledSearch: function () {
                 var model = this;
                 if (this.get('scheduled')) {

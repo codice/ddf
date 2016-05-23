@@ -1,44 +1,10 @@
 @{customElementNamespace}query-selector {
-  @buttonMargin: 50px;
+  @buttonMargin: 10px;
 
   .resetIconLineHeight;
   .customElement;
   overflow: auto;
 
-  .querySelector-query {
-
-    .whitespaceNowrap;
-    .inlineBlockDisplay(div);
-    height: @minimumButtonSize;
-    line-height: @minimumButtonSize;
-
-    > div {
-      height: 100%;
-    }
-
-    > .querySelector-queryActive {
-      width: 50px;
-      text-align: center;
-    }
-
-    > .querySelector-queryDetails {
-      width: ~"calc(100% - 50px)";
-      .inlineBlockDisplay(div);
-
-      > div {
-        max-height: 100%;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        width: 50%;
-        white-space: nowrap;
-        padding-left: 10px;
-      }
-    }
-  }
-
-  .querySelector-queryActive.is-filtered span {
-    background: @background-color !important;
-  }
 
   > button {
     margin-top: @buttonMargin;
@@ -49,7 +15,7 @@
   }
 
   .querySelector-list {
-    max-height: ~"calc(100% - @{minimumButtonSize}*1)";
+    max-height: ~"calc(100%)";
     overflow: auto;
   }
 
@@ -58,18 +24,8 @@
       display: block;
     }
     .querySelector-list {
-      max-height: ~"calc(100% - @{minimumButtonSize}*2 - @{buttonMargin} - 1px)";
+      max-height: ~"calc(100% - @{minimumButtonSize} - @{buttonMargin})";
     }
-  }
-
-  .querySelector-indicator {
-    display: inline-block;
-    height: 20px;
-    width: 20px;
-    border-radius: 20px;
-    border: 2px solid black;
-    //border: 2px solid white;
-    vertical-align: middle;
   }
 }
 

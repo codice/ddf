@@ -544,7 +544,8 @@ define([
         save: function(){
             this.model.setCql();
             store.saveQuery();
-            this.model.startSearch();
+            //this.model.startSearch();
+            this.endEdit();
         },
         readOnly: function(){
             this.$el.find('label').attr('disabled', 'disabled');
@@ -561,6 +562,11 @@ define([
         },
         cancel: function(){
             store.resetQuery();
+            this.endEdit();
+        },
+        endEdit: function(){
+            this.$el.removeClass('is-editing');
+            this.readOnly();
         }
     });
     return QueryOldBasicView;

@@ -1,0 +1,72 @@
+@{customElementNamespace}filter-builder {
+  display: block;
+  width: 100%;
+  position: relative;
+
+  white-space: nowrap;
+
+  > .if-editing {
+    > .filter-remove {
+      display: none;
+      vertical-align: middle;
+    }
+
+    > .filter-operator,
+    > .filter-contents {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    > .filter-contents:before {
+      content: '';
+      position: absolute;
+      border-left: 1px solid @niceGrey;
+      border-top: 1px solid @niceGrey;
+      border-bottom: 1px solid @niceGrey;
+      height:100%;
+      width: 10px;
+    }
+
+    > .filter-contents > .contents-filters,
+    > .filter-contents > .contents-buttons{
+      padding-left: 10px;
+    }
+
+    > .filter-contents > .contents-buttons > button{
+      padding: 0px 10px;
+    }
+
+    > .filter-remove {
+      width: @minimumButtonSize;
+      height: @minimumButtonSize;
+    }
+  }
+
+  @{customElementNamespace}filter-builder {
+    margin: 10px;
+
+    > .if-editing {
+      > .filter-remove {
+        display: inline-block;
+      }
+    }
+  }
+
+  .if-editing {
+    display: block;
+  }
+
+  .if-viewing {
+    display: block;
+  }
+}
+
+@{customElementNamespace}filter-builder.is-editing {
+  .if-editing {
+    display: block;
+  }
+
+  .if-viewing {
+    display: block;
+  }
+}

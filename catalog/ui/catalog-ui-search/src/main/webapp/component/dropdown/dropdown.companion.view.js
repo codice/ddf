@@ -41,6 +41,12 @@ define([
                 model: this.options.linkedView.modelForComponent
             }));
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
+            this.listenTo(this.options.linkedView.model, 'destroy', function(){
+                if (!this.isDestroyed){
+                    this.destroy();
+                }
+                console.log('destroy');
+            }.bind(this));
             this.listenForClose();
         },
         updatePosition: function () {
@@ -77,13 +83,13 @@ define([
             this.$el.addClass('is-open');
             this.listenForOutsideClick();
             this.listenForResize();
-            this.listenForScroll();
+            //this.listenForScroll();
         },
         onClose: function () {
             this.$el.removeClass('is-open');
             this.stopListeningForOutsideClick();
             this.stopListeningForResize();
-            this.stopListeningForScroll();
+            //this.stopListeningForScroll();
         },
         close: function(){
             this.options.linkedView.model.close();

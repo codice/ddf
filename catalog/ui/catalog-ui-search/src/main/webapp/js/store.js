@@ -12,6 +12,7 @@
 /*global define*/
 
 define([
+    'jquery',
     'backbone',
     'poller',
     'underscore',
@@ -23,7 +24,7 @@ define([
     'component/content/content',
     'component/router/router',
     'application'
-], function (Backbone, poller, _, Workspace, Source, User, Workspaces, Selected, Content, Router, Application) {
+], function ($, Backbone, poller, _, Workspace, Source, User, Workspaces, Selected, Content, Router, Application) {
 
     return new (Backbone.Model.extend({
         defaults: {
@@ -75,6 +76,7 @@ define([
             this.set('router', this.initModel(Router, {
                 persisted: false
             }));
+            this.getMetacardTypes();
         },
         handleWorkspaceDestruction: function(model, workspaceCollection){
             if (workspaceCollection.length === 0){
@@ -124,7 +126,7 @@ define([
             var cloneOf = this.getQuery()._cloneOf;
             if (cloneOf === undefined){
                 this.addQuery();
-                this.setQueryById(this.getQuery().cid);
+                this.setQueryById(this.getQuery().id);
             } else {
                 this.updateQuery();
                 this.setQueryById(cloneOf);
@@ -181,6 +183,46 @@ define([
         },
         deleteCurrentWorkspace: function(){
             this.getCurrentWorkspace().destroy();
+        },
+        getMetacardTypes: function(){
+            $.get('/services/search/catalog/metacardtype').then(function(metacardTypes){
+                for (var metacardType in metacardTypes){
+                    if (metacardTypes.hasOwnProperty(metacardType)) {
+                        for (var type in metacardTypes[metacardType]) {
+                            if (metacardTypes[metacardType].hasOwnProperty(type)) {
+                                this.metacardTypes[type] = metacardTypes[metacardType][type];
+                            }
+                        }
+                    }
+                }
+                for (var propertyType in this.metacardTypes){
+                    if (this.metacardTypes.hasOwnProperty(propertyType)) {
+                        this.sortedMetacardTypes.push(this.metacardTypes[propertyType]);
+                    }
+                }
+                this.sortedMetacardTypes.sort(function(a, b){
+                    if (a.id < b.id){
+                        return -1;
+                    }
+                    if (a.id > b.id){
+                        return 1;
+                    }
+                    return 0;
+                });
+            }.bind(this));
+        },
+        sortedMetacardTypes: [],
+        metacardTypes: {
+            anyText: {
+                id: 'anyText',
+                type: 'STRING',
+                multivalued: false
+            },
+            anyGeo: {
+                id: 'anyGeo',
+                type: 'GEOMETRY',
+                multivalued: false
+            }
         }
     }))();
 });

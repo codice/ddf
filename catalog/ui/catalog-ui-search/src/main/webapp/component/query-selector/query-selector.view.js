@@ -21,8 +21,8 @@ define([
     'js/CustomElements',
     'js/store',
     'js/model/Query',
-    'js/Common'
-], function (Marionette, _, $, querySelectorTemplate, CustomElements, store, Query, Common) {
+    'component/query-item/query-item.collection.view'
+], function (Marionette, _, $, querySelectorTemplate, CustomElements, store, Query, QueryItemCollectionView) {
 
     var QuerySelector = Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -32,62 +32,40 @@ define([
         tagName: CustomElements.register('query-selector'),
         modelEvents: {
         },
-        events: {
-            'click .querySelector-add': 'addQuery',
-            'click .querySelector-list .querySelector-queryDetails': 'selectQuery',
-            'click .querySelector-queryActive': 'filterQuery'
+        events: function(){
+            var eventObj = {
+                'click .querySelector-add': 'addQuery'
+            };
+            eventObj['click .querySelector-list '+CustomElements.getNamespace()+'query-item'] = 'selectQuery';
+            return eventObj;
         },
         ui: {
         },
         regions: {
+            queryCollection: '.querySelector-list'
+        },
+        onBeforeShow: function(){
+            this.queryCollection.show(new QueryItemCollectionView());
         },
         initialize: function(options){
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            this.listenTo(this.model, 'all', this.render);
-            this.listenTo(store.get('content'), 'change:query', this.highlightQuery);
-            this.listenTo(store.getFilteredQueries(), 'add', this.filterQueries);
-            this.listenTo(store.getFilteredQueries(), 'remove', this.filterQueries);
+            this.handleMaxQueries();
+            this.listenTo(this.model, 'add', this.handleMaxQueries);
+            this.listenTo(this.model, 'remove', this.handleMaxQueries);
+            this.listenTo(this.model, 'update', this.handleMaxQueries);
         },
         addQuery: function(){
             if (this.model.canAddQuery()){
                 var newQuery = new Query.Model();
                 store.setQueryByReference(newQuery);
+
             }
         },
         selectQuery: function(event){
             var queryId = event.currentTarget.getAttribute('data-queryId');
             store.setQueryById(queryId);
-        },
-        highlightQuery: function(){
-            var queryRef = store.getQuery();
-            this.$el.find('.querySelector-queryDetails').removeClass('is-selected');
-            if (queryRef !== undefined){
-                this.$el.find('.querySelector-queryDetails[data-queryId="'+queryRef.getId()+'"]').addClass('is-selected');
-            }
-        },
-        filterQuery: function(event){
-            var queryId = event.currentTarget.getAttribute('data-queryId');
-            store.filterQuery(queryId);
-        },
-        filterQueries: function(){
-            var self = this;
-            var filteredQueries = store.getFilteredQueries();
-            this.$el.find('.querySelector-queryActive').removeClass('is-filtered');
-            filteredQueries.forEach(function(query){
-                self.$el.find('.querySelector-queryActive[data-queryId="'+query.getId()+'"]').addClass('is-filtered');
-            });
-        },
-        serializeData: function(){
-            var json = this.model.toJSON({
-                additionalProperties: ['cid', 'color']
-            });
-            return json;
-        },
-        onRender: function(){
-            this.handleMaxQueries();
-            this.highlightQuery();
         },
         handleMaxQueries: function(){
             this.$el.toggleClass('can-addQuery', this.model.canAddQuery());

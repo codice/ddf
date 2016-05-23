@@ -47,6 +47,7 @@ define([
         },
         initialize: function(){
             this.initializeComponentModel();
+            this.listenTo(this.model, 'change:value', this.render);
             this.listenTo(this.model, 'change:isOpen', this.render);
             this.listenToComponent();
         },

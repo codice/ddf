@@ -56,6 +56,9 @@ define(['application',
                 if (store.get('content').getActiveSearchResult()) {
                     this.newActiveSearchResult(store.get('content').getActiveSearchResult());
                 }
+                this.listenTo(store.getSelectedResults(), 'update', this.zoomToSelected);
+                this.listenTo(store.getSelectedResults(), 'add', this.zoomToSelected);
+                this.listenTo(store.getSelectedResults(), 'remove', this.zoomToSelected);
 
                 this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
             },
@@ -286,7 +289,7 @@ define(['application',
             flyToRectangle: function (rectangle) {
                 if (rectangle.north === rectangle.south && rectangle.east === rectangle.west) {
                     this.mapViewer.scene.camera.flyTo({
-                        destination: Cesium.Cartesian3.fromRadians(rectangle.west, rectangle.north, properties.defaultFlytoHeight)
+                        destination: Cesium.Cartesian3.fromRadians(rectangle.west, rectangle.north, this.mapViewer.camera._positionCartographic.z)
                     });
                 } else {
                     this.mapViewer.scene.camera.flyTo({
@@ -312,6 +315,9 @@ define(['application',
                 if (zoomOnResults) {
                     this.flyToCenterPoint(result.get('results'));
                 }
+            },
+            zoomToSelected: function(){
+                this.flyToCenterPoint(store.getSelectedResults());
             },
 
             showResults: function (results) {

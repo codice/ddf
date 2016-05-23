@@ -13,6 +13,7 @@
  * full list of contributors). Published under the 2-clause BSD license.
  * See license.txt in the OpenLayers distribution or repository for the
  * full text of the license. */
+// jshint ignore: start
 define(function () {
     'use strict';
 
@@ -461,12 +462,44 @@ define(function () {
         }
     }
 
+    function simplifyFilters(cqlAst){
+        for (var i = 0; i < cqlAst.filters.length; i++){
+            if (simplifyAst(cqlAst.filters[i], cqlAst)){
+                var filtersToMerge = cqlAst.filters.splice(i, 1)[0];
+                filtersToMerge.filters.forEach(function(filter){
+                    cqlAst.filters.push(filter);
+                });
+            }
+        }
+    }
+
+    function simplifyAst(cqlAst, parentNode){
+        if (!cqlAst.filters && parentNode){
+            return false;
+        } else if (!parentNode){
+            if (cqlAst.filters){
+                simplifyFilters(cqlAst);
+            }
+            return cqlAst;
+        } else {
+            simplifyFilters(cqlAst);
+            if (cqlAst.type === parentNode.type){
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
     return {
         read: function (cql) {
             return buildAst(tokenize(cql));
         },
         write: function (filter) {
             return write(filter);
+        },
+        simplify: function(cqlAst){
+            return simplifyAst(cqlAst);
         }
     };
 });

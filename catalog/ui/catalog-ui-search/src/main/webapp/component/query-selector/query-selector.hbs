@@ -11,47 +11,8 @@
  *
  **/
  --}}
-<div class="querySelector-query">
-    <div class="querySelector-queryActive">
-        <span>
-            Active
-        </span>
-    </div>
-    <div class="querySelector-queryDetails">
-        <div class="querySelector-queryName">
-            <span>
-                Name
-            </span>
-        </div>
-        <div class="querySelector-queryResults">
-            <span>
-                Results
-            </span>
-        </div>
-    </div>
-</div>
-<div class="querySelector-list is-list">
-    {{#each this}}
-        <div class="querySelector-query" data-queryId="{{id}}">
-            <div class="querySelector-queryActive is-button" data-queryId="{{id}}">
-                <span class="querySelector-indicator" style="background: {{color}}">
+<div class="querySelector-list">
 
-                </span>
-            </div>
-            <div class="querySelector-queryDetails is-button" data-queryId="{{id}}">
-                <div class="querySelector-queryName" title="{{title}}">
-                    <span>
-                        {{title}}
-                    </span>
-                </div>
-                <div class="querySelector-queryResults">
-                    <span>
-
-                    </span>
-                </div>
-            </div>
-        </div>
-    {{/each}}
 </div>
 {{#unless this}}
     <h6 align="center">

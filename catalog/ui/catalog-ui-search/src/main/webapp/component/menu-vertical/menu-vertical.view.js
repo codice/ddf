@@ -31,19 +31,20 @@ define([
             $('body').append(this.el);
             this.render();
             this.listenTo(this.options.linkedModel, 'change:activeMenu', this.handleActiveMenu);
+            this.listenTo(this.options.linkedModel, 'destroy', this.destroy);
         },
         open: function () {
             this.updatePosition();
             this.$el.addClass('is-open');
             this.listenForOutsideClick();
             this.listenForResize();
-            this.listenForScroll();
+            //this.listenForScroll();
         },
         close: function () {
             this.$el.removeClass('is-open');
             this.stopListeningForOutsideClick();
             this.stopListeningForResize();
-            this.stopListeningForScroll();
+            //this.stopListeningForScroll();
         },
         handleClick: function () {
             this.options.linkedModel.close();

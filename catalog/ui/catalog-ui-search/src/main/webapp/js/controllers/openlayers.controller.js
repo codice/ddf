@@ -61,6 +61,9 @@ define(['application',
 
                 this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
                 this.listenTo(wreqr.vent, 'search:maprectanglefly', this.flyToRectangle);
+                this.listenTo(store.getSelectedResults(), 'update', this.zoomToSelected);
+                this.listenTo(store.getSelectedResults(), 'add', this.zoomToSelected);
+                this.listenTo(store.getSelectedResults(), 'remove', this.zoomToSelected);
             },
             setupEvents: function () {
                 var controller = this;
@@ -281,6 +284,9 @@ define(['application',
                 if (zoomOnResults) {
                     this.flyToCenterPoint(result.get('results'));
                 }
+            },
+            zoomToSelected: function(){
+                this.flyToCenterPoint(store.getSelectedResults());
             },
 
             showResults: function (results) {

@@ -21,9 +21,8 @@ define([
     'js/CustomElements',
     'component/input/input.view',
     'component/input/thumbnail/input-thumbnail.view',
-    'component/input/date/input-date.view',
-    'component/input/bulk/input-bulk.view'
-], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView, InputBulkView) {
+    'component/input/date/input-date.view'
+], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -58,8 +57,8 @@ define([
                         model: this.model
                     }));
                     break;
-                case 'bulk':
-                    this.input.show(new InputBulkView({
+                default:
+                    this.input.show(new InputView({
                         model: this.model
                     }));
                     break;

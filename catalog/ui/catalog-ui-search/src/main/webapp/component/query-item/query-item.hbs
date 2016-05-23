@@ -1,0 +1,37 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="query-color" style="background: {{query.color}}">
+</div>
+<div class="query-details">
+    <div class="details-title">
+        {{query.title}}
+    </div>
+    <div class="details-results">
+        {{#if pending}}
+            <i class="fa fa-circle-o-notch fa-spin"></i>
+        {{/if}}
+        {{#if failed}}
+            <i class="fa fa-warning"></i>
+        {{/if}}
+        {{resultCount}}
+    </div>
+    <div class="details-status">
+        {{queryStatus}}
+    </div>
+</div>
+<div class="query-actions">
+        <span class="actions-icon fa fa-ellipsis-v">
+
+        </span>
+</div>

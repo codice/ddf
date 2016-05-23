@@ -56,7 +56,7 @@ define([
     },{
         generateValueCollectionView: function(propertyModel){
             var valueCollection = new ValueCollection();
-            valueCollection.add(propertyModel.get('value').map(function(value, index){
+            valueCollection.add(propertyModel.get('value').map(function(value){
                 return {
                     value: value,
                     property: propertyModel

@@ -29,10 +29,11 @@ define([
     'text!templates/map.handlebars',
     'js/store',
     'component/tabs/metacard/tabs-metacard.view',
-    'component/tabs/metacards/tabs-metacards.view'
+    'component/tabs/metacards/tabs-metacards.view',
+    'js/Common'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, maptype, map, store,
-             MetacardTabsView, MetacardsTabsView) {
+             MetacardTabsView, MetacardsTabsView, Common) {
 
     var debounceTime = 25;
 
@@ -168,7 +169,10 @@ define([
                 this.showPanelTwo();
                 this.panelTwo.show(new MetacardsTabsView());
             }
-            wreqr.vent.trigger('resize');
+            Common.repaintForTimeframe(500, function(){
+                wreqr.vent.trigger('resize');
+                $(window).trigger('resize');
+            });
         },
         updatePanelTwoQueryTitle: function(){
             var queryRef = store.getQuery();
@@ -185,6 +189,10 @@ define([
         },
         hidePanelTwo: function(){
             this.$el.addClass('hide-panelTwo');
+            Common.repaintForTimeframe(500, function(){
+                wreqr.vent.trigger('resize');
+                $(window).trigger('resize');
+            });
         },
         showPanelTwo: function(){
             this.$el.removeClass('hide-panelTwo');

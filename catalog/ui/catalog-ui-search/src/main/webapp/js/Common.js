@@ -13,7 +13,8 @@
 /*jshint bitwise: false*/
 define([
     'jquery',
-    'moment'
+    'moment',
+    'js/requestAnimationFramePolyfill'
 ], function ($, moment) {
 
 
@@ -76,6 +77,20 @@ define([
         },
         getMomentDate: function(date){
            return moment(date).fromNow();
+        },
+        repaintForTimeframe: function(time, callback){
+            var timeEnd = Date.now() + time;
+            var repaint = function(){
+                callback();
+                if (Date.now() < timeEnd){
+                    window.requestAnimationFrame(function(){
+                        repaint();
+                    });
+                }
+            };
+            window.requestAnimationFrame(function(){
+                repaint();
+            });
         }
     };
 });

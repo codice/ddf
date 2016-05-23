@@ -17,7 +17,7 @@ define([
 
     return Backbone.Model.extend({
         defaults: {
-            value: {},
+            value: [],
             values: {},
             label: undefined,
             description: '',
@@ -48,7 +48,7 @@ define([
             this.set('label',label);
         },
         setValue: function(val){
-            this.set('value',value);
+            this.set('value', val);
         },
         getId: function(){
             return this.get('id');

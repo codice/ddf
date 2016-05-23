@@ -39,8 +39,7 @@ define([
             'click .querySelector-modal': 'openQueriesModal'
         },
         regions: {
-            workspaceExploreQueries: '.workspaceExplore-queries',
-            workspaceExploreResults: '.workspaceExplore-results'
+            workspaceExploreQueries: '.workspaceExplore-queries'
         },
         initialize: function (options) {
             if (options.model === undefined){
@@ -50,11 +49,6 @@ define([
         onBeforeShow: function(){
             this.workspaceExploreQueries.show(new QuerySelectorView());
             //this.workspaceExploreResults.show(new ResultTabsView());
-        },
-        openQueriesModal: function(){
-            lightboxViewInstance.model.updateTitle('Queries');
-            lightboxViewInstance.model.open();
-            lightboxViewInstance.lightboxContent.show(new QueriesView());
         }
     });
 
