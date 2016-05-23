@@ -27,7 +27,12 @@ define([
             'click': 'handleClick'
         },
         handleClick: function(){
-            this.model.toggleOpen();
+            if (this.model.get('isEditing')){
+                this.model.toggleOpen();
+            }
+        },
+        handleEditing: function(){
+            this.$el.toggleClass('is-editing', this.model.get('isEditing'));
         },
         hasTail: false,
         componentToShow: undefined,
@@ -49,7 +54,9 @@ define([
             this.initializeComponentModel();
             this.listenTo(this.model, 'change:value', this.render);
             this.listenTo(this.model, 'change:isOpen', this.render);
+            this.listenTo(this.model, 'change:isEditing', this.handleEditing);
             this.listenToComponent();
+            this.handleEditing();
         },
         initializeDropdown: function(){
             DropdownCompanionView.getNewCompanionView(this);
@@ -61,5 +68,11 @@ define([
                 this.initializeDropdown();
             }
         },
+        turnOnEditing: function(){
+            this.model.set('isEditing', true);
+        },
+        turnOffEditing: function(){
+            this.model.set('isEditing', false);
+        }
     });
 });

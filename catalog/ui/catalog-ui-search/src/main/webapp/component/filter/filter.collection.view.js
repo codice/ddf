@@ -43,6 +43,16 @@ define([
             filterBuilderModel = filterBuilderModel || new FilterBuilderModel();
             this.collection.add(filterBuilderModel);
             return this.children.last();
+        },
+        turnOnEditing: function(){
+            this.children.forEach(function(childView){
+                childView.turnOnEditing();
+            });
+        },
+        turnOffEditing: function(){
+            this.children.forEach(function(childView){
+                 childView.turnOffEditing();
+            });
         }
     });
 });

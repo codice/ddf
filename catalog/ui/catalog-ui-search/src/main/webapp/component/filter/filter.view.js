@@ -84,7 +84,12 @@ define([
                     multivalued: false
                 }))
             }));
-            this.filterInput.currentView.model.set('isEditing',true);
+            var isEditing = this.$el.hasClass('is-editing');
+            if (isEditing){
+                this.turnOnEditing();
+            } else {
+                this.turnOffEditing();
+            }
            // this.filterInput.currentView.addNewValue();
         },
         getValue: function(){
@@ -129,6 +134,18 @@ define([
         onDestroy: function(){
             this._attributeDropdownModel.destroy();
             this._filterDropdownModel.destroy();
+        },
+        turnOnEditing: function(){
+            this.$el.addClass('is-editing');
+            this.filterAttribute.currentView.turnOnEditing();
+            this.filterComparator.currentView.turnOnEditing();
+            this.filterInput.currentView.model.set('isEditing', true);
+        },
+        turnOffEditing: function(){
+            this.$el.removeClass('is-editing');
+            this.filterAttribute.currentView.turnOffEditing();
+            this.filterComparator.currentView.turnOffEditing();
+            this.filterInput.currentView.model.set('isEditing', false);
         }
     });
 });

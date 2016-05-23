@@ -34,10 +34,10 @@ define([
         template: template,
         tagName: CustomElements.register('filter-builder'),
         events: {
-            'click > .if-editing > .filter-contents > .contents-buttons .getValue': 'printValue',
-            'click > .if-editing > .filter-remove': 'delete',
-            'click > .if-editing > .filter-contents > .contents-buttons .add-filter': 'addFilter',
-            'click > .if-editing > .filter-contents > .contents-buttons .add-filterBuilder': 'addFilterBuilder'
+            'click > .filter-contents > .contents-buttons .getValue': 'printValue',
+            'click > .filter-remove': 'delete',
+            'click > .filter-contents > .contents-buttons .add-filter': 'addFilter',
+            'click > .filter-contents > .contents-buttons .add-filterBuilder': 'addFilterBuilder'
         },
         modelEvents: {
         },
@@ -115,17 +115,25 @@ define([
         },
         setFilters: function(filters){
             setTimeout(function() {
-                this.filterContents.currentView.collection.reset();
-                filters.forEach(function (filter) {
-                    if (filter.filters) {
-                        var filterBuilderView = this.addFilterBuilder();
-                        filterBuilderView.setFilters(filter.filters);
-                        filterBuilderView.model.set('operator', filter.type);
+                if (this.filterContents){
+                    this.filterContents.currentView.collection.reset();
+                    filters.forEach(function (filter) {
+                        if (filter.filters) {
+                            var filterBuilderView = this.addFilterBuilder();
+                            filterBuilderView.setFilters(filter.filters);
+                            filterBuilderView.model.set('operator', filter.type);
+                        } else {
+                            var filterView = this.addFilter();
+                            filterView.setFilter(filter);
+                        }
+                    }.bind(this));
+                    var isEditing = this.$el.hasClass('is-editing');
+                    if (isEditing){
+                        this.turnOnEditing();
                     } else {
-                        var filterView = this.addFilter();
-                        filterView.setFilter(filter);
+                        this.turnOffEditing();
                     }
-                }.bind(this));
+                }
             }.bind(this),0);
         },
         revert: function(){
@@ -151,6 +159,16 @@ define([
         },
         onBeforeDestroy: function(){
             this._operatorDropdownModel.destroy();
+        },
+        turnOnEditing: function(){
+            this.$el.addClass('is-editing');
+            this.filterOperator.currentView.turnOnEditing();
+            this.filterContents.currentView.turnOnEditing();
+        },
+        turnOffEditing: function(){
+            this.$el.removeClass('is-editing');
+            this.filterOperator.currentView.turnOffEditing();
+            this.filterContents.currentView.turnOffEditing();
         }
     });
 });

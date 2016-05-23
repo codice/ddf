@@ -14,9 +14,16 @@
   > .filter-remove {
     width: @minimumButtonSize;
     height: @minimumButtonSize;
+    display: none;
   }
 
   > .filter-input {
     width: 200px;
+  }
+}
+
+@{customElementNamespace}filter.is-editing {
+  > .filter-remove {
+    display: inline-block;
   }
 }

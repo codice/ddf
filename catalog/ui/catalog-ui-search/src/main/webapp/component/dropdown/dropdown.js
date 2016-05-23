@@ -21,7 +21,8 @@ define([
     return Backbone.Model.extend({
         defaults: {
             isOpen: false,
-            value: undefined
+            value: undefined,
+            isEditing: true
         },
         toggleOpen: function(){
             this.set('isOpen', !this.get('isOpen'));

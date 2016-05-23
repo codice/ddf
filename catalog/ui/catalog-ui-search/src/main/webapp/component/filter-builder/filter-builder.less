@@ -5,7 +5,6 @@
 
   white-space: nowrap;
 
-  > .if-editing {
     > .filter-remove {
       display: none;
       vertical-align: middle;
@@ -36,37 +35,30 @@
       padding: 0px 10px;
     }
 
+    > .filter-contents > .contents-buttons {
+      display: none;
+    }
+
     > .filter-remove {
       width: @minimumButtonSize;
       height: @minimumButtonSize;
     }
-  }
 
   @{customElementNamespace}filter-builder {
     margin: 10px;
-
-    > .if-editing {
-      > .filter-remove {
-        display: inline-block;
-      }
-    }
   }
 
-  .if-editing {
-    display: block;
-  }
-
-  .if-viewing {
-    display: block;
-  }
 }
 
 @{customElementNamespace}filter-builder.is-editing {
-  .if-editing {
+
+  > .filter-contents > .contents-buttons {
     display: block;
   }
 
-  .if-viewing {
-    display: block;
+  @{customElementNamespace}filter-builder {
+    > .filter-remove {
+      display: inline-block;
+    }
   }
 }

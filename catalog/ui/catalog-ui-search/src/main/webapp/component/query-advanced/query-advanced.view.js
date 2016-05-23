@@ -50,6 +50,7 @@ define([
             if (this.model.get('cql')) {
                 this.queryAdvanced.currentView.deserialize(cql.simplify(cql.read(this.model.get('cql'))));
             }
+            this.queryAdvanced.currentView.turnOffEditing();
         },
         edit: function(){
             this.$el.addClass('is-editing');
@@ -57,7 +58,10 @@ define([
         },
         cancel: function(){
             this.$el.removeClass('is-editing');
-            this.queryAdvanced.currentView.revert();
+            if (this.model.get('cql')) {
+                this.queryAdvanced.currentView.deserialize(cql.simplify(cql.read(this.model.get('cql'))));
+            }
+            this.queryAdvanced.currentView.turnOffEditing();
         },
         save: function(){
             this.$el.removeClass('is-editing');
