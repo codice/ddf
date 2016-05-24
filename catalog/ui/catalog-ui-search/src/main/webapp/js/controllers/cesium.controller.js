@@ -289,7 +289,7 @@ define(['application',
             flyToRectangle: function (rectangle) {
                 if (rectangle.north === rectangle.south && rectangle.east === rectangle.west) {
                     this.mapViewer.scene.camera.flyTo({
-                        duration: .250,
+                        duration: 0.250,
                         destination: Cesium.Cartesian3.fromRadians(rectangle.west, rectangle.north, this.mapViewer.camera._positionCartographic.height)
                     });
                 } else {
