@@ -49,14 +49,21 @@ define([
                 this.queryAdvanced.currentView.deserialize(cql.simplify(cql.read(this.model.get('cql'))));
             }
             this.queryAdvanced.currentView.turnOffEditing();
+            if (this.model._cloneOf === undefined){
+                this.edit();
+            }
         },
         edit: function(){
             this.$el.addClass('is-editing');
             this.queryAdvanced.currentView.turnOnEditing();
         },
         cancel: function(){
-            this.$el.removeClass('is-editing');
-            this.onBeforeShow();
+            if (this.model._cloneOf === undefined){
+                store.resetQuery();   
+            } else {
+                this.$el.removeClass('is-editing');
+                this.onBeforeShow();
+            }
         },
         save: function(){
             this.$el.removeClass('is-editing');

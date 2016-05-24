@@ -37,6 +37,7 @@ define([
         hasTail: false,
         componentToShow: undefined,
         modelForComponent: undefined,
+        dropdownCompanion: undefined,
         initializeComponentModel: function(){
             //override if you need more functionality
             this.modelForComponent = new this.modelForComponent();
@@ -59,7 +60,7 @@ define([
             this.handleEditing();
         },
         initializeDropdown: function(){
-            DropdownCompanionView.getNewCompanionView(this);
+            this.dropdownCompanion = DropdownCompanionView.getNewCompanionView(this);
         },
         firstRender: true,
         onRender: function(){
@@ -67,6 +68,7 @@ define([
                 this.firstRender = false;
                 this.initializeDropdown();
             }
+            this.dropdownCompanion.updatePosition();
         },
         turnOnEditing: function(){
             this.model.set('isEditing', true);

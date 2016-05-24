@@ -1,0 +1,32 @@
+@{customElementNamespace}query-federation {
+  display: block;
+
+  .choice {
+    padding: 0px 20px;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    cursor: pointer;
+  }
+
+  .choice:hover {
+    background: @dropdownHoverBackground;
+  }
+
+  .choice-text {
+    padding-right: 30px;
+  }
+
+  .choice-selected {
+    float: right;
+    line-height: @minimumButtonSize;
+    display: none;
+  }
+
+  .choice.is-selected .choice-selected{
+    display: inline;
+  }
+
+  .choice.is-selected .choice-text{
+    font-weight: bold;
+  }
+}

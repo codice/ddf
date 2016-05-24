@@ -1,0 +1,41 @@
+@{customElementNamespace}dropdown.is-querySrc {
+  cursor: not-allowed;
+  display: block;
+  padding-left: 10px;
+
+  .dropdown-text {
+    display: inline-block;
+    padding-left: 10px;
+  }
+
+  .dropdown-icon {
+    display: none;
+  }
+
+  .dropdown-label {
+    color: grey;
+    font-weight: bold;
+  }
+
+  .dropdown-label,
+  .dropdown-text {
+    line-height: @minimumButtonSize;
+  }
+
+  .dropdown-text,
+  .dropdown-icon {
+    vertical-align: middle;
+  }
+
+  .text-src {
+    display: block;
+  }
+}
+
+@{customElementNamespace}dropdown.is-querySrc.is-editing {
+  cursor: pointer;
+
+  .dropdown-icon {
+    display: inline-block;
+  }
+}
