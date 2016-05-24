@@ -13,12 +13,8 @@
  */
 package org.codice.ddf.registry.api.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -27,17 +23,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
-
 import org.codice.ddf.cxf.SecureCxfClientFactory;
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.api.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.schemabindings.EbrimConstants;
+import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswStore;
 import org.opengis.filter.Filter;
@@ -47,14 +38,12 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
 import com.thoughtworks.xstream.converters.Converter;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.Query;
@@ -70,7 +59,7 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.encryption.EncryptionService;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
+import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 
 public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore {
 
@@ -90,11 +79,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
     private String remoteName = "";
 
-    private Parser parser;
-
-    private ParserConfigurator marshalConfigurator;
-
-    private ParserConfigurator unmarshalConfigurator;
+    private MetacardMarshaller metacardMarshaller;
 
     private ConfigurationAdmin configAdmin;
 
@@ -217,51 +202,22 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
     private void setMetacardExtID(Metacard metacard, String newId) throws ParserException {
 
-        String metadata = metacard.getMetadata();
+        RegistryPackageType registryPackage = metacardMarshaller.getRegistryPackageFromMetacard(
+                metacard);
 
-        InputStream inputStream = new ByteArrayInputStream(metadata.getBytes(Charsets.UTF_8));
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        List<ExternalIdentifierType> currentExtIdList = registryPackage.getExternalIdentifier();
+        currentExtIdList.stream()
+                .filter(extId -> extId.getId()
+                        .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID))
+                .findFirst()
+                .ifPresent(extId -> extId.setValue(newId));
 
-        JAXBElement<RegistryObjectType> registryObjectTypeJAXBElement = parser.unmarshal(
-                unmarshalConfigurator,
-                JAXBElement.class,
-                inputStream);
+        metacardMarshaller.setMetacardRegistryPackage(metacard, registryPackage);
 
-        if (registryObjectTypeJAXBElement != null) {
-            RegistryObjectType registryObjectType = registryObjectTypeJAXBElement.getValue();
-
-            if (registryObjectType != null) {
-                List<ExternalIdentifierType> currentExtIdList =
-                        registryObjectType.getExternalIdentifier();
-                currentExtIdList.stream()
-                        .filter(extId -> extId.getId()
-                                .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID))
-                        .findFirst()
-                        .ifPresent(extId -> extId.setValue(newId));
-
-                registryObjectTypeJAXBElement.setValue(registryObjectType);
-                parser.marshal(marshalConfigurator, registryObjectTypeJAXBElement, outputStream);
-                metacard.setAttribute(new AttributeImpl(Metacard.METADATA,
-                        new String(outputStream.toByteArray(), Charsets.UTF_8)));
-            }
-        }
     }
 
-    public void setParser(Parser parser) {
-        List<String> contextPath = Arrays.asList(RegistryObjectType.class.getPackage()
-                        .getName(),
-                EbrimConstants.OGC_FACTORY.getClass()
-                        .getPackage()
-                        .getName(),
-                EbrimConstants.GML_FACTORY.getClass()
-                        .getPackage()
-                        .getName());
-        ClassLoader classLoader = this.getClass()
-                .getClassLoader();
-        this.unmarshalConfigurator = parser.configureParser(contextPath, classLoader);
-        this.marshalConfigurator = parser.configureParser(contextPath, classLoader);
-        this.marshalConfigurator.addProperty(Marshaller.JAXB_FRAGMENT, true);
-        this.parser = parser;
+    public void setMetacardMarshaller(MetacardMarshaller metacardMarshaller) {
+        this.metacardMarshaller = metacardMarshaller;
     }
 
     public void init() {

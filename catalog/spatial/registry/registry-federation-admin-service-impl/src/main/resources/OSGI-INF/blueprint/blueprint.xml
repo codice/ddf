@@ -21,13 +21,17 @@
           init-method="init">
         <property name="catalogFramework" ref="catalogFramework"/>
         <property name="filterBuilder" ref="filterBuilder"/>
-        <property name="parser" ref="xmlParser"/>
+        <property name="metacardMarshaller" ref="metacardMarshaller"/>
         <property name="registryTransformer" ref="inputTransformer"/>
     </bean>
 
     <bean id="refreshRegistrySubscriptions"
           class="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistrySubscriptions">
         <property name="federationAdminService" ref="federationAdminService"/>
+    </bean>
+
+    <bean id="metacardMarshaller" class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
+        <argument ref="xmlParser"/>
     </bean>
 
 

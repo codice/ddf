@@ -34,6 +34,10 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
+    <bean id="metacardMarshaller" class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
+        <argument ref="xmlParser"/>
+    </bean>
+
     <bean id="metacardTypes" class="ddf.catalog.util.impl.SortedServiceList"/>
     <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
         <reference-listener ref="metacardTypes" bind-method="bindPlugin"
@@ -102,7 +106,7 @@
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
             <property name="schemaTransformerManager" ref="metacardTransformerManager"/>
-            <property name="parser" ref="xmlParser"/>
+            <property name="metacardMarshaller" ref="metacardMarshaller"/>
             <property name="pullAllowed" value="true"/>
             <property name="pushAllowed" value="true"/>
             <argument ref="encryptionService"/>

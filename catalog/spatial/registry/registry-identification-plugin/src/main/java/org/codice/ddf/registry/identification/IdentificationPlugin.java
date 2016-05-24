@@ -13,12 +13,8 @@
  */
 package org.codice.ddf.registry.identification;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,26 +22,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
-
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.schemabindings.EbrimConstants;
+import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
-
-import com.google.common.base.Charsets;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
@@ -68,7 +56,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
+import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 
 /**
  * IdentificationPlugin is a Pre/PostIngestPlugin that assigns a localID when a metacard is added to the
@@ -77,15 +65,11 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
  */
 public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
 
-    private Parser parser;
-
     private CatalogFramework catalogFramework;
 
     private FilterBuilder filterBuilder;
 
-    private ParserConfigurator marshalConfigurator;
-
-    private ParserConfigurator unmarshalConfigurator;
+    private MetacardMarshaller metacardMarshaller;
 
     private Set<String> registryIds = ConcurrentHashMap.newKeySet();
 
@@ -206,84 +190,65 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
 
         boolean extOriginFound = false;
         String metacardID = metacard.getId();
-        String metadata = metacard.getMetadata();
         String registryID = getRegistryId(metacard);
 
-        InputStream inputStream = new ByteArrayInputStream(metadata.getBytes(Charsets.UTF_8));
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
         try {
-            JAXBElement<RegistryObjectType> registryObjectTypeJAXBElement = parser.unmarshal(
-                    unmarshalConfigurator,
-                    JAXBElement.class,
-                    inputStream);
+            RegistryPackageType registryPackage = metacardMarshaller.getRegistryPackageFromMetacard(
+                    metacard);
 
-            if (registryObjectTypeJAXBElement != null) {
-                RegistryObjectType registryObjectType = registryObjectTypeJAXBElement.getValue();
+            List<ExternalIdentifierType> extIdList = new ArrayList<>();
 
-                if (registryObjectType != null) {
+            //check if external ids are already present
+            if (registryPackage.isSetExternalIdentifier()) {
+                List<ExternalIdentifierType> currentExtIdList =
+                        registryPackage.getExternalIdentifier();
 
-                    List<ExternalIdentifierType> extIdList = new ArrayList<>();
-
-                    //check if external ids are already present
-                    if (registryObjectType.isSetExternalIdentifier()) {
-                        List<ExternalIdentifierType> currentExtIdList =
-                                registryObjectType.getExternalIdentifier();
-
-                        for (ExternalIdentifierType extId : currentExtIdList) {
-                            extId.setRegistryObject(registryID);
-                            if (extId.getId()
-                                    .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID)) {
-                                //update local id
-                                extId.setValue(metacardID);
-                            } else if (extId.getId()
-                                    .equals(RegistryConstants.REGISTRY_MCARD_ORIGIN_ID)) {
-                                extOriginFound = true;
-                            }
-                            extIdList.add(extId);
-                        }
-
-                        if (!extOriginFound) {
-                            ExternalIdentifierType originExtId = new ExternalIdentifierType();
-                            originExtId.setId(RegistryConstants.REGISTRY_MCARD_ORIGIN_ID);
-                            originExtId.setRegistryObject(registryID);
-                            originExtId.setIdentificationScheme(RegistryConstants.REGISTRY_METACARD_ID_CLASS);
-                            originExtId.setValue(metacardID);
-
-                            extIdList.add(originExtId);
-                        }
-
-                    } else {
-                        //create both ids
-                        extIdList = new ArrayList<>(2);
-
-                        ExternalIdentifierType localExtId = new ExternalIdentifierType();
-                        localExtId.setId(RegistryConstants.REGISTRY_MCARD_LOCAL_ID);
-                        localExtId.setRegistryObject(registryID);
-                        localExtId.setIdentificationScheme(RegistryConstants.REGISTRY_METACARD_ID_CLASS);
-                        localExtId.setValue(metacardID);
-
-                        ExternalIdentifierType originExtId = new ExternalIdentifierType();
-                        originExtId.setId(RegistryConstants.REGISTRY_MCARD_ORIGIN_ID);
-                        originExtId.setRegistryObject(registryID);
-                        originExtId.setIdentificationScheme(RegistryConstants.REGISTRY_METACARD_ID_CLASS);
-                        originExtId.setValue(metacardID);
-
-                        extIdList.add(localExtId);
-                        extIdList.add(originExtId);
-
+                for (ExternalIdentifierType extId : currentExtIdList) {
+                    extId.setRegistryObject(registryID);
+                    if (extId.getId()
+                            .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID)) {
+                        //update local id
+                        extId.setValue(metacardID);
+                    } else if (extId.getId()
+                            .equals(RegistryConstants.REGISTRY_MCARD_ORIGIN_ID)) {
+                        extOriginFound = true;
                     }
-
-                    registryObjectType.setExternalIdentifier(extIdList);
-                    registryObjectTypeJAXBElement.setValue(registryObjectType);
-                    parser.marshal(marshalConfigurator,
-                            registryObjectTypeJAXBElement,
-                            outputStream);
-
-                    metacard.setAttribute(new AttributeImpl(Metacard.METADATA,
-                            new String(outputStream.toByteArray(), Charsets.UTF_8)));
+                    extIdList.add(extId);
                 }
+
+                if (!extOriginFound) {
+                    ExternalIdentifierType originExtId = new ExternalIdentifierType();
+                    originExtId.setId(RegistryConstants.REGISTRY_MCARD_ORIGIN_ID);
+                    originExtId.setRegistryObject(registryID);
+                    originExtId.setIdentificationScheme(RegistryConstants.REGISTRY_METACARD_ID_CLASS);
+                    originExtId.setValue(metacardID);
+
+                    extIdList.add(originExtId);
+                }
+
+            } else {
+                //create both ids
+                extIdList = new ArrayList<>(2);
+
+                ExternalIdentifierType localExtId = new ExternalIdentifierType();
+                localExtId.setId(RegistryConstants.REGISTRY_MCARD_LOCAL_ID);
+                localExtId.setRegistryObject(registryID);
+                localExtId.setIdentificationScheme(RegistryConstants.REGISTRY_METACARD_ID_CLASS);
+                localExtId.setValue(metacardID);
+
+                ExternalIdentifierType originExtId = new ExternalIdentifierType();
+                originExtId.setId(RegistryConstants.REGISTRY_MCARD_ORIGIN_ID);
+                originExtId.setRegistryObject(registryID);
+                originExtId.setIdentificationScheme(RegistryConstants.REGISTRY_METACARD_ID_CLASS);
+                originExtId.setValue(metacardID);
+
+                extIdList.add(localExtId);
+                extIdList.add(originExtId);
+
             }
+
+            registryPackage.setExternalIdentifier(extIdList);
+            metacardMarshaller.setMetacardRegistryPackage(metacard, registryPackage);
 
         } catch (ParserException e) {
             throw new StopProcessingException(
@@ -340,20 +305,7 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
         this.catalogFramework = framework;
     }
 
-    public void setParser(Parser parser) {
-        List<String> contextPath = Arrays.asList(RegistryObjectType.class.getPackage()
-                        .getName(),
-                EbrimConstants.OGC_FACTORY.getClass()
-                        .getPackage()
-                        .getName(),
-                EbrimConstants.GML_FACTORY.getClass()
-                        .getPackage()
-                        .getName());
-        ClassLoader classLoader = this.getClass()
-                .getClassLoader();
-        this.unmarshalConfigurator = parser.configureParser(contextPath, classLoader);
-        this.marshalConfigurator = parser.configureParser(contextPath, classLoader);
-        this.marshalConfigurator.addProperty(Marshaller.JAXB_FRAGMENT, true);
-        this.parser = parser;
+    public void setMetacardMarshaller(MetacardMarshaller helper) {
+        this.metacardMarshaller = helper;
     }
 }
