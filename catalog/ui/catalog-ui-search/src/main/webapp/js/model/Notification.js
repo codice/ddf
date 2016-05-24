@@ -11,13 +11,27 @@
  **/
 /*global define*/
 
-define(["backbone", "moment", "underscore", "jquery"], function (Backbone, moment, _, $) {
+define([
+    "backbone",
+    "cometdinit",
+    "moment",
+    "underscore",
+    "jquery"
+], function (Backbone, Cometd, moment, _, $) {
 
     var Notification = {};
 
     Notification.Notification = Backbone.Model.extend({
 
         url: '/notification/action',
+
+        defaults: function () {
+            return {
+                title: 'Untitled',
+                message: '',
+                timestamp: moment().format()
+            }
+        },
 
         //validates the notification ensuring it contains the 3 necessary parts
         validate: function (attrs) {
@@ -29,6 +43,16 @@ define(["backbone", "moment", "underscore", "jquery"], function (Backbone, momen
                 return "Notification must have message.";
             if (!attrs.timestamp)
                 return "Notification must have timestamp.";
+        },
+
+        destroy: function () {
+            Cometd.Comet.publish(this.url, {
+                data: [{
+                    id: this.get('id'),
+                    action: 'remove'
+                }]
+            });
+            Backbone.Model.prototype.destroy.apply(this, arguments);
         }
     });
 

@@ -22,9 +22,6 @@ define(['application',
 
         // Instantiate Notifications collection and pass that to the two views I will use.
         var notifications = new Notification.List();
-        new NotificationView.NotificationListView({
-            collection : notifications
-        });
 
         wreqr.reqres.setHandler('notifications', function () {
             return notifications;

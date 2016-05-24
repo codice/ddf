@@ -24,9 +24,11 @@ define([
     'component/content-toolbar/content-toolbar.view',
     'component/details-user/details-user.view',
     'component/details-buttons/details-buttons.view',
+    'component/dropdown/dropdown',
+    'component/dropdown/notifications/dropdown.notifications.view',
     'wreqr'
 ], function (Marionette, _, $, template, CustomElements, LogoView, TitleView, ToolbarView,
-UserView, ButtonsView, wreqr) {
+UserView, ButtonsView, DropdownModel, Notifications, wreqr) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -42,7 +44,7 @@ UserView, ButtonsView, wreqr) {
             title: '.content-title',
             toolbar: '.content-toolbar',
             user: '.details-user',
-            buttons: '.details-buttons'
+            notifications: '.details-notifications'
         },
         initialize: function (options) {
             if (options.model === undefined){
@@ -53,8 +55,10 @@ UserView, ButtonsView, wreqr) {
             this.logo.show(new LogoView());
             this.title.show(new TitleView());
             this.toolbar.show(new ToolbarView());
+            this.notifications.show(new Notifications({
+                model: new DropdownModel()
+            }));
             this.user.show(new UserView());
-            this.buttons.show(new ButtonsView());
         },
         navigateHome: function(){
             wreqr.vent.trigger('router:navigate', {

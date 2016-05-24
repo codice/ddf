@@ -11,16 +11,19 @@
  *
  **/
  --}}
-<div class="home-menu-left">
-    <span class="fa fa-bars home-menu-icon">
-    </span>
-    <span class="home-menu-icon home-menu-title">Workspaces</span>
-</div>
-<div class="home-menu-right">
-    <div class="menu-item">
-        <div class="notifications-region"></div>
-    </div>
-    <div class="menu-item">
-        <div class="user-info-region"></div>
-    </div>
-</div>
+<table class="notification-table">
+    <tr>
+        <td class="notification-title">{{title}}</td>
+        <td class="text-right">
+            <button class="remove-notification">
+                <i class="fa fa-times"></i>
+            </button>
+        </td>
+    </tr>
+    <tr>
+        <td class="notification-message">{{message}}</td>
+        <td class="notification-time text-right">
+            {{momentHelp timestamp fromNow=function}}
+        </td>
+    </tr>
+</table>

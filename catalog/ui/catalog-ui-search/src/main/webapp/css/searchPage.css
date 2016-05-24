@@ -615,90 +615,6 @@ table.metacard-table {
     background: none;
 }
 
-.notification-time {
-    font-size: .8em;
-    color: white;
-    text-align: right;
-}
-
-.notification-message {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    color: white;
-    font-size: .9em;
-}
-
-.notification-title {
-    color: #eee;
-    display: table-cell;
-    width: 100%;
-    padding: 10px;
-}
-
-.notification-time-menu {
-    font-size: .9em;
-    color: #DDD;
-    display: table-cell;
-    width: 105px;
-    text-align: right;
-    white-space: nowrap;
-    padding-right: 15px;
-}
-
-.notification-message-menu {
-    padding-top: 2px;
-    padding-bottom: 5px;
-    color: white;
-    font-size: .8em;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.notification-title-menu {
-    color: #eee;
-    display: table-cell;
-    width: 65%;
-    white-space: nowrap;
-}
-
-.notification-subtitle {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    font-weight: 200;
-    font-size: .8em;
-    color: #eee;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.notification-category {
-    position: relative;
-    font-size: 1.2em;
-    font-weight: 700;
-    padding: 10px;
-    background: #242424;
-    text-align: center;
-}
-
-div.ui-pnotify-text br {
-    display: none;
-}
-
-.notification-hr {
-    margin: 0;
-    border: 0;
-    border-top: 1px solid #2c2c2c;
-    border-bottom: 1px solid #eee;
-}
-
-.notification-context {
-    position: absolute;
-    bottom: 50px;
-    right: 25px;
-}
-
 .ui-pnotify {
     top: auto;
 }
@@ -1076,12 +992,6 @@ a.pause:hover, a.pause:focus {
 }
 
 .task-close {
-    right: -3px;
-    top: -3px;
-    position: absolute;
-}
-
-.notification-close {
     right: -3px;
     top: -3px;
     position: absolute;

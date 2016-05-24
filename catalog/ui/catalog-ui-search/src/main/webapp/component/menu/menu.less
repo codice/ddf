@@ -1,4 +1,6 @@
 @{customElementNamespace}menu {
+    @menuDetailsWidth: 300px;
+
   .customElement;
   position: relative;
   height: 60px;
@@ -9,11 +11,11 @@
   }
 
   > .menu-content {
-    width: ~'calc(100% - 244px)';
+    width: ~'calc(100% - @{menuDetailsWidth} - @{minimumButtonSize})';
   }
 
   > .menu-details {
-    width: 200px;
+    width: @menuDetailsWidth;
   }
 
   > .menu-logo,
@@ -22,6 +24,7 @@
     display: inline-block;
     vertical-align: top;
     height: 100%;
+    white-space: nowrap;
   }
 
   > .menu-content > .content-title,
@@ -33,12 +36,19 @@
   > .menu-content > .content-title {
   }
 
-  > .menu-details > .details-user {
-    height: 25px;
-  }
 
   > .menu-details > .details-buttons {
     height: 35px;
+  }
+
+  > .menu-details > .details-user,
+  > .menu-details > .details-notifications,
+  > .menu-details > .details-buttons {
+    display: inline-block;
+    height: 60px;
+    line-height: 60px;
+    vertical-align: top;
+    font-size: 2rem;
   }
 
 }

@@ -35,8 +35,6 @@ define([
                     context = undefined;
                 }
                 momentObj = moment(context);
-                // Reset the language back to default before doing anything else
-                momentObj.lang('en');
                 for (i in block.hash) {
                     if (momentObj[i]) {
                         if (typeof momentObj[i] === 'function') {
