@@ -141,11 +141,6 @@ public class RegistryTransformerTest {
     }
 
     @Test(expected = CatalogTransformerException.class)
-    public void testBadBindingService() throws Exception {
-        convert("/bad-binding-service.xml");
-    }
-
-    @Test(expected = CatalogTransformerException.class)
     public void testNoRegistryObjetId() throws Exception {
         convert("/bad-id.xml");
     }
