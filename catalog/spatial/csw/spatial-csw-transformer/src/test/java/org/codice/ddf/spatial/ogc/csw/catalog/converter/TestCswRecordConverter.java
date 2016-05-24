@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -113,6 +113,8 @@ public class TestCswRecordConverter {
 
     private static CswRecordConverter converter;
 
+    private static String cswRecordXml;
+
     static {
         DatatypeFactory factory = null;
         try {
@@ -134,6 +136,9 @@ public class TestCswRecordConverter {
                 .toXMLFormat();
 
         converter = new CswRecordConverter();
+
+        cswRecordXml = IOUtils.toString(TestCswRecordConverter.class.getResourceAsStream(
+                "/Csw_Record_Text.xml"));
     }
 
     @Test
@@ -748,6 +753,24 @@ public class TestCswRecordConverter {
     }
 
     @Test
+    public void testMetacardTransformWithCswRecordMetadata()
+            throws IOException, JAXBException, SAXException, XpathException,
+            CatalogTransformerException {
+        Metacard metacard = getCswRecordMetacard();
+
+        Map<String, Serializable> args = new HashMap<>();
+        args.put(CswConstants.WRITE_NAMESPACES, true);
+
+        BinaryContent content = converter.transform(metacard, args);
+
+        String xml = IOUtils.toString(content.getInputStream());
+        assertThat(xml,
+                containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(cswRecordXml, xml);
+    }
+
+    @Test
     public void testInputTransformWithNoNamespaceDeclaration()
             throws IOException, CatalogTransformerException {
         InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
@@ -787,7 +810,7 @@ public class TestCswRecordConverter {
         metacard.setEffectiveDate(EFFECTIVE_DATE.getTime());
         metacard.setId("ID");
         metacard.setLocation("POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))");
-        metacard.setMetadata("metadata a whole bunch of metadata");
+        metacard.setMetadata("<xml>metadata a whole bunch of metadata</xml>");
         metacard.setModifiedDate(MODIFIED_DATE.getTime());
         metacard.setResourceSize("123TB");
         metacard.setSourceId("sourceID");
@@ -798,6 +821,12 @@ public class TestCswRecordConverter {
             LOGGER.debug("URISyntaxException", e);
         }
 
+        return metacard;
+    }
+
+    private MetacardImpl getCswRecordMetacard() throws IOException {
+        MetacardImpl metacard = getTestMetacard();
+        metacard.setMetadata(cswRecordXml);
         return metacard;
     }
 
