@@ -32,14 +32,10 @@ import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.security.Principal;
 import java.security.PrivilegedAction;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
@@ -162,7 +158,7 @@ public class SecurityTest {
 
     @Test
     public void testJavaSubjectHasAdminRole() throws Exception {
-        runAsAdmin(() -> {
+        Security.runAsAdmin(() -> {
             assertThat(security.javaSubjectHasAdminRole(), equalTo(true));
             return null;
         });
@@ -172,7 +168,10 @@ public class SecurityTest {
     public void testGetSystemSubject() throws Exception {
         configureMocksForBundleContext("server");
 
-        assertThat(security.getSystemSubject(), not(equalTo(null)));
+        Security.runAsAdmin(() -> {
+            assertThat(security.getSystemSubject(), not(equalTo(null)));
+            return null;
+        });
     }
 
     @Test
@@ -198,7 +197,7 @@ public class SecurityTest {
         when(systemSubject.execute(callable)).thenReturn("Success!");
         configureMocksForBundleContext("server");
 
-        String result = runAsAdmin(() -> {
+        String result = Security.runAsAdmin(() -> {
 
             try {
                 return security.runWithSubjectOrElevate(callable);
@@ -237,7 +236,7 @@ public class SecurityTest {
         when(SecurityUtils.getSubject()).thenThrow(new IllegalStateException());
         configureMocksForBundleContext("bad-alias");
 
-        boolean securityExceptionThrown = runAsAdmin(() -> {
+        boolean securityExceptionThrown = Security.runAsAdmin(() -> {
 
             try {
                 return security.runWithSubjectOrElevate(() -> false);
@@ -277,7 +276,7 @@ public class SecurityTest {
         when(systemSubject.execute(callable)).thenThrow(new ExecutionException(new UnsupportedOperationException()));
         configureMocksForBundleContext("server");
 
-        Exception exception = runAsAdmin(() -> {
+        Exception exception = Security.runAsAdmin(() -> {
 
             try {
                 security.runWithSubjectOrElevate(callable);
@@ -325,16 +324,5 @@ public class SecurityTest {
         when(bundleContext.getService(securityRef)).thenReturn(securityManager);
         when(bundleContext.getServiceReference(ConfigurationAdmin.class)).thenReturn(adminRef);
         when(bundleContext.getServiceReference(SecurityManager.class)).thenReturn(securityRef);
-    }
-
-    private <T> T runAsAdmin(PrivilegedAction<T> action) {
-        Set<Principal> principals = new HashSet<>();
-        principals.add(new RolePrincipal("admin"));
-        javax.security.auth.Subject subject = new javax.security.auth.Subject(true,
-                principals,
-                new HashSet(),
-                new HashSet());
-
-        return javax.security.auth.Subject.doAs(subject, action);
     }
 }

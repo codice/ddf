@@ -49,6 +49,8 @@ public class TestRegistry extends AbstractIntegrationTest {
 
     private static final String REGISTRY_CATALOG_STORE_ID = "cswRegistryCatalogStore";
 
+    private static final String ADMIN = "admin";
+
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
@@ -82,11 +84,14 @@ public class TestRegistry extends AbstractIntegrationTest {
     public void testCswRegistryUpdate() throws Exception {
         String id = createRegistryEntry("urn:uuid:2014ca7f59ac46f495e32b4a67a51280");
 
-        Response response = given().body(Library.getCswRegistryUpdate()
-                .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276",
-                        "urn:uuid:2014ca7f59ac46f495e32b4a67a51280")
-                .replace("Node Name", "New Node Name")
-                .replaceAll("someUUID", id))
+        Response response = given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .body(Library.getCswRegistryUpdate()
+                        .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276",
+                                "urn:uuid:2014ca7f59ac46f495e32b4a67a51280")
+                        .replace("Node Name", "New Node Name")
+                        .replaceAll("someUUID", id))
                 .header("Content-Type", "text/xml")
                 .expect()
                 .log()
@@ -108,9 +113,12 @@ public class TestRegistry extends AbstractIntegrationTest {
     public void testCswRegistryDelete() throws Exception {
         createRegistryEntry("urn:uuid:2014ca7f59ac46f495e32b4a67a51281");
 
-        Response response = given().body(Library.getCswRegistryDelete()
-                .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276",
-                        "urn:uuid:2014ca7f59ac46f495e32b4a67a51281"))
+        Response response = given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .body(Library.getCswRegistryDelete()
+                        .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276",
+                                "urn:uuid:2014ca7f59ac46f495e32b4a67a51281"))
                 .header("Content-Type", "text/xml")
                 .expect()
                 .log()
@@ -132,9 +140,12 @@ public class TestRegistry extends AbstractIntegrationTest {
     public void testCswRegistryCreateDup() throws Exception {
         createRegistryEntry("urn:uuid:2014ca7f59ac46f495e32b4a67a51282");
 
-        given().body(Library.getCswRegistryInsert()
-                .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276",
-                        "urn:uuid:2014ca7f59ac46f495e32b4a67a51282"))
+        given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .body(Library.getCswRegistryInsert()
+                        .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276",
+                                "urn:uuid:2014ca7f59ac46f495e32b4a67a51282"))
                 .header("Content-Type", "text/xml")
                 .expect()
                 .log()
@@ -169,8 +180,11 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     private String createRegistryEntry(String id) throws Exception {
-        Response response = given().body(Library.getCswRegistryInsert()
-                .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276", id))
+        Response response = given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .body(Library.getCswRegistryInsert()
+                        .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276", id))
                 .header("Content-Type", "text/xml")
                 .expect()
                 .log()
