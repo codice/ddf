@@ -60,6 +60,14 @@ define([
         return getSomeStatusSuccess(status, false);
     }
 
+    function getLastRan(initiated) {
+        if (!_.isUndefined(initiated)) {
+            return moment(new Date(initiated)).fromNow();
+        } else {
+            return '';
+        }
+    }
+
     return Marionette.ItemView.extend({
         template: template,
         attributes: function(){
@@ -142,13 +150,14 @@ define([
                     status: status,
                     resultCount: getResultsFound(status),
                     pending: getPending(status),
-                    failed: getFailed(status)
+                    failed: getFailed(status),
+                    queryStatus: getLastRan(this.model.get('result>initiated'))
                 };
             } else {
                 return {
                     query: query,
-                    resultCount: '',
-                    queryStatus: 'Has not been run'
+                    resultCount: 'Has not been run',
+                    queryStatus: ''
                 };
             }
         },
