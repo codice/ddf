@@ -73,6 +73,11 @@
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.registry</groupId>
+                <artifactId>registry-federation-admin-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.registry</groupId>
                 <artifactId>registry-policy-plugin</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -149,6 +154,7 @@
         <module>registry-federation-admin-service</module>
         <module>registry-federation-admin-service-impl</module>
         <module>registry-federation-admin-api</module>
+        <module>registry-federation-admin-impl</module>
         <module>registry-app</module>
         <module>registry-admin-modules</module>
         <module>registry-publication-update-handler</module>
