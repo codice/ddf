@@ -51,11 +51,11 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
 
     private List<String> readAccessPolicyStrings;
 
-    private HashMap<String, Set<String>> bypassAccessPolicy = new HashMap<>();
+    private Map<String, Set<String>> bypassAccessPolicy = new HashMap<>();
 
-    private HashMap<String, Set<String>> writeAccessPolicy = new HashMap<>();
+    private Map<String, Set<String>> writeAccessPolicy = new HashMap<>();
 
-    private HashMap<String, Set<String>> readAccessPolicy = new HashMap<>();
+    private Map<String, Set<String>> readAccessPolicy = new HashMap<>();
 
     /**
      * @return Returns true if the registry entry ids represents a set of 'white listed' entries. Default is false.
@@ -241,15 +241,15 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
         return new PolicyResponseImpl();
     }
 
-    public HashMap<String, Set<String>> getBypassAccessPolicy() {
-        return bypassAccessPolicy;
+    public Map<String, Set<String>> getBypassAccessPolicy() {
+        return Collections.unmodifiableMap(bypassAccessPolicy);
     }
 
-    public HashMap<String, Set<String>> getWriteAccessPolicy() {
-        return writeAccessPolicy;
+    public Map<String, Set<String>> getWriteAccessPolicy() {
+        return Collections.unmodifiableMap(writeAccessPolicy);
     }
 
-    public HashMap<String, Set<String>> getReadAccessPolicy() {
-        return readAccessPolicy;
+    public Map<String, Set<String>> getReadAccessPolicy() {
+        return Collections.unmodifiableMap(readAccessPolicy);
     }
 }
