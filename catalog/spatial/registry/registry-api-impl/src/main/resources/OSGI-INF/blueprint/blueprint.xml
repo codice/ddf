@@ -32,6 +32,8 @@
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
 
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
     <bean id="metacardTypes" class="ddf.catalog.util.impl.SortedServiceList"/>
     <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
         <reference-listener ref="metacardTypes" bind-method="bindPlugin"
@@ -104,6 +106,8 @@
             <property name="pullAllowed" value="true"/>
             <property name="pushAllowed" value="true"/>
             <argument ref="encryptionService"/>
+            <property name="configAdmin" ref="configurationAdmin"/>
+            <property name="registryId" value=""/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

@@ -32,4 +32,10 @@ public interface RegistryStore extends CatalogStore, ConfiguredService {
      * @return true if allowed otherwise false
      */
     boolean isPullAllowed();
+
+    /**
+     * Indicates the Id associated with this registry
+     * @return registry id in a string
+     */
+    String getRegistryId();
 }
