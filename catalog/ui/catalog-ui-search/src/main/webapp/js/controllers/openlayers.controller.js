@@ -235,15 +235,10 @@ define(['application',
 
             flyToRectangle: function (rectangle) {
                 var zoom = ol.animation.zoom({
-                    duration: 2000,
+                    duration: 250,
                     resolution: this.mapViewer.getView().getResolution()
                 });
-                if (rectangle.north === rectangle.south && rectangle.east === rectangle.west) {
-                    this.flyToGeometry(new Metacard.Geometry({
-                        type: "Point",
-                        coordinates: [rectangle.west, rectangle.north]
-                    }));
-                } else if (rectangle.north && rectangle.south && rectangle.east && rectangle.west) {
+                if (rectangle.north && rectangle.south && rectangle.east && rectangle.west) {
                     var northWest = ol.proj.transform([rectangle.west, rectangle.north], 'EPSG:4326', properties.projection);
                     var southEast = ol.proj.transform([rectangle.east, rectangle.south], 'EPSG:4326', properties.projection);
                     var coords = [];
@@ -252,14 +247,14 @@ define(['application',
                     coords.push(southEast[0]);
                     coords.push(northWest[1]);
                     var pan1 = ol.animation.pan({
-                        duration: 2000,
+                        duration: 250,
                         source: this.mapViewer.getView().getCenter()
                     });
-                    this.mapViewer.beforeRender(pan1, zoom);
-                    this.mapViewer.getView().fitExtent(coords, this.mapViewer.getSize());
+                    this.mapViewer.beforeRender(pan1);
+                    this.mapViewer.getView().setCenter(coords);
                 } else {
                     var pan2 = ol.animation.pan({
-                        duration: 2000,
+                        duration: 250,
                         source: this.mapViewer.getView().getCenter()
                     });
                     this.mapViewer.beforeRender(pan2, zoom);
@@ -286,7 +281,9 @@ define(['application',
                 }
             },
             zoomToSelected: function(){
-                this.flyToCenterPoint(store.getSelectedResults());
+                if (store.getSelectedResults().length === 1){
+                    this.flyToCenterPoint(store.getSelectedResults());
+                }
             },
 
             showResults: function (results) {
