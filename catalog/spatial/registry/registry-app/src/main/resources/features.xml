@@ -45,6 +45,7 @@
     <bundle>mvn:org.codice.ddf.registry/registry-identification-plugin/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-publication-update-handler/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-report-action-provider/${project.version}</bundle>
+    <bundle>mvn:org.codice.ddf.registry/registry-report-viewer/${project.version}</bundle>
 </feature>
 
 <feature name="registry-app" install="auto" version="${project.version}"
