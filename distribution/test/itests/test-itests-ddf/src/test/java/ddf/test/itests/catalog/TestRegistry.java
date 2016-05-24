@@ -81,16 +81,36 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCswRegistryUpdate() throws Exception {
+    public void testCswRegistryUpdateFailure() throws Exception {
         String id = createRegistryEntry("urn:uuid:2014ca7f59ac46f495e32b4a67a51280");
+
+        given().body(Library.getCswRegistryUpdate()
+                .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276",
+                        "urn:uuid:2014ca7f59ac46f495e32b4a67a51280")
+                .replace("Node Name", "New Node Name")
+                .replace("2016-01-26T17:16:34.996Z", "2014-02-26T17:16:34.996Z")
+                .replaceAll("someUUID", id))
+                .header("Content-Type", "text/xml")
+                .expect()
+                .log()
+                .all()
+                .statusCode(400)
+                .when()
+                .post(CSW_PATH.getUrl());
+    }
+
+    @Test
+    public void testCswRegistryUpdate() throws Exception {
+        String id = createRegistryEntry("urn:uuid:2014ca7f59ac46f495e32b4a67a51285");
 
         Response response = given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)
                 .body(Library.getCswRegistryUpdate()
                         .replaceAll("urn:uuid:2014ca7f59ac46f495e32b4a67a51276",
-                                "urn:uuid:2014ca7f59ac46f495e32b4a67a51280")
+                                "urn:uuid:2014ca7f59ac46f495e32b4a67a51285")
                         .replace("Node Name", "New Node Name")
+                        .replace("2016-01-26T17:16:34.996Z", "2018-02-26T17:16:34.996Z")
                         .replaceAll("someUUID", id))
                 .header("Content-Type", "text/xml")
                 .expect()

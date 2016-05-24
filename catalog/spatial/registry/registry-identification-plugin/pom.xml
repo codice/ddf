@@ -32,11 +32,6 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
-            <artifactId>registry-federation-admin-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -64,6 +59,10 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -76,9 +75,11 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             registry-common,
+                            ddf-security-common,
                             catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Import-Package>
+                            !org.codice.ddf.platform.util.http,
                             !org.codice.ddf.platform.util,
                             *
                         </Import-Package>
@@ -104,22 +105,22 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.72</minimum>
+                                            <minimum>0.74</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.65</minimum>
+                                            <minimum>0.54</minimum>
                                         </limit>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.92</minimum>
+                                            <minimum>0.81</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.91</minimum>
+                                            <minimum>0.78</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

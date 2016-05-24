@@ -16,10 +16,15 @@
 
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
+    
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
     <bean id="identificationPlugin"
           class="org.codice.ddf.registry.identification.IdentificationPlugin" init-method="init">
         <property name="parser" ref="xmlParser"/>
+        <property name="catalogFramework" ref="catalogFramework"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
     </bean>
 
     <service ref="identificationPlugin" auto-export="interfaces" ranking="0"/>

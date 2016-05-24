@@ -1,26 +1,30 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.registry.identification;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
@@ -30,22 +34,39 @@ import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.schemabindings.EbrimConstants;
+import org.codice.ddf.security.common.Security;
+import org.opengis.filter.Filter;
 
 import com.google.common.base.Charsets;
 
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.Constants;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.OperationTransaction;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
+import ddf.security.SecurityConstants;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -57,6 +78,10 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
 
     private Parser parser;
+
+    private CatalogFramework catalogFramework;
+
+    private FilterBuilder filterBuilder;
 
     private ParserConfigurator marshalConfigurator;
 
@@ -86,6 +111,57 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
     @Override
     public UpdateRequest process(UpdateRequest input)
             throws PluginExecutionException, StopProcessingException {
+
+        OperationTransaction operationTransaction = (OperationTransaction) input.getProperties()
+                .get(Constants.OPERATION_TRANSACTION_KEY);
+
+        if (operationTransaction == null) {
+            throw new PluginExecutionException(
+                    "Unable to get OperationTransaction from UpdateRequest");
+        }
+
+        if (Requests.isLocal(input)) {
+            List<Metacard> previousMetacards = operationTransaction.getPreviousStateMetacards();
+
+            Map<String, Metacard> previousMetacardsMap = previousMetacards.stream()
+                    .collect(Collectors.toMap(Metacard::getId, Function.identity()));
+
+            ArrayList<Map.Entry<Serializable, Metacard>> entriesToRemove = new ArrayList<>();
+
+            for (Map.Entry<Serializable, Metacard> entry : input.getUpdates()) {
+                Metacard updateMetacard = entry.getValue();
+                Metacard existingMetacard = previousMetacardsMap.get(updateMetacard.getId());
+
+                if (existingMetacard != null) {
+                    if (existingMetacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
+                            .getValue()
+                            .equals(updateMetacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
+                                    .getValue())) {
+
+                        if (!updateMetacard.getModifiedDate()
+                                .before(existingMetacard.getModifiedDate())) {
+                            for (String transientAttributeKey : RegistryObjectMetacardType.TRANSIENT_ATTRIBUTES) {
+                                Attribute transientAttribute = updateMetacard.getAttribute(
+                                        transientAttributeKey);
+                                if (transientAttribute == null) {
+                                    transientAttribute = existingMetacard.getAttribute(
+                                            transientAttributeKey);
+                                    if (transientAttribute != null) {
+                                        updateMetacard.setAttribute(transientAttribute);
+                                    }
+                                }
+                            }
+                        } else {
+                            entriesToRemove.add(entry);
+                        }
+                    }
+                }
+            }
+
+            input.getUpdates()
+                    .removeAll(entriesToRemove);
+
+        }
         return input;
     }
 
@@ -98,12 +174,12 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
         if (Requests.isLocal(input.getRequest())) {
-            for (Metacard metacard : input.getCreatedMetacards()) {
-                if (metacard.getTags()
-                        .contains(RegistryConstants.REGISTRY_TAG)) {
-                    registryIds.add(getRegistryId(metacard));
-                }
-            }
+            registryIds.addAll(input.getCreatedMetacards()
+                    .stream()
+                    .filter(metacard -> metacard.getTags()
+                            .contains(RegistryConstants.REGISTRY_TAG))
+                    .map(this::getRegistryId)
+                    .collect(Collectors.toList()));
         }
         return input;
     }
@@ -221,15 +297,57 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
                 .toString();
     }
 
-    public void init() {
+    public void init()
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            PluginExecutionException {
+
+        List<Metacard> registryMetacards;
+        Filter registryFilter = filterBuilder.attribute(Metacard.TAGS)
+                .is()
+                .like()
+                .text(RegistryConstants.REGISTRY_TAG);
+        QueryImpl query = new QueryImpl(registryFilter);
+        query.setPageSize(1000);
+        QueryRequest request = new QueryRequestImpl(query);
+
+        request.getProperties()
+                .put(SecurityConstants.SECURITY_SUBJECT,
+                        Security.runAsAdmin(() -> Security.getInstance()
+                                .getSystemSubject()));
+
+        QueryResponse response = catalogFramework.query(request);
+
+        if (response == null) {
+            throw new PluginExecutionException(
+                    "Plugin failed to initialize plugin, unable to query identity node.");
+        }
+
+        registryMetacards = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toList());
+        registryIds.addAll(registryMetacards.stream()
+                .map(this::getRegistryId)
+                .collect(Collectors.toList()));
+
+    }
+
+    public void setFilterBuilder(FilterBuilder filterBuilder) {
+        this.filterBuilder = filterBuilder;
+    }
+
+    public void setCatalogFramework(CatalogFramework framework) {
+        this.catalogFramework = framework;
     }
 
     public void setParser(Parser parser) {
         List<String> contextPath = Arrays.asList(RegistryObjectType.class.getPackage()
                         .getName(),
-                net.opengis.ogc.ObjectFactory.class.getPackage()
+                EbrimConstants.OGC_FACTORY.getClass()
+                        .getPackage()
                         .getName(),
-                net.opengis.gml.v_3_1_1.ObjectFactory.class.getPackage()
+                EbrimConstants.GML_FACTORY.getClass()
+                        .getPackage()
                         .getName());
         ClassLoader classLoader = this.getClass()
                 .getClassLoader();
