@@ -14,6 +14,7 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -36,7 +37,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.persistence.PersistentStore;
@@ -59,6 +59,8 @@ public class ActivityControllerTest {
     // NOTE: The ServerSession ID == The ClientSession ID
     private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
 
+    private static final String MOCK_INVALID_SESSION_ID = "0987-6543-2109-8765";
+
     private static final String MOCK_ACTIVITY_ID = "12345";
 
     private static final String MOCK_TITLE = "Download Complete of San Francisco";
@@ -68,8 +70,9 @@ public class ActivityControllerTest {
 
     private static final long MOCK_TIMESTAMP = new Date().getTime();
 
-    private static final String MOCK_USER_ID = UUID.randomUUID()
-            .toString();
+    private static final String MOCK_USER_ID = "validUserId";
+
+    private static final String MOCK_INVALID_USER_ID = "invalidUserId";
 
     private static final String MOCK_PROGRESS = "55%";
 
@@ -95,6 +98,8 @@ public class ActivityControllerTest {
                 mock(EventAdmin.class));
 
         when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
+        when(mockServerSession.getAttribute("session")).thenReturn(MOCK_SESSION_ID);
+
 
         testEventProperties = new HashMap<>();
         testEventProperties.put(ActivityEvent.ID_KEY, MOCK_ACTIVITY_ID);
@@ -234,12 +239,13 @@ public class ActivityControllerTest {
      * Test method for {@link ActivityController#handleEvent(org.osgi.service.event.Event)}
      *
      * Verifies that {@code IllegalArgumentException} is thrown when
-     * {@code Event}'s {@link ActivityEvent#USER_ID_KEY} property is
-     * empty.
+     * {@code Event}'s {@link ActivityEvent#USER_ID_KEY} and
+     * {@link ActivityEvent#SESSION_ID_KEY} properties are empty.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyUser() {
+    public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyUserAndSessionId() {
         testEventProperties.put(ActivityEvent.USER_ID_KEY, "");
+        testEventProperties.put(ActivityEvent.SESSION_ID_KEY, "");
         activityController.handleEvent(new Event(ActivityEvent.EVENT_TOPIC, testEventProperties));
     }
 
@@ -286,13 +292,51 @@ public class ActivityControllerTest {
      * Test method for {@link ActivityController#handleEvent(org.osgi.service.event.Event)}
      *
      * Verifies that {@code IllegalArgumentException} is thrown when
-     * {@code Event}'s {@link ActivityEvent#USER_ID_KEY} property is
-     * null.
+     * {@code Event}'s {@link ActivityEvent#USER_ID_KEY} and
+     * {@link ActivityEvent#SESSION_ID_KEY} properties are null.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testHandleEventThrowsIllegalArgumentExceptionOnNullUser() {
+    public void testHandleEventThrowsIllegalArgumentExceptionOnNullUserAndSessionId() {
         testEventProperties.put(ActivityEvent.USER_ID_KEY, null);
+        testEventProperties.put(ActivityEvent.SESSION_ID_KEY, null);
         activityController.handleEvent(new Event(ActivityEvent.EVENT_TOPIC, testEventProperties));
+    }
+
+
+    /**
+     * Verifies that the session lookup works properly if the userId is provided
+     */
+    @Test
+    public void testLookupSessionViaUserIdIfPresent() {
+        activityController.userSessionMap.put(MOCK_USER_ID, mockServerSession);
+        // check that a session is returned with no provided sessionId
+        assertThat(activityController.getSessionById(MOCK_USER_ID, null), is(mockServerSession));
+        // checks that the sessionId is not used if userId is present
+        assertThat(activityController.getSessionById(MOCK_USER_ID, MOCK_INVALID_SESSION_ID),
+                is(mockServerSession));
+    }
+
+    /**
+     * Verifies that the session lookup properly falls back to sessionId lookup if
+     * the userId is not provided or is invalid
+     */
+    @Test
+    public void testFallbackToSessionIdLookupIfUserIdFails() {
+        activityController.userSessionMap.put(MOCK_USER_ID, mockServerSession);
+        // check the sessionId is used if the userId cannot be found
+        assertThat(activityController.getSessionById(MOCK_INVALID_USER_ID, MOCK_SESSION_ID), is(mockServerSession));
+        // checks that the sessionId is used if the userID is not provided
+        assertThat(activityController.getSessionById("", MOCK_SESSION_ID), is(mockServerSession));
+    }
+
+    /**
+     * Verifies that sessions are only returned if an identifier is supplied
+     */
+    @Test
+    public void testSessionLookupsWithoutIdentifiersFail() {
+        activityController.userSessionMap.put(MOCK_USER_ID, mockServerSession);
+        // check that nothing is returned if nothing is given
+        assertThat(activityController.getSessionById(null, null), is(nullValue()));
     }
 
     private void verifyGetPersistedActivitiesWithMessageData(Map<String, Object> messageData,
