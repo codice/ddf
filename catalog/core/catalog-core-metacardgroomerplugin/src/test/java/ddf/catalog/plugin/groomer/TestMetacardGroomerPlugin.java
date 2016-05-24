@@ -235,7 +235,7 @@ public class TestMetacardGroomerPlugin {
 
         Metacard outputMetacard = processCreate(inputMetacard);
 
-        assertNotEquals(id, outputMetacard.getId());
+        assertEquals(id, outputMetacard.getId());
         assertEquals(DEFAULT_TITLE, outputMetacard.getTitle());
         assertEquals(DEFAULT_LOCATION, outputMetacard.getLocation());
         assertEquals(DEFAULT_TYPE, outputMetacard.getContentTypeName());
