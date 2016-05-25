@@ -68,6 +68,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
 import ogc.schema.opengis.filter.v_1_0_0.BinaryLogicOpType;
 import ogc.schema.opengis.filter.v_1_0_0.LogicOpsType;
@@ -187,6 +188,8 @@ public class TestWfsSource {
 
     private AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
+    private EncryptionService encryptionService = mock(EncryptionService.class);
+
     public void setUp(final String schema, final List<Object> supportedGeos, final String srsName,
             final Integer numFeatures, final Integer numResults)
             throws WfsException, SecurityServiceException {
@@ -275,7 +278,8 @@ public class TestWfsSource {
         source = new WfsSource(new GeotoolsFilterAdapterImpl(),
                 mockContext,
                 mockAvailabilityTask,
-                mockFactory);
+                mockFactory,
+                encryptionService);
 
     }
 

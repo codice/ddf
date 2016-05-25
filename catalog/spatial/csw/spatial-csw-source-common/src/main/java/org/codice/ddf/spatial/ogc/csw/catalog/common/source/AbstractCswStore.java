@@ -69,6 +69,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.encryption.EncryptionService;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.InsertResultType;
@@ -92,15 +93,15 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
      * @param factory                client factory already configured for this source
      */
     public AbstractCswStore(BundleContext context, CswSourceConfiguration cswSourceConfiguration,
-            Converter provider, SecureCxfClientFactory factory) {
-        super(context, cswSourceConfiguration, provider, factory);
+            Converter provider, SecureCxfClientFactory factory, EncryptionService encryptionService) {
+        super(context, cswSourceConfiguration, provider, factory, encryptionService);
     }
 
     /**
      * Instantiates a CswStore.
      */
-    public AbstractCswStore() {
-        super();
+    public AbstractCswStore(EncryptionService encryptionService) {
+        super(encryptionService);
     }
 
     @Override

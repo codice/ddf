@@ -24,14 +24,17 @@ import org.osgi.framework.BundleContext;
 
 import com.thoughtworks.xstream.converters.Converter;
 
+import ddf.security.encryption.EncryptionService;
+
 public class CswSourceImpl extends AbstractCswSource {
     public CswSourceImpl(BundleContext context, CswSourceConfiguration cswSourceConfiguration,
-            Converter provider, SecureCxfClientFactory factory) {
-        super(context, cswSourceConfiguration, provider, factory);
+            Converter provider, SecureCxfClientFactory factory,
+            EncryptionService encryptionService) {
+        super(context, cswSourceConfiguration, provider, factory, encryptionService);
     }
 
-    public CswSourceImpl() {
-        super();
+    public CswSourceImpl(EncryptionService encryptionService) {
+        super(encryptionService);
     }
 
     @Override

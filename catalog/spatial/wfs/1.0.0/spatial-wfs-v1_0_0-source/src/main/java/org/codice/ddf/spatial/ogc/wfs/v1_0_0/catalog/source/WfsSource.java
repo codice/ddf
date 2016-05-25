@@ -101,6 +101,7 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
+import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import ogc.schema.opengis.filter.v_1_0_0.FilterType;
@@ -160,6 +161,8 @@ public class WfsSource extends MaskableImpl
 
     private static Properties describableProperties = new Properties();
 
+    private final EncryptionService encryptionService;
+
     static {
         try (InputStream properties = WfsSource.class.getResourceAsStream(
                 DESCRIBABLE_PROPERTIES_FILE)) {
@@ -218,19 +221,22 @@ public class WfsSource extends MaskableImpl
     private FeatureCollectionMessageBodyReaderWfs10 featureCollectionReader;
 
     public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
-            SecureCxfClientFactory factory) throws SecurityServiceException {
+            SecureCxfClientFactory factory, EncryptionService encryptionService)
+            throws SecurityServiceException {
 
         this.filterAdapter = filterAdapter;
         this.context = context;
         this.availabilityTask = task;
         this.factory = factory;
+        this.encryptionService = encryptionService;
         initProviders();
         configureWfsFeatures();
     }
 
-    public WfsSource() {
+    public WfsSource(EncryptionService encryptionService) {
         // Required for bean creation
         scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.encryptionService = encryptionService;
     }
 
     /**
@@ -280,7 +286,7 @@ public class WfsSource extends MaskableImpl
 
         if (hasWfsUrlChanged(wfsUrl) || hasDisableCnCheck(disableCnCheckProp)) {
             this.wfsUrl = wfsUrl;
-            this.password = password;
+            this.password = encryptionService.decryptValue(password);
             this.username = username;
             this.disableCnCheck = disableCnCheckProp;
             createClientFactory();
@@ -888,7 +894,7 @@ public class WfsSource extends MaskableImpl
 
     @Override
     public String getVersion() {
-        if(StringUtils.isNotBlank(wfsVersion)) {
+        if (StringUtils.isNotBlank(wfsVersion)) {
             return wfsVersion;
         }
         return describableProperties.getProperty(VERSION);
@@ -934,7 +940,7 @@ public class WfsSource extends MaskableImpl
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = encryptionService.decryptValue(password);
     }
 
     public void setDisableCnCheck(Boolean disableCnCheck) {
@@ -1012,13 +1018,12 @@ public class WfsSource extends MaskableImpl
         if (cause instanceof WebApplicationException) {
             msg = handleWebApplicationException((WebApplicationException) cause);
         } else if (cause instanceof IllegalArgumentException) {
-            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'. The URI '"
-                    + getWfsUrl()
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'. The URI '" + getWfsUrl()
                     + "' does not specify a valid protocol or could not be correctly parsed. "
                     + ce.getMessage();
         } else if (cause instanceof SSLHandshakeException) {
-            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' with URL '"
-                    + getWfsUrl() + "': " + ce.getMessage();
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' with URL '" + getWfsUrl() + "': "
+                    + ce.getMessage();
         } else if (cause instanceof ConnectException) {
             msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' may not be running.\n" +
                     ce.getMessage();
@@ -1150,6 +1155,5 @@ public class WfsSource extends MaskableImpl
             }
             return newAvailability;
         }
-
     }
 }

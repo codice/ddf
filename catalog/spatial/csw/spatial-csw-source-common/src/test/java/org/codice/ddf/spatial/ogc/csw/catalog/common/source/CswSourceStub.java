@@ -27,14 +27,16 @@ import org.osgi.framework.BundleContext;
 import com.thoughtworks.xstream.converters.Converter;
 
 import ddf.security.Subject;
+import ddf.security.encryption.EncryptionService;
 
 public class CswSourceStub extends AbstractCswSource {
 
     Subject subject = mock(Subject.class);
 
     public CswSourceStub(BundleContext mockContext, CswSourceConfiguration cswSourceConfiguration,
-            Converter mockProvider, SecureCxfClientFactory mockFactory) {
-        super(mockContext, cswSourceConfiguration, mockProvider, mockFactory);
+            Converter mockProvider, SecureCxfClientFactory mockFactory,
+            EncryptionService encryptionService) {
+        super(mockContext, cswSourceConfiguration, mockProvider, mockFactory, encryptionService);
         super.subscribeClientFactory = mock(SecureCxfClientFactory.class);
     }
 

@@ -28,6 +28,7 @@
                filter="(shortname=URLResourceReader)"/>
     <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="metacardTypes" class="ddf.catalog.util.impl.SortedServiceList"/>
     <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
@@ -72,6 +73,7 @@
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -113,6 +115,7 @@
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
             <property name="metacardTypes" ref="metacardTypes"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -155,6 +158,7 @@
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
