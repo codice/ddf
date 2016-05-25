@@ -59,6 +59,7 @@ import org.apache.tika.detect.Detector;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.codice.ddf.configuration.SystemInfo;
+import org.codice.ddf.platform.util.InputValidation;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -847,10 +848,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 Path tmpPath = null;
                 long size;
                 try {
+                    String sanitizedFilename = InputValidation.sanitizeFilename(
+                            contentItem.getFilename());
                     if (contentItem.getInputStream() != null) {
                         tmpPath =
-                                Files.createTempFile(FilenameUtils.getBaseName(contentItem.getFilename()),
-                                        FilenameUtils.getExtension(contentItem.getFilename()));
+                                Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
+                                        FilenameUtils.getExtension(sanitizedFilename));
                         Files.copy(contentItem.getInputStream(),
                                 tmpPath,
                                 StandardCopyOption.REPLACE_EXISTING);
@@ -870,6 +873,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
                 String mimeTypeRaw = contentItem.getMimeTypeRawData();
                 mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(), tmpPath);
+
+                if (!InputValidation.checkForClientSideVulnerableMimeType(mimeTypeRaw)) {
+                    throw new IngestException("Unsupported mime type.");
+                }
 
                 String fileName = updateFileExtension(mimeTypeRaw, contentItem.getFilename());
                 Metacard metacard = generateMetacard(mimeTypeRaw,
