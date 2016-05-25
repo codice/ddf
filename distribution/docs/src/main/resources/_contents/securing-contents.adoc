@@ -55,7 +55,7 @@ Any web context that allows or requires specific authentication types should be 
 |Activates public key infrastructure authentication.
 
 |`IdP`
-|Activates SSO authentication through external Identity Providers
+|Activates SAML Web SSO authentication support. Additional configuration is necessary.
 
 |`CAS`
 |Enables SSO through a Central Authentication Server

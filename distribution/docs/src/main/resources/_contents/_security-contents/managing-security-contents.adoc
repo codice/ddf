@@ -103,7 +103,7 @@ From the Web Admin Console, the following configurations are available from a st
 |Context Realms
 |realms
 |String
-|List of realms supporting each context. Provided realms are: DDF, karaf. Example: /=DDF
+|List of realms supporting each context. `karaf` is provided by default. Example: `/=karaf`
 |/=karaf
 |yes
 
