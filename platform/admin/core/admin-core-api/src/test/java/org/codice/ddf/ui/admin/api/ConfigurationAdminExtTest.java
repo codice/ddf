@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.ui.admin.api;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertNotNull;
@@ -333,6 +334,36 @@ public class ConfigurationAdminExtTest {
                 (String) result.get(0)
                         .get("id"),
                 is(TEST_PID));
+    }
+
+    /**
+     * Tests the {@link ConfigurationAdminExt#listServices(String, String)} method and connected
+     * methods for the case where the Configuration contains a password property and that its value
+     * is properly changed to "password".
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testListServicesPasswordType() throws Exception {
+        setUpTestConfig();
+        setUpListServices();
+
+        // Create a password property with a value of "secret".
+        Dictionary<String, Object> testProp = new Hashtable<>();
+        testProp.put("password", "secret");
+        when(testAttDef.getID()).thenReturn("password");
+        when(testAttDef.getType()).thenReturn(AttributeDefinition.PASSWORD);
+        when(testConfig.getProperties()).thenReturn(testProp);
+
+        List<Map<String, Object>> result = configurationAdminExt.listServices(TEST_FACT_FILTER,
+                TEST_FILTER);
+
+        // Assert that the password value was changed from "secret" to "password".
+        String password = (String) ((Map<String, Object>) ((List<Map<String, Object>>) result.get(0)
+                .get("configurations")).get(0)
+                .get("properties")).get("password");
+
+        assertThat(password, is(equalTo("password")));
     }
 
     /**

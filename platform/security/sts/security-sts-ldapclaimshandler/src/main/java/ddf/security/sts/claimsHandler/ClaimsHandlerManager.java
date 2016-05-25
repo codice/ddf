@@ -105,8 +105,7 @@ public class ClaimsHandlerManager {
             return;
         }
         LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
-        String url = props.get(ClaimsHandlerManager.URL)
-                .toString();
+        String url = new PropertyResolver((String) props.get(ClaimsHandlerManager.URL)).toString();
         Boolean startTls;
         if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
             startTls = Boolean.valueOf((String) props.get(ClaimsHandlerManager.START_TLS));
@@ -292,7 +291,7 @@ public class ClaimsHandlerManager {
 
     public void setUrl(String url) {
         LOGGER.trace("Setting url: {}", url);
-        ldapProperties.put(URL, new PropertyResolver(url));
+        ldapProperties.put(URL, url);
     }
 
     public void setStartTls(boolean startTls) {

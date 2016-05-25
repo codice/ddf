@@ -38,8 +38,6 @@ public class LdapLoginConfig {
 
     public static final String GROUP_BASE_DN = "groupBaseDn";
 
-    public static final String KEY_ALIAS = "keyAlias";
-
     public static final String START_TLS = "startTls";
 
     private static final String SUFFICIENT_FLAG = "sufficient";
@@ -83,8 +81,8 @@ public class LdapLoginConfig {
         Properties props = new Properties();
         props.put("connection.username", properties.get(LDAP_BIND_USER_DN));
         props.put("connection.password", properties.get(LDAP_BIND_USER_PASS));
-        props.put("connection.url", properties.get(LDAP_URL)
-                        .toString());
+        props.put("connection.url",
+                new PropertyResolver((String) properties.get(LDAP_URL)).toString());
         props.put("user.base.dn", properties.get(USER_BASE_DN));
         props.put("user.filter", "(uid=%u)");
         props.put("user.search.subtree", "true");
@@ -117,7 +115,7 @@ public class LdapLoginConfig {
 
     public void setLdapUrl(String ldapUrl) {
         LOGGER.trace("setLdapUrl called: {}", ldapUrl);
-        ldapProperties.put(LDAP_URL, new PropertyResolver(ldapUrl));
+        ldapProperties.put(LDAP_URL, ldapUrl);
     }
 
     public void setUserBaseDn(String userBaseDn) {

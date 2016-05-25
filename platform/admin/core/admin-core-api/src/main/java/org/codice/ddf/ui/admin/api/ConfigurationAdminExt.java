@@ -121,8 +121,7 @@ public class ConfigurationAdminExt {
 
     /**
      * @param configurationAdmin
-     * @throws ClassCastException
-     *             if {@code service} is not a MetaTypeService instances
+     * @throws ClassCastException if {@code service} is not a MetaTypeService instances
      */
     public ConfigurationAdminExt(final Object configurationAdmin) {
         this.configurationAdmin = (ConfigurationAdmin) configurationAdmin;
@@ -316,6 +315,18 @@ public class ConfigurationAdminExt {
                 }
             }
 
+            // If the configuration property is a password, set its value to "password" so that
+            // the real password value will be hidden.
+            List<HashMap<String, Object>> metatypeList =
+                    (List<HashMap<String, Object>>) service.get("metatype");
+            metatypeList.stream()
+                    .filter(metatype -> AttributeDefinition.PASSWORD == (Integer) metatype.get(
+                            "type"))
+                    .forEach(metatype -> {
+                        String passwordProperty = (String) metatype.get("id");
+                        propertiesTable.put(passwordProperty, "password");
+                    });
+
             configData.put(MAP_ENTRY_PROPERTIES, propertiesTable);
 
             Map<String, Object> pluginDataMap = getConfigurationPluginData(configData.get(
@@ -368,8 +379,7 @@ public class ConfigurationAdminExt {
      * <li>Finally, as a last resort, the bundles id is returned</li>
      * </ol>
      *
-     * @param bundle
-     *            the bundle which name to retrieve
+     * @param bundle the bundle which name to retrieve
      * @return the bundle name - see the description of the method for more details.
      */
     public String getName(Bundle bundle) {
@@ -424,11 +434,10 @@ public class ConfigurationAdminExt {
      * <code>idGetter</code>. Depending on the <code>idGetter</code> implementation this will be for
      * factory PIDs or plain PIDs.
      *
-     * @param idGetter
-     *            The {@link IdGetter} used to get the list of factory PIDs or PIDs from
-     *            <code>MetaTypeInformation</code> objects.
+     * @param idGetter The {@link IdGetter} used to get the list of factory PIDs or PIDs from
+     *                 <code>MetaTypeInformation</code> objects.
      * @return Map of <code>ObjectClassDefinition</code> objects indexed by the PID (or factory PID)
-     *         to which they pertain
+     * to which they pertain
      */
     private Map getObjectClassDefinitions(final IdGetter idGetter) {
         Locale locale = Locale.getDefault();
@@ -522,8 +531,7 @@ public class ConfigurationAdminExt {
      * Gets the service with the specified class name. Will create a new {@link ServiceTracker} if
      * the service is not already retrieved.
      *
-     * @param serviceName
-     *            the service name to obtain
+     * @param serviceName the service name to obtain
      * @return the service or <code>null</code> if missing.
      */
     final Object getService(String serviceName) {
