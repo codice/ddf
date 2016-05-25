@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -64,10 +64,9 @@ public final class Library {
                 + "        <value>2013-04-18T10:50:27.371-07:00</value>\n" + "    </dateTime>\n"
                 + "    <dateTime name=\"modified\">\n"
                 + "        <value>2013-04-18T10:50:27.371-07:00</value>\n" + "    </dateTime>\n"
-                + "    <base64Binary name=\"thumbnail\">\n" 
+                + "    <base64Binary name=\"thumbnail\">\n"
                 + "        <value>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAALAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ//9k=</value>\n"
-                + "    </base64Binary>\n" 
-                + "    <stringxml name=\"metadata\">\n"
+                + "    </base64Binary>\n" + "    <stringxml name=\"metadata\">\n"
                 + "        <value>\n"
                 + "            <xml xmlns:ns6=\"urn:catalog:metacard\" xmlns=\"\">text</xml>\n"
                 + "        </value>\n" + "    </stringxml>\n"
@@ -152,7 +151,8 @@ public final class Library {
     public static String getCswIngest() {
         return getCswInsert("csw:Record",
                 getCswRecord(UUID.randomUUID()
-                        .toString()));
+                        .toString()
+                        .replaceAll("-", "")));
     }
 
     public static String getCswRecord(String id) {
@@ -194,8 +194,7 @@ public final class Library {
         return "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
                 + "    verboseResponse=\"true\"\n"
                 + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
-                + "    <csw:Update typeName=\"rim:RegistryPackage\">\n"
-                + getRegistryNode() + "\n"
+                + "    <csw:Update typeName=\"rim:RegistryPackage\">\n" + getRegistryNode() + "\n"
                 + "    </csw:Update>\n" + "</csw:Transaction>";
     }
 
