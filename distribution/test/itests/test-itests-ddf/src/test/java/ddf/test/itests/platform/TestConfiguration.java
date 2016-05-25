@@ -88,7 +88,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static final String CATALOG_REMOVE_ALL_COMMAND = "catalog:removeall --force";
 
-    private static final String CATALOG_INGEST_COMMAND = "catalog:ingest";
+    private static final String CATALOG_INGEST_COMMAND = "catalog:ingest -t ser";
 
     private static final String SUCCESSFUL_IMPORT_MESSAGE =
             "All config files imported successfully.";

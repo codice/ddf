@@ -100,7 +100,9 @@ public class DumpCommand extends CatalogCommands {
 
     // DDF-535: remove "Transformer" alias in DDF 3.0
     @Option(name = "--transformer", required = false, aliases = {"-t",
-            "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
+            "Transformer"}, multiValued = false, description =
+            "The metacard transformer ID to use to transform metacards into data files. "
+                    + "The default metacard transformer is the XML transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
     // DDF-535: remove "Extension" alias in DDF 3.0
@@ -166,7 +168,7 @@ public class DumpCommand extends CatalogCommands {
             return null;
         }
 
-        if (!DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
+        if (!SERIALIZED_OBJECT_ID.matches(transformerId)) {
             transformers = getTransformers();
             if (transformers == null) {
                 console.println(transformerId + " is an invalid metacard transformer.");
@@ -358,7 +360,7 @@ public class DumpCommand extends CatalogCommands {
     private void exportMetacard(File dumpLocation, Metacard metacard)
             throws IOException, CatalogTransformerException {
 
-        if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
+        if (SERIALIZED_OBJECT_ID.matches(transformerId)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getOutputFile(
                     dumpLocation,
                     metacard)))) {
@@ -366,7 +368,6 @@ public class DumpCommand extends CatalogCommands {
                 oos.flush();
             }
         } else {
-
             BinaryContent binaryContent;
             if (metacard != null) {
                 try (FileOutputStream fos = new FileOutputStream(getOutputFile(dumpLocation,
