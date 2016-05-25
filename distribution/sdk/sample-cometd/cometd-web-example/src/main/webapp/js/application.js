@@ -20,7 +20,7 @@
     cometd.websocketEnabled=false;
     
     // CometD endpoint is assumed to be at localhost, change if otherwise
-    var cometURL = "https://localhost:8993/cometd";
+    var cometURL = "https://localhost:8993/search/cometd";
 
     $(document).ready(function() {
 
