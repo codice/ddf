@@ -1128,6 +1128,42 @@ The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apa
 
 None
 
+==== Resource Download Endpoint
+
+The Resource Download Endpoint provides a REST API to trigger downloading resources to the ${branding} cache only. The resource is not returned to the client.
+
+===== Configuring
+
+The Resource Download Endpoint has no configurable properties.
+
+===== Using the Resource Download Endpoint
+
+====== Using the endpoint
+
+The Resource Download Endpoint WADL is accessible from `http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/downloads?_wadl`.
+
+[NOTE]
+====
+If resource caching is not enabled in ${ddf-branding}, the endpoint will return a `400 BAD REQUEST` response.
+====
+
+[cols="2,1,3,4", options="header"]
+|===
+|Operation
+|HTTP Request
+|Details
+|Example URL
+
+|`cache only`
+|HTTP GET
+|Resource caching must be enabled
+|\http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/downloads/<sourceId>/<metacardId>
+
+|===
+====== Known Issues
+
+None
+
 === Developing a New Endpoint
 
 Complete the following procedure to create an endpoint. 
@@ -1440,7 +1476,7 @@ Metacard types, attribute types, global attribute validators, and default attrib
 
 Within a definition file you may define as many of the four types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
 
-==== Deploying 
+==== Deploying
 The file must have a `.json` extension in order to be picked up by the deployer. Once the definition file is ready to be deployed, put the definition file `<filename>.json` into the `etc/definitions` folder.
 
 * * *
@@ -1524,7 +1560,7 @@ To define Metacard Types, your definition file must have a `metacardTypes` key i
 }
 ----
 
-The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` and `attributes` keys. 
+The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` and `attributes` keys.
 
 [source,json]
 ----

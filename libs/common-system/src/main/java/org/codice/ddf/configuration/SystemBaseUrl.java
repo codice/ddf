@@ -177,6 +177,12 @@ public final class SystemBaseUrl {
         return System.getProperty(HTTPS_PORT, DEFAULT_HTTPS_PORT);
     }
 
+    /**
+     * Gets the current host name or IP address from the system properties, or {@link #DEFAULT_HOST}
+     * if not set.
+     *
+     * @return host name, IP address or {@link #DEFAULT_HOST}
+     */
     public static String getHost() {
         return System.getProperty(HOST, DEFAULT_HOST);
     }

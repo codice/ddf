@@ -80,7 +80,6 @@ import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.operation.impl.SourceInfoResponseImpl;
 import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceDescriptor;
@@ -94,7 +93,6 @@ import ddf.mime.tika.TikaMimeTypeResolver;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 
 /**
  * Tests methods of the {@link RESTEndpoint}
@@ -219,18 +217,11 @@ public class TestRestEndpoint {
     /**
      * Tests local retrieve with a null QueryResponse
      *
-     * @throws URISyntaxException
-     * @throws SourceUnavailableException
-     * @throws IngestException
-     * @throws ResourceNotSupportedException
-     * @throws ResourceNotFoundException
-     * @throws IOException
+     * @throws Exception
      */
     @Test(expected = ServerErrorException.class)
     public void testGetDocumentLocalNullQueryResponse()
-            throws URISyntaxException, IngestException, SourceUnavailableException,
-            UnsupportedQueryException, FederationException, CatalogTransformerException,
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.QUERY_RESPONSE_TEST);
@@ -240,21 +231,11 @@ public class TestRestEndpoint {
     /**
      * Tests federated retrieve with a null QueryResponse
      *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws ResourceNotSupportedException
-     * @throws ResourceNotFoundException
-     * @throws IOException
+     * @throws Exception
      */
     @Test(expected = ServerErrorException.class)
     public void testGetDocumentFedNullQueryResponse()
-            throws URISyntaxException, IngestException, SourceUnavailableException,
-            UnsupportedQueryException, FederationException, CatalogTransformerException,
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.QUERY_RESPONSE_TEST);
@@ -264,21 +245,11 @@ public class TestRestEndpoint {
     /**
      * Tests local retrieve with a null Metacard
      *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws ResourceNotSupportedException
-     * @throws ResourceNotFoundException
-     * @throws IOException
+     * @throws Exception
      */
     @Test(expected = ServerErrorException.class)
     public void testGetDocumentLocalNullMetacard()
-            throws URISyntaxException, IngestException, SourceUnavailableException,
-            UnsupportedQueryException, FederationException, CatalogTransformerException,
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.METACARD_TEST);
@@ -288,21 +259,11 @@ public class TestRestEndpoint {
     /**
      * Tests federated retrieve with a null Metacard
      *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws ResourceNotSupportedException
-     * @throws ResourceNotFoundException
-     * @throws IOException
+     * @throws Exception
      */
     @Test(expected = ServerErrorException.class)
     public void testGetDocumentFedNullMetacard()
-            throws URISyntaxException, IngestException, SourceUnavailableException,
-            UnsupportedQueryException, FederationException, CatalogTransformerException,
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.METACARD_TEST);
@@ -312,21 +273,11 @@ public class TestRestEndpoint {
     /**
      * Tests local retrieve with a successful response
      *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws ResourceNotSupportedException
-     * @throws ResourceNotFoundException
-     * @throws IOException
+     * @throws Exception
      */
     @Test
     public void testGetDocumentLocalSuccess()
-            throws URISyntaxException, IngestException, SourceUnavailableException,
-            UnsupportedQueryException, FederationException, CatalogTransformerException,
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.SUCCESS_TEST);
@@ -356,21 +307,11 @@ public class TestRestEndpoint {
     /**
      * Tests federated retrieve with a successful response
      *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws ResourceNotSupportedException
-     * @throws ResourceNotFoundException
-     * @throws IOException
+     * @throws Exception
      */
     @Test
     public void testGetDocumentFedSuccess()
-            throws URISyntaxException, IngestException, SourceUnavailableException,
-            UnsupportedQueryException, FederationException, CatalogTransformerException,
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.SUCCESS_TEST);
@@ -386,19 +327,11 @@ public class TestRestEndpoint {
     /**
      * Tests getting source information
      *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws UnsupportedEncodingException
-     * @throws ParseException
+     * @throws Exception
      */
     @Test
     public void testGetDocumentSourcesSuccess()
-            throws SourceUnavailableException, UnsupportedQueryException, FederationException,
-            CatalogTransformerException, URISyntaxException, ParseException, IOException {
+            throws Exception {
 
         final String localSourceId = "local";
         final String fed1SourceId = "fed1";
@@ -476,21 +409,11 @@ public class TestRestEndpoint {
     /**
      * Tests retrieving a local resource with a successful response
      *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws ResourceNotSupportedException
-     * @throws ResourceNotFoundException
-     * @throws IOException
+     * @throws Exception
      */
     @Test
     public void testGetDocumentResourceLocalSuccess()
-            throws URISyntaxException, IngestException, SourceUnavailableException,
-            UnsupportedQueryException, FederationException, CatalogTransformerException,
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
@@ -506,21 +429,11 @@ public class TestRestEndpoint {
     /**
      * Tests retrieving a federated resource with a successful response
      *
-     * @throws URISyntaxException
-     * @throws IngestException
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws ResourceNotSupportedException
-     * @throws ResourceNotFoundException
-     * @throws IOException
+     * @throws Exception
      */
     @Test
     public void testGetDocumentResourceFedSuccess()
-            throws URISyntaxException, IngestException, SourceUnavailableException,
-            UnsupportedQueryException, FederationException, CatalogTransformerException,
-            IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
@@ -622,21 +535,11 @@ public class TestRestEndpoint {
      * Test using a Head request to find out if Range headers are supported and to get resource size of a local
      * resource for use when using Range headers.
      *
-     * @throws SourceUnavailableException
-     * @throws IngestException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws ResourceNotFoundException
-     * @throws ResourceNotSupportedException
+     * @throws Exception
      */
     @Test
     public void testHeadRequestLocal()
-            throws SourceUnavailableException, IngestException, UnsupportedQueryException,
-            FederationException, CatalogTransformerException, IOException, URISyntaxException,
-            ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         boolean isLocal = true;
 
@@ -652,21 +555,11 @@ public class TestRestEndpoint {
      * Test using a Head request to find out if Range headers are supported and to get resource size of a resource
      * at a federated site for use when using Range headers.
      *
-     * @throws SourceUnavailableException
-     * @throws IngestException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws ResourceNotFoundException
-     * @throws ResourceNotSupportedException
+     * @throws Exception
      */
     @Test
     public void testHeadRequestFederated()
-            throws SourceUnavailableException, IngestException, UnsupportedQueryException,
-            FederationException, CatalogTransformerException, IOException, URISyntaxException,
-            ResourceNotFoundException, ResourceNotSupportedException {
+            throws Exception {
 
         boolean isLocal = false;
 
@@ -754,17 +647,10 @@ public class TestRestEndpoint {
      * @param framework
      * @param testType
      * @return
-     * @throws SourceUnavailableException
-     * @throws UnsupportedQueryException
-     * @throws FederationException
-     * @throws CatalogTransformerException
-     * @throws IOException
-     * @throws ResourceNotFoundException
-     * @throws ResourceNotSupportedException
+     * @throws Exception
      */
     protected String mockTestSetup(CatalogFramework framework, TestType testType)
-            throws SourceUnavailableException, UnsupportedQueryException, FederationException,
-            CatalogTransformerException, IOException, ResourceNotFoundException,
+            throws Exception,
             ResourceNotSupportedException {
         String transformer = null;
         QueryResponse queryResponse = mock(QueryResponse.class);

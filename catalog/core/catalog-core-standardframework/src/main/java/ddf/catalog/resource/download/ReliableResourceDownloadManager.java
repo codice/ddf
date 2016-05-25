@@ -205,4 +205,8 @@ public class ReliableResourceDownloadManager {
     public void setChunkSize(int chunkSize) {
         downloaderConfig.setChunkSize(chunkSize);
     }
+
+    public boolean isCacheEnabled() {
+        return downloaderConfig.isCacheEnabled();
+    }
 }
