@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
@@ -31,8 +30,6 @@ import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 
 import com.google.common.base.Charsets;
 
@@ -60,8 +57,6 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
 
     private Parser parser;
-
-    private FederationAdminService federationAdmin;
 
     private ParserConfigurator marshalConfigurator;
 
@@ -226,17 +221,7 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
                 .toString();
     }
 
-    public void init() throws FederationAdminException {
-
-        List<Metacard> registryMetacards = federationAdmin.getRegistryMetacards();
-
-        registryIds.addAll(registryMetacards.stream()
-                .map(this::getRegistryId)
-                .collect(Collectors.toList()));
-    }
-
-    public void setFederationAdmin(FederationAdminService federationAdmin) {
-        this.federationAdmin = federationAdmin;
+    public void init() {
     }
 
     public void setParser(Parser parser) {

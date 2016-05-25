@@ -33,7 +33,7 @@ public interface FederationAdminService {
      * @return Id of the created metacard
      * @throws FederationAdminException If the xml string is blank.
      *                                  If an exception is thrown from the registryTransformer.
-     *                                  The CatalogFramework throws an exception trying to add the metacard.
+     *                                  The CatalogFramework throws an exception trying to  the metacard.
      */
     String addRegistryEntry(String xml) throws FederationAdminException;
 
@@ -70,6 +70,17 @@ public interface FederationAdminService {
      *                                  The CatalogFramework.create call throws IngestException or SourceUnavailableException
      */
     String addRegistryEntry(Metacard metacard, Set<String> destinations)
+            throws FederationAdminException;
+
+    /**
+     * Add the given metacards to the registry catalog with the provided destinations
+     * @param metacards    Metacards to be stored
+     * @param destinations Set of destinations to add
+     * @return List of Id's for the created metacards
+     * @throws FederationAdminException If the metacard provided was null.
+     *                                  The CatalogFramework.create call throws IngestException or SourceUnavailableException
+     */
+    List<String> addRegistryEntries(List<Metacard> metacards, Set<String> destinations)
             throws FederationAdminException;
 
     /**
@@ -217,20 +228,21 @@ public interface FederationAdminService {
     List<RegistryPackageType> getRegistryObjects() throws FederationAdminException;
 
     /**
-     * Get a registry object by id
+     * Get a registry object by registry id
      *
      * @return List<RegistryPackageType>
      * @throws FederationAdminException If an exception is thrown trying to unmarshal the xml
      */
-    RegistryPackageType getRegistryObjectByMetacardId(String metacardId)
+    RegistryPackageType getRegistryObjectByRegistryId(String registryId)
             throws FederationAdminException;
 
     /**
-     * Get a registry object by id providing a list of source ids to be queried
+     * Get a registry object by registry id providing a list of source ids to be queried
      *
      * @return List<RegistryPackageType>
      * @throws FederationAdminException If an exception is thrown trying to unmarshal the xml
      */
-    RegistryPackageType getRegistryObjectByMetacardId(String metacardId, List<String> sourceIds)
+    RegistryPackageType getRegistryObjectByRegistryId(String registryId, List<String> sourceIds)
             throws FederationAdminException;
+
 }
