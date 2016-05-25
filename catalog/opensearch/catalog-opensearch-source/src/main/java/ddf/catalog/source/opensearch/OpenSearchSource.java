@@ -87,6 +87,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.encryption.EncryptionService;
 
 /**
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
@@ -116,6 +117,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     private static final String LOCAL_SEARCH_PARAMETER = "local";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
+
+    private final EncryptionService encryptionService;
 
     private boolean isInitialized = false;
 
@@ -156,8 +159,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      *
      * @throws ddf.catalog.source.UnsupportedQueryException
      */
-    public OpenSearchSource(FilterAdapter filterAdapter) {
+    public OpenSearchSource(FilterAdapter filterAdapter, EncryptionService encryptionService) {
         this.filterAdapter = filterAdapter;
+        this.encryptionService = encryptionService;
     }
 
     /**
@@ -753,7 +757,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = encryptionService.decryptValue(password);
     }
 
     private WebClient newRestClient(Query query, String metacardId, boolean retrieveResource,

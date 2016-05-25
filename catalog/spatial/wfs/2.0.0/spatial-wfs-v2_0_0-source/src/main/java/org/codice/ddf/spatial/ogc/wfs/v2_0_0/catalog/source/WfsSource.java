@@ -107,6 +107,7 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
+import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
@@ -123,8 +124,8 @@ import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 /**
  * Provides a Federated and Connected source implementation for OGC WFS servers.
  */
-public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource,
-        ConfiguredService {
+public class WfsSource extends MaskableImpl
+        implements FederatedSource, ConnectedSource, ConfiguredService {
 
     public static final int WFS_MAX_FEATURES_RETURNED = 1000;
 
@@ -175,6 +176,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     public static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
 
     private static Properties describableProperties = new Properties();
+
+    private final EncryptionService encryptionService;
 
     static {
         try (InputStream properties = WfsSource.class.getResourceAsStream(
@@ -240,21 +243,24 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private FeatureCollectionMessageBodyReaderWfs20 featureCollectionReader;
 
     public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
-            SecureCxfClientFactory factory) throws SecurityServiceException {
+            SecureCxfClientFactory factory, EncryptionService encryptionService)
+            throws SecurityServiceException {
         this.filterAdapter = filterAdapter;
         this.context = context;
         this.availabilityTask = task;
         this.metacardToFeatureMappers = Collections.emptyList();
         this.disableSorting = false;
         this.factory = factory;
+        this.encryptionService = encryptionService;
         initProviders();
         configureWfsFeatures();
     }
 
-    public WfsSource() {
+    public WfsSource(EncryptionService encryptionService) {
         // Required for bean creation
         LOGGER.debug("Creating {}", WfsSource.class.getName());
         scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.encryptionService = encryptionService;
     }
 
     /**
@@ -305,7 +311,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         super.setId(id);
 
         this.wfsUrl = wfsUrl;
-        this.password = password;
+        this.password = encryptionService.decryptValue(password);
         this.username = username;
         this.disableCnCheck = disableCnCheckProp;
         this.coordinateOrder = coordinateOrder;
@@ -1092,7 +1098,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     @Override
     public String getVersion() {
-        if(StringUtils.isNotBlank(wfsVersion)) {
+        if (StringUtils.isNotBlank(wfsVersion)) {
             return wfsVersion;
         }
         return describableProperties.getProperty(VERSION);
@@ -1139,7 +1145,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = encryptionService.decryptValue(password);
     }
 
     public void setDisableCnCheck(Boolean disableCnCheck) {
@@ -1235,13 +1241,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         if (cause instanceof WebApplicationException) {
             msg = handleWebApplicationException((WebApplicationException) cause);
         } else if (cause instanceof IllegalArgumentException) {
-            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'. The URI '"
-                    + getWfsUrl()
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'. The URI '" + getWfsUrl()
                     + "' does not specify a valid protocol or could not be correctly parsed. "
                     + ce.getMessage();
         } else if (cause instanceof SSLHandshakeException) {
-            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' with URL '"
-                    + getWfsUrl() + "': " + ce.getMessage();
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' with URL '" + getWfsUrl() + "': "
+                    + ce.getMessage();
         } else if (cause instanceof ConnectException) {
             msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' may not be running.\n" +
                     ce.getMessage();
@@ -1381,7 +1386,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             }
             return newAvailability;
         }
-
     }
 
     public FeatureCollectionMessageBodyReaderWfs20 getFeatureCollectionReader() {

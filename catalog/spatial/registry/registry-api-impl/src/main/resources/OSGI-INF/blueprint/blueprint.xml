@@ -38,6 +38,8 @@
                             unbind-method="unbindPlugin"/>
     </reference-list>
 
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
     <!-- MetacardTransformer Manager -->
     <bean id="metacardTransformerManager"
           class="org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager">
@@ -101,6 +103,7 @@
             <property name="parser" ref="xmlParser"/>
             <property name="pullAllowed" value="true"/>
             <property name="pushAllowed" value="true"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

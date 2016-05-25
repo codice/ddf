@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import ddf.security.encryption.EncryptionService;
 import ddf.security.permission.Permissions;
 
 /**
@@ -61,7 +62,17 @@ public class CswSourceConfiguration {
 
     private boolean registerForEvents;
 
+    private EncryptionService encryptionService;
+
     private Map<String, Set<String>> securityAttributes = new HashMap<>();
+
+    public CswSourceConfiguration(EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
+    }
+
+    @Deprecated
+    public CswSourceConfiguration() {
+    }
 
     public String getCswUrl() {
         return cswUrl;
@@ -92,7 +103,11 @@ public class CswSourceConfiguration {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        String updatedPassword = password;
+        if (encryptionService != null) {
+            updatedPassword = encryptionService.decryptValue(password);
+        }
+        this.password = updatedPassword;
     }
 
     public void setMetacardCswMappings(Map<String, String> mapping) {

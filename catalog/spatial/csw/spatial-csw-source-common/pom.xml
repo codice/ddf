@@ -150,6 +150,10 @@
             <version>1.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <resources>

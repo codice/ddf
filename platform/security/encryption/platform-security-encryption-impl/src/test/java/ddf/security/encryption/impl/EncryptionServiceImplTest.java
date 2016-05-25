@@ -122,7 +122,7 @@ public class EncryptionServiceImplTest {
 
         final String decryptedValue = encryptionService.decryptValue(wrappedEncryptedValue);
 
-        assertNull(decryptedValue);
+        assertEquals(decryptedValue, "");
     }
 
     @Test
