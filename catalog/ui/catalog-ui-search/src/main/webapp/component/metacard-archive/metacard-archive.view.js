@@ -26,7 +26,7 @@ define([
 
     return Marionette.ItemView.extend({
         setDefaultModel: function () {
-            this.model = store.getSelectedResults().first();
+            this.model = store.getSelectedResults();
         },
         template: template,
         tagName: CustomElements.register('metacard-archive'),
@@ -56,7 +56,9 @@ define([
                         $.ajax({
                             url: '/services/search/catalog/metacards',
                             type: 'DELETE',
-                            data: JSON.stringify([self.model.get('metacard').get('id')]),
+                            data: JSON.stringify(self.model.map(function(result){
+                                return result.get('metacard').get('id');
+                            })),
                             contentType: 'application/json'
                         }).always(function (response) {
                             setTimeout(function () {  //let solr flush
