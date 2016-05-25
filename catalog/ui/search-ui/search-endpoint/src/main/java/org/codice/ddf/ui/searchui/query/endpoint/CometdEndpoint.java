@@ -110,7 +110,7 @@ public class CometdEndpoint {
 
     public void init() throws ServletException {
         Dictionary<String, String> properties = new Hashtable<>();
-        properties.put("alias", "/cometd");
+        properties.put("alias", "/search/cometd");
         properties.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none");
         properties.put("org.eclipse.jetty.servlet.SessionPath", "/");
         properties.put("load-on-startup", "1");

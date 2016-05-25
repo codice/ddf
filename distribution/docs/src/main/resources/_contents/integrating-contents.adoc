@@ -1,4 +1,3 @@
-
 This section supports integrating ${branding} with existing applications or frameworks.
 
 === Understanding Metadata and Metacards
@@ -306,7 +305,7 @@ If caching is enabled, a progress bar is displayed in the Activity (Product Retr
 
 The following section shows examples of integration.
 The channels are used for clients to subscribe, followed by examples of request and responses.
-There is only one endpoint hosted at `<${branding}_IP>:<${branding}_PORT_NUMBER>/cometd`
+There is only one endpoint hosted at `<${branding}_IP>:<${branding}_PORT_NUMBER>/search/cometd`
 
 ===== Subscribing to Notifications
 

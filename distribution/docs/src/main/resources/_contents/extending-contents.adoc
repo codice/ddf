@@ -1,4 +1,3 @@
-
 This section discusses the several extension points and components permitted by the ${branding} APIs.
 Using code examples, diagrams, and references to specific instances of each API, this guide provides details on how to develop and extend various ${branding} components.
 
@@ -899,7 +898,7 @@ CometD offers both Dojo and jQuery bindings that allow CometD to be easily used 
 For more information on the individual bindings, refer to the http://docs.cometd.org/2/reference/javascript.html[JavaScript Library page] in the CometD reference manual.
 The UI application uses the jQuery library.
 To initialize the CometD connection, an instance of CometD must be created and configured to point to the server and call the handshake, which creates the network connection.
-The CometD endpoint is exposed at `/cometd`, and it is recommended to not use websockets when connecting.
+The CometD endpoint is exposed at `/search/cometd`, and it is recommended to not use websockets when connecting.
 
 .Example Initialization with JQuery
 [source,javascript,linenums]
@@ -912,7 +911,7 @@ Cometd.Comet.websocketEnabled = false;
 
 // configure the location of the cometd endpoint on the server
 Cometd.Comet.configure({
-	url: 'http://server:8181/cometd'
+	url: 'http://server:8181/search/cometd'
 });
 
 // create network connection to server
