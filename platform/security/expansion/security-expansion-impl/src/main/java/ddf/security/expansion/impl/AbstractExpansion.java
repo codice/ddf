@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -177,10 +178,8 @@ public abstract class AbstractExpansion implements Expansion {
      * This is the method that will do the actual expansion - interpreting the rules and expanding
      * the values. It is abstract and will be overridden by each concrete implementation.
      *
-     * @param original
-     *            the original value of the attribute
-     * @param rule
-     *            the rule that describes the expansion for one specific attribute value
+     * @param original the original value of the attribute
+     * @param rule     the rule that describes the expansion for one specific attribute value
      * @return the (possibly) expanded result of applying the rule to the original value
      */
     protected abstract String doExpansion(String original, String[] rule);
@@ -202,8 +201,7 @@ public abstract class AbstractExpansion implements Expansion {
      * with a corresponding list of rules that apply to that attribute. If the passed in table is
      * null, an empty expansion map is created.
      *
-     * @param table
-     *            the complete map of attributes and their corresponding list of rules
+     * @param table the complete map of attributes and their corresponding list of rules
      */
     public void setExpansionMap(Map<String, List<String[]>> table) {
         if (table == null) {
@@ -219,10 +217,8 @@ public abstract class AbstractExpansion implements Expansion {
      * entry doesn't exist, it is created and then this rule added. If invalid input is received,
      * nothing is done.
      *
-     * @param key
-     *            the attribute for which the corresponding rule should be added
-     * @param rule
-     *            the expansion rule to apply to the corresponding attribute
+     * @param key  the attribute for which the corresponding rule should be added
+     * @param rule the expansion rule to apply to the corresponding attribute
      */
     public void addExpansionRule(String key, String[] rule) {
         if ((key == null) || (key.isEmpty()) || (rule == null) || (rule.length != 2)) {
@@ -253,10 +249,8 @@ public abstract class AbstractExpansion implements Expansion {
      * Removes a single rule from the expansion map (if it exists). Returns a boolean indicating if
      * the specified rule was successfully removed.
      *
-     * @param key
-     *            the attribute for which the corresponding rule should be removed
-     * @param rule
-     *            the rule to be removed from the list of rules for the corresponding attribute
+     * @param key  the attribute for which the corresponding rule should be removed
+     * @param rule the rule to be removed from the list of rules for the corresponding attribute
      * @return true if the rule was found and removed, false otherwise
      */
     public boolean removeExpansionRule(String key, String[] rule) {
@@ -283,10 +277,8 @@ public abstract class AbstractExpansion implements Expansion {
      * Adds a list of rules corresponding to the give key in the expansion map. Convenience method
      * for adding each rule individually.
      *
-     * @param key
-     *            the attribute for which the corresponding list of rules will be added
-     * @param list
-     *            the list of rules to be added to the corresponding attribute
+     * @param key  the attribute for which the corresponding list of rules will be added
+     * @param list the list of rules to be added to the corresponding attribute
      */
     public void addExpansionList(String key, List<String[]> list) {
         if ((key == null) || (key.isEmpty()) || (list == null) || (list.size() == 0)) {
@@ -309,8 +301,7 @@ public abstract class AbstractExpansion implements Expansion {
      * Adds a list of rules provided in String form. This is a convenience method for adding each
      * rule individually.
      *
-     * @param rulesList
-     *            list of rules (in String form) to be added to the expansion map
+     * @param rulesList list of rules (in String form) to be added to the expansion map
      */
     public void setExpansionRules(List<String> rulesList) {
         if (expansionTable == null) {
@@ -333,8 +324,7 @@ public abstract class AbstractExpansion implements Expansion {
      * three-part string with each part separated by a colon (:)<br/>
      * &lt;attribute name&gt;:&lt;original value&gt;:&lt;replacement value&gt;
      *
-     * @param ruleStr
-     *            the rule to be added (in String form)
+     * @param ruleStr the rule to be added (in String form)
      */
     private void addExpansionRule(String ruleStr) {
         String key;
@@ -362,12 +352,10 @@ public abstract class AbstractExpansion implements Expansion {
     /**
      * Takes a string with potentially multiple values and splits it into a collection of strings.
      *
-     * @param source
-     *            input source string potentially containing multiple tokens
-     * @param separator
-     *            the sequence separating the individual tokens
+     * @param source    input source string potentially containing multiple tokens
+     * @param separator the sequence separating the individual tokens
      * @return a collection containing the individual tokens extracted from the specified source
-     *         string
+     * string
      */
     protected Collection<String> split(String source, String separator) {
         List<String> tmpList = new ArrayList<String>();
@@ -392,8 +380,7 @@ public abstract class AbstractExpansion implements Expansion {
      * Sets the separator to be used in splitting up replacement strings. If a null or empty value
      * is passed in, the default separator (a space) is used.
      *
-     * @param separator
-     *            the separator to be used to split up replacement strings
+     * @param separator the separator to be used to split up replacement strings
      */
     public void setAttributeSeparator(String separator) {
         if ((separator == null) || (separator.isEmpty())) {
@@ -408,8 +395,7 @@ public abstract class AbstractExpansion implements Expansion {
      * attributes to their expanded values. This file is read initially, and whenever the file name
      * is set. If the name is null or empty, the existing map of rules is cleared.
      *
-     * @param filename
-     *            the name of the configuration file to be loaded into the expansion service
+     * @param filename the name of the configuration file to be loaded into the expansion service
      */
     public void setExpansionFileName(String filename) {
         if ((filename != null) && (!filename.isEmpty())) {
@@ -439,8 +425,7 @@ public abstract class AbstractExpansion implements Expansion {
      * Does the work of reading the configuration file and configuring the expansion map and
      * attribute separator.
      *
-     * @param filename
-     *            the name of the file to be read and processed
+     * @param filename the name of the file to be read and processed
      */
     protected void loadConfiguration(String filename) {
 
@@ -455,7 +440,8 @@ public abstract class AbstractExpansion implements Expansion {
         }
         File file = null;
         filename = StringUtils.strip(filename);
-        if (!StringUtils.startsWith(filename, "/") && !StringUtils.startsWith(filename, "\\")) {
+        if (!Paths.get(filename)
+                .isAbsolute()) {
             // relative path
             String relPath = System.getProperty("ddf.home");
             if (StringUtils.isBlank(relPath)) {
