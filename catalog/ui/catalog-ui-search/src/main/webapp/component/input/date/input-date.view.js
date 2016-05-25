@@ -41,7 +41,7 @@ define([
         serializeData: function () {
             return _.extend(this.model.toJSON(), {
                 cid: this.cid,
-                humanReadableDate: getHumanReadableDate(this.model.getValue())
+                humanReadableDate: this.model.getValue() ? getHumanReadableDate(this.model.getValue()) : this.model.getValue()
             });
         },
         onRender: function () {

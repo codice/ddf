@@ -173,8 +173,7 @@ define([
              var propertyIntersection = attributeKeys.concat(typeKeys);
              propertyIntersection = _.intersection.apply(_, propertyIntersection);
              propertyIntersection = propertyIntersection.filter(function(property){
-                 return property === self.thumbnail ||  (property.indexOf('metacard') === -1 &&
-                     property.indexOf('.') === -1
+                 return property === self.thumbnail ||  (property.indexOf('metacard') === -1
                      && property.indexOf('metadata') === -1
                      && property.indexOf('validation') === -1
                      && self.blacklist.indexOf(property) === -1

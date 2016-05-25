@@ -89,7 +89,7 @@ define([
                         });
                         setTimeout(function(){  //let solr flush
                             loadingView.remove();
-                            self.getMetacardDetails();
+                            self.onBeforeShow();
                         }, 1000);
                     });
                 }, 1000);

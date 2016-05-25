@@ -38,7 +38,11 @@ define([
                     });
                     currentValue.sort();
                     return currentValue.toString() !==  this.model.getInitialValue().map(function(dateValue){
-                            return (new Date(dateValue)).toISOString();
+                            if (dateValue){
+                                return (new Date(dateValue)).toISOString();
+                            } else {
+                                return dateValue;
+                            }
                         }).toString();
                     break;
                 default:

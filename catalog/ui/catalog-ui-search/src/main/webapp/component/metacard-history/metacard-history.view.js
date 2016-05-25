@@ -93,14 +93,12 @@ define([
             var loadingView = new LoadingView();
             var self = this;
             $.get('/services/search/catalog/history/'+this.model.get('metacard').get('id')+'/revert/'+selectedVersion).then(function(response){
-                if (!self.isDestroyed){
-
-                }
+                self.model.get('metacard').get('properties').set(response.metacards[0]);
             }).always(function(){
-                if (!self.isDestroyed){
+                setTimeout(function(){  //let solr flush
                     loadingView.remove();
                     self.loadData();
-                }
+                }, 1000);
             });
         }
     });
