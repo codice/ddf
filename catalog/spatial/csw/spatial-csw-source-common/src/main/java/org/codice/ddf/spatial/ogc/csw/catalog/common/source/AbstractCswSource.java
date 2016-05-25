@@ -517,10 +517,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                     cswSourceConfiguration.getId());
             cswSourceConfiguration.setPollIntervalMinutes(newPollInterval);
 
-            if (availabilityPollFuture != null) {
-                availabilityPollFuture.cancel(true);
-            }
-            setupAvailabilityPoll();
+            forcePoll();
         }
     }
 
@@ -532,6 +529,13 @@ public abstract class AbstractCswSource extends MaskableImpl
             cswSourceConfiguration.setCswUrl(newCswUrlProp);
             LOGGER.debug("Setting url : {}.", newCswUrlProp);
         }
+    }
+
+    private void forcePoll() {
+        if (availabilityPollFuture != null) {
+            availabilityPollFuture.cancel(true);
+        }
+        setupAvailabilityPoll();
     }
 
     /**
@@ -645,6 +649,8 @@ public abstract class AbstractCswSource extends MaskableImpl
 
         initClientFactory();
         configureEventService();
+
+        forcePoll();
     }
 
     private Map<String, Object> filter(Map<String, Object> configuration) {
@@ -654,7 +660,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         filteredConfiguration.putAll(configuration.entrySet()
                 .stream()
                 .filter(entry -> (entry.getValue() != null))
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
         return filteredConfiguration;
     }
@@ -663,14 +669,15 @@ public abstract class AbstractCswSource extends MaskableImpl
         LOGGER.debug("Setting Availability poll task for {} minute(s) on Source {}",
                 cswSourceConfiguration.getPollIntervalMinutes(),
                 cswSourceConfiguration.getId());
-        CswSourceAvailabilityCommand command = new CswSourceAvailabilityCommand();
         long interval = TimeUnit.MINUTES.toMillis(cswSourceConfiguration.getPollIntervalMinutes());
         if (availabilityPollFuture == null || availabilityPollFuture.isCancelled()) {
             if (availabilityTask == null) {
                 availabilityTask = new AvailabilityTask(interval,
-                        command,
+                        new CswSourceAvailabilityCommand(),
                         cswSourceConfiguration.getId());
             } else {
+                // Any run of the polling operation should trigger the task to run
+                availabilityTask.updateLastAvailableTimestamp(0L);
                 availabilityTask.setInterval(interval);
             }
 
