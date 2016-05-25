@@ -40,12 +40,18 @@ export DDF_HOME
 
 # Prefer /dev/urandom over /dev/random on Linux systems.
 OS="`uname`"
+LINUX="Linux"
 
-if [[ $OS == Linux* ]]; then
+if [ "$OS" != "${OS%$LINUX*}" ]; then
    if [ -e /dev/urandom ]; then
-      RANDOM_DEVICE_OPTION="-Djava.security.egd=file:/dev/./urandom"
+      EXTRA_JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"
    fi
 fi
+
+# uncomment to enable cxf logging interceptors
+# EXTRA_JAVA_OPTS="$EXTRA_JAVA_OPTS -Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
+
+export EXTRA_JAVA_OPTS
 
 #
 # The following section shows the possible configuration options for the default 
@@ -58,4 +64,4 @@ export JAVA_MAX_MEM=2048M
 # export KARAF_DATA # Karaf data folder
 # export KARAF_BASE # Karaf base folder
 
-export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME $RANDOM_DEVICE_OPTION"
+export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME"
