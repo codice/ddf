@@ -41,6 +41,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,10 +230,29 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
                             source.put(MAP_ENTRY_NAME, config.getPid());
                         }
 
-                        Dictionary<String, Object> properties = config.getProperties();
+                        Dictionary<String, Object> configProperties = config.getProperties();
+                        List<Map<String, Object>> metatypeProperties =
+                                (List<Map<String, Object>>) metatype.get("metatype");
                         Map<String, Object> plist = new HashMap<>();
-                        for (String key : Collections.list(properties.keys())) {
-                            plist.put(key, properties.get(key));
+                        Object propertyValue;
+
+                        for (String key : Collections.list(configProperties.keys())) {
+                            propertyValue = configProperties.get(key);
+                            // If the configuration property is a password, set its value to
+                            // "password" if it's not empty, so that the real password value will
+                            // be hidden. (Passwords within source configs are usually optional,
+                            // thus it should have the ability to update to an empty string).
+                            if (!"".equals(propertyValue)) {
+                                for (Map<String, Object> metatypeProperty : metatypeProperties) {
+                                    if (metatypeProperty.get("id")
+                                            .equals(key) && AttributeDefinition.PASSWORD
+                                            == (Integer) metatypeProperty.get("type")) {
+                                        propertyValue = "password";
+                                        break;
+                                    }
+                                }
+                            }
+                            plist.put(key, propertyValue);
                         }
                         source.put(MAP_ENTRY_PROPERTIES, plist);
 

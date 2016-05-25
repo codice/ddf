@@ -17,8 +17,7 @@
     <type-converters>
         <bean class="ddf.security.sts.PropertiesConverter"/>
     </type-converters>
-
-
+    
     <cm:managed-service-factory
             id="ddf.ldap.ldaplogin.LdapLoginConfig.id"
             factory-pid="Ldap_Login_Config"
@@ -41,7 +40,5 @@
     <bean id="ldapService" class="ddf.ldap.ldaplogin.LdapService">
         <argument ref="blueprintBundleContext"/>
     </bean>
-
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
 </blueprint>
