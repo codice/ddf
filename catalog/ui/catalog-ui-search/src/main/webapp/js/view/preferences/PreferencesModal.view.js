@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define*/
+/* global define,setTimeout*/
 define([
     'application',
     'underscore',
@@ -25,7 +25,6 @@ define([
     'maptype',
     'js/view/Modal',
     'text!templates/preferences/preferences.modal.handlebars',
-    'text!templates/preferences/color.preferences.tab.handlebars',
     'text!templates/preferences/layer.preferences.tab.handlebars',
     'text!templates/preferences/layer.list.handlebars',
     'text!templates/preferences/layerPicker.handlebars',
@@ -38,7 +37,7 @@ define([
     'jquerySortable'
 ], function (Application, _, Marionette, Backbone, $, properties, OpenLayersController,
              CesiumLayersController, maptype, Modal, preferencesModalTemplate,
-             colorPrefsTabTemplate, layerPrefsTabTemplate, layerListTemplate,
+             layerPrefsTabTemplate, layerListTemplate,
              layerPickerTemplate, preferenceButtonsTemplate, User, Cesium, wreqr) {
     var PrefsModalView = Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -47,100 +46,21 @@ define([
         template: preferencesModalTemplate,
         className: 'prefsModal',
         regions: {
-            colorTabRegion: '#colorTab',
             layerTabRegion: '#layerTab'
         },
-        events: { 'shown.bs.tab .nav-tabs > li > a[href="#layerTab"]': 'layerTabShown' },
         initialize: function (options) {
             if (options.model===undefined){
                 this.setDefaultModel();
             }
-            this.colorTabView = new PrefsModalView.ColorTabView({ model: this.model.get('mapColors') });
-            this.layerTabView = new PrefsModalView.LayerTabView({ model: this.model.get('mapLayers') });
-            // only create map the first time user selects map tab.
-            this.layerTabShown = _.once(function () {
+            this.layerTabView = new PrefsModalView.LayerTabView({
+                model: this.model.get('mapLayers')
+            });
+            setTimeout(function () {
                 this.layerTabView.setupMap();
-            });
+            }.bind(this), 100);
         },
         onRender: function () {
-            this.colorTabRegion.show(this.colorTabView);
             this.layerTabRegion.show(this.layerTabView);
-        }
-    });
-    PrefsModalView.ColorTabView = Marionette.LayoutView.extend({
-        template: colorPrefsTabTemplate,
-        regions: { colorButtonsRegion: '#colorButtons' },
-        initialize: function () {
-            this.viewModel = this.model.clone();
-            this.modelBinder = new Backbone.ModelBinder();
-            this.colorButtons = new PrefsModalView.Buttons({ tabView: this });
-            // listen to any change on all models in collection.
-            this.viewModel.on('change', this.onEdit, this);
-        },
-        onRender: function () {
-            this.colorBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
-            this.modelBinder.bind(this.viewModel, this.$el, this.colorBindings);
-            this.colorButtonsRegion.show(this.colorButtons);
-        },
-        initSpectrum: function () {
-            /*
-                 the following fixes color input types for IE/chrome/firefox.
-
-                 - see http://caniuse.com/#feat=input-color
-
-                 - when spectrum is defined/required, it feature detects native support for
-                 input[type=color]. Since chrome/firefox have native support, spectrum does
-                 NOT "replace" the inputs at define/require time. IE does not have native support,
-                 and spectrum DOES "replace" color inputs at define/require time.
-
-                 - $.spectrum() does not do feature detection and always replaces the
-                 input[type=color] element it's called on.
-
-                 - also fixes native input color picker bug (chrome/firefox) where the native color
-                 picker stays visible when the modal is dismissed.
-
-                 - could not get modelbinder to work directly with spectrum; thus the colorChange
-                 function and re-running initSpectrum from resetDefaults.
-                 */
-            this.$colorInputs = $('div[id="colorTab"] input[type="color"]');
-            var colorChange = function (spectrumTinyColor) {
-                var newColor = spectrumTinyColor.toHexString();
-                this.$colorInput.val(newColor);
-            };
-            this.$colorInputs.each(function () {
-                var $color = $(this);
-                $color.spectrum({ change: _.bind(colorChange, { $colorInput: $color }) });
-            });
-        },
-        onShow: function () {
-            // initSpectrum can only find $colorInputs after onShow completes.
-            _.defer(this.initSpectrum);
-        },
-        onEdit: function () {
-            if (!this.isEdited) {
-                this.colorButtons.ui.save.toggleClass('btn-default').toggleClass('btn-primary');
-                this.isEdited = true;
-            }
-        },
-        save: function () {
-            if (this.isEdited) {
-                this.model.set(this.viewModel.attributes);
-                this.model.savePreferences();
-                this.isEdited = false;
-                this.colorButtons.ui.save.toggleClass('btn-default').toggleClass('btn-primary');
-            }
-        },
-        resetDefaults: function () {
-            this.onEdit();
-            this.viewModel.set(this.model.getDefaults());
-            this.initSpectrum();
-        },
-        onDestroy: function () {
-            this.viewModel = null;
-            this.modelBinder.unbind();
-            $(this.$colorInputs).each(function () {
-                $(this).spectrum('destroy');
-            });
         }
     });
     PrefsModalView.Buttons = Marionette.LayoutView.extend({
