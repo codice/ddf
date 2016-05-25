@@ -30,7 +30,7 @@ define([
                 title: 'Untitled',
                 message: '',
                 timestamp: moment().format()
-            }
+            };
         },
 
         //validates the notification ensuring it contains the 3 necessary parts
