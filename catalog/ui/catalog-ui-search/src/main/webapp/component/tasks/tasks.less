@@ -1,0 +1,76 @@
+.tasks {
+    line-height: 1em;
+    white-space: nowrap;
+
+    #tasks div.dropdown-width li {
+        cursor: default;
+    }
+
+    .task-progressbar {
+        display: table-cell;
+        text-align: center;
+        overflow: hidden;
+        position: relative;
+        height: 10px;
+        width: 100%;
+        border-bottom-right-radius: 0px;
+        border-bottom-left-radius: 0px;
+        border-top-right-radius: 0px;
+        border-top-left-radius: 0px;
+        background: #666;
+        border: 0;
+    }
+
+    .task-title {
+        display: table-cell;
+        width: 60%;
+        padding-top: 10px;
+        padding-bottom: 10px;
+
+    }
+
+    .task-title-text {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        display: block;
+        width: 180px;
+    }
+
+    .task-message {
+        font-weight: 100;
+        font-size: .8em;
+        color: #DDD;
+    }
+
+    .task-time {
+        display: table-cell;
+        white-space: nowrap;
+        font-weight: 100;
+        color: #DDD;
+        font-size: .9em;
+    }
+
+    .task-progress-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        display: table-cell;
+    }
+
+    div.dropdown-width li:first-child .task-category {
+        margin-top: 0;
+    }
+
+    .task-category {
+        position: relative;
+        width: 330px;
+        left: -15px;
+        font-size: 1.2em;
+        font-weight: 700;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        background: #242424;
+        text-align: center;
+    }
+}
+

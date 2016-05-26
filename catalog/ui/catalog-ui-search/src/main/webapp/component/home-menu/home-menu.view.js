@@ -22,13 +22,15 @@ define([
     'js/CustomElements',
     'component/dropdown/dropdown',
     'component/dropdown/login-form/dropdown.login-form.view',
-    'component/dropdown/notifications/dropdown.notifications.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, LoginForm, Notifications) {
+    'component/dropdown/notifications/dropdown.notifications.view',
+    'component/tasks/tasks.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, LoginForm, Notifications, Tasks) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('home-menu'),
         regions: {
+            'tasks': '.tasks-region',
             'notifications': '.notifications-region',
             'userInfo': '.user-info-region'
         },
@@ -44,9 +46,12 @@ define([
             this.notifications.show(new Notifications({
                 model: new DropdownModel()
             }));
+
             this.userInfo.show(new LoginForm({
                 model: new DropdownModel()
             }));
+
+            this.tasks.show(new Tasks());
         }
     });
 });

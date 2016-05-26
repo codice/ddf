@@ -23,12 +23,13 @@ define([
     'component/content-title/content-title.view',
     'component/content-toolbar/content-toolbar.view',
     'component/details-user/details-user.view',
+    'component/tasks/tasks.view',
     'component/details-buttons/details-buttons.view',
     'component/dropdown/dropdown',
     'component/dropdown/notifications/dropdown.notifications.view',
     'wreqr'
 ], function (Marionette, _, $, template, CustomElements, LogoView, TitleView, ToolbarView,
-UserView, ButtonsView, DropdownModel, Notifications, wreqr) {
+UserView, Tasks, ButtonsView, DropdownModel, Notifications, wreqr) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -44,7 +45,8 @@ UserView, ButtonsView, DropdownModel, Notifications, wreqr) {
             title: '.content-title',
             toolbar: '.content-toolbar',
             user: '.details-user',
-            notifications: '.details-notifications'
+            notifications: '.details-notifications',
+            tasks: '.details-tasks'
         },
         initialize: function (options) {
             if (options.model === undefined){
@@ -59,6 +61,7 @@ UserView, ButtonsView, DropdownModel, Notifications, wreqr) {
                 model: new DropdownModel()
             }));
             this.user.show(new UserView());
+            this.tasks.show(new Tasks())
         },
         navigateHome: function(){
             wreqr.vent.trigger('router:navigate', {

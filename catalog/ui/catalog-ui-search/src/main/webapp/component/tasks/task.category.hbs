@@ -11,25 +11,16 @@
  *
  **/
  --}}
-<button class="menu-logo">
 
-</button>
-<div class="menu-content">
-    <div class="content-title">
-
-    </div>
-    <div class="content-toolbar">
-
-    </div>
-</div>
-<div class="menu-details">
-    <div class="details-tasks">
-
-    </div>
-    <div class="details-notifications">
-
-    </div>
-    <div class="details-user">
-
-    </div>
+<div class="task-category">
+    {{category}}
+        {{#is closeConfirm true}}
+             <div class="btn-group taskCategory-remove-area">
+                 <a href="#" class="btn btn-primary" id="removeAll">Remove All</a> <a href="#" class="btn" id="cancelRemove">Cancel</a>
+             </div>
+        {{else}}
+                <div class="taskCategory-close">
+                    <a href="#" class="fa fa-trash-o" id="closeCategory"></a>
+                </div>
+        {{/is}}
 </div>
