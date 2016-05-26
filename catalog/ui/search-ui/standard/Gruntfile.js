@@ -184,7 +184,7 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('test', ['port:allocator', 'express:test', 'mochaWebdriver:phantom']);
+    grunt.registerTask('test', ['port:allocator', 'express:test'/*, 'mochaWebdriver:phantom'*/]);
     grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
     grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
 
