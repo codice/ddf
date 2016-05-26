@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.converter.RegistryConversionException;
 import org.codice.ddf.registry.converter.RegistryPackageConverter;
@@ -34,7 +35,6 @@ import org.codice.ddf.registry.schemabindings.EbrimConstants;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import com.google.common.io.FileBackedOutputStream;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -63,7 +63,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
 
         MetacardImpl metacard;
 
-        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
+        try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {
 
             try {
                 IOUtils.copy(inputStream, fileBackedOutputStream);

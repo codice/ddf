@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,10 +22,9 @@ import javax.activation.MimeTypeParseException;
 
 import org.apache.camel.Message;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.FileBackedOutputStream;
 
 import ddf.camel.component.catalog.CatalogEndpoint;
 import ddf.camel.component.catalog.transformer.TransformerProducer;
@@ -110,7 +109,7 @@ public class InputTransformerProducer extends TransformerProducer {
 
         Metacard generatedMetacard = null;
 
-        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
+        try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {
 
             try {
                 IOUtils.copy(message, fileBackedOutputStream);
