@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.registry.schemabindings;
+package org.codice.ddf.registry.schemabindings.helper;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -31,7 +31,8 @@ import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.parser.xml.XmlParser;
-import org.junit.Before;
+import org.codice.ddf.registry.schemabindings.EbrimConstants;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
@@ -49,73 +50,92 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 
-public class RegistryPackageUtilsTest {
-    private Parser parser;
+public class RegistryPackageTypeHelperTest {
+    private static Parser parser;
 
-    private ParserConfigurator configurator;
+    private static ParserConfigurator configurator;
 
-    private RegistryObjectType registryObject;
+    private static RegistryObjectType registryObject;
 
-    @Before
-    public void setUp() throws Exception {
+    private static RegistryPackageTypeHelper rptHelper;
+
+    private SlotTypeHelper stHelper = new SlotTypeHelper();
+
+    private InternationalStringTypeHelper istHelper = new InternationalStringTypeHelper();
+
+    @BeforeClass
+    public static void setUpOnce() throws Exception {
         parser = new XmlParser();
 
         configurator = parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
                         .getName(),
-                RegistryPackageUtils.OGC_FACTORY.getClass()
+                EbrimConstants.OGC_FACTORY.getClass()
                         .getPackage()
                         .getName(),
-                RegistryPackageUtils.GML_FACTORY.getClass()
+                EbrimConstants.GML_FACTORY.getClass()
                         .getPackage()
-                        .getName()),
-                this.getClass()
-                        .getClassLoader());
+                        .getName()), RegistryPackageTypeHelperTest.class.getClassLoader());
 
-        registryObject = getRegistryObjectFromResource(
-                "/csw-registry-package-smaller.xml");
+        registryObject = getRegistryObjectFromResource("/csw-registry-package-smaller.xml");
+
+        rptHelper = new RegistryPackageTypeHelper((RegistryPackageType) registryObject);
+    }
+
+    @Test
+    public void testGetBindingTypes() throws Exception {
+        List<ServiceBindingType> bindings = rptHelper.getBindingTypes();
+
+        assertBindings(bindings);
     }
 
     @Test
     public void testGetBindingTypesFromPackage() throws Exception {
         List<ServiceBindingType> bindings =
-                RegistryPackageUtils.getBindingTypes((RegistryPackageType) registryObject);
+                rptHelper.getBindingTypes((RegistryPackageType) registryObject);
 
         assertBindings(bindings);
     }
 
     @Test
     public void testGetBindingTypesFromRegistryObjectList() throws Exception {
-        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
+        RegistryObjectListType registryObjectList =
+                ((RegistryPackageType) registryObject).getRegistryObjectList();
 
-        List<ServiceBindingType> bindings =
-                RegistryPackageUtils.getBindingTypes(registryObjectList);
+        List<ServiceBindingType> bindings = rptHelper.getBindingTypes(registryObjectList);
 
         assertBindings(bindings);
     }
 
     @Test
     public void testGetBindingTypesFromNull() throws Exception {
-        List<ServiceBindingType> bindings =
-                RegistryPackageUtils.getBindingTypes((RegistryPackageType) null);
+        List<ServiceBindingType> bindings = rptHelper.getBindingTypes((RegistryPackageType) null);
         assertThat(bindings, is(empty()));
 
-        bindings = RegistryPackageUtils.getBindingTypes((RegistryObjectListType) null);
+        bindings = rptHelper.getBindingTypes((RegistryObjectListType) null);
         assertThat(bindings, is(empty()));
+    }
+
+    @Test
+    public void testGetExtrinsicObjectTypes() throws Exception {
+        List<ExtrinsicObjectType> extrinsicObjects = rptHelper.getExtrinsicObjects();
+
+        assertExtrinsicObjects(extrinsicObjects);
     }
 
     @Test
     public void testGetExtrinsicObjectTypesFromPackage() throws Exception {
         List<ExtrinsicObjectType> extrinsicObjects =
-                RegistryPackageUtils.getExtrinsicObjects((RegistryPackageType) registryObject);
+                rptHelper.getExtrinsicObjects((RegistryPackageType) registryObject);
 
         assertExtrinsicObjects(extrinsicObjects);
     }
 
     @Test
     public void testGetExtrinsicObjectTypesFromRegistryObjectList() throws Exception {
-        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
+        RegistryObjectListType registryObjectList =
+                ((RegistryPackageType) registryObject).getRegistryObjectList();
 
-        List<ExtrinsicObjectType> extrinsicObjects = RegistryPackageUtils.getExtrinsicObjects(
+        List<ExtrinsicObjectType> extrinsicObjects = rptHelper.getExtrinsicObjects(
                 registryObjectList);
 
         assertExtrinsicObjects(extrinsicObjects);
@@ -124,27 +144,34 @@ public class RegistryPackageUtilsTest {
     @Test
     public void testGetExtrinsicObjectTypesFromNull() throws Exception {
         List<ExtrinsicObjectType> extrinsicObjects =
-                RegistryPackageUtils.getExtrinsicObjects((RegistryPackageType) null);
+                rptHelper.getExtrinsicObjects((RegistryPackageType) null);
         assertThat(extrinsicObjects, is(empty()));
 
-        extrinsicObjects = RegistryPackageUtils.getExtrinsicObjects((RegistryObjectListType) null);
+        extrinsicObjects = rptHelper.getExtrinsicObjects((RegistryObjectListType) null);
         assertThat(extrinsicObjects, is(empty()));
+    }
+
+    @Test
+    public void testGetOrganizations() throws Exception {
+        List<OrganizationType> organizations = rptHelper.getOrganizations();
+
+        assertOrganizations(organizations);
     }
 
     @Test
     public void testGetOrganizationsFromPackage() throws Exception {
         List<OrganizationType> organizations =
-                RegistryPackageUtils.getOrganizations((RegistryPackageType) registryObject);
+                rptHelper.getOrganizations((RegistryPackageType) registryObject);
 
         assertOrganizations(organizations);
     }
 
     @Test
     public void testGetOrganizationsFromRegistryObjectList() throws Exception {
-        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
+        RegistryObjectListType registryObjectList =
+                ((RegistryPackageType) registryObject).getRegistryObjectList();
 
-        List<OrganizationType> organizations = RegistryPackageUtils.getOrganizations(
-                registryObjectList);
+        List<OrganizationType> organizations = rptHelper.getOrganizations(registryObjectList);
 
         assertOrganizations(organizations);
     }
@@ -152,117 +179,78 @@ public class RegistryPackageUtilsTest {
     @Test
     public void testGetOrganizationsFromNull() throws Exception {
         List<OrganizationType> organizations =
-                RegistryPackageUtils.getOrganizations((RegistryPackageType) null);
+                rptHelper.getOrganizations((RegistryPackageType) null);
         assertThat(organizations, is(empty()));
 
-        organizations = RegistryPackageUtils.getOrganizations((RegistryObjectListType) null);
+        organizations = rptHelper.getOrganizations((RegistryObjectListType) null);
         assertThat(organizations, is(empty()));
     }
 
     @Test
+    public void testGetPersons() throws Exception {
+        List<PersonType> persons = rptHelper.getPersons();
+
+        assertPersons(persons);
+    }
+
+    @Test
     public void testGetPersonsFromPackage() throws Exception {
-        List<PersonType> persons =
-                RegistryPackageUtils.getPersons((RegistryPackageType) registryObject);
+        List<PersonType> persons = rptHelper.getPersons((RegistryPackageType) registryObject);
 
         assertPersons(persons);
     }
 
     @Test
     public void testGetPersonsFromRegistryObjectList() throws Exception {
-        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
+        RegistryObjectListType registryObjectList =
+                ((RegistryPackageType) registryObject).getRegistryObjectList();
 
-        List<PersonType> persons = RegistryPackageUtils.getPersons(registryObjectList);
+        List<PersonType> persons = rptHelper.getPersons(registryObjectList);
 
         assertPersons(persons);
     }
 
     @Test
     public void testGetPersonsFromNull() throws Exception {
-        List<PersonType> persons = RegistryPackageUtils.getPersons((RegistryPackageType) null);
+        List<PersonType> persons = rptHelper.getPersons((RegistryPackageType) null);
         assertThat(persons, is(empty()));
 
-        persons = RegistryPackageUtils.getPersons((RegistryObjectListType) null);
+        persons = rptHelper.getPersons((RegistryObjectListType) null);
         assertThat(persons, is(empty()));
+    }
+
+    @Test
+    public void testGetAssociations() throws Exception {
+        List<AssociationType1> associations = rptHelper.getAssociations();
+
+        assertAssociations(associations);
     }
 
     @Test
     public void testGetAssociationsFromPackage() throws Exception {
         List<AssociationType1> associations =
-                RegistryPackageUtils.getAssociations((RegistryPackageType) registryObject);
+                rptHelper.getAssociations((RegistryPackageType) registryObject);
 
         assertAssociations(associations);
     }
 
     @Test
     public void testGetAssociationsFromRegistryObjectList() throws Exception {
-        RegistryObjectListType registryObjectList = ((RegistryPackageType)registryObject).getRegistryObjectList();
+        RegistryObjectListType registryObjectList =
+                ((RegistryPackageType) registryObject).getRegistryObjectList();
 
-        List<AssociationType1> associations = RegistryPackageUtils.getAssociations(
-                registryObjectList);
+        List<AssociationType1> associations = rptHelper.getAssociations(registryObjectList);
 
         assertAssociations(associations);
     }
 
     @Test
     public void testGetAssociationsFromNull() throws Exception {
-        List<AssociationType1> associations =
-                RegistryPackageUtils.getAssociations((RegistryPackageType) null);
+        List<AssociationType1> associations = rptHelper.getAssociations((RegistryPackageType) null);
         assertThat(associations, is(empty()));
 
-        associations = RegistryPackageUtils.getAssociations((RegistryObjectListType) null);
+        associations = rptHelper.getAssociations((RegistryObjectListType) null);
         assertThat(associations, is(empty()));
-    }
-
-    @Test
-    public void testGetSlotByName() throws Exception {
-        List<ServiceBindingType> bindings =
-                RegistryPackageUtils.getBindingTypes((RegistryPackageType) registryObject);
-
-        ServiceBindingType binding = bindings.get(0);
-        assertThat(binding.isSetSlot(), is(true));
-
-        Map<String, SlotType1> slotMap = RegistryPackageUtils.getNameSlotMap(binding.getSlot());
-
-        for (String slotName : slotMap.keySet()) {
-            SlotType1 slot = slotMap.get(slotName);
-            assertThat(slot,
-                    is(equalTo(RegistryPackageUtils.getSlotByName(slotName, binding.getSlot()))));
-        }
-    }
-
-    @Test
-    public void testGetSlotFromString() throws Exception {
-        List<ExtrinsicObjectType> bindings =
-                RegistryPackageUtils.getExtrinsicObjects((RegistryPackageType) registryObject);
-
-        ExtrinsicObjectType binding = bindings.get(0);
-        assertThat(binding.isSetSlot(), is(true));
-
-        Map<String, SlotType1> slotMap = RegistryPackageUtils.getNameSlotMap(binding.getSlot());
-
-        for (String slotName : slotMap.keySet()) {
-            if (slotName.equals("location")) {
-                // RegistryPackageUtils doesn't handle parsing the wrs:ValueList
-                continue;
-            }
-            SlotType1 slot = slotMap.get(slotName);
-
-            List<String> values = RegistryPackageUtils.getSlotStringValues(slot);
-
-            SlotType1 created;
-            if (values.size() > 1) {
-                created = RegistryPackageUtils.getSlotFromStrings(slot.getName(),
-                        values,
-                        slot.getSlotType());
-            } else {
-                created = RegistryPackageUtils.getSlotFromString(slot.getName(),
-                        values.get(0),
-                        slot.getSlotType());
-            }
-
-            assertThat(slot, is(equalTo(created)));
-        }
-
     }
 
     private void assertBindings(List<ServiceBindingType> bindings) {
@@ -302,8 +290,8 @@ public class RegistryPackageUtilsTest {
 
         assertThat(binding.isSetSlot(), is(true));
         assertThat(binding.getSlot(), hasSize(numberOfSlots));
-        Map<String, List<SlotType1>> slotMap =
-                RegistryPackageUtils.getNameSlotMapDuplicateSlotNamesAllowed(binding.getSlot());
+        Map<String, List<SlotType1>> slotMap = stHelper.getNameSlotMapDuplicateSlotNamesAllowed(
+                binding.getSlot());
 
         assertThat(slotMap, hasKey(cswUrlSlotName));
         assertSlotValue(slotMap.get(cswUrlSlotName)
@@ -364,8 +352,7 @@ public class RegistryPackageUtilsTest {
 
         assertThat(extrinsicObject.isSetSlot(), is(true));
         assertThat(extrinsicObject.getSlot(), hasSize(numberOfSlots));
-        Map<String, SlotType1> slotMap =
-                RegistryPackageUtils.getNameSlotMap(extrinsicObject.getSlot());
+        Map<String, SlotType1> slotMap = stHelper.getNameSlotMap(extrinsicObject.getSlot());
 
         assertThat(slotMap, hasKey(linksSlotName));
         assertSlotValue(slotMap.get(linksSlotName), 1, linksSlotValue);
@@ -531,11 +518,11 @@ public class RegistryPackageUtilsTest {
     }
 
     private void assertIst(InternationalStringType actual, String expectedName) {
-        assertThat(RegistryPackageUtils.getStringFromIST(actual), is(equalTo(expectedName)));
+        assertThat(istHelper.getString(actual), is(equalTo(expectedName)));
     }
 
     private void assertSlotValue(SlotType1 slot, int size, String... expectedValues) {
-        List<String> actualValues = RegistryPackageUtils.getSlotStringValues(slot);
+        List<String> actualValues = stHelper.getStringValues(slot);
         assertThat(actualValues, hasSize(size));
 
         assertThat(actualValues, contains(expectedValues));
@@ -566,16 +553,17 @@ public class RegistryPackageUtilsTest {
         assertThat(name.getLastName(), is(equalTo(last)));
     }
 
-    private RegistryObjectType getRegistryObjectFromResource(String path) throws ParserException {
-        RegistryObjectType registryObject = null;
+    private static RegistryObjectType getRegistryObjectFromResource(String path)
+            throws ParserException {
+        RegistryObjectType rot = null;
         JAXBElement<RegistryObjectType> jaxbRegistryObject = parser.unmarshal(configurator,
                 JAXBElement.class,
-                getClass().getResourceAsStream(path));
+                SlotTypeHelperTest.class.getResourceAsStream(path));
 
         if (jaxbRegistryObject != null) {
-            registryObject = jaxbRegistryObject.getValue();
+            rot = jaxbRegistryObject.getValue();
         }
 
-        return registryObject;
+        return rot;
     }
 }

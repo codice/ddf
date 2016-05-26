@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.bind.JAXBElement;
 
@@ -29,6 +30,7 @@ import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.parser.xml.XmlParser;
+import org.codice.ddf.registry.schemabindings.converter.type.RegistryPackageTypeConverter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,10 +48,10 @@ public class RegistryPackageWebConverterTest {
 
         configurator = parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
                         .getName(),
-                RegistryPackageUtils.OGC_FACTORY.getClass()
+                EbrimConstants.OGC_FACTORY.getClass()
                         .getPackage()
                         .getName(),
-                RegistryPackageUtils.GML_FACTORY.getClass()
+                EbrimConstants.GML_FACTORY.getClass()
                         .getPackage()
                         .getName()),
                 this.getClass()
@@ -61,11 +63,16 @@ public class RegistryPackageWebConverterTest {
         RegistryObjectType registryObject = getRegistryObjectFromResource(
                 "/csw-full-registry-package.xml");
 
-        Map<String, Object> registryMap = RegistryPackageWebConverter.getRegistryObjectWebMap(
-                registryObject);
+        org.codice.ddf.registry.schemabindings.converter.web.RegistryPackageWebConverter
+                rpwConverter =
+                new org.codice.ddf.registry.schemabindings.converter.web.RegistryPackageWebConverter();
+        Map<String, Object> registryMap =
+                rpwConverter.convert((RegistryPackageType) registryObject);
 
-        RegistryObjectType convertedRegistryObject =
-                RegistryPackageWebConverter.getRegistryPackageFromWebMap(registryMap);
+        RegistryPackageTypeConverter rptConverter = new RegistryPackageTypeConverter();
+        Optional<RegistryPackageType> optionalRegistryPackage = rptConverter.convert(registryMap);
+
+        RegistryObjectType convertedRegistryObject = optionalRegistryPackage.get();
 
         assertThat(registryObject.getObjectType(),
                 is(equalTo(convertedRegistryObject.getObjectType())));
@@ -99,8 +106,10 @@ public class RegistryPackageWebConverterTest {
     public void testEmptyRegistryPackage() throws Exception {
         Map<String, Object> emptyRegistryMap = new HashMap<>();
 
-        RegistryPackageType registryPackage =
-                RegistryPackageWebConverter.getRegistryPackageFromWebMap(emptyRegistryMap);
+        RegistryPackageTypeConverter rptConverter = new RegistryPackageTypeConverter();
+        Optional<RegistryPackageType> optionalRegistryPackage = rptConverter.convert(
+                emptyRegistryMap);
+        RegistryPackageType registryPackage = optionalRegistryPackage.orElse(null);
 
         assertThat(registryPackage, nullValue());
     }

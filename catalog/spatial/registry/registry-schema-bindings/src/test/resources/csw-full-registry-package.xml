@@ -159,17 +159,6 @@
                     <rim:Value>2016-01-26T17:16:34.996Z</rim:Value>
                 </rim:ValueList>
             </rim:Slot>
-            <!--Optional: A gml feature describing the geographic bounds of the data contained in this collection-->
-            <rim:Slot name="bounds" slotType="urn:ogc:def:dataType:ISO-19107:2003:GM_Envelope">
-                <wrs:ValueList>
-                    <wrs:AnyValue>
-                        <gml:Envelope srsName="urn:ogc:def:crs:EPSG:4326">
-                            <gml:lowerCorner>60.042 13.754</gml:lowerCorner>
-                            <gml:upperCorner>68.410 17.920</gml:upperCorner>
-                        </gml:Envelope>
-                    </wrs:AnyValue>
-                </wrs:ValueList>
-            </rim:Slot>
             <!--Optional: A UNSD region  describing the geographic bounds of the data contained in this collection-->
             <rim:Slot name="region"
                       slotType="urn:ogc:def:ebRIM-ClassificationScheme:UNSD:GlobalRegions">
