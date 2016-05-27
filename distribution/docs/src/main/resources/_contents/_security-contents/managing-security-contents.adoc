@@ -28,63 +28,63 @@ From the Web Admin Console, the following configurations are available from a st
 |Description
 
 |<<login_page_table,Login Page>>
-|`org.codice.${ddf-branding-lowercase}.security.handler.guest.configuration`
+|`org.codice.ddf.security.handler.guest.configuration`
 |Options for customizing the Login page, such as header, footer, text style
 
 |<<saml_nameid_policy_table,SAML NameID Policy>>
-|`${ddf-branding-lowercase}.security.service.SecurityManager`
+|`ddf.security.service.SecurityManager`
 |Customize attributes to replace username of logged-in user.
 
 |<<sts_server_token_endpoint_table,STS Server Token Endpoint>>
-|`${ddf-branding-lowercase}.security.sts.StsStaticService`
+|`ddf.security.sts.StsStaticService`
 |Add or update addresses to use with STS service.
 
 |<<security_soap_guest_interceptor_table,Security SOAP Guest Interceptor>>
-|`org.codice.${ddf-branding-lowercase}.security.interceptor.GuestInterceptor`
+|`org.codice.ddf.security.interceptor.GuestInterceptor`
 |Settings for allowing Guest access.
 
 |<<security_sts_address_provider_table,Security STS Address Provider>>
-|`${ddf-branding-lowercase}.security.sts.address.provider`
+|`ddf.security.sts.address.provider`
 |Configure use of alternate STS address provider
 
 |<<security_sts_client_table,Security STS Client>>
-|`${ddf-branding-lowercase}.security.sts.client.configuration`
+|`ddf.security.sts.client.configuration`
 |Settings for STS client
 
 |<<guest_claims_handler_configuration_table,Security STS Guest Claims Handler>>
-|`${ddf-branding-lowercase}.security.sts.guestclaims`
+|`ddf.security.sts.guestclaims`
 |Add or remove attributes to be attached to claims for guest users.
 
 |<<security_sts_guest_validator_table,Security STS Guest Validator>>
-|`${ddf-branding-lowercase}.security.sts.guestvalidator`
+|`ddf.security.sts.guestvalidator`
 |Configure realms to use with Guest Validator
 
 |<<security_sts_pki_token_validator_table,Security STS PKI Token Validator>>
-|`org.codice.${ddf-branding-lowercase}.security.validator.pki`
+|`org.codice.ddf.security.validator.pki`
 |Configure realms to use with PKI Token Validator
 
 |<<file_based_claims_handler_table,Security STS Property File Claims Handler>>
-|`org.codice.${ddf-branding-lowercase}.security.sts.claims.property.PropertyFileClaimsHandler`
+|`org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler`
 |Settings for retrieving claims from properties file
 
 |<<security_sts_server_table,Security STS Server>>
-|`${ddf-branding-lowercase}.security.sts`
+|`ddf.security.sts`
 |Settings for STS Server
 
 |<<security_sts_wss_table,Security STS WSS>>
-|`${ddf-branding-lowercase}.security.sts.wss.configuration`
+|`ddf.security.sts.wss.configuration`
 |WSS-enabled version of STS
 
 |<<security_authz_realm_table,Security AuthZ Realm>>
-|`${ddf-branding-lowercase}.security.pdp.realm.AuthzRealm`
+|`ddf.security.pdp.realm.AuthzRealm`
 |Configuration of Match-One and/or Match-All mappings in SimpleAuthz realme
 
 |<<session_table,Session>>
-|`org.codice.${ddf-branding-lowercase}.security.filter.login.Session`
+|`org.codice.ddf.security.filter.login.Session`
 |Set session timeout
 
 |<<web_context_policy_manager_table, Web Context Policy Manager>>
-|`org.codice.${ddf-branding-lowercase}.security.policy.context.impl.PolicyManager`
+|`org.codice.ddf.security.policy.context.impl.PolicyManager`
 |Configure Realms, Auth types, and Attributes for different contexts.
 
 |===
