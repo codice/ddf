@@ -104,4 +104,8 @@ public class AttributeMetacardTransformer implements MetacardTransformer {
                 .getName() + ", attributeName=" + attributeName + ", id=" + id + ", MIME Type="
                 + mimeType + "}";
     }
+
+    public String getAttributeName() {
+        return this.attributeName;
+    }
 }

@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 
 public abstract class AbstractMetacardActionProvider implements ActionProvider {
@@ -35,6 +36,8 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
     static final String UNKNOWN_TARGET = "0.0.0.0";
 
     static final String PATH = "/catalog/sources";
+
+    protected String attributeName;
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(AbstractMetacardActionProvider.class);
@@ -105,7 +108,14 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     @Override
     public <T> boolean canHandle(T subject) {
-        return subject instanceof Metacard;
+        if (subject instanceof Metacard) {
+            if (StringUtils.isNotBlank(attributeName)) {
+                Attribute attr = ((Metacard) subject).getAttribute(attributeName);
+                return (attr != null && attr.getValue() != null);
+            }
+            return true;
+        }
+        return false;
     }
 
 }

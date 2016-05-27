@@ -15,7 +15,7 @@ package org.codice.ddf.endpoints.rest.action;
 
 public class MetacardTransformerActionProviderFactory {
 
-    public MetacardTransformerActionProvider createActionProvider(String id, String transformer) {
-        return new MetacardTransformerActionProvider(id, transformer);
+    public MetacardTransformerActionProvider createActionProvider(String id, String transformer, String attributeName) {
+        return new MetacardTransformerActionProvider(id, transformer, attributeName);
     }
 }
