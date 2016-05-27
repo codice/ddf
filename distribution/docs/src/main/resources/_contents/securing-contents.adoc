@@ -9,7 +9,7 @@ A banner is displayed on the admin console notifying "The system is insecure bec
 A detailed view is available of the properties to update.
 ====
 
-==== Web Context Policy Manager
+==== Securing the Web Context Policy Manager
 
 The Web Context Policy Manager defines all security policies for REST endpoints within ${branding}.
 It defines :
@@ -18,14 +18,25 @@ It defines :
 * the type of authentication that a context requires.
 * any user attributes required for authorization.
 
-===== Configuring Web Context Policy Manager
+See <<web_context_policy_manager_table, Web Context Policy Manager Configurations>> for detailed descriptions of all fields.
 
-The karaf realm is the only realm available by default and it authenticates against the `user.properties` file.
+===== Context Realms
+
+The karaf realm is the only realm available by default and it authenticates against the `users.properties` file.
 As JAAS authentication realms are added to the STS, more realms become available to authenticate against.
 
 For example, installing the `security-sts-ldaplogin` feature adds an ldap realm.
 Contexts can then be pointed to the ldap realm for authentication and STS will be instructed to authenticate them against ldap.
+
+===== Authentication Types
+
 As you add REST endpoints, you may need to add different types of authentication through the Web Context Policy Manager.
+
+Any web context that allows or requires specific authentication types should be added here with the following format:
+
+----
+/<CONTEXT>=<AUTH_TYPE>|<AUTH_TYPE|...
+----
 
 .Default Types of Authentication
 [cols="1,4" options="header"]
@@ -35,24 +46,43 @@ As you add REST endpoints, you may need to add different types of authentication
 |Description
 
 |`saml`
-|Activates single-sign on (SSO) across all REST endpoints that use.
+|Activates single-sign on (SSO) across all REST endpoints that use SAML.
 
 |`basic`
 |Activates basic authentication.
 
 |`PKI`
-|Activates public key infrastructure authentication
+|Activates public key infrastructure authentication.
 
 |`IdP`
-|
+|Activates SAML Web SSO authentication support. Additional configuration is necessary.
 
 |`CAS`
-|
+|Enables SSO through a Central Authentication Server
 
 |`guest`
 |provides guest access
 
 |===
+
+==== Required Attributes
+
+The fields for required attributes allows configuring certain contexts to only be accessible to users with pre-defined attributes.
+For example, the default required attribute for the `/admin` context is `role=system-admin`, limiting access to the ${admin-console} to system administrators
+
+===== White Listed Contexts
+
+White listed contexts are trusted contexts which will bypass security.
+Any sub-contexts of a white listed context will be white listed as well, unless they are specifically assigned a policy.
+
+==== Limiting Access to the STS
+
+Be sure to limit the hosts that are allowed to connect to the STS:
+
+* Open `<INSTALL_HOME>/etc/system.properties`
+* Edit the line `ws-security.subject.cert.constraints = .*`
+** Remove the `.*` and replace with the desired host (<MY_HOST>):
+*** `ws-security.subject.cert.constraints = <MY_HOST>.*`
 
 ==== IdP/SP
 

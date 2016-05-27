@@ -19,7 +19,7 @@
          name="Web Context Policy Manager"
          id="org.codice.ddf.security.policy.context.impl.PolicyManager">
 
-        <AD description="List of realms supporting each context. Provided realms are: DDF, karaf. Example: /=DDF"
+        <AD description="List of realms supporting each context. Karaf is provided by default. Example: /=karaf"
             name="Context Realms" id="realms" required="true" cardinality="100"
             type="String"
             default="/=karaf"/>
