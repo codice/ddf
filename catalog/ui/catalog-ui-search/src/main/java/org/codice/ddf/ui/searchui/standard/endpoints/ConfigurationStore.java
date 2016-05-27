@@ -152,6 +152,16 @@ public class ConfigurationStore {
 
     private List<String> hiddenAttributes = Collections.emptyList();
 
+    private int sourcePollInterval = 60000;
+
+    public void setSourcePollInterval(int sourcePollInterval) {
+        this.sourcePollInterval = sourcePollInterval;
+    }
+
+    public int getSourcePollInterval() {
+        return sourcePollInterval;
+    }
+
     public ConfigurationStore() {
 
     }
@@ -214,6 +224,7 @@ public class ConfigurationStore {
         config.put("summaryShow", summaryShow);
         config.put("hiddenAttributes", hiddenAttributes);
         config.put("attributeAliases", attributeAliases);
+        config.put("sourcePollInterval", sourcePollInterval);
 
         return config;
     }

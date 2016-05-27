@@ -43,6 +43,13 @@
             name="Connection Timeout" id="timeout"
             required="false" type="Integer" default="15000"/>
 
+        <AD id="sourcePollInterval"
+            name="Source Poll Interval"
+            description="Specifies the interval to poll for sources in milliseconds."
+            default="60000"
+            required="true"
+            type="Integer"/>
+
         <AD description="URL to help documentation" name="Help Location" id="helpUrl"
             required="false" type="String" default="help.html"/>
 

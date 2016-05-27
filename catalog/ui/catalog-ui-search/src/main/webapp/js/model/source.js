@@ -69,7 +69,7 @@ define([
     }))();
 
     poller.get(Sources, {
-        delay: 60000
+        delay: properties.sourcePollInterval
     }).start();
 
     return Sources;
