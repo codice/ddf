@@ -146,7 +146,8 @@ public class TestZipCompression {
     public void testCompressionWithFilePath() throws Exception {
         BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
         assertThat(binaryContent, notNullValue());
-        assertZipContents(binaryContent, Arrays.asList("id1", "id2"));
+        assertZipContents(binaryContent, Arrays.asList(ZipCompression.METACARD_PATH + "id1",
+                ZipCompression.METACARD_PATH + "id2"));
         Files.deleteIfExists(file.toPath());
     }
 
@@ -157,8 +158,11 @@ public class TestZipCompression {
         BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
         assertThat(binaryContent, notNullValue());
 
-        ArrayList<String> assertionList = new ArrayList<>(idList);
-        assertionList.add("content/id3-localresource.txt");
+        List<String> assertionList = Arrays.asList(
+                ZipCompression.METACARD_PATH + "id1",
+                ZipCompression.METACARD_PATH + "id2",
+                ZipCompression.METACARD_PATH + "id3",
+                "content/id3-localresource.txt");
         assertZipContents(binaryContent, assertionList);
 
         Files.deleteIfExists(file.toPath());
