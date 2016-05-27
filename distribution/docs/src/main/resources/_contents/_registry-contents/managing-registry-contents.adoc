@@ -1,0 +1,26 @@
+// overview - ~ a paragraph
+
+=== ${ddf-registry} Prerequisites
+
+To use the ${ddf-registry}, the following apps/features must be installed:
+
+// a list
+* ${ddf-spatial}
+
+=== Installing ${ddf-registry}
+
+=== Configuring ${ddf-registry}
+
+=== Using ${ddf-registry}
+
+==== Subscribing
+
+===== Editing a Subscription
+
+===== Deleting a Subscription
+
+==== Publishing to Others
+
+===== Editing Publishing Settings
+
+===== Unpublishing
