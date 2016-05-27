@@ -73,6 +73,15 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-endpoint/${project.version}</bundle>
     </feature>
 
+    <feature name="spatial-connected-sources" install="manual" version="${project.version}"
+             description="Spatial Connected Sources included CSW, WFS 1.0.0, and WFS 2.0.0" >
+        <feature prerequisite="true">spatial-csw</feature>
+        <feature prerequisite="true">spatial-wfs-core</feature>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-csw-connectedsource/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-connectedsource/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-connectedsource/${project.version}</bundle>
+    </feature>
+
     <feature name="webservice-gazetteer" install="auto" version="${project.version}"
              description="Gazetteer service utilizing the Geonames.org web service.">
         <feature prerequisite="true">spatial-app</feature>

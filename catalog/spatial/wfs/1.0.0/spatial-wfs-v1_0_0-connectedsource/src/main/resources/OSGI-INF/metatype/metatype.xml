@@ -14,11 +14,12 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="WFS v1.0.0 Federated Source" id="Wfs_v1_0_0_Federated_Source"
-         description="WFS v1.0.0 Federated Source">
+    <OCD description="WFS v1.0.0 Connected Source" name="WFS v1.0.0 Connected Source"
+         id="Wfs_v1_0_0_Connected_Source">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
-            type="String" default="WFS_v1_0_0"/>
+            type="String"
+            default="WFS"/>
 
         <AD description="URL to the endpoint implementing the Web Feature Service (WFS) spec"
             name="WFS URL" id="wfsUrl" required="true" type="String"/>
@@ -63,11 +64,11 @@
         <AD description="Amount of time to wait for a response before timing out, in milliseconds."
             name="Receive Timeout" id="receiveTimeout"
             required="true" type="Integer" default="60000"/>
-
+		
     </OCD>
 
-    <Designate pid="Wfs_v1_0_0_Federated_Source" factoryPid="Wfs_v1_0_0_Federated_Source">
-        <Object ocdref="Wfs_v1_0_0_Federated_Source"/>
+    <Designate pid="Wfs_v1_0_0_Connected_Source" factoryPid="Wfs_v1_0_0_Connected_Source">
+        <Object ocdref="Wfs_v1_0_0_Connected_Source"/>
     </Designate>
 
 </metatype:MetaData>

@@ -28,6 +28,7 @@
         <module>spatial-wfs-v1_0_0-common</module>
         <module>spatial-wfs-v1_0_0-converter</module>
         <module>spatial-wfs-v1_0_0-source</module>
+        <module>spatial-wfs-v1_0_0-connectedsource</module>
         <module>spatial-wfs-v1_0_0-endpoint</module>
     </modules>
 </project>
