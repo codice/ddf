@@ -114,26 +114,15 @@ public class ActivityController extends AbstractEventController {
         }
 
         String sessionId = (String) event.getProperty(ActivityEvent.SESSION_ID_KEY);
-        if (StringUtils.isEmpty(sessionId)) {
-            throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.SESSION_ID_KEY
-                    + "\" property is null or empty");
-        }
-
         String userId = (String) event.getProperty(ActivityEvent.USER_ID_KEY);
-        // Blank user ID is allowed as this indicates the guest user
-        if (null == userId) {
-            throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.USER_ID_KEY
-                    + "\" property is null or empty");
+
+        if (StringUtils.isBlank(userId) && StringUtils.isBlank(sessionId)) {
+            throw new IllegalArgumentException("No user information was provided in the Event object. userId and sessionId properties were null");
         }
 
         ServerSession recipient = null;
-        if (StringUtils.isNotBlank(userId)) {
-            LOGGER.debug("Getting ServerSession for userId {}", userId);
-            recipient = getSessionByUserId(userId);
-        } else {
-            LOGGER.debug("Getting ServerSession for sessionId {}", sessionId);
-            recipient = getSessionByUserId(sessionId);
-        }
+        LOGGER.debug("Getting ServerSession for userId/sessionId {}", userId);
+        recipient = getSessionById(userId, sessionId);
 
         if (null != recipient) {
             Map<String, Object> propMap = new HashMap<>();
