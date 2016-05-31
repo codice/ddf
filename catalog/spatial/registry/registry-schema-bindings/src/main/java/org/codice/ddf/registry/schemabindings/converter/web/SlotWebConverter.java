@@ -14,7 +14,6 @@
 package org.codice.ddf.registry.schemabindings.converter.web;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,19 +74,13 @@ public class SlotWebConverter {
         if (StringUtils.isNotBlank(slotType)) {
             slotMap.put(SLOT_TYPE, slotType);
 
-            if (slotType.contains(RegistryConstants.XML_DATE_TIME_TYPE)) {
-                List<Date> dateValues = SLOT_TYPE_HELPER.getDateValues(slot);
-
-                webMapHelper.putIfNotEmpty(slotMap, VALUE, dateValues);
-            } else if (slotType.contains(RegistryConstants.XML_GEO_TYPE)) {
+            if (slotType.contains(RegistryConstants.XML_GEO_TYPE)) {
                 webMapHelper.putAllIfNotEmpty(slotMap, getSlotGeoMap(slot));
 
-            } else {
-                List<String> stringValues = SLOT_TYPE_HELPER.getStringValues(slot);
-
-                webMapHelper.putIfNotEmpty(slotMap, VALUE, stringValues);
             }
-        } else {
+        }
+
+        if (StringUtils.isBlank(slotType) || !slotType.contains(RegistryConstants.XML_GEO_TYPE)) {
             List<String> stringValues = SLOT_TYPE_HELPER.getStringValues(slot);
 
             webMapHelper.putIfNotEmpty(slotMap, VALUE, stringValues);
