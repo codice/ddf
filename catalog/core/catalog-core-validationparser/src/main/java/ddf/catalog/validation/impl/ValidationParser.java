@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,9 +52,11 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
+import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.InjectableAttributeImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.AttributeValidatorRegistry;
@@ -122,6 +125,7 @@ public class ValidationParser implements ArtifactInstaller {
         handleSection("Metacard Types", outer.metacardTypes, this::parseMetacardTypes);
         handleSection("Validators", outer.validators, this::parseValidators);
         handleSection("Defaults", outer.defaults, this::parseDefaults);
+        handleSection("Injections", outer.inject, this::parseInjections);
     }
 
     private <T> void handleSection(String sectionName, T sectionData,
@@ -192,29 +196,21 @@ public class ValidationParser implements ArtifactInstaller {
                     entry.getValue().multivalued,
                     BasicTypes.getAttributeType(entry.getValue().type));
 
-            staged.add(() -> attributeRegistry.registerAttribute(descriptor));
+            staged.add(() -> attributeRegistry.register(descriptor));
         }
         return staged;
     }
 
     private List<Callable<Boolean>> parseMetacardTypes(List<Outer.MetacardType> metacardTypes) {
         List<Callable<Boolean>> staged = new ArrayList<>();
-        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-        if (bundle == null) {
-            LOGGER.warn("Unable to get bundle for {}. Metacard Types will not be registered",
-                    this.getClass()
-                            .getName());
-            return new ArrayList<>();
-        }
-        BundleContext context = bundle.getBundleContext();
+        BundleContext context = getBundleContext();
         for (Outer.MetacardType metacardType : metacardTypes) {
             Set<AttributeDescriptor> attributeDescriptors =
                     new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
             Set<String> requiredAttributes = new HashSet<>();
 
             metacardType.attributes.forEach((attributeName, attribute) -> {
-                AttributeDescriptor descriptor = attributeRegistry.getAttributeDescriptor(
-                        attributeName)
+                AttributeDescriptor descriptor = attributeRegistry.lookup(attributeName)
                         .orElseThrow(() -> new IllegalStateException(String.format(
                                 "Metacard type [%s] includes the attribute [%s], but that attribute is not in the attribute registry.",
                                 metacardType.type,
@@ -325,8 +321,7 @@ public class ValidationParser implements ArtifactInstaller {
         return defaults.stream()
                 .flatMap(defaultObj -> {
                     String attribute = defaultObj.attribute;
-                    AttributeDescriptor descriptor = attributeRegistry.getAttributeDescriptor(
-                            attribute)
+                    AttributeDescriptor descriptor = attributeRegistry.lookup(attribute)
                             .orElseThrow(() -> new IllegalStateException(String.format(
                                     "The default value for the attribute [%s] cannot be parsed because that attribute has not been registered in the attribute registry",
                                     attribute)));
@@ -350,6 +345,26 @@ public class ValidationParser implements ArtifactInstaller {
                 .collect(Collectors.toList());
     }
 
+    private List<Callable<Boolean>> parseInjections(List<Outer.Injection> injections) {
+        BundleContext context = getBundleContext();
+        return injections.stream()
+                .map(injection -> (Callable<Boolean>) () -> {
+                    String attribute = injection.attribute;
+                    InjectableAttribute injectableAttribute = new InjectableAttributeImpl(attribute,
+                            injection.metacardTypes);
+                    context.registerService(InjectableAttribute.class, injectableAttribute, null);
+                    return true;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private BundleContext getBundleContext() {
+        return Optional.of(FrameworkUtil.getBundle(getClass()))
+                .map(Bundle::getBundleContext)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Could not get the bundle for " + getClass().getName()));
+    }
+
     private class Outer {
         List<MetacardType> metacardTypes;
 
@@ -359,6 +374,8 @@ public class ValidationParser implements ArtifactInstaller {
         Map<String, List<Validator>> validators;
 
         List<Default> defaults;
+
+        List<Injection> inject;
 
         class MetacardType {
             String type;
@@ -392,6 +409,12 @@ public class ValidationParser implements ArtifactInstaller {
             String attribute;
 
             String value;
+
+            List<String> metacardTypes;
+        }
+
+        class Injection {
+            String attribute;
 
             List<String> metacardTypes;
         }

@@ -34,65 +34,66 @@ public class AttributeRegistryImplTest {
 
     @Test
     public void testAddAttribute() {
-        final AttributeDescriptor descriptor = new AttributeDescriptorImpl("test",
+        final String attributeName = "test";
+        final AttributeDescriptor descriptor = new AttributeDescriptorImpl(attributeName,
                 true,
                 false,
                 true,
                 false,
                 BasicTypes.STRING_TYPE);
-        assertThat(registry.registerAttribute(descriptor), is(true));
+        assertThat(registry.register(descriptor), is(true));
 
-        final Optional<AttributeDescriptor> descriptorOptional = registry.getAttributeDescriptor(
-                "test");
+        final Optional<AttributeDescriptor> descriptorOptional = registry.lookup(attributeName);
         assertThat(descriptorOptional.isPresent(), is(true));
         assertThat(descriptorOptional.get(), is(descriptor));
     }
 
     @Test
     public void testRemoveAttribute() {
-        final AttributeDescriptor descriptor = new AttributeDescriptorImpl("test",
+        final String attributeName = "attribute";
+        final AttributeDescriptor descriptor = new AttributeDescriptorImpl(attributeName,
                 true,
                 false,
                 true,
                 false,
                 BasicTypes.STRING_TYPE);
-        assertThat(registry.registerAttribute(descriptor), is(true));
+        assertThat(registry.register(descriptor), is(true));
 
-        Optional<AttributeDescriptor> descriptorOptional = registry.getAttributeDescriptor("test");
+        Optional<AttributeDescriptor> descriptorOptional = registry.lookup(attributeName);
         assertThat(descriptorOptional.isPresent(), is(true));
 
-        registry.deregisterAttribute("test");
-        descriptorOptional = registry.getAttributeDescriptor("test");
+        registry.deregister(attributeName);
+        descriptorOptional = registry.lookup(attributeName);
         assertThat(descriptorOptional.isPresent(), is(false));
     }
 
     @Test
     public void testAddAttributeWithSameName() {
-        final AttributeDescriptor descriptor1 = new AttributeDescriptorImpl("test",
+        final String attributeName = "foo";
+        final AttributeDescriptor descriptor1 = new AttributeDescriptorImpl(attributeName,
                 true,
                 true,
                 true,
                 true,
                 BasicTypes.STRING_TYPE);
-        assertThat(registry.registerAttribute(descriptor1), is(true));
+        assertThat(registry.register(descriptor1), is(true));
 
-        final AttributeDescriptor descriptor2 = new AttributeDescriptorImpl("test",
+        final AttributeDescriptor descriptor2 = new AttributeDescriptorImpl(attributeName,
                 false,
                 false,
                 false,
                 false,
                 BasicTypes.BINARY_TYPE);
-        assertThat(registry.registerAttribute(descriptor2), is(false));
+        assertThat(registry.register(descriptor2), is(false));
 
-        final Optional<AttributeDescriptor> descriptorOptional = registry.getAttributeDescriptor(
-                "test");
+        final Optional<AttributeDescriptor> descriptorOptional = registry.lookup(attributeName);
         assertThat(descriptorOptional.isPresent(), is(true));
         assertThat(descriptorOptional.get(), is(descriptor1));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullAttributeDescriptor() {
-        registry.registerAttribute(null);
+        registry.register(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -103,6 +104,6 @@ public class AttributeRegistryImplTest {
                 true,
                 false,
                 BasicTypes.STRING_TYPE);
-        registry.registerAttribute(descriptor);
+        registry.register(descriptor);
     }
 }

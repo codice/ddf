@@ -13,6 +13,10 @@
  */
 package ddf.catalog.transformer.input.geojson;
 
+import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -21,7 +25,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
+import java.util.function.Function;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -31,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -42,13 +49,12 @@ import ddf.geo.formatter.CompositeGeometry;
 /**
  * Converts standard GeoJSON (geojson.org) into a Metacard. The limitation on the GeoJSON is that it
  * must conform to the {@link ddf.catalog.data.impl.BasicTypes#BASIC_METACARD} {@link MetacardType}.
- *
  */
 public class GeoJsonInputTransformer implements InputTransformer {
 
-    private static final ObjectMapper MAPPER = JsonFactory.create();
+    static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    private static final ObjectMapper MAPPER = JsonFactory.create();
 
     private static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
 
@@ -61,6 +67,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonInputTransformer.class);
 
     private List<MetacardType> metacardTypes;
+
+    private AttributeRegistry attributeRegistry;
 
     /**
      * Transforms GeoJson (http://www.geojson.org/) into a {@link Metacard}
@@ -95,9 +103,9 @@ public class GeoJsonInputTransformer implements InputTransformer {
         }
 
         final String propertyTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
-        MetacardImpl metacard = null;
+        MetacardImpl metacard;
 
-        if (propertyTypeName == null || propertyTypeName.isEmpty() || metacardTypes == null) {
+        if (isEmpty(propertyTypeName) || metacardTypes == null) {
             LOGGER.debug(
                     "MetacardType specified in input is null or empty.  Assuming default MetacardType");
             metacard = new MetacardImpl();
@@ -115,7 +123,6 @@ public class GeoJsonInputTransformer implements InputTransformer {
         }
 
         MetacardType metacardType = metacard.getMetacardType();
-        String metacardTypeName = metacardType.getName();
         LOGGER.debug("Metacard type name: {}", metacardType.getName());
 
         // retrieve geometry
@@ -124,8 +131,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
         CompositeGeometry geoJsonGeometry = null;
         if (geometryJson != null) {
             if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null && (geometryJson.get(
-                    CompositeGeometry.COORDINATES_KEY) != null || geometryJson.get(
-                    CompositeGeometry.GEOMETRIES_KEY) != null)) {
+                    CompositeGeometry.COORDINATES_KEY) != null
+                    || geometryJson.get(CompositeGeometry.GEOMETRIES_KEY) != null)) {
 
                 String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY)
                         .toString();
@@ -156,28 +163,33 @@ public class GeoJsonInputTransformer implements InputTransformer {
             }
         }
 
-        // TODO read which metatype they need, find the metatype and use it for
-        // reading the data format
+        Map<String, AttributeDescriptor> attributeDescriptorMap =
+                metacardType.getAttributeDescriptors()
+                        .stream()
+                        .collect(toMap(AttributeDescriptor::getName, Function.identity()));
 
-        for (AttributeDescriptor ad : metacardType.getAttributeDescriptors()) {
-
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            final String key = entry.getKey();
+            final Object value = entry.getValue();
             try {
-                if (properties.containsKey(ad.getName())) {
-                    Object attributeValue = properties.get(ad.getName());
-                    if (attributeValue != null) {
-                        metacard.setAttribute(ad.getName(), convertProperty(attributeValue, ad));
+                if (attributeDescriptorMap.containsKey(key)) {
+                    AttributeDescriptor ad = attributeDescriptorMap.get(key);
+                    metacard.setAttribute(key, convertProperty(value, ad));
+                } else {
+                    Optional<AttributeDescriptor> optional = attributeRegistry.lookup(key);
+                    if (optional.isPresent()) {
+                        metacard.setAttribute(key, convertProperty(value, optional.get()));
                     }
                 }
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | ParseException e) {
                 LOGGER.info(
-                        "GeoJSON input for attribute name '{}' does not match expected AttributeType defined in MetacardType: {}. This attribute will not be added to the metacard.",
-                        ad.getName(),
-                        metacardTypeName,
+                        "GeoJSON input for attribute name '{}' does not match the expected AttributeType. This attribute will not be added to the metacard.",
+                        key,
                         e);
             }
         }
 
-        if (metacard.getSourceId() != null && !"".equals(metacard.getSourceId())) {
+        if (isNotEmpty(metacard.getSourceId())) {
             properties.put(SOURCE_ID_PROPERTY, metacard.getSourceId());
         }
 
@@ -192,6 +204,10 @@ public class GeoJsonInputTransformer implements InputTransformer {
         this.metacardTypes = metacardTypes;
     }
 
+    public void setAttributeRegistry(AttributeRegistry attributeRegistry) {
+        this.attributeRegistry = attributeRegistry;
+    }
+
     @Override
     public String toString() {
         return "InputTransformer {Impl=" + this.getClass()
@@ -199,7 +215,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
     }
 
     private Serializable convertProperty(Object property, AttributeDescriptor descriptor)
-            throws CatalogTransformerException {
+            throws ParseException {
         AttributeFormat format = descriptor.getType()
                 .getAttributeFormat();
         if (descriptor.isMultiValued() && property instanceof List) {
@@ -213,8 +229,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
         }
     }
 
-    private Serializable convertValue(Object value, AttributeFormat format)
-            throws CatalogTransformerException {
+    private Serializable convertValue(Object value, AttributeFormat format) throws ParseException {
         if (value == null) {
             return null;
         }
@@ -223,14 +238,9 @@ public class GeoJsonInputTransformer implements InputTransformer {
         case BINARY:
             return DatatypeConverter.parseBase64Binary(value.toString());
         case DATE:
-            try {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
-                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                return dateFormat.parse(value.toString());
-            } catch (ParseException e) {
-                throw new CatalogTransformerException("Could not parse Date:" + value.toString(),
-                        e);
-            }
+            SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return dateFormat.parse(value.toString());
         case GEOMETRY:
         case STRING:
         case XML:
@@ -251,5 +261,4 @@ public class GeoJsonInputTransformer implements InputTransformer {
             return null;
         }
     }
-
 }

@@ -60,6 +60,8 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-solrcommands/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-attributeregistry/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-injectattribute/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
@@ -356,7 +358,6 @@
              description="DDF Metacard and attribute validation services">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validator/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-attribute-registry/${project.version}</bundle>
         <feature>catalog-plugin-metacard-validation</feature>
     </feature>
 

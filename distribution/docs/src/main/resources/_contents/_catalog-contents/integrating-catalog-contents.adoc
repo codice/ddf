@@ -1493,14 +1493,17 @@ This section concerns capabilities that are considered experimental. The feature
 
 ==== Definition File Format
 
-Metacard types, attribute types, global attribute validators, and default attribute values can be defined within a definition file. A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed. There are four main types that can be defined in a definition file.
+A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed.
 
-- Metacard Types
+The following may be defined in a JSON definition file:
+
 - Attribute Types
+- Metacard Types
 - Global Attribute Validators
 - Default Attribute Values
+- Attribute Injections
 
-Within a definition file you may define as many of the four types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
+Within a definition file you may define as many of the types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
 
 ==== Deploying
 The file must have a `.json` extension in order to be picked up by the deployer. Once the definition file is ready to be deployed, put the definition file `<filename>.json` into the `etc/definitions` folder.
@@ -1603,7 +1606,6 @@ The value of `metacardTypes` must be an array of Metacard Type Objects, which ar
 The value of the `type` key is the name of the metacard type being defined.
 
 The value of the `attributes` key is a map where each key is the name of an attribute type to include in this metacard type and each value is a map with a single key named `required` and a boolean value. Required attributes are used for metacard validation - metacards that lack required attributes will be flagged with validation errors.
-
 
 [source,json]
 ----
@@ -1843,3 +1845,55 @@ Example:
     ]
 }
 ----
+
+==== Attribute Injection Definition
+
+Attribute injections are defined attributes that will be injected into all metacard types or into specific metacard types. This capability allows metacard types to be extended with new attributes.
+
+To define attribute injections, your definition file must have an `inject` key in the root object.
+
+[source,json]
+----
+{
+    "inject": [...]
+}
+----
+
+The value of `inject` is simply a list of objects where each object contains the key `attribute` and optionally `metacardTypes`.
+
+[source,json]
+----
+{
+    "inject": [
+        {
+            "attribute": ...,
+            "metacardTypes": [...]
+        }
+    ]
+}
+----
+
+The value corresponding to the `attribute` key is the name of the attribute to inject.
+
+The `metacardTypes` key is optional. If it is left out, then the attribute will be injected into every metacard type. It can be thought of as a 'global' attribute injection. If the `metacardTypes` key is included, then its value must be a list of strings where each string is the name of a metacard type. In this case, the attribute will be injected only into metacard types that match one of the types given in the list.
+
+Example:
+[source,json]
+----
+{
+    "inject": [
+        {
+            "attribute": "rating"
+        },
+        {
+            "attribute": "cloud-cover",
+            "metacardTypes": ["nitf", "video"]
+        }
+    ]
+}
+----
+
+[NOTE]
+====
+Attributes must be registered in the attribute registry (see the `AttributeRegistry` interface) in order to be injected into metacard types. For example, attributes defined in JSON definition files are placed in the registry, so they can be injected.
+====

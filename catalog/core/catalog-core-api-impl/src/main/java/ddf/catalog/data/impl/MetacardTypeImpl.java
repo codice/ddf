@@ -13,6 +13,9 @@
  */
 package ddf.catalog.data.impl;
 
+import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -20,26 +23,24 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 
 /**
  * Default implementation of the {@link MetacardType}, used by {@link BasicTypes} to create the
  * {@link BasicTypes#BASIC_METACARD}.
- *
  * <p>
  * This class is {@link java.io.Serializable} and care should be taken with compatibility if changes are
  * made.
  * </p>
- *
  * <p>
  * For what constitutes a compatible change in serialization, see <a href=
  * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678" >Sun's
  * Guidelines</a>.
  * </p>
- *
- * @author ddf.isgs@lmco.com
- *
  */
 public class MetacardTypeImpl implements MetacardType {
 
@@ -48,7 +49,7 @@ public class MetacardTypeImpl implements MetacardType {
     /**
      * Set of {@link AttributeDescriptor}s
      */
-    protected transient Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
+    protected transient Set<AttributeDescriptor> descriptors = new HashSet<>();
 
     /**
      * The name of this {@code MetacardTypeImpl}
@@ -61,10 +62,8 @@ public class MetacardTypeImpl implements MetacardType {
      * Creates a {@code MetacardTypeImpl} with the provided {@code name} and
      * {@link AttributeDescriptor}s.
      *
-     * @param name
-     *            the name of this {@code MetacardTypeImpl}
-     * @param descriptors
-     *            the set of descriptors for this {@code MetacardTypeImpl}
+     * @param name        the name of this {@code MetacardTypeImpl}
+     * @param descriptors the set of descriptors for this {@code MetacardTypeImpl}
      */
     public MetacardTypeImpl(String name, Set<AttributeDescriptor> descriptors) {
         /*
@@ -77,6 +76,35 @@ public class MetacardTypeImpl implements MetacardType {
         if (descriptors != null) {
             this.descriptors.addAll(descriptors);
         }
+    }
+
+    /**
+     * Creates a {@code MetacardTypeImpl} with the provided name, {@link MetacardType}, and set of
+     * additional {@linkplain AttributeDescriptor AttributeDescriptors}.
+     * <p>
+     * {@code additionalDescriptors} and the descriptors in {@code metacardType} will be combined to
+     * form the set of descriptors for this {@code MetacardTypeImpl}.
+     * <p>
+     * Essentially, this is a convenience constructor for creating a new {@code MetacardTypeImpl}
+     * that extends an existing {@link MetacardType}.
+     *
+     * @param name                  the name of this {@code MetacardTypeImpl}
+     * @param metacardType          the base {@link MetacardType}, cannot be null
+     * @param additionalDescriptors the descriptors to add to this {@code MetacardTypeImpl} in
+     *                              addition to the descriptors in {@code metacardType}, cannot be
+     *                              null or empty
+     * @throws IllegalArgumentException if {@code metacardType} or {@code additionalDescriptors} is
+     *                                  null, or if {@code additionalDescriptors} is empty
+     */
+    public MetacardTypeImpl(String name, MetacardType metacardType,
+            Set<AttributeDescriptor> additionalDescriptors) {
+        notNull(metacardType, "The metacard type cannot be null.");
+        notEmpty(additionalDescriptors,
+                "The set of additional descriptors cannot be null or empty");
+
+        this.name = name;
+        descriptors.addAll(metacardType.getAttributeDescriptors());
+        descriptors.addAll(additionalDescriptors);
     }
 
     @Override
@@ -106,13 +134,12 @@ public class MetacardTypeImpl implements MetacardType {
     /**
      * Serializes this {@link MetacardTypeImpl} instance.
      *
-     * @serialData First, the name is written as a {@code String} by the default Java serialization
-     *             implementation, then the number of {@link AttributeDescriptor} objects is written
-     *             as an ( {@code int}), followed by all of the {@code AttributeDescriptor} objects
-     *             in no guaranteed sequence or order.
-     * @param stream
-     *            the {@link ObjectOutputStream} that contains the object to be serialized
+     * @param stream the {@link ObjectOutputStream} that contains the object to be serialized
      * @throws IOException
+     * @serialData First, the name is written as a {@code String} by the default Java serialization
+     * implementation, then the number of {@link AttributeDescriptor} objects is written
+     * as an ( {@code int}), followed by all of the {@code AttributeDescriptor} objects
+     * in no guaranteed sequence or order.
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
 
@@ -133,8 +160,7 @@ public class MetacardTypeImpl implements MetacardType {
     /**
      * Deserializes this {@link MetacardTypeImpl} instance.
      *
-     * @param stream
-     *            the {@link ObjectInputStream} that contains the bytes of the object
+     * @param stream the {@link ObjectInputStream} that contains the bytes of the object
      * @throws IOException
      * @throws ClassNotFoundException
      */
@@ -157,21 +183,15 @@ public class MetacardTypeImpl implements MetacardType {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result += (descriptors == null) ? 0 : descriptors.hashCode();
-        return result;
+        return new HashCodeBuilder(19, 71).append(name)
+                .append(descriptors)
+                .toHashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (obj == this) {
             return true;
-        }
-
-        if (obj == null) {
-            return false;
         }
 
         if (!(obj instanceof MetacardType)) {
@@ -179,24 +199,8 @@ public class MetacardTypeImpl implements MetacardType {
         }
 
         MetacardType other = (MetacardType) obj;
-
-        if (name == null) {
-            if (other.getName() != null) {
-                return false;
-            }
-        } else if (!name.equals(other.getName())) {
-            return false;
-        }
-
-        if (descriptors == null) {
-            if (other.getAttributeDescriptors() != null) {
-                return false;
-            }
-        } else if (!descriptors.equals(other.getAttributeDescriptors())) {
-            return false;
-        }
-
-        return true;
+        return new EqualsBuilder().append(name, other.getName())
+                .append(descriptors, other.getAttributeDescriptors())
+                .isEquals();
     }
-
 }
