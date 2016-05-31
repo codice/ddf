@@ -19,13 +19,12 @@ import static org.codice.ddf.registry.schemabindings.converter.web.Specification
 import static org.codice.ddf.registry.schemabindings.converter.web.SpecificationLinkWebConverter.USAGE_DESCRIPTION;
 import static org.codice.ddf.registry.schemabindings.converter.web.SpecificationLinkWebConverter.USAGE_PARAMETERS;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
 import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SpecificationLinkType;
 
@@ -34,6 +33,8 @@ public class SpecificationLinkTypeConverter
 
     private MapToSchemaElement<SpecificationLinkType> mapToSchemaElement = new MapToSchemaElement<>(
             RIM_FACTORY::createSpecificationLinkType);
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     @Override
     protected MapToSchemaElement<SpecificationLinkType> getSchemaMapper() {
@@ -90,24 +91,9 @@ public class SpecificationLinkTypeConverter
             }
             optionalSpecificationLink.get()
                     .getUsageParameter()
-                    .addAll(getStringListFromMap(map, USAGE_PARAMETERS));
+                    .addAll(webMapHelper.getStringListFromMap(map, USAGE_PARAMETERS));
         }
 
         return optionalSpecificationLink;
-    }
-
-    private static List<String> getStringListFromMap(Map<String, Object> map, String key) {
-        List<String> values = new ArrayList<>();
-        if (MapUtils.isEmpty(map) || !map.containsKey(key)) {
-            return values;
-        }
-
-        if (map.get(key) instanceof String) {
-            values.add(MapUtils.getString(map, key));
-        } else if (map.get(key) instanceof List) {
-            values.addAll((List<String>) map.get(key));
-        }
-
-        return values;
     }
 }

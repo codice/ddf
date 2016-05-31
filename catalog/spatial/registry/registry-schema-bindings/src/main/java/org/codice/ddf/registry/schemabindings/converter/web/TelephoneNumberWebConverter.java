@@ -16,6 +16,8 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
+
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 
 public class TelephoneNumberWebConverter {
@@ -28,6 +30,8 @@ public class TelephoneNumberWebConverter {
     public static final String NUMBER = "number";
 
     public static final String PHONE_TYPE = "phoneType";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the TelephoneNumberType provided.
@@ -45,25 +49,11 @@ public class TelephoneNumberWebConverter {
     public Map<String, Object> convert(TelephoneNumberType phoneNumber) {
         Map<String, Object> phoneNumberMap = new HashMap<>();
 
-        if (phoneNumber.isSetAreaCode()) {
-            phoneNumberMap.put(AREA_CODE, phoneNumber.getAreaCode());
-        }
-
-        if (phoneNumber.isSetCountryCode()) {
-            phoneNumberMap.put(COUNTRY_CODE, phoneNumber.getCountryCode());
-        }
-
-        if (phoneNumber.isSetExtension()) {
-            phoneNumberMap.put(EXTENSION, phoneNumber.getExtension());
-        }
-
-        if (phoneNumber.isSetNumber()) {
-            phoneNumberMap.put(NUMBER, phoneNumber.getNumber());
-        }
-
-        if (phoneNumber.isSetPhoneType()) {
-            phoneNumberMap.putIfAbsent(PHONE_TYPE, phoneNumber.getPhoneType());
-        }
+        webMapHelper.putIfNotEmpty(phoneNumberMap, AREA_CODE, phoneNumber.getAreaCode());
+        webMapHelper.putIfNotEmpty(phoneNumberMap, COUNTRY_CODE, phoneNumber.getCountryCode());
+        webMapHelper.putIfNotEmpty(phoneNumberMap, EXTENSION, phoneNumber.getExtension());
+        webMapHelper.putIfNotEmpty(phoneNumberMap, NUMBER, phoneNumber.getNumber());
+        webMapHelper.putIfNotEmpty(phoneNumberMap, PHONE_TYPE, phoneNumber.getPhoneType());
 
         return phoneNumberMap;
     }

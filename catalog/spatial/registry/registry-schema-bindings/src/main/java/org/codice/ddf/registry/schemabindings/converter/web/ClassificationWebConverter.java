@@ -16,7 +16,7 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ClassificationType;
 
@@ -28,6 +28,8 @@ public class ClassificationWebConverter extends RegistryObjectWebConverter {
     public static final String CLASSIFICATION_SCHEME = "classificationScheme";
 
     public static final String NODE_REPRESENTATION = "nodeRepresentation";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the ClassificationType provided.
@@ -49,26 +51,20 @@ public class ClassificationWebConverter extends RegistryObjectWebConverter {
             return classificationMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(classification);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            classificationMap.putAll(registryObjectMap);
-        }
-
-        if (classification.isSetClassificationNode()) {
-            classificationMap.put(CLASSIFICATION_NODE, classification.getClassificationNode());
-        }
-
-        if (classification.isSetClassificationScheme()) {
-            classificationMap.put(CLASSIFICATION_SCHEME, classification.getClassificationScheme());
-        }
-
-        if (classification.isSetClassifiedObject()) {
-            classificationMap.put(CLASSIFIED_OBJECT, classification.getClassifiedObject());
-        }
-
-        if (classification.isSetNodeRepresentation()) {
-            classificationMap.put(NODE_REPRESENTATION, classification.getNodeRepresentation());
-        }
+        webMapHelper.putAllIfNotEmpty(classificationMap,
+                super.convertRegistryObject(classification));
+        webMapHelper.putIfNotEmpty(classificationMap,
+                CLASSIFICATION_NODE,
+                classification.getClassificationNode());
+        webMapHelper.putIfNotEmpty(classificationMap,
+                CLASSIFICATION_SCHEME,
+                classification.getClassificationScheme());
+        webMapHelper.putIfNotEmpty(classificationMap,
+                CLASSIFIED_OBJECT,
+                classification.getClassifiedObject());
+        webMapHelper.putIfNotEmpty(classificationMap,
+                NODE_REPRESENTATION,
+                classification.getNodeRepresentation());
 
         return classificationMap;
     }

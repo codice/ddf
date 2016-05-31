@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.cat.wrs.v_1_0_2.ValueListType;
@@ -50,6 +50,8 @@ public class SlotWebConverter {
     public static final String VALUE = "value";
 
     private static final SlotTypeHelper SLOT_TYPE_HELPER = new SlotTypeHelper();
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the SlotType1 provided.
@@ -76,31 +78,23 @@ public class SlotWebConverter {
             if (slotType.contains(RegistryConstants.XML_DATE_TIME_TYPE)) {
                 List<Date> dateValues = SLOT_TYPE_HELPER.getDateValues(slot);
 
-                if (CollectionUtils.isNotEmpty(dateValues)) {
-                    slotMap.put(VALUE, dateValues);
-                }
+                webMapHelper.putIfNotEmpty(slotMap, VALUE, dateValues);
             } else if (slotType.contains(RegistryConstants.XML_GEO_TYPE)) {
-                slotMap.putAll(getSlotGeoMap(slot));
+                webMapHelper.putAllIfNotEmpty(slotMap, getSlotGeoMap(slot));
 
             } else {
                 List<String> stringValues = SLOT_TYPE_HELPER.getStringValues(slot);
 
-                if (CollectionUtils.isNotEmpty(stringValues)) {
-                    slotMap.put(VALUE, stringValues);
-                }
+                webMapHelper.putIfNotEmpty(slotMap, VALUE, stringValues);
             }
         } else {
             List<String> stringValues = SLOT_TYPE_HELPER.getStringValues(slot);
 
-            if (CollectionUtils.isNotEmpty(stringValues)) {
-                slotMap.put(VALUE, stringValues);
-            }
+            webMapHelper.putIfNotEmpty(slotMap, VALUE, stringValues);
         }
 
-        String slotName = slot.getName();
-        if (StringUtils.isNotBlank(slotName)) {
-            slotMap.put(NAME, slotName);
-        }
+        webMapHelper.putIfNotEmpty(slotMap, NAME, slot.getName());
+
         return slotMap;
     }
 

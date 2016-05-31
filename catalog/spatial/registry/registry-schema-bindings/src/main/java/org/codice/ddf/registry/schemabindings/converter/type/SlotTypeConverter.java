@@ -25,7 +25,6 @@ import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConver
 import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.VALUE;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +34,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.gml.v_3_1_1.DirectPositionType;
@@ -46,6 +46,8 @@ public class SlotTypeConverter {
 
     private MapToSchemaElement<SlotType1> mapToSchemaElement =
             new MapToSchemaElement<>(RIM_FACTORY::createSlotType1);
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates an SlotType1 from the values in the provided map.
@@ -117,7 +119,7 @@ public class SlotTypeConverter {
             return optionalValueList;
         }
 
-        List<String> values = getStringListFromMap(map, VALUE);
+        List<String> values = webMapHelper.getStringListFromMap(map, VALUE);
         if (CollectionUtils.isNotEmpty(values)) {
             optionalValueList = Optional.of(RIM_FACTORY.createValueListType());
             optionalValueList.get()
@@ -205,21 +207,6 @@ public class SlotTypeConverter {
         }
 
         return optionalPoint;
-    }
-
-    private static List<String> getStringListFromMap(Map<String, Object> map, String key) {
-        List<String> values = new ArrayList<>();
-        if (MapUtils.isEmpty(map) || !map.containsKey(key)) {
-            return values;
-        }
-
-        if (map.get(key) instanceof String) {
-            values.add(MapUtils.getString(map, key));
-        } else if (map.get(key) instanceof List) {
-            values.addAll((List<String>) map.get(key));
-        }
-
-        return values;
     }
 
     private BigInteger getBigIntFromMap(String key, Map<String, Object> map) {

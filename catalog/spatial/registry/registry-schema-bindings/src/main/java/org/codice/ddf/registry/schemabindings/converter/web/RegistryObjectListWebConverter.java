@@ -20,8 +20,8 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
@@ -42,6 +42,8 @@ public class RegistryObjectListWebConverter {
     public static final String PERSON_KEY = "Person";
 
     public static final String SERVICE_KEY = "Service";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the RegistryObjectListType provided.
@@ -120,21 +122,11 @@ public class RegistryObjectListWebConverter {
             }
         }
 
-        if (CollectionUtils.isNotEmpty(associations)) {
-            registryObjectListMap.put(ASSOCIATION_KEY, associations);
-        }
-        if (CollectionUtils.isNotEmpty(extrinsicObjects)) {
-            registryObjectListMap.put(EXTRINSIC_OBJECT_KEY, extrinsicObjects);
-        }
-        if (CollectionUtils.isNotEmpty(organizations)) {
-            registryObjectListMap.put(ORGANIZATION_KEY, organizations);
-        }
-        if (CollectionUtils.isNotEmpty(people)) {
-            registryObjectListMap.put(PERSON_KEY, people);
-        }
-        if (CollectionUtils.isNotEmpty(services)) {
-            registryObjectListMap.put(SERVICE_KEY, services);
-        }
+        webMapHelper.putIfNotEmpty(registryObjectListMap, ASSOCIATION_KEY, associations);
+        webMapHelper.putIfNotEmpty(registryObjectListMap, EXTRINSIC_OBJECT_KEY, extrinsicObjects);
+        webMapHelper.putIfNotEmpty(registryObjectListMap, ORGANIZATION_KEY, organizations);
+        webMapHelper.putIfNotEmpty(registryObjectListMap, PERSON_KEY, people);
+        webMapHelper.putIfNotEmpty(registryObjectListMap, SERVICE_KEY, services);
 
         return registryObjectListMap;
     }

@@ -16,7 +16,7 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 
@@ -26,6 +26,8 @@ public class ExtrinsicObjectWebConverter extends RegistryObjectWebConverter {
     public static final String IS_OPAQUE = "isOpaque";
 
     public static final String MIME_TYPE = "mimeType";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the ExtrinsicObjectType provided.
@@ -46,24 +48,13 @@ public class ExtrinsicObjectWebConverter extends RegistryObjectWebConverter {
             return extrinsicObjectMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(extrinsicObject);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            extrinsicObjectMap.putAll(registryObjectMap);
-        }
-
-        if (extrinsicObject.isSetContentVersionInfo()) {
-            extrinsicObjectMap.put(CONTENT_VERSION_INFO,
-                    extrinsicObject.getContentVersionInfo()
-                            .getVersionName());
-        }
-
-        if (extrinsicObject.isSetIsOpaque()) {
-            extrinsicObjectMap.put(IS_OPAQUE, extrinsicObject.isIsOpaque());
-        }
-
-        if (extrinsicObject.isSetMimeType()) {
-            extrinsicObjectMap.put(MIME_TYPE, extrinsicObject.getMimeType());
-        }
+        webMapHelper.putAllIfNotEmpty(extrinsicObjectMap,
+                super.convertRegistryObject(extrinsicObject));
+        webMapHelper.putIfNotEmpty(extrinsicObjectMap,
+                CONTENT_VERSION_INFO,
+                extrinsicObject.getContentVersionInfo());
+        webMapHelper.putIfNotEmpty(extrinsicObjectMap, IS_OPAQUE, extrinsicObject.isIsOpaque());
+        webMapHelper.putIfNotEmpty(extrinsicObjectMap, MIME_TYPE, extrinsicObject.getMimeType());
 
         return extrinsicObjectMap;
     }

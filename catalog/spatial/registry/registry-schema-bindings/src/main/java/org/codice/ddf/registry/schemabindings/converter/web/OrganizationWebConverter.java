@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.EmailAddressType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.OrganizationType;
@@ -36,6 +36,8 @@ public class OrganizationWebConverter extends RegistryObjectWebConverter {
     public static final String PRIMARY_CONTACT = "primaryContact";
 
     public static final String TELEPHONE_KEY = "TelephoneNumber";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the OrganizationType provided.
@@ -63,10 +65,7 @@ public class OrganizationWebConverter extends RegistryObjectWebConverter {
             return organizationMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(organization);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            organizationMap.putAll(registryObjectMap);
-        }
+        webMapHelper.putAllIfNotEmpty(organizationMap, super.convertRegistryObject(organization));
 
         if (organization.isSetAddress()) {
             List<Map<String, Object>> addresses = new ArrayList<>();
@@ -80,9 +79,7 @@ public class OrganizationWebConverter extends RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(addresses)) {
-                organizationMap.put(ADDRESS_KEY, addresses);
-            }
+            webMapHelper.putIfNotEmpty(organizationMap, ADDRESS_KEY, addresses);
         }
 
         if (organization.isSetEmailAddress()) {
@@ -97,18 +94,13 @@ public class OrganizationWebConverter extends RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(emailAddresses)) {
-                organizationMap.put(EMAIL_ADDRESS_KEY, emailAddresses);
-            }
+            webMapHelper.putIfNotEmpty(organizationMap, EMAIL_ADDRESS_KEY, emailAddresses);
         }
 
-        if (organization.isSetParent()) {
-            organizationMap.put(PARENT, organization.getParent());
-        }
-
-        if (organization.isSetPrimaryContact()) {
-            organizationMap.put(PRIMARY_CONTACT, organization.getPrimaryContact());
-        }
+        webMapHelper.putIfNotEmpty(organizationMap, PARENT, organization.getParent());
+        webMapHelper.putIfNotEmpty(organizationMap,
+                PRIMARY_CONTACT,
+                organization.getPrimaryContact());
 
         if (organization.isSetTelephoneNumber()) {
             List<Map<String, Object>> telephoneNumbers = new ArrayList<>();
@@ -122,9 +114,7 @@ public class OrganizationWebConverter extends RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(telephoneNumbers)) {
-                organizationMap.put(TELEPHONE_KEY, telephoneNumbers);
-            }
+            webMapHelper.putIfNotEmpty(organizationMap, TELEPHONE_KEY, telephoneNumbers);
         }
 
         return organizationMap;

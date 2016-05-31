@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SpecificationLinkType;
@@ -32,6 +32,8 @@ public class ServiceBindingWebConverter extends RegistryObjectWebConverter {
     public static final String SPECIFICATION_LINK_KEY = "SpecificationLink";
 
     public static final String TARGET_BINDING = "targetBinding";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the ServiceBindingType provided.
@@ -56,18 +58,9 @@ public class ServiceBindingWebConverter extends RegistryObjectWebConverter {
             return bindingMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(binding);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            bindingMap.putAll(registryObjectMap);
-        }
-
-        if (binding.isSetAccessURI()) {
-            bindingMap.put(ACCESS_URI, binding.getAccessURI());
-        }
-
-        if (binding.isSetService()) {
-            bindingMap.put(SERVICE, binding.getService());
-        }
+        webMapHelper.putAllIfNotEmpty(bindingMap, super.convertRegistryObject(binding));
+        webMapHelper.putIfNotEmpty(bindingMap, ACCESS_URI, binding.getAccessURI());
+        webMapHelper.putIfNotEmpty(bindingMap, SERVICE, binding.getService());
 
         if (binding.isSetSpecificationLink()) {
             List<Map<String, Object>> specificationLinks = new ArrayList<>();
@@ -83,14 +76,10 @@ public class ServiceBindingWebConverter extends RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(specificationLinks)) {
-                bindingMap.put(SPECIFICATION_LINK_KEY, specificationLinks);
-            }
+            webMapHelper.putIfNotEmpty(bindingMap, SPECIFICATION_LINK_KEY, specificationLinks);
         }
 
-        if (binding.isSetTargetBinding()) {
-            bindingMap.put(TARGET_BINDING, binding.getTargetBinding());
-        }
+        webMapHelper.putIfNotEmpty(bindingMap, TARGET_BINDING, binding.getTargetBinding());
 
         return bindingMap;
     }

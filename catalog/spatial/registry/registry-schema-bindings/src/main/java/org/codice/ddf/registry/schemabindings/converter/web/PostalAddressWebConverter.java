@@ -16,6 +16,8 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
+
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PostalAddressType;
 
 public class PostalAddressWebConverter {
@@ -30,6 +32,8 @@ public class PostalAddressWebConverter {
     public static final String STREET = "street";
 
     public static final String STREET_NUMBER = "streetNumber";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the PostalAddressType provided.
@@ -51,29 +55,14 @@ public class PostalAddressWebConverter {
             return addressMap;
         }
 
-        if (postalAddress.isSetCity()) {
-            addressMap.put(CITY, postalAddress.getCity());
-        }
-
-        if (postalAddress.isSetCountry()) {
-            addressMap.put(COUNTRY, postalAddress.getCountry());
-        }
-
-        if (postalAddress.isSetPostalCode()) {
-            addressMap.put(POSTAL_CODE, postalAddress.getPostalCode());
-        }
-
-        if (postalAddress.isSetStateOrProvince()) {
-            addressMap.put(STATE_OR_PROVINCE, postalAddress.getStateOrProvince());
-        }
-
-        if (postalAddress.isSetStreet()) {
-            addressMap.put(STREET, postalAddress.getStreet());
-        }
-
-        if (postalAddress.isSetStreetNumber()) {
-            addressMap.put(STREET_NUMBER, postalAddress.getStreetNumber());
-        }
+        webMapHelper.putIfNotEmpty(addressMap, CITY, postalAddress.getCity());
+        webMapHelper.putIfNotEmpty(addressMap, COUNTRY, postalAddress.getCountry());
+        webMapHelper.putIfNotEmpty(addressMap, POSTAL_CODE, postalAddress.getPostalCode());
+        webMapHelper.putIfNotEmpty(addressMap,
+                STATE_OR_PROVINCE,
+                postalAddress.getStateOrProvince());
+        webMapHelper.putIfNotEmpty(addressMap, STREET, postalAddress.getStreet());
+        webMapHelper.putIfNotEmpty(addressMap, STREET_NUMBER, postalAddress.getStreetNumber());
 
         return addressMap;
     }

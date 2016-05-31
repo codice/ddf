@@ -16,12 +16,14 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 
 public class RegistryPackageWebConverter extends RegistryObjectWebConverter {
     public static final String REGISTRY_OBJECT_LIST_KEY = "RegistryObjectList";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the RegistryPackageType provided.
@@ -43,10 +45,7 @@ public class RegistryPackageWebConverter extends RegistryObjectWebConverter {
             return registryPackageMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(registryPackage);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            registryPackageMap.putAll(registryObjectMap);
-        }
+        webMapHelper.putAllIfNotEmpty(registryPackageMap, super.convertRegistryObject(registryPackage));
 
         if (registryPackage.isSetRegistryObjectList()) {
             RegistryObjectListWebConverter registryObjectListConverter =
@@ -54,9 +53,9 @@ public class RegistryPackageWebConverter extends RegistryObjectWebConverter {
             Map<String, Object> registryObjectListMap = registryObjectListConverter.convert(
                     registryPackage.getRegistryObjectList());
 
-            if (MapUtils.isNotEmpty(registryObjectListMap)) {
-                registryPackageMap.put(REGISTRY_OBJECT_LIST_KEY, registryObjectListMap);
-            }
+            webMapHelper.putIfNotEmpty(registryPackageMap,
+                    REGISTRY_OBJECT_LIST_KEY,
+                    registryObjectListMap);
         }
 
         return registryPackageMap;

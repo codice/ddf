@@ -16,6 +16,8 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
+
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PersonNameType;
 
 public class PersonNameWebConverter {
@@ -24,6 +26,8 @@ public class PersonNameWebConverter {
     public static final String LAST_NAME = "lastName";
 
     public static final String MIDDLE_NAME = "middleName";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the PersonNameType provided.
@@ -42,17 +46,9 @@ public class PersonNameWebConverter {
             return personNameMap;
         }
 
-        if (personName.isSetFirstName()) {
-            personNameMap.put(FIRST_NAME, personName.getFirstName());
-        }
-
-        if (personName.isSetLastName()) {
-            personNameMap.put(LAST_NAME, personName.getLastName());
-        }
-
-        if (personName.isSetMiddleName()) {
-            personNameMap.put(MIDDLE_NAME, personName.getMiddleName());
-        }
+        webMapHelper.putIfNotEmpty(personNameMap, FIRST_NAME, personName.getFirstName());
+        webMapHelper.putIfNotEmpty(personNameMap, LAST_NAME, personName.getLastName());
+        webMapHelper.putIfNotEmpty(personNameMap, MIDDLE_NAME, personName.getMiddleName());
 
         return personNameMap;
     }

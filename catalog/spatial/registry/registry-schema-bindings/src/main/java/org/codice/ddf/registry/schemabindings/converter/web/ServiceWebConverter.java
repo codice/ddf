@@ -18,14 +18,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceType;
 
 public class ServiceWebConverter extends RegistryObjectWebConverter {
     public static final String SERVICE_BINDING_KEY = "ServiceBinding";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the ServiceType provided.
@@ -47,10 +49,7 @@ public class ServiceWebConverter extends RegistryObjectWebConverter {
             return serviceMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(service);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            serviceMap.putAll(registryObjectMap);
-        }
+        webMapHelper.putAllIfNotEmpty(serviceMap, super.convertRegistryObject(service));
 
         if (service.isSetServiceBinding()) {
             List<Map<String, Object>> bindings = new ArrayList<>();
@@ -64,9 +63,7 @@ public class ServiceWebConverter extends RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(bindings)) {
-                serviceMap.put(SERVICE_BINDING_KEY, bindings);
-            }
+            webMapHelper.putIfNotEmpty(serviceMap, SERVICE_BINDING_KEY, bindings);
         }
 
         return serviceMap;

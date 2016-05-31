@@ -16,12 +16,16 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
+
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.EmailAddressType;
 
 public class EmailAddressWebConverter {
     public static final String ADDRESS = "address";
 
     public static final String TYPE = "type";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the EmailAddressType provided.
@@ -39,13 +43,8 @@ public class EmailAddressWebConverter {
             return emailAddressMap;
         }
 
-        if (emailAddress.isSetAddress()) {
-            emailAddressMap.put(ADDRESS, emailAddress.getAddress());
-        }
-
-        if (emailAddress.isSetType()) {
-            emailAddressMap.put(TYPE, emailAddress.getType());
-        }
+        webMapHelper.putIfNotEmpty(emailAddressMap, ADDRESS, emailAddress.getAddress());
+        webMapHelper.putIfNotEmpty(emailAddressMap, TYPE, emailAddress.getType());
 
         return emailAddressMap;
     }

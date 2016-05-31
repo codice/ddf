@@ -16,7 +16,7 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SpecificationLinkType;
 
@@ -29,6 +29,8 @@ public class SpecificationLinkWebConverter extends RegistryObjectWebConverter {
     public static final String USAGE_DESCRIPTION = "UsageDescription";
 
     public static final String USAGE_PARAMETERS = "UsageParameters";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the SpecificationLinkType provided.
@@ -53,29 +55,20 @@ public class SpecificationLinkWebConverter extends RegistryObjectWebConverter {
             return specificationLinkMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(specificationLink);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            specificationLinkMap.putAll(registryObjectMap);
-        }
-
-        if (specificationLink.isSetServiceBinding()) {
-            specificationLinkMap.put(SERVICE_BINDING, specificationLink.getServiceBinding());
-        }
-
-        if (specificationLink.isSetSpecificationObject()) {
-            specificationLinkMap.put(SPECIFICATION_OBJECT,
-                    specificationLink.getSpecificationObject());
-
-        }
-
-        if (specificationLink.isSetUsageDescription()) {
-            specificationLinkMap.put(USAGE_DESCRIPTION,
-                    INTERNATIONAL_STRING_TYPE_HELPER.getString(specificationLink.getUsageDescription()));
-        }
-
-        if (specificationLink.isSetUsageParameter()) {
-            specificationLinkMap.put(USAGE_PARAMETERS, specificationLink.getUsageParameter());
-        }
+        webMapHelper.putAllIfNotEmpty(specificationLinkMap,
+                super.convertRegistryObject(specificationLink));
+        webMapHelper.putIfNotEmpty(specificationLinkMap,
+                SERVICE_BINDING,
+                specificationLink.getServiceBinding());
+        webMapHelper.putIfNotEmpty(specificationLinkMap,
+                SPECIFICATION_OBJECT,
+                specificationLink.getSpecificationObject());
+        webMapHelper.putIfNotEmpty(specificationLinkMap,
+                USAGE_DESCRIPTION,
+                specificationLink.getUsageDescription());
+        webMapHelper.putIfNotEmpty(specificationLinkMap,
+                USAGE_PARAMETERS,
+                specificationLink.getUsageParameter());
 
         return specificationLinkMap;
     }

@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.EmailAddressType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PersonType;
@@ -34,6 +34,8 @@ public class PersonWebConverter extends RegistryObjectWebConverter {
     public static final String PERSON_NAME_KEY = "PersonName";
 
     public static final String TELEPHONE_KEY = "TelephoneNumber";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the PersonType provided.
@@ -61,10 +63,7 @@ public class PersonWebConverter extends RegistryObjectWebConverter {
             return personMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(person);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            personMap.putAll(registryObjectMap);
-        }
+        webMapHelper.putAllIfNotEmpty(personMap, super.convertRegistryObject(person));
 
         if (person.isSetAddress()) {
             List<Map<String, Object>> addresses = new ArrayList<>();
@@ -78,9 +77,7 @@ public class PersonWebConverter extends RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(addresses)) {
-                personMap.put(ADDRESS_KEY, addresses);
-            }
+            webMapHelper.putIfNotEmpty(personMap, ADDRESS_KEY, addresses);
         }
 
         if (person.isSetEmailAddress()) {
@@ -95,18 +92,14 @@ public class PersonWebConverter extends RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(emailAddresses)) {
-                personMap.put(EMAIL_ADDRESS_KEY, emailAddresses);
-            }
+            webMapHelper.putIfNotEmpty(personMap, EMAIL_ADDRESS_KEY, emailAddresses);
         }
 
         if (person.isSetPersonName()) {
             PersonNameWebConverter personNameConverter = new PersonNameWebConverter();
             Map<String, Object> personNameMap = personNameConverter.convert(person.getPersonName());
 
-            if (MapUtils.isNotEmpty(personNameMap)) {
-                personMap.put(PERSON_NAME_KEY, personNameMap);
-            }
+            webMapHelper.putIfNotEmpty(personMap, PERSON_NAME_KEY, personNameMap);
         }
 
         if (person.isSetTelephoneNumber()) {
@@ -121,9 +114,7 @@ public class PersonWebConverter extends RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(telephoneNumbers)) {
-                personMap.put(TELEPHONE_KEY, telephoneNumbers);
-            }
+            webMapHelper.putIfNotEmpty(personMap, TELEPHONE_KEY, telephoneNumbers);
         }
 
         return personMap;

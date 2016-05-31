@@ -18,10 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelper;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ClassificationType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
@@ -53,6 +52,8 @@ public class RegistryObjectWebConverter {
 
     protected static final InternationalStringTypeHelper INTERNATIONAL_STRING_TYPE_HELPER =
             new InternationalStringTypeHelper();
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the RegistryObjectType provided.
@@ -87,26 +88,20 @@ public class RegistryObjectWebConverter {
             ClassificationWebConverter classificationConverter = new ClassificationWebConverter();
 
             for (ClassificationType classification : registryObject.getClassification()) {
-                Map<String, Object> classficationMap = classificationConverter.convert(
+                Map<String, Object> classificationMap = classificationConverter.convert(
                         classification);
 
-                if (MapUtils.isNotEmpty(classficationMap)) {
-                    classifications.add(classficationMap);
+                if (MapUtils.isNotEmpty(classificationMap)) {
+                    classifications.add(classificationMap);
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(classifications)) {
-                registryObjectMap.put(CLASSIFICATION_KEY, classifications);
-            }
+            webMapHelper.putIfNotEmpty(registryObjectMap, CLASSIFICATION_KEY, classifications);
         }
 
-        if (registryObject.isSetDescription()) {
-            String description =
-                    INTERNATIONAL_STRING_TYPE_HELPER.getString(registryObject.getDescription());
-            if (StringUtils.isNotBlank(description)) {
-                registryObjectMap.put(DESCRIPTION_KEY, description);
-            }
-        }
+        webMapHelper.putIfNotEmpty(registryObjectMap,
+                DESCRIPTION_KEY,
+                registryObject.getDescription());
 
         if (registryObject.isSetExternalIdentifier()) {
             List<Map<String, Object>> externalIdentifiers = new ArrayList<>();
@@ -121,33 +116,18 @@ public class RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(externalIdentifiers)) {
-                registryObjectMap.put(EXTERNAL_IDENTIFIER_KEY, externalIdentifiers);
-            }
+            webMapHelper.putIfNotEmpty(registryObjectMap,
+                    EXTERNAL_IDENTIFIER_KEY,
+                    externalIdentifiers);
         }
 
-        if (registryObject.isSetHome()) {
-            registryObjectMap.put(HOME_KEY, registryObject.getHome());
-        }
-
-        if (registryObject.isSetId()) {
-            registryObjectMap.put(ID_KEY, registryObject.getId());
-        }
-
-        if (registryObject.isSetLid()) {
-            registryObjectMap.put(LID_KEY, registryObject.getLid());
-        }
-
-        if (registryObject.isSetName()) {
-            String name = INTERNATIONAL_STRING_TYPE_HELPER.getString(registryObject.getName());
-            if (StringUtils.isNotBlank(name)) {
-                registryObjectMap.put(NAME_KEY, name);
-            }
-        }
-
-        if (registryObject.isSetObjectType()) {
-            registryObjectMap.put(OBJECT_TYPE_KEY, registryObject.getObjectType());
-        }
+        webMapHelper.putIfNotEmpty(registryObjectMap, HOME_KEY, registryObject.getHome());
+        webMapHelper.putIfNotEmpty(registryObjectMap, ID_KEY, registryObject.getId());
+        webMapHelper.putIfNotEmpty(registryObjectMap, LID_KEY, registryObject.getLid());
+        webMapHelper.putIfNotEmpty(registryObjectMap, NAME_KEY, registryObject.getName());
+        webMapHelper.putIfNotEmpty(registryObjectMap,
+                OBJECT_TYPE_KEY,
+                registryObject.getObjectType());
 
         if (registryObject.isSetSlot()) {
             List<Map<String, Object>> slots = new ArrayList<>();
@@ -160,22 +140,13 @@ public class RegistryObjectWebConverter {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(slots)) {
-                registryObjectMap.put(SLOT, slots);
-            }
+            webMapHelper.putIfNotEmpty(registryObjectMap, SLOT, slots);
         }
 
-        if (registryObject.isSetStatus()) {
-            registryObjectMap.put(STATUS_KEY, registryObject.getStatus());
-        }
-
-        if (registryObject.isSetVersionInfo()) {
-            String versionName = registryObject.getVersionInfo()
-                    .getVersionName();
-            if (StringUtils.isNotBlank(versionName)) {
-                registryObjectMap.put(VERSION_INFO_KEY, versionName);
-            }
-        }
+        webMapHelper.putIfNotEmpty(registryObjectMap, STATUS_KEY, registryObject.getStatus());
+        webMapHelper.putIfNotEmpty(registryObjectMap,
+                VERSION_INFO_KEY,
+                registryObject.getVersionInfo());
 
         return registryObjectMap;
     }

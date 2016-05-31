@@ -16,7 +16,7 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 
@@ -26,6 +26,8 @@ public class ExternalIdentifierWebConverter extends RegistryObjectWebConverter {
     public static final String REGISTRY_OBJECT = "registryObject";
 
     public static final String VALUE = "value";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the ExternalIdentifierType provided.
@@ -46,23 +48,15 @@ public class ExternalIdentifierWebConverter extends RegistryObjectWebConverter {
             return externalIdentifierMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(externalIdentifier);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            externalIdentifierMap.putAll(registryObjectMap);
-        }
-
-        if (externalIdentifier.isSetIdentificationScheme()) {
-            externalIdentifierMap.put(IDENTIFICATION_SCHEME,
-                    externalIdentifier.getIdentificationScheme());
-        }
-
-        if (externalIdentifier.isSetRegistryObject()) {
-            externalIdentifierMap.put(REGISTRY_OBJECT, externalIdentifier.getRegistryObject());
-        }
-
-        if (externalIdentifier.isSetValue()) {
-            externalIdentifierMap.put(VALUE, externalIdentifier.getValue());
-        }
+        webMapHelper.putAllIfNotEmpty(externalIdentifierMap,
+                super.convertRegistryObject(externalIdentifier));
+        webMapHelper.putIfNotEmpty(externalIdentifierMap,
+                IDENTIFICATION_SCHEME,
+                externalIdentifier.getIdentificationScheme());
+        webMapHelper.putIfNotEmpty(externalIdentifierMap,
+                REGISTRY_OBJECT,
+                externalIdentifier.getRegistryObject());
+        webMapHelper.putIfNotEmpty(externalIdentifierMap, VALUE, externalIdentifier.getValue());
 
         return externalIdentifierMap;
     }

@@ -16,7 +16,7 @@ package org.codice.ddf.registry.schemabindings.converter.web;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
 
@@ -26,6 +26,8 @@ public class AssociationWebConverter extends RegistryObjectWebConverter {
     public static final String SOURCE_OBJECT = "sourceObject";
 
     public static final String TARGET_OBJECT = "targetObject";
+
+    private WebMapHelper webMapHelper = new WebMapHelper();
 
     /**
      * This method creates a Map<String, Object> representation of the AssociationType1 provided.
@@ -46,22 +48,12 @@ public class AssociationWebConverter extends RegistryObjectWebConverter {
             return associationMap;
         }
 
-        Map<String, Object> registryObjectMap = super.convertRegistryObject(association);
-        if (MapUtils.isNotEmpty(registryObjectMap)) {
-            associationMap.putAll(registryObjectMap);
-        }
-
-        if (association.isSetAssociationType()) {
-            associationMap.put(ASSOCIATION_TYPE, association.getAssociationType());
-        }
-
-        if (association.isSetSourceObject()) {
-            associationMap.put(SOURCE_OBJECT, association.getSourceObject());
-        }
-
-        if (association.isSetTargetObject()) {
-            associationMap.put(TARGET_OBJECT, association.getTargetObject());
-        }
+        webMapHelper.putAllIfNotEmpty(associationMap, super.convertRegistryObject(association));
+        webMapHelper.putIfNotEmpty(associationMap,
+                ASSOCIATION_TYPE,
+                association.getAssociationType());
+        webMapHelper.putIfNotEmpty(associationMap, SOURCE_OBJECT, association.getSourceObject());
+        webMapHelper.putIfNotEmpty(associationMap, TARGET_OBJECT, association.getTargetObject());
 
         return associationMap;
     }
