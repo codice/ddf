@@ -11,32 +11,26 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-
 package ddf.catalog.data;
 
 /**
- *
  * Qualified and uniquely identified set of {@link AttributeDescriptor}s used to specify and
  * describe the valid {@link Attribute}s on a {@link Metacard}.
- *
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  * </p>
- *
  */
 public interface QualifiedMetacardType extends MetacardType {
-
     /**
      * Default {@link MetacardType} namespace. This is used if no namespace is defined on
      * construction.
      */
-    public static final String DEFAULT_METACARD_TYPE_NAMESPACE = "";
+    String DEFAULT_METACARD_TYPE_NAMESPACE = "";
 
     /**
-     *
      * @return namespace that qualifies the {@link MetacardType} name. If no namespace was specified
-     *         on construction, then the default namespace must be returned.
+     * on construction, then the default namespace must be returned.
      */
-    public String getNamespace();
+    String getNamespace();
 }

@@ -21,15 +21,10 @@ import ddf.catalog.data.QualifiedMetacardType;
 
 /**
  * Default implementation of the QualifiedMetacardType.
- *
  * <p>
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  * </p>
- *
- * @author Ian Barnett
- * @author ddf.isgs@lmco.com
- *
  */
 public class QualifiedMetacardTypeImpl extends MetacardTypeImpl implements QualifiedMetacardType {
 
@@ -63,36 +58,23 @@ public class QualifiedMetacardTypeImpl extends MetacardTypeImpl implements Quali
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        // TODO (jrnorth) - is it appropriate to define hashCode() and equals() this way so that qualified
+        // metacard types without namespaces can be considered equivalent to regular metacard types?
+        // TODO (jrnorth) - are qualified metacard types even necessary?
         int result = super.hashCode();
-        result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
+        if (!namespace.isEmpty()) {
+            result = result * 31 + namespace.hashCode();
+        }
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
-            return false;
+    public boolean equals(Object other) {
+        final boolean superEquals = super.equals(other);
+        if (superEquals && other instanceof QualifiedMetacardType) {
+            return namespace.equals(((QualifiedMetacardType) other).getNamespace());
+        } else {
+            return superEquals;
         }
-
-        if (!(obj instanceof MetacardType)) {
-            return false;
-        }
-
-        if (obj instanceof QualifiedMetacardType) {
-            QualifiedMetacardTypeImpl other = (QualifiedMetacardTypeImpl) obj;
-
-            if (namespace == null) {
-                if (other.namespace != null) {
-                    return false;
-                }
-            } else if (!namespace.equals(other.namespace)) {
-                return false;
-            }
-
-        }
-
-        return true;
     }
-
 }

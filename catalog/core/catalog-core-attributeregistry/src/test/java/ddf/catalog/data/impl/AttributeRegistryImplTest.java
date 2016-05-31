@@ -13,6 +13,9 @@
  */
 package ddf.catalog.data.impl;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -40,9 +43,9 @@ public class AttributeRegistryImplTest {
                 true,
                 false,
                 BasicTypes.STRING_TYPE);
-        assertThat(registry.registerAttribute(descriptor), is(true));
+        assertThat(registry.register(descriptor), is(true));
 
-        final Optional<AttributeDescriptor> descriptorOptional = registry.getAttributeDescriptor(
+        final Optional<AttributeDescriptor> descriptorOptional = registry.lookup(
                 "test");
         assertThat(descriptorOptional.isPresent(), is(true));
         assertThat(descriptorOptional.get(), is(descriptor));
@@ -56,13 +59,13 @@ public class AttributeRegistryImplTest {
                 true,
                 false,
                 BasicTypes.STRING_TYPE);
-        assertThat(registry.registerAttribute(descriptor), is(true));
+        assertThat(registry.register(descriptor), is(true));
 
-        Optional<AttributeDescriptor> descriptorOptional = registry.getAttributeDescriptor("test");
+        Optional<AttributeDescriptor> descriptorOptional = registry.lookup("test");
         assertThat(descriptorOptional.isPresent(), is(true));
 
-        registry.deregisterAttribute("test");
-        descriptorOptional = registry.getAttributeDescriptor("test");
+        registry.deregister("test");
+        descriptorOptional = registry.lookup("test");
         assertThat(descriptorOptional.isPresent(), is(false));
     }
 
@@ -74,7 +77,7 @@ public class AttributeRegistryImplTest {
                 true,
                 true,
                 BasicTypes.STRING_TYPE);
-        assertThat(registry.registerAttribute(descriptor1), is(true));
+        assertThat(registry.register(descriptor1), is(true));
 
         final AttributeDescriptor descriptor2 = new AttributeDescriptorImpl("test",
                 false,
@@ -82,9 +85,9 @@ public class AttributeRegistryImplTest {
                 false,
                 false,
                 BasicTypes.BINARY_TYPE);
-        assertThat(registry.registerAttribute(descriptor2), is(false));
+        assertThat(registry.register(descriptor2), is(false));
 
-        final Optional<AttributeDescriptor> descriptorOptional = registry.getAttributeDescriptor(
+        final Optional<AttributeDescriptor> descriptorOptional = registry.lookup(
                 "test");
         assertThat(descriptorOptional.isPresent(), is(true));
         assertThat(descriptorOptional.get(), is(descriptor1));
@@ -92,7 +95,7 @@ public class AttributeRegistryImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullAttributeDescriptor() {
-        registry.registerAttribute(null);
+        registry.register(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -103,6 +106,44 @@ public class AttributeRegistryImplTest {
                 true,
                 false,
                 BasicTypes.STRING_TYPE);
-        registry.registerAttribute(descriptor);
+        registry.register(descriptor);
+    }
+
+    @Test
+    public void testMarkGlobalAttributes() {
+        final AttributeDescriptor descriptor1 = new AttributeDescriptorImpl("test1",
+                true,
+                true,
+                true,
+                true,
+                BasicTypes.STRING_TYPE);
+
+        final AttributeDescriptor descriptor2 = new AttributeDescriptorImpl("test2",
+                true,
+                true,
+                true,
+                true,
+                BasicTypes.STRING_TYPE);
+
+        registry.register(descriptor1);
+        registry.register(descriptor2);
+
+        assertThat(registry.globalize(descriptor1.getName()), is(true));
+        assertThat(registry.globalize(descriptor2.getName()), is(true));
+
+        assertThat(registry.getGlobalAttributes(), containsInAnyOrder(descriptor1, descriptor2));
+
+        registry.deglobalize(descriptor1.getName());
+
+        assertThat(registry.getGlobalAttributes(), contains(descriptor2));
+
+        registry.deglobalize(descriptor2.getName());
+
+        assertThat(registry.getGlobalAttributes(), is(empty()));
+    }
+
+    @Test
+    public void testMarkGlobalUnregisteredAttribute() {
+        assertThat(registry.globalize("unregistered"), is(false));
     }
 }

@@ -16,6 +16,7 @@ package ddf.catalog.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.temporal.object.DefaultInstant;
@@ -41,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
@@ -90,6 +93,11 @@ public class CatalogFrameworkQueryTest {
         props.setSourcePoller(mockPoller);
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
+
+        MetacardTypeRegistry metacardTypeRegistry = mock(MetacardTypeRegistry.class);
+        when(metacardTypeRegistry.lookup(anyString())).thenReturn(Optional.empty());
+        props.setMetacardTypeRegistry(metacardTypeRegistry);
+
         framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
     }

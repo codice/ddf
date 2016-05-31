@@ -14,11 +14,12 @@
 package ddf.catalog.transform.xml;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
-import java.util.Map;
+import java.util.HashMap;
+import java.util.Optional;
 
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
@@ -30,8 +31,10 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardTypeRegistry;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.api.MetacardMarshaller;
 import ddf.catalog.transformer.xml.MetacardMarshallerImpl;
@@ -43,13 +46,16 @@ public class IntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTest.class);
 
-    private Map<String, Serializable> mockArguments = mock(Map.class);
-
     @Test
     public void testInputAndOutput() throws CatalogTransformerException, IOException {
         Parser parser = new XmlParser();
 
-        InputTransformer inputTransformer = new XmlInputTransformer(parser);
+        XmlInputTransformer inputTransformer = new XmlInputTransformer(parser);
+
+        MetacardTypeRegistry registry = mock(MetacardTypeRegistry.class);
+        when(registry.lookup("extensible.metacard")).thenReturn(Optional.of(new QualifiedMetacardTypeImpl(
+                BasicTypes.BASIC_METACARD)));
+        inputTransformer.setMetacardTypeRegistry(registry);
 
         MetacardMarshaller metacardMarshaller = new MetacardMarshallerImpl(parser,
                 new PrintWriterProviderImpl());
@@ -67,7 +73,7 @@ public class IntegrationTest {
                     attribute.getValue()));
         }
 
-        BinaryContent output = outputTransformer.transform(metacard, mockArguments);
+        BinaryContent output = outputTransformer.transform(metacard, new HashMap<>());
         String outputString = new String(output.getByteArray());
 
         // TODO test equivalence with XMLUnit.

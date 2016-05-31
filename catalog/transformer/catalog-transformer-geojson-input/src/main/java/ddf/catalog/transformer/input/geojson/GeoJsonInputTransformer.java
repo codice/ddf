@@ -25,6 +25,7 @@ import java.util.TimeZone;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.StringUtils;
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
 import org.slf4j.Logger;
@@ -34,6 +35,8 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.MetacardTypeRegistry;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -42,7 +45,6 @@ import ddf.geo.formatter.CompositeGeometry;
 /**
  * Converts standard GeoJSON (geojson.org) into a Metacard. The limitation on the GeoJSON is that it
  * must conform to the {@link ddf.catalog.data.impl.BasicTypes#BASIC_METACARD} {@link MetacardType}.
- *
  */
 public class GeoJsonInputTransformer implements InputTransformer {
 
@@ -60,7 +62,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonInputTransformer.class);
 
-    private List<MetacardType> metacardTypes;
+    private MetacardTypeRegistry metacardTypeRegistry;
 
     /**
      * Transforms GeoJson (http://www.geojson.org/) into a {@link Metacard}
@@ -68,6 +70,14 @@ public class GeoJsonInputTransformer implements InputTransformer {
     @Override
     public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
         return transform(input, null);
+    }
+
+    private MetacardType lookupMetacardType(String metacardTypeName)
+            throws CatalogTransformerException {
+        return metacardTypeRegistry.lookup(metacardTypeName)
+                .orElseThrow(() -> new CatalogTransformerException(
+                        "MetacardType [" + metacardTypeName
+                                + "] has not been registered with the system. Cannot parse input."));
     }
 
     @Override
@@ -95,26 +105,18 @@ public class GeoJsonInputTransformer implements InputTransformer {
         }
 
         final String propertyTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
-        MetacardImpl metacard = null;
+        final MetacardType metacardType;
 
-        if (propertyTypeName == null || propertyTypeName.isEmpty() || metacardTypes == null) {
+        if (StringUtils.isEmpty(propertyTypeName)) {
             LOGGER.debug(
-                    "MetacardType specified in input is null or empty.  Assuming default MetacardType");
-            metacard = new MetacardImpl();
+                    "MetacardType specified in input is null or empty. Assuming default MetacardType");
+            metacardType = lookupMetacardType(BasicTypes.BASIC_METACARD.getName());
         } else {
-            MetacardType metacardType = metacardTypes.stream()
-                    .filter(type -> type.getName()
-                            .equals(propertyTypeName))
-                    .findFirst()
-                    .orElseThrow(() -> new CatalogTransformerException(
-                            "MetacardType specified in input has not been registered with the system.  Cannot parse input.  MetacardType name: "
-                                    + propertyTypeName));
-
-            LOGGER.debug("Found registered MetacardType: {}", propertyTypeName);
-            metacard = new MetacardImpl(metacardType);
+            metacardType = lookupMetacardType(propertyTypeName);
         }
 
-        MetacardType metacardType = metacard.getMetacardType();
+        MetacardImpl metacard = new MetacardImpl(metacardType);
+
         String metacardTypeName = metacardType.getName();
         LOGGER.debug("Metacard type name: {}", metacardType.getName());
 
@@ -124,8 +126,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
         CompositeGeometry geoJsonGeometry = null;
         if (geometryJson != null) {
             if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null && (geometryJson.get(
-                    CompositeGeometry.COORDINATES_KEY) != null || geometryJson.get(
-                    CompositeGeometry.GEOMETRIES_KEY) != null)) {
+                    CompositeGeometry.COORDINATES_KEY) != null
+                    || geometryJson.get(CompositeGeometry.GEOMETRIES_KEY) != null)) {
 
                 String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY)
                         .toString();
@@ -188,8 +190,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
         return metacard;
     }
 
-    public void setMetacardTypes(List<MetacardType> metacardTypes) {
-        this.metacardTypes = metacardTypes;
+    public void setMetacardTypeRegistry(MetacardTypeRegistry metacardTypeRegistry) {
+        this.metacardTypeRegistry = metacardTypeRegistry;
     }
 
     @Override

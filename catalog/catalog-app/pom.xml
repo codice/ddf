@@ -450,7 +450,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-attribute-registry</artifactId>
+            <artifactId>catalog-core-attributeregistry</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -34,6 +34,7 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -90,19 +91,24 @@ import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeRegistryImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
@@ -202,6 +208,8 @@ public class CatalogFrameworkImplTest {
     List<FederatedSource> federatedSources;
 
     DefaultAttributeValueRegistry registry;
+
+    AttributeRegistry attributeRegistry;
 
     @Rule
     public MethodRule watchman = new TestWatchman() {
@@ -315,6 +323,11 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
         frameworkProperties.setValidationQueryFactory(new ValidationQueryFactory(new GeotoolsFilterAdapterImpl(),
                 new GeotoolsFilterBuilder()));
+
+        attributeRegistry = new AttributeRegistryImpl();
+        MetacardTypeRegistry metacardTypeRegistry = new MetacardTypeRegistryImpl(attributeRegistry);
+        frameworkProperties.setMetacardTypeRegistry(metacardTypeRegistry);
+
         Map<String, FederatedSource> federatedSourceMap = new HashMap<>();
         if (federatedSources != null) {
             for (FederatedSource source : federatedSources) {
@@ -377,7 +390,42 @@ public class CatalogFrameworkImplTest {
                 .toArray(array);
         assertTrue(eventAdmin.wasEventPosted());
         assertEquals(eventAdmin.getLastEvent(), array[array.length - 1]);
+    }
 
+    @Test
+    public void testAddsMixinsToCreate() throws Exception {
+        final String title = "Create";
+        final Date created = new Date();
+        final MetacardImpl originalMetacard = new MetacardImpl(BASIC_METACARD);
+        originalMetacard.setTitle(title);
+        originalMetacard.setCreatedDate(created);
+        final List<Metacard> metacards = Collections.singletonList(originalMetacard);
+        final CreateRequest request = new CreateRequestImpl(metacards, null);
+
+        final AttributeDescriptor mixinAttribute = new AttributeDescriptorImpl("new attribute",
+                true,
+                true,
+                false,
+                false,
+                BasicTypes.DOUBLE_TYPE);
+        attributeRegistry.register(mixinAttribute);
+        attributeRegistry.globalize(mixinAttribute.getName());
+
+        final CreateResponse response = framework.create(request);
+
+        final Metacard createdMetacard = response.getCreatedMetacards()
+                .get(0);
+        final MetacardType createdMetacardType = createdMetacard.getMetacardType();
+        final MetacardType originalMetacardType = originalMetacard.getMetacardType();
+        assertThat(createdMetacardType.getName(), is(originalMetacardType.getName()));
+
+        final Set<AttributeDescriptor> expectedAttributeDescriptors = new HashSet<>(
+                originalMetacardType.getAttributeDescriptors());
+        expectedAttributeDescriptors.add(mixinAttribute);
+        assertThat(createdMetacardType.getAttributeDescriptors(), is(expectedAttributeDescriptors));
+
+        assertThat(createdMetacard.getTitle(), is(title));
+        assertThat(createdMetacard.getCreatedDate(), is(created));
     }
 
     private void registerDefaults() {
@@ -672,9 +720,10 @@ public class CatalogFrameworkImplTest {
 
         // make sure that the event was posted correctly
         assertTrue(eventAdmin.wasEventPosted());
-        assertEquals(eventAdmin.getLastEvent(),
-                returnedCards.get(returnedCards.size() - 1)
-                        .getOldMetacard());
+        assertEquals(eventAdmin.getLastEvent()
+                .getId(), returnedCards.get(returnedCards.size() - 1)
+                .getOldMetacard()
+                .getId());
 
     }
 
@@ -712,6 +761,49 @@ public class CatalogFrameworkImplTest {
                 DEFAULT_EXPIRATION,
                 DEFAULT_TITLE_CUSTOM,
                 DEFAULT_EXPIRATION_CUSTOM);
+    }
+
+    @Test
+    public void testAddsMixinsToUpdate() throws Exception {
+        final String id =
+                provider.create(new CreateRequestImpl(Collections.singletonList(new MetacardImpl()),
+                        null))
+                        .getCreatedMetacards()
+                        .get(0)
+                        .getId();
+        final String title = "Update";
+        final Date modified = new Date();
+        final MetacardImpl metacard = new MetacardImpl();
+        metacard.setId(id);
+        metacard.setTitle(title);
+        metacard.setModifiedDate(modified);
+        final UpdateRequest request = new UpdateRequestImpl(id, metacard);
+
+        final AttributeDescriptor mixinAttribute = new AttributeDescriptorImpl("new attribute",
+                true,
+                true,
+                false,
+                false,
+                BasicTypes.DOUBLE_TYPE);
+        attributeRegistry.register(mixinAttribute);
+        attributeRegistry.globalize(mixinAttribute.getName());
+
+        final UpdateResponse response = framework.update(request);
+
+        final Metacard updatedMetacard = response.getUpdatedMetacards()
+                .get(0)
+                .getNewMetacard();
+        final MetacardType originalMetacardType = metacard.getMetacardType();
+        final MetacardType updatedMetacardType = updatedMetacard.getMetacardType();
+        assertThat(updatedMetacardType.getName(), is(originalMetacardType.getName()));
+
+        final Set<AttributeDescriptor> expectedAttributeDescriptors = new HashSet<>(
+                originalMetacardType.getAttributeDescriptors());
+        expectedAttributeDescriptors.add(mixinAttribute);
+        assertThat(updatedMetacardType.getAttributeDescriptors(), is(expectedAttributeDescriptors));
+
+        assertThat(updatedMetacard.getTitle(), is(title));
+        assertThat(updatedMetacard.getModifiedDate(), is(modified));
     }
 
     /**
@@ -825,9 +917,10 @@ public class CatalogFrameworkImplTest {
 
         // make sure that the event was posted correctly
         assertTrue(eventAdmin.wasEventPosted());
-        assertEquals(eventAdmin.getLastEvent(),
-                returnedCards.get(returnedCards.size() - 1)
-                        .getOldMetacard());
+        assertEquals(eventAdmin.getLastEvent()
+                .getId(), returnedCards.get(returnedCards.size() - 1)
+                .getOldMetacard()
+                .getId());
     }
 
     /**
@@ -1004,6 +1097,50 @@ public class CatalogFrameworkImplTest {
     @Test
     public void testFederateQueryWithFrameworkName() {
         // TODO create
+    }
+
+    @Test
+    public void testAddsMixinsToQuery() throws Exception {
+        final String title = "Foo";
+        final Date modified = new Date();
+        final MetacardImpl metacard = new MetacardImpl();
+        metacard.setTitle(title);
+        metacard.setModifiedDate(modified);
+
+        final String id = provider.create(new CreateRequestImpl(Collections.singletonList(metacard),
+                null))
+                .getCreatedMetacards()
+                .get(0)
+                .getId();
+
+        final AttributeDescriptor mixinAttribute = new AttributeDescriptorImpl("new attribute",
+                true,
+                true,
+                false,
+                false,
+                BasicTypes.DOUBLE_TYPE);
+        attributeRegistry.register(mixinAttribute);
+        attributeRegistry.globalize(mixinAttribute.getName());
+
+        final FilterFactory filterFactory = new FilterFactoryImpl();
+        final Filter filter = filterFactory.equals(filterFactory.property(Metacard.ID),
+                filterFactory.literal(id));
+
+        final QueryRequest request = new QueryRequestImpl(new QueryImpl(filter));
+
+        final QueryResponse response = framework.query(request);
+
+        final Metacard queryMetacard = response.getResults()
+                .get(0)
+                .getMetacard();
+        final MetacardType originalMetacardType = metacard.getMetacardType();
+        final MetacardType queryMetacardType = queryMetacard.getMetacardType();
+        assertThat(originalMetacardType.getName(), is(queryMetacardType.getName()));
+
+        final Set<AttributeDescriptor> expectedAttributeDescriptors = new HashSet<>(
+                originalMetacardType.getAttributeDescriptors());
+        expectedAttributeDescriptors.add(mixinAttribute);
+        assertThat(queryMetacardType.getAttributeDescriptors(), is(expectedAttributeDescriptors));
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -1961,12 +2098,11 @@ public class CatalogFrameworkImplTest {
         SourcePoller mockPoller = mock(SourcePoller.class);
         when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
-        Metacard metacard = mock(Metacard.class);
-        when(metacard.getId()).thenReturn(metacardId);
-        when(metacard.getResourceURI()).thenReturn(metacardUri);
-        Result result = mock(Result.class);
-        when(result.getMetacard()).thenReturn(metacard);
-        List<Result> results = new ArrayList<Result>();
+        MetacardImpl metacard = new MetacardImpl(BASIC_METACARD);
+        metacard.setId(metacardId);
+        metacard.setResourceURI(metacardUri);
+        Result result = new ResultImpl(metacard);
+        List<Result> results = new ArrayList<>();
         results.add(result);
 
         QueryResponse queryResponse = mock(QueryResponse.class);
@@ -1991,6 +2127,11 @@ public class CatalogFrameworkImplTest {
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setSourcePoller(mockPoller);
         props.setFilterBuilder(new GeotoolsFilterBuilder());
+
+        attributeRegistry = new AttributeRegistryImpl();
+        MetacardTypeRegistry metacardTypeRegistry = new MetacardTypeRegistryImpl(attributeRegistry);
+        props.setMetacardTypeRegistry(metacardTypeRegistry);
+
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
         framework.setId("ddf");
@@ -2058,12 +2199,11 @@ public class CatalogFrameworkImplTest {
         SourcePoller mockPoller = mock(SourcePoller.class);
         when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
-        Metacard metacard = mock(Metacard.class);
-        when(metacard.getId()).thenReturn(metacardId);
-        when(metacard.getResourceURI()).thenReturn(metacardUri);
-        Result result = mock(Result.class);
-        when(result.getMetacard()).thenReturn(metacard);
-        List<Result> results = new ArrayList<Result>();
+        MetacardImpl metacard = new MetacardImpl(BASIC_METACARD);
+        metacard.setId(metacardId);
+        metacard.setResourceURI(metacardUri);
+        Result result = new ResultImpl(metacard);
+        List<Result> results = new ArrayList<>();
         results.add(result);
 
         QueryResponse queryResponse = mock(QueryResponse.class);
@@ -2094,6 +2234,10 @@ public class CatalogFrameworkImplTest {
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setSourcePoller(mockPoller);
         props.setResourceCache(resourceCache);
+
+        attributeRegistry = new AttributeRegistryImpl();
+        MetacardTypeRegistry metacardTypeRegistry = new MetacardTypeRegistryImpl(attributeRegistry);
+        props.setMetacardTypeRegistry(metacardTypeRegistry);
 
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
@@ -2630,6 +2774,10 @@ public class CatalogFrameworkImplTest {
         registry = new DefaultAttributeValueRegistryImpl();
         frameworkProperties.setDefaultAttributeValueRegistry(registry);
 
+        attributeRegistry = new AttributeRegistryImpl();
+        MetacardTypeRegistry metacardTypeRegistry = new MetacardTypeRegistryImpl(attributeRegistry);
+        frameworkProperties.setMetacardTypeRegistry(metacardTypeRegistry);
+
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.bind(provider);
         framework.bind(storageProvider);
@@ -2663,6 +2811,10 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setBundleContext(context);
         registry = new DefaultAttributeValueRegistryImpl();
         frameworkProperties.setDefaultAttributeValueRegistry(registry);
+
+        attributeRegistry = new AttributeRegistryImpl();
+        MetacardTypeRegistry metacardTypeRegistry = new MetacardTypeRegistryImpl(attributeRegistry);
+        frameworkProperties.setMetacardTypeRegistry(metacardTypeRegistry);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.bind(provider);

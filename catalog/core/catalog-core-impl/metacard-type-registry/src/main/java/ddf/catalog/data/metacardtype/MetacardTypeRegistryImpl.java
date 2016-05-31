@@ -11,118 +11,139 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-
 package ddf.catalog.data.metacardtype;
+
+import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang.Validate.notNull;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.MetacardTypeRegistry;
-import ddf.catalog.data.MetacardTypeUnregistrationException;
 import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
 
 /**
- * Default implementation of the MetacardTypeRegistry.
- *
+ * Default implementation of the {@link MetacardTypeRegistry} that automatically manages
+ * {@link MetacardType}s that are registered as OSGi services.
+ * <p>
+ * For lookup operations ({@link #lookup(String)} and {@link #lookup(String, String)}), this
+ * implementation doesn't return the exact {@link QualifiedMetacardType} objects that were
+ * registered. Instead, it returns a new {@link QualifiedMetacardType} with the same name and
+ * namespace as the original but with a set of {@link AttributeDescriptor}s containing those of the
+ * original plus any that are marked as global in the {@link AttributeRegistry}.
  * <p>
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  * </p>
- *
  */
 public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTypeRegistryImpl.class);
 
-    private Set<QualifiedMetacardType> registeredMetacardTypes;
+    private final AttributeRegistry attributeRegistry;
 
-    private MetacardTypeRegistryImpl() {
-        this.registeredMetacardTypes = new CopyOnWriteArraySet<QualifiedMetacardType>();
+    private final Set<QualifiedMetacardType> registeredMetacardTypes;
+
+    public MetacardTypeRegistryImpl(AttributeRegistry attributeRegistry) {
+        this.attributeRegistry = attributeRegistry;
+        registeredMetacardTypes = new CopyOnWriteArraySet<>();
+        // TODO (jrnorth) - should this be registered automatically like this?
         register(new QualifiedMetacardTypeImpl(BasicTypes.BASIC_METACARD));
     }
 
-    public static MetacardTypeRegistry getInstance() {
-        return new MetacardTypeRegistryImpl();
+    private BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(getClass())
+                .getBundleContext();
+    }
+
+    public void bind(ServiceReference<MetacardType> serviceReference) {
+        LOGGER.info("New service registered [{}]", serviceReference);
+
+        MetacardType metacardType = getBundleContext().getService(serviceReference);
+
+        register(new QualifiedMetacardTypeImpl(metacardType));
+    }
+
+    public void unbind(ServiceReference<MetacardType> serviceReference) {
+        LOGGER.info("Service deregistered [{}]", serviceReference);
+
+        MetacardType metacardType = getBundleContext().getService(serviceReference);
+
+        unregister(new QualifiedMetacardTypeImpl(metacardType));
     }
 
     @Override
-    public void register(QualifiedMetacardType qualifiedMetacardType)
-            throws IllegalArgumentException {
+    public void register(QualifiedMetacardType qualifiedMetacardType) {
         validateInput(qualifiedMetacardType);
 
         registeredMetacardTypes.add(qualifiedMetacardType);
     }
 
     @Override
-    public QualifiedMetacardType lookup(String namespace, String metacardTypeName)
-            throws IllegalArgumentException {
-
+    public Optional<QualifiedMetacardType> lookup(String namespace, String metacardTypeName) {
         validateInput(namespace, metacardTypeName);
 
         for (QualifiedMetacardType qmt : registeredMetacardTypes) {
             String currName = qmt.getName();
             String currNamespace = qmt.getNamespace();
             if (metacardTypeName.equals(currName) && namespace.equals(currNamespace)) {
-                return qmt;
+                return Optional.of(addMixins(qmt));
             }
         }
         LOGGER.debug("No registered MetacardType with namespace: {} and name: {}",
                 namespace,
                 metacardTypeName);
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public QualifiedMetacardType lookup(String metacardTypeName) throws IllegalArgumentException {
+    public Optional<QualifiedMetacardType> lookup(String metacardTypeName) {
         return lookup(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE, metacardTypeName);
     }
 
     @Override
-    public void unregister(QualifiedMetacardType qualifiedMetacardType)
-            throws IllegalArgumentException, MetacardTypeUnregistrationException {
-
+    public void unregister(QualifiedMetacardType qualifiedMetacardType) {
         validateInput(qualifiedMetacardType);
 
-        boolean removedSuccessfully = registeredMetacardTypes.remove(qualifiedMetacardType);
-
-        if (!removedSuccessfully) {
-            String message = "Unable to unregister specified MetacardType.";
-            throw new MetacardTypeUnregistrationException(message);
-        }
-        LOGGER.debug("Successfully unregistered MetacardType.");
+        registeredMetacardTypes.remove(qualifiedMetacardType);
     }
 
     @Override
     public Set<QualifiedMetacardType> getRegisteredTypes() {
-        return Collections.unmodifiableSet(new HashSet<QualifiedMetacardType>(
-                registeredMetacardTypes));
+        return Collections.unmodifiableSet(registeredMetacardTypes);
     }
 
     private void validateInput(QualifiedMetacardType qmt) {
-        if (qmt == null) {
-            String message = "QualifiedMetacardType passed in cannot be null.";
-            throw new IllegalArgumentException(message);
-        }
-
+        notNull(qmt, "The qualified metacard type cannot be null.");
         validateInput(qmt.getNamespace(), qmt.getName());
     }
 
     private void validateInput(String namespace, String metacardTypeName) {
-        if (namespace == null) {
-            String message = "Namespace parameter cannot be null.";
-            throw new IllegalArgumentException(message);
-        }
+        notNull(namespace, "The namespace cannot be null.");
+        notEmpty(metacardTypeName, "The metacard type name cannot be null or empty.");
+    }
 
-        if (metacardTypeName == null || metacardTypeName.isEmpty()) {
-            String message = "MetacardTypeName parameter cannot be null or empty.";
-            throw new IllegalArgumentException(message);
-        }
+    private QualifiedMetacardType addMixins(QualifiedMetacardType metacardType) {
+        Set<AttributeDescriptor> attributesWithMixins =
+                new HashSet<>(metacardType.getAttributeDescriptors());
+
+        attributesWithMixins.addAll(attributeRegistry.getGlobalAttributes());
+
+        return new QualifiedMetacardTypeImpl(metacardType.getNamespace(),
+                metacardType.getName(),
+                attributesWithMixins);
     }
 }

@@ -15,7 +15,6 @@ package ddf.catalog.transformer.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import javax.xml.bind.helpers.DefaultValidationEventHandler;
 
@@ -27,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -40,7 +39,7 @@ public class XmlInputTransformer extends AbstractXmlTransformer implements Input
     private static final String FAILED_TRANSFORMATION =
             "Failed Transformation.  Could not create Metacard from XML.";
 
-    private List<MetacardType> metacardTypes;
+    private MetacardTypeRegistry metacardTypeRegistry;
 
     public XmlInputTransformer(Parser parser) {
         super(parser);
@@ -60,7 +59,7 @@ public class XmlInputTransformer extends AbstractXmlTransformer implements Input
     private Metacard testXform(InputStream input, String id)
             throws IOException, CatalogTransformerException {
         ParserConfigurator parserConfigurator =
-                getParserConfigurator().setAdapter(new MetacardTypeAdapter(metacardTypes))
+                getParserConfigurator().setAdapter(new MetacardTypeAdapter(metacardTypeRegistry))
                         .setHandler(new DefaultValidationEventHandler());
 
         try {
@@ -81,11 +80,7 @@ public class XmlInputTransformer extends AbstractXmlTransformer implements Input
         }
     }
 
-    /**
-     * @param metacardTypes the metacardTypes to set
-     */
-    public void setMetacardTypes(List<MetacardType> metacardTypes) {
-        this.metacardTypes = metacardTypes;
+    public void setMetacardTypeRegistry(MetacardTypeRegistry registry) {
+        this.metacardTypeRegistry = registry;
     }
-
 }

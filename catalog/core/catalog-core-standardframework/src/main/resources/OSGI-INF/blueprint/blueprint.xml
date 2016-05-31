@@ -250,6 +250,8 @@
         <argument ref="filterBuilder"/>
     </bean>
 
+    <reference id="metacardTypeRegistry" interface="ddf.catalog.data.MetacardTypeRegistry"/>
+
     <bean id="federationStrategy" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
           destroy-method="shutdown">
         <cm:managed-properties
@@ -366,6 +368,7 @@
                 <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
                 <property name="validationQueryFactory" ref="validationQueryFactory"/>
                 <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
+                <property name="metacardTypeRegistry" ref="metacardTypeRegistry"/>
             </bean>
         </argument>
         <property name="masker" ref="sourceListener"/>

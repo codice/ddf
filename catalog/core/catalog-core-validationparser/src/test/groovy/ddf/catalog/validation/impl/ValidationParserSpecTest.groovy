@@ -97,8 +97,8 @@ class ValidationParserSpecTest extends Specification {
         validationParser.install(file)
 
         then:
-        attributeRegistry.getAttributeDescriptor("cool-attribute").isPresent()
-        attributeRegistry.getAttributeDescriptor("geospatial-goodness").isPresent()
+        attributeRegistry.lookup("cool-attribute").isPresent()
+        attributeRegistry.lookup("geospatial-goodness").isPresent()
 
         def validators = attributeValidatorRegistry.getValidators("cool-attribute")
         validators.size() == 2
@@ -167,7 +167,7 @@ class ValidationParserSpecTest extends Specification {
 
         then:
         thrown(IllegalArgumentException)
-        attributeRegistry.getAttributeDescriptor("cool-attribute").isPresent()
+        attributeRegistry.lookup("cool-attribute").isPresent()
         attributeValidatorRegistry.getValidators("cool-attribute").size() == 0
     }
 
