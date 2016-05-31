@@ -37,7 +37,7 @@ public class MapToSchemaElement<T> {
     }
 
     public Optional<T> populateBooleanElement(Map<String, Object> map, String mapKey,
-            final Optional<T> referenceElement, BiConsumer<Boolean, Optional<T>> updater) {
+            final Optional<T> referenceElement, BiConsumer<Boolean, T> updater) {
         Optional<T> elementToPopulate = Optional.empty();
         if (referenceElement.isPresent()) {
             elementToPopulate = Optional.of(referenceElement.get());
@@ -49,14 +49,14 @@ public class MapToSchemaElement<T> {
                 elementToPopulate = Optional.of(objectFactory.get());
             }
 
-            updater.accept(booleanToPopulate, elementToPopulate);
+            updater.accept(booleanToPopulate, elementToPopulate.get());
         }
 
         return elementToPopulate;
     }
 
     public Optional<T> populateStringElement(Map<String, Object> map, String mapKey,
-            final Optional<T> referenceElement, BiConsumer<String, Optional<T>> updater) {
+            final Optional<T> referenceElement, BiConsumer<String, T> updater) {
         Optional<T> elementToPopulate = Optional.empty();
         if (referenceElement.isPresent()) {
             elementToPopulate = Optional.of(referenceElement.get());
@@ -68,14 +68,14 @@ public class MapToSchemaElement<T> {
                 elementToPopulate = Optional.of(objectFactory.get());
             }
 
-            updater.accept(valueToPopulate, elementToPopulate);
+            updater.accept(valueToPopulate, elementToPopulate.get());
         }
         return elementToPopulate;
     }
 
     public Optional<T> populateInternationalStringTypeElement(Map<String, Object> map,
             String mapKey, final Optional<T> referenceElement,
-            BiConsumer<InternationalStringType, Optional<T>> updater) {
+            BiConsumer<InternationalStringType, T> updater) {
         Optional<T> elementToPopulate = Optional.empty();
         if (referenceElement.isPresent()) {
             elementToPopulate = Optional.of(referenceElement.get());
@@ -90,7 +90,7 @@ public class MapToSchemaElement<T> {
             InternationalStringType istToPopulate = INTERNATIONAL_STRING_TYPE_HELPER.create(
                     valueToPopulate);
             if (istToPopulate != null) {
-                updater.accept(istToPopulate, elementToPopulate);
+                updater.accept(istToPopulate, elementToPopulate.get());
             }
 
         }
@@ -98,7 +98,7 @@ public class MapToSchemaElement<T> {
     }
 
     public Optional<T> populateVersionInfoTypeElement(Map<String, Object> map, String mapKey,
-            final Optional<T> referenceElement, BiConsumer<VersionInfoType, Optional<T>> updater) {
+            final Optional<T> referenceElement, BiConsumer<VersionInfoType, T> updater) {
         Optional<T> elementToPopulate = Optional.empty();
         if (referenceElement.isPresent()) {
             elementToPopulate = Optional.of(referenceElement.get());
@@ -113,7 +113,7 @@ public class MapToSchemaElement<T> {
             VersionInfoType versionInfo = RIM_FACTORY.createVersionInfoType();
             versionInfo.setVersionName(valueToPopulate);
 
-            updater.accept(versionInfo, elementToPopulate);
+            updater.accept(versionInfo, elementToPopulate.get());
 
         }
         return elementToPopulate;

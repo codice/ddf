@@ -51,18 +51,15 @@ public class PersonNameTypeConverter {
         optionalPersonName = mapToSchemaElement.populateStringElement(map,
                 FIRST_NAME,
                 optionalPersonName,
-                (value, element) -> element.get()
-                        .setFirstName(value));
+                (value, personName) -> personName.setFirstName(value));
         optionalPersonName = mapToSchemaElement.populateStringElement(map,
                 MIDDLE_NAME,
                 optionalPersonName,
-                (value, element) -> element.get()
-                        .setMiddleName(value));
+                (value, personName) -> personName.setMiddleName(value));
         optionalPersonName = mapToSchemaElement.populateStringElement(map,
                 LAST_NAME,
                 optionalPersonName,
-                (value, element) -> element.get()
-                        .setLastName(value));
+                (value, personName) -> personName.setLastName(value));
 
         return optionalPersonName;
     }

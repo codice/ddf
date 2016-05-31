@@ -48,31 +48,30 @@ public class TelephoneNumberTypeConverter {
     public Optional<TelephoneNumberType> convert(Map<String, Object> map) {
         Optional<TelephoneNumberType> optionalTelephone = Optional.empty();
 
-        optionalTelephone = mapToSchemaElement.populateStringElement(map, AREA_CODE,
+        optionalTelephone = mapToSchemaElement.populateStringElement(map,
+                AREA_CODE,
                 optionalTelephone,
-                (valueToPopulate, optional) -> optional.get()
-                        .setAreaCode(valueToPopulate));
+                (valueToPopulate, phoneNumber) -> phoneNumber.setAreaCode(valueToPopulate));
 
-        optionalTelephone = mapToSchemaElement.populateStringElement(map, COUNTRY_CODE,
+        optionalTelephone = mapToSchemaElement.populateStringElement(map,
+                COUNTRY_CODE,
                 optionalTelephone,
-                (valueToPopulate, optional) -> optional.get()
-                        .setCountryCode(valueToPopulate));
+                (valueToPopulate, optional) -> optional.setCountryCode(valueToPopulate));
 
-        optionalTelephone = mapToSchemaElement.populateStringElement(map, EXTENSION,
+        optionalTelephone = mapToSchemaElement.populateStringElement(map,
+                EXTENSION,
                 optionalTelephone,
-                (valueToPopulate, optional) -> optional.get()
-                        .setExtension(valueToPopulate));
+                (valueToPopulate, phoneNumber) -> phoneNumber.setExtension(valueToPopulate));
 
-        optionalTelephone = mapToSchemaElement.populateStringElement(map, NUMBER,
+        optionalTelephone = mapToSchemaElement.populateStringElement(map,
+                NUMBER,
                 optionalTelephone,
-                (valueToPopulate, optional) -> optional.get()
-                        .setNumber(valueToPopulate));
+                (valueToPopulate, phoneNumber) -> phoneNumber.setNumber(valueToPopulate));
 
         optionalTelephone = mapToSchemaElement.populateStringElement(map,
                 PHONE_TYPE,
                 optionalTelephone,
-                (valueToPopulate, optional) -> optional.get()
-                        .setPhoneType(valueToPopulate));
+                (valueToPopulate, phoneNumber) -> phoneNumber.setPhoneType(valueToPopulate));
 
         return optionalTelephone;
     }

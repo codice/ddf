@@ -69,14 +69,12 @@ public class ServiceBindingTypeConverter
         optionalBinding = mapToSchemaElement.populateStringElement(map,
                 ACCESS_URI,
                 optionalBinding,
-                (valueToPopulate, optional) -> optional.get()
-                        .setAccessURI(valueToPopulate));
+                (valueToPopulate, serviceBinding) -> serviceBinding.setAccessURI(valueToPopulate));
 
         optionalBinding = mapToSchemaElement.populateStringElement(map,
                 SERVICE,
                 optionalBinding,
-                (valueToPopulate, optional) -> optional.get()
-                        .setService(valueToPopulate));
+                (valueToPopulate, serviceBinding) -> serviceBinding.setService(valueToPopulate));
 
         if (map.containsKey(SPECIFICATION_LINK_KEY)) {
             SpecificationLinkTypeConverter slConverter = new SpecificationLinkTypeConverter();
@@ -102,8 +100,7 @@ public class ServiceBindingTypeConverter
         optionalBinding = mapToSchemaElement.populateStringElement(map,
                 TARGET_BINDING,
                 optionalBinding,
-                (valueToPopulate, optional) -> optional.get()
-                        .setTargetBinding(valueToPopulate));
+                (valueToPopulate, serviceBinding) -> serviceBinding.setTargetBinding(valueToPopulate));
 
         return optionalBinding;
     }

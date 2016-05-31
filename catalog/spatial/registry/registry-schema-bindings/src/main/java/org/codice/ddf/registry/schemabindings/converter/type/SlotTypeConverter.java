@@ -107,8 +107,7 @@ public class SlotTypeConverter {
         optionalSlot = mapToSchemaElement.populateStringElement(map,
                 NAME,
                 optionalSlot,
-                (valueToPopulate, optional) -> optional.get()
-                        .setName(valueToPopulate));
+                (valueToPopulate, slot) -> slot.setName(valueToPopulate));
 
         return optionalSlot;
     }

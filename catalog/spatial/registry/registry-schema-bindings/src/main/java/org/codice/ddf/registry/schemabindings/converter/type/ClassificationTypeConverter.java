@@ -64,23 +64,23 @@ public class ClassificationTypeConverter
         optionalClassification = mapToSchemaElement.populateStringElement(map,
                 CLASSIFICATION_NODE,
                 optionalClassification,
-                (valueToPopulate, optional) -> optional.get()
-                        .setClassificationNode(valueToPopulate));
+                (valueToPopulate, classification) -> classification.setClassificationNode(
+                        valueToPopulate));
         optionalClassification = mapToSchemaElement.populateStringElement(map,
                 CLASSIFIED_OBJECT,
                 optionalClassification,
-                (valueToPopulate, optional) -> optional.get()
-                        .setClassifiedObject(valueToPopulate));
+                (valueToPopulate, classification) -> classification.setClassifiedObject(
+                        valueToPopulate));
         optionalClassification = mapToSchemaElement.populateStringElement(map,
                 CLASSIFICATION_SCHEME,
                 optionalClassification,
-                (valueToPopulate, optional) -> optional.get()
-                        .setClassificationScheme(valueToPopulate));
+                (valueToPopulate, classification) -> classification.setClassificationScheme(
+                        valueToPopulate));
         optionalClassification = mapToSchemaElement.populateStringElement(map,
                 NODE_REPRESENTATION,
                 optionalClassification,
-                (valueToPopulate, optional) -> optional.get()
-                        .setNodeRepresentation(valueToPopulate));
+                (valueToPopulate, classification) -> classification.setNodeRepresentation(
+                        valueToPopulate));
 
         return optionalClassification;
     }

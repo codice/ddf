@@ -32,7 +32,8 @@ public class SpecificationLinkTypeConverter
         extends AbstractRegistryObjectTypeConverter<SpecificationLinkType> {
     private WebMapHelper webMapHelper = new WebMapHelper();
 
-    public SpecificationLinkTypeConverter(MapToSchemaElement<SpecificationLinkType> mapToSchemaElement) {
+    public SpecificationLinkTypeConverter(
+            MapToSchemaElement<SpecificationLinkType> mapToSchemaElement) {
         super(mapToSchemaElement);
     }
 
@@ -69,20 +70,20 @@ public class SpecificationLinkTypeConverter
         optionalSpecificationLink = mapToSchemaElement.populateStringElement(map,
                 SERVICE_BINDING,
                 optionalSpecificationLink,
-                (valueToPopulate, optional) -> optional.get()
-                        .setServiceBinding(valueToPopulate));
+                (valueToPopulate, specificationLink) -> specificationLink.setServiceBinding(
+                        valueToPopulate));
 
         optionalSpecificationLink = mapToSchemaElement.populateStringElement(map,
                 SPECIFICATION_OBJECT,
                 optionalSpecificationLink,
-                (valueToPopulate, optional) -> optional.get()
-                        .setSpecificationObject(valueToPopulate));
+                (valueToPopulate, specificationLink) -> specificationLink.setSpecificationObject(
+                        valueToPopulate));
 
         optionalSpecificationLink = mapToSchemaElement.populateInternationalStringTypeElement(map,
                 USAGE_DESCRIPTION,
                 optionalSpecificationLink,
-                (istToPopulate, optional) -> optional.get()
-                        .setUsageDescription(istToPopulate));
+                (istToPopulate, specificationLink) -> specificationLink.setUsageDescription(
+                        istToPopulate));
 
         if (map.containsKey(USAGE_PARAMETERS)) {
             if (!optionalSpecificationLink.isPresent()) {

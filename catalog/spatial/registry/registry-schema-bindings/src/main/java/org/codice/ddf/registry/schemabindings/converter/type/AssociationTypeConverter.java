@@ -63,18 +63,15 @@ public class AssociationTypeConverter
         mapToSchemaElement.populateStringElement(map,
                 ASSOCIATION_TYPE,
                 optionalAssociation,
-                (valueToPopulate, optional) -> optional.get()
-                        .setAssociationType(valueToPopulate));
+                (valueToPopulate, association) -> association.setAssociationType(valueToPopulate));
         mapToSchemaElement.populateStringElement(map,
                 SOURCE_OBJECT,
                 optionalAssociation,
-                (valueToPopulate, optional) -> optional.get()
-                        .setSourceObject(valueToPopulate));
+                (valueToPopulate, association) -> association.setSourceObject(valueToPopulate));
         mapToSchemaElement.populateStringElement(map,
                 TARGET_OBJECT,
                 optionalAssociation,
-                (valueToPopulate, optional) -> optional.get()
-                        .setTargetObject(valueToPopulate));
+                (valueToPopulate, association) -> association.setTargetObject(valueToPopulate));
 
         return optionalAssociation;
     }

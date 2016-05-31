@@ -57,38 +57,32 @@ public class PostalAddressTypeConverter {
         optionalAddress = mapToSchemaElement.populateStringElement(map,
                 CITY,
                 optionalAddress,
-                (valueToPopulate, optional) -> optional.get()
-                        .setCity(valueToPopulate));
+                (valueToPopulate, postalAddress) -> postalAddress.setCity(valueToPopulate));
 
         optionalAddress = mapToSchemaElement.populateStringElement(map,
                 COUNTRY,
                 optionalAddress,
-                (valueToPopulate, optional) -> optional.get()
-                        .setCountry(valueToPopulate));
+                (valueToPopulate, postalAddress) -> postalAddress.setCountry(valueToPopulate));
 
         optionalAddress = mapToSchemaElement.populateStringElement(map,
                 POSTAL_CODE,
                 optionalAddress,
-                (valueToPopulate, optional) -> optional.get()
-                        .setPostalCode(valueToPopulate));
+                (valueToPopulate, postalAddress) -> postalAddress.setPostalCode(valueToPopulate));
 
         optionalAddress = mapToSchemaElement.populateStringElement(map,
                 STATE_OR_PROVINCE,
                 optionalAddress,
-                (valueToPopulate, optional) -> optional.get()
-                        .setStateOrProvince(valueToPopulate));
+                (valueToPopulate, postalAddress) -> postalAddress.setStateOrProvince(valueToPopulate));
 
         optionalAddress = mapToSchemaElement.populateStringElement(map,
                 STREET,
                 optionalAddress,
-                (valueToPopulate, optional) -> optional.get()
-                        .setStreet(valueToPopulate));
+                (valueToPopulate, postalAddress) -> postalAddress.setStreet(valueToPopulate));
 
         optionalAddress = mapToSchemaElement.populateStringElement(map,
                 STREET_NUMBER,
                 optionalAddress,
-                (valueToPopulate, optional) -> optional.get()
-                        .setStreetNumber(valueToPopulate));
+                (valueToPopulate, postalAddress) -> postalAddress.setStreetNumber(valueToPopulate));
 
         return optionalAddress;
     }

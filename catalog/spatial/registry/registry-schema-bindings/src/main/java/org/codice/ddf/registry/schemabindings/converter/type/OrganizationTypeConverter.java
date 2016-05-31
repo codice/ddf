@@ -114,14 +114,12 @@ public class OrganizationTypeConverter
         optionalOrganization = mapToSchemaElement.populateStringElement(map,
                 PARENT,
                 optionalOrganization,
-                (valueToPopulate, optional) -> optional.get()
-                        .setParent(valueToPopulate));
+                (valueToPopulate, organization) -> organization.setParent(valueToPopulate));
 
         optionalOrganization = mapToSchemaElement.populateStringElement(map,
                 PRIMARY_CONTACT,
                 optionalOrganization,
-                (valueToPopulate, optional) -> optional.get()
-                        .setPrimaryContact(valueToPopulate));
+                (valueToPopulate, organization) -> organization.setPrimaryContact(valueToPopulate));
 
         if (map.containsKey(TELEPHONE_KEY)) {
             Optional<TelephoneNumberType> optionalTelephone;

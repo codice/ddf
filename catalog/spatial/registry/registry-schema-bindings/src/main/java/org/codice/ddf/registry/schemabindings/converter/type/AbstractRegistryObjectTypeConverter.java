@@ -98,8 +98,7 @@ public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObje
         optionalRegistryObject = mapToSchemaElement.populateInternationalStringTypeElement(map,
                 DESCRIPTION_KEY,
                 optionalRegistryObject,
-                (istValue, optional) -> optional.get()
-                        .setDescription(istValue));
+                (istValue, registryObject) -> registryObject.setDescription(istValue));
 
         if (map.containsKey(EXTERNAL_IDENTIFIER_KEY)) {
             Optional<ExternalIdentifierType> optionalExternalIdentifier;
@@ -125,29 +124,24 @@ public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObje
         optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 HOME_KEY,
                 optionalRegistryObject,
-                (value, optional) -> optional.get()
-                        .setHome(value));
+                (value, registryObject) -> registryObject.setHome(value));
         optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 ID_KEY,
                 optionalRegistryObject,
-                (value, optional) -> optional.get()
-                        .setId(value));
+                (value, registryObject) -> registryObject.setId(value));
         optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 LID_KEY,
                 optionalRegistryObject,
-                (value, optional) -> optional.get()
-                        .setLid(value));
+                (value, registryObject) -> registryObject.setLid(value));
 
         optionalRegistryObject = mapToSchemaElement.populateInternationalStringTypeElement(map,
                 NAME_KEY,
                 optionalRegistryObject,
-                (istValue, optional) -> optional.get()
-                        .setName(istValue));
+                (istValue, registryObject) -> registryObject.setName(istValue));
         optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 OBJECT_TYPE_KEY,
                 optionalRegistryObject,
-                (value, optional) -> optional.get()
-                        .setObjectType(value));
+                (value, registryObject) -> registryObject.setObjectType(value));
 
         if (map.containsKey(SLOT)) {
             Optional<SlotType1> optionalSlot;
@@ -170,13 +164,11 @@ public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObje
         optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 STATUS_KEY,
                 optionalRegistryObject,
-                (value, optional) -> optional.get()
-                        .setStatus(value));
+                (value, registryObject) -> registryObject.setStatus(value));
         optionalRegistryObject = mapToSchemaElement.populateVersionInfoTypeElement(map,
                 VERSION_INFO_KEY,
                 optionalRegistryObject,
-                (versionInfoValue, optional) -> optional.get()
-                        .setVersionInfo(versionInfoValue));
+                (versionInfoValue, registryObject) -> registryObject.setVersionInfo(versionInfoValue));
 
         return optionalRegistryObject;
     }

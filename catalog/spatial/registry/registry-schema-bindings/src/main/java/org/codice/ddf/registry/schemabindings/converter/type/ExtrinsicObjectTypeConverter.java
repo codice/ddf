@@ -29,7 +29,8 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 public class ExtrinsicObjectTypeConverter
         extends AbstractRegistryObjectTypeConverter<ExtrinsicObjectType> {
 
-    public ExtrinsicObjectTypeConverter(MapToSchemaElement<ExtrinsicObjectType> mapToSchemaElement) {
+    public ExtrinsicObjectTypeConverter(
+            MapToSchemaElement<ExtrinsicObjectType> mapToSchemaElement) {
         super(mapToSchemaElement);
     }
 
@@ -62,20 +63,17 @@ public class ExtrinsicObjectTypeConverter
         optionalExtrinsicObject = mapToSchemaElement.populateVersionInfoTypeElement(map,
                 CONTENT_VERSION_INFO,
                 optionalExtrinsicObject,
-                (versionInfo, optional) -> optional.get()
-                        .setContentVersionInfo(versionInfo));
+                (versionInfo, extrinsicObject) -> extrinsicObject.setContentVersionInfo(versionInfo));
 
         optionalExtrinsicObject = mapToSchemaElement.populateBooleanElement(map,
                 IS_OPAQUE,
                 optionalExtrinsicObject,
-                (boolToPopulate, optional) -> optional.get()
-                        .setIsOpaque(boolToPopulate));
+                (boolToPopulate, extrinsicObject) -> extrinsicObject.setIsOpaque(boolToPopulate));
 
         optionalExtrinsicObject = mapToSchemaElement.populateStringElement(map,
                 MIME_TYPE,
                 optionalExtrinsicObject,
-                (valueToPopulate, optional) -> optional.get()
-                        .setMimeType(valueToPopulate));
+                (valueToPopulate, extrinsicObject) -> extrinsicObject.setMimeType(valueToPopulate));
 
         return optionalExtrinsicObject;
     }

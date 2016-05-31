@@ -45,13 +45,11 @@ public class EmailAddressTypeConverter {
         optionalEmailAddress = mapToSchemaElement.populateStringElement(map,
                 ADDRESS,
                 optionalEmailAddress,
-                (valueToPopulate, optional) -> optional.get()
-                        .setAddress(valueToPopulate));
+                (valueToPopulate, emailAddress) -> emailAddress.setAddress(valueToPopulate));
         optionalEmailAddress = mapToSchemaElement.populateStringElement(map,
                 TYPE,
                 optionalEmailAddress,
-                (valueToPopulate, optional) -> optional.get()
-                        .setType(valueToPopulate));
+                (valueToPopulate, emailAddress) -> emailAddress.setType(valueToPopulate));
 
         return optionalEmailAddress;
     }

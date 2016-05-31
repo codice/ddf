@@ -29,7 +29,8 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 public class ExternalIdentifierTypeConverter
         extends AbstractRegistryObjectTypeConverter<ExternalIdentifierType> {
 
-    public ExternalIdentifierTypeConverter(MapToSchemaElement<ExternalIdentifierType> mapToSchemaElement) {
+    public ExternalIdentifierTypeConverter(
+            MapToSchemaElement<ExternalIdentifierType> mapToSchemaElement) {
         super(mapToSchemaElement);
     }
 
@@ -62,20 +63,19 @@ public class ExternalIdentifierTypeConverter
         optionalExternalIdentifier = mapToSchemaElement.populateStringElement(map,
                 IDENTIFICATION_SCHEME,
                 optionalExternalIdentifier,
-                (valueToPopulate, optional) -> optional.get()
-                        .setIdentificationScheme(valueToPopulate));
+                (valueToPopulate, externalIdentifier) -> externalIdentifier.setIdentificationScheme(
+                        valueToPopulate));
 
         optionalExternalIdentifier = mapToSchemaElement.populateStringElement(map,
                 REGISTRY_OBJECT,
                 optionalExternalIdentifier,
-                (valueToPopulate, optional) -> optional.get()
-                        .setRegistryObject(valueToPopulate));
+                (valueToPopulate, externalIdentifier) -> externalIdentifier.setRegistryObject(
+                        valueToPopulate));
 
         optionalExternalIdentifier = mapToSchemaElement.populateStringElement(map,
                 VALUE,
                 optionalExternalIdentifier,
-                (valueToPopulate, optional) -> optional.get()
-                        .setValue(valueToPopulate));
+                (valueToPopulate, externalIdentifier) -> externalIdentifier.setValue(valueToPopulate));
 
         return optionalExternalIdentifier;
     }
