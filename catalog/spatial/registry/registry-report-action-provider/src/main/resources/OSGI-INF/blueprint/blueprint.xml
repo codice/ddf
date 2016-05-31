@@ -14,14 +14,32 @@
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="registryActionProvider"
-          class="org.codice.ddf.registry.report.action.provider.RegistryMetacardActionProvider">
-        <argument value="catalog.data.metacard.registry.view"/>
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
+    <bean id="registryMetacardActionProvider"
+          class="org.codice.ddf.registry.report.action.provider.RegistryReportActionProvider">
+        <argument value="catalog.data.metacard.registry"/>
+        <property name="title" value="Export Registry Metacard Information"/>
+        <property name="description" value="Provides a URL to the metacard report"/>
     </bean>
 
-    <service ref="registryActionProvider" interface="ddf.action.ActionProvider">
+    <service ref="registryMetacardActionProvider" interface="ddf.action.ActionProvider">
         <service-properties>
-            <entry key="id" value="catalog.data.metacard.registry.view"/>
+            <entry key="id" value="catalog.data.metacard.registry"/>
+        </service-properties>
+    </service>
+
+    <bean id="registrySourceActionProvider"
+          class="org.codice.ddf.registry.report.action.provider.RegistryReportActionProvider">
+        <argument value="catalog.source.report.registry"/>
+        <property name="configurationAdmin" ref="configurationAdmin"/>
+        <property name="title" value="Registry Source Report"/>
+        <property name="description" value="Provides a URL to the source report"/>
+    </bean>
+
+    <service ref="registrySourceActionProvider" interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="catalog.source.report.registry"/>
         </service-properties>
     </service>
 
