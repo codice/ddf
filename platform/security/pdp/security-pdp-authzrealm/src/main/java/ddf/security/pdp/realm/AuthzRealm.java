@@ -268,11 +268,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                 boolean matchAll = subjectAllCollection.implies(matchAllCollection);
                 boolean matchAllXacml = subjectAllCollection.implies(matchAllPreXacmlCollection);
                 boolean matchOne = subjectOneCollection.implies(matchOneCollection);
-                if (matchAll && matchOne) {
-                    SecurityLogger.audit(
-                            PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
-                                    + "] is implied.");
-                } else {
+                if (!matchAll || !matchOne) {
                     SecurityLogger.audit(
                             PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
                                     + "] is not implied.");
@@ -286,11 +282,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                     matchAllXacml = xacmlPdp.isPermitted(curUser,
                             authorizationInfo,
                             xacmlPermissions);
-                    if (matchAllXacml) {
-                        SecurityLogger.audit(
-                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                                        + permission + "] is implied via XACML.");
-                    } else {
+                    if (!matchAllXacml) {
                         SecurityLogger.audit(
                                 PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
                                         + permission + "] is not implied via XACML.");
@@ -301,9 +293,6 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
 
             for (Permission perm : perms) {
                 if (permission != null && perm.implies(permission)) {
-                    SecurityLogger.audit(
-                            PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
-                                    + "] is implied.");
                     return true;
                 }
             }
