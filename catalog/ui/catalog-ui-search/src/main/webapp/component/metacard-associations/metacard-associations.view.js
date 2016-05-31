@@ -14,6 +14,7 @@
  **/
 /*global define*/
 define([
+    'wreqr',
     'marionette',
     'underscore',
     'jquery',
@@ -22,7 +23,7 @@ define([
     'component/loading/loading.view',
     'js/store',
     'js/Common'
-], function (Marionette, _, $, template, CustomElements, LoadingView, store, Common) {
+], function (wreqr, Marionette, _, $, template, CustomElements, LoadingView, store, Common) {
 
     return Marionette.ItemView.extend({
         setDefaultModel: function(){
@@ -33,6 +34,7 @@ define([
         modelEvents: {
         },
         events: {
+            'click .associations-list .association-item': 'expandItem',
             'click .associations-edit': 'turnOnEditing',
             'click .associations-cancel': 'turnOffEditing',
             'click .associations-addNew': 'addNewAssociation',
@@ -62,13 +64,16 @@ define([
                 possibleAssociations: this._possibleAssociations
             };
         },
+        isEditing: false,
         turnOnEditing: function(){
             this.$el.addClass('is-editing');
+            this.isEditing = true;
         },
         turnOffEditing: function(){
             this._associations = JSON.parse(JSON.stringify(this._originalAssociations));;
             this.render();
             this.$el.removeClass('is-editing');
+            this.isEditing = false;
         },
         addNewAssociation: function(){
             var self = this;
@@ -141,6 +146,17 @@ define([
                  }
             });
             this.render();
+        },
+        expandItem: function(event){
+            if (!this.isEditing) {
+                var metacardId = $(event.currentTarget).attr('data-metacardId');
+                wreqr.vent.trigger('router:navigate', {
+                    fragment: 'metacards/' + metacardId,
+                    options: {
+                        trigger: true
+                    }
+                });
+            }
         }
     });
 });

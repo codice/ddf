@@ -6,6 +6,10 @@
     line-height: @minimumButtonSize;
   }
 
+  .associations-list .association-item {
+    cursor: pointer;
+  }
+
   .association-type,
   .association-item,
   .association-delete,
@@ -87,6 +91,10 @@
 }
 
 @{customElementNamespace}metacard-associations.is-editing {
+  .associations-list .association-item {
+    cursor: inherit;
+  }
+
   .associations-edit {
     display: none;
   }
