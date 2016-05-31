@@ -2909,11 +2909,8 @@ Recommendations for Framework Development
 ===== Console Commands
 
 ${branding} supports development of custom console commands.
-For more information, see the Karaf website on http://karaf.apache.org/manual/latest-2.2.x/developers-guide/extending-console.html[Extending the Console]. 
 
-===== Custom ${branding} Console Commands
-
-${branding} includes custom commands for working with the Catalog, as described in the Console Commands section.
+${branding} includes custom commands for working with the Catalog, as described in the <<managing.adoc#_console_commands, Managing Console Commands>> section.
 
 === Extending Sources
 Catalog sources are used to connect Catalog components to data sources, local and remote.
