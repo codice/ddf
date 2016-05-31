@@ -13,12 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ASSOCIATION_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.EXTRINSIC_OBJECT_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ORGANIZATION_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PERSON_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SERVICE_KEY;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +33,15 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceType;
 
 public class RegistryObjectListWebConverter {
+    public static final String ASSOCIATION_KEY = "Association";
+
+    public static final String EXTRINSIC_OBJECT_KEY = "ExtrinsicObject";
+
+    public static final String ORGANIZATION_KEY = "Organization";
+
+    public static final String PERSON_KEY = "Person";
+
+    public static final String SERVICE_KEY = "Service";
 
     /**
      * This method creates a Map<String, Object> representation of the RegistryObjectListType provided.

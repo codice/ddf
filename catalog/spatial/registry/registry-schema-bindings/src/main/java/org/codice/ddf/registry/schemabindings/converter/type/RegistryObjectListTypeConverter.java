@@ -13,12 +13,12 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ASSOCIATION_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.EXTRINSIC_OBJECT_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ORGANIZATION_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PERSON_KEY;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SERVICE_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.RegistryObjectListWebConverter.ASSOCIATION_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.RegistryObjectListWebConverter.EXTRINSIC_OBJECT_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.RegistryObjectListWebConverter.ORGANIZATION_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.RegistryObjectListWebConverter.PERSON_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.RegistryObjectListWebConverter.SERVICE_KEY;
 
 import java.util.List;
 import java.util.Map;

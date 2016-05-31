@@ -13,16 +13,17 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.FIRST_NAME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.LAST_NAME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.MIDDLE_NAME;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PersonNameType;
 
 public class PersonNameWebConverter {
+    public static final String FIRST_NAME = "firstName";
+
+    public static final String LAST_NAME = "lastName";
+
+    public static final String MIDDLE_NAME = "middleName";
 
     /**
      * This method creates a Map<String, Object> representation of the PersonNameType provided.
@@ -45,12 +46,12 @@ public class PersonNameWebConverter {
             personNameMap.put(FIRST_NAME, personName.getFirstName());
         }
 
-        if (personName.isSetMiddleName()) {
-            personNameMap.put(MIDDLE_NAME, personName.getMiddleName());
-        }
-
         if (personName.isSetLastName()) {
             personNameMap.put(LAST_NAME, personName.getLastName());
+        }
+
+        if (personName.isSetMiddleName()) {
+            personNameMap.put(MIDDLE_NAME, personName.getMiddleName());
         }
 
         return personNameMap;

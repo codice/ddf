@@ -13,11 +13,11 @@
  */
 package org.codice.ddf.registry.schemabindings.builder.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ASSOCIATION_TYPE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.HOME_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ID_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SOURCE_OBJECT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.TARGET_OBJECT;
+import static org.codice.ddf.registry.schemabindings.converter.web.AssociationWebConverter.ASSOCIATION_TYPE;
+import static org.codice.ddf.registry.schemabindings.converter.web.AssociationWebConverter.SOURCE_OBJECT;
+import static org.codice.ddf.registry.schemabindings.converter.web.AssociationWebConverter.TARGET_OBJECT;
+import static org.codice.ddf.registry.schemabindings.converter.web.RegistryObjectWebConverter.HOME_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.RegistryObjectWebConverter.ID_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNull.notNullValue;
 
@@ -37,7 +37,6 @@ public class AssociationTypeConverterTest {
 
     @Before
     public void setup() {
-        associationMap.put(HOME_KEY, "HOME");
         associationMap.put(ID_KEY, "ID");
         associationMap.put(HOME_KEY, "HOME");
         associationMap.put(ASSOCIATION_TYPE, "ASSOCIATIONTYPE");

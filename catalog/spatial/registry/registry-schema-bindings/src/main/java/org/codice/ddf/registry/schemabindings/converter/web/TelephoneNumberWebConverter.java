@@ -13,28 +13,31 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_AREA_CODE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_COUNTRY_CODE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_EXTENSION;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_NUMBER;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_TYPE;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 
 public class TelephoneNumberWebConverter {
+    public static final String AREA_CODE = "areaCode";
+
+    public static final String COUNTRY_CODE = "countryCode";
+
+    public static final String EXTENSION = "extension";
+
+    public static final String NUMBER = "number";
+
+    public static final String PHONE_TYPE = "phoneType";
 
     /**
      * This method creates a Map<String, Object> representation of the TelephoneNumberType provided.
      * The following keys will be added to the map (Taken from EbrimConstants):
      * <p>
-     * PHONE_COUNTRY_CODE = "countryCode";
+     * COUNTRY_CODE = "countryCode";
      * PHONE_TYPE = "phoneType";
-     * PHONE_AREA_CODE = "areaCode";
-     * PHONE_NUMBER = "number";
-     * PHONE_EXTENSION = "extension";
+     * AREA_CODE = "areaCode";
+     * NUMBER = "number";
+     * EXTENSION = "extension";
      *
      * @param phoneNumber the TelephoneNumberType to be converted into a map, null returns empty Map
      * @return Map<String, Object> representation of the TelephoneNumberType provided
@@ -43,19 +46,19 @@ public class TelephoneNumberWebConverter {
         Map<String, Object> phoneNumberMap = new HashMap<>();
 
         if (phoneNumber.isSetAreaCode()) {
-            phoneNumberMap.put(PHONE_AREA_CODE, phoneNumber.getAreaCode());
+            phoneNumberMap.put(AREA_CODE, phoneNumber.getAreaCode());
         }
 
         if (phoneNumber.isSetCountryCode()) {
-            phoneNumberMap.put(PHONE_COUNTRY_CODE, phoneNumber.getCountryCode());
+            phoneNumberMap.put(COUNTRY_CODE, phoneNumber.getCountryCode());
         }
 
         if (phoneNumber.isSetExtension()) {
-            phoneNumberMap.put(PHONE_EXTENSION, phoneNumber.getExtension());
+            phoneNumberMap.put(EXTENSION, phoneNumber.getExtension());
         }
 
         if (phoneNumber.isSetNumber()) {
-            phoneNumberMap.put(PHONE_NUMBER, phoneNumber.getNumber());
+            phoneNumberMap.put(NUMBER, phoneNumber.getNumber());
         }
 
         if (phoneNumber.isSetPhoneType()) {

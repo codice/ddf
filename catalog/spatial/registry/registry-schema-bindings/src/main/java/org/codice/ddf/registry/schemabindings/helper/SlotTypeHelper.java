@@ -125,30 +125,10 @@ public class SlotTypeHelper {
      * @return a List of Date values found in the SlotType1
      */
     public List<Date> getDateValues(SlotType1 slot) {
-        List<Date> dates = new ArrayList<>();
-
-        if (slot != null && slot.isSetValueList()) {
-            ValueListType valueList = slot.getValueList()
-                    .getValue();
-
-            if (valueList.isSetValue()) {
-                List<String> values = valueList.getValue();
-
-                for (String dateString : values) {
-                    Date date = Date.from(ZonedDateTime.parse(dateString)
-                            .toInstant());
-                    dates.add(date);
-                }
-            }
-
-            // TODO: GORDO look at this return
-            List<Date> testThis = getStringValues(slot).stream()
-                    .map(dateString -> Date.from(ZonedDateTime.parse(dateString)
-                            .toInstant()))
-                    .collect(Collectors.toList());
-        }
-
-        return dates;
+        return getStringValues(slot).stream()
+                .map(dateString -> Date.from(ZonedDateTime.parse(dateString)
+                        .toInstant()))
+                .collect(Collectors.toList());
     }
 
     /**

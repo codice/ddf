@@ -13,25 +13,28 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.IDENTIFICATION_SCHEME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.REGISTRY_OBJECT;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.VALUE;
+import static org.codice.ddf.registry.schemabindings.converter.web.ExternalIdentifierWebConverter.IDENTIFICATION_SCHEME;
+import static org.codice.ddf.registry.schemabindings.converter.web.ExternalIdentifierWebConverter.REGISTRY_OBJECT;
+import static org.codice.ddf.registry.schemabindings.converter.web.ExternalIdentifierWebConverter.VALUE;
 
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
-public class ExternalIdentifierTypeConverter extends RegistryObjectTypeConverter {
+public class ExternalIdentifierTypeConverter
+        extends AbstractRegistryObjectTypeConverter<ExternalIdentifierType> {
+
+    private MapToSchemaElement<ExternalIdentifierType> mapToSchemaElement =
+            new MapToSchemaElement<>(RIM_FACTORY::createExternalIdentifierType);
 
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createExternalIdentifierType();
+    protected MapToSchemaElement<ExternalIdentifierType> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -54,40 +57,25 @@ public class ExternalIdentifierTypeConverter extends RegistryObjectTypeConverter
             return optionalExternalIdentifier;
         }
 
-        Optional<RegistryObjectType> optionalRot = super.convertRegistryObject(map);
-        if (optionalRot.isPresent()) {
-            optionalExternalIdentifier = Optional.of((ExternalIdentifierType) optionalRot.get());
-        }
+        optionalExternalIdentifier = super.convert(map);
 
-        String valueToPopulate = MapUtils.getString(map, IDENTIFICATION_SCHEME);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalExternalIdentifier.isPresent()) {
-                optionalExternalIdentifier =
-                        Optional.of(RIM_FACTORY.createExternalIdentifierType());
-            }
-            optionalExternalIdentifier.get()
-                    .setIdentificationScheme(valueToPopulate);
-        }
+        optionalExternalIdentifier = mapToSchemaElement.populateStringElement(map,
+                IDENTIFICATION_SCHEME,
+                optionalExternalIdentifier,
+                (valueToPopulate, optional) -> optional.get()
+                        .setIdentificationScheme(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, REGISTRY_OBJECT);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalExternalIdentifier.isPresent()) {
-                optionalExternalIdentifier =
-                        Optional.of(RIM_FACTORY.createExternalIdentifierType());
-            }
-            optionalExternalIdentifier.get()
-                    .setRegistryObject(valueToPopulate);
-        }
+        optionalExternalIdentifier = mapToSchemaElement.populateStringElement(map,
+                REGISTRY_OBJECT,
+                optionalExternalIdentifier,
+                (valueToPopulate, optional) -> optional.get()
+                        .setRegistryObject(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, VALUE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalExternalIdentifier.isPresent()) {
-                optionalExternalIdentifier =
-                        Optional.of(RIM_FACTORY.createExternalIdentifierType());
-            }
-            optionalExternalIdentifier.get()
-                    .setValue(valueToPopulate);
-        }
+        optionalExternalIdentifier = mapToSchemaElement.populateStringElement(map,
+                VALUE,
+                optionalExternalIdentifier,
+                (valueToPopulate, optional) -> optional.get()
+                        .setValue(valueToPopulate));
 
         return optionalExternalIdentifier;
     }

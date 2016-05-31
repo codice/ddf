@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.REGISTRY_OBJECT_LIST_KEY;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +21,7 @@ import org.apache.commons.collections.MapUtils;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 
 public class RegistryPackageWebConverter extends RegistryObjectWebConverter {
+    public static final String REGISTRY_OBJECT_LIST_KEY = "RegistryObjectList";
 
     /**
      * This method creates a Map<String, Object> representation of the RegistryPackageType provided.

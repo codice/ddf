@@ -13,11 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ADDRESS_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.EMAIL_ADDRESS_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PERSON_NAME_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.TELEPHONE_KEY;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +27,13 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.PostalAddressType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 
 public class PersonWebConverter extends RegistryObjectWebConverter {
+    public static final String ADDRESS_KEY = "Address";
+
+    public static final String EMAIL_ADDRESS_KEY = "EmailAddress";
+
+    public static final String PERSON_NAME_KEY = "PersonName";
+
+    public static final String TELEPHONE_KEY = "TelephoneNumber";
 
     /**
      * This method creates a Map<String, Object> representation of the PersonType provided.

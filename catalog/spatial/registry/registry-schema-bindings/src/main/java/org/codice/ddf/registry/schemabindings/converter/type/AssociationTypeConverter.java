@@ -13,25 +13,28 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ASSOCIATION_TYPE;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SOURCE_OBJECT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.TARGET_OBJECT;
+import static org.codice.ddf.registry.schemabindings.converter.web.AssociationWebConverter.ASSOCIATION_TYPE;
+import static org.codice.ddf.registry.schemabindings.converter.web.AssociationWebConverter.SOURCE_OBJECT;
+import static org.codice.ddf.registry.schemabindings.converter.web.AssociationWebConverter.TARGET_OBJECT;
 
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
-public class AssociationTypeConverter extends RegistryObjectTypeConverter {
+public class AssociationTypeConverter
+        extends AbstractRegistryObjectTypeConverter<AssociationType1> {
+
+    private MapToSchemaElement<AssociationType1> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createAssociationType1);
 
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createAssociationType1();
+    protected MapToSchemaElement<AssociationType1> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -53,39 +56,24 @@ public class AssociationTypeConverter extends RegistryObjectTypeConverter {
         if (MapUtils.isEmpty(map)) {
             return optionalAssociation;
         }
-        Optional<RegistryObjectType> optionalRegistryObject = super.convertRegistryObject(map);
 
-        if (optionalRegistryObject.isPresent()) {
-            optionalAssociation = Optional.of((AssociationType1) optionalRegistryObject.get());
-        }
+        optionalAssociation = super.convert(map);
 
-        String valueToPopulate = MapUtils.getString(map, ASSOCIATION_TYPE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalAssociation.isPresent()) {
-                optionalAssociation = Optional.of(RIM_FACTORY.createAssociationType1());
-            }
-
-            optionalAssociation.get()
-                    .setAssociationType(valueToPopulate);
-        }
-
-        valueToPopulate = MapUtils.getString(map, SOURCE_OBJECT);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalAssociation.isPresent()) {
-                optionalAssociation = Optional.of(RIM_FACTORY.createAssociationType1());
-            }
-            optionalAssociation.get()
-                    .setSourceObject(valueToPopulate);
-        }
-
-        valueToPopulate = MapUtils.getString(map, TARGET_OBJECT);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalAssociation.isPresent()) {
-                optionalAssociation = Optional.of(RIM_FACTORY.createAssociationType1());
-            }
-            optionalAssociation.get()
-                    .setTargetObject(valueToPopulate);
-        }
+        mapToSchemaElement.populateStringElement(map,
+                ASSOCIATION_TYPE,
+                optionalAssociation,
+                (valueToPopulate, optional) -> optional.get()
+                        .setAssociationType(valueToPopulate));
+        mapToSchemaElement.populateStringElement(map,
+                SOURCE_OBJECT,
+                optionalAssociation,
+                (valueToPopulate, optional) -> optional.get()
+                        .setSourceObject(valueToPopulate));
+        mapToSchemaElement.populateStringElement(map,
+                TARGET_OBJECT,
+                optionalAssociation,
+                (valueToPopulate, optional) -> optional.get()
+                        .setTargetObject(valueToPopulate));
 
         return optionalAssociation;
     }

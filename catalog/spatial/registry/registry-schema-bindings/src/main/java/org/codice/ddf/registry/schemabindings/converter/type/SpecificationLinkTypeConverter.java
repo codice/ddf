@@ -14,10 +14,10 @@
 package org.codice.ddf.registry.schemabindings.converter.type;
 
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SERVICE_BINDING;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SPECIFICATION_OBJECT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.USAGE_DESCRIPTION;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.USAGE_PARAMETERS;
+import static org.codice.ddf.registry.schemabindings.converter.web.SpecificationLinkWebConverter.SERVICE_BINDING;
+import static org.codice.ddf.registry.schemabindings.converter.web.SpecificationLinkWebConverter.SPECIFICATION_OBJECT;
+import static org.codice.ddf.registry.schemabindings.converter.web.SpecificationLinkWebConverter.USAGE_DESCRIPTION;
+import static org.codice.ddf.registry.schemabindings.converter.web.SpecificationLinkWebConverter.USAGE_PARAMETERS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,17 +25,19 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.InternationalStringType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SpecificationLinkType;
 
-public class SpecificationLinkTypeConverter extends RegistryObjectTypeConverter {
+public class SpecificationLinkTypeConverter
+        extends AbstractRegistryObjectTypeConverter<SpecificationLinkType> {
+
+    private MapToSchemaElement<SpecificationLinkType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createSpecificationLinkType);
 
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createSpecificationLinkType();
+    protected MapToSchemaElement<SpecificationLinkType> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -61,48 +63,30 @@ public class SpecificationLinkTypeConverter extends RegistryObjectTypeConverter 
             return optionalSpecificationLink;
         }
 
-        Optional<RegistryObjectType> optionalRegistryObject = super.convertRegistryObject(map);
-        if (optionalRegistryObject.isPresent()) {
-            optionalSpecificationLink =
-                    Optional.of((SpecificationLinkType) optionalRegistryObject.get());
-        }
+        optionalSpecificationLink = super.convert(map);
 
-        String valueToPopulate = MapUtils.getString(map, SERVICE_BINDING);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalSpecificationLink.isPresent()) {
-                optionalSpecificationLink = Optional.of(RIM_FACTORY.createSpecificationLinkType());
-            }
-            optionalSpecificationLink.get()
-                    .setServiceBinding(valueToPopulate);
-        }
+        optionalSpecificationLink = mapToSchemaElement.populateStringElement(map,
+                SERVICE_BINDING,
+                optionalSpecificationLink,
+                (valueToPopulate, optional) -> optional.get()
+                        .setServiceBinding(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, SPECIFICATION_OBJECT);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalSpecificationLink.isPresent()) {
-                optionalSpecificationLink = Optional.of(RIM_FACTORY.createSpecificationLinkType());
-            }
-            optionalSpecificationLink.get()
-                    .setSpecificationObject(valueToPopulate);
-        }
+        optionalSpecificationLink = mapToSchemaElement.populateStringElement(map,
+                SPECIFICATION_OBJECT,
+                optionalSpecificationLink,
+                (valueToPopulate, optional) -> optional.get()
+                        .setSpecificationObject(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, USAGE_DESCRIPTION);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            InternationalStringType istToPopulate = INTERNATIONAL_STRING_TYPE_HELPER.create(
-                    valueToPopulate);
-
-            if (istToPopulate.isSetLocalizedString()) {
-                if (!optionalSpecificationLink.isPresent()) {
-                    optionalSpecificationLink =
-                            Optional.of(RIM_FACTORY.createSpecificationLinkType());
-                }
-                optionalSpecificationLink.get()
-                        .setUsageDescription(istToPopulate);
-            }
-        }
+        optionalSpecificationLink = mapToSchemaElement.populateInternationalStringTypeElement(map,
+                USAGE_DESCRIPTION,
+                optionalSpecificationLink,
+                (istToPopulate, optional) -> optional.get()
+                        .setUsageDescription(istToPopulate));
 
         if (map.containsKey(USAGE_PARAMETERS)) {
             if (!optionalSpecificationLink.isPresent()) {
-                optionalSpecificationLink = Optional.of(RIM_FACTORY.createSpecificationLinkType());
+                optionalSpecificationLink = Optional.of(mapToSchemaElement.getObjectFactory()
+                        .get());
             }
             optionalSpecificationLink.get()
                     .getUsageParameter()

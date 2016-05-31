@@ -13,25 +13,29 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CLASSIFICATION_NODE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CLASSIFICATION_SCHEME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CLASSIFIED_OBJECT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.NODE_REPRESENTATION;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
+import static org.codice.ddf.registry.schemabindings.converter.web.ClassificationWebConverter.CLASSIFICATION_NODE;
+import static org.codice.ddf.registry.schemabindings.converter.web.ClassificationWebConverter.CLASSIFICATION_SCHEME;
+import static org.codice.ddf.registry.schemabindings.converter.web.ClassificationWebConverter.CLASSIFIED_OBJECT;
+import static org.codice.ddf.registry.schemabindings.converter.web.ClassificationWebConverter.NODE_REPRESENTATION;
 
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ClassificationType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
-public class ClassificationTypeConverter extends RegistryObjectTypeConverter {
+public class ClassificationTypeConverter
+        extends AbstractRegistryObjectTypeConverter<ClassificationType> {
+
+    private MapToSchemaElement<ClassificationType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createClassificationType);
+
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createClassificationType();
+    protected MapToSchemaElement<ClassificationType> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -54,46 +58,28 @@ public class ClassificationTypeConverter extends RegistryObjectTypeConverter {
             return optionalClassification;
         }
 
-        Optional<RegistryObjectType> optionalRot = convertRegistryObject(map);
-        if (optionalRot.isPresent()) {
-            optionalClassification = Optional.of((ClassificationType) optionalRot.get());
-        }
+        optionalClassification = super.convert(map);
 
-        String valueToPopulate = MapUtils.getString(map, CLASSIFICATION_NODE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalClassification.isPresent()) {
-                optionalClassification = Optional.of(RIM_FACTORY.createClassificationType());
-            }
-            optionalClassification.get()
-                    .setClassificationNode(valueToPopulate);
-        }
-
-        valueToPopulate = MapUtils.getString(map, CLASSIFICATION_SCHEME);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalClassification.isPresent()) {
-                optionalClassification = Optional.of(RIM_FACTORY.createClassificationType());
-            }
-            optionalClassification.get()
-                    .setClassificationScheme(valueToPopulate);
-        }
-
-        valueToPopulate = MapUtils.getString(map, CLASSIFIED_OBJECT);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalClassification.isPresent()) {
-                optionalClassification = Optional.of(RIM_FACTORY.createClassificationType());
-            }
-            optionalClassification.get()
-                    .setClassifiedObject(valueToPopulate);
-        }
-
-        valueToPopulate = MapUtils.getString(map, NODE_REPRESENTATION);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalClassification.isPresent()) {
-                optionalClassification = Optional.of(RIM_FACTORY.createClassificationType());
-            }
-            optionalClassification.get()
-                    .setNodeRepresentation(valueToPopulate);
-        }
+        optionalClassification = mapToSchemaElement.populateStringElement(map,
+                CLASSIFICATION_NODE,
+                optionalClassification,
+                (valueToPopulate, optional) -> optional.get()
+                        .setClassificationNode(valueToPopulate));
+        optionalClassification = mapToSchemaElement.populateStringElement(map,
+                CLASSIFIED_OBJECT,
+                optionalClassification,
+                (valueToPopulate, optional) -> optional.get()
+                        .setClassifiedObject(valueToPopulate));
+        optionalClassification = mapToSchemaElement.populateStringElement(map,
+                CLASSIFICATION_SCHEME,
+                optionalClassification,
+                (valueToPopulate, optional) -> optional.get()
+                        .setClassificationScheme(valueToPopulate));
+        optionalClassification = mapToSchemaElement.populateStringElement(map,
+                NODE_REPRESENTATION,
+                optionalClassification,
+                (valueToPopulate, optional) -> optional.get()
+                        .setNodeRepresentation(valueToPopulate));
 
         return optionalClassification;
     }

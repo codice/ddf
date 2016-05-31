@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SERVICE_BINDING_KEY;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +25,7 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceType;
 
 public class ServiceWebConverter extends RegistryObjectWebConverter {
+    public static final String SERVICE_BINDING_KEY = "ServiceBinding";
 
     /**
      * This method creates a Map<String, Object> representation of the ServiceType provided.

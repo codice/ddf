@@ -13,23 +13,26 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CITY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.COUNTRY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.POSTAL_CODE;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.STATE_OR_PROVINCE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.STREET;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.STREET_NUMBER;
+import static org.codice.ddf.registry.schemabindings.converter.web.PostalAddressWebConverter.CITY;
+import static org.codice.ddf.registry.schemabindings.converter.web.PostalAddressWebConverter.COUNTRY;
+import static org.codice.ddf.registry.schemabindings.converter.web.PostalAddressWebConverter.POSTAL_CODE;
+import static org.codice.ddf.registry.schemabindings.converter.web.PostalAddressWebConverter.STATE_OR_PROVINCE;
+import static org.codice.ddf.registry.schemabindings.converter.web.PostalAddressWebConverter.STREET;
+import static org.codice.ddf.registry.schemabindings.converter.web.PostalAddressWebConverter.STREET_NUMBER;
 
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PostalAddressType;
 
 public class PostalAddressTypeConverter {
+
+    private MapToSchemaElement<PostalAddressType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createPostalAddressType);
 
     /**
      * This method creates an PostalAddressType from the values in the provided map.
@@ -51,59 +54,41 @@ public class PostalAddressTypeConverter {
             return optionalAddress;
         }
 
-        String valueToPopulate = MapUtils.getString(map, CITY);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalAddress.isPresent()) {
-                optionalAddress = Optional.of(RIM_FACTORY.createPostalAddressType());
-            }
-            optionalAddress.get()
-                    .setCity(valueToPopulate);
-        }
+        optionalAddress = mapToSchemaElement.populateStringElement(map,
+                CITY,
+                optionalAddress,
+                (valueToPopulate, optional) -> optional.get()
+                        .setCity(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, COUNTRY);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalAddress.isPresent()) {
-                optionalAddress = Optional.of(RIM_FACTORY.createPostalAddressType());
-            }
-            optionalAddress.get()
-                    .setCountry(valueToPopulate);
-        }
+        optionalAddress = mapToSchemaElement.populateStringElement(map,
+                COUNTRY,
+                optionalAddress,
+                (valueToPopulate, optional) -> optional.get()
+                        .setCountry(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, POSTAL_CODE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalAddress.isPresent()) {
-                optionalAddress = Optional.of(RIM_FACTORY.createPostalAddressType());
-            }
-            optionalAddress.get()
-                    .setPostalCode(valueToPopulate);
-        }
+        optionalAddress = mapToSchemaElement.populateStringElement(map,
+                POSTAL_CODE,
+                optionalAddress,
+                (valueToPopulate, optional) -> optional.get()
+                        .setPostalCode(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, STATE_OR_PROVINCE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalAddress.isPresent()) {
-                optionalAddress = Optional.of(RIM_FACTORY.createPostalAddressType());
-            }
-            optionalAddress.get()
-                    .setStateOrProvince(valueToPopulate);
-        }
+        optionalAddress = mapToSchemaElement.populateStringElement(map,
+                STATE_OR_PROVINCE,
+                optionalAddress,
+                (valueToPopulate, optional) -> optional.get()
+                        .setStateOrProvince(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, STREET);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalAddress.isPresent()) {
-                optionalAddress = Optional.of(RIM_FACTORY.createPostalAddressType());
-            }
-            optionalAddress.get()
-                    .setStreet(valueToPopulate);
-        }
+        optionalAddress = mapToSchemaElement.populateStringElement(map,
+                STREET,
+                optionalAddress,
+                (valueToPopulate, optional) -> optional.get()
+                        .setStreet(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, STREET_NUMBER);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalAddress.isPresent()) {
-                optionalAddress = Optional.of(RIM_FACTORY.createPostalAddressType());
-            }
-            optionalAddress.get()
-                    .setStreetNumber(valueToPopulate);
-        }
+        optionalAddress = mapToSchemaElement.populateStringElement(map,
+                STREET_NUMBER,
+                optionalAddress,
+                (valueToPopulate, optional) -> optional.get()
+                        .setStreetNumber(valueToPopulate));
 
         return optionalAddress;
     }

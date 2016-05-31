@@ -13,20 +13,23 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.FIRST_NAME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.LAST_NAME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.MIDDLE_NAME;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
+import static org.codice.ddf.registry.schemabindings.converter.web.PersonNameWebConverter.FIRST_NAME;
+import static org.codice.ddf.registry.schemabindings.converter.web.PersonNameWebConverter.LAST_NAME;
+import static org.codice.ddf.registry.schemabindings.converter.web.PersonNameWebConverter.MIDDLE_NAME;
 
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PersonNameType;
 
 public class PersonNameTypeConverter {
+
+    private final MapToSchemaElement<PersonNameType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createPersonNameType);
 
     /**
      * This method creates an PersonNameType from the values in the provided map.
@@ -45,32 +48,21 @@ public class PersonNameTypeConverter {
             return optionalPersonName;
         }
 
-        String valueToPopulate = MapUtils.getString(map, FIRST_NAME);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalPersonName.isPresent()) {
-                optionalPersonName = Optional.of(RIM_FACTORY.createPersonNameType());
-            }
-            optionalPersonName.get()
-                    .setFirstName(valueToPopulate);
-        }
-
-        valueToPopulate = MapUtils.getString(map, LAST_NAME);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalPersonName.isPresent()) {
-                optionalPersonName = Optional.of(RIM_FACTORY.createPersonNameType());
-            }
-            optionalPersonName.get()
-                    .setLastName(valueToPopulate);
-        }
-
-        valueToPopulate = MapUtils.getString(map, MIDDLE_NAME);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalPersonName.isPresent()) {
-                optionalPersonName = Optional.of(RIM_FACTORY.createPersonNameType());
-            }
-            optionalPersonName.get()
-                    .setMiddleName(valueToPopulate);
-        }
+        optionalPersonName = mapToSchemaElement.populateStringElement(map,
+                FIRST_NAME,
+                optionalPersonName,
+                (value, element) -> element.get()
+                        .setFirstName(value));
+        optionalPersonName = mapToSchemaElement.populateStringElement(map,
+                MIDDLE_NAME,
+                optionalPersonName,
+                (value, element) -> element.get()
+                        .setMiddleName(value));
+        optionalPersonName = mapToSchemaElement.populateStringElement(map,
+                LAST_NAME,
+                optionalPersonName,
+                (value, element) -> element.get()
+                        .setLastName(value));
 
         return optionalPersonName;
     }

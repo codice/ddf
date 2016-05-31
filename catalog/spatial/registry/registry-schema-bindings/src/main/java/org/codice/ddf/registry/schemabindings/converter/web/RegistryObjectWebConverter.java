@@ -13,18 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CLASSIFICATION_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.DESCRIPTION_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.EXTERNAL_IDENTIFIER_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.HOME_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ID_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.LID_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.NAME_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.OBJECT_TYPE_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SLOT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.STATUS_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.VERSION_INFO_KEY;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +29,27 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 
 public class RegistryObjectWebConverter {
+    public static final String CLASSIFICATION_KEY = "Classification";
+
+    public static final String DESCRIPTION_KEY = "Description";
+
+    public static final String EXTERNAL_IDENTIFIER_KEY = "ExternalIdentifier";
+
+    public static final String HOME_KEY = "home";
+
+    public static final String ID_KEY = "id";
+
+    public static final String LID_KEY = "Lid";
+
+    public static final String NAME_KEY = "Name";
+
+    public static final String OBJECT_TYPE_KEY = "objectType";
+
+    public static final String SLOT = "Slot";
+
+    public static final String STATUS_KEY = "Status";
+
+    public static final String VERSION_INFO_KEY = "VersionInfo";
 
     protected static final InternationalStringTypeHelper INTERNATIONAL_STRING_TYPE_HELPER =
             new InternationalStringTypeHelper();

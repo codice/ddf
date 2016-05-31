@@ -13,26 +13,28 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CONTENT_VERSION_INFO;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.IS_OPAQUE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.MIME_TYPE;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
+import static org.codice.ddf.registry.schemabindings.converter.web.ExtrinsicObjectWebConverter.CONTENT_VERSION_INFO;
+import static org.codice.ddf.registry.schemabindings.converter.web.ExtrinsicObjectWebConverter.IS_OPAQUE;
+import static org.codice.ddf.registry.schemabindings.converter.web.ExtrinsicObjectWebConverter.MIME_TYPE;
 
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.VersionInfoType;
 
-public class ExtrinsicObjectTypeConverter extends RegistryObjectTypeConverter {
+public class ExtrinsicObjectTypeConverter
+        extends AbstractRegistryObjectTypeConverter<ExtrinsicObjectType> {
+
+    private MapToSchemaElement<ExtrinsicObjectType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createExtrinsicObjectType);
 
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createExtrinsicObjectType();
+    protected MapToSchemaElement<ExtrinsicObjectType> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -54,41 +56,25 @@ public class ExtrinsicObjectTypeConverter extends RegistryObjectTypeConverter {
             return optionalExtrinsicObject;
         }
 
-        Optional<RegistryObjectType> optionalRegistryObject = super.convertRegistryObject(map);
-        if (optionalRegistryObject.isPresent()) {
-            optionalExtrinsicObject =
-                    Optional.of((ExtrinsicObjectType) optionalRegistryObject.get());
-        }
+        optionalExtrinsicObject = super.convert(map);
 
-        String valueToPopulate = MapUtils.getString(map, CONTENT_VERSION_INFO);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalExtrinsicObject.isPresent()) {
-                optionalExtrinsicObject = Optional.of(RIM_FACTORY.createExtrinsicObjectType());
-            }
-            VersionInfoType contentVersionInfo = RIM_FACTORY.createVersionInfoType();
-            contentVersionInfo.setVersionName(valueToPopulate);
+        optionalExtrinsicObject = mapToSchemaElement.populateVersionInfoTypeElement(map,
+                CONTENT_VERSION_INFO,
+                optionalExtrinsicObject,
+                (versionInfo, optional) -> optional.get()
+                        .setContentVersionInfo(versionInfo));
 
-            optionalExtrinsicObject.get()
-                    .setContentVersionInfo(contentVersionInfo);
-        }
+        optionalExtrinsicObject = mapToSchemaElement.populateBooleanElement(map,
+                IS_OPAQUE,
+                optionalExtrinsicObject,
+                (boolToPopulate, optional) -> optional.get()
+                        .setIsOpaque(boolToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, MIME_TYPE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalExtrinsicObject.isPresent()) {
-                optionalExtrinsicObject = Optional.of(RIM_FACTORY.createExtrinsicObjectType());
-            }
-            optionalExtrinsicObject.get()
-                    .setMimeType(valueToPopulate);
-        }
-
-        Boolean booleanToPopulate = MapUtils.getBoolean(map, IS_OPAQUE);
-        if (booleanToPopulate != null) {
-            if (!optionalExtrinsicObject.isPresent()) {
-                optionalExtrinsicObject = Optional.of(RIM_FACTORY.createExtrinsicObjectType());
-            }
-            optionalExtrinsicObject.get()
-                    .setIsOpaque(booleanToPopulate);
-        }
+        optionalExtrinsicObject = mapToSchemaElement.populateStringElement(map,
+                MIME_TYPE,
+                optionalExtrinsicObject,
+                (valueToPopulate, optional) -> optional.get()
+                        .setMimeType(valueToPopulate));
 
         return optionalExtrinsicObject;
     }

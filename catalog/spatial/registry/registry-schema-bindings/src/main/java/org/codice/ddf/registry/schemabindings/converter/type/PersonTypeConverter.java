@@ -13,30 +13,33 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ADDRESS_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.EMAIL_ADDRESS_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PERSON_NAME_KEY;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.TELEPHONE_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.PersonWebConverter.ADDRESS_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.PersonWebConverter.EMAIL_ADDRESS_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.PersonWebConverter.PERSON_NAME_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.PersonWebConverter.TELEPHONE_KEY;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.EmailAddressType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PersonNameType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PersonType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PostalAddressType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 
-public class PersonTypeConverter extends RegistryObjectTypeConverter {
+public class PersonTypeConverter extends AbstractRegistryObjectTypeConverter<PersonType> {
+
+    private MapToSchemaElement<PersonType> mapToSchemaElement =
+            new MapToSchemaElement<>(RIM_FACTORY::createPersonType);
 
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createPersonType();
+    protected MapToSchemaElement<PersonType> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -65,10 +68,7 @@ public class PersonTypeConverter extends RegistryObjectTypeConverter {
             return optionalPerson;
         }
 
-        Optional<RegistryObjectType> optionalRegistryObject = super.convertRegistryObject(map);
-        if (optionalRegistryObject.isPresent()) {
-            optionalPerson = Optional.of((PersonType) optionalRegistryObject.get());
-        }
+        optionalPerson = super.convert(map);
 
         if (map.containsKey(ADDRESS_KEY)) {
             Optional<PostalAddressType> optionalAddress;
@@ -78,7 +78,8 @@ public class PersonTypeConverter extends RegistryObjectTypeConverter {
                 optionalAddress = addressConverter.convert(addressMap);
                 if (optionalAddress.isPresent()) {
                     if (!optionalPerson.isPresent()) {
-                        optionalPerson = Optional.of(RIM_FACTORY.createPersonType());
+                        optionalPerson = Optional.of(mapToSchemaElement.getObjectFactory()
+                                .get());
                     }
 
                     optionalPerson.get()
@@ -97,7 +98,8 @@ public class PersonTypeConverter extends RegistryObjectTypeConverter {
                 optionalEmailAddress = emailConverter.convert(emailAddressMap);
                 if (optionalEmailAddress.isPresent()) {
                     if (!optionalPerson.isPresent()) {
-                        optionalPerson = Optional.of(RIM_FACTORY.createPersonType());
+                        optionalPerson = Optional.of(mapToSchemaElement.getObjectFactory()
+                                .get());
                     }
 
                     optionalPerson.get()
@@ -114,7 +116,8 @@ public class PersonTypeConverter extends RegistryObjectTypeConverter {
 
             if (optionalPersonName.isPresent()) {
                 if (!optionalPerson.isPresent()) {
-                    optionalPerson = Optional.of(RIM_FACTORY.createPersonType());
+                    optionalPerson = Optional.of(mapToSchemaElement.getObjectFactory()
+                            .get());
                 }
                 optionalPerson.get()
                         .setPersonName(optionalPersonName.get());
@@ -130,7 +133,8 @@ public class PersonTypeConverter extends RegistryObjectTypeConverter {
                 optionalTelephone = telephoneConverter.convert(telephoneMap);
                 if (optionalTelephone.isPresent()) {
                     if (!optionalPerson.isPresent()) {
-                        optionalPerson = Optional.of(RIM_FACTORY.createPersonType());
+                        optionalPerson = Optional.of(mapToSchemaElement.getObjectFactory()
+                                .get());
                     }
 
                     optionalPerson.get()

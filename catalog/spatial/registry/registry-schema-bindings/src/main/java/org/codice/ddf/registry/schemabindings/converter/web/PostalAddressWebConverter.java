@@ -13,19 +13,23 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CITY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.COUNTRY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.POSTAL_CODE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.STATE_OR_PROVINCE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.STREET;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.STREET_NUMBER;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PostalAddressType;
 
 public class PostalAddressWebConverter {
+    public static final String CITY = "city";
+
+    public static final String COUNTRY = "country";
+
+    public static final String POSTAL_CODE = "postalCode";
+
+    public static final String STATE_OR_PROVINCE = "stateOrProvince";
+
+    public static final String STREET = "street";
+
+    public static final String STREET_NUMBER = "streetNumber";
 
     /**
      * This method creates a Map<String, Object> representation of the PostalAddressType provided.

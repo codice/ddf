@@ -13,15 +13,15 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ADDRESS;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.TYPE;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.EmailAddressType;
 
 public class EmailAddressWebConverter {
+    public static final String ADDRESS = "address";
+
+    public static final String TYPE = "type";
 
     /**
      * This method creates a Map<String, Object> representation of the EmailAddressType provided.

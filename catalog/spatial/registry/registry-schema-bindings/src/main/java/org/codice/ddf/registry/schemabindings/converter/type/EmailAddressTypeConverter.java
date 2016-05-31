@@ -13,19 +13,21 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ADDRESS;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.TYPE;
+import static org.codice.ddf.registry.schemabindings.converter.web.EmailAddressWebConverter.ADDRESS;
+import static org.codice.ddf.registry.schemabindings.converter.web.EmailAddressWebConverter.TYPE;
 
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.EmailAddressType;
 
 public class EmailAddressTypeConverter {
+
+    private MapToSchemaElement<EmailAddressType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createEmailAddressType);
 
     /**
      * This method creates an EmailAddressType from the values in the provided map.
@@ -40,23 +42,16 @@ public class EmailAddressTypeConverter {
     public Optional<EmailAddressType> convert(Map<String, Object> map) {
         Optional<EmailAddressType> optionalEmailAddress = Optional.empty();
 
-        String valueToPopulate = MapUtils.getString(map, ADDRESS);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalEmailAddress.isPresent()) {
-                optionalEmailAddress = Optional.of(RIM_FACTORY.createEmailAddressType());
-            }
-            optionalEmailAddress.get()
-                    .setAddress(valueToPopulate);
-        }
-
-        valueToPopulate = MapUtils.getString(map, TYPE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalEmailAddress.isPresent()) {
-                optionalEmailAddress = Optional.of(RIM_FACTORY.createEmailAddressType());
-            }
-            optionalEmailAddress.get()
-                    .setType(valueToPopulate);
-        }
+        optionalEmailAddress = mapToSchemaElement.populateStringElement(map,
+                ADDRESS,
+                optionalEmailAddress,
+                (valueToPopulate, optional) -> optional.get()
+                        .setAddress(valueToPopulate));
+        optionalEmailAddress = mapToSchemaElement.populateStringElement(map,
+                TYPE,
+                optionalEmailAddress,
+                (valueToPopulate, optional) -> optional.get()
+                        .setType(valueToPopulate));
 
         return optionalEmailAddress;
     }

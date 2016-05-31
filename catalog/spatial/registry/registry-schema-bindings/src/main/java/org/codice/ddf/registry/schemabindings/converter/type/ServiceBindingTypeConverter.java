@@ -13,28 +13,31 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ACCESS_URI;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SERVICE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SPECIFICATION_LINK_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.TARGET_BINDING;
+import static org.codice.ddf.registry.schemabindings.converter.web.ServiceBindingWebConverter.ACCESS_URI;
+import static org.codice.ddf.registry.schemabindings.converter.web.ServiceBindingWebConverter.SERVICE;
+import static org.codice.ddf.registry.schemabindings.converter.web.ServiceBindingWebConverter.SPECIFICATION_LINK_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.ServiceBindingWebConverter.TARGET_BINDING;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SpecificationLinkType;
 
-public class ServiceBindingTypeConverter extends RegistryObjectTypeConverter {
+public class ServiceBindingTypeConverter
+        extends AbstractRegistryObjectTypeConverter<ServiceBindingType> {
+
+    private MapToSchemaElement<ServiceBindingType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createServiceBindingType);
 
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createServiceBindingType();
+    protected MapToSchemaElement<ServiceBindingType> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -60,28 +63,19 @@ public class ServiceBindingTypeConverter extends RegistryObjectTypeConverter {
             return optionalBinding;
         }
 
-        Optional<RegistryObjectType> optionalRegistryObject = super.convertRegistryObject(map);
-        if (optionalRegistryObject.isPresent()) {
-            optionalBinding = Optional.of((ServiceBindingType) optionalRegistryObject.get());
-        }
+        optionalBinding = super.convert(map);
 
-        String valueToPopulate = MapUtils.getString(map, ACCESS_URI);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalBinding.isPresent()) {
-                optionalBinding = Optional.of(RIM_FACTORY.createServiceBindingType());
-            }
-            optionalBinding.get()
-                    .setAccessURI(valueToPopulate);
-        }
+        optionalBinding = mapToSchemaElement.populateStringElement(map,
+                ACCESS_URI,
+                optionalBinding,
+                (valueToPopulate, optional) -> optional.get()
+                        .setAccessURI(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, SERVICE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalBinding.isPresent()) {
-                optionalBinding = Optional.of(RIM_FACTORY.createServiceBindingType());
-            }
-            optionalBinding.get()
-                    .setService(valueToPopulate);
-        }
+        optionalBinding = mapToSchemaElement.populateStringElement(map,
+                SERVICE,
+                optionalBinding,
+                (valueToPopulate, optional) -> optional.get()
+                        .setService(valueToPopulate));
 
         if (map.containsKey(SPECIFICATION_LINK_KEY)) {
             SpecificationLinkTypeConverter slConverter = new SpecificationLinkTypeConverter();
@@ -93,7 +87,8 @@ public class ServiceBindingTypeConverter extends RegistryObjectTypeConverter {
 
                 if (optionalBinding.isPresent()) {
                     if (!optionalBinding.isPresent()) {
-                        optionalBinding = Optional.of(RIM_FACTORY.createServiceBindingType());
+                        optionalBinding = Optional.of(mapToSchemaElement.getObjectFactory()
+                                .get());
                     }
 
                     optionalBinding.get()
@@ -103,14 +98,11 @@ public class ServiceBindingTypeConverter extends RegistryObjectTypeConverter {
             }
         }
 
-        valueToPopulate = MapUtils.getString(map, TARGET_BINDING);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalBinding.isPresent()) {
-                optionalBinding = Optional.of(RIM_FACTORY.createServiceBindingType());
-            }
-            optionalBinding.get()
-                    .setTargetBinding(valueToPopulate);
-        }
+        optionalBinding = mapToSchemaElement.populateStringElement(map,
+                TARGET_BINDING,
+                optionalBinding,
+                (valueToPopulate, optional) -> optional.get()
+                        .setTargetBinding(valueToPopulate));
 
         return optionalBinding;
     }

@@ -14,23 +14,26 @@
 package org.codice.ddf.registry.schemabindings.converter.type;
 
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SERVICE_BINDING_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.ServiceWebConverter.SERVICE_BINDING_KEY;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceType;
 
-public class ServiceTypeConverter extends RegistryObjectTypeConverter {
+public class ServiceTypeConverter extends AbstractRegistryObjectTypeConverter<ServiceType> {
+
+    private MapToSchemaElement<ServiceType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createServiceType);
 
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createServiceType();
+    protected MapToSchemaElement<ServiceType> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -53,10 +56,7 @@ public class ServiceTypeConverter extends RegistryObjectTypeConverter {
             return optionalService;
         }
 
-        Optional<RegistryObjectType> optionalRegistryObject = super.convertRegistryObject(map);
-        if (optionalRegistryObject.isPresent()) {
-            optionalService = Optional.of((ServiceType) optionalRegistryObject.get());
-        }
+        optionalService = super.convert(map);
 
         if (map.containsKey(SERVICE_BINDING_KEY)) {
             ServiceBindingTypeConverter bindingConverter = new ServiceBindingTypeConverter();
@@ -67,7 +67,8 @@ public class ServiceTypeConverter extends RegistryObjectTypeConverter {
 
                 if (optionalBinding.isPresent()) {
                     if (!optionalService.isPresent()) {
-                        optionalService = Optional.of(RIM_FACTORY.createServiceType());
+                        optionalService = Optional.of(mapToSchemaElement.getObjectFactory()
+                                .get());
                     }
 
                     optionalService.get()

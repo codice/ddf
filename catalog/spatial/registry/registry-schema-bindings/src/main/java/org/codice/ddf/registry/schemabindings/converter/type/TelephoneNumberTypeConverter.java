@@ -13,32 +13,34 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_AREA_CODE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_COUNTRY_CODE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_EXTENSION;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_NUMBER;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PHONE_TYPE;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
+import static org.codice.ddf.registry.schemabindings.converter.web.TelephoneNumberWebConverter.AREA_CODE;
+import static org.codice.ddf.registry.schemabindings.converter.web.TelephoneNumberWebConverter.COUNTRY_CODE;
+import static org.codice.ddf.registry.schemabindings.converter.web.TelephoneNumberWebConverter.EXTENSION;
+import static org.codice.ddf.registry.schemabindings.converter.web.TelephoneNumberWebConverter.NUMBER;
+import static org.codice.ddf.registry.schemabindings.converter.web.TelephoneNumberWebConverter.PHONE_TYPE;
 
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 
 public class TelephoneNumberTypeConverter {
 
+    private MapToSchemaElement<TelephoneNumberType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createTelephoneNumberType);
+
     /**
      * This method creates an OrganizationType from the values in the provided map.
      * The following keys are expected in the provided map (Taken from EbrimConstants):
      * <p>
-     * PHONE_COUNTRY_CODE = "countryCode";
+     * COUNTRY_CODE = "countryCode";
      * PHONE_TYPE = "phoneType";
-     * PHONE_AREA_CODE = "areaCode";
-     * PHONE_NUMBER = "number";
-     * PHONE_EXTENSION = "extension";
+     * AREA_CODE = "areaCode";
+     * NUMBER = "number";
+     * EXTENSION = "extension";
      *
      * @param map the Map representation of the OrganizationType to generate, null returns empty Optional
      * @return Optional OrganizationType created from the values in the map
@@ -46,50 +48,31 @@ public class TelephoneNumberTypeConverter {
     public Optional<TelephoneNumberType> convert(Map<String, Object> map) {
         Optional<TelephoneNumberType> optionalTelephone = Optional.empty();
 
-        String valueToPopulate = MapUtils.getString(map, PHONE_AREA_CODE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalTelephone.isPresent()) {
-                optionalTelephone = Optional.of(RIM_FACTORY.createTelephoneNumberType());
-            }
-            optionalTelephone.get()
-                    .setAreaCode(valueToPopulate);
-        }
+        optionalTelephone = mapToSchemaElement.populateStringElement(map, AREA_CODE,
+                optionalTelephone,
+                (valueToPopulate, optional) -> optional.get()
+                        .setAreaCode(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, PHONE_COUNTRY_CODE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalTelephone.isPresent()) {
-                optionalTelephone = Optional.of(RIM_FACTORY.createTelephoneNumberType());
-            }
-            optionalTelephone.get()
-                    .setCountryCode(valueToPopulate);
-        }
+        optionalTelephone = mapToSchemaElement.populateStringElement(map, COUNTRY_CODE,
+                optionalTelephone,
+                (valueToPopulate, optional) -> optional.get()
+                        .setCountryCode(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, PHONE_EXTENSION);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalTelephone.isPresent()) {
-                optionalTelephone = Optional.of(RIM_FACTORY.createTelephoneNumberType());
-            }
-            optionalTelephone.get()
-                    .setExtension(valueToPopulate);
-        }
+        optionalTelephone = mapToSchemaElement.populateStringElement(map, EXTENSION,
+                optionalTelephone,
+                (valueToPopulate, optional) -> optional.get()
+                        .setExtension(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, PHONE_NUMBER);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalTelephone.isPresent()) {
-                optionalTelephone = Optional.of(RIM_FACTORY.createTelephoneNumberType());
-            }
-            optionalTelephone.get()
-                    .setNumber(valueToPopulate);
-        }
+        optionalTelephone = mapToSchemaElement.populateStringElement(map, NUMBER,
+                optionalTelephone,
+                (valueToPopulate, optional) -> optional.get()
+                        .setNumber(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, PHONE_TYPE);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalTelephone.isPresent()) {
-                optionalTelephone = Optional.of(RIM_FACTORY.createTelephoneNumberType());
-            }
-            optionalTelephone.get()
-                    .setPhoneType(valueToPopulate);
-        }
+        optionalTelephone = mapToSchemaElement.populateStringElement(map,
+                PHONE_TYPE,
+                optionalTelephone,
+                (valueToPopulate, optional) -> optional.get()
+                        .setPhoneType(valueToPopulate));
 
         return optionalTelephone;
     }

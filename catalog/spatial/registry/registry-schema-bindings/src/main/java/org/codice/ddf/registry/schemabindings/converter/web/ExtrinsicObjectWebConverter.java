@@ -13,10 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CONTENT_VERSION_INFO;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.IS_OPAQUE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.MIME_TYPE;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +21,11 @@ import org.apache.commons.collections.MapUtils;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 
 public class ExtrinsicObjectWebConverter extends RegistryObjectWebConverter {
+    public static final String CONTENT_VERSION_INFO = "ContentVersionInfo";
+
+    public static final String IS_OPAQUE = "isOpaque";
+
+    public static final String MIME_TYPE = "mimeType";
 
     /**
      * This method creates a Map<String, Object> representation of the ExtrinsicObjectType provided.

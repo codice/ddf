@@ -13,10 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ASSOCIATION_TYPE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SOURCE_OBJECT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.TARGET_OBJECT;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +21,11 @@ import org.apache.commons.collections.MapUtils;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
 
 public class AssociationWebConverter extends RegistryObjectWebConverter {
+    public static final String ASSOCIATION_TYPE = "associationType";
+
+    public static final String SOURCE_OBJECT = "sourceObject";
+
+    public static final String TARGET_OBJECT = "targetObject";
 
     /**
      * This method creates a Map<String, Object> representation of the AssociationType1 provided.

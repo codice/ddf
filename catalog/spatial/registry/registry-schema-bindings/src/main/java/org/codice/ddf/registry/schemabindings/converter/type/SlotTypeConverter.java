@@ -14,15 +14,15 @@
 package org.codice.ddf.registry.schemabindings.converter.type;
 
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.GML_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.NAME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.POINT_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.POSITION;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SLOT_TYPE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SRS_DIMENSION;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SRS_NAME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.VALUE;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.WRS_FACTORY;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.NAME;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.POINT_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.POSITION;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.SLOT_TYPE;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.SRS_DIMENSION;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.SRS_NAME;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.VALUE;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -34,6 +34,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.registry.common.RegistryConstants;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.gml.v_3_1_1.DirectPositionType;
@@ -42,6 +43,9 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ValueListType;
 
 public class SlotTypeConverter {
+
+    private MapToSchemaElement<SlotType1> mapToSchemaElement =
+            new MapToSchemaElement<>(RIM_FACTORY::createSlotType1);
 
     /**
      * This method creates an SlotType1 from the values in the provided map.
@@ -69,7 +73,8 @@ public class SlotTypeConverter {
                         getWrsValueList(map);
                 if (optionalValueList.isPresent()) {
                     if (!optionalSlot.isPresent()) {
-                        optionalSlot = Optional.of(RIM_FACTORY.createSlotType1());
+                        optionalSlot = Optional.of(mapToSchemaElement.getObjectFactory()
+                                .get());
                     }
 
                     optionalSlot.get()
@@ -78,7 +83,8 @@ public class SlotTypeConverter {
             }
 
             if (!optionalSlot.isPresent()) {
-                optionalSlot = Optional.of(RIM_FACTORY.createSlotType1());
+                optionalSlot = Optional.of(mapToSchemaElement.getObjectFactory()
+                        .get());
             }
             optionalSlot.get()
                     .setSlotType(slotType);
@@ -87,7 +93,8 @@ public class SlotTypeConverter {
             Optional<ValueListType> optionalValueList = getValueList(map);
             if (optionalValueList.isPresent()) {
                 if (!optionalSlot.isPresent()) {
-                    optionalSlot = Optional.of(RIM_FACTORY.createSlotType1());
+                    optionalSlot = Optional.of(mapToSchemaElement.getObjectFactory()
+                            .get());
                 }
 
                 optionalSlot.get()
@@ -95,14 +102,11 @@ public class SlotTypeConverter {
             }
         }
 
-        String name = MapUtils.getString(map, NAME);
-        if (StringUtils.isNotBlank(name)) {
-            if (!optionalSlot.isPresent()) {
-                optionalSlot = Optional.of(RIM_FACTORY.createSlotType1());
-            }
-            optionalSlot.get()
-                    .setName(name);
-        }
+        optionalSlot = mapToSchemaElement.populateStringElement(map,
+                NAME,
+                optionalSlot,
+                (valueToPopulate, optional) -> optional.get()
+                        .setName(valueToPopulate));
 
         return optionalSlot;
     }

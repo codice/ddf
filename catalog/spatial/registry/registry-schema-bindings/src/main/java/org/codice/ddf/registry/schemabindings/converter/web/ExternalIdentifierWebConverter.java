@@ -13,10 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.IDENTIFICATION_SCHEME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.REGISTRY_OBJECT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.VALUE;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +21,11 @@ import org.apache.commons.collections.MapUtils;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 
 public class ExternalIdentifierWebConverter extends RegistryObjectWebConverter {
+    public static final String IDENTIFICATION_SCHEME = "identificationScheme";
+
+    public static final String REGISTRY_OBJECT = "registryObject";
+
+    public static final String VALUE = "value";
 
     /**
      * This method creates a Map<String, Object> representation of the ExternalIdentifierType provided.

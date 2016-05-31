@@ -13,31 +13,34 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.ADDRESS_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.EMAIL_ADDRESS_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PARENT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.PRIMARY_CONTACT;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.TELEPHONE_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.OrganizationWebConverter.ADDRESS_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.OrganizationWebConverter.EMAIL_ADDRESS_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.OrganizationWebConverter.PARENT;
+import static org.codice.ddf.registry.schemabindings.converter.web.OrganizationWebConverter.PRIMARY_CONTACT;
+import static org.codice.ddf.registry.schemabindings.converter.web.OrganizationWebConverter.TELEPHONE_KEY;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.EmailAddressType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.OrganizationType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.PostalAddressType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 
-public class OrganizationTypeConverter extends RegistryObjectTypeConverter {
+public class OrganizationTypeConverter
+        extends AbstractRegistryObjectTypeConverter<OrganizationType> {
+
+    private MapToSchemaElement<OrganizationType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createOrganizationType);
 
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createOrganizationType();
+    protected MapToSchemaElement<OrganizationType> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -66,10 +69,7 @@ public class OrganizationTypeConverter extends RegistryObjectTypeConverter {
             return optionalOrganization;
         }
 
-        Optional<RegistryObjectType> optionalRot = super.convertRegistryObject(map);
-        if (optionalRot.isPresent()) {
-            optionalOrganization = Optional.of((OrganizationType) optionalRot.get());
-        }
+        optionalOrganization = super.convert(map);
 
         if (map.containsKey(ADDRESS_KEY)) {
             Optional<PostalAddressType> optionalAddress;
@@ -79,7 +79,8 @@ public class OrganizationTypeConverter extends RegistryObjectTypeConverter {
                 optionalAddress = addressConverter.convert(addressMap);
                 if (optionalAddress.isPresent()) {
                     if (!optionalOrganization.isPresent()) {
-                        optionalOrganization = Optional.of(RIM_FACTORY.createOrganizationType());
+                        optionalOrganization = Optional.of(mapToSchemaElement.getObjectFactory()
+                                .get());
                     }
 
                     optionalOrganization.get()
@@ -98,7 +99,8 @@ public class OrganizationTypeConverter extends RegistryObjectTypeConverter {
                 optionalEmailAddress = emailConverter.convert(emailAddressMap);
                 if (optionalEmailAddress.isPresent()) {
                     if (!optionalOrganization.isPresent()) {
-                        optionalOrganization = Optional.of(RIM_FACTORY.createOrganizationType());
+                        optionalOrganization = Optional.of(mapToSchemaElement.getObjectFactory()
+                                .get());
                     }
 
                     optionalOrganization.get()
@@ -108,23 +110,17 @@ public class OrganizationTypeConverter extends RegistryObjectTypeConverter {
             }
         }
 
-        String valueToPopulate = MapUtils.getString(map, PARENT);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalOrganization.isPresent()) {
-                optionalOrganization = Optional.of(RIM_FACTORY.createOrganizationType());
-            }
-            optionalOrganization.get()
-                    .setParent(valueToPopulate);
-        }
+        optionalOrganization = mapToSchemaElement.populateStringElement(map,
+                PARENT,
+                optionalOrganization,
+                (valueToPopulate, optional) -> optional.get()
+                        .setParent(valueToPopulate));
 
-        valueToPopulate = MapUtils.getString(map, PRIMARY_CONTACT);
-        if (StringUtils.isNotBlank(valueToPopulate)) {
-            if (!optionalOrganization.isPresent()) {
-                optionalOrganization = Optional.of(RIM_FACTORY.createOrganizationType());
-            }
-            optionalOrganization.get()
-                    .setPrimaryContact(valueToPopulate);
-        }
+        optionalOrganization = mapToSchemaElement.populateStringElement(map,
+                PRIMARY_CONTACT,
+                optionalOrganization,
+                (valueToPopulate, optional) -> optional.get()
+                        .setPrimaryContact(valueToPopulate));
 
         if (map.containsKey(TELEPHONE_KEY)) {
             Optional<TelephoneNumberType> optionalTelephone;
@@ -135,7 +131,8 @@ public class OrganizationTypeConverter extends RegistryObjectTypeConverter {
                 optionalTelephone = telephoneConverter.convert(telephoneMap);
                 if (optionalTelephone.isPresent()) {
                     if (!optionalOrganization.isPresent()) {
-                        optionalOrganization = Optional.of(RIM_FACTORY.createOrganizationType());
+                        optionalOrganization = Optional.of(mapToSchemaElement.getObjectFactory()
+                                .get());
                     }
 
                     optionalOrganization.get()

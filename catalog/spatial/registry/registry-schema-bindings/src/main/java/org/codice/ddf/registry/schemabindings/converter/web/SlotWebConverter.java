@@ -13,14 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.NAME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.POINT_KEY;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.POSITION;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SLOT_TYPE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SRS_DIMENSION;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SRS_NAME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.VALUE;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +35,19 @@ import net.opengis.gml.v_3_1_1.PointType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 
 public class SlotWebConverter {
+    public static final String NAME = "name";
+
+    public static final String POINT_KEY = "Point";
+
+    public static final String POSITION = "pos";
+
+    public static final String SLOT_TYPE = "slotType";
+
+    public static final String SRS_DIMENSION = "srsDimension";
+
+    public static final String SRS_NAME = "srsName";
+
+    public static final String VALUE = "value";
 
     private static final SlotTypeHelper SLOT_TYPE_HELPER = new SlotTypeHelper();
 

@@ -13,11 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SERVICE_BINDING;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.SPECIFICATION_OBJECT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.USAGE_DESCRIPTION;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.USAGE_PARAMETERS;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +21,14 @@ import org.apache.commons.collections.MapUtils;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SpecificationLinkType;
 
 public class SpecificationLinkWebConverter extends RegistryObjectWebConverter {
+    // SpecificationLink converters constants
+    public static final String SERVICE_BINDING = "serviceBinding";
+
+    public static final String SPECIFICATION_OBJECT = "specificationObject";
+
+    public static final String USAGE_DESCRIPTION = "UsageDescription";
+
+    public static final String USAGE_PARAMETERS = "UsageParameters";
 
     /**
      * This method creates a Map<String, Object> representation of the SpecificationLinkType provided.

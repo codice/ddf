@@ -13,11 +13,6 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.web;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CLASSIFICATION_NODE;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CLASSIFICATION_SCHEME;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.CLASSIFIED_OBJECT;
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.NODE_REPRESENTATION;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +21,13 @@ import org.apache.commons.collections.MapUtils;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ClassificationType;
 
 public class ClassificationWebConverter extends RegistryObjectWebConverter {
+    public static final String CLASSIFICATION_NODE = "classificationNode";
+
+    public static final String CLASSIFIED_OBJECT = "classifiedObject";
+
+    public static final String CLASSIFICATION_SCHEME = "classificationScheme";
+
+    public static final String NODE_REPRESENTATION = "nodeRepresentation";
 
     /**
      * This method creates a Map<String, Object> representation of the ClassificationType provided.

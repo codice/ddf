@@ -13,23 +13,27 @@
  */
 package org.codice.ddf.registry.schemabindings.converter.type;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.REGISTRY_OBJECT_LIST_KEY;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
+import static org.codice.ddf.registry.schemabindings.converter.web.RegistryPackageWebConverter.REGISTRY_OBJECT_LIST_KEY;
 
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
+import org.codice.ddf.registry.schemabindings.helper.MapToSchemaElement;
 
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectListType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 
-public class RegistryPackageTypeConverter extends RegistryObjectTypeConverter {
+public class RegistryPackageTypeConverter
+        extends AbstractRegistryObjectTypeConverter<RegistryPackageType> {
+
+    private MapToSchemaElement<RegistryPackageType> mapToSchemaElement = new MapToSchemaElement<>(
+            RIM_FACTORY::createRegistryPackageType);
 
     @Override
-    protected RegistryObjectType createObjectInstance() {
-        return RIM_FACTORY.createRegistryPackageType();
+    protected MapToSchemaElement<RegistryPackageType> getSchemaMapper() {
+        return mapToSchemaElement;
     }
 
     /**
@@ -52,11 +56,7 @@ public class RegistryPackageTypeConverter extends RegistryObjectTypeConverter {
             return optionalRegistryPackage;
         }
 
-        Optional<RegistryObjectType> optionalRegistryObject = super.convertRegistryObject(map);
-        if (optionalRegistryObject.isPresent()) {
-            optionalRegistryPackage =
-                    Optional.of((RegistryPackageType) optionalRegistryObject.get());
-        }
+        optionalRegistryPackage = super.convert(map);
 
         if (map.containsKey(REGISTRY_OBJECT_LIST_KEY)) {
             RegistryObjectListTypeConverter registryObjectListConverter =
@@ -66,7 +66,8 @@ public class RegistryPackageTypeConverter extends RegistryObjectTypeConverter {
                             REGISTRY_OBJECT_LIST_KEY));
             if (optionalRegistryObjectList.isPresent()) {
                 if (!optionalRegistryPackage.isPresent()) {
-                    optionalRegistryPackage = Optional.of(RIM_FACTORY.createRegistryPackageType());
+                    optionalRegistryPackage = Optional.of(mapToSchemaElement.getObjectFactory()
+                            .get());
                 }
 
                 optionalRegistryPackage.get()
