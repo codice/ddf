@@ -12,14 +12,7 @@
  *
  **/
 -->
-<!-- This example csw-ebrim message represents a single node in a system. The ddf registry is not a ebrim registry but uses the csw ebrim format to hold and transmit registry information. In
-     a sense each node contains its own ebrim registry less the canonical classifications. The full registry package and all its RegistryObjects are stored in one metacard. In places where
-     you might reference a pre existing ClassificationNode or ClassificationSchema as defined in a standard ebrim registry we have opted to just use string identifiers that are consistent
-     with the canonical classification nodes. Associations are used to associate the various object. Primarily associations are ued to associate organizations and people with content collections,
-     services and the general node description. Each of the user defined id's (not the framework generated ones) are arbitrary and are only required to be unique in the document. The top level
-     objects id should be a uuid that is globally unique-->
-<!-- top level registry object id is turned into the regsitry-id internally. metacard content type will be set using the lid.-->
-<!-- home attribute should be set by the framework to the base url of the originating instance -->
+<!-- This Registry Package is a realistic example. It is used to test the converters from the top level  -->
 <rim:RegistryPackage id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" home="https://somehost:someport"
                      objectType="urn:registry:federation:node"
                      xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
