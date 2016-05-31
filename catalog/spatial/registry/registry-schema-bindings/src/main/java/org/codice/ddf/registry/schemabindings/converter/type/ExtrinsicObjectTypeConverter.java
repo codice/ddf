@@ -29,12 +29,13 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 public class ExtrinsicObjectTypeConverter
         extends AbstractRegistryObjectTypeConverter<ExtrinsicObjectType> {
 
-    private MapToSchemaElement<ExtrinsicObjectType> mapToSchemaElement = new MapToSchemaElement<>(
-            RIM_FACTORY::createExtrinsicObjectType);
+    public ExtrinsicObjectTypeConverter(MapToSchemaElement<ExtrinsicObjectType> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
 
-    @Override
-    protected MapToSchemaElement<ExtrinsicObjectType> getSchemaMapper() {
-        return mapToSchemaElement;
+    public ExtrinsicObjectTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createExtrinsicObjectType));
+
     }
 
     /**

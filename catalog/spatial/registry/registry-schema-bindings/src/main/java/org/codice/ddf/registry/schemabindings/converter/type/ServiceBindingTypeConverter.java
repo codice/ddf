@@ -32,12 +32,13 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.SpecificationLinkType;
 public class ServiceBindingTypeConverter
         extends AbstractRegistryObjectTypeConverter<ServiceBindingType> {
 
-    private MapToSchemaElement<ServiceBindingType> mapToSchemaElement = new MapToSchemaElement<>(
-            RIM_FACTORY::createServiceBindingType);
+    public ServiceBindingTypeConverter(MapToSchemaElement<ServiceBindingType> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
 
-    @Override
-    protected MapToSchemaElement<ServiceBindingType> getSchemaMapper() {
-        return mapToSchemaElement;
+    public ServiceBindingTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createServiceBindingType));
+
     }
 
     /**

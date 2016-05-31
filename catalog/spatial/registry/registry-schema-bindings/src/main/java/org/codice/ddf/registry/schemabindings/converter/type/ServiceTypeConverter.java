@@ -28,12 +28,13 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceType;
 
 public class ServiceTypeConverter extends AbstractRegistryObjectTypeConverter<ServiceType> {
 
-    private MapToSchemaElement<ServiceType> mapToSchemaElement = new MapToSchemaElement<>(
-            RIM_FACTORY::createServiceType);
+    public ServiceTypeConverter(MapToSchemaElement<ServiceType> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
 
-    @Override
-    protected MapToSchemaElement<ServiceType> getSchemaMapper() {
-        return mapToSchemaElement;
+    public ServiceTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createServiceType));
+
     }
 
     /**

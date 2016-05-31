@@ -35,12 +35,13 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 public class OrganizationTypeConverter
         extends AbstractRegistryObjectTypeConverter<OrganizationType> {
 
-    private MapToSchemaElement<OrganizationType> mapToSchemaElement = new MapToSchemaElement<>(
-            RIM_FACTORY::createOrganizationType);
+    public OrganizationTypeConverter(MapToSchemaElement<OrganizationType> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
 
-    @Override
-    protected MapToSchemaElement<OrganizationType> getSchemaMapper() {
-        return mapToSchemaElement;
+    public OrganizationTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createOrganizationType));
+
     }
 
     /**

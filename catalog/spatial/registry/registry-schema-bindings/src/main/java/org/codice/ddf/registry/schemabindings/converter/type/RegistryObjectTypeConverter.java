@@ -25,12 +25,13 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 public class RegistryObjectTypeConverter
         extends AbstractRegistryObjectTypeConverter<RegistryObjectType> {
 
-    private MapToSchemaElement<RegistryObjectType> mapToSchemaElement = new MapToSchemaElement<>(
-            RIM_FACTORY::createRegistryObjectType);
+    public RegistryObjectTypeConverter(MapToSchemaElement<RegistryObjectType> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
 
-    @Override
-    protected MapToSchemaElement<RegistryObjectType> getSchemaMapper() {
-        return mapToSchemaElement;
+    public RegistryObjectTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createRegistryObjectType));
+
     }
 
     @Override

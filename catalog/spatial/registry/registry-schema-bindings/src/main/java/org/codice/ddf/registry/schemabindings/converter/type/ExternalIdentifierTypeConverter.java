@@ -29,12 +29,12 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 public class ExternalIdentifierTypeConverter
         extends AbstractRegistryObjectTypeConverter<ExternalIdentifierType> {
 
-    private MapToSchemaElement<ExternalIdentifierType> mapToSchemaElement =
-            new MapToSchemaElement<>(RIM_FACTORY::createExternalIdentifierType);
+    public ExternalIdentifierTypeConverter(MapToSchemaElement<ExternalIdentifierType> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
 
-    @Override
-    protected MapToSchemaElement<ExternalIdentifierType> getSchemaMapper() {
-        return mapToSchemaElement;
+    public ExternalIdentifierTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createExternalIdentifierType));
     }
 
     /**

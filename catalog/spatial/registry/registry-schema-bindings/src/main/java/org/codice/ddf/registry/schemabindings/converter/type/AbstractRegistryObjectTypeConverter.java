@@ -38,7 +38,11 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 
 public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObjectType> {
 
-    protected abstract MapToSchemaElement<T> getSchemaMapper();
+    protected MapToSchemaElement<T> mapToSchemaElement;
+
+    public AbstractRegistryObjectTypeConverter(MapToSchemaElement<T> mapToSchemaElement) {
+        this.mapToSchemaElement = mapToSchemaElement;
+    }
 
     /**
      * This method creates a RegistryObjectType from the values in the provided map.
@@ -79,7 +83,7 @@ public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObje
                 optionalClassification = classificationConverter.convert(classificationMap);
                 if (optionalClassification.isPresent()) {
                     if (!optionalRegistryObject.isPresent()) {
-                        optionalRegistryObject = Optional.of(getSchemaMapper().getObjectFactory()
+                        optionalRegistryObject = Optional.of(mapToSchemaElement.getObjectFactory()
                                 .get());
 
                     }
@@ -91,7 +95,7 @@ public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObje
             }
         }
 
-        optionalRegistryObject = getSchemaMapper().populateInternationalStringTypeElement(map,
+        optionalRegistryObject = mapToSchemaElement.populateInternationalStringTypeElement(map,
                 DESCRIPTION_KEY,
                 optionalRegistryObject,
                 (istValue, optional) -> optional.get()
@@ -106,7 +110,7 @@ public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObje
 
                 if (optionalExternalIdentifier.isPresent()) {
                     if (!optionalRegistryObject.isPresent()) {
-                        optionalRegistryObject = Optional.of(getSchemaMapper().getObjectFactory()
+                        optionalRegistryObject = Optional.of(mapToSchemaElement.getObjectFactory()
                                 .get());
                     }
 
@@ -118,28 +122,28 @@ public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObje
             }
         }
 
-        optionalRegistryObject = getSchemaMapper().populateStringElement(map,
+        optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 HOME_KEY,
                 optionalRegistryObject,
                 (value, optional) -> optional.get()
                         .setHome(value));
-        optionalRegistryObject = getSchemaMapper().populateStringElement(map,
+        optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 ID_KEY,
                 optionalRegistryObject,
                 (value, optional) -> optional.get()
                         .setId(value));
-        optionalRegistryObject = getSchemaMapper().populateStringElement(map,
+        optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 LID_KEY,
                 optionalRegistryObject,
                 (value, optional) -> optional.get()
                         .setLid(value));
 
-        optionalRegistryObject = getSchemaMapper().populateInternationalStringTypeElement(map,
+        optionalRegistryObject = mapToSchemaElement.populateInternationalStringTypeElement(map,
                 NAME_KEY,
                 optionalRegistryObject,
                 (istValue, optional) -> optional.get()
                         .setName(istValue));
-        optionalRegistryObject = getSchemaMapper().populateStringElement(map,
+        optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 OBJECT_TYPE_KEY,
                 optionalRegistryObject,
                 (value, optional) -> optional.get()
@@ -152,7 +156,7 @@ public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObje
                 optionalSlot = stConverter.convert(slotMap);
                 if (optionalSlot.isPresent()) {
                     if (!optionalRegistryObject.isPresent()) {
-                        optionalRegistryObject = Optional.of(getSchemaMapper().getObjectFactory()
+                        optionalRegistryObject = Optional.of(mapToSchemaElement.getObjectFactory()
                                 .get());
                     }
 
@@ -163,12 +167,12 @@ public abstract class AbstractRegistryObjectTypeConverter<T extends RegistryObje
             }
         }
 
-        optionalRegistryObject = getSchemaMapper().populateStringElement(map,
+        optionalRegistryObject = mapToSchemaElement.populateStringElement(map,
                 STATUS_KEY,
                 optionalRegistryObject,
                 (value, optional) -> optional.get()
                         .setStatus(value));
-        optionalRegistryObject = getSchemaMapper().populateVersionInfoTypeElement(map,
+        optionalRegistryObject = mapToSchemaElement.populateVersionInfoTypeElement(map,
                 VERSION_INFO_KEY,
                 optionalRegistryObject,
                 (versionInfoValue, optional) -> optional.get()

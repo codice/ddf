@@ -34,12 +34,13 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 
 public class PersonTypeConverter extends AbstractRegistryObjectTypeConverter<PersonType> {
 
-    private MapToSchemaElement<PersonType> mapToSchemaElement =
-            new MapToSchemaElement<>(RIM_FACTORY::createPersonType);
+    public PersonTypeConverter(MapToSchemaElement<PersonType> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
 
-    @Override
-    protected MapToSchemaElement<PersonType> getSchemaMapper() {
-        return mapToSchemaElement;
+    public PersonTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createPersonType));
+
     }
 
     /**

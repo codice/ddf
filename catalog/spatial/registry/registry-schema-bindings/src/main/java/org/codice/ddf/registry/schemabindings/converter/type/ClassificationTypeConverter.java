@@ -30,12 +30,13 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ClassificationType;
 public class ClassificationTypeConverter
         extends AbstractRegistryObjectTypeConverter<ClassificationType> {
 
-    private MapToSchemaElement<ClassificationType> mapToSchemaElement = new MapToSchemaElement<>(
-            RIM_FACTORY::createClassificationType);
+    public ClassificationTypeConverter(MapToSchemaElement<ClassificationType> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
 
-    @Override
-    protected MapToSchemaElement<ClassificationType> getSchemaMapper() {
-        return mapToSchemaElement;
+    public ClassificationTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createClassificationType));
+
     }
 
     /**

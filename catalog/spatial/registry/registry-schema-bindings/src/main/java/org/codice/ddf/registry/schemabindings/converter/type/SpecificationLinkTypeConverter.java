@@ -30,15 +30,15 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.SpecificationLinkType;
 
 public class SpecificationLinkTypeConverter
         extends AbstractRegistryObjectTypeConverter<SpecificationLinkType> {
-
-    private MapToSchemaElement<SpecificationLinkType> mapToSchemaElement = new MapToSchemaElement<>(
-            RIM_FACTORY::createSpecificationLinkType);
-
     private WebMapHelper webMapHelper = new WebMapHelper();
 
-    @Override
-    protected MapToSchemaElement<SpecificationLinkType> getSchemaMapper() {
-        return mapToSchemaElement;
+    public SpecificationLinkTypeConverter(MapToSchemaElement<SpecificationLinkType> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
+
+    public SpecificationLinkTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createSpecificationLinkType));
+
     }
 
     /**

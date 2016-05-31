@@ -29,12 +29,13 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
 public class AssociationTypeConverter
         extends AbstractRegistryObjectTypeConverter<AssociationType1> {
 
-    private MapToSchemaElement<AssociationType1> mapToSchemaElement = new MapToSchemaElement<>(
-            RIM_FACTORY::createAssociationType1);
+    public AssociationTypeConverter(MapToSchemaElement<AssociationType1> mapToSchemaElement) {
+        super(mapToSchemaElement);
+    }
 
-    @Override
-    protected MapToSchemaElement<AssociationType1> getSchemaMapper() {
-        return mapToSchemaElement;
+    public AssociationTypeConverter() {
+        this(new MapToSchemaElement<>(RIM_FACTORY::createAssociationType1));
+
     }
 
     /**
