@@ -6,10 +6,6 @@
     line-height: @minimumButtonSize;
   }
 
-  .associations-list .association-item {
-    cursor: pointer;
-  }
-
   .association-type,
   .association-item,
   .association-delete,
@@ -88,11 +84,21 @@
     margin-top: 10px;
   }
 
+  .item-link {
+    display: block;
+  }
+  .item-title {
+    display: none;
+  }
+
 }
 
 @{customElementNamespace}metacard-associations.is-editing {
-  .associations-list .association-item {
-    cursor: inherit;
+  .item-link {
+    display: none;
+  }
+  .item-title {
+    display: block;
   }
 
   .associations-edit {
