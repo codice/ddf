@@ -642,7 +642,7 @@ Once that bundle is started by fixing its error, the catalog application will sh
 
 Command Scheduler is a capability exposed through the ${admin-console} (\https://localhost:8993/admin) that allows administrators to schedule Command Line Commands to be run at specified intervals.
 
-===== Usage
+===== Using the Command Scheduler
 
 The Command Scheduler allows administrators to schedule Command Line Shell Commands to be run in a "platform-independent" method.
 For instance, if an administrator wanted to use the Catalog commands to export all records of a Catalog to a directory, the administrator could write a cron job or a scheduled task to remote into the container and execute the command.
