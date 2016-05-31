@@ -14,6 +14,7 @@
  **/
 /*global define, alert*/
 define([
+    'wreqr',
     'marionette',
     'underscore',
     'jquery',
@@ -21,16 +22,11 @@ define([
     '../tabs.view',
     './tabs-metacard',
     'js/store'
-], function (Marionette, _, $, template, TabsView, MetacardTabsModel, store) {
-
-    var extendedEvents = _.extend({}, TabsView.prototype.events, {
-        'click .metacard-save': 'saveToWorkspace'
-    });
+], function (wreqr, Marionette, _, $, template, TabsView, MetacardTabsModel, store) {
 
     return TabsView.extend({
         template: template,
         className: 'is-metacard',
-        events: extendedEvents,
         setDefaultModel: function(){
             this.model = new MetacardTabsModel();
         },
@@ -50,9 +46,6 @@ define([
                 var activeTab = this.model.getActiveView();
                 this.tabsContent.show(new activeTab());
             }
-        },
-        saveToWorkspace: function(event){
-            store.saveCurrentSelection();
         }
     });
 });

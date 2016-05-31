@@ -30,10 +30,11 @@ define([
     'js/store',
     'component/tabs/metacard/tabs-metacard.view',
     'component/tabs/metacards/tabs-metacards.view',
-    'js/Common'
+    'js/Common',
+    'component/metacard-title/metacard-title.view'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, maptype, map, store,
-             MetacardTabsView, MetacardsTabsView, Common) {
+             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView) {
 
     var debounceTime = 25;
 
@@ -51,6 +52,7 @@ define([
             'menu': '.content-menu',
             'panelOne': '.content-panelOne',
             'panelTwo': '.content-panelTwo-content',
+            'panelTwoTitle': '.content-panelTwo-title',
             'panelThree': '.content-panelThree'
         },
         initialize: function(){
@@ -61,6 +63,7 @@ define([
                     className: 'height-full',
                     regions: { mapDrawingPopup: '#mapDrawingPopup' },
                     onShow: function () {
+                        var self = this;
                         require([
                             'js/controllers/cesium.controller',
                             'js/widgets/cesium.bbox',
@@ -68,7 +71,10 @@ define([
                             'js/widgets/cesium.polygon',
                             'js/widgets/filter.cesium.geometry.group'
                         ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, FilterCesiumGeometryGroup) {
-                            var geoController = new GeoController();
+                            var geoController = new GeoController({
+                                element: self.el.querySelector('#cesiumContainer')
+                            });
+                            self.setupListeners(geoController);
                             new FilterCesiumGeometryGroup.Controller({ geoController: geoController });
                             new DrawBbox.Controller({
                                 scene: geoController.scene,
@@ -85,6 +91,17 @@ define([
                                 geoController: geoController
                             });
                         });
+                    },
+                    setupListeners: function(geoController){
+                        geoController.listenTo(store.get('content'), 'change:activeSearchResult', geoController.newActiveSearchResult);
+                        if (store.get('content').getActiveSearchResult()) {
+                            geoController.newActiveSearchResult(store.get('content').getActiveSearchResult());
+                        }
+                        geoController.listenTo(store.getSelectedResults(), 'update', geoController.zoomToSelected);
+                        geoController.listenTo(store.getSelectedResults(), 'add', geoController.zoomToSelected);
+                        geoController.listenTo(store.getSelectedResults(), 'remove', geoController.zoomToSelected);
+
+                        geoController.listenTo(wreqr.vent, 'search:mapshow', geoController.flyToLocation);
                     }
                 });
                 this._mapView = new Map3d();
@@ -101,7 +118,10 @@ define([
                             'js/widgets/openlayers.polygon',
                             'js/widgets/filter.openlayers.geometry.group'
                         ], function (GeoController, DrawBbox, DrawPolygon, FilterCesiumGeometryGroup) {
-                            var geoController = new GeoController();
+                            var geoController = new GeoController({
+                                element: map2d.el.querySelector('#cesiumContainer')
+                            });
+                            map2d.setupListeners(geoController);
                             new FilterCesiumGeometryGroup.Controller({ geoController: geoController });
                             new DrawBbox.Controller({
                                 map: geoController.mapViewer,
@@ -115,6 +135,18 @@ define([
                                 geoController.mapViewer.updateSize();
                             });
                         });
+                    },
+                    setupListeners: function(geoController){
+                        geoController.listenTo(store.get('content'), 'change:activeSearchResult', geoController.newActiveSearchResult);
+                        if (store.get('content').getActiveSearchResult()) {
+                            geoController.newActiveSearchResult(store.get('content').getActiveSearchResult());
+                        }
+
+                        geoController.listenTo(wreqr.vent, 'search:mapshow', geoController.flyToLocation);
+                        geoController.listenTo(wreqr.vent, 'search:maprectanglefly', geoController.flyToRectangle);
+                        geoController.listenTo(store.getSelectedResults(), 'update', geoController.zoomToSelected);
+                        geoController.listenTo(store.getSelectedResults(), 'add', geoController.zoomToSelected);
+                        geoController.listenTo(store.getSelectedResults(), 'remove', geoController.zoomToSelected);
                     }
                 });
                 this._mapView = new Map2d();
@@ -145,11 +177,13 @@ define([
                 this.panelThree.show(this._mapView);
             }
         },
-        updatePanelOne: function(arg1, arg2){
-            this.panelOne.show(new WorkspaceContentTabsView({
-                model: new WorkspaceContentTabs()
-            }));
-            this.hidePanelTwo();
+        updatePanelOne: function(){
+            if (arguments.length === 3){
+                this.panelOne.show(new WorkspaceContentTabsView({
+                    model: new WorkspaceContentTabs()
+                }));
+                this.hidePanelTwo();
+            }
         },
         updatePanelTwo: function(){
             var queryRef = store.getQuery();
@@ -163,17 +197,21 @@ define([
                     this.panelTwo.show(new QueryTabsView());
                 }
             } else if (selectedResults.length === 1) {
-                this.updatePanelTwoSelectedResultTitle();
                 this.showPanelTwo();
                 if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardTabsView) {
                     this.panelTwo.show(new MetacardTabsView());
                 }
+                this.panelTwoTitle.show(new MetacardTitleView({
+                    model: selectedResults
+                }));
             } else {
-                this.updatePanelTwoSelectedResultsTitle();
                 this.showPanelTwo();
                 if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardsTabsView) {
                     this.panelTwo.show(new MetacardsTabsView());
                 }
+                this.panelTwoTitle.show(new MetacardTitleView({
+                    model: selectedResults
+                }));
             }
             Common.repaintForTimeframe(500, function(){
                 wreqr.vent.trigger('resize');

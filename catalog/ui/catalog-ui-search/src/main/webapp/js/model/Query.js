@@ -617,9 +617,9 @@ define([
                 result.get('results').fullCollection.sort();
 
                 sources.unshift("cache");
-                sources.forEach(function (src) {
+                return sources.map(function (src) {
                     data.src = src;
-                    result.fetch({
+                    return result.fetch({
                         data: JSON.stringify(data),
                         remove: false,
                         dataType: "json",

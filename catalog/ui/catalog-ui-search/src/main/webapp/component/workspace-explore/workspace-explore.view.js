@@ -47,7 +47,9 @@ define([
             }
         },
         onBeforeShow: function(){
-            this.workspaceExploreQueries.show(new QuerySelectorView());
+            if (this.model) {
+                this.workspaceExploreQueries.show(new QuerySelectorView());
+            }
             //this.workspaceExploreResults.show(new ResultTabsView());
         }
     });

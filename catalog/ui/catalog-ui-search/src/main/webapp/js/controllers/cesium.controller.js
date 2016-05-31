@@ -14,6 +14,7 @@
 
 define(['application',
         'underscore',
+        'backbone',
         'marionette',
         'cesium',
         'q',
@@ -24,7 +25,7 @@ define(['application',
         'jquery',
         'drawHelper',
         'js/controllers/cesium.layerCollection.controller'
-    ], function (Application, _, Marionette, Cesium, Q, wreqr, store, properties, CesiumMetacard,
+    ], function (Application, _, Backbone, Marionette, Cesium, Q, wreqr, store, properties, CesiumMetacard,
                  $, DrawHelper, LayerCollectionController) {
         "use strict";
 
@@ -50,17 +51,7 @@ define(['application',
                 this.ellipsoid = this.mapViewer.scene.globe.ellipsoid;
                 this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
                 this.setupEvents();
-                this.preloadBillboards();
-
-                this.listenTo(store.get('content'), 'change:activeSearchResult', this.newActiveSearchResult);
-                if (store.get('content').getActiveSearchResult()) {
-                    this.newActiveSearchResult(store.get('content').getActiveSearchResult());
-                }
-                this.listenTo(store.getSelectedResults(), 'update', this.zoomToSelected);
-                this.listenTo(store.getSelectedResults(), 'add', this.zoomToSelected);
-                this.listenTo(store.getSelectedResults(), 'remove', this.zoomToSelected);
-
-                this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
+                this._billboardPromise = this.preloadBillboards();
             },
             createMap: function () {
                 var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
@@ -69,7 +60,7 @@ define(['application',
                 });
 
                 var viewer = layerCollectionController.makeMap({
-                        divId: 'cesiumContainer',
+                        element: this.options.element,
                         cesiumOptions: {
                             sceneMode: Cesium.SceneMode.SCENE3D,
                             animation: false,
@@ -127,7 +118,7 @@ define(['application',
                         controller.billboardCollection.textureAtlas = texAtlas;
                         controller.scene.primitives.add(controller.billboardCollection);
                     });
-
+                return this.billboardPromise;
             },
 
             setupEvents: function () {
@@ -323,6 +314,10 @@ define(['application',
                 }
             },
 
+            zoomToResult: function(result){
+                this.flyToCenterPoint(new Backbone.Collection([result]));
+            },
+
             showResults: function (results) {
                 this.clearResults();
                 this.mapViews = new CesiumMetacard.ResultsView({
@@ -330,6 +325,15 @@ define(['application',
                     geoController: this
                 });
                 this.mapViews.render();
+            },
+            
+            showResult: function(result){
+                this.clearResults();
+                this.mapViews = new CesiumMetacard.ResultsView({
+                    collection: new Backbone.Collection([result]),
+                    geoController: this
+                });
+                this.mapViews.render();  
             },
 
             clear: function () {

@@ -14,6 +14,7 @@
 
 define(['application',
         'underscore',
+        'backbone',
         'marionette',
         'openlayers',
         'q',
@@ -25,7 +26,7 @@ define(['application',
         'jquery',
         'js/controllers/ol.layerCollection.controller',
         'js/view/openlayers.geocoder'
-    ], function (Application, _, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, store,
+    ], function (Application, _, Backbone, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, store,
                  Metacard, $, LayerCollectionController, geocoder) {
         "use strict";
 
@@ -49,21 +50,10 @@ define(['application',
                 var layerCollectionController = new OpenLayerCollectionController({collection: layerPrefs});
                 this.mapViewer = layerCollectionController.makeMap({
                     zoom: 3,
-                    divId: 'cesiumContainer'
+                    element: this.options.element
                 });
 
                 this.setupEvents();
-
-                this.listenTo(store.get('content'), 'change:activeSearchResult', this.newActiveSearchResult);
-                if (store.get('content').getActiveSearchResult()) {
-                    this.newActiveSearchResult(store.get('content').getActiveSearchResult());
-                }
-
-                this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
-                this.listenTo(wreqr.vent, 'search:maprectanglefly', this.flyToRectangle);
-                this.listenTo(store.getSelectedResults(), 'update', this.zoomToSelected);
-                this.listenTo(store.getSelectedResults(), 'add', this.zoomToSelected);
-                this.listenTo(store.getSelectedResults(), 'remove', this.zoomToSelected);
             },
             setupEvents: function () {
                 var controller = this;
@@ -286,12 +276,27 @@ define(['application',
                 }
             },
 
+            zoomToResult: function(result){
+                this.flyToCenterPoint(new Backbone.Collection([result]));
+            },
+
             showResults: function (results) {
                 if (this.mapViews) {
                     this.mapViews.destroy();
                 }
                 this.mapViews = new OpenlayersMetacard.ResultsView({
                     collection: results,
+                    geoController: this
+                });
+                this.mapViews.render();
+            },
+
+            showResult: function(result){
+                if (this.mapViews) {
+                    this.mapViews.destroy();
+                }
+                this.mapViews = new OpenlayersMetacard.ResultsView({
+                    collection: new Backbone.Collection([result]),
                     geoController: this
                 });
                 this.mapViews.render();

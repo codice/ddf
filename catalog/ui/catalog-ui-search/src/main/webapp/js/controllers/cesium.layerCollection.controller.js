@@ -40,7 +40,7 @@ define(['underscore',
         },
         makeMap: function (options) {
             // must create cesium map after containing DOM is attached.
-            this.map = new Cesium.Viewer(options.divId, options.cesiumOptions);
+            this.map = new Cesium.Viewer(options.element, options.cesiumOptions);
 
             /*
              * baseLayerPicker:false has side effect of creating default baselayer

@@ -207,13 +207,15 @@ define([
                 }));
             },
             onMapLeftClick: function (feature, isSelection) {
-                // find out if this click is on us
-                if (feature === this.billboard) {
-                    if (!isSelection) {
-                        store.clearSelectedResults();
+                if (this.model.get('color')) {
+                    // find out if this click is on us
+                    if (feature === this.billboard) {
+                        if (!isSelection) {
+                            store.clearSelectedResults();
+                        }
+                        store.addSelectedResult(store.getQueryById(this.model.get('queryId'))
+                            .get('result>results').get(this.model.id + this.model.get('properties>source-id')));
                     }
-                    store.addSelectedResult(store.getQueryById(this.model.get('queryId'))
-                        .get('result>results').get(this.model.id + this.model.get('properties>source-id')));
                 }
             },
             onMapDoubleClick: function (event) {

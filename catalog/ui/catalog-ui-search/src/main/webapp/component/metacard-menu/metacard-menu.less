@@ -1,0 +1,31 @@
+@{customElementNamespace}metacard-menu {
+  .customElement;
+
+  > .workspace-title {
+    cursor: pointer;
+  }
+
+  > .menu-title {
+    display: inline-block;
+    vertical-align: top;
+    line-height: 60px;
+    font-size: 2rem;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  > .title-seperator {
+    padding: 0px 10px;
+  }
+
+  @{customElementNamespace}metacard-title {
+    .metacard-title,
+    .metacard-save,
+    .metacard-unsave,
+    .metacard-interactions {
+      line-height: 60px;
+      height: 60px;
+    }
+
+  }
+}

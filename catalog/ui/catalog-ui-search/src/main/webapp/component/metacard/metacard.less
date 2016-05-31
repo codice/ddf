@@ -1,0 +1,53 @@
+@{customElementNamespace}metacard {
+  .customElement;
+  overflow: hidden;
+
+  > .metacard-menu {
+    margin: auto;
+    //max-width: 1200px;
+    //padding: 0 100px 0 44px;
+  }
+
+  > .metacard-menu {
+    height: 60px;
+  }
+
+  > .metacard-details {
+    height: ~'calc(100% - 60px)';
+    white-space: nowrap;
+  }
+
+  > .metacard-details > .details-tabular,
+  > .metacard-details > .details-visual {
+    white-space: normal;
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    background: @niceBlack;
+  }
+
+  > .metacard-details > .details-tabular {
+    width: 50%;
+    min-width: 400px;
+  }
+
+  > .metacard-details > .details-visual {
+    width: 50%;
+  }
+
+}
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}metacard {
+    > .metacard-menu,
+    > .metacard-details {
+      max-width: 100%;
+    }
+    > .metacard-menu {
+      padding: 0px 20px;
+    }
+    > .metacard-details {
+      padding: 0px 0px;
+    }
+  }
+}

@@ -43,7 +43,8 @@ define([
                 img.onload = function(){
                     var width = img.width;
                     var height = img.height;
-                    var scaleFactor = img.width / (self.el.clientWidth - 64);
+                    var scaleFactor = Math.max(img.width / (self.el.clientWidth - 64),
+                    img.height / 200);
                     if (scaleFactor > 1){
                         width = width / scaleFactor;
                         height = height / scaleFactor;
@@ -72,7 +73,8 @@ define([
             img.onload = function() {
                 var width = img.width;
                 var height = img.height;
-                var scaleFactor = img.width / (self.el.clientWidth - 64);
+                var scaleFactor = Math.max(img.width / (self.el.clientWidth - 64),
+                    img.height / 200);
                 if (scaleFactor > 1){
                     width = width / scaleFactor;
                     height = height / scaleFactor;

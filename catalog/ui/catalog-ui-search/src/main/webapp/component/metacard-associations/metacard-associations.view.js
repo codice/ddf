@@ -97,18 +97,21 @@ define([
         },
         determinePossibleAssociations: function(){
             var possibleAssociations = {};
-            store.getCurrentQueries().filter(function(query) {
-                return query.get('result');
-            }).map(function(query){
-                return query.get('result').toJSON().results;
-            }).forEach(function(resultList){
-                resultList.forEach(function(metacard){
-                    possibleAssociations[metacard.metacard.id] = {
-                        id: metacard.metacard.id,
-                        title: metacard.metacard.properties.title
-                    }
+            var currentWorkspace = store.getCurrentWorkspace();
+            if (currentWorkspace){
+                store.getCurrentQueries().filter(function(query) {
+                    return query.get('result');
+                }).map(function(query){
+                    return query.get('result').toJSON().results;
+                }).forEach(function(resultList){
+                    resultList.forEach(function(metacard){
+                        possibleAssociations[metacard.metacard.id] = {
+                            id: metacard.metacard.id,
+                            title: metacard.metacard.properties.title
+                        }
+                    });
                 });
-            });
+            }
             this._possibleAssociations = possibleAssociations;
         },
         save: function(){

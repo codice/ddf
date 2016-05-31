@@ -25,6 +25,10 @@ define([
         return ((top + element.clientHeight) < window.innerHeight);
     }
 
+    function hasRightRoom(left, element){
+        return ((left + element.clientWidth) < window.innerWidth);
+    }
+
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('dropdown-companion'),
@@ -60,6 +64,9 @@ define([
                 } else {
                     this.$el.addClass('is-top').removeClass('is-bottom');
                     this.$el.css('left', necessaryLeft).css('top', clientRect.top);
+                }
+                if(!hasRightRoom(necessaryLeft, this.el)){
+                    this.$el.css('left', window.innerWidth-menuWidth-2);
                 }
             } else {
                 var clientRect = this.options.linkedView.el.getBoundingClientRect();

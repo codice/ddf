@@ -49,7 +49,7 @@ define(['underscore',
             });
             var mapConfig = {
                 layers: layers,
-                target: options.divId,
+                target: options.element,
                 view: view
             };
             if (options.controls !== undefined) {

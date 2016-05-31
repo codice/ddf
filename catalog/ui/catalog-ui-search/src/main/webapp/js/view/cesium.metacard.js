@@ -26,11 +26,13 @@ define([
             selectedPointScale = 0.035;
 
         function selectResult(model, isSelection) {
-            if (!isSelection) {
-                store.clearSelectedResults();
+            if (model.get('color')) {
+                if (!isSelection) {
+                    store.clearSelectedResults();
+                }
+                store.addSelectedResult(store.getQueryById(model.get('queryId'))
+                    .get('result>results').get(model.id + model.get('properties>source-id')));
             }
-            store.addSelectedResult(store.getQueryById(model.get('queryId'))
-                .get('result>results').get(model.id + model.get('properties>source-id')));
         }
 
         Views.PointView = Marionette.ItemView.extend({
@@ -693,7 +695,6 @@ define([
                 this.stopListening();
             }
         });
-
 
         Views.ResultsView = Marionette.CollectionView.extend({
             childView: Backbone.View,

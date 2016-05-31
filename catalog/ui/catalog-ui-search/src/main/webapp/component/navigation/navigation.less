@@ -1,0 +1,37 @@
+@{customElementNamespace}navigation {
+  .customElement;
+  background: @background-color;
+  vertical-align: top;
+  color: white;
+
+  > .navigation-left,
+  > .navigation-middle,
+  > .navigation-right {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 2rem;
+    line-height: 60px;
+    height: 60px;
+  }
+
+  > .navigation-right {
+    float: right;
+    padding: 0px 20px;
+  }
+
+  .navigation-home {
+    font-size: 14px;
+    vertical-align: top;
+    line-height: 60px;
+    width: @minimumButtonSize;
+    text-align: center;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .navigation-item {
+    display: inline-block;
+    padding: 0 10px;
+  }
+
+}

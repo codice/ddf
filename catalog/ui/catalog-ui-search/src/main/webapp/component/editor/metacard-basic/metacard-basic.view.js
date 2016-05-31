@@ -30,7 +30,7 @@ define([
         },
         initialize: function(options){
             EditorView.prototype.initialize.call(this, options);
-
+            this.listenTo(this.model.get('metacard').get('properties'), 'change', this.onBeforeShow);
         },
         onBeforeShow: function() {
             this.editorProperties.show(PropertyCollectionView.generateSummaryPropertyCollectionView(
@@ -85,9 +85,19 @@ define([
                            }, attributeMap);
                        }, {});
                        self.model.get('metacard').get('properties').set(attributeMap);
+                       store.get('workspaces').forEach(function(workspace){
+                           workspace.get('queries').forEach(function(query){
+                               if (query.get('result')) {
+                                   query.get('result').get('results').forEach(function(result){
+                                       if (result.get('metacard').get('properties').get('id') ===  self.model.get('metacard').get('properties').get('id')){
+                                           result.get('metacard').get('properties').set(attributeMap);
+                                       }
+                                   });
+                               }
+                           });
+                       });
                        setTimeout(function(){  //let solr flush
                            loadingView.remove();
-                           self.onBeforeShow();
                        }, 1000);
                    });
                }, 1000);

@@ -49,6 +49,7 @@ define([
         footerRegion: 'footer',
         workspacesRegion: '#workspaces',
         workspaceRegion: '#workspace',
+        metacardRegion: '#metacard',
         controlPanelRegion: '#controlPanel',
         modalRegion: '#modalRegion'
     });

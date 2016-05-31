@@ -58,12 +58,14 @@ define([
             this.set('content', this.initModel(Content, {
                 persisted: false,
                 listeners: {
-                    'change:currentWorkspace': this.clearResults
+                    'change:currentWorkspace': this.handleCurrentWorkspace
                 }
             }));
             this.set('workspaces', this.initModel(Workspace.Collection, {
                 listeners: {
-                    'sync': this.handleWorkspaceSync
+                    'all': this.handleWorkspacesChange,
+                    'update': this.handleWorkspacesChange,
+                    'remove': this.handleWorkspacesChange
                 }
             }));
             this.set('sources', Source);
@@ -87,15 +89,18 @@ define([
                 this.get('content').set('currentWorkspace', workspaceCollection.first());
             }
         },
-        handleWorkspaceSync: function(workspaceCollection){
+        handleWorkspacesChange: function(){
             this.set('initialized', true);
-            if (this.get('content').get('currentWorkspace') === undefined){
-                if (workspaceCollection.length === undefined){
-                    this.get('content').set('currentWorkspace', workspaceCollection);
-                } else if (workspaceCollection.length > 0) {
-                    this.get('content').set('currentWorkspace', workspaceCollection.first());
-                }
+            var currentWorkspace = this.getCurrentWorkspace();
+            var workspaceCollection = this.get('workspaces');
+            if (currentWorkspace && !workspaceCollection.get(currentWorkspace)){
+                this.get('content').set('currentWorkspace', undefined);
             }
+        },
+        handleCurrentWorkspace: function(){
+            this.clearResults();
+            var currentWorkspace = this.getCurrentWorkspace();
+            $('body').toggleClass('in-workspace', Boolean(currentWorkspace));
         },
         getWorkspaceById: function(workspaceId){
             return this.get('workspaces').get(workspaceId);
@@ -176,6 +181,10 @@ define([
         saveCurrentSelection: function(){
             var selectedResults = this.getSelectedResults().pluck('id');
             var savedMetacards = _.union(this.getCurrentWorkspace().get('metacards'), selectedResults);
+            this.getCurrentWorkspace().set('metacards', savedMetacards);
+        },
+        saveMetacardToWorkspace: function(metacardId){
+            var savedMetacards = _.union(this.getCurrentWorkspace().get('metacards'), [metacardId]);
             this.getCurrentWorkspace().set('metacards', savedMetacards);
         },
         saveCurrentWorkspace: function(){

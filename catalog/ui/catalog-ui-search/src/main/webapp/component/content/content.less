@@ -61,21 +61,20 @@
   .content-panelTwo {
     > .content-panelTwo-titleBar {
       position: relative;
-      font-size: @titleBarFontSize;
       text-align: center;
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
-      .resetIconLineHeight;
 
-      > span {
+      > .content-panelTwo-title {
         display: block;
-        width: ~'calc(100% - 2*@{minimumButtonSize})';
+        width: ~'calc(100% - 6*@{minimumButtonSize})';
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         padding: 0px 10px;
         position: relative;
-        left: @minimumButtonSize;
+        left: 3*@minimumButtonSize;
+        font-size: 2rem;
       }
 
       > button {
@@ -84,6 +83,7 @@
         top: 0px;
         width: @minimumButtonSize;
         height: 100%;
+        font-size: @titleBarFontSize;
       }
     }
 

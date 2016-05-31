@@ -400,13 +400,6 @@ tr.selected {
     top: -25px;
 }
 
-.metacard-details {
-    margin-top: 20px;
-    margin-left: 0px;
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
 .metacard-panel {
     max-height: calc(100% - 42px);
     position: relative;
@@ -447,10 +440,6 @@ tr.selected {
     line-height: 30px;
     text-align: center;
     word-wrap: break-word;
-}
-
-.metacard-action {
-    margin: 0px 20px;
 }
 
 img.thumbnail {

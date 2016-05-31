@@ -20,8 +20,19 @@ define([
     'component/confirmation/confirmation.view',
     'application',
     'component/content/content.view',
-    'component/home/home.view'
-], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView, HomeView) {
+    'component/home/home.view',
+    'component/metacard/metacard.view',
+    'component/metacard/metacard',
+    'js/model/Query',
+    'js/cql'
+], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
+             HomeView, MetacardView, metacardInstance, Query, cql) {
+
+    function hideViews() {
+        Application.App.workspaceRegion.$el.addClass("is-hidden");
+        Application.App.workspacesRegion.$el.addClass("is-hidden");
+        Application.App.metacardRegion.$el.addClass("is-hidden");
+    }
 
     var Router = Marionette.AppRouter.extend({
         controller: {
@@ -33,12 +44,16 @@ define([
             },
             workspaces: function(){
                 //console.log('route to workspaces home');
+            },
+            openMetacard: function(){
+                //console.log('route to specific metacard:'+metacardId);
             }
         },
         appRoutes: {
             'workspaces/:id': 'openWorkspace',
             '(?*)': 'home',
-            'workspaces(/)': 'workspaces'
+            'workspaces(/)': 'workspaces',
+            'metacards/:id': 'openMetacard'
         },
         initialize: function(){
             this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
@@ -57,6 +72,7 @@ define([
               this.navigate(args.fragment, args.options);
         },
         onRoute: function(name, path, args){
+            hideViews();
             switch(name){
                 case 'openWorkspace':
                     var workspaceId = args[0];
@@ -65,6 +81,7 @@ define([
                             Application.App.workspaceRegion.show(new ContentView());
                         }
                         store.setCurrentWorkspaceById(workspaceId);
+                        Application.App.workspaceRegion.$el.removeClass('is-hidden');
                         this.updateRoute(name, path, args);
                     } else {
                         this.listenTo(ConfirmationView.generateConfirmation({
@@ -82,16 +99,37 @@ define([
                             });
                     }
                     break;
+                case 'openMetacard':
+                    var self = this;
+                    var metacardId = args[0];
+                    var queryForMetacard = new Query.Model({
+                        cql: cql.write({
+                            type: '=',
+                            value: metacardId,
+                            property: '"id"'
+                        })
+                    });
+                    $.when.apply(this, queryForMetacard.startSearch()).always(function(){
+                        metacardInstance.set('currentMetacard', queryForMetacard.get('result').get('results').first());
+                        if (Application.App.metacardRegion.currentView===undefined) {
+                            Application.App.metacardRegion.show(new MetacardView());
+                        }
+                        Application.App.metacardRegion.$el.removeClass('is-hidden');
+                        self.updateRoute(name, path, args);
+                    });
+                    break;
                 case 'home':
                     if (Application.App.workspacesRegion.currentView===undefined) {
                         Application.App.workspacesRegion.show(new HomeView());
                     }
+                    Application.App.workspacesRegion.$el.removeClass('is-hidden');
                     this.updateRoute(name, path, args);
                     break;
                 case 'workspaces':
                     if (Application.App.workspacesRegion.currentView===undefined) {
                         Application.App.workspacesRegion.show(new HomeView());
                     }
+                    Application.App.workspacesRegion.$el.removeClass('is-hidden');
                     this.updateRoute(name, path, args);
                     break;
             }

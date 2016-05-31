@@ -50,7 +50,7 @@ define([
         },
         handleRoute: function(){
             var router = store.get('router').toJSON();
-            if (router.name!=='openWorkspace'){
+            if (router.name === 'home' || router.name === 'workspaces'){
                 this.$el.removeClass('is-hidden');
             } else {
                 this.$el.addClass('is-hidden');

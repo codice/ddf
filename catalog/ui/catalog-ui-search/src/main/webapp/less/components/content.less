@@ -18,10 +18,24 @@ body.has-header.has-footer #content {
 
 
 #workspace,
-#workspaces {
+#workspaces,
+#metacard {
   position: absolute;
   left: 0px;
   top: 0px;
   height: 100%;
   width: 100%;
+}
+
+#workspace,
+#workspaces,
+#metacard {
+  &.is-hidden {
+    display: block !important;
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  opacity: 1;
+  transition: opacity @coreTransitionTime linear;
+  transform: translateX(0%);
 }
