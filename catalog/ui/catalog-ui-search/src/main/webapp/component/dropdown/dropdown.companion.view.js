@@ -45,11 +45,6 @@ define([
                 model: this.options.linkedView.modelForComponent
             }));
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
-            this.listenTo(this.options.linkedView.model, 'destroy', function(){
-                if (!this.isDestroyed){
-                    this.destroy();
-                }
-            }.bind(this));
             this.listenForClose();
         },
         updatePosition: function () {

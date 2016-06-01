@@ -75,6 +75,12 @@ define([
         },
         turnOffEditing: function(){
             this.model.set('isEditing', false);
+        },
+        onDestroy: function(){
+            //ensure that if a dropdown goes away, it's companion does too
+            if (!this.dropdownCompanion.isDestroyed) {
+                this.dropdownCompanion.destroy();
+            }
         }
     });
 });

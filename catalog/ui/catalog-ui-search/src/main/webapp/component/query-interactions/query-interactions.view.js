@@ -27,7 +27,6 @@ define([
         template: template,
         tagName: CustomElements.register('query-interactions'),
         modelEvents: {
-            'change': 'render'
         },
         events: {
             'click .interaction-run': 'handleRun',
