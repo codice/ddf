@@ -1,0 +1,7 @@
+The ${ddf-registry} ...
+
+=== Whitelist
+
+The following packages have been exported by the ${ddf-registry} Application and are approved for use by third parties:
+
+* `package.packagename`
