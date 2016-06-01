@@ -11,26 +11,11 @@
  *
  **/
  --}}
-<div class="query-container"  data-queryid="{{id}}">
-    <div class="query-color" style="background: {{query.color}}">
-    </div>
-    <div class="query-details">
-        <div class="details-title">
-            {{query.title}}
-        </div>
-        <div class="details-results">
-            {{#if pending}}
-                <i class="fa fa-circle-o-notch fa-spin"></i>
-            {{/if}}
-            {{#if failed}}
-                <i class="fa fa-warning"></i>
-            {{/if}}
-            {{resultCount}}
-        </div>
-        <div class="details-status">
-            {{queryStatus}}
-        </div>
-    </div>
-    <div class="query-actions">
-    </div>
+<div class="querySelect-item">
+
 </div>
+<span class="querySelect-default">
+        Click here to select a query
+</span>
+<span class="dropdown-icon fa fa-caret-down">
+</span>

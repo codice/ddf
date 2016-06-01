@@ -18,13 +18,13 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.metacard-interactions.hbs',
-    'component/metacard-interactions/metacard-interactions.view'
+    'text!./dropdown.query-interactions.hbs',
+    'component/query-interactions/query-interactions.view'
 ], function (Marionette, _, $, DropdownView, template, ComponentView) {
 
     return DropdownView.extend({
         template: template,
-        className: 'is-metacardInteractions',
+        className: 'is-queryInteractions',
         componentToShow: ComponentView,
         initializeComponentModel: function(){
             //override if you need more functionality

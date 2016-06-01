@@ -22,17 +22,17 @@ define([
     'js/store',
     'component/menu-vertical/popout/menu-vertical.popout.view',
     'component/content-toolbar/content-toolbar',
-    'moment'
+    'moment',
+    'component/dropdown/dropdown',
+    'component/dropdown/query-interactions/dropdown.query-interactions.view'
 ], function (Marionette, _, $, template, CustomElements, store, MenuView,
-             ContentToolbar, moment) {
+             ContentToolbar, moment, DropdownModel, DropdownQueryInteractionsView) {
 
-    function getResultsFound(data){
+    function getResultsFound(total, data){
         var hits = _.reduce(data, function(hits, status) {
             return status.hits ? hits + status.hits : hits;
         }, 0);
-        var count = _.reduce(data, function(count, status) {
-            return status.count ? count + status.count : count;
-        }, 0);
+        var count = total ? total : 0;
         var searching = _.every(data, function(status) {
             return _.isUndefined(status.count);
         });
@@ -42,7 +42,7 @@ define([
         if (hits === count || count > hits) {
             return count + ' results';
         } else {
-            return count + ' of ' + hits + ' results';
+            return 'Top ' + count + ' of ' + hits + ' results';
         }
     }
 
@@ -68,7 +68,7 @@ define([
         }
     }
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         template: template,
         attributes: function(){
             return {
@@ -83,6 +83,9 @@ define([
         },
         ui: {
         },
+        regions: {
+            queryActions: '.query-actions'
+        },
         initialize: function(options){
             var query = store.getQueryById(this.model.id);
             this.listenTo(query, 'change', this.updateQuery);
@@ -92,7 +95,13 @@ define([
                 this.listenTo(query, 'change:result', this.resultAdded);
             }
             this.listenTo(store.get('content'), 'change:query', this.highlight);
-            this._menuModel = new ContentToolbar();
+        },
+        onBeforeShow: function(){
+            this._queryInteractions = new DropdownModel();
+            this.queryActions.show(new DropdownQueryInteractionsView({
+                model: this._queryInteractions,
+                modelForComponent: this.model
+            }));
         },
         updateQuery: function() {
             if (!this.isDestroyed){
@@ -107,28 +116,6 @@ define([
         listenToStatus: function(model) {
             this.listenTo(model.get('result>results'), 'reset', this.updateQuery);
             this.listenTo(model.get('result'), 'sync', this.updateQuery);
-        },
-        initializeMenus: function(){
-            MenuView.getNewQueryMenu(this._menuModel,
-                function(){
-                    return this.el.querySelector('.actions-icon');
-                }.bind(this),
-                'query',
-                this.model);
-        },
-        firstRender: true,
-        onRender: function(){
-            if (this.firstRender){
-                this.firstRender = false;
-                this.initializeMenus();
-            }
-        },
-        onDestroy: function(){
-            this._menuModel.destroy();
-        },
-        editQueryDetails: function(event){
-            event.stopPropagation();
-            this._menuModel.activate('query');
         },
         highlight: function(){
             var queryRef = store.getQuery();
@@ -148,7 +135,7 @@ define([
                 return {
                     query: query,
                     status: status,
-                    resultCount: getResultsFound(status),
+                    resultCount: getResultsFound(this.model.get('result').get('results').state.totalRecords, status),
                     pending: getPending(status),
                     failed: getFailed(status),
                     queryStatus: getLastRan(this.model.get('result>initiated'))

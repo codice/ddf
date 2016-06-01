@@ -21,7 +21,7 @@ define([
     './dropdown.companion.view'
 ], function (Marionette, _, $, CustomElements, DropdownCompanionView) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         tagName: CustomElements.register('dropdown'),
         events: {
             'click': 'handleClick'

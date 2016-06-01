@@ -10,12 +10,15 @@
 
 @{customElementNamespace}query-item {
   display: block;
-  height: 60px;
-  width: 100%;
-  white-space: nowrap;
-  overflow: visible;
-  position: relative;
   cursor: pointer;
+
+  .query-container {
+    height: 60px;
+    white-space: nowrap;
+    overflow: visible;
+    position: relative;
+    cursor: pointer;
+  }
 
   .query-color,
   .query-details,
@@ -29,6 +32,9 @@
     display: inline-block;
     vertical-align: middle;
     width: 50%;
+    padding: 0px 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .query-color {
@@ -64,7 +70,7 @@
     top: 0px;
   }
 
-  .actions-icon {
+  .is-queryInteractions {
     position: relative;
     top: ~'calc(50% - 11px)';
     font-size: larger;

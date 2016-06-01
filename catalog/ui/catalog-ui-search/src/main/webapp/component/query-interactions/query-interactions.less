@@ -1,0 +1,65 @@
+@{customElementNamespace}query-interactions {
+
+  .query-interaction,
+  .interaction-icon,
+  .interaction-text {
+    line-height: @minimumButtonSize;
+    height: @minimumButtonSize;
+  }
+
+  .query-interaction {
+    white-space: nowrap;
+    padding: 0px 10px;
+    cursor: pointer;
+  }
+
+  .interaction-icon {
+    text-align: center;
+    width: @minimumButtonSize;
+  }
+
+  .interaction-icon,
+  .interaction-text {
+    display: inline-block;
+  }
+
+  .query-interaction:hover {
+    background: @dropdownHoverBackground;
+  }
+
+  .interaction-save,
+  .interaction-hide,
+  .interaction-unsave {
+    display: none;
+  }
+
+}
+
+@{customElementNamespace}query-interactions.in-workspace {
+  .interaction-save,
+  .interaction-hide {
+    display: block;
+  }
+}
+
+@{customElementNamespace}query-interactions.is-saved {
+  .interaction-unsave {
+    display: block;
+  }
+  .interaction-save {
+    display: none;
+  }
+}
+
+@{customElementNamespace}query-interactions.is-multiple {
+  .interaction-expand,
+  .interaction-share {
+    display: none;
+  }
+}
+
+@{customElementNamespace}query-interactions.is-routed {
+  .interaction-expand {
+    display: none;
+  }
+}

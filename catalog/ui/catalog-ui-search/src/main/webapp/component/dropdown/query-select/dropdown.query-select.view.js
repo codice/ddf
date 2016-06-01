@@ -18,17 +18,22 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.metacard-interactions.hbs',
-    'component/metacard-interactions/metacard-interactions.view'
-], function (Marionette, _, $, DropdownView, template, ComponentView) {
+    'text!./dropdown.query-select.hbs',
+    'component/query-select/query-select.view',
+    'component/query-item/query-item.view',
+    'js/store'
+], function (Marionette, _, $, DropdownView, template, ComponentView, QueryItemView, store) {
 
     return DropdownView.extend({
         template: template,
-        className: 'is-metacardInteractions',
+        className: 'is-querySelect',
         componentToShow: ComponentView,
+        regions: {
+            queryItem: '.querySelect-item'
+        },
         initializeComponentModel: function(){
             //override if you need more functionality
-            this.modelForComponent = this.options.modelForComponent;
+            this.modelForComponent = this.options.model;
         },
         listenToComponent: function(){
             //override if you need more functionality
@@ -37,6 +42,18 @@ define([
         getCenteringElement: function(){
             return this.el;
         },
-        hasTail: true
+        hasTail: true,
+        onRender: function(){
+            DropdownView.prototype.onRender.call(this);
+            var queryId = this.model.get('value');
+            if (queryId){
+                this.queryItem.show(new QueryItemView({
+                    model: store.getCurrentQueries().get(queryId)
+                }));
+                this.$el.addClass('query-selected');
+            } else {
+                this.$el.removeClass('query-selected');
+            }
+        }
     });
 });

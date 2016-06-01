@@ -92,10 +92,7 @@ define([
             return {
                 results: results,
                 status: status,
-                resultCount: this.resultsFound(resultsCollection.state.totalRecords, status),
                 pages: this.currentPages(resultsCollection.state.currentPage, resultsCollection.state.totalPages),
-                pending: this.someStatusSuccess(status, undefined),
-                failed: this.someStatusSuccess(status, false),
                 hasPreviousPage: resultsCollection.hasPreviousPage(),
                 hasNextPage: resultsCollection.hasNextPage()
             };
@@ -124,28 +121,6 @@ define([
                 pages = current + ' of ' + total;
             }
             return pages;
-        },
-        resultsFound: function(total, data){
-            var hits = _.reduce(data, function(hits, status) {
-                return status.hits ? hits + status.hits : hits;
-            }, 0);
-            var count = total ? total : 0;
-            var searching = _.every(data, function(status) {
-                return _.isUndefined(status.count);
-            });
-            if (searching) {
-                return 'Searching...'
-            }
-            if (hits === count || count > hits) {
-                return count + ' results';
-            } else {
-                return 'Top ' + count + ' of ' + hits + ' results';
-            }
-        },
-        someStatusSuccess: function(status, value) {
-            return _.some(status, function(s) {
-                return s.successful === value;
-            });
         },
         stopTextSelection: function(event){
             event.preventDefault();
