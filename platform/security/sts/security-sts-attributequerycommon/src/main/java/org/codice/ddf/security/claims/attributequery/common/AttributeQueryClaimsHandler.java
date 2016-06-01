@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 import ddf.security.PropertiesLoader;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.samlp.SimpleSign;
 
 public class AttributeQueryClaimsHandler implements ClaimsHandler {
@@ -131,8 +130,6 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
         } catch (URISyntaxException e) {
             LOGGER.error(ERROR_RETRIEVING_ATTRIBUTES, externalAttributeStoreUrl, nameId, e);
         }
-        SecurityLogger.audit("Returning claim values [{}] for Subject: " + principal.getName(),
-                claimCollection.toString());
         return claimCollection;
     }
 

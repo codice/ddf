@@ -272,10 +272,6 @@ public class LoginFilter implements Filter {
                         StringUtils.isNotBlank(httpRequest.getContextPath()) ?
                                 httpRequest.getContextPath() :
                                 httpRequest.getServletPath());
-                SecurityLogger.audit("Executing request {} on {} as user.",
-                        subject,
-                        httpRequest.getMethod(),
-                        path);
                 subject.execute(() -> {
                     PrivilegedExceptionAction<Void> action = () -> {
                         chain.doFilter(request, response);
