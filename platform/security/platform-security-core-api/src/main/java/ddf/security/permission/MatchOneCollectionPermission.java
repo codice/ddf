@@ -17,8 +17,6 @@ import java.util.Collection;
 
 import org.apache.shiro.authz.Permission;
 
-import ddf.security.common.audit.SecurityLogger;
-
 /**
  * Permission class handling the match one case. Shiro permissions always "match all" attributes.
  * This class extends the CollectionPermission and overrides the implies method to perform the
@@ -43,9 +41,6 @@ public class MatchOneCollectionPermission extends CollectionPermission {
     @Override
     public boolean implies(Permission p) {
         if (permissionList.isEmpty()) {
-            SecurityLogger.audit(
-                    PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
-                            + PERMISSION_END_MSG);
             return false;
         }
 
@@ -88,15 +83,9 @@ public class MatchOneCollectionPermission extends CollectionPermission {
                     }
                 }
                 if (!result) {
-                    SecurityLogger.audit(
-                            PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-                                    + p.toString() + PERMISSION_END_MSG);
                     return false;
                 }
             }
-            SecurityLogger.audit(
-                    PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
-                            + PERMISSION_END_MSG);
             return true;
         }
 
@@ -105,15 +94,9 @@ public class MatchOneCollectionPermission extends CollectionPermission {
             // Shiro permissions are always a "match all" condition so we need to flip the implies
             // to make it match one
             if (p.implies(permission)) {
-                SecurityLogger.audit(
-                        PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
-                                + PERMISSION_END_MSG);
                 return true;
             }
         }
-        SecurityLogger.audit(
-                PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
-                        + PERMISSION_END_MSG);
         return false;
     }
 }

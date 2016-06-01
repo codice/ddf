@@ -182,6 +182,7 @@ import ddf.mime.MimeTypeResolutionException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 
@@ -2145,7 +2146,14 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             KeyValueCollectionPermission kvCollection = new KeyValueCollectionPermission(
                     CollectionPermission.READ_ACTION,
                     securityAttributes);
-            return subject.isPermitted(kvCollection);
+            boolean isPermitted = subject.isPermitted(kvCollection);
+            if (isPermitted) {
+                SecurityLogger.audit("Subject is permitted to access source {}", source.getId());
+            } else {
+                SecurityLogger.audit("Subject is not permitted to access source {}",
+                        source.getId());
+            }
+            return isPermitted;
         }
         return false;
     }

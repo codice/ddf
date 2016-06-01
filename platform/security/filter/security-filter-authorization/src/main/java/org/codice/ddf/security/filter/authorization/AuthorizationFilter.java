@@ -33,6 +33,7 @@ import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 
 /**
@@ -103,6 +104,7 @@ public class AuthorizationFilter implements Filter {
             }
 
             if (!permitted) {
+                SecurityLogger.audit("Subject not authorized to view resource {}", path);
                 LOGGER.debug("Subject not authorized.");
                 returnNotAuthorized(httpResponse);
             } else {
