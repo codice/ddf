@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -68,9 +68,11 @@ public class XacmlPdpTest {
     // Subject info
     private static final String TEST_COUNTRY = "ATA";
 
-    private static final String NAME_IDENTIFIER = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+    private static final String NAME_IDENTIFIER =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
 
-    private static final String GIVEN_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
+    private static final String GIVEN_NAME =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
 
     private static final String COUNTRY = "http://www.opm.gov/feddata/CountryOfCitizenship";
 
@@ -86,8 +88,10 @@ public class XacmlPdpTest {
         FileOutputStream policyOutStream = new FileOutputStream(policy);
         InputStream policyStream = XacmlPdp.class.getResourceAsStream("/policies/test-policy.xml");
         IOUtils.copy(policyStream, policyOutStream);
-        testRealm = new XacmlPdp(new File(policy.getParent()).getAbsolutePath(), new XmlParser(),
-                Arrays.asList("item0=item0Val1", "item1=item1Val1,item1Val2",
+        testRealm = new XacmlPdp(new File(policy.getParent()).getAbsolutePath(),
+                new XmlParser(),
+                Arrays.asList("item0=item0Val1",
+                        "item1=item1Val1,item1Val2",
                         "item2=item2Val1,item2Val2,item2Val3"));
     }
 
@@ -109,14 +113,16 @@ public class XacmlPdpTest {
     @Test
     public void testActionGoodCountry() {
         RequestType request = testRealm.createXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), new KeyValueCollectionPermission(QUERY_ACTION));
+                generateSubjectInfo(TEST_COUNTRY),
+                new KeyValueCollectionPermission(QUERY_ACTION));
 
         assertTrue(testRealm.isPermitted(request));
     }
 
     @Test
     public void testActionBadCountry() {
-        RequestType request = testRealm.createXACMLRequest(USER_NAME, generateSubjectInfo("CAN"),
+        RequestType request = testRealm.createXACMLRequest(USER_NAME,
+                generateSubjectInfo("CAN"),
                 new KeyValueCollectionPermission(QUERY_ACTION));
 
         assertFalse(testRealm.isPermitted(request));
@@ -126,7 +132,8 @@ public class XacmlPdpTest {
     public void testActionGoodSiteName() {
         SimpleAuthorizationInfo blankUserInfo = new SimpleAuthorizationInfo(new HashSet<String>());
         blankUserInfo.setObjectPermissions(new HashSet<Permission>());
-        RequestType request = testRealm.createXACMLRequest(USER_NAME, blankUserInfo,
+        RequestType request = testRealm.createXACMLRequest(USER_NAME,
+                blankUserInfo,
                 new KeyValueCollectionPermission(SITE_NAME_ACTION));
 
         assertTrue(testRealm.isPermitted(request));
@@ -136,7 +143,8 @@ public class XacmlPdpTest {
     public void testActionBadAction() {
 
         RequestType request = testRealm.createXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), new KeyValueCollectionPermission("bad"));
+                generateSubjectInfo(TEST_COUNTRY),
+                new KeyValueCollectionPermission("bad"));
 
         assertFalse(testRealm.isPermitted(request));
     }
@@ -148,10 +156,12 @@ public class XacmlPdpTest {
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A, ACCESS_TYPE_B));
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(
-                CollectionPermission.READ_ACTION, security);
+                CollectionPermission.READ_ACTION,
+                security);
 
         RequestType request = testRealm.createXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), resourcePermissions);
+                generateSubjectInfo(TEST_COUNTRY),
+                resourcePermissions);
 
         assertTrue(testRealm.isPermitted(request));
 
@@ -164,9 +174,11 @@ public class XacmlPdpTest {
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A));
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(
-                CollectionPermission.READ_ACTION, security);
+                CollectionPermission.READ_ACTION,
+                security);
         RequestType request = testRealm.createXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), resourcePermissions);
+                generateSubjectInfo(TEST_COUNTRY),
+                resourcePermissions);
 
         assertTrue(testRealm.isPermitted(request));
 
@@ -179,18 +191,97 @@ public class XacmlPdpTest {
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A, ACCESS_TYPE_B, ACCESS_TYPE_C));
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(
-                CollectionPermission.READ_ACTION, security);
+                CollectionPermission.READ_ACTION,
+                security);
         RequestType request = testRealm.createXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), resourcePermissions);
+                generateSubjectInfo(TEST_COUNTRY),
+                resourcePermissions);
 
         assertFalse(testRealm.isPermitted(request));
 
     }
 
     @Test
+    public void testParseAttributeTypeBoolean() {
+        assertTrue(XACMLConstants.BOOLEAN_DATA_TYPE.equals(testRealm.getXacmlDataType("true")));
+    }
+
+    @Test
+    public void testParseAttributeTypeInteger() {
+        assertTrue(XACMLConstants.INTEGER_DATA_TYPE.equals(testRealm.getXacmlDataType("42")));
+    }
+
+    @Test
+    public void testParseAttributeTypeDouble() {
+
+        assertTrue(XACMLConstants.DOUBLE_DATA_TYPE.equals(testRealm.getXacmlDataType("42.42")));
+    }
+
+    @Test
+    public void testParseAttributeTypeTime() {
+
+        assertTrue(XACMLConstants.TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "09:00:52.545-05:00")));
+        assertTrue(XACMLConstants.TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52.545")));
+        assertTrue(XACMLConstants.TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52-05:00")));
+        assertTrue(XACMLConstants.TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52")));
+
+    }
+
+    @Test
+    public void testParseAttributeTypeDate() {
+        assertTrue(XACMLConstants.DATE_DATA_TYPE.equals(testRealm.getXacmlDataType("1984-11-06")));
+        assertTrue(XACMLConstants.DATE_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "1984-11-06-05:00")));
+
+    }
+
+    @Test
+    public void testParseAttributeTypeDateTime() {
+        assertTrue(XACMLConstants.DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "2002-05-30T09:30:10Z")));
+        assertTrue(XACMLConstants.DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "2002-05-30T09:30:10")));
+        assertTrue(XACMLConstants.DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "2002-05-30T09:30:10-05:00")));
+        assertTrue(XACMLConstants.DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "2002-05-30T09:30:10.525")));
+    }
+
+    @Test
+    public void testParseAttributeTypeUri() {
+        assertTrue(XACMLConstants.URI_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "http://www.codice.org")));
+    }
+
+    @Test
+    public void testParseAttributeTypeString() {
+        assertTrue(XACMLConstants.STRING_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "Simple string with 1 integer.")));
+    }
+
+    @Test
+    public void testParseAttributeTypeRfc822Name() {
+        assertTrue(XACMLConstants.RFC822_NAME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "dev@codice.com")));
+    }
+
+    @Test
+    public void testParseAttributeTypeIpAddress() {
+        assertTrue(XACMLConstants.IP_ADDRESS_DATA_TYPE.equals(testRealm.getXacmlDataType("8.8.8.8")));
+    }
+
+    @Test
+    public void testParseAttributeTypeX500Name() {
+        assertTrue(XACMLConstants.X500_NAME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+                "c=UK,l=London,o=Tardis,o=police box,cn=john.smith")));
+    }
+
+    @Test
     public void testEnvironmentVariables() {
         RequestType request = testRealm.createXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), new KeyValueCollectionPermission(QUERY_ACTION));
+                generateSubjectInfo(TEST_COUNTRY),
+                new KeyValueCollectionPermission(QUERY_ACTION));
 
         List<AttributesType> attributes = request.getAttributes();
 

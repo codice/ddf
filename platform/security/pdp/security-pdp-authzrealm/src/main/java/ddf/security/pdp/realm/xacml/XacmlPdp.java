@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,12 +16,22 @@ package ddf.security.pdp.realm.xacml;
 
 import java.util.List;
 
+import org.apache.commons.validator.EmailValidator;
+import org.apache.commons.validator.UrlValidator;
+import org.apache.commons.validator.routines.CalendarValidator;
+import org.apache.commons.validator.routines.DateValidator;
+import org.apache.commons.validator.routines.DoubleValidator;
+import org.apache.commons.validator.routines.IntegerValidator;
+import org.apache.commons.validator.routines.TimeValidator;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.util.CollectionUtils;
+import org.bouncycastle.asn1.x500.X500Name;
 import org.codice.ddf.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.net.InetAddresses;
 
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.pdp.realm.xacml.processor.PdpException;
@@ -61,21 +71,24 @@ public class XacmlPdp {
     public boolean isPermitted(String primaryPrincipal, AuthorizationInfo info,
             KeyValueCollectionPermission curPermission) {
         boolean curResponse;
-        LOGGER.debug("Checking if {} has access for action {}", primaryPrincipal,
+        LOGGER.debug("Checking if {} has access for action {}",
+                primaryPrincipal,
                 curPermission.getAction());
 
         SecurityLogger.audit("Checking if [" + primaryPrincipal + "] has access for action "
                 + curPermission.getAction());
 
-        if (CollectionUtils.isEmpty(info.getObjectPermissions()) && CollectionUtils.isEmpty(
-                info.getStringPermissions()) && CollectionUtils.isEmpty(info.getRoles())
+        if (CollectionUtils.isEmpty(info.getObjectPermissions())
+                && CollectionUtils.isEmpty(info.getStringPermissions()) && CollectionUtils.isEmpty(
+                info.getRoles())
                 && !CollectionUtils.isEmpty(curPermission.getKeyValuePermissionList())) {
             return false;
         }
 
-        if ((!CollectionUtils.isEmpty(info.getObjectPermissions()) || !CollectionUtils.isEmpty(
-                info.getStringPermissions()) || !CollectionUtils.isEmpty(info.getRoles()))
-                && CollectionUtils.isEmpty(curPermission.getKeyValuePermissionList())) {
+        if ((!CollectionUtils.isEmpty(info.getObjectPermissions())
+                || !CollectionUtils.isEmpty(info.getStringPermissions())
+                || !CollectionUtils.isEmpty(info.getRoles())) && CollectionUtils.isEmpty(
+                curPermission.getKeyValuePermissionList())) {
             return true;
         }
 
@@ -89,7 +102,8 @@ public class XacmlPdp {
 
     protected RequestType createXACMLRequest(String subject, AuthorizationInfo info,
             CollectionPermission permission) {
-        LOGGER.debug("Creating XACML request for subject: {} and metacard permissions {}", subject,
+        LOGGER.debug("Creating XACML request for subject: {} and metacard permissions {}",
+                subject,
                 permission);
 
         RequestType xacmlRequestType = new RequestType();
@@ -148,7 +162,8 @@ public class XacmlPdp {
         }
 
         if (permission instanceof KeyValueCollectionPermission) {
-            List<KeyValuePermission> tmpList = ((KeyValueCollectionPermission) permission).getKeyValuePermissionList();
+            List<KeyValuePermission> tmpList =
+                    ((KeyValueCollectionPermission) permission).getKeyValuePermissionList();
             for (KeyValuePermission curPermission : tmpList) {
                 AttributeType resourceAttribute = new AttributeType();
                 resourceAttribute.setAttributeId(curPermission.getKey());
@@ -157,12 +172,7 @@ public class XacmlPdp {
                         .size() > 0) {
                     for (String curPermValue : curPermission.getValues()) {
                         AttributeValueType resourceAttributeValue = new AttributeValueType();
-                        if ("false".equalsIgnoreCase(curPermValue) || "true".equalsIgnoreCase(
-                                curPermValue)) {
-                            resourceAttributeValue.setDataType(XACMLConstants.BOOLEAN_DATA_TYPE);
-                        } else {
-                            resourceAttributeValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
-                        }
+                        resourceAttributeValue.setDataType(getXacmlDataType(curPermValue));
                         LOGGER.trace("Adding permission: {}:{} for incoming resource",
                                 new Object[] {curPermission.getKey(), curPermValue});
                         resourceAttributeValue.getContent()
@@ -252,14 +262,11 @@ public class XacmlPdp {
                         .size() > 0) {
                     for (String curPermValue : ((KeyValuePermission) curPermission).getValues()) {
                         AttributeValueType subjAttrValue = new AttributeValueType();
-                        if ("false".equalsIgnoreCase(curPermValue) || "true".equalsIgnoreCase(
-                                curPermValue)) {
-                            subjAttrValue.setDataType(XACMLConstants.BOOLEAN_DATA_TYPE);
-                        } else {
-                            subjAttrValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
-                        }
+                        subjAttrValue.setDataType(getXacmlDataType(curPermValue));
+
                         LOGGER.trace("Adding permission: {}:{} for subject: {}",
-                                ((KeyValuePermission) curPermission).getKey(), curPermValue,
+                                ((KeyValuePermission) curPermission).getKey(),
+                                curPermValue,
                                 subject);
                         subjAttrValue.getContent()
                                 .add(curPermValue);
@@ -277,4 +284,56 @@ public class XacmlPdp {
         return subjectAttributes;
     }
 
+    protected String getXacmlDataType(String curPermValue) {
+        if ("false".equalsIgnoreCase(curPermValue) || "true".equalsIgnoreCase(curPermValue)) {
+            return XACMLConstants.BOOLEAN_DATA_TYPE;
+        } else if (IntegerValidator.getInstance()
+                .validate(curPermValue) != null) {
+            return XACMLConstants.INTEGER_DATA_TYPE;
+        } else if (DoubleValidator.getInstance()
+                .validate(curPermValue) != null) {
+            return XACMLConstants.DOUBLE_DATA_TYPE;
+        } else if (TimeValidator.getInstance()
+                .validate(curPermValue, "H:mm:ss") != null || TimeValidator.getInstance()
+                .validate(curPermValue, "H:mm:ss.SSS") != null || TimeValidator.getInstance()
+                .validate(curPermValue, "H:mm:ssXXX") != null || TimeValidator.getInstance()
+                .validate(curPermValue, "H:mm:ss.SSSXXX") != null) {
+            return XACMLConstants.TIME_DATA_TYPE;
+        } else if (DateValidator.getInstance()
+                .validate(curPermValue, "yyyy-MM-dd") != null || DateValidator.getInstance()
+                .validate(curPermValue, "yyyy-MM-ddXXX") != null) {
+            return XACMLConstants.DATE_DATA_TYPE;
+        } else if (CalendarValidator.getInstance()
+                .validate(curPermValue, "yyyy-MM-dd:ss'T'H:mm") != null ||
+                CalendarValidator.getInstance()
+                        .validate(curPermValue, "yyyy-MM-dd'T'H:mm:ssXXX") != null ||
+                CalendarValidator.getInstance()
+                        .validate(curPermValue, "yyyy-MM-dd'T'H:mm:ss.SSS") != null ||
+                CalendarValidator.getInstance()
+                        .validate(curPermValue, "yyyy-MM-dd'T'H:mm:ss.SSSXXX") != null ||
+                CalendarValidator.getInstance()
+                        .validate(curPermValue, "yyyy-MM-dd'T'H:mm:ss") != null) {
+            return XACMLConstants.DATE_TIME_DATA_TYPE;
+        } else if (EmailValidator.getInstance()
+                .isValid(curPermValue)) {
+            return XACMLConstants.RFC822_NAME_DATA_TYPE;
+        } else if (new UrlValidator().isValid(curPermValue)) {
+            return XACMLConstants.URI_DATA_TYPE;
+        } else if (InetAddresses.isInetAddress(curPermValue)) {
+            return XACMLConstants.IP_ADDRESS_DATA_TYPE;
+        } else {
+
+            try {
+                if (new X500Name(curPermValue).getRDNs().length > 0) {
+                    return XACMLConstants.X500_NAME_DATA_TYPE;
+                }
+            } catch (IllegalArgumentException e) {
+
+            }
+
+        }
+        return XACMLConstants.STRING_DATA_TYPE;
+    }
 }
+
+
