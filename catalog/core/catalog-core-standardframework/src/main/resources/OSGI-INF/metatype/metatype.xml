@@ -46,6 +46,13 @@
         <AD name="Enable Notifications" id="notificationEnabled" required="false" type="Boolean"
             default="true"
             description="Check to enable notifications."/>
+
+    </OCD>
+
+    <OCD name="Historian" id="ddf.catalog.history.Historian">
+        <AD name="Enable Versioning" id="historyEnabled" required="true" type="Boolean"
+            default="true"
+            description="Enables versioning of both metacards and content."/>
     </OCD>
 
     <Designate
@@ -53,5 +60,10 @@
         <Object
                 ocdref="ddf.catalog.CatalogFrameworkImpl"/>
     </Designate>
+
+    <Designate pid="ddf.catalog.history.Historian">
+        <Object ocdref="ddf.catalog.history.Historian" />
+    </Designate>
+
 
 </metatype:MetaData>

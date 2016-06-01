@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import ddf.catalog.core.versioning.HistoryMetacardImpl;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
@@ -39,7 +39,7 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
     private final Predicate<Metacard> isMetacardHistory = (tags) -> tags.getTags()
-            .contains(HistoryMetacardImpl.HISTORY_TAG);
+            .contains(MetacardVersion.VERSION_TAG);
 
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
