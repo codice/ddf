@@ -1,13 +1,21 @@
 @{customElementNamespace}dropdown.is-querySelect {
   cursor: pointer;
   display: block;
-  text-align: center;
   height: 80px;
   line-height: 80px;
 
   .dropdown-icon,
   .querySelect-default {
     display: inline-block;
+  }
+
+  .querySelect-default {
+    text-align: center;
+  }
+
+  .querySelect-default,
+  .querySelect-item {
+    width: ~'calc(100% - 20px)';
   }
 
   @{customElementNamespace}query-item {
@@ -20,6 +28,10 @@
       display: none;
     }
   }
+
+  > .dropdown-icon {
+    display: none;
+  }
 }
 
 @{customElementNamespace}dropdown.is-querySelect.query-selected {
@@ -29,5 +41,9 @@
 
   .querySelect-default {
     display: none;
+  }
+
+  > .dropdown-icon {
+    display: inline-block;
   }
 }

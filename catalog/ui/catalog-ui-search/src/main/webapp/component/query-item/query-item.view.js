@@ -96,13 +96,6 @@ define([
             }
             this.listenTo(store.get('content'), 'change:query', this.highlight);
         },
-        onBeforeShow: function(){
-            this._queryInteractions = new DropdownModel();
-            this.queryActions.show(new DropdownQueryInteractionsView({
-                model: this._queryInteractions,
-                modelForComponent: this.model
-            }));
-        },
         updateQuery: function() {
             if (!this.isDestroyed){
                 this.render();
@@ -147,6 +140,13 @@ define([
                     queryStatus: ''
                 };
             }
+        },
+        onRender: function(){
+            this._queryInteractions = new DropdownModel();
+            this.queryActions.show(new DropdownQueryInteractionsView({
+                model: this._queryInteractions,
+                modelForComponent: this.model
+            }));
         },
         hideActions: function(){
             this.$el.addClass('hide-actions');
