@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<!-- This file is used by SlotTypeHelperTest. This Registry Package only has a list of slot to easier test the SlotTypeHelper. -->
+<rim:RegistryPackage id="urn:uuid:2014ca7f59ac46f495e32b4a67a51394" home="https://somehost:someport"
+                     objectType="urn:registry:federation:node"
+                     xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+                     xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
+                     xmlns:gml="http://www.opengis.net/gml">
+    <rim:Slot name="cswUrl" slotType="xs:anyURI">
+        <rim:ValueList>
+            <rim:Value>https://some/address/here</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+    <!-- bindingType identifies communication message type for this binding-->
+    <rim:Slot name="bindingType" slotType="xs:string">
+        <rim:ValueList>
+            <rim:Value>Csw_Federated_Source</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+
+    <rim:Slot name="serviceType" slotType="xs:string">
+        <rim:ValueList>
+            <rim:Value>REST</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+
+    <rim:Slot name="liveDate" slotType="xs:dateTime">
+        <rim:ValueList>
+            <rim:Value>2015-11-01T06:15:30-07:00</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+    <!--Optional: Date indicating the earliest data sets available in this instance-->
+    <rim:Slot name="dataStartDate" slotType="xs:dateTime">
+        <rim:ValueList>
+            <rim:Value>2015-11-01T13:15:30Z</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+    <!--Optional: Date indicating when data stopped being added to this instance-->
+    <rim:Slot name="dataEndDate" slotType="xs:dateTime">
+        <rim:ValueList>
+            <rim:Value>2015-12-01T23:01:40Z</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+    <!-- Date this entries data was last updated/created by its originator -->
+    <rim:Slot name="lastUpdated" slotType="xs:dateTime">
+        <rim:ValueList>
+            <rim:Value>2016-01-26T17:16:34.996Z</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+
+    <rim:Slot name="endpointDocumentation" slotType="xs:anyURI">
+        <rim:ValueList>
+            <rim:Value>https://some/path/to/docs.html</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+    <rim:Slot name="links" slotType="xs:string">
+        <rim:ValueList>
+            <rim:Value>https://some/link/to/my/repo</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+    <!--Optional: Geographic location of this instance described by a gml:Point-->
+    <rim:Slot name="location" slotType="urn:ogc:def:dataType:ISO-19107:2003:GM_Point">
+        <wrs:ValueList>
+            <wrs:AnyValue>
+                <gml:Point srsDimension="2" srsName="urn:ogc:def:crs:EPSG::4326">
+                    <gml:pos>112.267472 33.467944</gml:pos>
+                </gml:Point>
+            </wrs:AnyValue>
+        </wrs:ValueList>
+    </rim:Slot>
+    <!--Optional: Region of this instance described by a UNSD region. The location should be within this region -->
+    <rim:Slot name="region"
+              slotType="urn:ogc:def:ebRIM-ClassificationScheme:UNSD:GlobalRegions">
+        <rim:ValueList>
+            <rim:Value>USA</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+
+    <!--Optional: Sorces of information that contribute to this instances data-->
+    <rim:Slot name="inputDataSources" slotType="xs:string">
+        <rim:ValueList>
+            <rim:Value>youtube</rim:Value>
+            <rim:Value>myCamera</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+    <!--Optional: Types of data that this instance contains-->
+    <rim:Slot name="dataTypes" slotType="xs:string">
+        <rim:ValueList>
+            <rim:Value>video</rim:Value>
+            <rim:Value>sensor</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+    <!--Optional: String representing the security level of this instance-->
+    <rim:Slot name="securityLevel" slotType="xs:string">
+        <rim:ValueList>
+            <rim:Value>role=guest</rim:Value>
+        </rim:ValueList>
+    </rim:Slot>
+</rim:RegistryPackage>
