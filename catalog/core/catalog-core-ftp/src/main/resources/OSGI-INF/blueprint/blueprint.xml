@@ -17,6 +17,8 @@
 
     <bean id="server" class="ddf.catalog.core.ftp.FtpServerStarter" init-method="init"
           destroy-method="destroy">
+        <cm:managed-properties persistent-id="ddf.catalog.core.ftp.FtpServerStarter" update-strategy="container-managed"/>
+        <property name="port" value="8021"/>
         <argument ref="ftplet"/>
         <argument ref="serverFactory"/>
         <argument ref="listenerFactory"/>
