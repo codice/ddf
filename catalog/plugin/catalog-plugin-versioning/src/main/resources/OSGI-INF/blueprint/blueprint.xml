@@ -15,15 +15,14 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
 
     <bean id="historian" class="ddf.catalog.metacard.versioning.HistorianPlugin">
-        <argument ref="catalogFramework"/>
     </bean>
 
     <service ref="historian">
         <interfaces>
             <value>ddf.catalog.plugin.PostIngestPlugin</value>
-            <value>ddf.catalog.plugin.PreIngestPlugin</value>
         </interfaces>
     </service>
 
