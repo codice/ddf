@@ -26,7 +26,6 @@
     <modules>
         <module>platform-metrics-collector</module>
         <module>platform-metrics-reporting</module>
-        <module>platform-metrics-webconsole-plugin</module>
         <module>platform-metrics-interceptor</module>
     </modules>
 </project>

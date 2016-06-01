@@ -117,11 +117,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.metrics.webconsoleplugin</groupId>
-            <artifactId>metrics-webconsole-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.metrics.interceptor</groupId>
             <artifactId>metrics-interceptor</artifactId>
             <version>${project.version}</version>
@@ -225,11 +220,6 @@
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-http-proxy</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>branding-resources</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

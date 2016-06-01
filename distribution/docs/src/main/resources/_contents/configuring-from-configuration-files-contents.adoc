@@ -390,11 +390,11 @@ Changing these values without also changing the passwords of the JKS causes unde
 ====
 * In `<${branding}_HOME>/etc/users.properties`, modify the line:
 ----
-localhost=localhost,group,admin,manager,viewer,webconsole,system-admin
+localhost=localhost,group,admin,manager,viewer,system-admin
 ----
 To be:
 ----
-<FQDN>=<PASSWORD>,group,admin,manager,viewer,webconsole,system-admin
+<FQDN>=<PASSWORD>,group,admin,manager,viewer,system-admin
 ----
 
 * Next ,configure `<${branding}_HOME>/etc/system.properties`

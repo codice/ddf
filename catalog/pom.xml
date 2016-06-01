@@ -480,6 +480,11 @@
                 <artifactId>findbugs</artifactId>
                 <version>${findbugs.version}</version>
             </dependency>
+            <dependency>
+                <groupId>ddf.distribution</groupId>
+                <artifactId>branding-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>

@@ -15,7 +15,6 @@
 
     <feature name="profile-standard" install="manual" version="${project.version}"
     	description="This will install the standard set of DDF applications." start-level="1">
-    	<feature>kernel-webconsolebranding</feature>
         <feature>admin-app</feature>
         <feature>platform-app</feature>
         <feature>security-services-app</feature>
@@ -27,7 +26,6 @@
 
     <feature name="profile-development" install="manual" version="${project.version}"
     	description="This will install all the DDF applications for development purposes." start-level="2">
-    	<feature>kernel-webconsolebranding</feature>
 		<feature>opendj-embedded</feature>
         <feature>admin-app</feature>
         <feature>platform-app</feature>

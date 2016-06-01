@@ -62,8 +62,7 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
 import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
 
 /**
- * This class provides an endpoint for a client, e.g., {@code MetricsWebConsolePlugin} to access the
- * historical metrics data collected by DDF.
+ * This class provides an endpoint for a client to access the historical metrics data collected by DDF.
  * <p>
  * This endpoint provides a URL to retrieve the list of metrics collected by DDF, including their
  * associated URLs to access pre-defined time ranges of each metric's historical data, e.g., for the
