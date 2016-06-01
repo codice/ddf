@@ -1,70 +1,6 @@
 
 This section supports integration of this application with external frameworks.
 
-=== System Properties
-
-The Platform Global Settings are the system-wide configuration settings used throughout ${branding} to specify the information about the machine hosting ${branding}.
-
-==== Configuration
-
-The configurable properties for the platform-wide configuration are accessed from *Configuration -> Platform Global Configuration* in the Web Console.
-
-==== Configurable Properties
-
-[cols="1,1,1,3,1,1" options="header"]
-|===
-
-|Title
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|Protocol
-|`protocol`
-|String
-|Default protocol that should be used to connect to this machine.
-|http
-|yes
-
-|Host
-|`host`
-|String
-|The host name or IP address of the machine that ${branding} is running on. Do not enter localhost.
-|
-|yes
-
-|Port
-|`port`
-|String
-|The port that ${branding} is running on.
-|
-|yes
-
-|Site Name
-|`id`
-|String
-|The site name for this ${branding} instance.
-|${ddf-branding-lowercase}.distribution
-|yes
-
-|Version
-|`version`
-|String
-|The version of ${branding} that is running. This value should not be changed from the factory default.
-|${branding} 2.3.0
-|yes
-
-|Organization
-|`organization`
-|String
-|The organization responsible for this installation of ${branding}
-|Codice Foundation
-|yes
-
-|===
-
 === Platform UI Settings
 
 The Platform UI Settings are the system-wide configuration settings used throughout ${branding} to customize certain aspects of the ${branding} UI.
@@ -621,7 +557,7 @@ Aggregate reports are available in Excel and PowerPoint formats.
 
 ==== Usage
 
-The ${branding} Metrics Reporting application provides a web console plugin that adds a new tab to the Admin Console with the title of Metrics.
+The ${branding} Metrics Reporting application provides a plugin that adds a new tab to the Admin Console with the title of Metrics.
 When selected, the Metrics tab displays a list of all of the metrics being collected by ${branding}, e.g., Catalog Queries, Catalog Queries Federated, Catalog Ingest Created, etc.
 
 With each metric in the list, a set of hyperlinks is displayed under each column.

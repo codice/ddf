@@ -58,7 +58,7 @@ public class TestPropertyFileClaimsHandler {
                 propertyFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
 
         assertEquals(1, processedClaimCollection.size());
-        assertEquals(5,
+        assertEquals(4,
                 processedClaimCollection.get(0)
                         .getValues()
                         .size());

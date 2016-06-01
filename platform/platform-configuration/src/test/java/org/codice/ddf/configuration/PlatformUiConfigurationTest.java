@@ -21,8 +21,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.Base64;
 
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.ddf.branding.BrandingResourceProvider;
+import org.codice.ddf.branding.BrandingPlugin;
 import org.junit.Test;
 
 import net.minidev.json.JSONObject;
@@ -41,16 +40,12 @@ public class PlatformUiConfigurationTest {
 
         BrandingPlugin brandingPlugin = mock(BrandingPlugin.class);
         when(brandingPlugin.getProductName()).thenReturn("product");
-        when(brandingPlugin.getProductImage()).thenReturn("image");
-        when(brandingPlugin.getFavIcon()).thenReturn("fav");
+        when(brandingPlugin.getBase64ProductImage()).thenReturn(Base64.getEncoder()
+                .encodeToString("image".getBytes()));
+        when(brandingPlugin.getBase64FavIcon()).thenReturn(Base64.getEncoder()
+                .encodeToString("fav".getBytes()));
 
-        configuration.setProvider(new BrandingResourceProvider() {
-
-            @Override
-            public byte[] getResourceAsBytes(String path) throws IOException {
-                return path.getBytes();
-            }
-        });
+        configuration.setProvider();
 
         configuration.setBranding(brandingPlugin);
 

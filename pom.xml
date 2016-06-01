@@ -96,6 +96,7 @@
         <pax.web.version>4.2.4</pax.web.version>
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <validation.version>1.1.0.Final</validation.version>
+        <commons-configuration.version>1.10</commons-configuration.version>
         <!--Documentation Replacements-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>
@@ -919,7 +920,7 @@
         </repository>
     </repositories>
     <pluginRepositories>
-         <pluginRepository>
+        <pluginRepository>
             <id>central</id>
             <name>Central Repository</name>
             <url>http://repo.maven.apache.org/maven2</url>

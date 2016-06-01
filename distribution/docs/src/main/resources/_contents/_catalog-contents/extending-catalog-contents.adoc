@@ -3067,31 +3067,6 @@ The configurable properties for the OpenSearch source are accessed from the Cata
 
 Use the OpenSearch source if querying a CDR-compliant search service is desired.
 
-===== Source Details
-
-====== Default Security Settings (applicable to all OpenSearch Sources)
-
-These settings are used to provide default security settings for the Title, Description, and Security elements in a record.
-The purpose of these defaults is that many providers fail to deliver a classification and Owner/Producer with the metadata returned.
-These default settings are used if a metadata record is returned without security settings. *This feature can be enabled/disabled*.
-
-. Open the Web Console.
-.. `http://localhost:8181/system/console`
-.. Username/Password: `admin`/`admin`
-. Click on the `Configuration` tab.
-. Find `Catalog Security Defaults`
-. Select whether or not to apply these defaults by checking or unchecking the box marked "Apply Default Security Settings."
-. If the applied defaults are selected, change the settings in the console to the default metadata security.
-.. These settings can also be changed by editing the file `<INSTALL_DIRECTORY>/etc/${ddf-branding}/${ddf-branding}.DefaultSiteSecurity.cfg`
-. Click Save at the bottom of the configuration window (or save the file).
-
-[WARNING]
-====
-* In the CDR Open Search Service, if one of the properties has a blank value, the "last-resort" default is U and USA.
-* If the `DefaultSiteSecurity.cfg` file is deleted, it needs to be replaced otherwise all classification values are set to "last-resort" defaults U and USA.
-* After the file is replaced, either restart ${branding} or the restart the CDR Open Search Service to reload the property values.
-====
-
 ===== Query Format
 
 ====== OpenSearch Parameter to ${branding} Query Mapping
@@ -4070,7 +4045,7 @@ A metacard transformer transforms a metacard into other data formats.
 The HTML metacard transformer is responsible for translating a metacard into an HTML formatted document.
 
 ====== Installing and Uninstalling
-Install the `catalog-transformer-html` feature using the Web Console (http://localhost:8181/system/console) or System Console.
+Install the `catalog-transformer-html` feature using the Admin Console.
 
 ===== Configuring
 

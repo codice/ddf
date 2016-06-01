@@ -17,26 +17,26 @@
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
+    <reference id="webBranding" interface="org.codice.ddf.branding.BrandingPlugin"/>
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="proxyCamelContext"/>
 
 
     <bean id="camelServletCreator" class="org.codice.proxy.http.CamelServletCreator"
           init-method="registerServlet">
-    	<argument ref="blueprintBundleContext"/>
+        <argument ref="blueprintBundleContext"/>
         <argument ref="proxyCamelContext"/>
     </bean>
 
     <bean id="httpProxyService" class="org.codice.proxy.http.HttpProxyServiceImpl"
           destroy-method="destroy">
-    	<argument ref="proxyCamelContext"/>
+        <argument ref="proxyCamelContext"/>
     </bean>
 
-	<bean id="configurationStore"
+    <bean id="configurationStore"
           class="org.codice.ddf.ui.searchui.standard.properties.ConfigurationStore"
           destroy-method="destroy">
-		<cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.properties"
+        <cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.properties"
                                update-strategy="container-managed"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
@@ -44,7 +44,7 @@
                   value='{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/map" "fileExtension" "jpg" "alpha" 1},{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/sat" "fileExtension" "jpg" "alpha" 0.5}'/>
         <property name="terrainProvider"
                   value='{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'/>
-	</bean>
+    </bean>
 
     <jaxrs:server id="restService" address="/store">
         <jaxrs:serviceBeans>

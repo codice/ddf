@@ -25,8 +25,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.ddf.branding.BrandingResourceProvider;
+import org.codice.ddf.branding.BrandingPlugin;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -48,14 +47,12 @@ public class TestLandingPage {
 
     @BeforeClass
     public static void setupLandingPage() throws IOException {
-        BrandingResourceProvider provider = mock(BrandingResourceProvider.class);
-        landingPage = new LandingPage(provider);
-        when(provider.getResourceAsBytes(imgPath)).thenReturn(fakeImg.getBytes());
-        when(provider.getResourceAsBytes(faviconPath)).thenReturn(new byte[0]);
+        landingPage = new LandingPage();
         BrandingPlugin branding = mock(BrandingPlugin.class);
         when(branding.getProductName()).thenReturn(version);
-        when(branding.getFavIcon()).thenReturn(faviconPath);
-        when(branding.getProductImage()).thenReturn(imgPath);
+        when(branding.getBase64FavIcon()).thenReturn("");
+        when(branding.getBase64ProductImage()).thenReturn(Base64.getEncoder()
+                .encodeToString(fakeImg.getBytes()));
         landingPage.setBranding(branding);
         String firstDateLeadingZeroes = "05/07/20 stuff happened";
         String secondDateNoLeadingZeroes = "4/3/20 old stuff happened";
@@ -88,5 +85,14 @@ public class TestLandingPage {
         assertThat(html, containsString(productName));
         assertThat(html, containsString("src=\"data:image/png;base64,ZmF"));
         assertThat(html, containsString("stuff happened"));
+    }
+
+    @Test
+    public void testDefaultTitle() throws IOException {
+        BrandingPlugin brandingPlugin = mock(BrandingPlugin.class);
+        when(brandingPlugin.getProductName()).thenReturn("");
+        LandingPage landingPage = new LandingPage();
+        landingPage.setBranding(brandingPlugin);
+        assertThat(landingPage.getTitle(), is(equalTo("DDF")));
     }
 }

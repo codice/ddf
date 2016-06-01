@@ -16,14 +16,14 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
+    <reference id="webBranding" interface="org.codice.ddf.branding.BrandingPlugin"/>
 
-	<bean id="configurationStore"
+    <bean id="configurationStore"
           class="org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore"
           factory-method="getInstance">
-		<cm:managed-properties persistent-id="org.codice.ddf.ui.search.simple.properties"
+        <cm:managed-properties persistent-id="org.codice.ddf.ui.search.simple.properties"
                                update-strategy="container-managed"/>
         <property name="branding" ref="webBranding"/>
-	</bean>
-	
+    </bean>
+
 </blueprint>

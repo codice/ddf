@@ -249,8 +249,7 @@ If you have integrated ${branding} with your existing security infrastructure, t
 
 . See the documentation for your specific security infrastructure to configure users, roles, and groups.
 
-. On the `/system/console/configMgr`, select the Web Context Policy Manager.
-(IMG)
+. Select the Web Context Policy Manager.
 
 .. A dialogue will pop up that allows you to edit ${branding} access restrictions.
 
@@ -273,8 +272,8 @@ Change the value of 'system-admin' to the new admin role for any users needing t
 .Example `user.properties` entries:
 [source]
 ----
-admin=admin,group,admin,manager,viewer,webconsole,system-admin
-localhost=localhost,group,admin,manager,viewer,webconsole,system-admin
+admin=admin,group,admin,manager,viewer,system-admin
+localhost=localhost,group,admin,manager,viewer,system-admin
 ----
 
 [NOTE]
