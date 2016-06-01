@@ -119,6 +119,7 @@
         <ddf-catalog>DDF Catalog</ddf-catalog>
         <ddf-content>DDF Content</ddf-content>
         <ddf-platform>DDF Platform</ddf-platform>
+        <ddf-registry>DDF Registry</ddf-registry>
         <ddf-security>DDF Security</ddf-security>
         <ddf-solr>DDF Solr</ddf-solr>
         <ddf-spatial>DDF Spatial</ddf-spatial>

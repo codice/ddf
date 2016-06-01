@@ -35,7 +35,15 @@ include::${project.build.directory}/doc-contents/_contents/_catalog-contents/con
 include::${project.build.directory}/doc-contents/_contents/_platform-contents/managing-platform-contents.adoc[]
 
 <<<
+////
+Uncomment & remove this comment upon completing DDF-2156
+== Managing ${ddf-registry}
+[small]#Version: ${project.version}#
 
+include::${project.build.directory}/doc-contents/_contents/_registry-contents/managing-registry-contents.adoc[]
+
+<<<
+////
 == Managing ${ddf-security}
 [small]#Version: ${project.version}#
 
