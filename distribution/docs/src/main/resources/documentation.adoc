@@ -56,6 +56,13 @@ include::${project.build.directory}/doc-contents/_contents/_catalog-contents/con
 
 <<<
 
+== Managing ${ddf-geowebcache}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_geowebcache-contents/managing-geowebcache-contents.adoc[]
+
+<<<
+
 == Managing ${ddf-platform}
 [small]#Version: ${project.version}#
 
