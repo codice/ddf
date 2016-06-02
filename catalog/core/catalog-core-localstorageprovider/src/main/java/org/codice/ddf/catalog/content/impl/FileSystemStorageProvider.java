@@ -58,6 +58,7 @@ import ddf.catalog.content.operation.impl.DeleteStorageResponseImpl;
 import ddf.catalog.content.operation.impl.ReadStorageResponseImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageResponseImpl;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.mime.MimeTypeMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -175,6 +176,22 @@ public class FileSystemStorageProvider implements StorageProvider {
                 updatedItems.add(generateContentFile(updateItem, contentIdDir));
             } catch (IOException | URISyntaxException | IllegalArgumentException e) {
                 throw new StorageException(e);
+            }
+        }
+
+        for (ContentItem contentItem : updatedItems) {
+            if (contentItem.getMetacard()
+                    .getResourceURI() == null) {
+                contentItem.getMetacard()
+                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
+                                contentItem.getUri()));
+                try {
+                    contentItem.getMetacard()
+                            .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                    contentItem.getSize()));
+                } catch (IOException e) {
+                    LOGGER.warn("Could not set size of content item [{}] on metacard [{}]", contentItem.getId(), contentItem.getMetacard().getId(), e);
+                }
             }
         }
 

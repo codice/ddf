@@ -46,6 +46,10 @@
             <artifactId>action-core-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-metricsplugin</artifactId>
             <version>${project.version}</version>
@@ -53,6 +57,11 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>versioning-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.shiro</groupId>
@@ -221,13 +230,16 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+
                         <Embed-Dependency>
                             catalog-core-solr,
                             guava,
                             notifications,
                             activities,
                             hazelcast;scope=runtime|compile,
-                            commons-collections
+                            commons-collections,
+                            versioning-common,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
@@ -244,6 +256,7 @@
                             ddf.catalog.resource.download,
                             ddf.catalog.resource.impl,
                             ddf.catalog.resourceretriever,
+                            ddf.catalog.history,
                             org.codice.ddf.platform.util
                         </Private-Package>
                         <Export-Package>

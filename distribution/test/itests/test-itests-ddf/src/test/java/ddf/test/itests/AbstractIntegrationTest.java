@@ -415,7 +415,11 @@ public abstract class AbstractIntegrationTest {
                         "test-security-common"),
                 mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
                 wrappedBundle(mavenBundle("com.google.guava",
-                        "guava").versionAsInProject()).exports("*;version=18.0"));
+                        "guava").versionAsInProject()).exports("*;version=18.0"),
+                wrappedBundle(mavenBundle("ddf.catalog.core",
+                        "versioning-common").versionAsInProject()),
+                wrappedBundle(mavenBundle("ddf.catalog.core",
+                        "catalog-core-api-impl").versionAsInProject()));
     }
 
     protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {

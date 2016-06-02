@@ -56,6 +56,7 @@ import java.util.UUID;
 import javax.activation.MimeType;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.util.ThreadContext;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -316,6 +317,8 @@ public class CatalogFrameworkImplTest {
         };
         framework.bind(provider);
         framework.bind(storageProvider);
+
+        ThreadContext.bind(mock(Subject.class));
     }
 
     // Start testing MetacardWriter

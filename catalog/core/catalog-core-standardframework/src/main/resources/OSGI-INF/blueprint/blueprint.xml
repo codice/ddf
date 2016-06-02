@@ -319,6 +319,11 @@
         <argument ref="downloadThreadPool"/>
     </bean>
 
+    <bean id="historian" class="ddf.catalog.history.Historian">
+        <cm:managed-properties persistent-id="ddf.catalog.history.Historian"
+                               update-strategy="container-managed"/>
+    </bean>
+
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
     <!-- create the ddf bean -->
@@ -360,6 +365,7 @@
                 <property name="validationQueryFactory" ref="validationQueryFactory" />
             </bean>
         </argument>
+        <property name="historian" ref="historian"/>
         <property name="masker" ref="sourceListener"/>
         <property name="cacheEnabled" value="true"/>
         <property name="delayBetweenRetryAttempts" value="10"/>

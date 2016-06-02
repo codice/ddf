@@ -47,6 +47,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>versioning-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.policy</groupId>
             <artifactId>security-policy-api</artifactId>
             <version>${project.version}</version>
