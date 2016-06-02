@@ -628,7 +628,12 @@ define([
                         processData: false,
                         timeout: properties.timeout,
                         success: function() {
-                            result.get('results').state.totalRecords = result.get('results').fullCollection.length;
+                            var length = result.get('results').fullCollection.length;
+                            result.get('results').state.totalRecords = length;
+                            var totalPages = Math.ceil(length / result.get('results').state.pageSize);
+                            result.get('results').state.totalPages = totalPages;
+                            result.get('results').state.lastPage = totalPages;
+
                             result.get('results').fullCollection.sort();
                         },
                         error: function () {
