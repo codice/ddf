@@ -19,8 +19,7 @@ define([
     'jquery',
     '../menu-vertical.view',
     '../workspace/menu-vertical.workspace',
-    '../query/menu-vertical.query'
-], function (Marionette, _, $, MenuVerticalView, WorkspaceMenu, QueryMenu) {
+], function (Marionette, _, $, MenuVerticalView, WorkspaceMenu) {
 
     function hasBottomRoom(top, element){
         return ((top + element.clientHeight) < window.innerHeight);
@@ -45,14 +44,6 @@ define([
         getNewWorkspaceMenu: function (linkedModel, targetElement, name, workspaceModel) {
             return new this({
                 collection: WorkspaceMenu.getNew(workspaceModel),
-                linkedModel: linkedModel,
-                getTargetElement: targetElement,
-                name: name
-            });
-        },
-        getNewQueryMenu: function(linkedModel, targetElement, name, queryModel){
-            return new this({
-                collection: QueryMenu.getNew(queryModel),
                 linkedModel: linkedModel,
                 getTargetElement: targetElement,
                 name: name
