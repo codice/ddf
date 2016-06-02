@@ -34,7 +34,7 @@ define([
         }, 0);
         var count = total ? total : 0;
         var searching = _.every(data, function(status) {
-            return _.isUndefined(status.count);
+            return _.isUndefined(status.successful);
         });
         if (searching) {
             return 'Searching...'
@@ -109,6 +109,7 @@ define([
         listenToStatus: function(model) {
             this.listenTo(model.get('result>results'), 'reset', this.updateQuery);
             this.listenTo(model.get('result'), 'sync', this.updateQuery);
+            this.listenTo(model.get('result>status'), 'change', this.updateQuery);
         },
         highlight: function(){
             var queryRef = store.getQuery();

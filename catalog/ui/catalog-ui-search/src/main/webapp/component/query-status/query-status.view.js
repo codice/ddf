@@ -43,6 +43,7 @@ define([
             if (model.has('result') && _.isUndefined(model.previous('result'))) {
                 this.listenTo(model.get('result>results'), 'reset', this.render);
                 this.listenTo(model.get('result'), 'sync', this.render);
+                this.listenTo(model.get('result>status'), 'change', this.render);
             }
         },
         loadData: function(){

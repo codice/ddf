@@ -23,9 +23,9 @@
             <div class="status-source">{{id}}</div>
         <div class="status-result">
         {{state}}
-        {{#unless pending}}
+        {{#if elapsed}}
             <div class="status-time">({{elapsed}} ms)</div>
-        {{/unless}}
+        {{/if}}
         </div>
         </div>
     {{/each}}

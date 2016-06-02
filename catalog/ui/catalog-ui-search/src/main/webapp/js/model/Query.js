@@ -637,8 +637,12 @@ define([
                             result.get('results').fullCollection.sort();
                         },
                         error: function () {
-                            if (typeof console !== 'undefined') {
-                                console.error(arguments);
+                            var srcStatus = result.get('status').get(src);
+                            if (srcStatus) {
+                                srcStatus.set({
+                                    successful: false,
+                                    pending: false
+                                });
                             }
                         }
                     });
