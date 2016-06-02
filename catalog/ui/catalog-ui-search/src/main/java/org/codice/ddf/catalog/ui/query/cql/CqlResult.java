@@ -85,7 +85,7 @@ public class CqlResult {
     private boolean hasThumbnail = false;
 
     public CqlResult(Result result, Set<String> searchTerms, QueryRequest queryRequest,
-            FilterAdapter filterAdapter, ActionRegistry actionRegistry) {
+            boolean normalize, FilterAdapter filterAdapter, ActionRegistry actionRegistry) {
         Metacard mc = result.getMetacard();
         if (mc.getThumbnail() != null && mc.getThumbnail().length > 0) {
             hasThumbnail = true;
@@ -94,23 +94,26 @@ public class CqlResult {
         distance = normalizeDistance(result, queryRequest.getQuery(), filterAdapter);
 
         relevance = result.getRelevanceScore();
-        matches = mc.getMetacardType()
-                .getAttributeDescriptors()
-                .stream()
-                .filter(CqlResult::isTextAttribute)
-                .filter(Objects::nonNull)
-                .map(descriptor -> mc.getAttribute(descriptor.getName()))
-                .filter(Objects::nonNull)
-                .map(attribute -> Optional.ofNullable(attribute.getValue()))
-                .map(Object::toString)
-                .map(CqlResult::tokenize)
-                .flatMap(Collection::stream)
-                .map(token -> searchTerms.stream()
-                        .filter(token::matches)
-                        .collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .map(match -> match.replace(".*", "%"))
-                .collect(Collectors.toMap(match -> match, value -> 1, Integer::sum));
+        if (normalize) {
+            searchTerms.add(".*");
+            matches = mc.getMetacardType()
+                    .getAttributeDescriptors()
+                    .stream()
+                    .filter(CqlResult::isTextAttribute)
+                    .filter(Objects::nonNull)
+                    .map(descriptor -> mc.getAttribute(descriptor.getName()))
+                    .filter(Objects::nonNull)
+                    .map(attribute -> Optional.ofNullable(attribute.getValue()))
+                    .map(Object::toString)
+                    .map(CqlResult::tokenize)
+                    .flatMap(Collection::stream)
+                    .map(token -> searchTerms.stream()
+                            .filter(token::matches)
+                            .collect(Collectors.toList()))
+                    .flatMap(Collection::stream)
+                    .map(match -> match.replace(".*", "%"))
+                    .collect(Collectors.toMap(match -> match, value -> 1, Integer::sum));
+        }
 
         actions = actionRegistry.list(result.getMetacard())
                 .stream()

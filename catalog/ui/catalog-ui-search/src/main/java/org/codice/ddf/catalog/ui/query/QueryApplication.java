@@ -107,6 +107,7 @@ public class QueryApplication implements SparkApplication {
                 response,
                 cqlRequest.getSource(),
                 stopwatch.elapsed(TimeUnit.MILLISECONDS),
+                cqlRequest.isNormalize(),
                 filterAdapter,
                 actionRegistry);
     }

@@ -50,7 +50,7 @@ public class CqlQueryResponse {
     private final Status status;
 
     public CqlQueryResponse(String id, QueryRequest request, QueryResponse queryResponse,
-            String source, long elapsedTime, FilterAdapter filterAdapter,
+            String source, long elapsedTime, boolean normalize, FilterAdapter filterAdapter,
             ActionRegistry actionRegistry) {
         this.id = id;
 
@@ -76,6 +76,7 @@ public class CqlQueryResponse {
                 .map(result -> new CqlResult(result,
                         searchTerms,
                         queryResponse.getRequest(),
+                        normalize,
                         filterAdapter,
                         actionRegistry))
                 .collect(Collectors.toList());

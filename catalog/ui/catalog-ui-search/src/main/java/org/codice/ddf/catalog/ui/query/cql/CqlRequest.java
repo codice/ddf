@@ -60,6 +60,8 @@ public class CqlRequest {
 
     private String sort;
 
+    private boolean normalize = false;
+
     public void setId(String id) {
         this.id = id;
     }
@@ -110,6 +112,14 @@ public class CqlRequest {
 
     public String getSort() {
         return sort;
+    }
+
+    public void setNormalize(boolean normalize) {
+        this.normalize = normalize;
+    }
+
+    public boolean isNormalize() {
+        return normalize;
     }
 
     public QueryRequest createQueryRequest(String localSource, FilterBuilder filterBuilder) {
