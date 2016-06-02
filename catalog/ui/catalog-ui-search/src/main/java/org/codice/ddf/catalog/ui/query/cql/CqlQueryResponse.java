@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTermsDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class CqlQueryResponse {
                                 .collect(Collectors.toMap(AttributeDescriptor::getName,
                                         MetacardAttribute::new))));
 
-        final Set<String> searchTerms = extractSearchTerms(request.getQuery(), filterAdapter);
+        final Set<SearchTerm> searchTerms = extractSearchTerms(request.getQuery(), filterAdapter);
         results = queryResponse.getResults()
                 .stream()
                 .map(result -> new CqlResult(result,
@@ -82,8 +83,8 @@ public class CqlQueryResponse {
                 .collect(Collectors.toList());
     }
 
-    private Set<String> extractSearchTerms(Query query, FilterAdapter filterAdapter) {
-        Set<String> searchTerms = Collections.emptySet();
+    private Set<SearchTerm> extractSearchTerms(Query query, FilterAdapter filterAdapter) {
+        Set<SearchTerm> searchTerms = Collections.emptySet();
         try {
             searchTerms = filterAdapter.adapt(query, SEARCH_TERMS_DELEGATE);
         } catch (UnsupportedQueryException e) {

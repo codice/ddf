@@ -41,7 +41,7 @@
 
         <AD description="Specifies the client-side connection timeout in milliseconds."
             name="Connection Timeout" id="timeout"
-            required="false" type="Integer" default="15000"/>
+            required="false" type="Integer" default="300000"/>
 
         <AD id="sourcePollInterval"
             name="Source Poll Interval"

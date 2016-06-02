@@ -22,41 +22,41 @@ import java.util.stream.Collectors;
 
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
-public class SearchTermsDelegate extends SimpleFilterDelegate<Set<String>> {
+public class SearchTermsDelegate extends SimpleFilterDelegate<Set<SearchTerm>> {
 
     @Override
-    public <S> Set<String> defaultOperation(Object property, S literal, Class<S> literalClass,
+    public <S> Set<SearchTerm> defaultOperation(Object property, S literal, Class<S> literalClass,
             Enum operation) {
         return Collections.emptySet();
     }
 
     @Override
-    public Set<String> propertyIsLike(String propertyName, String pattern,
+    public Set<SearchTerm> propertyIsLike(String propertyName, String pattern,
             boolean isCaseSensitive) {
         String[] patternWords = pattern.toLowerCase()
                 .split("[\\s\\p{Punct}&&[^*]]+");
 
         return Arrays.stream(patternWords)
-                .map(word -> word.replace("*", ".*"))
+                .map(SearchTerm::new)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<String> and(List<Set<String>> operands) {
+    public Set<SearchTerm> and(List<Set<SearchTerm>> operands) {
         return operands.stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<String> or(List<Set<String>> operands) {
+    public Set<SearchTerm> or(List<Set<SearchTerm>> operands) {
         return operands.stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<String> not(Set<String> operand) {
+    public Set<SearchTerm> not(Set<SearchTerm> operand) {
         return Collections.emptySet();
     }
 }

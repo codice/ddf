@@ -89,7 +89,7 @@ public class ConfigurationStore {
 
     private BrandingPlugin branding;
 
-    private Integer timeout = 15000;
+    private Integer timeout = 300000;
 
     private HttpProxyService httpProxy;
 

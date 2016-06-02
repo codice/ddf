@@ -13,21 +13,20 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.ParseException;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Scanner;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.WktQueryDelegate;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -72,7 +71,7 @@ public class CqlResult {
             "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
             .withZoneUTC();
 
-    private Map<String, Integer> matches;
+    private Map<String, Integer> matches = new HashMap<>();
 
     private Map<String, Object> metacard;
 
@@ -84,8 +83,9 @@ public class CqlResult {
 
     private boolean hasThumbnail = false;
 
-    public CqlResult(Result result, Set<String> searchTerms, QueryRequest queryRequest,
+    public CqlResult(Result result, Set<SearchTerm> searchTerms, QueryRequest queryRequest,
             boolean normalize, FilterAdapter filterAdapter, ActionRegistry actionRegistry) {
+
         Metacard mc = result.getMetacard();
         if (mc.getThumbnail() != null && mc.getThumbnail().length > 0) {
             hasThumbnail = true;
@@ -95,30 +95,55 @@ public class CqlResult {
 
         relevance = result.getRelevanceScore();
         if (normalize) {
-            searchTerms.add(".*");
-            matches = mc.getMetacardType()
-                    .getAttributeDescriptors()
-                    .stream()
-                    .filter(CqlResult::isTextAttribute)
-                    .filter(Objects::nonNull)
-                    .map(descriptor -> mc.getAttribute(descriptor.getName()))
-                    .filter(Objects::nonNull)
-                    .map(attribute -> Optional.ofNullable(attribute.getValue()))
-                    .map(Object::toString)
-                    .map(CqlResult::tokenize)
-                    .flatMap(Collection::stream)
-                    .map(token -> searchTerms.stream()
-                            .filter(token::matches)
-                            .collect(Collectors.toList()))
-                    .flatMap(Collection::stream)
-                    .map(match -> match.replace(".*", "%"))
-                    .collect(Collectors.toMap(match -> match, value -> 1, Integer::sum));
+            countMatches(searchTerms, mc);
         }
 
         actions = actionRegistry.list(result.getMetacard())
                 .stream()
                 .collect(Collectors.toMap(Action::getId, a -> a));
         metacard = metacardToMap(result);
+    }
+
+    private void countMatches(Set<SearchTerm> searchTerms, Metacard mc) {
+        List<String> textAttributes = mc.getMetacardType()
+                .getAttributeDescriptors()
+                .stream()
+                .filter(CqlResult::isTextAttribute)
+                .filter(Objects::nonNull)
+                .map(descriptor -> mc.getAttribute(descriptor.getName()))
+                .filter(Objects::nonNull)
+                .map(attribute -> Optional.ofNullable(attribute.getValue()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Object::toString)
+                .collect(Collectors.toList());
+
+        List<SearchTerm> terms = searchTerms.stream()
+                .filter(term -> !"*".equals(term.getTerm()))
+                .collect(Collectors.toList());
+
+        int totalTokens = 0;
+        for (String value : textAttributes) {
+            BufferedReader reader = new BufferedReader(new StringReader(value.toLowerCase()));
+            String line;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    String[] tokens = line.split("[\\s\\p{Punct}]+");
+                    for (String token : tokens) {
+                        totalTokens++;
+                        for (SearchTerm term : terms) {
+                            if (term.match(token)) {
+                                matches.put(term.getTerm(),
+                                        matches.getOrDefault(term.getTerm(), 0) + 1);
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.debug("Unable to read line", e);
+            }
+            matches.put("*", totalTokens);
+        }
     }
 
     private void addCachedDate(Metacard metacard, Map<String, Object> json) {
@@ -179,13 +204,6 @@ public class CqlResult {
             LOGGER.debug("Unable to convert metacard to GeoJSON", e);
         }
         return geoJson;
-    }
-
-    private static List<String> tokenize(String value) {
-        return StreamSupport.stream(Spliterators.spliterator(new Scanner(value.toLowerCase()).useDelimiter(
-                "[\\s\\p{Punct}]+"), Long.MAX_VALUE, Spliterator.ORDERED | Spliterator.NONNULL),
-                false)
-                .collect(Collectors.toList());
     }
 
     private static boolean isTextAttribute(AttributeDescriptor descriptor) {
