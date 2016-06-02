@@ -1193,7 +1193,7 @@ This means that it is still possible to federate and pass a machine's identity, 
 |                       /----------\          /----------------\                                               /-------------------------------------------\ |
 | /-------=--\          |          |          |          cDEF  |                                               |                 STS Server                | |
 | | External | Request  |Delegating| Request  |    Web SSO     |                                   /-------\   |  /----------\  /----------\  /----------\ | |
-| |   ${ddf-branding}    |--------->| Servlet  |--------->|     Filter     |                             /---->|       |-->|->|Validators|->|  Claims  |->|  Token   | | |
+| |   DDF    |--------->| Servlet  |--------->|     Filter     |                             /---->|       |-->|->|Validators|->|  Claims  |->|  Token   | | |
 | |  Client  |          | Filter   |          |                |                             |     |  STS  |   |  |          |  | Handlers |  | Issuers  | | |
 | \----------/          |     cEEE |          | /------------\ |                             |     | Realm |   |  \----------/  \----------/  \----------/ | |
 |       ^               \----------/          | |Whitelisted?| |<-------\                    |     |       |   |                                    |      | |
