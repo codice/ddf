@@ -30,7 +30,7 @@ define([
         initialize: function(){
             this.controller = new ConfigurationController({
                 region : this.configurationRegion,
-                url: "/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/" + this.model.get('appId')
+                url: "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/" + this.model.get('appId')
             });
         },
         onRender: function(){

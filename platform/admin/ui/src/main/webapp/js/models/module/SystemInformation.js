@@ -21,7 +21,7 @@ define([
     var SystemInformation = {};
 
     SystemInformation.Model = Backbone.Model.extend({
-        url: '/jolokia/read/java.lang:type=Runtime/',
+        url: '/admin/jolokia/read/java.lang:type=Runtime/',
         parse: function(resp){
             return resp.value;
         }

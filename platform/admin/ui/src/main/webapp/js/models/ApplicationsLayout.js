@@ -24,9 +24,9 @@ define([
 
     var Applications = {};
 
-    var startUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/';
-    var stopUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/';
-    var removeUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/';
+    var startUrl = '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/';
+    var stopUrl = '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/';
+    var removeUrl = '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/';
 
     var versionRegex = /([^0-9]*)([0-9]+.*$)/;
 
@@ -292,7 +292,7 @@ define([
     // elements can be recursive nodes.
     Applications.TreeNodeCollection = Backbone.Collection.extend({
         model: Applications.TreeNode,
-        url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
+        url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
 
         comparator : function(model){
             return  model.get('displayName');
@@ -483,7 +483,7 @@ define([
     // Represents the response from the application-service when obtaining the list of all applications
     // on the system.
     Applications.Response = Backbone.Model.extend({
-        url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/'
+        url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/'
     });
 
     return Applications;

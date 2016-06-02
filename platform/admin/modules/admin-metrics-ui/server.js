@@ -27,7 +27,7 @@ app.use(express.static(__dirname + '/src/main/webapp'));
 //if we're mocking, it is being run by grunt
 console.log('setting up proxy only');
 app.all('/services/*', server.requestProxy);
-app.all('/jolokia/*', server.requestProxy);
+app.all('/admin/jolokia/*', server.requestProxy);
 app.all('/*', server.requestProxy);
 
 exports = module.exports = app;

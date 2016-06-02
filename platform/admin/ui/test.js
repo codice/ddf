@@ -27,15 +27,15 @@ app.use(express.static(__dirname + '/src/main/webapp'));
 //if we're mocking, it is being run by grunt
 console.log('setting up mock query endpoint');
 app.all('/services/catalog/sources', server.mockSources);
-app.all('/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listModules', server.mockRequest);
-app.all('/jolokia/exec/org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean:service=insecure-defaults-service/validate', server.mockRequest);
-app.all('/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/InstallationProfiles/', server.mockInstallationProfiles);
-app.all('/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getService/*', server.mockGetService);
-app.all('/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/*', server.mockClaims);
-app.all('/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add', server.mockRequest);
-app.all('/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices', server.mockRequest);
-app.all('/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/', server.mockAppTree);
-app.all('/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/*', server.mockStart);
+app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listModules', server.mockRequest);
+app.all('/admin/jolokia/exec/org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean:service=insecure-defaults-service/validate', server.mockRequest);
+app.all('/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/InstallationProfiles/', server.mockInstallationProfiles);
+app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getService/*', server.mockGetService);
+app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/*', server.mockClaims);
+app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add', server.mockRequest);
+app.all('/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices', server.mockRequest);
+app.all('/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/ApplicationTree/', server.mockAppTree);
+app.all('/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/*', server.mockStart);
 
 exports = module.exports = app;
 

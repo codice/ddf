@@ -35,14 +35,14 @@ define([
 
             updateGeoIndexWithUrl: function(checked) {
                 var url = this.get("url").split('/').join('!/');
-                url = "/jolokia/exec/org.codice.ddf.spatial.admin.module.service.Geocoding:service=geocoding/updateGeoIndexWithUrl/" + url + "/" + checked;
+                url = "/admin/jolokia/exec/org.codice.ddf.spatial.admin.module.service.Geocoding:service=geocoding/updateGeoIndexWithUrl/" + url + "/" + checked;
                 this.set('state', 'uploading-geonames');
                 this.set("progress",0);
                 this.post(url,this);
                 return false;
             },
             updateGeoIndexWithFilePath: function(resourceUri, id, model, checked) {
-                var url = "/jolokia/exec/org.codice.ddf.spatial.admin.module.service.Geocoding:service=geocoding/updateGeoIndexWithFilePath/" + id + "/" + resourceUri + "/" + checked;
+                var url = "/admin/jolokia/exec/org.codice.ddf.spatial.admin.module.service.Geocoding:service=geocoding/updateGeoIndexWithFilePath/" + id + "/" + resourceUri + "/" + checked;
                 this.post(url,model);
                 return false;
             },
@@ -53,7 +53,7 @@ define([
                     if(currentProgress !== 100 && model.get("state") !== "failed" && model.get("state") !== "failed-geonames" ) {
                         setTimeout(function() {
                             $.ajax({
-                                url : "/jolokia/exec/org.codice.ddf.spatial.admin.module.service.Geocoding:service=geocoding/progressCallback/",
+                                url : "/admin/jolokia/exec/org.codice.ddf.spatial.admin.module.service.Geocoding:service=geocoding/progressCallback/",
                                 success: function(data) {
                                     var progress = parseInt(data.value);
                                     model.set('progress', progress);
