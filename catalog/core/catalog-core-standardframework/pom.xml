@@ -223,13 +223,12 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-solr,
-                            guava,
                             notifications,
                             activities,
                             hazelcast;scope=runtime|compile,
-                            commons-collections
+                            commons-collections,
+                            platform-util
                         </Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
                             ddf.catalog.cache.impl,
                             ddf.catalog.cache.solr.impl,
@@ -243,8 +242,7 @@
                             ddf.catalog.source.impl,
                             ddf.catalog.resource.download,
                             ddf.catalog.resource.impl,
-                            ddf.catalog.resourceretriever,
-                            org.codice.ddf.platform.util
+                            ddf.catalog.resourceretriever
                         </Private-Package>
                         <Export-Package>
                             ddf.catalog.cache,

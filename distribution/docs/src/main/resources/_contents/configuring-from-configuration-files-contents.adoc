@@ -179,11 +179,43 @@ TLS_RSA_WITH_AES_128_CBC_SHA`
 |`false`
 |Yes
 
+|Restrict the Security Token Service to allow connections only from DNs matching these patterns
+|`ws-security.subject.cert.constraints`
+|String
+|Set to a comma separated list of regex patterns to define which hosts are allowed to connect to the STS
+|`.*`
+|Yes
+
+6+^|XML Settings
+
 |Parse XML documents into DOM object trees
 |`javax.xml.parsers.DocumentBuilderFactory`
 |String
 |Enables Xerces-J implementation of `DocumentBuilderFactory`
 |`org.apache.xerces.jaxp.DocumentBuilderFactoryImpl`
+|Yes
+
+6+^|File Upload Settings
+
+|File extensions flagged as potentially dangerous to the host system or external clients
+|`bad.file.extensions`
+|String
+|Files uploaded with these bad file extensions will have their file names sanitized before being saved
+|`.exe,.jsp,.html,.js,.php,.phtml,.php3,.php4,.php5,.phps,.shtml,.jhtml,.pl,.py,.cgi,.msi,.com,.scr,.gadget,.application,.pif,.hta,.cpl,.msc,.jar,.kar,.bat,.cmd,.vb,.vbs,.vbe,.jse,.ws,.wsf,.wsc,.wsh,.ps1,.ps1xml,.ps2,.ps2xml,.psc1,.psc2,.msh,.msh1,.msh2,.mshxml,.msh1xml,.msh2xml,.scf,.lnk,.inf,.reg,.dll,.vxd,.cpl,.cfg,.config,.crt,.cert,.pem,.jks,.p12,.p7b,.key,.der,.csr,.jsb,.mhtml,.mht,.xhtml,.xht`
+|Yes
+
+|File names flagged as potentially dangerous to the host system or external clients
+|`bad.files`
+|String
+|Files uploaded with these bad file names will have their file names sanitized before being saved
+|`crossdomain.xml,clientaccesspolicy.xml,.htaccess,.htpasswd,hosts,passwd,group,resolv.conf,nfs.conf,ftpd.conf,ntp.conf,web.config,robots.txt`
+|Yes
+
+|Mime types flagged as potentially dangerous to external clients
+|`bad.mime.types`
+|String
+|Files uploaded with these mime types will be rejected from the upload
+|`text/html,text/javascript,text/x-javascript,application/x-shellscript,text/scriptlet,application/x-msdownload,application/x-msmetafile`
 |Yes
 
 |===
