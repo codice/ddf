@@ -13,71 +13,85 @@
  *
  **/
 /*global define*/
+/*jshint -W024*/
 /** Main view page for add. */
 define([
-        'icanhaz',
-        'marionette',
-        'backbone',
-        'js/view/ConfigurationEdit.view.js',
-        'js/model/Service.js',
-        'js/view/Utils.js',
-        'wreqr',
-        'underscore',
-        'jquery',
-        'text!templates/sourceModal.handlebars',
-        'text!templates/optionListType.handlebars',
-        'text!templates/textType.handlebars'
-],
-function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,modalSource,optionListType,textType) {
+    'icanhaz',
+    'marionette',
+    'backbone',
+    'js/model/Organization.js',
+    'js/view/AccordionCollectionView.js',
+    'js/view/ConfigurationEdit.view.js',
+    'js/view/Organization.view.js',
+    'js/model/Service.js',
+    'js/view/Utils.js',
+    'wreqr',
+    'underscore',
+    'jquery',
+    'text!templates/sourceModal.handlebars',
+    'text!templates/optionListType.handlebars',
+    'text!templates/textType.handlebars',
+    'text!templates/sourceOrganization.hbs',
+    'text!templates/optionLabelType.hbs'
 
-    ich.addTemplate('modalSource', modalSource);
+], function (ich, Marionette, Backbone, Organization, AccordionCollectionView, ConfigurationEdit, OrganizationView, Service, Utils, wreqr, _, $, sourceModal, optionListType, textType, sourceOrganization, optionLabelType) {
+
+    if (!ich.sourceOrganization) {
+        ich.addTemplate('sourceOrganization', sourceOrganization);
+    }
+    if (!ich.sourceModal) {
+        ich.addTemplate('sourceModal', sourceModal);
+    }
     if (!ich.optionListType) {
         ich.addTemplate('optionListType', optionListType);
     }
     if (!ich.textType) {
         ich.addTemplate('textType', textType);
     }
+    if (!ich.optionLabelType) {
+        ich.addTemplate('optionLabelType', optionLabelType);
+    }
 
     var ModalSource = {};
 
     ModalSource.View = Marionette.Layout.extend({
-        template: 'modalSource',
+        template: 'sourceModal',
         className: 'modal',
-        /**
-         * Button events, right now there's a submit button
-         * I do not know where to go with the cancel button.
-         */
         events: {
-            "change .sourceTypesSelect" : "handleTypeChange",
+            "change .activeBindingSelect": "handleTypeChange",
             "click .submit-button": "submitData",
             "click .cancel-button": "cancel",
+            "click .operation-action": "handleAction",
             "change .sourceName": "sourceNameChanged"
         },
         regions: {
+            organizationInfo: '.modal-organization',
             details: '.modal-details',
+            accordions: '.modal-accordions',
             buttons: '.source-buttons'
         },
-        serializeData: function(){
+        serializeData: function () {
             var data = {};
 
-            if(this.model) {
+            if (this.model) {
                 data = this.model.toJSON();
             }
             data.mode = this.mode;
-
+            data.reportActions = this.model.getActions('report_actions');
+            data.operationActions = this.model.getActions('operation_actions');
             return data;
         },
         /**
          * Initialize  the binder with the ManagedServiceFactory model.
          * @param options
          */
-        initialize: function(options) {
+        initialize: function (options) {
             _.bindAll(this);
             this.source = options.source;
             this.modelBinder = new Backbone.ModelBinder();
             this.mode = options.mode;
         },
-        onRender: function() {
+        onRender: function () {
             var config = this.model.get('currentConfiguration') || this.model.get('disabledConfigurations').at(0);
             var properties = config.get('properties');
 
@@ -90,14 +104,13 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
                 this.rebind(properties);
             }
         },
-        initRadioButtonUI: function(boundModel) {
+        initRadioButtonUI: function (boundModel) {
             var $radios = this.$el.find('input[type=radio]');
             var view = this;
 
-            _.each($radios, function(radio) {
+            _.each($radios, function (radio) {
                 var $radio = view.$(radio);
                 var $label = $radio.closest('label.btn');
-                
                 if (boundModel.get($radio.attr('name')) === $radio.attr('value')) {
                     $label.addClass('active');
                 } else {
@@ -108,7 +121,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
         /**
          * Renders editable name field.
          */
-        renderNameField: function() {
+        renderNameField: function () {
             var model = this.model;
             var $sourceName = this.$(".sourceName");
             var initialName = model.get('name');
@@ -125,92 +138,71 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
         /**
          * Renders the type dropdown box
          */
-        renderTypeDropdown: function() {
-            var $sourceTypeSelect = this.$(".sourceTypesSelect");
-            var configs = this.getAllConfigs();
-            $sourceTypeSelect.append(ich.optionListType({"list": configs.toJSON()}));
+        renderTypeDropdown: function () {
+            var $sourceTypeSelect = this.$(".activeBindingSelect");
+            var configs = this.model.getAllConfigServices();
+            $sourceTypeSelect.append(ich.optionListType({
+                "list": configs.toJSON()
+            }));
             $sourceTypeSelect.val(configs.at(0).get('id')).change();
         },
-        getAllConfigs: function() {
-            var configs = new Backbone.Collection();
-            var disabledConfigs = this.model.get('disabledConfigurations');
-            var currentConfig = this.model.get('currentConfiguration');
-            if (!_.isUndefined(currentConfig)) {
-                var currentService = currentConfig.get('service');
-                configs.add(currentService);
-            }
-            if (!_.isUndefined(disabledConfigs)) {
-                disabledConfigs.each(function(config) {
-                    configs.add(config.get('service'));
-                });
-            }
-            return configs;
+        handleAction: function (event) {
+            var link = this.$(event.currentTarget);
+            var id = link.attr('id');
+            var failed = $(this.$('#' + id + '-failed')[0]);
+            var success = $(this.$('#' + id + '-success')[0]);
+            var spinner = $(this.$('#' + id + '-spinner')[0]);
+            link.addClass('inactive-link');
+            spinner.show();
+            failed.hide();
+            success.hide();
+
+            this.model.performAction(link.attr('action-id'), link.attr('action')).done(function () {
+                spinner.hide();
+                success.show();
+                link.removeClass('inactive-link');
+            }).fail(function () {
+                spinner.hide();
+                failed.show();
+                link.removeClass('inactive-link');
+            });
         },
         /**
-         * Submit to the backend.
+         * Submit to the backend. This is called when 'Add' or 'Save' are clicked in the Modal.
          */
-        submitData: function() {
+        submitData: function () {
             wreqr.vent.trigger('beforesave');
             var view = this;
-            var service = view.model.get('editConfig');
-            if (service) {
-                var fpid = service.get("fpid");
-                var idx = fpid.indexOf("_disabled");
-                if (idx > 0) {
-                    service.set("fpid", fpid.substring(0, idx));
-                }
+            var configs = view.model.getAllConfigsWithServices();
+            configs.forEach(function (config) {
+                var service = config;
+                if (service) {
+                    if (_.isUndefined(service.get('properties').id)) {
+                        var name = view.$(".sourceName").find('input').val().trim();
+                        view.setConfigName(service, name);
+                    }
 
-                if (_.isUndefined(service.get('properties').id)) {
-                    var name = this.$(".sourceName").find('input').val().trim();
-                    this.setConfigName(service, name);
-                }
+                    service.save().then(function () {
+                            // Since saving was successful, make publish call
+                            // This avoids publishing if any error occurs in service.save()
 
-                service.save().then(function (response) {
-                        // check to see if the service corresponds to an existing source
-                        // if it does, return the source
-                        var existingSource = view.source.get('collection').find(function (item) {
-                            var config = item.get('currentConfiguration');
-                            return (config && config.get('properties').id === service.get('properties').id);
-                        });
-
-                        // Logic to check if the service we are adding is going to be a member of an already existing source;
-                        // if it is, we need to disable the new service as soon at is created.
-                        if (existingSource && view.mode === 'add' && existingSource.get('currentConfiguration') !== service) {
-
-                            // https://codice.atlassian.net/browse/DDF-1642
-                            // this works around an issue in json-simple where the .toString() of an array
-                            // is returned in the arguments field of configs with array attributes,
-                            // causing the JSON string from jolokia to be unparseable, so we remove it,
-                            // since we don't care about the arguments for our parsing needs
-
-                            response = response.replace(/\[L[\w\.;@]*/g, '""');
-                            var jsonResult = JSON.parse(response.toString().trim());
-
-                            // Since the source we are editing has a currentConfig already, we don't want to disable it.
-                            // Using the response from the creation of the new service, disable the newly created service
-                            // with a call to makeDisableCallByPid.
-
-                            Service.Configuration.prototype.makeDisableCallByPid(jsonResult.request['arguments'][0]).done(function () {
-                                wreqr.vent.trigger('refreshSources');
-                                view.closeAndUnbind();
-                            });
-                        } else {
                             wreqr.vent.trigger('refreshSources');
                             view.closeAndUnbind();
-                        }
-                    },
-                    function () {
-                        wreqr.vent.trigger('refreshSources');
-                    }).always(function () {
+                        },
+
+                        function () {
+                            wreqr.vent.trigger('refreshSources');
+                        }).always(function () {
                         view.closeAndUnbind();
                     });
-            }
+                }
+            });
         },
-        sourceNameChanged: function(evt) {
+        sourceNameChanged: function (evt) {
             var newName = this.$(evt.currentTarget).find('input').val().trim();
             this.checkName(newName);
         },
-        checkName: function(newName) {
+        checkName: function (newName) {
             var view = this;
             var model = view.model;
             var config = model.get('currentConfiguration');
@@ -222,7 +214,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
                 if (view.nameIsValid(newName, model.get('editConfig').get('fpid'))) {
                     this.setConfigName(config, newName);
                     if (!_.isUndefined(disConfigs)) {
-                        disConfigs.each(function(cfg) {
+                        disConfigs.each(function (cfg) {
                             view.setConfigName(cfg, newName);
                         });
                     }
@@ -231,19 +223,19 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
                     view.showError('A configuration with the name "' + newName + '" already exists. Please choose another name.');
                 }
             } else {
-                //model name was reverted back to original value
+                // model name was reverted back to original value
                 view.clearError();
             }
         },
-        showError: function(msg) {
+        showError: function (msg) {
             var view = this;
             var $group = view.$el.find('.sourceName>.control-group');
 
             $group.find('.error-text').text(msg).show();
-            view.$el.find('.submit-button').attr('disabled','disabled');
+            view.$el.find('.submit-button').attr('disabled', 'disabled');
             $group.addClass('has-error');
         },
-        clearError: function() {
+        clearError: function () {
             var view = this;
             var $group = view.$el.find('.sourceName>.control-group');
             var $error = $group.find('.error-text');
@@ -252,30 +244,30 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             $group.removeClass('has-error');
             $error.hide();
         },
-        setConfigName: function(config, name) {
+        setConfigName: function (config, name) {
             if (!_.isUndefined(config)) {
-                var properties =  config.get('properties');
+                var properties = config.get('properties');
                 properties.set({
-                       'shortname': name,
-                       'id': name
+                    'shortname': name,
+                    'id': name
                 });
 
             }
         },
         /**
-         * Returns true if any of the existing source configurations have a name matching the one provided and false otherwise.
+         * Returns true if any of the existing source configurations have a name matching the name parameter and false otherwise.
          */
-        nameExists: function(name) {
+        nameExists: function (name) {
             var configs = this.parentModel.get('collection');
-            var match = configs.find(function(sourceConfig) {
-                    return sourceConfig.get('name') === name;
-                }); 
+            var match = configs.find(function (sourceConfig) {
+                return sourceConfig.get('name') === name;
+            });
             return !_.isUndefined(match);
         },
-        nameIsValid: function(name, fpid) {
+        nameIsValid: function (name, fpid) {
             var valid = false;
             var configs = this.source.get('collection');
-            var match = configs.find(function(sourceConfig) {
+            var match = configs.find(function (sourceConfig) {
                 return sourceConfig.get('name') === name;
             });
             if (_.isUndefined(match)) {
@@ -285,7 +277,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             }
             return valid;
         },
-        fpidExists: function(model, fpid) {
+        fpidExists: function (model, fpid) {
             var modelConfig = model.get('currentConfiguration');
             var disabledConfigs = model.get('disabledConfigurations');
             var matchFound = false;
@@ -293,9 +285,9 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             if (!_.isUndefined(modelConfig) && (modelConfig.get('fpid') === fpid || modelConfig.get('fpid') + "_disabled" === fpid)) {
                 matchFound = true;
             } else if (!_.isUndefined(disabledConfigs)) {
-                matchFound = !_.isUndefined(disabledConfigs.find(function(modelDisableConfig) {
-                    //check the ID property to ensure that the config we're checking exists server side
-                    //otherwise assume it's a template/placeholder for filling in the default modal form data
+                matchFound = !_.isUndefined(disabledConfigs.find(function (modelDisableConfig) {
+                    // check the ID property to ensure that the config we're checking exists server side
+                    // otherwise assume it's a template/placeholder for filling in the default modal form data
                     if (_.isUndefined(modelDisableConfig.id)) {
                         return false;
                     } else {
@@ -305,30 +297,36 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             }
             return matchFound;
         },
-        //should be able to remove this method when the 'shortname' is removed from existing source metatypes
-        getId: function(config) {
+        // should be able to remove this method when the 'shortname' is removed from existing source metatypes
+        getId: function (config) {
             var properties = config.get('properties');
             return properties.get('shortname') || properties.get('id');
         },
-        closeAndUnbind: function() {
+        closeAndUnbind: function () {
             this.modelBinder.unbind();
             this.$el.modal("hide");
         },
         /**
-         * unbind the model and dom during close.
+         * Unbind the model and dom during close.
          */
         onClose: function () {
             this.modelBinder.unbind();
+            this.$el.off('hidden.bs.modal');
+            this.$el.off('shown.bs.modal');
         },
-        cancel: function() {
+        cancel: function () {
             this.closeAndUnbind();
         },
-        handleTypeChange: function(evt) {
+        /**
+         *  Called when the activebinding dropdown is changed and also when the source
+         *  modal is first created.
+         */
+        handleTypeChange: function (evt) {
             var view = this;
             var $select = this.$(evt.currentTarget);
-            if ($select.hasClass('sourceTypesSelect')) {
+            if ($select.hasClass('activeBindingSelect')) {
                 this.modelBinder.unbind();
-                var config = view.findConfigFromId($select.val());
+                var config = view.model.findConfigFromId($select.val());
                 view.model.set('editConfig', config);
 
                 var properties = config.get('properties');
@@ -346,44 +344,50 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             delete bindings.value;
             this.modelBinder.bind(properties, $boundData, bindings);
         },
-        findConfigFromId: function(id) {
-            var model = this.model;
-            var currentConfig = model.get('currentConfiguration');
-            var disabledConfigs = model.get('disabledConfigurations');
-            var config;
-
-            if (!_.isUndefined(currentConfig) && currentConfig.get('fpid') === id) {
-                config = currentConfig;
-            } else {
-                if (!_.isUndefined(disabledConfigs)) {
-                    config = disabledConfigs.find(function(item) {
-                        var service = item.get('service');
-                        if (!_.isUndefined(service) && !_.isNull(service)) {
-                            return service.get('id') === id;
-                        }
-                        return false;
-                    });
-                }
-            }
-            return config;
-        },
         renderDetails: function (configuration) {
             var service = configuration.get('service');
             if (!_.isUndefined(service)) {
-                var toDisplay = service.get('metatype').filter(function (mt) {
-                    return !_.contains(['shortname', 'id'], mt.get('id'));
-                });
-                this.details.show(new ConfigurationEdit.ConfigurationCollection({
-                    collection: new Service.MetatypeList(toDisplay),
-                    service: service,
-                    configuration: configuration}));
+                // Make an accordionCollection to hold the accordions. Uses AccordionView as it's itemView
+                var accordionCollection = new Backbone.Collection();
+                var configsWithServices = this.model.getAllConfigsWithServices();
+                // For each configuration, make an accordion consisting of a ConfigurationEdit.ConfigurationCollection that
+                // is populated with ConfigurationEdit.ConfigurationItem's
+                configsWithServices.forEach(function (curConfig) {
+                    var accordionFieldsToDisplay;
+                    // Use the curConfig's service to gather all fields to display in the accordion
+                    var curConfigService = curConfig.get('service');
+                    if (!_.isUndefined(curConfigService)) {
+                        accordionFieldsToDisplay = curConfigService.get('metatype').filter(function (mt) {
+                            return !_.contains(['shortname', 'id'], mt.get('id'));
+                        });
+                    }
+
+                    var collectionToDisplay = new Service.MetatypeList(accordionFieldsToDisplay);
+                    var nameToDisplay = curConfig.get('name');
+                    // Check if name is in fpid format and if so, clean up the nameToDisplay
+                    if (nameToDisplay.includes('_disabled')) {
+                        nameToDisplay = nameToDisplay.substring(0, nameToDisplay.indexOf('_disabled'));
+                        nameToDisplay = nameToDisplay.replace(/_/g, ' ');
+                    }
+                    accordionCollection.add({
+                        title: nameToDisplay,
+                        contentView: new ConfigurationEdit.ConfigurationCollection({
+                            collection: collectionToDisplay,
+                            service: curConfigService,
+                            configuration: curConfig
+                        })
+                    });
+                }.bind(this));
+                // Add the accordions to the accordions region of the modal
+                this.accordions.show(new AccordionCollectionView({
+                    collection: accordionCollection
+                }));
             } else {
+                this.$(this.organizationInfo.el).html('');
                 this.$(this.details.el).html('');
                 this.$(this.buttons.el).html('');
             }
         }
     });
-
     return ModalSource;
-
 });
