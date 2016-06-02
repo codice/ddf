@@ -20,8 +20,8 @@ define([
     '../editor.view',
     'js/store',
     'component/property/property.collection.view',
-    'component/loading/loading.view'
-], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingView) {
+    'component/loading-companion/loading-companion.view'
+], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView) {
 
     return EditorView.extend({
         className: 'is-metacard-advanced',
@@ -69,7 +69,7 @@ define([
                         attributes: editorJSON
                     }
                 ];
-                var loadingView = new LoadingView();
+                LoadingCompanionView.beginLoading(this);
                 var self = this;
                 setTimeout(function(){
                     $.ajax({
@@ -97,7 +97,7 @@ define([
                             });
                         });
                         setTimeout(function(){  //let solr flush
-                            loadingView.remove();
+                            LoadingCompanionView.endLoading(self);
                         }, 1000);
                     });
                 }, 1000);

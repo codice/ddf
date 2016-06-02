@@ -20,10 +20,10 @@ define([
     'jquery',
     'text!./metacard-associations.hbs',
     'js/CustomElements',
-    'component/loading/loading.view',
     'js/store',
-    'js/Common'
-], function (wreqr, Marionette, _, $, template, CustomElements, LoadingView, store, Common) {
+    'js/Common',
+    'component/loading-companion/loading-companion.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, Common, LoadingCompanionView) {
 
     return Marionette.ItemView.extend({
         setDefaultModel: function(){
@@ -46,14 +46,14 @@ define([
             if (!options.model){
                 this.setDefaultModel();
             }
-            var loadingView = new LoadingView();
+            LoadingCompanionView.beginLoading(this);
             var self = this;
             this.determinePossibleAssociations();
             $.get('/services/search/catalog/associations/'+this.model.get('metacard').get('id')).then(function(response){
                 self._originalAssociations = JSON.parse(JSON.stringify(response));
                 self._associations = response;
             }).always(function(){
-                loadingView.remove();
+                LoadingCompanionView.endLoading(self);
                 self.render();
             });
         },
@@ -116,7 +116,7 @@ define([
             this._possibleAssociations = possibleAssociations;
         },
         save: function(){
-            var loadingView = new LoadingView();
+            LoadingCompanionView.beginLoading(this);
             var self = this;
             $.ajax({
                url: '/services/search/catalog/associations/'+this.model.get('metacard').get('id'),
@@ -124,7 +124,7 @@ define([
                 method: 'PUT',
                 contentType: 'application/json'
             }).always(function(response){
-                loadingView.remove();
+                LoadingCompanionView.endLoading(self);
                 self._originalAssociations = JSON.parse(JSON.stringify(response));
                 self._associations = response;
                 self.render();

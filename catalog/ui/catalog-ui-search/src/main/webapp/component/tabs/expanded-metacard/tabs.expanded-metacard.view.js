@@ -37,8 +37,7 @@ define([
             }
             TabsView.prototype.initialize.call(this);
             var debounceDetermineContent = _.debounce(this.determineContent, 200);
-            this.listenTo(metacardInstance.get('currentMetacard'), 'change', debounceDetermineContent);
-            this.listenTo(store.get('router'), 'change', debounceDetermineContent);
+            this.listenTo(metacardInstance, 'change:currentMetacard', debounceDetermineContent);
         },
         determineContent: function(){
             if (metacardInstance.get('currentMetacard')) {

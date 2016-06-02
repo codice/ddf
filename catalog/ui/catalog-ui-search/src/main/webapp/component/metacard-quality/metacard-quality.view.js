@@ -19,10 +19,10 @@ define([
     'jquery',
     'text!./metacard-quality.hbs',
     'js/CustomElements',
-    'component/loading/loading.view',
+    'component/loading-companion/loading-companion.view',
     'js/store',
     'js/Common'
-], function (Marionette, _, $, template, CustomElements, LoadingView, store, Common) {
+], function (Marionette, _, $, template, CustomElements, LoadingCompanionView, store, Common) {
 
     var selectedVersion;
 
@@ -46,15 +46,16 @@ define([
             this.loadData();
         },
         loadData: function(){
-            selectedVersion = undefined;
-            var loadingView = new LoadingView();
+            LoadingCompanionView.beginLoading(this);
             var self = this;
             setTimeout(function(){
                 $.get('/services/search/catalog/metacard/'+self.model.get('metacard').id+'/validation').then(function(response){
                     self._validation = response;
                 }).always(function(){
-                    loadingView.remove();
-                    self.render();
+                    LoadingCompanionView.endLoading(self);
+                    if (!self.isDestroyed){
+                        self.render();
+                    }
                 });
             }, 1000);
         },

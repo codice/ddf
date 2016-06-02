@@ -19,10 +19,10 @@ define([
     'jquery',
     'text!./metacard-history.hbs',
     'js/CustomElements',
-    'component/loading/loading.view',
+    'component/loading-companion/loading-companion.view',
     'js/store',
     'js/Common'
-], function (Marionette, _, $, template, CustomElements, LoadingView, store, Common) {
+], function (Marionette, _, $, template, CustomElements, LoadingCompanionView, store, Common) {
 
     var selectedVersion;
 
@@ -49,14 +49,16 @@ define([
         },
         loadData: function(){
             selectedVersion = undefined;
-            var loadingView = new LoadingView();
+            LoadingCompanionView.beginLoading(this);
             var self = this;
             setTimeout(function(){
                 $.get('/services/search/catalog/history/'+self.model.get('metacard').get('id')).then(function(response){
                     self._history = response;
                 }).always(function(){
-                    loadingView.remove();
-                    self.render();
+                    LoadingCompanionView.endLoading(self);
+                    if (!self.isDestroyed) {
+                        self.render();
+                    }
                 });
             }, 1000);
         },
@@ -90,13 +92,13 @@ define([
             this.$el.toggleClass('has-selection',Boolean(selectedVersion));
         },
         revertToSelectedVersion: function(){
-            var loadingView = new LoadingView();
+            LoadingCompanionView.beginLoading(this);
             var self = this;
             $.get('/services/search/catalog/history/'+this.model.get('metacard').get('id')+'/revert/'+selectedVersion).then(function(response){
                 self.model.get('metacard').get('properties').set(response.metacards[0]);
             }).always(function(){
                 setTimeout(function(){  //let solr flush
-                    loadingView.remove();
+                    LoadingCompanionView.endLoading(self);
                     self.loadData();
                 }, 1000);
             });
