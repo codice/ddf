@@ -82,7 +82,6 @@ define([
             // only start loader if the view hasn't already been destroyed.
             if (!linkedView.isDestroyed) {
                 if (!getLoadingCompanion(linkedView)) {
-                    console.log(linkedView);
                     loadingCompanions.push(new LoadingCompanionView({
                         linkedView: linkedView
                     }));

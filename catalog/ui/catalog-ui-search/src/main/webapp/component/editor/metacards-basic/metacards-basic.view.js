@@ -20,8 +20,8 @@ define([
     '../editor.view',
     'js/store',
     'component/property/property.collection.view',
-    'component/loading/loading.view'
-], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingView) {
+    'component/loading-companion/loading-companion.view'
+], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView) {
 
     return EditorView.extend({
         className: 'is-metacards-basic',
@@ -69,7 +69,7 @@ define([
                         attributes: editorJSON
                     }
                 ];
-                var loadingView = new LoadingView();
+                LoadingCompanionView.beginLoading(this);
                 var self = this;
                 setTimeout(function(){
                     $.ajax({
@@ -88,7 +88,7 @@ define([
                            metacard.get('metacard').get('properties').set(attributeMap);
                         });
                         setTimeout(function(){  //let solr flush
-                            loadingView.remove();
+                            LoadingCompanionView.endLoading(self);
                             self.onBeforeShow();
                         }, 1000);
                     });
