@@ -41,20 +41,23 @@
     <bean id="configurationStore"
           class="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore"
           destroy-method="destroy">
-        <cm:managed-properties persistent-id="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore"
-                               update-strategy="container-managed"/>
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore"
+                update-strategy="container-managed"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
-        <property name="imageryProviders" value='[{"type":"OSM","url":"http://otile1.mqcdn.com/tiles/1.0.0/map","fileExtension":"jpg","alpha":1},{"type":"OSM","url":"http://otile1.mqcdn.com/tiles/1.0.0/sat","fileExtension":"jpg","alpha":0.5}]'/>
-        <property name="terrainProvider" value='{"type": "CT", "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'/>
+        <property name="imageryProviders"
+                  value='[{"type":"OSM","url":"http://otile1.mqcdn.com/tiles/1.0.0/map","fileExtension":"jpg","alpha":1},{"type":"OSM","url":"http://otile1.mqcdn.com/tiles/1.0.0/sat","fileExtension":"jpg","alpha":0.5}]'/>
+        <property name="terrainProvider"
+                  value='{"type": "CT", "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'/>
     </bean>
 
     <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceMetacardTypeImpl"/>
+        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl"/>
     </service>
 
     <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.ui.searchui.standard.endpoints.QueryMetacardTypeImpl"/>
+        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
     </service>
 
     <service interface="ddf.catalog.plugin.PreIngestPlugin">
@@ -76,7 +79,8 @@
     <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
                filter="(|(mime-type=application/xml)(mime-type=text/xml))"/>
 
-    <reference-list id="metacardActionProviders" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.*)"/>
+    <reference-list id="metacardActionProviders" interface="ddf.action.ActionProvider"
+                    filter="(id=catalog.data.metacard.*)"/>
 
     <reference-list id="metacardMultiActionProviders" interface="ddf.action.MultiActionProvider"
                     filter="(id=catalog.data.metacard.*)"/>
@@ -87,16 +91,25 @@
     </bean>
 
     <bean id="workspaceTransformer"
-          class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceTransformer">
+          class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer">
         <argument ref="catalogFramework"/>
         <argument ref="inputTransformer"/>
     </bean>
 
-    <bean id="endpointUtil" class="org.codice.ddf.ui.searchui.standard.endpoints.EndpointUtil">
-        <argument ref="catalogFramework" />
-        <argument ref="filterBuilder" />
+    <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
         <argument>
-            <reference-list interface="ddf.catalog.data.MetacardType" />
+            <reference-list interface="ddf.catalog.data.MetacardType"/>
+        </argument>
+    </bean>
+
+    <bean id="validator" class="org.codice.ddf.catalog.ui.metacard.validation.Validator">
+        <argument>
+            <reference-list interface="ddf.catalog.validation.ReportingMetacardValidator"/>
+        </argument>
+        <argument>
+            <reference-list interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
         </argument>
     </bean>
 
@@ -104,42 +117,12 @@
         <jaxrs:serviceBeans>
             <!-- config store -->
             <ref component-id="configurationStore"/>
-
-            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspacesEndpoint">
-                <argument ref="catalogFramework"/>
-                <argument ref="filterBuilder"/>
-                <argument ref="workspaceTransformer"/>
-            </bean>
-            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.AssociationsEndpoint">
-                <argument ref="catalogFramework"/>
-                <argument ref="filterBuilder"/>
-                <argument ref="endpointUtil" />
-            </bean>
             <bean class="org.codice.ddf.ui.searchui.standard.endpoints.MetacardEditEndpoint">
                 <argument ref="catalogFramework"/>
                 <argument>
                     <reference interface="ddf.catalog.data.AttributeRegistry"/>
                 </argument>
-                <argument ref="endpointUtil" />
-            </bean>
-            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.ValidationEndpoint">
-                <argument>
-                    <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
-                </argument>
-                <argument ref="endpointUtil" />
-            </bean>
-            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.RealEndpoint">
-                <argument ref="catalogFramework"/>
-                <argument>
-                    <reference interface="ddf.catalog.validation.ReportingMetacardValidator" />
-                </argument>
-                <argument ref="filterBuilder"/>
-                <argument ref="endpointUtil" />
-            </bean>
-            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.HistoryEndpoint">
-                <argument ref="catalogFramework" />
-                <argument ref="filterBuilder" />
-                <argument ref="endpointUtil" />
+                <argument ref="endpointUtil"/>
             </bean>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
@@ -148,21 +131,35 @@
         </jaxrs:providers>
     </jaxrs:server>
 
+    <bean id="metacardApplication" class="org.codice.ddf.catalog.ui.metacard.MetacardApplication">
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="endpointUtil"/>
+        <argument ref="validator"/>
+        <argument ref="workspaceTransformer"/>
+    </bean>
+
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
-        <property name="catalogFramework" ref="catalogFramework" />
-        <property name="filterBuilder" ref="filterBuilder" />
-        <property name="filterAdapter" ref="filterAdapter" />
-        <property name="actionRegistry" ref="metacardActionRegistry" />
+        <property name="catalogFramework" ref="catalogFramework"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="filterAdapter" ref="filterAdapter"/>
+        <property name="actionRegistry" ref="metacardActionRegistry"/>
     </bean>
 
     <bean id="querySparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
-        <argument ref="queryApplication" />
+        <argument>
+            <list>
+                <ref component-id="queryApplication" />
+                <ref component-id="metacardApplication" />
+            </list>
+        </argument>
     </bean>
 
     <service ref="querySparkServlet" interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="urlPatterns" value="/search/catalog/query/*"/>
+            <entry key="urlPatterns" value="/search/catalog/internal/*"/>
         </service-properties>
     </service>
+
 
 </blueprint>

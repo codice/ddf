@@ -89,7 +89,7 @@ define([
 
         Workspace.Collection = Backbone.Collection.extend({
             model: Workspace.Model,
-            url: '/services/search/catalog/workspaces',
+            url: '/search/catalog/internal/workspaces',
             useAjaxSync: true,
             initialize: function(options){
                 this.store = options.store;

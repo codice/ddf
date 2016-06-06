@@ -263,7 +263,7 @@ define([
                     relatedModel: MetaCard.SourceStatus
                 }
             ],
-            url: "/search/catalog/query/cql",
+            url: "/search/catalog/internal/cql",
             useAjaxSync: true,
             initialize: function(){
             },

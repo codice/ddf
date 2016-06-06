@@ -11,20 +11,29 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.ui.searchui.standard.endpoints;
+package org.codice.ddf.catalog.ui.util;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
@@ -33,7 +42,9 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
@@ -52,6 +63,10 @@ public class EndpointUtil {
 
     private final FilterBuilder filterBuilder;
 
+    private final static int DEFAULT_PAGE_SIZE = 10;
+
+    private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
     public EndpointUtil(List<MetacardType> metacardTypes, CatalogFramework catalogFramework,
             FilterBuilder filterBuilder) {
         this.metacardTypes = metacardTypes;
@@ -60,8 +75,7 @@ public class EndpointUtil {
     }
 
     public Metacard getMetacard(String id)
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-            StandardSearchException {
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         Filter idFilter = filterBuilder.attribute(Metacard.ID)
                 .is()
                 .equalTo()
@@ -76,7 +90,7 @@ public class EndpointUtil {
                 filter), true));
 
         if (queryResponse.getHits() == 0) {
-            throw new StandardSearchException("Could not find metacard for that metacard id");
+            throw new NotFoundException("Could not find metacard for id: " + id);
         }
 
         Result result = queryResponse.getResults()
@@ -84,13 +98,26 @@ public class EndpointUtil {
         return result.getMetacard();
     }
 
-    public List<String> getStringList(List<Serializable> list) {
-        if (list == null) {
-            return new ArrayList<>();
+    public Map<String, Result> getMetacardsByFilter(String tagFilter)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        Filter filter = filterBuilder.attribute(Metacard.TAGS)
+                .is()
+                .like()
+                .text(tagFilter);
+        QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
+                filter,
+                1,
+                -1,
+                SortBy.NATURAL_ORDER,
+                false,
+                TimeUnit.SECONDS.toMillis(10)), false));
+
+        Map<String, Result> results = new HashMap<>();
+        for (Result result : queryResponse.getResults()) {
+            results.put(result.getMetacard()
+                    .getId(), result);
         }
-        return list.stream()
-                .map(String::valueOf)
-                .collect(Collectors.toList());
+        return results;
     }
 
     public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter)
@@ -98,7 +125,8 @@ public class EndpointUtil {
         return getMetacards(Metacard.ID, ids, tagFilter);
     }
 
-    public Map<String, Result> getMetacards(String attributeName, Collection<String> ids, String tag)
+    public Map<String, Result> getMetacards(String attributeName, Collection<String> ids,
+            String tag)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         if (ids.isEmpty()) {
             return new HashMap<>();
@@ -153,13 +181,22 @@ public class EndpointUtil {
         return resultTypes;
     }
 
-    public Map<String, Object> transformToJson(Metacard metacard) {
-        return transformToJson(Collections.singletonList(metacard));
+    public List<String> getStringList(List<Serializable> list) {
+        if (list == null) {
+            return new ArrayList<>();
+        }
+        return list.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
     }
 
-    public Map<String, Object> transformToJson(List<Metacard> metacards) {
+    public Map<String, Object> transformToMap(Metacard metacard) {
+        return transformToMap(Collections.singletonList(metacard));
+    }
+
+    public Map<String, Object> transformToMap(List<Metacard> metacards) {
         List<Map<String, Object>> metacardJsons = metacards.stream()
-                .map(this::getMetacardJson)
+                .map(this::getMetacardMap)
                 .collect(Collectors.toList());
 
         Set<String> types = metacards.stream()
@@ -190,7 +227,71 @@ public class EndpointUtil {
         return outerMap;
     }
 
-    private Map<String, Object> getMetacardJson(Metacard metacard) {
+    public String metacardToJson(String id)
+            throws SourceUnavailableException, UnsupportedQueryException, FederationException {
+        Metacard metacard = getMetacard(id);
+        if (metacard == null) {
+            throw new NotFoundException("Could not find specified Metacard. (id= " + id + " )");
+        }
+        return metacardToJson(metacard);
+    }
+
+    public String metacardToJson(Metacard metacard)
+            throws SourceUnavailableException, UnsupportedQueryException, FederationException {
+        return getJson(transformToMap(metacard));
+    }
+
+    public String metacardsToJson(List<Metacard> metacards) {
+        return getJson(transformToMap(metacards));
+    }
+
+    public String getJson(Object result) {
+        return JsonFactory.create(new JsonParserFactory(),
+                new JsonSerializerFactory().includeNulls()
+                        .includeEmpty())
+                .toJson(result);
+    }
+
+    public Optional<MetacardType> getMetacardType(String name) {
+        return metacardTypes.stream()
+                .filter(mt -> mt.getName()
+                        .equals(name))
+                .findFirst();
+    }
+
+    public List<Metacard> getRecentMetacards(int pageSize, int pageNumber, String emailAddress)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        pageSize = pageSize == 0 ? DEFAULT_PAGE_SIZE : pageSize;
+        pageNumber = pageNumber == 0 ? 1 : pageNumber;
+        if (pageNumber <= 0) {
+            throw new BadRequestException(
+                    "Page Number cannot be less than or equal to 0. (pageNumber= " + pageNumber
+                            + " )");
+        }
+
+        // TODO (RCZ) - use real attribute once here
+        Filter userFilter = filterBuilder.attribute("Metacard.OWNER")
+                .is()
+                .equalTo()
+                .text(emailAddress);
+
+        int startIndex = 1 + ((pageNumber - 1) * pageSize);
+        QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
+                userFilter,
+                startIndex,
+                pageSize,
+                SortBy.NATURAL_ORDER,
+                false,
+                TimeUnit.SECONDS.toMillis(10))));
+
+        // TODO (RCZ) - now need to sort and return results.
+        return queryResponse.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, Object> getMetacardMap(Metacard metacard) {
         Set<AttributeDescriptor> attributeDescriptors = metacard.getMetacardType()
                 .getAttributeDescriptors();
         Map<String, Object> result = new HashMap<>();
@@ -212,8 +313,23 @@ public class EndpointUtil {
                     result.put(descriptor.getName(), null);
                 }
                 continue;
+            }
+            if (descriptor.getType()
+                    .getAttributeFormat()
+                    .equals(AttributeType.AttributeFormat.DATE)) {
+                Attribute attribute = metacard.getAttribute(descriptor.getName());
+                if (descriptor.isMultiValued()) {
+                    result.put(descriptor.getName(),
+                            attribute.getValues()
+                                    .stream()
+                                    .map(this::parseDate)
+                                    .collect(Collectors.toList()));
+                } else {
+                    result.put(descriptor.getName(), parseDate(attribute.getValue()));
+                }
 
             }
+
             if (descriptor.isMultiValued()) {
                 result.put(descriptor.getName(),
                         metacard.getAttribute(descriptor.getName())
@@ -227,17 +343,24 @@ public class EndpointUtil {
         return result;
     }
 
-    public String getJson(Object result) {
-        return JsonFactory.create(new JsonParserFactory(),
-                new JsonSerializerFactory().includeNulls()
-                        .includeEmpty())
-                .toJson(result);
+    public Serializable parseDate(Serializable value) {
+        if (value instanceof Date) {
+            return ((Date)value).toInstant().toString();
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        try {
+            return dateFormat.parse(value.toString());
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public Optional<MetacardType> getMetacardType(String name) {
-        return metacardTypes.stream()
-                .filter(mt -> mt.getName()
-                        .equals(name))
-                .findFirst();
+    @SuppressWarnings("unchecked")
+    public static <T, R extends Comparable> Comparator<T> compareBy(Function<T, R> getField) {
+        return (T o1, T o2) -> getField.apply(o1)
+                .compareTo(getField.apply(o2));
     }
+
 }

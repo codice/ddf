@@ -54,7 +54,7 @@ define([
                     if (confirmation.get('choice')) {
                         var loadingView = new LoadingView();
                         $.ajax({
-                            url: '/services/search/catalog/metacards',
+                            url: '/search/catalog/internal/metacards',
                             type: 'DELETE',
                             data: JSON.stringify(self.model.map(function(result){
                                 return result.get('metacard').get('id');

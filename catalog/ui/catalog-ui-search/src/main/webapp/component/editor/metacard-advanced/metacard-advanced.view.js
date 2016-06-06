@@ -40,7 +40,7 @@ define([
             this.editorProperties.currentView.$el.addClass("is-list");
 
             var self = this;
-            $.when( $.get('/services/search/catalog/metacard/'+this.model.get('metacard').id +'/validation')).done(function(validationResponse){
+            $.when( $.get('/search/catalog/internal/metacard/'+this.model.get('metacard').id +'/validation')).done(function(validationResponse){
                 if (validationResponse && !_.isEmpty(validationResponse.length)) {
                     self.editorProperties.currentView.updateValidation(validationResponse[0]);
                 }
@@ -48,7 +48,7 @@ define([
         },
         getValidation: function(){
             var self = this;
-            $.get('/services/search/catalog/metacard/'+this.model.get('metacard').id+'/validation').then(function(response){
+            $.get('/search/catalog/internal/metacard/'+this.model.get('metacard').id+'/validation').then(function(response){
                 if (!self.isDestroyed && self.editorProperties.currentView){
                     self.editorProperties.currentView.updateValidation(response);
                 }
@@ -73,7 +73,7 @@ define([
                 var self = this;
                 setTimeout(function(){
                     $.ajax({
-                        url: '/services/search/catalog/metacards',
+                        url: '/search/catalog/internal/metacards',
                         type: 'PATCH',
                         data: JSON.stringify(payload),
                         contentType: 'application/json'

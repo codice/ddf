@@ -49,7 +49,7 @@ define([
             LoadingCompanionView.beginLoading(this);
             var self = this;
             setTimeout(function(){
-                $.get('/services/search/catalog/metacard/'+self.model.get('metacard').id+'/validation').then(function(response){
+                $.get('/search/catalog/internal/metacard/'+self.model.get('metacard').id+'/validation').then(function(response){
                     self._validation = response;
                 }).always(function(){
                     LoadingCompanionView.endLoading(self);

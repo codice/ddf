@@ -49,7 +49,7 @@ define([
             LoadingCompanionView.beginLoading(this);
             var self = this;
             this.determinePossibleAssociations();
-            $.get('/services/search/catalog/associations/'+this.model.get('metacard').get('id')).then(function(response){
+            $.get('/search/catalog/internal/associations/'+this.model.get('metacard').get('id')).then(function(response){
                 self._originalAssociations = JSON.parse(JSON.stringify(response));
                 self._associations = response;
             }).always(function(){
@@ -119,7 +119,7 @@ define([
             LoadingCompanionView.beginLoading(this);
             var self = this;
             $.ajax({
-               url: '/services/search/catalog/associations/'+this.model.get('metacard').get('id'),
+               url: '/search/catalog/internal/associations/'+this.model.get('metacard').get('id'),
                 data: JSON.stringify(this._associations),
                 method: 'PUT',
                 contentType: 'application/json'

@@ -46,7 +46,7 @@ define([
         },
         getValidation: function(){
             var self = this;
-            $.get('/services/search/catalog/metacard/'+this.model.get('metacard').id+'/validation').then(function(response){
+            $.get('/search/catalog/internal/metacard/'+this.model.get('metacard').id+'/validation').then(function(response){
                 if (validationResponse && !_.isEmpty(validationResponse.length) && !self.isDestroyed){
                     self.editorProperties.currentView.updateValidation(response);
                 }
@@ -73,7 +73,7 @@ define([
                 var self = this;
                 setTimeout(function(){
                     $.ajax({
-                        url: '/services/search/catalog/metacards',
+                        url: '/search/catalog/internal/metacards',
                         type: 'PATCH',
                         data: JSON.stringify(payload),
                         contentType: 'application/json'

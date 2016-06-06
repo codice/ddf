@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;

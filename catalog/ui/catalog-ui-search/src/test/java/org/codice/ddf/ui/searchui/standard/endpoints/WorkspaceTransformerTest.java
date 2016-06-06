@@ -27,6 +27,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

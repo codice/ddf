@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 /**
  * A {@link Metacard} is a container for Metadata.
  * <p/>

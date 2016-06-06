@@ -13,9 +13,13 @@
  */
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,11 +35,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -92,7 +102,7 @@ public class WorkspacesEndpoint {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Map> getDocuments(@Context HttpServletRequest req) throws Exception {
+    public List<Map<String, Object>> getDocuments(@Context HttpServletRequest req) throws Exception {
         return transformer.transform(queryWorkspaces());
     }
 
@@ -143,6 +153,28 @@ public class WorkspacesEndpoint {
             LOGGER.warn("Could not delete workspace {}.", id, ex);
             return Collections.singletonMap("message", UPDATE_ERROR_MESSAGE);
         }
+    }
+
+    private Set<String> getRoles(Metacard metacard) {
+        Attribute attr = metacard.getAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES);
+
+        if (attr != null) {
+            return new HashSet<>(getStringList(attr.getValues()));
+        }
+
+        return new HashSet<>();
+    }
+
+    private Set<String> getUpdatedRoles(String id, Metacard newMetacard) throws Exception {
+        Set<String> newRoles = getRoles(newMetacard);
+
+        List<Metacard> metacards = queryWorkspaces(byId(id));
+        if (!metacards.isEmpty()) {
+            Set<String> oldRoles = getRoles(metacards.get(0));
+            return Sets.symmetricDifference(oldRoles, newRoles);
+        }
+
+        return newRoles;
     }
 
     private FilterBuilder builder() {
@@ -196,5 +228,14 @@ public class WorkspacesEndpoint {
                 .getCreatedMetacards()
                 .get(0);
 
+    }
+
+    private List<String> getStringList(List<Serializable> list) {
+        if (list == null) {
+            return new ArrayList<>();
+        }
+        return list.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
     }
 }

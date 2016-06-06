@@ -194,7 +194,7 @@ define([
             this.getCurrentWorkspace().destroy();
         },
         getMetacardTypes: function(){
-            $.get('/services/search/catalog/metacardtype').then(function(metacardTypes){
+            $.get('/search/catalog/internal/metacardtype').then(function(metacardTypes){
                 for (var metacardType in metacardTypes){
                     if (metacardTypes.hasOwnProperty(metacardType)) {
                         for (var type in metacardTypes[metacardType]) {

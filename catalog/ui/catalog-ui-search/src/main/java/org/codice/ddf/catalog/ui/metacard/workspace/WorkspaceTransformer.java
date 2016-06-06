@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.ui.searchui.standard.endpoints;
+package org.codice.ddf.catalog.ui.metacard.workspace;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -31,17 +31,14 @@ import ddf.catalog.transform.InputTransformer;
 
 public class WorkspaceTransformer {
 
-    private final CatalogFramework cf;
+    private final CatalogFramework catalogFramework;
 
-    private final InputTransformer it;
+    private final InputTransformer inputTransformer;
 
-    public WorkspaceTransformer(CatalogFramework cf, InputTransformer it) {
-        this.cf = cf;
-        this.it = it;
-    }
-
-    private static boolean check(Object o, Class clazz) {
-        return o != null && clazz.isAssignableFrom(o.getClass());
+    public WorkspaceTransformer(CatalogFramework catalogFramework,
+            InputTransformer inputTransformer) {
+        this.catalogFramework = catalogFramework;
+        this.inputTransformer = inputTransformer;
     }
 
     @SuppressWarnings("unchecked")
@@ -69,14 +66,6 @@ public class WorkspaceTransformer {
         return q;
     }
 
-    private String toMetacardXml(Metacard m) {
-        try {
-            return IOUtils.toString(cf.transform(m, "xml", null)
-                    .getInputStream());
-        } catch (Exception e) {
-            return "";
-        }
-    }
 
     @SuppressWarnings("unchecked")
     public WorkspaceMetacardImpl transform(Map w) {
@@ -113,20 +102,6 @@ public class WorkspaceTransformer {
         return m;
     }
 
-    private Metacard toMetacardFromXml(Serializable xml) {
-        try {
-            if (xml instanceof String) {
-                try (InputStream is = IOUtils.toInputStream((String) xml)) {
-                    Metacard m = it.transform(is);
-                    return m;
-                }
-            }
-        } catch (Exception ex) {
-        }
-
-        return null;
-    }
-
     public Map<String, Object> transform(Metacard m) {
         Map<String, Object> h = new HashMap<>();
 
@@ -161,9 +136,37 @@ public class WorkspaceTransformer {
         return h;
     }
 
-    public List<Map> transform(List<Metacard> metacards) {
+    public List<Map<String, Object>> transform(List<Metacard> metacards) {
         return metacards.stream()
                 .map(this::transform)
                 .collect(Collectors.toList());
+    }
+
+    private static boolean check(Object o, Class<?> clazz) {
+        return o != null && clazz.isAssignableFrom(o.getClass());
+    }
+
+    private String toMetacardXml(Metacard m) {
+        try {
+            return IOUtils.toString(catalogFramework.transform(m, "xml", null)
+                    .getInputStream());
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private Metacard toMetacardFromXml(Serializable xml) {
+        try {
+            if (xml instanceof String) {
+                try (InputStream is = IOUtils.toInputStream((String) xml)) {
+                    Metacard m = inputTransformer.transform(is);
+                    return m;
+                }
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);// TODO (RCZ) - wat do here
+        }
+
+        return null;
     }
 }
