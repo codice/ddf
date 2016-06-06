@@ -1766,7 +1766,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
 
     protected Subject getSystemSubject() {
-        return Security.getSystemSubject();
+        return org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
     }
 
     private GetRecordsType createSubscriptionGetRecordsRequest() {
