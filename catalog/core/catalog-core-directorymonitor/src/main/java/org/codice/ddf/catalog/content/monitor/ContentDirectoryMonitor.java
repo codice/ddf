@@ -88,7 +88,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             LOGGER.debug("No routes to remove before configuring a new route");
         }
 
-        configureCamelRoute();
+        org.codice.ddf.security.common.Security.runAsAdmin(() -> {
+            configureCamelRoute();
+            return null;
+        });
     }
 
     /**
@@ -174,8 +177,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                     String attributeOverrideString = attributeOverrides.stream()
                             .map(String::trim)
                             .collect(Collectors.joining(","));
-                    routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY, simple(
-                            attributeOverrideString));
+                    routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY,
+                            simple(attributeOverrideString));
                 }
 
                 routeDefinition.process(systemSubjectBinder)

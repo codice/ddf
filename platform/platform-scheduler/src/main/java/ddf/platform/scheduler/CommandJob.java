@@ -119,7 +119,7 @@ public class CommandJob implements Job {
     }
 
     public Subject getSystemSubject() {
-        return Security.getSystemSubject();
+        return org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
     }
 
     private CommandProcessor getCommandProcessor() {
