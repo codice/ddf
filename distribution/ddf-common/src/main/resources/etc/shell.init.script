@@ -33,7 +33,8 @@ service:get = { $.context getService ($.context getServiceReference $args) };
 lna = { bundle:list -t 0 | grep -v Active };
 waitForReady = {
  while { (la | grep -i "active.*DDF\s::\sadmin\s::\sUI" | tac) isEmpty } { echo -n ". "; sleep 1000 }
- while {("4" equals ((la | grep -i -v "active" | grep -i "hosts:" | wc -l | tac) trim) | tac) equals "false"} { echo -n ". "; sleep 1000 }
+ while {("3" equals ((la | grep -i -v "active" | grep -i "hosts:" | wc -l | tac) trim) | tac) equals "false"} { echo -n ". "; sleep 1000 }
  echo ""
  echo "System Ready"
 };
+wfr = { waitForReady };
