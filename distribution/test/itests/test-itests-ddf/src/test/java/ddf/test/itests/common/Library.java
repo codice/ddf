@@ -81,7 +81,7 @@ public final class Library {
                 + getSimpleXmlNoDec(uri);
     }
 
-    public static String getCswQuery(String propertyName, String literalValue, String ouputFormat,
+    public static String getCswQuery(String propertyName, String literalValue, String outputFormat,
             String outputSchema) {
 
         String schema = "";
@@ -89,17 +89,15 @@ public final class Library {
             schema = "outputSchema=\"" + outputSchema + "\" ";
         }
 
-        return "<csw:GetRecords resultType=\"results\" outputFormat=\"" + ouputFormat + "\" "
-                + schema
-                + "startPosition=\"1\" maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.opengis.net/ogc\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"http://www.opengis.net/gml\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns5=\"http://www.opengis.net/ows\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\" xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
-                + "    <ns10:Query typeNames=\"csw:Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">"
-                + "        <ns10:ElementSetName>full</ns10:ElementSetName>"
-                + "        <ns10:Constraint version=\"1.1.0\">" + "            <ns2:Filter>"
-                + "                <ns2:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">"
-                + "                    <ns2:PropertyName>" + propertyName + "</ns2:PropertyName>"
-                + "                    <ns2:Literal>" + literalValue + "</ns2:Literal>"
-                + "                </ns2:PropertyIsLike>" + "            </ns2:Filter>"
-                + "        </ns10:Constraint>" + "    </ns10:Query>" + "</csw:GetRecords>";
+        return getFileContent("/csw-query.xml",
+                ImmutableMap.of("propertyName",
+                        propertyName,
+                        "literal",
+                        literalValue,
+                        "outputFormat",
+                        outputFormat,
+                        "outputSchema",
+                        schema));
     }
 
     public static String getCswSubscription(String propertyName, String literalValue,
@@ -182,23 +180,44 @@ public final class Library {
                 + "    </csw:Insert>\n" + "</csw:Transaction>";
     }
 
-    public static String getRegistryNode() throws IOException {
-        return IOUtils.toString(Library.class.getResourceAsStream("/csw-rim-node.xml"));
+    public static String getRegistryNode(String id) throws IOException {
+        return getRegistryNode(id, "Node Name", "2016-01-26T17:16:34.996Z", "someUUID");
     }
 
-    public static String getCswRegistryInsert() throws IOException {
-        return Library.getCswInsert("rim:RegistryPackage", getRegistryNode());
+    public static String getRegistryNode(String id, String nodeName, String date)
+            throws IOException {
+        return getRegistryNode(id, nodeName, date, "someUUID");
     }
 
-    public static String getCswRegistryUpdate() throws IOException {
+    public static String getRegistryNode(String id, String nodeName, String date, String uuid)
+            throws IOException {
+        return getFileContent("/csw-rim-node.xml",
+                ImmutableMap.of("id",
+                        id,
+                        "nodeName",
+                        nodeName,
+                        "lastUpdated",
+                        date,
+                        "someUUID",
+                        uuid));
+    }
+
+    public static String getCswRegistryInsert(String id) throws IOException {
+        return Library.getCswInsert("rim:RegistryPackage", getRegistryNode(id));
+    }
+
+    public static String getCswRegistryUpdate(String id, String nodeName, String date, String uuid)
+            throws IOException {
         return "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
                 + "    verboseResponse=\"true\"\n"
                 + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
-                + "    <csw:Update typeName=\"rim:RegistryPackage\">\n" + getRegistryNode() + "\n"
-                + "    </csw:Update>\n" + "</csw:Transaction>";
+                + "    <csw:Update typeName=\"rim:RegistryPackage\">\n" + getRegistryNode(id,
+                nodeName,
+                date,
+                uuid) + "\n" + "    </csw:Update>\n" + "</csw:Transaction>";
     }
 
-    public static String getCswRegistryDelete() throws IOException {
+    public static String getCswRegistryDelete(String id) throws IOException {
         return "<csw:Transaction service=\"CSW\"\n"
                 + "   version=\"2.0.2\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
                 + "   xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
@@ -206,7 +225,7 @@ public final class Library {
                 + "    <csw:Constraint version=\"2.0.0\">\n" + "      <ogc:Filter>\n"
                 + "        <ogc:PropertyIsEqualTo>\n"
                 + "            <ogc:PropertyName>registry-id</ogc:PropertyName>\n"
-                + "            <ogc:Literal>urn:uuid:2014ca7f59ac46f495e32b4a67a51276</ogc:Literal>\n"
+                + "            <ogc:Literal>" + id + "</ogc:Literal>\n"
                 + "        </ogc:PropertyIsEqualTo>\n" + "      </ogc:Filter>\n"
                 + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";
     }
