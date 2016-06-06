@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.ErrorListener;
@@ -242,8 +243,14 @@ public class SchematronValidationService implements MetacardValidator, Describab
             schematronReport = generateReport(metadata, validator);
             if (!schematronReport.isValid(suppressWarnings)) {
                 throw new SchematronValidationException("Schematron validation failed.",
-                        schematronReport.getErrors(),
-                        schematronReport.getWarnings());
+                        schematronReport.getErrors()
+                                .stream()
+                                .map(SchematronValidationService::sanitize)
+                                .collect(Collectors.toList()),
+                        schematronReport.getWarnings()
+                                .stream()
+                                .map(SchematronValidationService::sanitize)
+                                .collect(Collectors.toList()));
             }
         }
     }
@@ -264,6 +271,15 @@ public class SchematronValidationService implements MetacardValidator, Describab
                     e);
         }
         return report;
+    }
+
+    /**
+     * Replace tabs, literal carriage returns, and newlines with a single whitespace
+     * @param input
+     * @return
+     */
+    static String sanitize(final String input) {
+        return input.replaceAll("[\t \r\n]+", " ").trim();
     }
 
     @Override
