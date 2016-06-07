@@ -55,8 +55,8 @@ define([
 */
     Configuration.SystemProperties = Backbone.Collection.extend({
         model: Configuration.SystemProperty,
-        url:'/jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/readSystemProperties',
-        saveUrl:'/jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/writeSystemProperties',
+        url:'/admin/jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/readSystemProperties',
+        saveUrl:'/admin/jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/writeSystemProperties',
 
         parse: function (response){
             // Return the value which will be the list of system property objects

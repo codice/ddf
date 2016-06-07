@@ -73,7 +73,7 @@ define([
             },
             addKey: function () {
                 var modal = new UploadModal.UploadModal({
-                    url: '/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addPrivateKey/',
+                    url: '/admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addPrivateKey/',
                     type: 'Private Key',
                     collection: this.privateKey.get('value')
                 });
@@ -82,7 +82,7 @@ define([
             },
             addTrust: function () {
                 var modal = new UploadModal.UploadModal({
-                    url: '/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addTrustedCertificate/',
+                    url: '/admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addTrustedCertificate/',
                     type: 'Certificate',
                     collection: this.certificate.get('value')
                 });

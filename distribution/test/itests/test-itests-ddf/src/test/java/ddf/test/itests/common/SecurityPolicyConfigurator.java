@@ -35,7 +35,7 @@ public class SecurityPolicyConfigurator {
     public static final String BASIC_AUTH_TYPES = "/=SAML|basic,/solr=SAML|PKI|basic";
 
     public static final String GUEST_AUTH_TYPES =
-            "/=SAML|GUEST,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic";
+            "/=SAML|GUEST,/admin=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic";
 
     public static final String DEFAULT_WHITELIST =
             "/services/SecurityTokenService,/services/internal,/proxy";

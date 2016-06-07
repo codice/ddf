@@ -52,7 +52,7 @@ define([
     var Model = {};
 
     var MvnUrlColl = Backbone.Collection.extend({
-        configUrl: "/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
+        configUrl: "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
         collectedData: function () {
             var data = {
                 type: 'EXEC',

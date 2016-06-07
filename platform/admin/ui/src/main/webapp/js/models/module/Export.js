@@ -65,7 +65,7 @@ define([
         model.set('warnings', warnings.concat([message]));
     }
 
-    var url = '/jolokia/exec/org.codice.ddf.configuration.migration.ConfigurationMigrationManager:service=configuration-migration/export/';
+    var url = '/admin/jolokia/exec/org.codice.ddf.configuration.migration.ConfigurationMigrationManager:service=configuration-migration/export/';
 
     var ExportModel = Backbone.Model.extend({
         defaults: {

@@ -30,7 +30,7 @@ function (wreqr, Service, Backbone, _, poller, Status) {
     });
 
     Source.Model = Backbone.Model.extend({
-        configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
+        configUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
         idAttribute: 'name',
         initialize: function() {
             this.set('currentConfiguration', undefined);
