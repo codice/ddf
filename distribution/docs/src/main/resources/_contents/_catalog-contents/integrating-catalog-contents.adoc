@@ -778,10 +778,6 @@ Can be a fully-qualified directory or a relative path (which is relative to the 
 |id
 |catalog.data.metacard.view
 
-|ddf.catalog.util.DdfConfigurationWatcher
-|
-|
-
 |===
 
 ===== Known
@@ -1090,17 +1086,8 @@ The OpenSearch Description Document is an XML file is found inside of the OpenSe
 
 |===
 ====== Exported Services
-[cols="3*"]
-|===
-|Registered Interface
-|Service Property
-|Value
 
-|`ddf.catalog.util.DdfConfigurationWatcher`
-|
-|
-
-|===
+None.
 
 ====== Known Issues
 

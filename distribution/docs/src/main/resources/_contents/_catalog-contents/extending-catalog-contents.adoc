@@ -1118,68 +1118,6 @@ The `commons-${ddf-branding}`bundle, located in `<DDF_HOME_SOURCE_DIRECTORY>/c
 `${ddf-branding}.util.XPathHelper` provides convenience methods for executing XPath operations on XML.
 It also provides convenience methods for converting XML as a `String` from a `org.w3c.dom.Document` object and vice versa.
 
-==== Working with Settings
-
-${branding} provides the ability to obtain ${branding} settings/properties.
-The `DdfConfigurationWatcher` will provide an update of properties to watchers. For example, if the port number changes, the `DDF_PORT` property value will be propagated to the watcher(s) in the form of a map.
-
-==== Property Values
-
-To obtain the property values, complete the following procedure.
-
-. Import and implement the `${ddf-branding}.catalog.util.DdfConfigurationWatcher` interface.
-
-.Implement DdfConfigurationWatcher
-[source,java]
-----
-public class SettingsWatcher implements DdfConfigurationWatcher
-----
-
-. Get properties map and search for the property.
-
-.Handle Properties
-[source,java,linenums]
-----
-public void ${ddf-branding}ConfigurationUpdated( Map properties )
-{
-  //Get property by name
-  Object value = properties.get( DdfConfigurationManager.DDF_HOME_DIR );
-  if ( value != null )
-  {
-    this.${ddf-branding}HomeDir = value.toString();
-    logger.debug( "${ddf-branding}HomeDir = " + this.${ddf-branding}HomeDir );
-  }
-}
-----
-
-. Export the watcher class as a service in the OSGi Registry. The example below uses the Blueprint dependency injection framework to add this watcher to the OSGi Registry. The 
-`${ddf-branding}.catalog.DdfConfigurationManager` will search for `ConfigurationWatcher`(s) to send
-properties updates.
-
-.Blueprint Example of Export
-[source,xml,linenums]
-----
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
-
- <!-- create the bean -->
- <bean id="SettingsWatcher" class="${ddf-branding}.catalog.SettingsWatcher">
-   <cm:managed-properties
-     persistent-id="${ddf-branding}.catalog.SettingsWatcher"
-     update-strategy="container-managed" />
- </bean>
-
- <!-- export the bean in the service registry as a DdfConfigurationWatcher -->
- <service ref="SettingsWatcher" interface="${ddf-branding}.catalog.util.DdfConfigurationWatcher">
- </service>
-
-</blueprint>
-----
-. Import the DDFpackages to the bundle's manifest for run-time (in addition to any other required packages).
-`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.util, ${ddf-branding}.catalog.*`
-
-. Deploy the packaged service to ${branding} (refer to the Working with OSGi - Bundles section).
-
-
 === Extending Catalog Plugins
 
 The Catalog Framework calls Catalog Plugins to process requests and responses as they enter and leave the Framework. 
@@ -2346,10 +2284,6 @@ If no local catalog provider is configured, the site information returned includ
 |
 |
 
-|`org.codice.${ddf-branding}.configuration.ConfigurationWatcher`
-|
-| 
-
 |`${ddf-branding}.catalog.event.EventProcessor`
 |
 |
@@ -2631,10 +2565,6 @@ Details of the individual federated sources is not included, only the fanout cat
 |`${ddf-branding}.catalog.CatalogFramework`
 |
 |
-
-|`org.codice.${ddf-branding}.configuration.ConfigurationWatcher`
-|
-| 
 
 |`${ddf-branding}.catalog.event.EventProcessor`
 |
