@@ -573,6 +573,24 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.srcclr</groupId>
+                <artifactId>srcclr-maven-plugin</artifactId>
+                <version>2.0.4</version>
+                <configuration>
+                    <apiToken>
+                        eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mjc2NSwiZXhwIjoxNDk1OTIwMDMyLCJhdXRob3JpdGllcyI6IkFHRU5UIiwianRpIjoiYzlmZTg2NDEtYzg1Ny00OTg1LTg0YjgtNjZmMjQ3ZGJjYTc1IiwiY2xpZW50X2lkIjoiIiwic2NvcGUiOltdfQ.H60FBBY8lh2QdfN1iUVwDYxSiVjTPkXuF6IZSezy4DBYO6vvyl0HFDTjv7VYX77fSf9Wj5Y0FbCizK8knbKSfurG6uAaZV3he5r2QahIT4PEV6ayYZy0Z9vJAgJ33iRSXlRVmPkX4qHyAAyCRwxX26aIg4_uUg3YdFzz_pNcWT0
+                    </apiToken>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>scan</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <reporting>
