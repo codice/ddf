@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.SecurityConstants;
+import ddf.security.SubjectUtils;
 import ddf.security.assertion.SecurityAssertion;
 
 /**
@@ -220,6 +221,11 @@ public abstract class AbstractEventController implements EventHandler {
 
         if (null == userId) {
             throw new IllegalArgumentException("User ID is null");
+        }
+
+        // check if user is a guest. Register with sessionId to avoid cross-notifications
+        if (userId.startsWith(SubjectUtils.GUEST_DISPLAY_NAME + "@")) {
+            userId = serverSession.getId();
         }
 
         userSessionMap.put(userId, serverSession);
