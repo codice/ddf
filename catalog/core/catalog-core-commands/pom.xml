@@ -167,12 +167,12 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>target/classes/bin/export</file>
+                                    <file>target/classes/bin/catalog-export</file>
                                     <type>bin</type>
                                     <classifier>export</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>target/classes/bin/export.bat</file>
+                                    <file>target/classes/bin/catalog-export.bat</file>
                                     <type>bin</type>
                                     <classifier>batexport</classifier>
                                 </artifact>

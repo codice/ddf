@@ -85,10 +85,10 @@
         <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
         </configfile>
-        <configfile finalname="/bin/export">
+        <configfile finalname="/bin/catalog-export">
             mvn:ddf.catalog.core/catalog-core-commands/${project.version}/bin/export
         </configfile>
-        <configfile finalname="/bin/export.bat">
+        <configfile finalname="/bin/catalog-export.bat">
             mvn:ddf.catalog.core/catalog-core-commands/${project.version}/bin/batexport
         </configfile>
     </feature>

@@ -11,6 +11,8 @@
 if "%1" == "" goto USAGE
 
 setlocal
+set JARSIGNER=jarsigner
+setlocal
 set ALIAS=localhost
 setlocal
 set HOST=127.0.0.1
@@ -42,13 +44,16 @@ if "%DIR%"=="" goto USAGE
 if "%FILENAME%"=="" goto USAGE
 if "%KEYSTORE%"=="" goto USAGE
 
+echo Connecting to running DDF and exporting catalog to %FILENAME%...
 call client.bat -h %HOST% "catalog:dump --include-content=%FILENAME% %DIR% "
 
-where jarsigner >nul 2>nul
+where %JARSIGNER% >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-	echo Unable to find jarsigner, ensure that $JAVA_HOME and $JAVA_HOME/bin are set on the path.
+	echo Unable to find %JARSIGNER%, ensure that $JAVA_HOME and $JAVA_HOME/bin are set on the path.
+	exit /b 1
 ) else (
-	call jarsigner -keystore %KEYSTORE% %DIR%/%FILENAME% %ALIAS% -signedJar %DIR%signed%FILENAME%
+	echo Running %JARSIGNER% on %FILENAME%, which will prompt you to enter the keystore password to sign the zip file...
+	call %JARSIGNER% -keystore %KEYSTORE% %DIR%/%FILENAME% %ALIAS% -signedJar %DIR%signed%FILENAME%
 )
 goto :eof
 
