@@ -75,26 +75,37 @@ define([
             var self = this;
             var associationType = this.$el.find('select').first().val();
             var associationIds = this.$el.find('select').last().val();
+
             if (associationIds !== null){
-                this._associations.forEach(function(associationCollection){
-                    if (associationCollection.type === associationType){
-                        associationIds.forEach(function(associationId){
-                            var association = {
-                                id: associationId,
-                                title: self._possibleAssociations[associationId].title
-                            };
-                            var dupes = associationCollection.metacards.filter(function(existingAssociation){
-                               return existingAssociation.id === association.id;
-                            });
-                            if (dupes.length === 0){
-                                associationCollection.metacards.push(association);
-                            }
-                        });
+                var associationCollection = self.getOrCreateAssociationCollection(associationType);
+
+                associationIds.forEach(function(associationId){
+                    var association = {
+                        id: associationId,
+                        title: self._possibleAssociations[associationId].title
+                    };
+                    var dupes = associationCollection.metacards.filter(function(existingAssociation){
+                       return existingAssociation.id === association.id;
+                    });
+                    if (dupes.length === 0){
+                        associationCollection.metacards.push(association);
                     }
                 });
             }
             this.render();
             this.turnOnEditing();
+        },
+        getOrCreateAssociationCollection: function(associationType) {
+            var self = this;
+            var associationCollection = self._associations.find(function (association) {
+                return association.type === associationType;
+            });
+
+            if (associationCollection === null || associationCollection === undefined) {
+                associationCollection = {type: associationType, metacards: []};
+                self._associations.push(associationCollection);
+            }
+            return associationCollection;
         },
         determinePossibleAssociations: function(){
             var possibleAssociations = {};
