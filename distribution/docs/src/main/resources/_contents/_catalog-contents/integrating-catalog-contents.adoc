@@ -229,7 +229,7 @@ Using the REST Endpoint, for example, request a metacard with the transform opti
 
 [source,http]
 ----
-https://localhost:8993/services/catalog/0123456789abcdef0123456789abcdef?transform=html
+${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=html
 ----
 
 *Installing and Uninstalling*
@@ -278,7 +278,7 @@ Using the REST Endpoint for example, request a Metacard with the transform optio
 
 [source,http]
 ----
-https://localhost:8993/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml
+${secure_url}/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml
 ----
 
 *Installation and Uninstallation*
@@ -355,7 +355,7 @@ It can also be used within the REST Endpoint by providing the transform option a
 .REST GET method with the GeoJSON MetacardTransformer
 [source,http]
 ----
-https://localhost:8993/services/catalog/0123456789abcdef0123456789abcdef?transform=geojson
+${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=geojson
 ----
 
 *Installation and Uninstallation*
@@ -456,7 +456,7 @@ It can also be used within the REST Endpoint by providing the transform option a
 .REST GET method with the Metadata MetacardTransformer
 [source,http]
 ----
-https://localhost:8993/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
+${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
 ----
 
 *Installation and Uninstallation*
