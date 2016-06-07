@@ -181,8 +181,7 @@ This bundle is not installed by default but can be added by installing the `sec
 |Implementation Class
 |Properties Set
 
-|`ddf.catalog.util.DdfConfigurationWatcher`
-`org.apache.cxf.sts.token.validator.TokenValidator`
+|`org.apache.cxf.sts.token.validator.TokenValidator`
 |`ddf.security.cas.WebSSOTokenValidator`
 |CAS Server URL and Encryption Service reference
 
@@ -1001,10 +1000,6 @@ Settings can be found in the ${admin-console} under *${ddf-security} -> Configur
 |Availability
 |Multiple
 
-|`ddf.catalog.DdfConfigurationWatcher`
-|required
-|true
-
 |`org.osgi.service.cm.ConfigurationAdmin`
 |required
 |false
@@ -1227,8 +1222,7 @@ None
 |Implementation Class
 |Properties Set
 
-|`ddf.catalog.util.DdfConfigurationWatcher`
-`org.apache.shiro.realm.Realm`
+|`org.apache.shiro.realm.Realm`
 |`ddf.security.realm.sts.StsRealm`
 |None
 
