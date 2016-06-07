@@ -114,5 +114,6 @@
         <module>catalog-core-versioning</module>
         <module>catalog-core-validator</module>
         <module>catalog-core-attribute-registry</module>
+        <module>catalog-core-ftp</module>
     </modules>
 </project>

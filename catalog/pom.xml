@@ -49,6 +49,7 @@
         <catalog.joda.time.version>2.2</catalog.joda.time.version>
         <lucene.bundle.version>5.1.0_1</lucene.bundle.version>
         <lucene.version>5.1.0</lucene.version>
+        <mina.version>2.0.13</mina.version>
     </properties>
     <dependencyManagement>
         <dependencies>

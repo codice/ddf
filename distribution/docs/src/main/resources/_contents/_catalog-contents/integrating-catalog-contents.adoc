@@ -1093,6 +1093,41 @@ None.
 
 None
 
+==== FTP Endpoint
+
+The FTP Endpoint provides a method for ingesting files directly into the ${branding} Catalog using the FTP protocol. The files sent over FTP are not first written to the file system, like the Directory Monitor, but instead the FTP stream of the file is ingested directly into the ${branding} catalog, thus avoiding extra I/O overhead.
+
+===== Installing and Uninstalling
+
+Use the Admin Menu to install the FTP feature in the ${branding} Catalog. The FTP Endpoint is not installed by default.
+
+===== Configuring
+
+The FTP Endpoint has no configurable properties. It can only be installed or uninstalled.
+
+===== Using the FTP Endpoint
+
+====== Using the endpoint
+
+The FTP endpoint supports the PUT and MPUT operations. Any other operation, such as DELETE, will return a 550 action not taken response.
+
+====== From Code:
+
+Custom Ftplets can be implemented by extending the `DefaultFtplet` class provided by Apache FTP Server. Doing this will allow custom handling of various FTP commands by overriding the methods of the `DefaultFtplet`. Refer to `https://mina.apache.org/ftpserver-project/ftplet.html` for available methods that can be overridden.
+After creating a custom Ftplet, it needs to be added to the FTP server’s Ftplets before the server is started. Any Ftplets that are registered to the FTP server will execute the FTP command in the order that they were registered.
+
+====== From an FTP client:
+
+The FTP endpoint can be accessed from any FTP client of choice. Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal. The default port number is *8021*. Valid usernames and password are stored in the `<INSTALL_DIR>/etc/users.properties` file.
+
+===== Implementation Details
+
+The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apache Mina provides an API for transport protocols such as TCP and UDP. The FTP server is built on top of Apache Mina to transport its messages. ${branding} implements a custom Ftplet by overriding the `DefaultFtplet` class provided by Apache FTP Server.
+
+====== Known Issues
+
+None
+
 === Developing a New Endpoint
 
 Complete the following procedure to create an endpoint. 
