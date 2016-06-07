@@ -17,7 +17,7 @@
 
     <service ref="jolokiaServlet" id="jolokiaServletService" interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="alias" value="/jolokia"/>
+            <entry key="alias" value="/admin/jolokia"/>
             <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
             <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
         </service-properties>

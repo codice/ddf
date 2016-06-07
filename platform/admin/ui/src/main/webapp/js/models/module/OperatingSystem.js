@@ -21,7 +21,7 @@ define([
     var OperatingSystem = {};
 
     OperatingSystem.Model = Backbone.Model.extend({
-        url: '/jolokia/read/java.lang:type=OperatingSystem/',
+        url: '/admin/jolokia/read/java.lang:type=OperatingSystem/',
         parse: function(resp){
             return resp.value;
         }

@@ -964,7 +964,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         String expectedValue = "CN=" + commonName;
         String featureName = "security-certificate";
         String certGenPath = SECURE_ROOT_AND_PORT
-                + "/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
+                + "/admin/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
         getBackupKeystoreFile();
         try {
             getServiceManager().startFeature(true, featureName);

@@ -641,14 +641,14 @@ From the Web Admin Console, the following configurations are available from a st
 |authenticationTypes
 |String
 a|List of authentication types required for each context. List of default valid authentication types are: SAML, BASIC, PKI, GUEST. Example: /context=AUTH1\|AUTH2\|AUTH3
-a|/=SAML\|GUEST,/admin=SAML\|basic,/jolokia=SAML\|basic,/system=basic,/solr=SAML\|PKI\|basic,/sources=SAML\|basic,/security-config=SAML\|basic
+a|/=SAML\|GUEST,/admin=SAML\|basic,/system=basic,/solr=SAML\|PKI\|basic,/sources=SAML\|basic,/security-config=SAML\|basic
 |yes
 
 |Required Attributes
 |requiredAttributes
 |String
 |List of attributes required for each Web Context. Example: /context={role=role1;type=type1}"
-|/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}
+|/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}
 |yes
 
 |White Listed Contexts

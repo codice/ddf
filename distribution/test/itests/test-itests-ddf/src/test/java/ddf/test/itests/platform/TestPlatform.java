@@ -41,7 +41,7 @@ public class TestPlatform extends AbstractIntegrationTest {
     private static final DynamicUrl LOGGING_SERVICE_JOLOKIA_URL = new DynamicUrl(
             DynamicUrl.SECURE_ROOT,
             HTTPS_PORT,
-            "/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents");
+            "/admin/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents");
 
     @BeforeExam
     public void beforeTest() throws Exception {

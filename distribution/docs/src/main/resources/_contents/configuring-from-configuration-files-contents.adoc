@@ -334,7 +334,7 @@ The following table shows the format to use for each property type supported.
 
 |Lists of Strings
 |`name = [ "value1", "value2", ... ]`
-|`authenticationTypes = [ "/\=SAML\|GUEST", "/admin\=SAML\|basic", "/jolokia\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic" ]`
+|`authenticationTypes = [ "/\=SAML\|GUEST", "/admin\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic" ]`
 
 |Lists of Integers
 |`name = I[ "value1", "value1", ... ]`
@@ -354,11 +354,11 @@ The following table shows the format to use for each property type supported.
 ----
 service.pid="org.codice.${ddf-branding-lowercase}.security.policy.context.impl.PolicyManager"
 
-authenticationTypes=["/\=SAML|GUEST","/admin\=SAML|basic","/jolokia\=SAML|basic","/system\=basic","/solr\=SAML|PKI|basic","/sources\=SAML|basic","/security-config\=SAML|basic","/search\=basic"]
+authenticationTypes=["/\=SAML|GUEST","/admin\=SAML|basic","/system\=basic","/solr\=SAML|PKI|basic","/sources\=SAML|basic","/security-config\=SAML|basic","/search\=basic"]
 
 realms=["/\=karaf"]
 
-requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/jolokia\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}"]
+requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}"]
 
 whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
 ----
