@@ -1,0 +1,37 @@
+@{customElementNamespace}select-collection {
+  display: block;
+
+  .choice {
+    padding: 0px @minimumButtonSize 0px 20px;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    cursor: pointer;
+    display: block;
+    position: relative;
+  }
+
+  .choice:hover {
+    background: @dropdownHoverBackground;
+  }
+
+  .choice-text {
+    padding-right: 30px;
+  }
+
+  .choice.is-selected::after {
+    display: inline-block;
+    content: "\f00c";
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    position: absolute;
+    top: ~'calc(50% - 22px)';
+    right: 0px;
+    width: @minimumButtonSize;
+    text-align: center;
+  }
+
+  .choice.is-selected .choice-text{
+    font-weight: bold;
+  }
+}

@@ -25,9 +25,10 @@ define([
     'component/dropdown/query-federation/dropdown.query-federation.view',
     'component/dropdown/query-src/dropdown.query-src.view',
     'component/property/property.view',
-    'component/property/property'
+    'component/property/property',
+    'component/dropdown/dropdown.view'
 ], function (Marionette, _, $, template, CustomElements, store, QuerySortView, DropdownModel,
-            QueryFederationView, QuerySrcView, PropertyView, Property) {
+            QueryFederationView, QuerySrcView, PropertyView, Property, DropdownView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -52,7 +53,7 @@ define([
             this.setupFederationDropdown();
             this.setupSrcDropdown();
             this.setupTitleInput();
-            this.listenTo(this._federationDropdownModel, 'change:value', this.handleFederationValue);
+            this.listenTo(this.settingsFederation.currentView.model, 'change:value', this.handleFederationValue);
             this.handleFederationValue();
             if (this.model._cloneOf === undefined){
                 this.edit();
@@ -81,12 +82,20 @@ define([
             this.settingsSort.currentView.turnOffEditing();
         },
         setupFederationDropdown: function(){
-            this._federationDropdownModel = new DropdownModel({
-                value: this.model.get('federation')
-            });
-            this.settingsFederation.show(new QueryFederationView({
-                model: this._federationDropdownModel
-            }));
+            this.settingsFederation.show(DropdownView.createSimpleDropdown([
+                {
+                    label: 'All Sources',
+                    value: 'enterprise'
+                },
+                {
+                    label: 'Specific Sources',
+                    value: 'selected'
+                },
+                {
+                    label: 'None',
+                    value: 'local'
+                }
+            ], false, [this.model.get('federation')]));
             this.settingsFederation.currentView.turnOffEditing();
         },
         setupSrcDropdown: function(){
@@ -100,7 +109,7 @@ define([
             this.settingsSrc.currentView.turnOffEditing();
         },
         handleFederationValue: function(){
-            var federation = this._federationDropdownModel.get('value');
+            var federation = this.settingsFederation.currentView.model.get('value')[0];
             this.$el.toggleClass('is-specific-sources', federation === 'selected');
         },
         edit: function(){
@@ -120,7 +129,7 @@ define([
         },
         save: function(){
             this.$el.removeClass('is-editing');
-            var federation = this._federationDropdownModel.get('value');
+            var federation = this.settingsFederation.currentView.model.get('value')[0];
             this.model.set({
                 title: this.settingsTitle.currentView.getCurrentValue()
             });

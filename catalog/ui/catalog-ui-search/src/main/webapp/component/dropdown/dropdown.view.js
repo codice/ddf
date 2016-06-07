@@ -18,10 +18,15 @@ define([
     'underscore',
     'jquery',
     'js/CustomElements',
-    './dropdown.companion.view'
-], function (Marionette, _, $, CustomElements, DropdownCompanionView) {
+    './dropdown.companion.view',
+    './dropdown',
+    'text!./dropdown.hbs',
+    'component/select/select.collection.view'
+], function (Marionette, _, $, CustomElements, DropdownCompanionView, DropdownModel, template, SelectView) {
 
     return Marionette.LayoutView.extend({
+        template: template,
+        className: 'is-simpleDropdown',
         tagName: CustomElements.register('dropdown'),
         events: {
             'click': 'handleClick'
@@ -40,7 +45,7 @@ define([
         dropdownCompanion: undefined,
         initializeComponentModel: function(){
             //override if you need more functionality
-            this.modelForComponent = new this.modelForComponent();
+            this.modelForComponent = this.model;
         },
         getTargetElement: function(){
             //override with where you want the dropdown to center
@@ -81,6 +86,33 @@ define([
             if (!this.dropdownCompanion.isDestroyed) {
                 this.dropdownCompanion.destroy();
             }
+        },
+        isCentered: true,
+        getCenteringElement: function(){
+            return this.el.querySelector('.dropdown-text');
+        },
+        serializeData: function(){
+            if (this.options.list){
+                var values = this.model.get('value');
+                return this.options.list.filter(function(item){
+                     return values.indexOf(item.value) !== -1;
+                });
+            } else {
+                return this.model.toJSON();
+            }
+        }
+    }, {
+        createSimpleDropdown: function(list, isMultiSelect, defaultSelection, customChildView){
+            return new this({
+                model: new DropdownModel({
+                    value: defaultSelection
+                }),
+                list: list,
+                componentToShow: SelectView,
+                isMultiSelect: isMultiSelect,
+                defaultSelection: defaultSelection,
+                customChildView: customChildView
+            });
         }
     });
 });

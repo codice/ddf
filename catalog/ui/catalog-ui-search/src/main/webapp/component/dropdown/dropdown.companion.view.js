@@ -41,9 +41,10 @@ define([
             $('body').append(this.el);
             this.render();
             this.handleTail();
-            this.componentToShow.show(new this.options.linkedView.componentToShow({
+            var componentToShow = this.options.linkedView.componentToShow ||  this.options.linkedView.options.componentToShow;
+            this.componentToShow.show(new componentToShow(_.extend(this.options.linkedView.options,{
                 model: this.options.linkedView.modelForComponent
-            }));
+            })));
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
             this.listenForClose();
         },

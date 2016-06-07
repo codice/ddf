@@ -1,0 +1,16 @@
+<div>
+    <div class="dropdown-text">
+        {{#each this}}
+            <span class="text-src">
+                {{label}}
+            </span>
+        {{/each}}
+        {{#unless this}}
+            <span class="text-src">
+                Click here to select
+            </span>
+        {{/unless}}
+    </div>
+    <span class="dropdown-icon fa fa-caret-down">
+    </span>
+</div>
