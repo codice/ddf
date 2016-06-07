@@ -72,7 +72,7 @@
         <repository>
             <id>codice</id>
             <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
+            <url>https://artifacts.codice.org/content/groups/public/</url>
         </repository>
     </repositories>
 </project>
