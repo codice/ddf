@@ -831,6 +831,12 @@ The response is returned as a data map that contains an internal map with the fo
 |GeoJson-formatted value
 |This format is defined by the GeoJSON Metacard Transformer.
 
+|results/metacard/properties/resource.cached
+|A property indicating whether a metacard's associated resource is cached
+|Boolean
+|true, false
+|true, false
+
 |results/metacard/actions
 |An array of actions that applies to each metacard, injected into each metacard
 |Array of Maps
@@ -847,6 +853,7 @@ The response is returned as a data map that contains an internal map with the fo
 |Specifies the state of the query
 |String
 |SUCCEEDED, FAILED, ACTIVE
+|
 
 |status.elapsed
 |Time in milliseconds that it took for the source to complete the request
