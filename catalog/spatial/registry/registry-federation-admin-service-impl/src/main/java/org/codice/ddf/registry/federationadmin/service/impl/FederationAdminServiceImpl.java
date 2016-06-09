@@ -506,13 +506,16 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     }
 
     public void init() {
-        try {
-            if (getRegistryIdentityMetacard() == null) {
-                createIdentityNode();
+        org.codice.ddf.security.common.Security.runAsAdmin(() -> {
+            try {
+                if (getRegistryIdentityMetacard() == null) {
+                    createIdentityNode();
+                }
+            } catch (FederationAdminException e) {
+                LOGGER.error("There was an error bringing up the Federation Admin Service.", e);
             }
-        } catch (FederationAdminException e) {
-            LOGGER.error("There was an error bringing up the Federation Admin Service.", e);
-        }
+            return null;
+        });
     }
 
     private void createIdentityNode() throws FederationAdminException {
