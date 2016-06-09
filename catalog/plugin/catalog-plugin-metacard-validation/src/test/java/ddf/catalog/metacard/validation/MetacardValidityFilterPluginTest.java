@@ -18,8 +18,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_ERRORS;
-import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_WARNINGS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -148,13 +148,15 @@ public class MetacardValidityFilterPluginTest {
     @Test
     public void testResetAttributeMappingEmptyList() {
         metacardValidityFilterPlugin.setAttributeMap(new ArrayList<String>());
-        assertThat(metacardValidityFilterPlugin.getAttributeMap(), is(new HashMap<String, List<String>>()));
+        assertThat(metacardValidityFilterPlugin.getAttributeMap(),
+                is(new HashMap<String, List<String>>()));
     }
 
     @Test
     public void testResetAttributeMappingEmptyString() {
         metacardValidityFilterPlugin.setAttributeMap(Arrays.asList(""));
-        assertThat(metacardValidityFilterPlugin.getAttributeMap(), is(new HashMap<String, List<String>>()));
+        assertThat(metacardValidityFilterPlugin.getAttributeMap(),
+                is(new HashMap<String, List<String>>()));
     }
 }
 

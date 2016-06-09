@@ -11,26 +11,35 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-
 package ddf.catalog.metacard.validation;
+
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Attribute;
+import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
@@ -39,92 +48,105 @@ import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ValidationException;
 
 public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(MetacardValidityMarkerPlugin.class);
+
+    private static final Logger INGEST_LOGGER =
+            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
+
+    private final Predicate<Object> didNotFailEnforcedValidator = Objects::nonNull;
 
     private List<String> enforcedMetacardValidators;
 
     private List<MetacardValidator> metacardValidators;
 
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(MetacardValidityMarkerPlugin.class);
-
-    public static final String VALIDATION_ERRORS = BasicTypes.VALIDATION_ERRORS;
-
-    public static final String VALIDATION_WARNINGS = BasicTypes.VALIDATION_WARNINGS;
-
+    @Override
     public CreateRequest process(CreateRequest input)
             throws PluginExecutionException, StopProcessingException {
-
-        // Initialize empty list of metacards to allow through
-        List<Metacard> returnMetacards = new ArrayList<Metacard>();
-        // Loop all metacards in request
-        for (Metacard metacard : input.getMetacards()) {
-            MetacardImpl newMetacard = new MetacardImpl(metacard);
-            List<Serializable> validationWarnings = new LinkedList<>();
-            List<Serializable> validationErrors = new LinkedList<>();
-            // Default to allowing metacard through
-            Boolean toReturn = true;
-            // Run metacard through each validator
-            for (MetacardValidator metacardValidator : metacardValidators) {
-                try {
-                    // Attempt validation
-                    metacardValidator.validate(metacard);
-                } catch (ValidationException e) {
-                    // If validator is not explicitly turned on by admin, set invalid and allow through
-                    if (checkEnforcedMetacardValidators(metacardValidator)) {
-                        boolean validationErrorsExist = e.getErrors() != null && !e.getErrors()
-                                .isEmpty();
-                        boolean validationWarningsExist =
-                                e.getWarnings() != null && !e.getWarnings()
-                                        .isEmpty();
-                        if (validationErrorsExist || validationWarningsExist) {
-                            // Check for warnings and errors
-                            if (validationErrorsExist) {
-                                validationErrors.addAll(e.getErrors());
-                            }
-                            if (validationWarningsExist) {
-                                validationWarnings.addAll(e.getWarnings());
-                            }
-                        } else {
-                            LOGGER.error(
-                                    "Metacard validator {} did not have any warnings or errors but it threw a validation exception."
-                                            + " There is likely something wrong with your implementation. This will result in the metacard not"
-                                            + " being properly marked as invalid.",
-                                    getValidatorName(metacardValidator));
-                        }
-
-                    } else {
-                        // If validator is explicitly turned on, break out and do not include in the
-                        // list of metacards that will be allowed through.
-                        toReturn = false;
-                        break;
-                    }
-
-                }
-            }
-            if (toReturn) {
-                Attribute attr;
-                List<Serializable> values;
-                if ((attr = metacard.getAttribute(VALIDATION_WARNINGS)) != null
-                        && (values = attr.getValues()) != null) {
-                    validationWarnings.addAll(values);
-                }
-                if ((attr = metacard.getAttribute(VALIDATION_ERRORS)) != null
-                        && (values = attr.getValues()) != null) {
-                    validationErrors.addAll(values);
-                }
-                newMetacard.setAttribute(new AttributeImpl(VALIDATION_WARNINGS,
-                        validationWarnings));
-                newMetacard.setAttribute(new AttributeImpl(VALIDATION_ERRORS, validationErrors));
-                returnMetacards.add(newMetacard);
-            }
-        }
-        return new CreateRequestImpl(returnMetacards, input.getProperties());
+        List<Metacard> validatedMetacards = validateList(input.getMetacards(), Function.identity());
+        return new CreateRequestImpl(validatedMetacards,
+                input.getProperties(),
+                input.getStoreIds());
     }
 
     @Override
     public UpdateRequest process(UpdateRequest input)
             throws PluginExecutionException, StopProcessingException {
-        return input;
+        List<Map.Entry<Serializable, Metacard>> validatedUpdates = validateList(input.getUpdates(),
+                Map.Entry::getValue);
+        return new UpdateRequestImpl(validatedUpdates,
+                input.getAttributeName(),
+                input.getProperties(),
+                input.getStoreIds());
+    }
+
+    private <T> List<T> validateList(List<T> requestItems, Function<T, Metacard> itemToMetacard) {
+        Map<String, Integer> counter = new HashMap<>();
+
+        List<T> validated = requestItems.stream()
+                .map(item -> validate(item, itemToMetacard, counter))
+                .filter(didNotFailEnforcedValidator)
+                .collect(Collectors.toList());
+
+        INGEST_LOGGER.info("Validation results: {} had warnings and {} had errors.",
+                counter.getOrDefault(VALIDATION_WARNINGS, 0),
+                counter.getOrDefault(VALIDATION_ERRORS, 0));
+
+        return validated;
+    }
+
+    private <T> T validate(T item, Function<T, Metacard> itemToMetacard,
+            Map<String, Integer> counter) {
+        Set<String> errors = new HashSet<>();
+        Set<String> warnings = new HashSet<>();
+
+        Metacard metacard = itemToMetacard.apply(item);
+        for (MetacardValidator validator : metacardValidators) {
+            try {
+                validator.validate(metacard);
+            } catch (ValidationException e) {
+                String validatorName = getValidatorName(validator);
+
+                if (isValidatorEnforced(validatorName)) {
+                    INGEST_LOGGER.info(
+                            "The metacard with id={} is being removed from the operation because it failed the enforced validator [{}].",
+                            metacard.getId(),
+                            validatorName);
+                    return null;
+                } else {
+                    getValidationProblems(validatorName, e, errors, warnings, counter);
+                }
+            }
+        }
+
+        metacard.setAttribute(new AttributeImpl(VALIDATION_ERRORS,
+                (List<Serializable>) new ArrayList<Serializable>(errors)));
+        metacard.setAttribute(new AttributeImpl(VALIDATION_WARNINGS,
+                (List<Serializable>) new ArrayList<Serializable>(warnings)));
+
+        return item;
+    }
+
+    private void getValidationProblems(String validatorName, ValidationException e,
+            Set<String> errors, Set<String> warnings, Map<String, Integer> counter) {
+        boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
+        boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
+        if (validationErrorsExist || validationWarningsExist) {
+            if (validationErrorsExist) {
+                errors.addAll(e.getErrors());
+                counter.merge(VALIDATION_ERRORS, 1, Integer::sum);
+            }
+            if (validationWarningsExist) {
+                warnings.addAll(e.getWarnings());
+                counter.merge(VALIDATION_WARNINGS, 1, Integer::sum);
+            }
+        } else {
+            LOGGER.warn(
+                    "Metacard validator {} did not have any warnings or errors but it threw a validation exception."
+                            + " There is likely something wrong with your implementation. This will result in the metacard not"
+                            + " being properly marked as invalid.",
+                    validatorName);
+        }
     }
 
     @Override
@@ -138,31 +160,38 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
     }
 
     public List<String> getEnforcedMetacardValidators() {
-        return this.enforcedMetacardValidators;
+        return enforcedMetacardValidators;
     }
 
     public void setMetacardValidators(List<MetacardValidator> metacardValidators) {
         this.metacardValidators = metacardValidators;
+
+        List<String> validatorsNoDescribable = metacardValidators.stream()
+                .filter(validator -> !(validator instanceof Describable))
+                .map(this::getValidatorName)
+                .collect(Collectors.toList());
+
+        if (validatorsNoDescribable.size() > 0) {
+            LOGGER.warn("Metacard validators SHOULD implement Describable. Validators in error: {}",
+                    validatorsNoDescribable);
+        }
     }
 
     public List<MetacardValidator> getMetacardValidators() {
-        return this.metacardValidators;
+        return metacardValidators;
     }
 
-    private Boolean checkEnforcedMetacardValidators(MetacardValidator metacardValidator) {
-        return (null == enforcedMetacardValidators || !enforcedMetacardValidators.contains(
-                getValidatorName(metacardValidator)));
+    private boolean isValidatorEnforced(String validatorName) {
+        return enforcedMetacardValidators != null && enforcedMetacardValidators.contains(
+                validatorName);
     }
 
     private String getValidatorName(MetacardValidator metacardValidator) {
         if (metacardValidator instanceof Describable) {
             return ((Describable) metacardValidator).getId();
         } else {
-            String canonicalName = metacardValidator.getClass()
+            return metacardValidator.getClass()
                     .getCanonicalName();
-            LOGGER.warn("Metacard validators SHOULD implement Describable. Validator in error: {}",
-                    canonicalName);
-            return canonicalName;
         }
     }
 }
