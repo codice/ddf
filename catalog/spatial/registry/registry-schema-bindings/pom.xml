@@ -165,6 +165,8 @@
                             net.opengis.ogc,
                             net.opengis.cat.wrs.v_1_0_2,
                             org.codice.ddf.registry.schemabindings,
+                            org.codice.ddf.registry.schemabindings.converter.type,
+                            org.codice.ddf.registry.schemabindings.converter.web,
                             org.codice.ddf.registry.schemabindings.helper
                         </Export-Package>
                         <Private-Package>

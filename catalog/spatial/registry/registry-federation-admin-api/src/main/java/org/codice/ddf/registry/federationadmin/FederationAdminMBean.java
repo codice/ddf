@@ -13,15 +13,10 @@
  */
 package org.codice.ddf.registry.federationadmin;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
-
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * This is the external facing interface for the FederationAdminService. This is what should be used by the UI,
@@ -75,7 +70,9 @@ public interface FederationAdminMBean {
     void deleteLocalEntry(List<String> ids) throws FederationAdminException;
 
     /**
-     * Returns a Map of RegistryPackage objects as converted using {@code RegistryPackageWebConverter}
+     * Returns a Map of {@code RegistryPackageType} objects as converted using {@code RegistryPackageWebConverter}
+     * List of node maps representing local registry entries can be found in the returned map using
+     * the key 'nodes'. Additional information about the nodes/registry is also included in the map.
      *
      * @return Map<String, Object>
      * @throws FederationAdminException Passes exception thrown byFederationAdminServiceImpl
@@ -94,18 +91,12 @@ public interface FederationAdminMBean {
     List<Map<String, Object>> allRegistryInfo();
 
     /**
-     * @return the list of registry metacards as RegistryObjectWebMaps
+     * Returns a Map of {@code RegistryPackageType} objects as converted using {@code RegistryPackageWebConverter}
+     * List of node maps representing all registry entries can be found in the returned map using
+     * the key 'nodes'. Additional information about the nodes/registry is also included in the map.
+     *
+     * @return Map<String, Object>
      */
-    List<Map<String, Object>> allRegistryMetacards();
+    Map<String, Object> allRegistryMetacards();
 
-    /**
-     * @param source       - The id of the source that will be published to or unpublished
-     *                     from the following destinations
-     * @param destinations - List of ids of catalog stores that the source will be
-     *                     published to or unpublished from
-     * @return the list of currently published locations after attempting to perform
-     * the publish/unpublishes
-     */
-    List<Serializable> updatePublications(String source, List<String> destinations)
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException;
 }

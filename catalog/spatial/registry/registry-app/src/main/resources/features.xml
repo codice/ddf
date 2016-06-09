@@ -41,6 +41,7 @@
     <feature prerequisite="true">registry-app</feature>
     <bundle>mvn:org.codice.ddf.registry/registry-api-impl/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-service-impl/${project.version}</bundle>
+    <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-impl/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-identification-plugin/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-publication-update-handler/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-report-action-provider/${project.version}</bundle>
