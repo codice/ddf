@@ -71,7 +71,7 @@
         <cxf.xpp3.bundle.version>1.1.4c_6</cxf.xpp3.bundle.version>
         <bouncy.version>1.54</bouncy.version>
         <jts.bundle.version>1.12_1</jts.bundle.version>
-        <karaf.version>4.0.4</karaf.version>
+        <karaf.version>4.0.5</karaf.version>
         <lux.version>1.2</lux.version>
         <opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
         <org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
@@ -93,7 +93,7 @@
         <commons-codec.version>1.10</commons-codec.version>
         <spring31.version>3.1.4.RELEASE</spring31.version>
         <jetty.version>9.2.10.v20150310</jetty.version>
-        <pax.web.version>4.2.4</pax.web.version>
+        <pax.web.version>4.2.6</pax.web.version>
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <validation.version>1.1.0.Final</validation.version>
         <commons-configuration.version>1.10</commons-configuration.version>
