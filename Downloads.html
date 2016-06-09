@@ -13,12 +13,12 @@
     <body>
         <a href="https://github.com/codice/ddf" target="_blank"><img style="position: fixed; top: 0; right: 0; border: 0; z-index: 9999;"
                 src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" 
-            alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+            alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" class="small-hidden"></a>
         
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar" id="hamburger">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -28,7 +28,7 @@
                         <img alt="DDF logo" src="images/ddf_logo_navbar.png" height="25px"/>
                     </a>
                 </div>
-                <div id="navbar" class="navbar-collapse collapse">
+                <div id="navbar" class="small-hidden">
                     <ul class="nav navbar-nav">
                         <li><a href="index.html">Home</a></li>
                         <li><a href="Features.html">Features</a></li>
@@ -40,40 +40,37 @@
                 </div>
             </div>
         </nav>
-        
+        <div class="large-hidden"><a href="https://github.com/codice/ddf" target="_blank" class="github">Fork me on Github</a></div>
         <div class="container marketing">
             <div class="page-header">
                 <h1>Downloads</h1>
             </div>
             
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-4 doc-descriptions">
                     <h2>Source Code</h2>
                     <p>The Codice Foundation uses GitHub, the world's largest open-source community, to manage its collaboration and code management.</p>
+                    <div class="doc-buttons">
+                        <a class="btn btn-primary" href="https://github.com/codice/ddf" target="_blank">DDF on GitHub &raquo;</a>
+                    </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 doc-descriptions">
                     <h2>Quick Start Guide</h2>
                     <p>Basic instructions for a test or sample installation.</p>
+                    <div class="doc-buttons">
+                        <a class="btn btn-primary" href="ddfquickstart.html" target="_blank">html &raquo;</a>
+                        <a class="btn btn-primary" href="ddfquickstart.pdf" target="_blank">pdf &raquo;</a>
+                    </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 doc-descriptions">
                     <h2>Latest Stable Release</h2>
                     <p id="stable-version">Fetching latest version...</p>
+                    <div class="doc-buttons">
+                        <a class="btn btn-success" id="download-button">Fetching latest version...</a>
+                    </div>
+                </div>
                 </div>
             </div>
-            
-            <div class="row">
-                <div class="col-md-4">
-                    <a class="btn btn-primary" href="https://github.com/codice/ddf" target="_blank">DDF on GitHub &raquo;</a>
-                </div>
-                <div class="col-md-4">
-                    <a class="btn btn-primary" href="ddfquickstart.html" target="_blank">html &raquo;</a>
-                    <a class="btn btn-primary" href="ddfquickstart.pdf" target="_blank">pdf &raquo;</a>
-                </div>
-                <div class="col-md-4">
-                    <a class="btn btn-success" id="download-button">Fetching latest version...</a>
-                </div>
-            </div>
-                
             <hr>
             <footer>
                 <div class="container">
@@ -84,8 +81,7 @@
                     </div>
                 </div>
             </footer>
-        </div>
-        
+        </div>        
         <script src="js/jquery-1.11.3.min.js"></script>
         <script src="js/script.js"></script>
     </body>

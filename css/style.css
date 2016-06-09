@@ -7,6 +7,7 @@ body {
     background-color: #FFF;
     border-style: solid;
     border-color: #34A6E7;
+    padding: 10px;
 }
 
 .jumbotron img {
@@ -62,4 +63,22 @@ body {
 .doc-buttons {   
     position: absolute;
     bottom:0;
+}
+
+@media (max-width: 767px) {
+    #github-ribbon {
+        display: none;
+    }
+    .small-hidden {
+        display: none;
+    }
+    .large-hidden {
+        text-align: center;
+    }
+}
+
+@media (min-width: 767px) {
+    .large-hidden {
+        display: none;
+    }
 }
