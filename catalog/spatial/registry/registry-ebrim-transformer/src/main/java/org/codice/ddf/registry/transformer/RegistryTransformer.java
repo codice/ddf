@@ -30,6 +30,7 @@ import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.converter.RegistryConversionException;
 import org.codice.ddf.registry.converter.RegistryPackageConverter;
+import org.codice.ddf.registry.schemabindings.EbrimConstants;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
@@ -153,9 +154,11 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
         this.configurator =
                 parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
                                 .getName(),
-                        net.opengis.ogc.ObjectFactory.class.getPackage()
+                        EbrimConstants.OGC_FACTORY.getClass()
+                                .getPackage()
                                 .getName(),
-                        net.opengis.gml.v_3_1_1.ObjectFactory.class.getPackage()
+                        EbrimConstants.GML_FACTORY.getClass()
+                                .getPackage()
                                 .getName()),
                         this.getClass()
                                 .getClassLoader());
