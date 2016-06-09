@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.collections.Bag;
 import org.apache.commons.collections.bag.HashBag;
@@ -28,6 +29,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 import ddf.action.Action;
 import ddf.action.ActionRegistry;
@@ -40,6 +43,8 @@ import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
 
@@ -47,6 +52,19 @@ import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
  * This class represents the cached asynchronous query response from all sources.
  */
 public class Search {
+    private static final Map<Class, String> SAFE_ERROR_MESSAGES = ImmutableMap.of(
+            UnsupportedQueryException.class,
+            "Query was invalid",
+            SourceUnavailableException.class,
+            "Query hit a source that was unavailable",
+            InterruptedException.class,
+            "Query was interrupted",
+            TimeoutException.class,
+            "Query timed out");
+
+    private static final String REASON_INTERNAL = "Internal error";
+
+    public static final String REASONS = "reasons";
 
     public static final String HITS = "hits";
 
@@ -93,6 +111,8 @@ public class Search {
     public static final String ATTRIBUTE_FORMAT = "format";
 
     public static final String ATTRIBUTE_INDEXED = "indexed";
+
+    private static final int MAX_EXCEPTION_SCAN_DEPTH = 10;
 
     private ActionRegistry actionRegistry;
 
@@ -141,12 +161,12 @@ public class Search {
         }
     }
 
-    public synchronized void failSource(String sourceId) {
+    public synchronized void failSource(String sourceId, Exception cause) {
         QueryResponseImpl failedResponse = new QueryResponseImpl(null);
         failedResponse.closeResultQueue();
         failedResponse.setHits(0);
         failedResponse.getProcessingDetails()
-                .add(new ProcessingDetailsImpl(sourceId, new Exception()));
+                .add(new ProcessingDetailsImpl(sourceId, cause));
         failedResponse.getProperties()
                 .put("elapsed", -1L);
 
@@ -172,6 +192,25 @@ public class Search {
                 State.SUCCEEDED :
                 State.FAILED));
         responseNum++;
+
+        queryResponse.getProcessingDetails()
+                .stream()
+                .filter(ProcessingDetails::hasException)
+                .forEach(details -> {
+                    status.addReason(generateSanitizedErrorMessage(details.getException(), 0));
+                });
+    }
+
+    private String generateSanitizedErrorMessage(Throwable e, int depth) {
+        if (depth > MAX_EXCEPTION_SCAN_DEPTH || e == null) {
+            return REASON_INTERNAL;
+        }
+
+        if (SAFE_ERROR_MESSAGES.containsKey(e.getClass())) {
+            return SAFE_ERROR_MESSAGES.get(e.getClass());
+        }
+
+        return generateSanitizedErrorMessage(e.getCause(), depth + 1);
     }
 
     private boolean isSuccessful(final Set<ProcessingDetails> details) {
@@ -275,6 +314,7 @@ public class Search {
                 addObject(statusObject, RESULTS, status.getResultCount());
                 addObject(statusObject, HITS, status.getHits());
                 addObject(statusObject, ELAPSED, status.getElapsed());
+                addObject(statusObject, REASONS, status.getReasons());
             }
             addObject(statusObject, STATE, status.getState());
 

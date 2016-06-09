@@ -93,7 +93,7 @@ public class SourceQueryRunnable extends QueryRunnable {
     private void sendResults(QueryResponse sourceResponse) {
         search.update(sourceId, sourceResponse);
         try {
-            searchController.pushResults(request.getId(),
+            searchController.publishResults(request.getId(),
                     search.transform(request.getId()),
                     session);
         } catch (CatalogTransformerException e) {
