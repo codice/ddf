@@ -23,12 +23,13 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.registry.api.RegistryStore;
@@ -92,7 +93,7 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
 
     private List<RegistryStore> registryStores;
 
-    private Map<String, List<String>> publications = new HashMap<>();
+    private Map<String, List<String>> publications = new ConcurrentHashMap<>();
 
     @Override
     public <T> List<Action> getActions(T subject) {
@@ -105,14 +106,17 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
 
         for (RegistryStore registry : registryStores) {
             //can't publish to yourself
-            if (!registry.isPushAllowed() || StringUtils.isBlank(registry.getRegistryId()) || registryId.equals(registry.getRegistryId())) {
+            if (!registry.isPushAllowed() || StringUtils.isBlank(registry.getRegistryId())
+                    || registryId.equals(registry.getRegistryId())) {
                 continue;
             }
 
             if (currentPublications.contains(registry.getId())) {
-                actions.add(getAction(registryId, registry.getId(), false));
+                CollectionUtils.addIgnoreNull(actions,
+                        getAction(registryId, registry.getId(), false));
             } else {
-                actions.add(getAction(registryId, registry.getId(), true));
+                CollectionUtils.addIgnoreNull(actions,
+                        getAction(registryId, registry.getId(), true));
             }
         }
 
@@ -175,7 +179,7 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
             } else {
                 publications.put(mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
                         .getValue()
-                        .toString(), new ArrayList<>());
+                        .toString(), Collections.emptyList());
             }
         }
     }
