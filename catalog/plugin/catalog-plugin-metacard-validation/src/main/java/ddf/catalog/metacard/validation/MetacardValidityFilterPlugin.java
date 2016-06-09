@@ -13,8 +13,8 @@
  */
 package ddf.catalog.metacard.validation;
 
-import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_ERRORS;
-import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_WARNINGS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -46,9 +46,9 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
     }
 
     public void setAttributeMap(List<String> attributeMappings) {
-        if (CollectionUtils.isEmpty(attributeMappings)|| (
-                attributeMappings.size() == 1 && attributeMappings.get(0)
-                        .isEmpty())) {
+        if (CollectionUtils.isEmpty(attributeMappings) || (attributeMappings.size() == 1
+                && attributeMappings.get(0)
+                .isEmpty())) {
             attributeMap = new HashMap<>();
             return;
         }
