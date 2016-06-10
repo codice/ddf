@@ -559,6 +559,7 @@ define([
             },
 
             startSearch: function () {
+                this.cancelCurrentSearches();
 
                 var data = this.buildSearchData();
                 var sources = data.src;
@@ -617,7 +618,7 @@ define([
                 result.get('results').fullCollection.sort();
 
                 sources.unshift("cache");
-                return sources.map(function (src) {
+                this.currentSearches = sources.map(function (src) {
                     data.src = src;
                     return result.fetch({
                         data: JSON.stringify(data),
@@ -647,6 +648,16 @@ define([
                         }
                     });
                 });
+                return this.currentSearches;
+            },
+
+            currentSearches: [],
+
+            cancelCurrentSearches: function(){
+                this.currentSearches.forEach(function(request){
+                    request.abort();
+                });
+                this.currentSearches = [];
             },
 
             setSources: function (sources) {

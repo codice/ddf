@@ -31,7 +31,7 @@ define([
         regions: {
         },
         initialize: function () {
-        },
+        }
     });
 
     return WorkspaceSaved;

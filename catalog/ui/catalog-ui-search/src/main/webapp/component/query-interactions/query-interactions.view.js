@@ -30,6 +30,7 @@ define([
         },
         events: {
             'click .interaction-run': 'handleRun',
+            'click .interaction-stop': 'handleCancel',
             'click .interaction-delete': 'handleDelete',
             'click .interaction-duplicate': 'handleDuplicate',
             'click': 'handleClick'
@@ -42,6 +43,9 @@ define([
         },
         handleRun: function(){
             this.model.startSearch();
+        },
+        handleCancel: function(){
+            this.model.cancelCurrentSearches();
         },
         handleDelete: function(){
             this.model.collection.remove(this.model);
