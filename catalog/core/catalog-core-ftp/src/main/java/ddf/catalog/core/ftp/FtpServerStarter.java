@@ -20,6 +20,8 @@ import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.Ftplet;
 import org.apache.ftpserver.ftplet.UserManager;
+import org.apache.ftpserver.impl.DefaultFtpServer;
+import org.apache.ftpserver.listener.Listener;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +34,9 @@ import ddf.catalog.core.ftp.ftplets.FtpRequestHandler;
 public class FtpServerStarter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FtpServerStarter.class);
 
-    private static final int PORT = 8021;
-
     private static final String DEFAULT_LISTENER = "default";
+
+    private int port = 8021;
 
     private static FtpServer server;
 
@@ -60,7 +62,7 @@ public class FtpServerStarter {
     }
 
     public void init() {
-        listenerFactory.setPort(PORT);
+        listenerFactory.setPort(port);
 
         serverFactory.addListener(DEFAULT_LISTENER, listenerFactory.createListener());
 
@@ -70,19 +72,78 @@ public class FtpServerStarter {
         serverFactory.setUserManager(userManager);
 
         server = serverFactory.createServer();
-        try {
-            server.start();
-            LOGGER.debug("FTP server started on port {}", PORT);
-        } catch (Exception e) {
-            LOGGER.error("Failed to start FTP server", e);
-        }
+        startServer();
     }
 
     public void destroy() {
-        if (!server.isStopped()) {
+        if (!isStopped()) {
             server.stop();
-            LOGGER.debug("FTP server on port {} was stopped", PORT);
+            LOGGER.debug("FTP server stopped");
         }
+    }
+
+    public void setPort(int port) {
+        if (this.port != port) {
+            this.port = port;
+            restartDefaultListener();
+        }
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
+    private void restartDefaultListener() {
+        LOGGER.debug("Restarting FTP server with new port {}.", port);
+
+        suspendServer();
+        destroyDefaultListener();
+        addDefaultListener();
+        startServer();
+    }
+
+    private void startServer() {
+        if (isStopped() || isSuspended()) {
+            try {
+                server.start();
+                LOGGER.debug("FTP server started on port {}", port);
+            } catch (Exception e) {
+                LOGGER.error("Failed to start FTP server", e);
+            }
+        }
+    }
+
+    private void destroyDefaultListener() {
+        Listener defaultListener = getDefaultListener();
+        if (!defaultListener.isStopped()) {
+            defaultListener.stop();
+        }
+        ((DefaultFtpServer) server).getListeners()
+                .clear();
+    }
+
+    private void addDefaultListener() {
+        listenerFactory.setPort(port);
+        ((DefaultFtpServer) server).getListeners()
+                .put(DEFAULT_LISTENER, listenerFactory.createListener());
+    }
+
+    private void suspendServer() {
+        if (!isSuspended()) {
+            server.suspend();
+        }
+    }
+
+    private boolean isStopped() {
+        return server.isStopped();
+    }
+
+    private boolean isSuspended() {
+        return server.isSuspended();
+    }
+
+    protected Listener getDefaultListener() {
+        return ((DefaultFtpServer) server).getListener(DEFAULT_LISTENER);
     }
 
     private void notNull(Object object, String name) {

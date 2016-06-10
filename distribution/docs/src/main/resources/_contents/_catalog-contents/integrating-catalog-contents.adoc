@@ -1103,7 +1103,7 @@ Use the Admin Menu to install the FTP feature in the ${branding} Catalog. The FT
 
 ===== Configuring
 
-The FTP Endpoint has no configurable properties. It can only be installed or uninstalled.
+The configurable properties for the FTP Endpoint are accessed from the *FTP Endpoint* Configuration in the Admin Console under the DDF Catalog application.
 
 ===== Using the FTP Endpoint
 
