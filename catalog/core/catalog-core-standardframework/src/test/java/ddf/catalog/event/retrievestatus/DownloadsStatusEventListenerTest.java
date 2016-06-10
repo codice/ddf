@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.ResourceRequest;
@@ -66,10 +66,10 @@ public class DownloadsStatusEventListenerTest {
 
         testDownloadStatusInfo = new DownloadStatusInfoImpl();
         hcInstanceFactory = new TestHazelcastInstanceFactory(10);
-        ResourceCache testResourceCache = new ResourceCache();
+        ResourceCacheImpl testResourceCache = new ResourceCacheImpl();
         testResourceCache.setCache(hcInstanceFactory.newHazelcastInstance());
         productCacheDir = System.getProperty("user.dir") + "/target" + File.separator
-                + ResourceCache.DEFAULT_PRODUCT_CACHE_DIRECTORY;
+                + ResourceCacheImpl.DEFAULT_PRODUCT_CACHE_DIRECTORY;
         testResourceCache.setProductCacheDirectory(productCacheDir);
         DownloadsStatusEventPublisher testEventPublisher =
                 mock(DownloadsStatusEventPublisher.class);

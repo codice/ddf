@@ -31,7 +31,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 
 /**
- * The resource that will be stored in the @ResourceCache cache map.
+ * The resource that will be stored in the {@code ResourceCacheImpl} cache map.
  *
  */
 public class ReliableResource implements Resource, Serializable {

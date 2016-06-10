@@ -20,8 +20,10 @@ import ddf.catalog.resource.data.ReliableResource;
 /**
  * Interface defining a cache of resources or references to resources.
  *
- * @author ddf.isgs@lmco.com
+ * @Deprecated As of version 2.10.0, this interface has been deprecated and will be removed in
+ * future versions of the product.
  */
+@Deprecated
 public interface ResourceCacheInterface {
 
     /**

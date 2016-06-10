@@ -248,7 +248,9 @@
                             ddf.catalog.source.impl,
                             ddf.catalog.resource.download,
                             ddf.catalog.resource.impl,
-                            ddf.catalog.resourceretriever
+                            ddf.catalog.resourceretriever,
+                            org.codice.ddf.catalog.resource.cache,
+                            org.codice.ddf.catalog.resource.cache.impl
                         </Private-Package>
                         <Export-Package>
                             ddf.catalog.cache,

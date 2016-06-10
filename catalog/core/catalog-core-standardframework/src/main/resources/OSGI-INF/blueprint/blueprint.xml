@@ -302,7 +302,8 @@
     <service ref="downloadStatusInfo"
              interface="ddf.catalog.event.retrievestatus.DownloadStatusInfo"/>
 
-    <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache"
+    <bean id="deprecatedProductCache" class="ddf.catalog.cache.impl.ResourceCacheImpl"
+          init-method="setupCache"
           destroy-method="teardownCache">
         <property name="productCacheDirectory" value=""/>
         <property name="cacheDirMaxSizeMegabytes" value="10240"/>
@@ -311,12 +312,16 @@
         <property name="xmlConfigFilename" value="reliableResource-hazelcast.xml"/>
     </bean>
 
-    <service ref="productCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
+    <bean id="productCache" class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl">
+        <argument ref="deprecatedProductCache"/>
+    </bean>
+
+    <service ref="deprecatedProductCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
 
     <bean id="reliableResourceDownloadManager"
           class="ddf.catalog.resource.download.ReliableResourceDownloadManager"
           init-method="init" destroy-method="cleanUp">
-        <argument ref="productCache"/>
+        <argument ref="deprecatedProductCache"/>
         <argument ref="retrieveStatusEventPublisher"/>
         <argument ref="retrieveStatusEventListener"/>
         <argument ref="downloadStatusInfo"/>
@@ -355,7 +360,7 @@
                 <property name="pool" ref="queryThreadPool"/>
                 <property name="queryResponsePostProcessor" ref="queryResponsePostProcessor"/>
                 <property name="sourcePoller" ref="sourcePoller"/>
-                <property name="resourceCache" ref="productCache"/>
+                <property name="resourceCache" ref="deprecatedProductCache"/>
                 <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
                 <property name="reliableResourceDownloadManager"
                           ref="reliableResourceDownloadManager"/>
