@@ -100,6 +100,17 @@ define([
                      multivalued: types[0][property].multivalued
                  });
              });
+             properties.summaryShow.filter(function(property){
+                 return types[0][property] !== undefined;
+             }).forEach(function(property){
+                 propertyArray.push({
+                     label: properties.attributeAliases[property],
+                     id: property,
+                     type: types[0][property].format,
+                     values: {},
+                     multivalued: types[0][property].multivalued
+                 });
+             });
              propertyArray.forEach(function(property){
                  metacards.forEach(function(metacard){
                      var value = metacard[property.id];
