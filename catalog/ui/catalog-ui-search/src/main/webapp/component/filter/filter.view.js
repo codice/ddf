@@ -83,6 +83,7 @@ define([
 
     function generateFilter(type, property, value) {
         switch (store.metacardTypes[property].type) {
+            case 'LOCATION':
             case 'GEOMETRY':
                 return generateAnyGeoFilter(property, value);
                 break;

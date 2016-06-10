@@ -98,9 +98,15 @@ define([
             // listen to any change on all models in collection.
             this.viewMapLayers.on('change', this.onEdit, this);
             if (maptype.is3d()) {
-                this.widgetController = new PrefsModalView.CesiumLayersController({ collection: this.viewMapLayers });
+                this.widgetController = new PrefsModalView.CesiumLayersController({
+                    collection: this.viewMapLayers,
+                    element: this
+                });
             } else if (maptype.is2d()) {
-                this.widgetController = new PrefsModalView.OpenLayersController({ collection: this.viewMapLayers });
+                this.widgetController = new PrefsModalView.OpenLayersController({
+                    collection: this.viewMapLayers,
+                    element: this
+                });
             }
             this.layerPickers = new PrefsModalView.LayerPickerTable({
                 childView: PrefsModalView.LayerPicker,
@@ -166,9 +172,9 @@ define([
         }
     });
     PrefsModalView.CesiumLayersController = CesiumLayersController.extend({
-        showMap: function (divId) {
+        showMap: function () {
             this.makeMap({
-                divId: divId,
+                element: this.options.element.el.querySelector('#layerPickerMap'),
                 cesiumOptions: {
                     sceneMode: Cesium.SceneMode.SCENE3D,
                     animation: false,
@@ -184,11 +190,11 @@ define([
         }
     });
     PrefsModalView.OpenLayersController = OpenLayersController.extend({
-        showMap: function (divId) {
+        showMap: function () {
             this.makeMap({
+                element: this.options.element.el.querySelector('#layerPickerMap'),
                 zoom: 2,
-                controls: [],
-                divId: divId
+                controls: []
             });
         }
     });

@@ -22,9 +22,11 @@ define([
     'js/store'
 ], function (Marionette, _, $, LightboxTemplate, CustomElements, store) {
 
+    var componentName = 'lightbox';
+
     var LightboxView = Marionette.LayoutView.extend({
         template: LightboxTemplate,
-        tagName: CustomElements.register('lightbox'),
+        tagName: CustomElements.register(componentName),
         modelEvents: {
             'all': 'render',
             'change:open': 'handleOpen'
@@ -38,7 +40,13 @@ define([
         },
         initialize: function () {
             $('body').append(this.el);
-            this.listenTo(store.get('workspaces'),'change:currentWorkspace',this.close);
+            this.listenTo(store.get('workspaces'), 'change:currentWorkspace', this.close);
+            this.listenForClose();
+        },
+        listenForClose: function () {
+            this.$el.on(CustomElements.getNamespace()+'close-'+componentName, function () {
+                this.close();
+            }.bind(this));
         },
         handleOpen: function () {
             this.$el.toggleClass('is-open', this.model.isOpen());

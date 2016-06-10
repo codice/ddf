@@ -86,7 +86,6 @@ define([
                            radius: filter.distance
                        });
                        wreqr.vent.trigger('search:circledisplay', this.model);
-                    console.log('point radius');
                    break;
                    case 'INTERSECTS':
                        var pointText = filter.value.value.substring(9);
@@ -101,7 +100,6 @@ define([
                            polygon: points
                        });
                        wreqr.vent.trigger('search:polydisplay', this.model);
-                       console.log('polygon');
                    break;
                }
            }

@@ -59,7 +59,6 @@ define([
             }
         },
         onDestroy: function(){
-            console.log('destroyed');
             this.$el.remove();
         },
         updatePosition: function(){
