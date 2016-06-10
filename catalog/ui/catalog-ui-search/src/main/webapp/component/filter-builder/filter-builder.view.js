@@ -30,6 +30,12 @@ define([
              FilterCollectionView, FilterOperatorDropdownView, DropdownModel, FilterView,
             cql) {
 
+    //we should probably regex this or find a better way, but for now this works
+    function sanitizeGeometryCql(cqlString){
+        return cqlString.split("'POLYGON((").join("POLYGON((").split("))'").join("))")
+            .split("'POINT(").join("POINT(").split(")'").join(")");
+    }
+
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('filter-builder'),
@@ -94,7 +100,7 @@ define([
             return text;
         },
         transformToCql: function(){
-            return cql.write(cql.simplify(cql.read(cql.write(this.getFilters()))));
+            return sanitizeGeometryCql("("+ cql.write(cql.simplify(cql.read(cql.write(this.getFilters())))) +")");
         },
         getFilters: function(){
             var operator = this.model.get('operator');

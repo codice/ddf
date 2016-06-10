@@ -160,7 +160,7 @@ define([
                         west = normalizeLongitude(filter.get('west')),
                         east = normalizeLongitude(filter.get('east'));
 
-                    var bbox = 'POLYGON ((' +
+                    var bbox = 'POLYGON((' +
                         west + ' ' + south +
                         ', ' + west + ' ' + north +
                         ', ' + east + ' ' + north +
@@ -172,7 +172,7 @@ define([
                 } else if(geoType === 'polygon'){
                     // build the polygon value.
                     var polygon = filter.get('polygon');
-                    var poly = 'POLYGON ((';
+                    var poly = 'POLYGON((';
                     var polyPoint;
                     for (var i = 0;i<polygon.length;i++) {
                         polyPoint = polygon[i];

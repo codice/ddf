@@ -28,6 +28,74 @@ define([
 ], function (Marionette, _, $, template, CustomElements, FilterAttributeDropdownView, FilterComparatorDropdownView,
              MultivalueView, store, PropertyModel, DropdownModel) {
 
+    function isGeoFilter(type){
+        return (type === 'DWITHIN' || type === 'INTERSECTS');
+    }
+
+    function sanitizeForCql(text){
+           return text.split('[').join('(').split(']').join(')').split("'").join('').split('"').join('');
+    }
+
+    function bboxToCQLPolygon(model){
+        return [
+            model.west + ' ' + model.south,
+            model.west + ' ' + model.north,
+            model.east + ' ' + model.north,
+            model.east + ' ' + model.south,
+            model.west + ' ' + model.south
+        ];
+    }
+
+    function polygonToCQLPolygon(model){
+        var cqlPolygon = model.map(function(point){
+            return point[0] + ' ' + point[1];
+        });
+        cqlPolygon.push(cqlPolygon[0]);
+        return cqlPolygon;
+    }
+
+    function generateAnyGeoFilter(property, model){
+        switch(model.type){
+            case 'POLYGON':
+                return {
+                    type: 'INTERSECTS',
+                    property: property,
+                    value: 'POLYGON('+sanitizeForCql(JSON.stringify(polygonToCQLPolygon(model.polygon)))+')'
+                };
+                break;
+            case 'BBOX':
+                return {
+                    type: 'INTERSECTS',
+                    property: property,
+                    value: 'POLYGON('+sanitizeForCql(JSON.stringify(bboxToCQLPolygon(model)))+')'
+                };
+                break;
+            case 'POINTRADIUS':
+                return {
+                    type: 'DWITHIN',
+                    property: property,
+                    value: 'POINT(' + model.lon + ' ' + model.lat + ')',
+                    distance: Number(model.radius)
+                };
+                break;
+        }
+    }
+
+    function generateFilter(type, property, value) {
+        switch (store.metacardTypes[property].type) {
+            case 'GEOMETRY':
+                return generateAnyGeoFilter(property, value);
+                break;
+            default:
+                return {
+                    type: type,
+                    property: '"' + property + '"',
+                    value: value
+                };
+                break;
+        }
+    }
+
     var comparatorToCQL = {
         BEFORE: 'BEFORE',
         AFTER: 'AFTER',
@@ -78,11 +146,17 @@ define([
             this.model.destroy();
         },
         determineInput: function(){
-            this.filterInput.show(new MultivalueView({
-                model: new PropertyModel(_.extend(store.metacardTypes[this.model.get('type')], {
+            var propertyJSON = _.extend({},
+                store.metacardTypes[this.model.get('type')],
+                {
                     value: this.model.get('value'),
                     multivalued: false
-                }))
+                });
+            if (propertyJSON.type === 'GEOMETRY'){
+                propertyJSON.type = 'LOCATION';
+            }
+            this.filterInput.show(new MultivalueView({
+                model: new PropertyModel(propertyJSON)
             }));
             var isEditing = this.$el.hasClass('is-editing');
             if (isEditing){
@@ -107,23 +181,18 @@ define([
                 return {
                     type: 'AND',
                     filters: this.filterInput.currentView.getCurrentValue().map(function(currentValue){
-                        return {
-                            type: type,
-                            property: '"'+property+'"',
-                            value: currentValue
-                        }
+                        return generateFilter(type, property, currentValue);
                     })
                 }
             } else {
-                return {
-                    type: type,
-                    property: '"'+property+'"',
-                    value: this.filterInput.currentView.getCurrentValue()[0]
-                }
+                return generateFilter(type, property, this.filterInput.currentView.getCurrentValue()[0]);
             }
         },
         setFilter: function(filter){
             setTimeout(function(){
+                if (isGeoFilter(filter.type)){
+                    filter.value = _.clone(filter);
+                }
                 this.model.set({
                     value: [filter.value],
                     type: filter.property.split('"').join(''),

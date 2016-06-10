@@ -21,8 +21,9 @@ define([
     'js/CustomElements',
     'component/input/input.view',
     'component/input/thumbnail/input-thumbnail.view',
-    'component/input/date/input-date.view'
-], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView) {
+    'component/input/date/input-date.view',
+    'component/location-old/location-old.view'
+], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView, LocationOldView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -49,6 +50,11 @@ define([
                     break;
                 case 'thumbnail':
                     this.input.show(new InputThumbnailView({
+                        model: this.model
+                    }));
+                    break;
+                case 'location':
+                    this.input.show(new LocationOldView({
                         model: this.model
                     }));
                     break;

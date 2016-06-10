@@ -149,27 +149,20 @@
                     <i class="fa fa-circle-o"></i>
                     Any
                 </label>
-                {{#if is2D}}
-                    <label id="locationPolygon" class="btn btn-default location {{#if polygon}}active{{/if}}" data-target="#polygonTab" data-toggle="tab">
-                        <input type="radio" name="polygonButton">
-                        <i class="fa fa-circle"></i>
-                        <i class="fa fa-circle-o"></i>
-                        Polygon
-                    </label>
-                {{else}}
-                    <label id="locationPolygon" class="btn btn-default location {{#if polygon}}active{{/if}}" data-target="#polygonTab" data-toggle="tab">
-                        <input type="radio" name="polygonButton">
-                        <i class="fa fa-circle"></i>
-                        <i class="fa fa-circle-o"></i>
-                        Polygon
-                    </label>
+                <label id="locationPolygon" class="btn btn-default location {{#if polygon}}active{{/if}}" data-target="#polygonTab" data-toggle="tab">
+                    <input type="radio" name="polygonButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    Polygon
+                </label>
+                {{#unless is2D}}
                     <label id="locationPoint" class="btn btn-default location {{#if radius}}active{{/if}}" data-target="#pointradius" data-toggle="tab">
                         <input type="radio" name="pointRadiusButton">
                         <i class="fa fa-circle"></i>
                         <i class="fa fa-circle-o"></i>
                         Point-Radius
                     </label>
-                {{/if}}
+                {{/unless}}
 
                 <label id="locationBbox" class="btn btn-default location {{#if bbox}}active{{/if}}" data-target="#boundingbox" data-toggle="tab">
                     <input type="radio" name="bboxButton">

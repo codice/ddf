@@ -32,6 +32,7 @@ define(function () {
             LPAREN: /^\(/,
             RPAREN: /^\)/,
             SPATIAL: /^(BBOX|INTERSECTS|DWITHIN|WITHIN|CONTAINS)/i,
+            UNITS: /^(meters)/i,
             NOT: /^NOT/i,
             BETWEEN: /^BETWEEN/i,
             BEFORE: /^BEFORE/i,
@@ -73,9 +74,10 @@ define(function () {
             BETWEEN: ['VALUE'],
             IS_NULL: ['END'],
             COMPARISON: ['VALUE'],
-            COMMA: ['GEOMETRY', 'VALUE', 'PROPERTY'],
+            COMMA: ['GEOMETRY', 'VALUE', 'UNITS', 'PROPERTY'],
             VALUE: ['LOGICAL', 'COMMA', 'RPAREN', 'END'],
             SPATIAL: ['LPAREN'],
+            UNITS: ['RPAREN'],
             LOGICAL: ['NOT', 'VALUE', 'SPATIAL', 'PROPERTY', 'LPAREN'],
             NOT: ['PROPERTY', 'LPAREN'],
             GEOMETRY: ['COMMA', 'RPAREN'],
@@ -220,6 +222,7 @@ define(function () {
                     break;
                 case "COMMA":
                 case "END":
+                case "UNITS":
                     break;
                 default:
                     throw new Error("Unknown token type " + tok.type);
@@ -266,7 +269,7 @@ define(function () {
                     property = buildTree();
                     return {
                         property: property,
-                        value: new Date(value),
+                        value: (new Date(value)).toISOString(),
                         type: tok.text.toUpperCase()
                     };
                 case "DURING":

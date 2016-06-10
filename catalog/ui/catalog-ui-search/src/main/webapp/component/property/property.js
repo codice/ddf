@@ -87,6 +87,9 @@ define([
                 case 'BINARY':
                     this.set('calculatedType', 'thumbnail');
                     break;
+                case 'LOCATION':
+                    this.set('calculatedType', 'location');
+                    break;
                 case 'STRING':
                 case 'GEOMETRY':
                 case 'XML':

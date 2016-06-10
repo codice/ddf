@@ -19,9 +19,10 @@ define([
         'wreqr',
         'js/widgets/cesium.bbox',
         'maptype',
-        './notification.view'
+        './notification.view',
+        'js/store'
     ],
-    function (Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView) {
+    function (Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, store) {
         "use strict";
         var DrawCircle = {};
 
@@ -111,6 +112,8 @@ define([
                     this.scene.primitives.remove(this.primitive);
                 }
 
+                var color = this.model.get('color');
+
                 this.primitive = new Cesium.Primitive({
                     asynchronous: false,
                     geometryInstances: [new Cesium.GeometryInstance({
@@ -119,7 +122,7 @@ define([
                             radius: modelProp.radius
                         }),
                         attributes: {
-                            color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
+                            color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) :  Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
                         }
                     })],
                     appearance: new Cesium.PerInstanceColorAppearance({
@@ -203,43 +206,75 @@ define([
                 this.listenTo(wreqr.vent, 'search:drawcircle', this.draw);
                 this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
                 this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', this.destroyAll);
+                this.listenTo(store.get('content'), 'change:query', this.destroyAll);
+            },
+            views: [],
+            destroyAll: function(){
+                for (var i = this.views.length - 1; i>=0 ; i-=1){
+                    this.destroyView(this.views[i]);
+                }
+                console.log(this.views);
+            },
+            getViewForModel: function(model){
+                return this.views.filter(function(view){
+                    return view.model === model;
+                })[0];
+            },
+            removeViewForModel: function(model){
+                var view = this.getViewForModel(model);
+                if (view){
+                    this.views.splice(this.views.indexOf(view), 1);
+                }
+            },
+            removeView: function(view){
+                this.views.splice(this.views.indexOf(view), 1);
+            },
+            addView: function(view){
+                this.views.push(view);
             },
             showCircle: function(model) {
                 if (this.enabled) {
-                    var circleModel = model || new DrawCircle.CircleModel(),
-                        view = new DrawCircle.CircleView({
+                    var circleModel = model || new DrawCircle.CircleModel();
+                   /*     view = new DrawCircle.CircleView({
+                            scene: this.scene,
+                            model: circleModel
+                        });*/
+
+
+                    var existingView = this.getViewForModel(model);
+                    if (existingView) {
+                        existingView.stop();
+                        existingView.destroyPrimitive();
+                        existingView.updatePrimitive(model);
+                    } else {
+                        var view = new DrawCircle.CircleView({
                             scene: this.scene,
                             model: circleModel
                         });
-
-                    if (this.view) {
-                        this.view.destroyPrimitive();
-                        this.view.stop();
-
+                        view.updatePrimitive(model);
+                        this.addView(view);
                     }
-                    view.updatePrimitive(model);
-                    this.view = view;
 
                     return circleModel;
                 }
             },
             draw: function (model) {
                 if (this.enabled) {
-                    var circleModel = model || new DrawCircle.CircleModel(),
-                        view = new DrawCircle.CircleView({
+                    var circleModel = model || new DrawCircle.CircleModel();
+                    var view = new DrawCircle.CircleView({
                             scene: this.scene,
                             model: circleModel
                         });
 
-                    if (this.view) {
-                        this.view.destroyPrimitive();
-                        this.view.stop();
-
+                    var existingView = this.getViewForModel(model);
+                    if (existingView) {
+                        existingView.stop();
+                        existingView.destroyPrimitive();
+                        this.removeView(existingView);
                     }
-
                     view.start();
-                    this.view = view;
-
+                    this.addView(view);
                     this.notificationView = new NotificationView({
                         el: this.notificationEl
                     }).render();
@@ -250,20 +285,27 @@ define([
                     return circleModel;
                 }
             },
-            stop: function () {
-                if (this.enabled && this.view) {
-                    this.view.stop();
-                    this.view.handleRegionStop();
+            stop: function (model) {
+                var view = this.getViewForModel(model);
+                if (view) {
+                    view.stop();
+                    view.handleRegionStop();
                     if(this.notificationView) {
                         this.notificationView.destroy();
                     }
                 }
             },
-            destroy: function () {
-                if (this.enabled && this.view) {
-                    this.view.stop();
-                    this.view.destroyPrimitive();
-                    this.view = undefined;
+            destroyView: function(view){
+                view.stop();
+                view.destroyPrimitive();
+                this.removeView(view);
+            },
+            destroy: function (model) {
+                var view = this.getViewForModel(model);
+                if (view) {
+                    view.stop();
+                    view.destroyPrimitive();
+                    this.removeView(view);
                     if(this.notificationView) {
                         this.notificationView.destroy();
                     }

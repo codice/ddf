@@ -16,9 +16,10 @@ define([
         'underscore',
         'wreqr',
         'maptype',
-        './notification.view'
+        './notification.view',
+        'js/store'
     ],
-    function (Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView) {
+    function (Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, store) {
         "use strict";
         var Draw = {};
 
@@ -48,6 +49,8 @@ define([
                     this.scene.primitives.remove(this.primitive);
                 }
 
+                var color = this.model.get('color');
+
                 this.primitive = new Cesium.Primitive({
                     asynchronous: false,
                     geometryInstances: [
@@ -58,7 +61,7 @@ define([
                                 }
                             }),
                             attributes: {
-                                color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
+                                color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) :  Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
                             }
                         })
                     ],
@@ -95,16 +98,44 @@ define([
                 this.listenTo(wreqr.vent, 'search:drawpoly', this.draw);
                 this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
                 this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
-
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', this.destroyAll);
+                this.listenTo(store.get('content'), 'change:query', this.destroyAll);
+            },
+            views: [],
+            destroyAll: function(){
+                for (var i = this.views.length - 1; i>=0 ; i-=1){
+                    this.destroyView(this.views[i]);
+                }
+                console.log(this.views);
+            },
+            getViewForModel: function(model){
+                return this.views.filter(function(view){
+                    return view.model === model;
+                })[0];
+            },
+            removeViewForModel: function(model){
+                var view = this.getViewForModel(model);
+                if (view){
+                    this.views.splice(this.views.indexOf(view), 1);
+                }
+            },
+            removeView: function(view){
+                this.views.splice(this.views.indexOf(view), 1);
+            },
+            addView: function(view){
+                this.views.push(view);
             },
             showPolygon: function(model) {
                 if (this.enabled) {
                     this.drawHelper.stopDrawing();
                     // remove old polygon
-                    if(this.view){
-                        this.view.destroy();
+                    var existingView = this.getViewForModel(model);
+                    if(existingView){
+                        existingView.destroy();
+                        this.removeViewForModel(model);
                     }
-                    this.view = new Draw.PolygonRenderView({model: model, scene: this.scene});
+                    var view = new Draw.PolygonRenderView({model: model, scene: this.scene});
+                    this.addView(view);
                 }
             },
             draw: function (model) {
@@ -157,16 +188,20 @@ define([
                     }
                 }
             },
-            destroy: function () {
-                if (this.enabled) {
+            destroyView: function(view){
+                view.destroy();
+                this.removeView(view);
+            },
+            destroy: function (model) {
+                var view = this.getViewForModel(model);
                     // I don't think we need this method.
                     if(this.notificationView) {
                         this.notificationView.destroy();
                     }
-                    if(this.view){
-                        this.view.destroy();
+                    if(view){
+                        view.destroy();
+                        this.removeViewForModel(model);
                     }
-                }
             }
         });
 

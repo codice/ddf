@@ -19,9 +19,10 @@ define([
         'properties',
         'wreqr',
         'maptype',
-        './notification.view'
+        './notification.view',
+        'js/store'
     ],
-    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView) {
+    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, store) {
         "use strict";
 
         var Draw = {};
@@ -113,8 +114,10 @@ define([
                     geometry: rectangle
                 });
 
+                var color = this.model.get('color');
+
                 var iconStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({color: '#914500', width: 3})
+                    stroke: new ol.style.Stroke({color: color ? color : '#914500', width: 3})
                 });
                 this.billboard.setStyle(iconStyle);
 
@@ -182,43 +185,69 @@ define([
                 this.listenTo(wreqr.vent, 'search:drawbbox', this.draw);
                 this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
                 this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', this.destroyAll);
+                this.listenTo(store.get('content'), 'change:query', this.destroyAll);
+            },
+            views: [],
+            destroyAll: function(){
+                for (var i = this.views.length - 1; i>=0 ; i-=1){
+                    this.destroyView(this.views[i]);
+                }
+                console.log(this.views);
+            },
+            getViewForModel: function(model){
+                return this.views.filter(function(view){
+                    return view.model === model;
+                })[0];
+            },
+            removeViewForModel: function(model){
+                var view = this.getViewForModel(model);
+                if (view){
+                    this.views.splice(this.views.indexOf(view), 1);
+                }
+            },
+            removeView: function(view){
+                this.views.splice(this.views.indexOf(view), 1);
+            },
+            addView: function(view){
+                this.views.push(view);
             },
             showBox: function(model) {
                 if (this.enabled) {
-                    var bboxModel = model || new Draw.BboxModel(),
-                        view = new Draw.BboxView(
+                    var bboxModel = model || new Draw.BboxModel();
+                        /*view = new Draw.BboxView(
                             {
                                 map: this.map,
                                 model: bboxModel
-                            });
+                            });*/
 
-                    if (this.view) {
-                        this.view.destroyPrimitive();
-                        this.view.stop();
-
+                    var existingView = this.getViewForModel(model);
+                    if (existingView) {
+                        existingView.stop();
+                        existingView.destroyPrimitive();
                     }
-                    view.updatePrimitive(model);
-                    this.view = view;
+                    existingView.updatePrimitive(model);
 
                     return bboxModel;
                 }
             },
             draw: function (model) {
                 if (this.enabled) {
-                    var bboxModel = model || new Draw.BboxModel(),
-                        view = new Draw.BboxView(
+                    var bboxModel = model || new Draw.BboxModel();
+                    var view = new Draw.BboxView(
                             {
                                 map: this.map,
                                 model: bboxModel
                             });
 
-                    if (this.view) {
-                        this.view.destroyPrimitive();
-                        this.view.stop();
-
+                    var existingView = this.getViewForModel(model);
+                    if (existingView) {
+                        existingView.stop();
+                        existingView.destroyPrimitive();
+                        this.removeView(existingView);
                     }
                     view.start();
-                    this.view = view;
+                    this.addView(view);
                     this.notificationView = new NotificationView({
                         el: this.notificationEl
                     }).render();
@@ -230,19 +259,26 @@ define([
                     return bboxModel;
                 }
             },
-            stop: function () {
-                if (this.enabled && this.view) {
-                    this.view.stop();
+            stop: function (model) {
+                var view = this.getViewForModel(model);
+                if (view) {
+                    view.stop();
                     if(this.notificationView) {
                         this.notificationView.destroy();
                     }
                 }
             },
-            destroy: function () {
-                if (this.enabled && this.view) {
-                    this.view.stop();
-                    this.view.destroyPrimitive();
-                    this.view = undefined;
+            destroyView: function(view){
+                view.stop();
+                view.destroyPrimitive();
+                this.removeView(view);
+            },
+            destroy: function (model) {
+                var view = this.getViewForModel(model);
+                if (view) {
+                    view.stop();
+                    view.destroyPrimitive();
+                    this.removeView(view);
                     if(this.notificationView) {
                         this.notificationView.destroy();
                     }

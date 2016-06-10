@@ -422,7 +422,7 @@ define([
                     radius = this.get('radius'),
                     polygon = this.get('polygon');
                 if (north && south && east && west) {
-                    var bbox = 'POLYGON ((' +
+                    var bbox = 'POLYGON((' +
                         west + ' ' + south +
                         ', ' + west + ' ' + north +
                         ', ' + east + ' ' + north +
@@ -431,7 +431,7 @@ define([
                         '))';
                     filters.push('INTERSECTS(anyGeo, ' + bbox + ')');
                 } else if (polygon) {
-                    var poly = 'POLYGON ((';
+                    var poly = 'POLYGON((';
                     var polyPoint;
                     for (var i = 0; i < polygon.length; i++) {
                         polyPoint = polygon[i];

@@ -229,7 +229,7 @@ define([
             },
             anyGeo: {
                 id: 'anyGeo',
-                type: 'GEOMETRY',
+                type: 'LOCATION',
                 multivalued: false
             }
         }

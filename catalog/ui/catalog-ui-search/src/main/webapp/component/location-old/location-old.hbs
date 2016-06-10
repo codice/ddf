@@ -1,0 +1,133 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+    <label id="locationPolygon" class="btn location {{#if polygon}}active{{/if}}" data-target="#polygonTab{{cid}}" data-toggle="tab">
+        <input type="radio" name="polygonButton">
+        <i class="fa fa-circle"></i>
+        <i class="fa fa-circle-o"></i>
+        Polygon
+    </label>
+    {{#unless is2D}}
+        <label id="locationPoint" class="btn location {{#if radius}}active{{/if}}" data-target="#pointradius{{cid}}" data-toggle="tab">
+            <input type="radio" name="pointRadiusButton">
+            <i class="fa fa-circle"></i>
+            <i class="fa fa-circle-o"></i>
+            Point-Radius
+        </label>
+    {{/unless}}
+
+    <label id="locationBbox" class="btn location {{#if bbox}}active{{/if}}" data-target="#boundingbox{{cid}}" data-toggle="tab">
+        <input type="radio" name="bboxButton">
+        <i class="fa fa-circle"></i>
+        <i class="fa fa-circle-o"></i>
+        Bounding Box
+    </label>
+</div>
+<div class="tab-content form-group clearfix">
+    <div id="nogeo" class="tab-pane {{#ifNotOr radius bbox polygon}}active{{/ifNotOr}}"></div>
+    <div class="geo-types col-lg-10">
+        <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+            <label id="latlon" class="btn {{#is locationType 'latlon'}}active{{/is}}">
+                <input type="radio" name="latLonButton" value="latlon">
+                <i class="fa fa-circle"></i>
+                <i class="fa fa-circle-o"></i>
+                Lat / Lon
+            </label>
+            <label id="usng" class="btn {{#is locationType 'usng'}}active{{/is}}">
+                <input type="radio" name="usngButton" value="usng">
+                <i class="fa fa-circle"></i>
+                <i class="fa fa-circle-o"></i>
+                USNG / MGRS
+            </label>
+        </div>
+    </div>
+    <div id="pointradius{{cid}}" class="tab-pane {{#if radius}}active{{/if}}">
+        <input type="hidden" name="radius" value="">
+
+        <div class="col-lg-10">
+            <div id="latdiv" class="input-group input-group-sm">
+                <span class="input-group-addon">Latitude&nbsp;</span>
+                <input class="form-control" id="latitude" name="lat" type="number" min="-90" max="90" step="any" placeholder=""/>
+                <label class="input-group-addon">&deg;</label>
+            </div>
+            <div id="londiv" class="input-group input-group-sm">
+                <span class="input-group-addon">Longitude&nbsp;</span>
+                <input class="form-control" id="longitude" name="lon" type="number" min="-180" max="180" step="any" placeholder=""/>
+                <label class="input-group-addon">&deg;</label>
+            </div>
+
+            <div id="usngdiv" class="input-group input-group-sm" style="display: none;">
+                <span class="input-group-addon usng-label">USNG / MGRS&nbsp;</span>
+                <input class="form-control" id="usng" name="usng" type="text" placeholder=""/>
+            </div>
+
+            <div class="input-group input-group-sm for-radius">
+                <span class="input-group-addon">Radius&nbsp;</span>
+                <input class="form-control" id="radiusValue" type="number" min="0" step="any" placeholder=""/>
+                            <span class="input-group-btn">
+                                <select id="radiusUnits" name="radiusUnits" class="input-group-addon">
+                                    <option value="meters" selected="selected">meters</option>
+                                    <option value="kilometers">kilometers</option>
+                                    <option value="feet">feet</option>
+                                    <option value="yards">yards</option>
+                                    <option value="miles">miles</option>
+                                </select>
+                            </span>
+            </div>
+        </div>
+    </div>
+
+    <div id="polygonTab{{cid}}" class="tab-pane {{#if polygon}}active{{/if}}">
+        <input type="hidden" name="polygon" value="">
+
+        <div class="col-lg-10">
+            <div id="polygondiv" class="input-group input-group-sm">
+                <span class="input-group-addon">Polygon&nbsp;</span>
+                <input class="form-control" id="polygon" name="polygon" type="text" placeholder=""/>
+            </div>
+        </div>
+    </div>
+
+    <div id="boundingbox{{cid}}" class="tab-pane {{#if bbox}}active{{/if}}">
+        <input type="hidden" name="bbox" value="">
+
+        <div class="col-lg-10">
+            <div id="westdiv" class="input-group input-group-sm">
+                <span class="input-group-addon">West&nbsp;</span>
+                <input class="form-control" id="mapWest" name="mapWest" type="number" min="-180" max="180" step="any" placeholder=""/>
+                <label class="input-group-addon">&deg;</label>
+            </div>
+            <div id="southdiv" class="input-group input-group-sm">
+                <span class="input-group-addon">South&nbsp;</span>
+                <input class="form-control" id="mapSouth" name="mapSouth" type="number" min="-90" max="90" step="any" placeholder=""/>
+                <label class="input-group-addon">&deg;</label>
+            </div>
+            <div id="eastdiv" class="input-group input-group-sm">
+                <span class="input-group-addon">East&nbsp;</span>
+                <input class="form-control" id="mapEast" name="mapEast" type="number" min="-180" max="180" step="any" placeholder=""/>
+                <label class="input-group-addon">&deg;</label>
+            </div>
+            <div id="northdiv" class="input-group input-group-sm">
+                <span class="input-group-addon">North&nbsp;</span>
+                <input class="form-control" id="mapNorth" name="mapNorth" type="number" min="-90" max="90" step="any" placeholder=""/>
+                <label class="input-group-addon">&deg;</label>
+            </div>
+
+            <div id="usngbbdiv" class="input-group input-group-sm" style="display: none;">
+                <span class="input-group-addon usng-label">USNG / MGRS&nbsp;</span>
+                <input class="form-control" id="usngbb" name="usngbb" type="text" placeholder=""/>
+            </div>
+        </div>
+    </div>
+</div>
