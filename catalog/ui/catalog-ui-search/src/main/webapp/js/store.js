@@ -23,8 +23,9 @@ define([
     'js/model/Selected',
     'component/content/content',
     'component/router/router',
-    'application'
-], function ($, Backbone, poller, _, Workspace, Source, User, Workspaces, Selected, Content, Router, Application) {
+    'application',
+    'properties'
+], function ($, Backbone, poller, _, Workspace, Source, User, Workspaces, Selected, Content, Router, Application, properties) {
 
     return new (Backbone.Model.extend({
         defaults: {
@@ -200,6 +201,7 @@ define([
                         for (var type in metacardTypes[metacardType]) {
                             if (metacardTypes[metacardType].hasOwnProperty(type)) {
                                 this.metacardTypes[type] = metacardTypes[metacardType][type];
+                                this.metacardTypes[type].alias = properties.attributeAliases[type];
                             }
                         }
                     }

@@ -14,7 +14,10 @@
 {{#each this}}
     <div class="choice" data-value="{{this.id}}">
         <span class="choice-text">
-            {{this.id}}
+            {{this.alias}}
+            {{#unless this.alias}}
+                {{this.id}}
+            {{/unless}}
         </span>
         <span class="choice-selected fa fa-check">
 

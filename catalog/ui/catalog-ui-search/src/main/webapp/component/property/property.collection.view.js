@@ -19,8 +19,9 @@ define([
     'jquery',
     'js/CustomElements',
     './property.view',
-    './property.collection'
-], function (Marionette, _, $, CustomElements, PropertyView, PropertyCollection) {
+    './property.collection',
+    'properties'
+], function (Marionette, _, $, CustomElements, PropertyView, PropertyCollection, properties) {
 
      return Marionette.CollectionView.extend({
         tagName: CustomElements.register('property-collection'),
@@ -92,6 +93,7 @@ define([
              var propertyArray = [];
              this.summaryWhiteList.forEach(function(property){
                  propertyArray.push({
+                     label: properties.attributeAliases[property],
                      id: property,
                      type: types[0][property].format,
                      values: {},
@@ -130,6 +132,7 @@ define([
              var propertyArray = [];
              propertyIntersection.forEach(function(property){
                  propertyArray.push({
+                     label: properties.attributeAliases[property],
                      id: property,
                      type: types[0][property].format,
                      values: {},

@@ -19,8 +19,9 @@ define([
     'jquery',
     '../dropdown.view',
     'text!./dropdown.filter-attribute.hbs',
-    'component/filter-attribute/filter-attribute.view'
-], function (Marionette, _, $, DropdownView, template, ComponentView) {
+    'component/filter-attribute/filter-attribute.view',
+    'properties'
+], function (Marionette, _, $, DropdownView, template, ComponentView, properties) {
 
     return DropdownView.extend({
         template: template,
@@ -40,6 +41,9 @@ define([
         getCenteringElement: function(){
             return this.el;
         },
-        hasTail: true
+        hasTail: true,
+        serializeData: function(){
+            return properties.attributeAliases[this.model.get('value')] || this.model.get('value');
+        }
     });
 });
