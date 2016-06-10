@@ -41,6 +41,13 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 
+/**
+ * Though refreshRegistrySubscriptions in this class is a public method, it should never be called by any
+ * class with external connections. This class is only meant to be accessed through a camel
+ * route and should avoid elevating privileges for any other service or being exposed to any
+ * other endpoint.
+ *
+ */
 @SuppressWarnings("PackageAccessibility")
 public class RefreshRegistrySubscriptions {
     private static final Logger LOGGER =
@@ -65,6 +72,13 @@ public class RefreshRegistrySubscriptions {
         subject = new javax.security.auth.Subject(true, principals, new HashSet(), new HashSet());
     }
 
+    /**
+     * Do not call refreshRegistrySubscriptions directly! It is a public method, but is only meant
+     * to be accessed through a camel route and should avoid elevating privileges for any other
+     * service or being exposed to any other endpoint.
+     *
+     * @throws FederationAdminException
+     */
     public void refreshRegistrySubscriptions() throws FederationAdminException {
         if (CollectionUtils.isEmpty(pollableSourceIds)) {
             return;
@@ -114,13 +128,18 @@ public class RefreshRegistrySubscriptions {
     private Map<String, Metacard> getRegistryMetacardsMap() throws FederationAdminException {
 
         Map<String, Metacard> registryMetacardsMap = new HashMap<>();
-        List<Metacard> registryMetacards = federationAdminService.getRegistryMetacards();
+        try {
+            List<Metacard> registryMetacards = javax.security.auth.Subject.doAs(subject,
+                    (PrivilegedExceptionAction<List<Metacard>>) () -> federationAdminService.getRegistryMetacards());
 
-        for (Metacard metacard : registryMetacards) {
-            String registryId = metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                    .getValue()
-                    .toString();
-            registryMetacardsMap.put(registryId, metacard);
+            for (Metacard metacard : registryMetacards) {
+                String registryId = metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
+                        .getValue()
+                        .toString();
+                registryMetacardsMap.put(registryId, metacard);
+            }
+        } catch (Exception e) {
+            throw new FederationAdminException("Error querying for metacards ", e);
         }
 
         return registryMetacardsMap;
