@@ -943,6 +943,8 @@
 
     <feature name="platform-filter-delegate" install="manual" version="${project.version}">
         <feature prerequisite="true" version="${project.version}">kernel</feature>
+        <feature prerequisite="true">pax-http-jetty</feature>
+        <feature prerequisite="true">pax-jetty</feature>
         <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
     </feature>
 
