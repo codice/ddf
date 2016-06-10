@@ -19,8 +19,9 @@ define([
     'jquery',
     '../dropdown.view',
     'text!./dropdown.query-src.hbs',
-    'component/query-src/query-src.view'
-], function (Marionette, _, $, DropdownView, template, ComponentView) {
+    'component/query-src/query-src.view',
+    'js/store'
+], function (Marionette, _, $, DropdownView, template, ComponentView, store) {
 
     return DropdownView.extend({
         template: template,
@@ -36,10 +37,10 @@ define([
         },
         hasTail: true,
         serializeData: function(){
-            var value = this.model.get('value');
-            return {
-                label: value
-            };
+            var srcs = this.model.get('value');
+            return store.get('sources').toJSON().filter(function(src){
+                return srcs.indexOf(src.id) !== -1;
+            });
         }
     });
 });

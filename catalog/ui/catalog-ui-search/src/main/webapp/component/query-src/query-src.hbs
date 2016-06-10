@@ -12,7 +12,12 @@
  **/
  --}}
 {{#each this}}
-    <div class="choice" data-value="{{id}}">
+    <div class="choice {{#if available}}is-available{{/if}}" data-value="{{id}}">
+        {{#unless available}}
+            <span class="fa fa-exclamation-triangle">
+
+            </span>
+        {{/unless}}
         <span class="choice-text">
             {{id}}
         </span>
