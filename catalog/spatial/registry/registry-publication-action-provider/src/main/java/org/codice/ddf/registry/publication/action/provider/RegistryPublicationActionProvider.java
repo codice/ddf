@@ -111,13 +111,10 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
                 continue;
             }
 
-            if (currentPublications.contains(registry.getId())) {
-                CollectionUtils.addIgnoreNull(actions,
-                        getAction(registryId, registry.getId(), false));
-            } else {
-                CollectionUtils.addIgnoreNull(actions,
-                        getAction(registryId, registry.getId(), true));
-            }
+            CollectionUtils.addIgnoreNull(actions,
+                    getAction(registryId,
+                            registry.getId(),
+                            !currentPublications.contains(registry.getId())));
         }
 
         return actions;
