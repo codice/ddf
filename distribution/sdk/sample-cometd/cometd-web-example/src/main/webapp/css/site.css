@@ -1,74 +1,87 @@
-/**
- * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
- * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+/* Global Styles */
+
+html,
 body {
-  background-color: #002b36;
-  color: #cb4b16;
-  max-width: 100%;
-  height: auto;
+    height: 100%;
 }
 
-header {
-  text-align: center;
-  padding-top: 1em;
-  padding-bottom: 1em;
+body {
+    padding-top: 50px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
 }
 
-#header-main {
-  font-size: 4em;
+.img-portfolio {
+    margin-bottom: 30px;
 }
 
-#notifications {
-  position: absolute;
-    right: 0px;
-    width: 20em;
-    padding: 0em 2em 2em 2em;
+.img-hover:hover {
+    opacity: 0.8;
 }
 
-.text-md {
-  font-size: 2em;
+/* Home Page Carousel */
+
+header.carousel {
+    height: 50%;
 }
 
-.notification {
-  background-color: #073642;
-  padding: 1em 1em 1em 1em;
-  margin-top: .5em;
-  border-radius: .25em;
+header.carousel .item,
+header.carousel .item.active,
+header.carousel .carousel-inner {
+    height: 100%;
 }
 
-.notification:hover {
-  background: #2aa198;
+header.carousel .fill {
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
 }
 
-#query {
-  position: absolute;
-  left: 0px;
-  width: 40em;
-  padding: 0em 2em 2em 2em;
+/* 404 Page Styles */
+
+.error-404 {
+    font-size: 100px;
 }
 
-.btn {
-  background: #2aa198;
-  border-radius: 8px;
-  font-family: Arial;
-  color: #cb4b16;
-  font-size: 15px;
-  padding: 8px 8px 8px 8px;
-  text-decoration: none;
+/* Pricing Page Styles */
+
+.price {
+    display: block;
+    font-size: 50px;
+    line-height: 50px;
 }
 
-.btn:hover {
-  background: #073642;
-  text-decoration: none;
+.price sup {
+    top: -20px;
+    left: 2px;
+    font-size: 20px;
+}
+
+.period {
+    display: block;
+    font-style: italic;
+}
+
+/* Footer Styles */
+
+footer {
+    margin: 50px 0;
+}
+
+/* Responsive Styles */
+
+@media(max-width:991px) {
+    .customer-img,
+    .img-related {
+        margin-bottom: 30px;
+    }
+}
+
+@media(max-width:767px) {
+    .img-portfolio {
+        margin-bottom: 15px;
+    }
+
+    header.carousel .carousel {
+        height: 70%;
+    }
 }

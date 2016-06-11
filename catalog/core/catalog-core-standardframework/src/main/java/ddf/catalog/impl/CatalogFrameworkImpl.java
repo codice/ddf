@@ -2089,7 +2089,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
 
                     if (!sourceFound) {
-                        exceptions.add(new ProcessingDetailsImpl(id, new Exception(
+                        exceptions.add(new ProcessingDetailsImpl(id, new SourceUnavailableException(
                                 "Source id is not found")));
                     }
                 }

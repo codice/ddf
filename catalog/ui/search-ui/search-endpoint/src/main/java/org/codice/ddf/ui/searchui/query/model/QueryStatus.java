@@ -13,7 +13,10 @@
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ddf.catalog.operation.ProcessingDetails;
@@ -23,6 +26,8 @@ public class QueryStatus {
     private String sourceId;
 
     private Set<ProcessingDetails> details = new HashSet<ProcessingDetails>();
+
+    private List<String> reasons = new ArrayList<>();
 
     private long resultCount;
 
@@ -96,6 +101,18 @@ public class QueryStatus {
 
     public boolean isDone() {
         return !(state == State.ACTIVE);
+    }
+
+    public boolean hasReasons() {
+        return !reasons.isEmpty();
+    }
+
+    public List<String> getReasons() {
+        return Collections.unmodifiableList(reasons);
+    }
+
+    public void addReason(String reason) {
+        this.reasons.add(reason);
     }
 
     enum State {ACTIVE, SUCCEEDED, FAILED}
