@@ -163,8 +163,7 @@ class SortedQueryMonitor implements Runnable {
                         Exceptions.getFullMessage(e),
                         e);
 
-                processingDetails.add(new ProcessingDetailsImpl(sourceId,
-                        new Exception(Exceptions.getFullMessage(e))));
+                processingDetails.add(new ProcessingDetailsImpl(sourceId, e));
             }
         }
         returnProperties.put("hitsPerSource", hitsPerSource);

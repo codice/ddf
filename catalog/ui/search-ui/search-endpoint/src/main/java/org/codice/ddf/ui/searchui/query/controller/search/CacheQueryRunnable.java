@@ -54,7 +54,7 @@ public class CacheQueryRunnable extends QueryRunnable {
         search.update(response);
 
         try {
-            searchController.pushResults(request.getId(),
+            searchController.publishResults(request.getId(),
                     search.transform(request.getId()),
                     session);
         } catch (CatalogTransformerException e) {
