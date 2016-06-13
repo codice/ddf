@@ -319,14 +319,20 @@ public class FederationAdminServiceImplTest {
     @Test
     public void initWithIngestException() throws Exception {
         QueryRequest request = getTestQueryRequest();
+        Metacard identityMetacard = getTestMetacard();
+        identityMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
+                "someRegistryId"));
+        identityMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
+                Collections.singletonList(RegistryConstants.REGISTRY_TAG)));
         QueryResponse response = getPopulatedTestQueryResponse(request);
         when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
         when(security.getSystemSubject()).thenReturn(subject);
-        when(registryTransformer.transform(any(InputStream.class))).thenReturn(getTestMetacard());
+        when(registryTransformer.transform(any(InputStream.class))).thenReturn(identityMetacard);
         doThrow(IngestException.class).when(catalogFramework)
                 .create(any(CreateRequest.class));
         federationAdminServiceImpl.init();
         verify(registryTransformer).transform(any(InputStream.class));
+        verify(catalogFramework).create(any(CreateRequest.class));
     }
 
     @Test

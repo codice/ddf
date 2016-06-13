@@ -29,14 +29,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -49,7 +48,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 public class RegistryPublicationHandlerTest {
 
     @Mock
-    private FederationAdminService service;
+    private RegistryPublicationService service;
 
     @Mock
     private ExecutorService executorService;
@@ -106,14 +105,14 @@ public class RegistryPublicationHandlerTest {
         mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, new ArrayList<>());
         setupSerialExecutor();
         rph.handleEvent(event);
-        verify(service, never()).updateRegistryEntry(mcard);
+        verify(service, never()).update(mcard);
     }
 
     @Test
     public void testProcessUpdateEmptyPublications() throws Exception {
         setupSerialExecutor();
         rph.handleEvent(event);
-        verify(service, never()).updateRegistryEntry(mcard);
+        verify(service, never()).update(mcard);
     }
 
     @Test
@@ -121,7 +120,7 @@ public class RegistryPublicationHandlerTest {
         mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, "mylocation");
         setupSerialExecutor();
         rph.handleEvent(event);
-        verify(service, times(1)).updateRegistryEntry(mcard);
+        verify(service, times(1)).update(mcard);
     }
 
     @Test
@@ -132,11 +131,13 @@ public class RegistryPublicationHandlerTest {
         mcard.setAttribute(RegistryObjectMetacardType.LAST_PUBLISHED, now);
         setupSerialExecutor();
         rph.handleEvent(event);
-        verify(service, never()).updateRegistryEntry(mcard);
+        verify(service, never()).update(mcard);
     }
 
     @Test
     public void testProcessUpdate() throws Exception {
+        doNothing().when(service)
+                .update(any(Metacard.class));
         mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, "mylocation");
         Date now = new Date();
         Date before = new Date(now.getTime() - 100000);
@@ -144,15 +145,13 @@ public class RegistryPublicationHandlerTest {
         mcard.setAttribute(RegistryObjectMetacardType.LAST_PUBLISHED, before);
         setupSerialExecutor();
         rph.handleEvent(event);
-        verify(service, times(1)).updateRegistryEntry(mcard);
-        assertThat(mcard.getAttribute(RegistryObjectMetacardType.LAST_PUBLISHED)
-                .getValue(), equalTo(now));
+        verify(service, times(1)).update(mcard);
     }
 
     @Test
     public void testProcessUpdateException() throws Exception {
         doThrow(new FederationAdminException("Test Error")).when(service)
-                .updateRegistryEntry(any(Metacard.class), any(Set.class));
+                .update(any(Metacard.class));
         mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, "mylocation");
         Date now = new Date();
         Date before = new Date(now.getTime() - 100000);
@@ -160,7 +159,7 @@ public class RegistryPublicationHandlerTest {
         mcard.setAttribute(RegistryObjectMetacardType.LAST_PUBLISHED, before);
         setupSerialExecutor();
         rph.handleEvent(event);
-        verify(service, never()).updateRegistryEntry(mcard);
+        verify(service).update(mcard);
         assertThat(mcard.getAttribute(RegistryObjectMetacardType.LAST_PUBLISHED)
                 .getValue(), equalTo(before));
     }

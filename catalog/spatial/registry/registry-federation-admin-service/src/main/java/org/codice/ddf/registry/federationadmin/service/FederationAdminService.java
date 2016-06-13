@@ -14,6 +14,7 @@
 package org.codice.ddf.registry.federationadmin.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import ddf.catalog.data.Metacard;
@@ -74,6 +75,7 @@ public interface FederationAdminService {
 
     /**
      * Add the given metacards to the registry catalog with the provided destinations
+     *
      * @param metacards    Metacards to be stored
      * @param destinations Set of destinations to add
      * @return List of Id's for the created metacards
@@ -244,5 +246,13 @@ public interface FederationAdminService {
      */
     RegistryPackageType getRegistryObjectByRegistryId(String registryId, List<String> sourceIds)
             throws FederationAdminException;
+
+    /**
+     * Returns the identity metacard for the local registry node.
+     *
+     * @return {@link java.util.Optional} containing the Identity {@link Metacard}
+     * @throws FederationAdminException if more than one metacard was found
+     */
+    Optional<Metacard> getLocalRegistryIdentityMetacard() throws FederationAdminException;
 
 }
