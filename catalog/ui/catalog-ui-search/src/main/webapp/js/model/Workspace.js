@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define,window,setTimeout*/
+/*global define,window*/
 
 define([
         'wreqr',
@@ -67,19 +67,19 @@ define([
                 });
             },
             save: function (options) {
-                if (this.collection.isGuestUser()) {
+                if (this.get('localStorage')) {
                     this.set('id', this.get('id') || Common.generateUUID());
-                    this.collection.save();
+                    this.collection.saveLocal();
                     this.trigger('sync', this, options);
                 } else {
                     return Backbone.AssociatedModel.prototype.save.apply(this, arguments);
                 }
             },
             destroy: function (options) {
-                if (this.collection.isGuestUser()) {
+                if (this.get('localStorage')) {
                     var collection = this.collection;
                     this.collection.remove(this);
-                    collection.save();
+                    collection.saveLocal();
                     this.trigger('sync', this, options);
                 } else {
                     return Backbone.AssociatedModel.prototype.destroy.apply(this, arguments);
@@ -103,6 +103,12 @@ define([
                 wreqr.vent.on('workspace:save', function(){
                     collection.save();
                 });
+                this.listenTo(this, 'add', this.tagGuestWorkspace);
+            },
+            tagGuestWorkspace: function (model) {
+                if (this.isGuestUser() && model.isNew()) {
+                    model.set({ localStorage: true });
+                }
             },
             isGuestUser: function () {
                 return this.store.get('user').get('user').isGuestUser();
@@ -113,18 +119,25 @@ define([
             createWorkspace: function(title){
                this.create({title: title || 'New Workspace'});
             },
-            save: function () {
-                window.localStorage.setItem('workspaces', JSON.stringify(this.toJSON()));
+            saveLocal: function () {
+                var localWorkspaces = this.chain()
+                    .filter(function (workspace) {
+                        return workspace.get('localStorage');
+                    })
+                    .map(function (workspace) {
+                        return workspace.toJSON();
+                    })
+                    .value();
+
+                window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces));
             },
             fetch: function (options) {
-                if (this.isGuestUser()) {
-                    setTimeout(function () {
-                        this.set(JSON.parse(window.localStorage.getItem('workspaces')));
-                        this.trigger('sync', this, options);
-                    }.bind(this), 0);
-                } else {
-                    return Backbone.Collection.prototype.fetch.apply(this, arguments);
-                }
+                options = options || {};
+                options.success = function (model) {
+                    // merge remote response with local workspaces
+                    model.add(JSON.parse(window.localStorage.getItem('workspaces')));
+                };
+                return Backbone.Collection.prototype.fetch.call(this, options);
             }
         });
 
