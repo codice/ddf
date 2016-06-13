@@ -53,6 +53,7 @@ define([
         },
         serializeData: function(){
             switch(store.metacardTypes[this.model.get('type')].type) {
+                case 'LOCATION':
                 case 'GEOMETRY':
                     if (geometryComparators.indexOf(this.model.get('comparator')) === -1){
                         this.model.set('comparator', geometryComparators[0]);
