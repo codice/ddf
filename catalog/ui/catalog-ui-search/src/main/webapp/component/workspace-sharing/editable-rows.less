@@ -1,0 +1,33 @@
+@{customElementNamespace}editable-rows {
+
+    .editable-rows-item {
+        position: relative;
+        margin-top: 10px;
+        min-height: 50px;
+    }
+
+    .editable-rows-item:first-child {
+        margin-top: 0;
+    }
+
+    .embed {
+        width: ~'calc(100% - 50px - 10px)';
+    }
+
+    .remove {
+        width: 50px;
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .add-row {
+        width: 50px;
+        float: right;
+    }
+
+}

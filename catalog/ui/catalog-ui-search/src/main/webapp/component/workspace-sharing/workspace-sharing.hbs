@@ -11,27 +11,32 @@
  *
  **/
  --}}
-<div class="workspaceBasic-row clearfix">
-    <div class="workspaceBasic-property workspaceBasic-cell">
-        Name
+<div>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Share with others</h3>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="{{link}}">{{link}}</a>
+        </div>
     </div>
-    <div class="workspaceBasic-value workspaceBasic-cell">
-        {{name}}
+    <div class="row">
+        <div class="col-md-6">
+            <h4>By Role:</h4>
+            <div class="workspace-sharing-by-role"></div>
+        </div>
+        <div class="col-md-6">
+            <h4>By Email:</h4>
+            <div class="workspace-sharing-by-email"></div>
+        </div>
     </div>
 </div>
-<div class="workspaceBasic-row clearfix">
-    <div class="workspaceBasic-property workspaceBasic-cell">
-        Created
-    </div>
-    <div class="workspaceBasic-value workspaceBasic-cell">
-        {{createdDate}}
-    </div>
-</div>
-<div class="workspaceBasic-row clearfix">
-    <div class="workspaceBasic-property workspaceBasic-cell">
-        Modified
-    </div>
-    <div class="workspaceBasic-value workspaceBasic-cell">
-        {{lastModifiedDate}}
-    </div>
+
+<div class="sharing-buttons">
+    <button class="is-negative reset">
+        <i class="fa fa-undo" aria-hidden="true"></i> Reset
+    </button>
+    <button class="is-positive save">
+        <i class="fa fa-floppy-o" aria-hidden="true"></i> Apply
+    </button>
 </div>
