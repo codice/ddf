@@ -157,7 +157,8 @@ define([
             user.set({
                 preferences: preferences,
                 isGuest: true,
-                username: 'guest'
+                username: 'guest',
+                roles: ['guest']
             });
 
             preferences.set('mapColors', this.getFallbackMapColors());

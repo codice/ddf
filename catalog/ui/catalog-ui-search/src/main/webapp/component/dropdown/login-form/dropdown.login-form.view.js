@@ -24,7 +24,7 @@ define([
 ], function (_, store, Dropdown, DropdownView, template, CustomElements, ComponentView) {
 
     var getName = function (user) {
-        if (user.get('isGuest') === 'true') {
+        if (user.isGuestUser()) {
             return 'Sign In';
         }
 
