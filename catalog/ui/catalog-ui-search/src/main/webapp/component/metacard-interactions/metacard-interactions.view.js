@@ -35,6 +35,7 @@ define([
             'click .interaction-hide': 'handleHide',
             'click .interaction-expand': 'handleExpand',
             'click .interaction-share': 'handleShare',
+            'click .interaction-download': 'handleDownload',
             'click .metacard-interaction': 'handleClick'
         },
         ui: {
@@ -81,6 +82,11 @@ define([
         },
         handleShare: function(){
             
+        },
+        handleDownload: function(){
+            this.model.forEach(function(result){
+                window.open(result.get('metacard').get('properties').get('resource-download-url'));
+            });
         },
         handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
