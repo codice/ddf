@@ -35,7 +35,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.ddf.branding.BrandingPlugin;
 import org.boon.json.JsonFactory;
 import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;

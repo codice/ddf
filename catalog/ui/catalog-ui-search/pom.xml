@@ -28,6 +28,10 @@
             <artifactId>org.apache.karaf.webconsole.console</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>branding-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
