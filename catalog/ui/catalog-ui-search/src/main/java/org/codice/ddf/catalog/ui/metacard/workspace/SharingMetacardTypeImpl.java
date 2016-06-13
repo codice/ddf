@@ -21,53 +21,51 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 
-public class WorkspaceMetacardTypeImpl extends MetacardTypeImpl {
+public class SharingMetacardTypeImpl extends MetacardTypeImpl {
 
-    public static final String WORKSPACE_TAG = "workspace";
+    public static final String SHARING_TAG = "sharing";
 
-    public static final String WORKSPACE_METACARD_TYPE_NAME = "metacard.workspace";
+    public static final String SHARING_METACARD_TYPE_NAME = "metacard.sharing";
 
-    public static final String WORKSPACE_METACARDS = "metacards";
+    public static final String SHARING_TYPE = "type";
 
-    public static final String WORKSPACE_QUERIES = "queries";
+    public static final String SHARING_PERMISSION = "permission";
 
-    public static final String WORKSPACE_SHARING = "metacard.sharing";
-
-    public static final String WORKSPACE_OWNER = "owner";
+    public static final String SHARING_VALUE = "value";
 
     private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     static {
         DESCRIPTORS = new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
 
-        DESCRIPTORS.add(new AttributeDescriptorImpl(WORKSPACE_OWNER,
+        DESCRIPTORS.add(new AttributeDescriptorImpl(SHARING_TYPE,
                 false   /* indexed */,
                 true    /* stored */,
                 false   /* tokenized */,
                 false   /* multivalued */,
                 BasicTypes.STRING_TYPE));
 
-        DESCRIPTORS.add(new AttributeDescriptorImpl(WORKSPACE_QUERIES,
+        DESCRIPTORS.add(new AttributeDescriptorImpl(SHARING_PERMISSION,
                 false   /* indexed */,
                 true    /* stored */,
                 false   /* tokenized */,
-                true    /* multivalued */,
-                BasicTypes.XML_TYPE));
+                false   /* multivalued */,
+                BasicTypes.STRING_TYPE));
 
-        DESCRIPTORS.add(new AttributeDescriptorImpl(WORKSPACE_SHARING,
+        DESCRIPTORS.add(new AttributeDescriptorImpl(SHARING_VALUE,
                 false   /* indexed */,
                 true    /* stored */,
                 false   /* tokenized */,
-                true    /* multivalued */,
-                BasicTypes.XML_TYPE));
-
+                false   /* multivalued */,
+                BasicTypes.STRING_TYPE));
     }
 
-    public WorkspaceMetacardTypeImpl() {
-        this(WORKSPACE_METACARD_TYPE_NAME, DESCRIPTORS);
+    public SharingMetacardTypeImpl() {
+        this(SHARING_METACARD_TYPE_NAME, DESCRIPTORS);
     }
 
-    public WorkspaceMetacardTypeImpl(String name, Set<AttributeDescriptor> descriptors) {
+    public SharingMetacardTypeImpl(String name, Set<AttributeDescriptor> descriptors) {
         super(name, descriptors);
     }
+
 }

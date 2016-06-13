@@ -11,20 +11,22 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.ui.searchui.standard.endpoints;
+package org.codice.ddf.catalog.ui.metacard.workspace;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import ddf.catalog.data.impl.MetacardImpl;
 
@@ -53,20 +55,45 @@ public class WorkspaceMetacardImplTest {
     }
 
     @Test
-    public void testRoles() {
-        Set<String> roles = Sets.newHashSet("Role A", "Role B");
-        assertThat(workspace.setRoles(roles).getRoles(), is(roles));
+    public void testSharing() {
+        Set<String> sharing = ImmutableSet.of("<xml/>");
+        assertThat(workspace.setSharing(sharing)
+                .getSharing(), is(sharing));
     }
 
     @Test
     public void testOwner() {
         String owner = "owner@localhost";
-        assertThat(workspace.setOwner(owner).getOwner(), is(owner));
+        assertThat(workspace.setOwner(owner)
+                .getOwner(), is(owner));
     }
 
     @Test
     public void testQueries() {
         List<String> queries = Arrays.asList("Query 1", "Query 1");
-        assertThat(workspace.setQueries(queries).getQueries(), is(queries));
+        assertThat(workspace.setQueries(queries)
+                .getQueries(), is(queries));
     }
+
+    @Test
+    public void testDiffSharingNoChanges() {
+        workspace.setSharing(ImmutableSet.of("<xml1/>", "<xml2/>"));
+        assertThat(workspace.diffSharing(workspace), is(Collections.emptySet()));
+    }
+
+    @Test
+    public void testDiffSharingWithChanges() {
+        workspace.setSharing(ImmutableSet.of("<xml1/>", "<xml2/>"));
+
+        WorkspaceMetacardImpl m = WorkspaceMetacardImpl.from(ImmutableMap.of(
+                WorkspaceMetacardTypeImpl.WORKSPACE_SHARING,
+                ImmutableList.of("<xml2/>", "<xml3/>")));
+
+        Set<String> diff = ImmutableSet.of("<xml1/>", "<xml3/>");
+
+        // NOTE: the diff is symmetric
+        assertThat(workspace.diffSharing(m), is(diff));
+        assertThat(m.diffSharing(workspace), is(diff));
+    }
+
 }

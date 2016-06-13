@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.ui.searchui.standard.endpoints;
+package org.codice.ddf.catalog.ui.security;
 
 import java.util.List;
 import java.util.Map;

@@ -11,36 +11,41 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.ui.searchui.standard.endpoints;
+package org.codice.ddf.catalog.ui.searchui.standard.endpoints;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.boon.json.JsonFactory;
 
-public class WorkspaceBodyReader implements MessageBodyReader<Map> {
+public class WorkspaceBodyWriter implements MessageBodyWriter<Object> {
 
     @Override
-    public boolean isReadable(Class<?> aClass, Type type, Annotation[] annotations,
+    public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations,
             MediaType mediaType) {
         return true;
-
     }
 
     @Override
-    public Map readFrom(Class<Map> type, Type genericType, Annotation[] annotations,
-            MediaType mediaType, MultivaluedMap<String, String> httpHeaders,
-            InputStream entityStream) throws IOException, WebApplicationException {
-        return JsonFactory.create()
-                .readValue(entityStream, Map.class);
+    public long getSize(Object o, Class<?> type, Type genericType, Annotation[] annotations,
+            MediaType mediaType) {
+        return -1;
+    }
+
+    @Override
+    public void writeTo(Object o, Class<?> type, Type genericType, Annotation[] annotations,
+            MediaType mediaType, MultivaluedMap<String, Object> httpHeaders,
+            OutputStream entityStream) throws IOException, WebApplicationException {
+
+        JsonFactory.create()
+                .writeValue(entityStream, o);
     }
 
 }

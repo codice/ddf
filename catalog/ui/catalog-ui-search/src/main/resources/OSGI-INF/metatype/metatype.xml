@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search" id="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore">
+    <OCD name="Catalog UI Search" id="org.codice.ddf.catalog.ui.config.ConfigurationStore">
         <AD
                 description="Specifies the number of results to request from each source"
                 name="Result Count" id="resultCount" required="true" type="Integer"
@@ -104,17 +104,10 @@
             type="String"
             cardinality="10000"
             required="false" />
-
-        <AD id="isWorkspacePrivate"
-            name="Private Workspaces"
-            description="Are workspaces hidden on initial creation, until shared?"
-            default="true"
-            required="true"
-            type="Boolean"/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore">
-        <Object ocdref="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore"/>
+    <Designate pid="org.codice.ddf.catalog.ui.config.ConfigurationStore">
+        <Object ocdref="org.codice.ddf.catalog.ui.config.ConfigurationStore"/>
     </Designate>
 
 </metatype:MetaData>

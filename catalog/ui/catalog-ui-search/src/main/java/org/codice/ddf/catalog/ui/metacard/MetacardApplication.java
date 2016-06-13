@@ -1,8 +1,22 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.catalog.ui.metacard;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static spark.Spark.delete;
+import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.patch;
 import static spark.Spark.post;
@@ -14,7 +28,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +51,7 @@ import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMap;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.core.versioning.HistoryMetacardImpl;
@@ -65,6 +78,10 @@ import ddf.security.SubjectUtils;
 import spark.servlet.SparkApplication;
 
 public class MetacardApplication implements SparkApplication {
+
+    private static final String UPDATE_ERROR_MESSAGE =
+            "Workspace is either restricted or not found.";
+
     private final CatalogFramework catalogFramework;
 
     private final FilterBuilder filterBuilder;
@@ -282,19 +299,19 @@ public class MetacardApplication implements SparkApplication {
             Map<String, Object> response = transformer.transform(saved);
 
             res.type(APPLICATION_JSON);
+            res.status(201);
             return util.getJson(response);
         });
 
         put("/workspaces/:id", APPLICATION_JSON, (req, res) -> {
             String id = req.params(":id");
+
             Map<String, Object> workspace = JsonFactory.create()
                     .parser()
                     .parseMap(req.body());
+
             Metacard metacard = transformer.transform(workspace);
-            Set<String> updatedRoles = getUpdatedRoles(id, metacard);
             metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
-            metacard.setAttribute(new AttributeImpl(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES,
-                    (List<Serializable>) new ArrayList<Serializable>(updatedRoles)));
 
             Metacard updated = updateMetacard(id, metacard);
             return util.getJson(transformer.transform(updated));
@@ -304,6 +321,11 @@ public class MetacardApplication implements SparkApplication {
             String id = req.params(":id");
             catalogFramework.delete(new DeleteRequestImpl(id));
             return "";
+        });
+
+        exception(IngestException.class, (ex, req, res) -> {
+            res.status(404);
+            res.body(util.getJson(ImmutableMap.of("message", UPDATE_ERROR_MESSAGE)));
         });
 
     }
@@ -346,7 +368,7 @@ public class MetacardApplication implements SparkApplication {
                                             .stream()
                                             .map(util::parseDate)
                                             .collect(Collectors.toList())));
-                        } else {//not multivalued
+                        } else { // not multivalued
                             result.setAttribute(new AttributeImpl(attributeChange.getAttribute(),
                                     util.parseDate(attribute.getValue())));
 
@@ -410,34 +432,6 @@ public class MetacardApplication implements SparkApplication {
 
     }
 
-    private Set<String> getUpdatedRoles(String id, Metacard newMetacard) throws Exception {
-        Set<String> newRoles = getRoles(newMetacard);
-
-        List<Metacard> metacards = util.getMetacards(Collections.singletonList(id),
-                WorkspaceMetacardTypeImpl.WORKSPACE_TAG)
-                .entrySet()
-                .stream()
-                .map(Map.Entry::getValue)
-                .map(Result::getMetacard)
-                .collect(Collectors.toList());
-        if (!metacards.isEmpty()) {
-            Set<String> oldRoles = getRoles(metacards.get(0));
-            return Sets.symmetricDifference(oldRoles, newRoles);
-        }
-
-        return newRoles;
-    }
-
-    private Set<String> getRoles(Metacard metacard) {
-        Attribute attr = metacard.getAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES);
-
-        if (attr != null) {
-            return new HashSet<>(util.getStringList(attr.getValues()));
-        }
-
-        return new HashSet<>();
-    }
-
     private static class AssociationResultItem {
         String id;
 
@@ -450,12 +444,12 @@ public class MetacardApplication implements SparkApplication {
     }
 
     private static class AssociationResult {
-        AssociationResult(String type) {
-            this.type = type;
-        }
-
         String type;
 
         List<AssociationResultItem> metacards = new ArrayList<>();
+
+        AssociationResult(String type) {
+            this.type = type;
+        }
     }
 }

@@ -39,10 +39,10 @@
     </bean>
 
     <bean id="configurationStore"
-          class="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore"
+          class="org.codice.ddf.catalog.ui.config.ConfigurationStore"
           destroy-method="destroy">
         <cm:managed-properties
-                persistent-id="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore"
+                persistent-id="org.codice.ddf.catalog.ui.config.ConfigurationStore"
                 update-strategy="container-managed"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
@@ -60,11 +60,26 @@
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
     </service>
 
-    <service interface="ddf.catalog.plugin.PreIngestPlugin">
-        <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspacePreIngestPlugin"/>
+    <service interface="ddf.catalog.data.MetacardType">
+        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.SharingMetacardTypeImpl"/>
     </service>
 
-    <bean id="workspacePolicyExtension" class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspacePolicyExtension">
+    <service interface="ddf.catalog.plugin.PreIngestPlugin">
+        <bean class="org.codice.ddf.catalog.ui.security.WorkspacePreIngestPlugin"/>
+    </service>
+
+    <service interface="ddf.catalog.plugin.AccessPlugin">
+        <bean class="org.codice.ddf.catalog.ui.security.WorkspaceAccessPlugin"/>
+    </service>
+
+    <service interface="ddf.catalog.plugin.PolicyPlugin">
+        <bean class="org.codice.ddf.catalog.ui.security.WorkspaceSharingPolicyPlugin">
+            <argument ref="workspaceTransformer"/>
+        </bean>
+    </service>
+
+    <bean id="workspacePolicyExtension"
+          class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension">
         <cm:managed-properties persistent-id="org.codice.ddf.ui.searchui.standard.endpoints"
                                update-strategy="container-managed"/>
     </bean>
@@ -117,7 +132,7 @@
         <jaxrs:serviceBeans>
             <!-- config store -->
             <ref component-id="configurationStore"/>
-            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.MetacardEditEndpoint">
+            <bean class="org.codice.ddf.catalog.ui.searchui.standard.endpoints.MetacardEditEndpoint">
                 <argument ref="catalogFramework"/>
                 <argument>
                     <reference interface="ddf.catalog.data.AttributeRegistry"/>
@@ -126,8 +141,8 @@
             </bean>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
-            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceBodyReader"/>
-            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceBodyWriter"/>
+            <bean class="org.codice.ddf.catalog.ui.searchui.standard.endpoints.WorkspaceBodyReader"/>
+            <bean class="org.codice.ddf.catalog.ui.searchui.standard.endpoints.WorkspaceBodyWriter"/>
         </jaxrs:providers>
     </jaxrs:server>
 
@@ -149,8 +164,8 @@
     <bean id="querySparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
         <argument>
             <list>
-                <ref component-id="queryApplication" />
-                <ref component-id="metacardApplication" />
+                <ref component-id="queryApplication"/>
+                <ref component-id="metacardApplication"/>
             </list>
         </argument>
     </bean>

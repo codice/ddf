@@ -13,12 +13,16 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.Sets;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -31,14 +35,6 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
     public WorkspaceMetacardImpl() {
         super(TYPE);
         setTags(Collections.singleton(WorkspaceMetacardTypeImpl.WORKSPACE_TAG));
-    }
-
-    public void setMetacards(List<String> items) {
-        setAttribute(Metacard.RELATED, new ArrayList<>(items));
-    }
-
-    public List<String> getMetacards() {
-        return getValues(Metacard.RELATED);
     }
 
     public WorkspaceMetacardImpl(String id) {
@@ -58,6 +54,16 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
      */
     public static WorkspaceMetacardImpl from(Metacard metacard) {
         return new WorkspaceMetacardImpl(metacard);
+    }
+
+    public static WorkspaceMetacardImpl from(Map<String, Serializable> attributes) {
+        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
+
+        attributes.entrySet()
+                .stream()
+                .forEach(entry -> workspace.setAttribute(entry.getKey(), entry.getValue()));
+
+        return workspace;
     }
 
     /**
@@ -93,6 +99,27 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
         }
 
         return false;
+    }
+
+    /**
+     * Compute the symmetric difference between the sharing permissions of two workspaces.
+     *
+     * @param m - metacard to diff against
+     * @return
+     */
+    public Set<String> diffSharing(Metacard m) {
+        if (isWorkspaceMetacard(m)) {
+            return Sets.symmetricDifference(getSharing(), from(m).getSharing());
+        }
+        return Collections.emptySet();
+    }
+
+    public List<String> getMetacards() {
+        return getValues(Metacard.RELATED);
+    }
+
+    public void setMetacards(List<String> items) {
+        setAttribute(Metacard.RELATED, new ArrayList<>(items));
     }
 
     private List<String> getValues(String attribute) {
@@ -132,12 +159,12 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
         return this;
     }
 
-    public Set<String> getRoles() {
-        return new HashSet<>(getValues(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES));
+    public Set<String> getSharing() {
+        return new HashSet<>(getValues(WorkspaceMetacardTypeImpl.WORKSPACE_SHARING));
     }
 
-    public WorkspaceMetacardImpl setRoles(Set<String> roles) {
-        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES, new ArrayList<>(roles));
+    public WorkspaceMetacardImpl setSharing(Set<String> sharing) {
+        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_SHARING, new ArrayList<>(sharing));
         return this;
     }
 

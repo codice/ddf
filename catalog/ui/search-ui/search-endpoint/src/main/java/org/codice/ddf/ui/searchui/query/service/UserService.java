@@ -18,6 +18,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import javax.inject.Inject;
 
@@ -51,6 +52,9 @@ public class UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
+    public static final String ROLES_CLAIM_URI =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+
     private PersistentStore persistentStore;
 
     @Inject
@@ -76,6 +80,8 @@ public class UserService {
                 String username = SubjectUtils.getName(subject);
                 userMap.put("username", username);
                 userMap.put("isGuest", String.valueOf(subject.isGuest()));
+                userMap.put("roles",
+                        new TreeSet<>(SubjectUtils.getAttribute(subject, ROLES_CLAIM_URI)));
                 List<Map<String, Object>> preferencesList;
                 try {
                     preferencesList = persistentStore.get(PersistentStore.PREFERENCES_TYPE,

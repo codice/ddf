@@ -16,9 +16,9 @@ package org.codice.ddf.catalog.ui.metacard.workspace;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -41,50 +41,86 @@ public class WorkspaceTransformer {
         this.inputTransformer = inputTransformer;
     }
 
-    @SuppressWarnings("unchecked")
-    private static QueryMetacardImpl transformQuery(Map<String, Object> m) {
-        QueryMetacardImpl q = new QueryMetacardImpl();
-
-        if (check(m.get(Metacard.TITLE), String.class)) {
-            q.setTitle((String) m.get(Metacard.TITLE));
-        }
-
-        if (check(m.get(Metacard.ID), String.class)) {
-            q.setId((String) m.get(Metacard.ID));
-        }
-
-        if (check(m.get(QueryMetacardTypeImpl.QUERY_CQL), String.class)) {
-            q.setCql((String) m.get(QueryMetacardTypeImpl.QUERY_CQL));
-        }
-
-        if (check(m.get(QueryMetacardTypeImpl.QUERY_ENTERPRISE), Boolean.class)) {
-            q.setEnterprise((Boolean) m.get(QueryMetacardTypeImpl.QUERY_ENTERPRISE));
-        } else if (check(m.get(QueryMetacardTypeImpl.QUERY_SOURCES), List.class)) {
-            q.setSources((List) m.get(QueryMetacardTypeImpl.QUERY_SOURCES));
-        }
-
-        return q;
+    private static boolean check(Object o, Class<?> clazz) {
+        return o != null && clazz.isAssignableFrom(o.getClass());
     }
 
+    @SuppressWarnings("unchecked")
+    public QueryMetacardImpl toQuery(Map<String, Object> map) {
+        QueryMetacardImpl query = new QueryMetacardImpl();
+
+        if (check(map.get(Metacard.TITLE), String.class)) {
+            query.setTitle((String) map.get(Metacard.TITLE));
+        }
+
+        if (check(map.get(Metacard.ID), String.class)) {
+            query.setId((String) map.get(Metacard.ID));
+        }
+
+        if (check(map.get(QueryMetacardTypeImpl.QUERY_CQL), String.class)) {
+            query.setCql((String) map.get(QueryMetacardTypeImpl.QUERY_CQL));
+        }
+
+        if (check(map.get(QueryMetacardTypeImpl.QUERY_ENTERPRISE), Boolean.class)) {
+            query.setEnterprise((Boolean) map.get(QueryMetacardTypeImpl.QUERY_ENTERPRISE));
+        } else if (check(map.get(QueryMetacardTypeImpl.QUERY_SOURCES), List.class)) {
+            query.setSources((List) map.get(QueryMetacardTypeImpl.QUERY_SOURCES));
+        }
+
+        return query;
+    }
+
+    public SharingMetacardImpl toSharing(Map<String, Object> map) {
+        SharingMetacardImpl sharing = new SharingMetacardImpl();
+
+        Object type = map.get(SharingMetacardTypeImpl.SHARING_TYPE);
+        if (check(type, String.class)) {
+            sharing.setSharingType((String) type);
+        }
+
+        Object permission = map.get(SharingMetacardTypeImpl.SHARING_PERMISSION);
+        if (check(permission, String.class)) {
+            sharing.setPermission((String) permission);
+        }
+
+        Object value = map.get(SharingMetacardTypeImpl.SHARING_VALUE);
+        if (check(value, String.class)) {
+            sharing.setValue((String) value);
+        }
+
+        return sharing;
+    }
 
     @SuppressWarnings("unchecked")
-    public WorkspaceMetacardImpl transform(Map w) {
-        WorkspaceMetacardImpl m = new WorkspaceMetacardImpl();
+    public WorkspaceMetacardImpl toWorkspace(Map<String, Object> w) {
+        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
 
         if (check(w.get(Metacard.ID), String.class)) {
-            m.setId((String) w.get(Metacard.ID));
+            workspace.setId((String) w.get(Metacard.ID));
         }
 
         if (check(w.get(Metacard.TITLE), String.class)) {
-            m.setTitle((String) w.get(Metacard.TITLE));
+            workspace.setTitle((String) w.get(Metacard.TITLE));
+        }
+
+        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_OWNER), String.class)) {
+            workspace.setOwner((String) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_OWNER));
         }
 
         if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS), List.class)) {
-            m.setMetacards((List) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS));
+            workspace.setMetacards((List) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS));
         }
 
-        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES), List.class)) {
-            m.setRoles(new HashSet<>((List) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES)));
+        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_SHARING), List.class)) {
+            List<Map<String, Object>> sharing = (List<Map<String, Object>>) w.get(
+                    WorkspaceMetacardTypeImpl.WORKSPACE_SHARING);
+
+            Set<String> xmlSharing = sharing.stream()
+                    .map(this::toSharing)
+                    .map(this::toMetacardXml)
+                    .collect(Collectors.toSet());
+
+            workspace.setSharing(xmlSharing);
         }
 
         if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES), List.class)) {
@@ -92,14 +128,18 @@ public class WorkspaceTransformer {
                     WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES);
 
             List<String> xmlQueries = queries.stream()
-                    .map(WorkspaceTransformer::transformQuery)
+                    .map(this::toQuery)
                     .map(this::toMetacardXml)
                     .collect(Collectors.toList());
 
-            m.setQueries(xmlQueries);
+            workspace.setQueries(xmlQueries);
         }
 
-        return m;
+        return workspace;
+    }
+
+    public WorkspaceMetacardImpl transform(Map<String, Object> w) {
+        return toWorkspace(w);
     }
 
     public Map<String, Object> transform(Metacard m) {
@@ -117,6 +157,13 @@ public class WorkspaceTransformer {
 
                     if (Metacard.RELATED.equals(ad.getName())) {
                         h.put(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS, attr.getValues());
+                    } else if (WorkspaceMetacardTypeImpl.WORKSPACE_SHARING.equals(ad.getName())) {
+                        h.put(ad.getName(),
+                                attr.getValues()
+                                        .stream()
+                                        .map(this::toMetacardFromXml)
+                                        .map(this::transform)
+                                        .collect(Collectors.toList()));
                     } else if (WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES.equals(ad.getName())) {
                         h.put(ad.getName(),
                                 attr.getValues()
@@ -142,11 +189,7 @@ public class WorkspaceTransformer {
                 .collect(Collectors.toList());
     }
 
-    private static boolean check(Object o, Class<?> clazz) {
-        return o != null && clazz.isAssignableFrom(o.getClass());
-    }
-
-    private String toMetacardXml(Metacard m) {
+    public String toMetacardXml(Metacard m) {
         try {
             return IOUtils.toString(catalogFramework.transform(m, "xml", null)
                     .getInputStream());
@@ -155,7 +198,7 @@ public class WorkspaceTransformer {
         }
     }
 
-    private Metacard toMetacardFromXml(Serializable xml) {
+    public Metacard toMetacardFromXml(Serializable xml) {
         try {
             if (xml instanceof String) {
                 try (InputStream is = IOUtils.toInputStream((String) xml)) {
@@ -164,9 +207,11 @@ public class WorkspaceTransformer {
                 }
             }
         } catch (Exception ex) {
-            throw new RuntimeException(ex);// TODO (RCZ) - wat do here
+            // TODO (RCZ) - wat do here
+            throw new RuntimeException(ex);
         }
 
         return null;
     }
+
 }

@@ -11,15 +11,13 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.ui.searchui.standard.endpoints;
+package org.codice.ddf.catalog.ui.searchui.standard.endpoints;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,10 +40,7 @@ import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -153,28 +148,6 @@ public class WorkspacesEndpoint {
             LOGGER.warn("Could not delete workspace {}.", id, ex);
             return Collections.singletonMap("message", UPDATE_ERROR_MESSAGE);
         }
-    }
-
-    private Set<String> getRoles(Metacard metacard) {
-        Attribute attr = metacard.getAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES);
-
-        if (attr != null) {
-            return new HashSet<>(getStringList(attr.getValues()));
-        }
-
-        return new HashSet<>();
-    }
-
-    private Set<String> getUpdatedRoles(String id, Metacard newMetacard) throws Exception {
-        Set<String> newRoles = getRoles(newMetacard);
-
-        List<Metacard> metacards = queryWorkspaces(byId(id));
-        if (!metacards.isEmpty()) {
-            Set<String> oldRoles = getRoles(metacards.get(0));
-            return Sets.symmetricDifference(oldRoles, newRoles);
-        }
-
-        return newRoles;
     }
 
     private FilterBuilder builder() {

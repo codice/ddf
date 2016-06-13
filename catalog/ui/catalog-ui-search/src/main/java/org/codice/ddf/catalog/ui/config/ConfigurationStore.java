@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.ui.searchui.standard.endpoints;
+package org.codice.ddf.catalog.ui.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,8 +35,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.branding.BrandingPlugin;
 import org.boon.json.JsonFactory;
+import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

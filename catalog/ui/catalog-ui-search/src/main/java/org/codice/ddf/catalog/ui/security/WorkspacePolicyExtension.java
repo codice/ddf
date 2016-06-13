@@ -11,15 +11,17 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.ui.searchui.standard.endpoints;
+package org.codice.ddf.catalog.ui.security;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.shiro.authz.Permission;
 import org.codice.ddf.security.common.Security;
+
+import com.google.common.collect.ImmutableSet;
 
 import ddf.security.SubjectUtils;
 import ddf.security.permission.CollectionPermission;
@@ -35,11 +37,8 @@ public class WorkspacePolicyExtension implements PolicyExtension {
     public static final String ROLES_CLAIM_URI =
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
-    /**
-     * Are workspaces private? A private workspace only allows access to owners and subjects
-     * that have a given role.
-     */
-    private boolean isWorkspacePrivate = true;
+    public static final Set<String> CLAIMS = ImmutableSet.of(ROLES_CLAIM_URI,
+            EMAIL_ADDRESS_CLAIM_URI);
 
     /**
      * Determine if a permission list has a role claim.
@@ -55,28 +54,7 @@ public class WorkspacePolicyExtension implements PolicyExtension {
                 .findFirst();
     }
 
-    public void setIsWorkspacePrivate(boolean isWorkspacePrivate) {
-        this.isWorkspacePrivate = isWorkspacePrivate;
-    }
-
-    private Predicate<KeyValuePermission> filterPermissions(boolean areRolesSet,
-            boolean isSystemSubject) {
-        return (permission) -> {
-            String key = permission.getKey();
-
-            if (isSystemSubject || !isWorkspacePrivate) {
-                return !EMAIL_ADDRESS_CLAIM_URI.equals(key) && !ROLES_CLAIM_URI.equals(key);
-            }
-
-            if (isWorkspacePrivate && areRolesSet) {
-                return !EMAIL_ADDRESS_CLAIM_URI.equals(key);
-            }
-
-            return true;
-        };
-    }
-
-    private String getSystemEmail() {
+    protected String getSystemEmail() {
         return SubjectUtils.getEmailAddress(Security.getInstance()
                 .getSystemSubject());
     }
@@ -102,16 +80,20 @@ public class WorkspacePolicyExtension implements PolicyExtension {
         return matchAllCollection;
     }
 
+    private List<KeyValuePermission> removePermissions(List<Permission> permissions,
+            Set<String> keys) {
+        return permissions.stream()
+                .map(permission -> (KeyValuePermission) permission)
+                .filter(permission -> !keys.contains(permission.getKey()))
+                .collect(Collectors.toList());
+    }
+
     /**
      * Extension policy for workspace security to achieve the following constraints.
      * <p>
-     * If workspaces are private
-     * -   If roles are set
-     * -       remove owner permission but keep roles
-     * -   Else
-     * -       Keep owner permission
-     * Else
-     * -   remove both owner and roles permissions
+     * - If roles and emails are set
+     * -   If either roles or emails can be implied, removed both
+     * - Otherwise, do nothing.
      * <p>
      * NOTE: no other permissions should be touched/removed.
      *
@@ -124,14 +106,24 @@ public class WorkspacePolicyExtension implements PolicyExtension {
             KeyValueCollectionPermission matchOne) {
         List<Permission> permissions = matchOne.getPermissionList();
 
-        boolean areRolesSet = find(permissions, ROLES_CLAIM_URI).isPresent();
-        boolean isSystemSubject = isSystem(subject.getPermissionList());
+        if (isSystem(subject.getPermissionList())) {
+            return new KeyValueCollectionPermission(matchOne.getAction(),
+                    removePermissions(permissions, CLAIMS));
+        }
 
-        List<KeyValuePermission> filteredPermissions = permissions.stream()
-                .map(permission -> (KeyValuePermission) permission)
-                .filter(filterPermissions(areRolesSet, isSystemSubject))
-                .collect(Collectors.toList());
+        boolean isImplied = CLAIMS.stream()
+                .map(claim -> find(permissions, claim))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(subject::implies)
+                .findFirst()
+                .isPresent();
 
-        return new KeyValueCollectionPermission(matchOne.getAction(), filteredPermissions);
+        if (isImplied) {
+            return new KeyValueCollectionPermission(matchOne.getAction(),
+                    removePermissions(permissions, CLAIMS));
+        }
+
+        return matchOne;
     }
 }

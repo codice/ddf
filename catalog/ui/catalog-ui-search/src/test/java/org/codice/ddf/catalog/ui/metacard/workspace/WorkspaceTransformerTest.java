@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.ui.searchui.standard.endpoints;
+package org.codice.ddf.catalog.ui.metacard.workspace;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -27,11 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -114,8 +109,8 @@ public class WorkspaceTransformerTest {
 
         assertThat(map.get(Metacard.TITLE), is(workspace.getTitle()));
         assertThat(map.get(Metacard.TAGS), nullValue()); // don't output metacard tags
-        assertThat(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES), is(Arrays.asList(
-                getQueryAsMap())));
+        assertThat(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES),
+                is(Arrays.asList(getQueryAsMap())));
         assertThat(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS),
                 is(workspace.getMetacards()));
     }
@@ -130,5 +125,4 @@ public class WorkspaceTransformerTest {
         assertThat(workspace.getMetacards(),
                 is(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS)));
     }
-
 }
