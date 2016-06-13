@@ -45,6 +45,7 @@ import org.junit.Test;
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.cat.wrs.v_1_0_2.ValueListType;
 import net.opengis.gml.v_3_1_1.DirectPositionType;
+import net.opengis.gml.v_3_1_1.EnvelopeType;
 import net.opengis.gml.v_3_1_1.PointType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ClassificationType;
@@ -247,6 +248,37 @@ public class RegistryPackageWebConverterTest {
 
         extrinsicObject.getSlot()
                 .add(locationSlot);
+
+        SlotType1 boundsSlot = stHelper.create("bounds",
+                (String) null,
+                "urn:ogc:def:dataType:ISO-19107:2003:GM_Envelope");
+
+        EnvelopeType bounds = GML_FACTORY.createEnvelopeType();
+
+        bounds.setSrsName("urn:ogc:def:crs:EPSG::4326");
+        directPosition = GML_FACTORY.createDirectPositionType();
+        directPosition.getValue()
+                .add(112.267472);
+        directPosition.getValue()
+                .add(33.467944);
+        bounds.setUpperCorner(directPosition);
+        directPosition = GML_FACTORY.createDirectPositionType();
+        directPosition.getValue()
+                .add(110.267472);
+        directPosition.getValue()
+                .add(30.467944);
+        bounds.setLowerCorner(directPosition);
+        valueList = WRS_FACTORY.createValueListType();
+        anyValue = WRS_FACTORY.createAnyValueType();
+        anyValue.getContent()
+                .add(GML_FACTORY.createEnvelope(bounds));
+        valueList.getAnyValue()
+                .add(anyValue);
+        boundsSlot.setValueList(RIM_FACTORY.createValueList(valueList));
+
+        extrinsicObject.getSlot()
+                .add(boundsSlot);
+
         extrinsicObject.getSlot()
                 .add(stHelper.create("region",
                         "USA",

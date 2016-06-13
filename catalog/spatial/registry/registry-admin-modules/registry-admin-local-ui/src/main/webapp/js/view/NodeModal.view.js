@@ -58,13 +58,38 @@ define([
              */
             initialize: function (options) {
                 this.mode = options.mode;
-                this.descriptors = FieldDescriptors.retrieveFieldDescriptors();
                 this.model.refreshData();
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.generalInfo.get('segmentId'), this.updateGeneralTabError);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.organizationInfo.get('segmentId'), this.updateOrgTabError);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.contactInfo.get('segmentId'), this.updateContactTabError);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.serviceInfo.get('segmentId'), this.updateServiceTabError);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.contentInfo.get('segmentId'), this.updateContentTabError);
+
+                this.generalInfoView = new Segment.SegmentCollectionView({
+                    model: this.model.generalInfo,
+                    collection: this.model.generalInfo.get('segments'),
+                    showHeader: true
+                });
+                this.organizationInfoView = new Segment.SegmentCollectionView({
+                    model: this.model.organizationInfo,
+                    collection: this.model.organizationInfo.get('segments'),
+                    showHeader: true
+                });
+                this.contactInfoView = new Segment.SegmentCollectionView({
+                    model: this.model.contactInfo,
+                    collection: this.model.contactInfo.get('segments'),
+                    showHeader: true
+                });
+                this.serviceInfoView = new Segment.SegmentCollectionView({
+                    model: this.model.serviceInfo,
+                    collection: this.model.serviceInfo.get('segments'),
+                    showHeader: true
+                });
+                this.contentInfoView = new Segment.SegmentCollectionView({
+                    model: this.model.contentInfo,
+                    collection: this.model.contentInfo.get('segments'),
+                    showHeader: true
+                });
 
             },
             serializeData: function () {
@@ -88,31 +113,11 @@ define([
                 this.$el.attr('role', "dialog");
                 this.$el.attr('aria-hidden', "true");
 
-                this.generalInfo.show(new Segment.SegmentCollectionView({
-                    model: this.model.generalInfo,
-                    collection: this.model.generalInfo.get('segments'),
-                    showHeader: true
-                }));
-                this.organizationInfo.show(new Segment.SegmentCollectionView({
-                    model: this.model.organizationInfo,
-                    collection: this.model.organizationInfo.get('segments'),
-                    showHeader: true
-                }));
-                this.contactInfo.show(new Segment.SegmentCollectionView({
-                    model: this.model.contactInfo,
-                    collection: this.model.contactInfo.get('segments'),
-                    showHeader: true
-                }));
-                this.serviceInfo.show(new Segment.SegmentCollectionView({
-                    model: this.model.serviceInfo,
-                    collection: this.model.serviceInfo.get('segments'),
-                    showHeader: true
-                }));
-                this.contentInfo.show(new Segment.SegmentCollectionView({
-                    model: this.model.contentInfo,
-                    collection: this.model.contentInfo.get('segments'),
-                    showHeader: true
-                }));
+                this.generalInfo.show(this.generalInfoView);
+                this.organizationInfo.show(this.organizationInfoView);
+                this.contactInfo.show(this.contactInfoView);
+                this.serviceInfo.show(this.serviceInfoView);
+                this.contentInfo.show(this.contentInfoView);
             },
             updateGeneralTabError: function () {
                this.updateTabError("#generalTabLink", this.model.generalInfo);
@@ -168,6 +173,8 @@ define([
                 this.closeAndUnbind();
             },
             closeAndUnbind: function () {
+                this.$el.off('hidden.bs.modal');
+                this.$el.off('shown.bs.modal');
                 this.$el.modal("hide");
             }
         });

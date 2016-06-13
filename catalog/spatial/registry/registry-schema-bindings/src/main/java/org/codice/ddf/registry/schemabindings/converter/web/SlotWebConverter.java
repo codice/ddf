@@ -30,6 +30,7 @@ import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.cat.wrs.v_1_0_2.ValueListType;
 import net.opengis.gml.v_3_1_1.DirectPositionType;
+import net.opengis.gml.v_3_1_1.EnvelopeType;
 import net.opengis.gml.v_3_1_1.PointType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 
@@ -38,7 +39,13 @@ public class SlotWebConverter {
 
     public static final String POINT_KEY = "Point";
 
+    public static final String ENVELOPE_KEY = "Envelope";
+
     public static final String POSITION = "pos";
+
+    public static final String LOWER_CORNER = "lowerCorner";
+
+    public static final String UPPER_CORNER = "upperCorner";
 
     public static final String SLOT_TYPE = "slotType";
 
@@ -77,6 +84,8 @@ public class SlotWebConverter {
             if (slotType.contains(RegistryConstants.XML_GEO_TYPE)) {
                 webMapHelper.putAllIfNotEmpty(slotMap, getSlotGeoMap(slot));
 
+            } else if (slotType.contains(RegistryConstants.XML_BOUNDS_TYPE)) {
+                webMapHelper.putAllIfNotEmpty(slotMap, getSlotBoundsMap(slot));
             }
         }
 
@@ -89,6 +98,35 @@ public class SlotWebConverter {
         webMapHelper.putIfNotEmpty(slotMap, NAME, slot.getName());
 
         return slotMap;
+    }
+
+    private Map<String, Object> getSlotBoundsMap(SlotType1 slot) {
+        Map<String, Object> map = new HashMap<>();
+        if (!slot.isSetValueList()) {
+            return map;
+        }
+        ValueListType valueList = (ValueListType) slot.getValueList()
+                .getValue();
+
+        for (AnyValueType anyValue : valueList.getAnyValue()) {
+            anyValue.getContent()
+                    .stream()
+                    .filter(content -> content instanceof JAXBElement)
+                    .forEach(content -> {
+                        JAXBElement jaxbElement = (JAXBElement) content;
+
+                        if (jaxbElement.getValue() instanceof EnvelopeType) {
+                            Map<String, Object> boundsMap =
+                                    getBoundsMapFromEnvelopeType((EnvelopeType) jaxbElement.getValue());
+                            if (MapUtils.isNotEmpty(boundsMap)) {
+                                Map<String, Object> valueMap = new HashMap<>();
+                                valueMap.put(ENVELOPE_KEY, boundsMap);
+                                map.put(VALUE, valueMap);
+                            }
+                        }
+                    });
+        }
+        return map;
     }
 
     private Map<String, Object> getSlotGeoMap(SlotType1 slot) {
@@ -120,6 +158,34 @@ public class SlotWebConverter {
         }
 
         return map;
+    }
+
+    private static Map<String, Object> getBoundsMapFromEnvelopeType(EnvelopeType bounds) {
+        Map<String, Object> boundsMap = new HashMap<>();
+
+        if (bounds.isSetSrsName()) {
+            boundsMap.put(SRS_NAME, bounds.getSrsName());
+        }
+
+        if (bounds.isSetLowerCorner() && bounds.isSetUpperCorner()) {
+            List<String> lower = bounds.getLowerCorner()
+                    .getValue()
+                    .stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
+            List<String> upper = bounds.getUpperCorner()
+                    .getValue()
+                    .stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
+
+            String lowerString = String.join(" ", lower);
+            String upperString = String.join(" ", upper);
+
+            boundsMap.put(LOWER_CORNER, lowerString);
+            boundsMap.put(UPPER_CORNER, upperString);
+        }
+        return boundsMap;
     }
 
     private static Map<String, Object> getPointMapFromPointType(PointType point) {

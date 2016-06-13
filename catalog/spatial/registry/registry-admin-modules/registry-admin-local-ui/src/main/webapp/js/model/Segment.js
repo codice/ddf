@@ -26,6 +26,12 @@ define([
 ], function (Backbone, _, FieldDescriptors, Field) {
 
     var counter = 0;
+    var typeCounters= {
+        Service: 1,
+        Organization: 1,
+        Content: 1,
+        ServiceBinding: 1
+    };
 
     function addValueFields(field, values) {
         var properties = {};
@@ -45,10 +51,16 @@ define([
             properties.valueLat = values.coords[1];
             properties.valueLon = values.coords[0];
         }
+        else if (values && field.get('type') === 'bounds') {
+            properties.valueUpperLat = values.coords[1];
+            properties.valueUpperLon = values.coords[0];
+            properties.valueLowerLat = values.coords[3];
+            properties.valueLowerLon = values.coords[2];
+        }
         field.set(properties);
     }
 
-    function addSlotFields(array, backingData, descriptors, segId) {
+    function addSlotFields(array, backingData, descriptors, seg) {
 
         var addedSlots = [];
         _.each(_.keys(descriptors), function (name) {
@@ -61,14 +73,16 @@ define([
                     type: entry.type,
                     isSlot: true,
                     required: entry.required ? entry.required : false,
+                    advanced: entry.advanced,
                     multiValued: entry.multiValued ? entry.multiValued : false,
+                    inlineGroup: entry.inlineGroup,
                     min: entry.min,
                     max: entry.max,
                     regex: entry.regex,
                     regexMessage: entry.regexMessage,
                     possibleValues: entry.possibleValues,
                     editable: entry.editable,
-                    parentId: segId
+                    parentId: seg.get('segmentId')
                 });
                 var slotFound = false;
                 _.each(backingData.Slot, function (slot) {
@@ -76,11 +90,11 @@ define([
                         slotFound = true;
                         var values = getSlotValue(slot, entry.type, entry.multiValued);
                         if(!values || (_.isArray(values) && values.length === 0)) {
-                            if(entry.values){
-                                if(_.isArray(entry.values)){
-                                    values = entry.values.slice(0);
+                            if(entry.value){
+                                if(_.isArray(entry.value)){
+                                    values = entry.value.slice(0);
                                 } else {
-                                    values = entry.values;
+                                    values = entry.value;
                                 }
                             }
                         }
@@ -88,16 +102,16 @@ define([
                         addedSlots.push(name);
                     }
                 });
-                if(!slotFound && entry.values){
+                if(!slotFound && entry.value){
                     var values = [];
-                    if(_.isArray(entry.values)){
-                        values = entry.values.slice(0);
+                    if(_.isArray(entry.value)){
+                        values = entry.value.slice(0);
                     } else {
-                        values = entry.values;
+                        values = entry.value;
                     }
                     addValueFields(field, values);
                 }
-                field.on('change', field.validate, field);
+                field.setupChangeListener();
                 array.push(field);
             }
         });
@@ -116,10 +130,10 @@ define([
                     custom: true,
                     isSlot: true,
                     multiValued: type === 'string',
-                    parentId: segId
+                    parentId: seg.get('segmentId')
                 });
                 addValueFields(field, getSlotValue(slot, type, field.get('multiValued')));
-                field.on('change', field.validate, field);
+                field.setupChangeListener();
                 array.push(field);
             }
         });
@@ -138,6 +152,11 @@ define([
                 return slot.value === 'true' ? true : false;
             } else if (type === 'point') {
                 return {coords: slot.value.Point.pos.split(/[ ]+/)};
+            }
+            else if (type === 'bounds') {
+                var lowerCorner = slot.value.Envelope.lowerCorner.split(/[ ]+/);
+                var upperCorner = slot.value.Envelope.upperCorner.split(/[ ]+/);
+                return {coords: upperCorner.concat(lowerCorner)};
             } else {
                 return slot.value;
             }
@@ -198,19 +217,21 @@ define([
                 }
             }
         ],
-        defaults: {
-            parentId: undefined,
-            simpleId: undefined,
-            segmentId: undefined,
-            segmentName: undefined,
-            segmentType: undefined,
-            containerOnly: false,
-            multiValued: false,
-            editableSegment: true,
-            nestedLevel: 0,
-            fields: [],
-            segments: [],
-            associationModel: undefined
+        defaults: function () {
+            return {
+                parentId: undefined,
+                simpleId: undefined,
+                segmentId: undefined,
+                segmentName: undefined,
+                segmentType: undefined,
+                containerOnly: false,
+                multiValued: false,
+                editableSegment: true,
+                nestedLevel: 0,
+                fields: [],
+                segments: [],
+                associationModel: undefined
+            };
         },
         populateFromModel: function (backingData, descriptors) {
             var model = this;
@@ -242,11 +263,12 @@ define([
                 properties.segments = segs;
             } else if (backingData) {
                 if (backingData.id) {
-                    properties.segmentId = backingData.id;
+                    model.set('segmentId', backingData.id);
                 } else {
-                    properties.segmentId = generateId();
-                    backingData.id = properties.segmentId;
+                    model.set('segmentId', generateId());
+                    backingData.id = model.get('segmentId');
                 }
+                properties.segmentId = model.get('segmentId');
                 properties.simpleId = properties.segmentId.split(':').join('-');
 
                 var fieldList = [];
@@ -284,8 +306,10 @@ define([
                                 type: obj.type,
                                 isSlot: false,
                                 multiValued: obj.multiValued,
-                                value: backingData[prop] ? backingData[prop] : obj.values,
+                                value: backingData[prop] ? backingData[prop] : obj.value,
                                 required: obj.required ? obj.required : false,
+                                advanced: obj.advanced,
+                                inlineGroup: obj.inlineGroup,
                                 min: obj.min,
                                 max: obj.max,
                                 regex: obj.regex,
@@ -294,13 +318,13 @@ define([
                                 editable: obj.editable,
                                 parentId: properties.segmentId
                             });
-                            field.on('change', field.validate, field);
+                            field.setupChangeListener();
                             fieldList.push(field);
 
                         }
                     }
                 }
-                addSlotFields(fieldList, backingData, descriptors[segType], properties.segmentId);
+                addSlotFields(fieldList, backingData, descriptors[segType], model);
                 properties.segments = segs;
                 properties.fields = fieldList;
             } else {
@@ -328,7 +352,7 @@ define([
             if (value) {
                 this.setFieldValue(newField, value);
             }
-            newField.on('change', newField.validate, newField);
+            newField.setupChangeListener();
             this.get('fields').add(newField);
             return newField;
         },
@@ -354,8 +378,14 @@ define([
                 this.get('autoPopulateFunction')(seg, this.getAutoPopulationValues(prePopulateId));
             }
             this.get('segments').add(seg);
+            var segType = seg.get('segmentType');
+            var nameField = seg.getField('Name');
+            if(nameField && nameField.isEmpty() && typeCounters[segType]) {
+                nameField.set('value', segType + ' '+typeCounters[segType]);
+                typeCounters[segType]++;
+            }
             var segTitle = seg.constructTitle ? seg.constructTitle() : seg.getField('Name').get('value');
-            this.get('associationModel').addAssociationSegment(seg.get('segmentId'), seg.get('segmentType'), segTitle);
+            this.get('associationModel').addAssociationSegment(seg.get('segmentId'), segType, segTitle);
 
             return seg;
         },
@@ -387,7 +417,7 @@ define([
                 return obj[autoPopId] === prePopulateId;
             });
         },
-        validate: function(){
+        validate: function (){
             var errors = [];
             var fields = this.get("fields").models;
             var segments = this.get('segments').models;

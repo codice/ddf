@@ -21,7 +21,8 @@
                         <table class="segment-header-table">
                             <tr>
                                 <td>
-                                    {{#if errors}}<i class="segment-title-error-{{simpleId}} validation-error-icon fa fa-exclamation-triangle" aria-hidden="true"></i>{{/if}}
+                                    <i class="segment-title-error-{{simpleId}} validation-error-icon fa fa-exclamation-triangle"
+                                            aria-hidden="true"></i>
                                     <label class="segment-title-{{simpleId}} nested-label{{nestedLevel}}">{{title}}</label>
                                 </td>
                                 <td>
@@ -39,7 +40,7 @@
                 </td>
         </table>
     {{/if}}
-    <div id="{{simpleId}}" class="segment-content {{#if editableSegment}}collapse{{/if}}">
+    <div id="{{simpleId}}" class="segment-content {{#if editableSegment}}collapse  {{#if showFields}}indented-content{{/if}}{{/if}}">
         {{#if showFields}}
             <table class='table align-middle'>
                 <tbody class="form-fields">
@@ -52,12 +53,28 @@
             </tbody>
         </table>
 
+
+        <table class='table align-middle advanced-section advanced-section-{{simpleId}}'>
+            <tbody class="form-fields-advanced-{{simpleId}}">
+
+            </tbody>
+        </table>
+
+
         {{#if customizable}}
-            <div id="customizable-{{simpleId}}"/>
+            <div id="customizable-{{simpleId}}"
+                 class="advanced-section {{#if customFieldsAreAdvanced}}advanced-section-{{simpleId}}{{/if}}"/>
         {{/if}}
 
         {{#if showAssociations}}
-            <div id="associations-{{simpleId}}"/>
+            <div id="associations-{{simpleId}}"
+                 class="advanced-section {{#if associationsAreAdvanced}}advanced-section-{{simpleId}}{{/if}}"/>
         {{/if}}
+
+        {{#ifAnd showAdvanced showFields}}
+            <div>
+                <a href="#"class="advanced-button-{{simpleId}}">Show Advanced</a>
+            </div>
+        {{/ifAnd}}
     </div>
 </div>
