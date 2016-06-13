@@ -13,24 +13,30 @@
  */
 package ddf.test.itests.catalog;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
+import static ddf.test.itests.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.boon.json.JsonFactory;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.RequestSpecification;
+import com.jayway.restassured.specification.ResponseSpecification;
 
 import ddf.common.test.BeforeExam;
 import ddf.test.itests.AbstractIntegrationTest;
@@ -39,8 +45,11 @@ import ddf.test.itests.AbstractIntegrationTest;
 @ExamReactorStrategy(PerClass.class)
 public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
-    private static final DynamicUrl API_PATH = new DynamicUrl(SERVICE_ROOT,
-            "/search/catalog/workspaces");
+    public static final String PATH = "/search/catalog/internal/workspaces";
+
+    public static final DynamicUrl API_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT, PATH);
+
+    private List<String> ids = new ArrayList<>();
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -51,11 +60,18 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
             getServiceManager().startFeature(true, "search-ui");
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/search/catalog/workspaces");
+            getServiceManager().waitForHttpEndpoint(API_PATH.getUrl());
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
         }
+    }
+
+    @After
+    public void cleanUp() {
+        ids.stream()
+                .forEach(TestCatalogSearchUi::delete);
+        ids.clear();
     }
 
     private static String api() {
@@ -73,13 +89,36 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
                 .writeValueAsString(o);
     }
 
-    private static void delete(String id) {
-        given().log()
+    private static RequestSpecification asGuest() {
+        return given().log()
                 .all()
+                .header("Content-Type", "application/json");
+    }
+
+    private static RequestSpecification asAdmin() {
+        return given().log()
+                .all()
+                .header("Content-Type", "application/json")
                 .auth()
                 .preemptive()
-                .basic("admin", "admin")
-                .expect()
+                .basic("admin", "admin");
+    }
+
+    private static ResponseSpecification expect(RequestSpecification req, int status) {
+        return req.expect()
+                .log()
+                .all()
+                .statusCode(status)
+                .when();
+    }
+
+    private static Map<String, String> makePermission(String type, String permission,
+            String value) {
+        return ImmutableMap.of("type", type, "permission", permission, "value", value);
+    }
+
+    private static void delete(String id) {
+        asAdmin().expect()
                 .log()
                 .all()
                 .statusCode(200)
@@ -88,77 +127,66 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testWorkspaceEndpointAsNonAdmin() throws Exception {
-        given().log()
-                .all()
-                .header("Content-Type", "application/json")
-                .body(stringify(ImmutableMap.of("title", "my workspace")))
-                .expect()
-                .log()
-                .all()
-                .statusCode(401)
-                .when()
-                .post(api());
+    public void testGuestCantCreateWorkspace() throws Exception {
+        Map<String, String> workspace = ImmutableMap.of("title", "my workspace");
+        expect(asGuest().body(stringify(workspace)), 404).post(api());
     }
 
-    /*
     @Test
-    public void testWorkspaceEndpointWithRolesAsGuest() throws Exception {
-        List<String> roles = Arrays.asList("guest");
-
-        Response res = given().log()
-                .all()
-                .header("Content-Type", "application/json")
-                .body(stringify(ImmutableMap.of("roles", roles)))
-                .expect()
-                .log()
-                .all()
-                .statusCode(201)
-                .when()
-                .post(api());
+    public void testAdminCanCreateWorkspace() {
+        Map<String, String> workspace = ImmutableMap.of("title", "my workspace");
+        Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
 
         Map body = parse(res);
-        assertNotNull(body.get("id"));
-        assertEquals((List) body.get("roles"), roles);
-        delete((String) body.get("id"));
-    }*/
+        String id = (String) body.get("id");
+        assertNotNull(id);
 
-    @Test
-    public void testWorkspaceEndpointWithRolesAsNonAdmin() throws Exception {
-        given().log()
-                .all()
-                .header("Content-Type", "application/json")
-                .body(stringify(ImmutableMap.of("roles", Arrays.asList("admin"))))
-                .expect()
-                .log()
-                .all()
-                .statusCode(401)
-                .when()
-                .post(api());
+        ids.add(id); // for cleanUp
     }
 
     @Test
-    public void testWorkspaceEndpointWithRolesAsAdmin() throws Exception {
-        List<String> roles = Arrays.asList("admin");
+    public void testCanShareViewWithGuestByRole() {
+        Map<String, String> guestPermission = makePermission("role", "view", "guest");
 
-        Response res = given().log()
-                .all()
-                .auth()
-                .preemptive()
-                .basic("admin", "admin")
-                .header("Content-Type", "application/json")
-                .body(stringify(ImmutableMap.of("roles", roles)))
-                .expect()
-                .log()
-                .all()
-                .statusCode(201)
-                .when()
-                .post(api());
+        Map<String, Object> workspace = ImmutableMap.of("metacard.sharing",
+                ImmutableList.of(guestPermission));
+
+        Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
 
         Map body = parse(res);
-        assertNotNull(body.get("id"));
-        assertEquals((List) body.get("roles"), roles);
-        delete((String) body.get("id"));
+        String id = (String) body.get("id");
+        assertNotNull(id);
+
+        expect(asGuest(), 200).get(api() + "/" + id);
+
+        ids.add(id); // for cleanUp
     }
 
+    @Test
+    public void testCanShareEditWithGuestByRole() {
+        Map<String, String> guestPermission = makePermission("role", "edit", "guest");
+
+        Map<String, Object> workspace = ImmutableMap.of("metacard.sharing",
+                ImmutableList.of(guestPermission));
+
+        Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+
+        String id = (String) parse(res).get("id");
+        assertNotNull(id);
+
+        String title = "from guest";
+
+        Map<String, Object> update = ImmutableMap.of("title",
+                title,
+                "metacard.sharing",
+                ImmutableList.of(guestPermission));
+
+        res = expect(asGuest().body(stringify(update)), 200).put(api() + "/" + id);
+
+        Map body = parse(res);
+        assertThat(body.get("id"), is(id));
+        assertThat(body.get("title"), is(title));
+
+        ids.add(id); // for cleanUp
+    }
 }
