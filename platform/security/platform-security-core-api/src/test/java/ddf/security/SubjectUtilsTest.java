@@ -15,7 +15,10 @@ package ddf.security;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +28,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -37,8 +45,14 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+
+import ddf.security.assertion.SecurityAssertion;
 
 /**
  * Tests out the SubjectUtils class
@@ -132,10 +146,109 @@ public class SubjectUtilsTest {
 
     @Test
     public void testFilterDNRemoveAll() {
-        Predicate<RDN> predicate = rdn -> !ImmutableSet.of(BCStyle.OU, BCStyle.CN, BCStyle.O,
-                BCStyle.ST, BCStyle.C)
+        Predicate<RDN> predicate = rdn -> !ImmutableSet.of(BCStyle.OU,
+                BCStyle.CN,
+                BCStyle.O,
+                BCStyle.ST,
+                BCStyle.C)
                 .contains(rdn.getTypesAndValues()[0].getType());
         String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
         assertThat(baseDN, is(""));
+    }
+
+    private XSString getXSString(String str) {
+        XSString xstr = mock(XSString.class);
+        doReturn(str).when(xstr)
+                .getValue();
+        return xstr;
+    }
+
+    private Attribute getAttribute(Map.Entry<String, List<String>> attribute) {
+        Attribute attr = mock(Attribute.class);
+
+        doReturn(attribute.getKey()).when(attr)
+                .getName();
+
+        doReturn(attribute.getValue()
+                .stream()
+                .map(this::getXSString)
+                .collect(Collectors.toList())).when(attr)
+                .getAttributeValues();
+
+        return attr;
+    }
+
+    private Subject getSubjectWithAttributes(Map<String, List<String>> attributes) {
+
+        Subject subject = mock(Subject.class);
+        PrincipalCollection pc = mock(PrincipalCollection.class);
+        SecurityAssertion assertion = mock(SecurityAssertion.class);
+        AttributeStatement as = mock(AttributeStatement.class);
+
+        List<Attribute> attrs = attributes.entrySet()
+                .stream()
+                .map(this::getAttribute)
+                .collect(Collectors.toList());
+
+        doReturn(pc).when(subject)
+                .getPrincipals();
+        doReturn(assertion).when(pc)
+                .oneByType(SecurityAssertion.class);
+        doReturn(Collections.singletonList(as)).when(assertion)
+                .getAttributeStatements();
+        doReturn(attrs).when(as)
+                .getAttributes();
+
+        return subject;
+    }
+
+    @Test
+    public void testGetAttribute() {
+        final String key = "random";
+        final List<String> values = Arrays.asList("one", "two", "three");
+        Map<String, List<String>> attrs = ImmutableMap.of(key, values);
+        Subject subject = getSubjectWithAttributes(attrs);
+        assertThat(SubjectUtils.getAttribute(subject, key), is(values));
+    }
+
+    @Test
+    public void testGetAttributeNotPresent() {
+        Subject subject = getSubjectWithAttributes(Collections.emptyMap());
+        assertThat(SubjectUtils.getAttribute(subject, "any"), is(Collections.emptyList()));
+    }
+
+    @Test
+    public void testGetAttributeOnNullSubject() {
+        assertThat(SubjectUtils.getAttribute(null, "any"), is(Collections.emptyList()));
+    }
+
+    @Test
+    public void testGetAttributeNullPrincipal() {
+        Subject s = mock(Subject.class);
+        assertThat(SubjectUtils.getAttribute(s, "any"), is(Collections.emptyList()));
+    }
+
+    @Test
+    public void testGetAttributeNullAssertion() {
+        Subject s = mock(Subject.class);
+        PrincipalCollection principals = mock(PrincipalCollection.class);
+        doReturn(principals).when(s)
+                .getPrincipals();
+        assertThat(SubjectUtils.getAttribute(s, "any"), is(Collections.emptyList()));
+    }
+
+    @Test
+    public void testGetEmail() {
+        final String email = "guest@localhost";
+        Map<String, List<String>> attrs = ImmutableMap.of(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI,
+                Arrays.asList(email));
+        Subject subject = getSubjectWithAttributes(attrs);
+        assertThat(SubjectUtils.getEmailAddress(subject), is(email));
+    }
+
+    @Test
+    public void testGetEmailNull() {
+        Subject subject = getSubjectWithAttributes(Collections.emptyMap());
+        assertNull(SubjectUtils.getEmailAddress(subject));
     }
 }

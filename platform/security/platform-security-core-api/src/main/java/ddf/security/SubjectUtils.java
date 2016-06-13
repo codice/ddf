@@ -15,12 +15,17 @@ package ddf.security;
 
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.commons.lang.Validate;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.bouncycastle.asn1.x500.RDN;
@@ -105,8 +110,7 @@ public final class SubjectUtils {
      * defaultName if no user name could be found or incoming subject
      * was null.
      */
-    public static String getName(Subject subject, String defaultName,
-            boolean returnDisplayName) {
+    public static String getName(Subject subject, String defaultName, boolean returnDisplayName) {
         String name = defaultName;
         if (subject != null) {
             PrincipalCollection principals = subject.getPrincipals();
@@ -160,23 +164,48 @@ public final class SubjectUtils {
         return new X500Name(rdns).toString();
     }
 
+    /**
+     * Get a subject's email.
+     *
+     * @param subject
+     * @return email or null if not found.
+     */
+    @Nullable
     public static String getEmailAddress(Subject subject) {
-        if (subject == null) {
-            LOGGER.debug("Incoming subject was null, cannot look up email address.");
+        List<String> values = getAttribute(subject, EMAIL_ADDRESS_CLAIM_URI);
+
+        if (values.isEmpty()) {
             return null;
+        }
+
+        return values.get(0);
+    }
+
+    /**
+     * Get any attribute from a subject by key.
+     *
+     * @param subject
+     * @param key
+     * @return attribute values or an empty list if not found.
+     */
+    public static List<String> getAttribute(@Nullable Subject subject, String key) {
+        Validate.notNull(key);
+
+        if (subject == null) {
+            LOGGER.debug("Incoming subject was null, cannot look up {}.", key);
+            return Collections.emptyList();
         }
 
         PrincipalCollection principals = subject.getPrincipals();
         if (principals == null) {
-            LOGGER.debug(
-                    "No principals located in the incoming subject, cannot look up email address.");
-            return null;
+            LOGGER.debug("No principals located in the incoming subject, cannot look up {}.", key);
+            return Collections.emptyList();
         }
 
         SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
         if (assertion == null) {
-            LOGGER.debug("Could not find Security Assertion, cannot look up email address");
-            return null;
+            LOGGER.debug("Could not find Security Assertion, cannot look up {}.", key);
+            return Collections.emptyList();
         }
 
         return assertion.getAttributeStatements()
@@ -184,13 +213,12 @@ public final class SubjectUtils {
                 .flatMap(as -> as.getAttributes()
                         .stream())
                 .filter(a -> a.getName()
-                        .equals(EMAIL_ADDRESS_CLAIM_URI))
+                        .equals(key))
                 .flatMap(a -> a.getAttributeValues()
                         .stream())
                 .filter(o -> o instanceof XSString)
                 .map(o -> (XSString) o)
                 .map(XSString::getValue)
-                .findFirst()
-                .orElse(null);
+                .collect(Collectors.toList());
     }
 }
