@@ -100,7 +100,7 @@ public class MetacardApplication implements SparkApplication {
         get("/metacard/:id/validation", (req, res) -> {
             String id = req.params(":id");
             res.type(APPLICATION_JSON);
-            return validator.getValidation(util.getMetacard(id));
+            return util.getJson(validator.getValidation(util.getMetacard(id)));
         });
 
         post("/metacards", APPLICATION_JSON, (req, res) -> {
