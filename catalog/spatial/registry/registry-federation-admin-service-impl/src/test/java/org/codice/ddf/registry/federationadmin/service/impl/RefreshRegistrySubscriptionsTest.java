@@ -32,6 +32,7 @@ import org.codice.ddf.registry.api.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
+import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.transformer.RegistryTransformer;
 import org.codice.ddf.security.common.Security;
 import org.geotools.filter.FilterFactoryImpl;
@@ -137,7 +138,7 @@ public class RefreshRegistrySubscriptionsTest {
         refreshRegistrySubscriptions = spy(new RefreshRegistrySubscriptions());
         federationAdminService.setRegistryTransformer(registryTransformer);
         federationAdminService.setCatalogFramework(catalogFramework);
-        federationAdminService.setParser(parser);
+        federationAdminService.setMetacardMarshaller(new MetacardMarshaller(parser));
         federationAdminService.setFilterBuilder(filterBuilder);
         refreshRegistrySubscriptions.setFederationAdminService(federationAdminService);
         System.setProperty(SystemInfo.SITE_NAME, TEST_SITE_NAME);

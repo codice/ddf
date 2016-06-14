@@ -77,7 +77,14 @@
             <groupId>ddf.platform</groupId>
             <artifactId>platform-parser-api</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
@@ -156,7 +163,9 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            jaxb2-basics-runtime
+                            jaxb2-basics-runtime,
+                            registry-common,
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
@@ -169,6 +178,11 @@
                             org.codice.ddf.registry.schemabindings.converter.web,
                             org.codice.ddf.registry.schemabindings.helper
                         </Export-Package>
+                        <Import-Package>
+                            !org.codice.ddf.platform.util.http,
+                            !org.codice.ddf.platform.util,
+                            *
+                        </Import-Package>
                         <Private-Package>
                             net.opengis.filter.v_1_1_0,
                             org.w3._1999.xlink

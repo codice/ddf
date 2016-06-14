@@ -14,54 +14,57 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.codice.ddf.registry</groupId>
         <artifactId>registry</artifactId>
+        <groupId>org.codice.ddf.registry</groupId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
-    <artifactId>registry-identification-plugin</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>registry-source-configuration-handler</artifactId>
+    <name>DDF :: Registry :: Source :: Configuration :: Handler</name>
     <packaging>bundle</packaging>
-    <name>DDF :: Registry :: Identification Plugin</name>
+
     <dependencies>
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
-            <artifactId>registry-api</artifactId>
-            <version>${project.version}</version>
+            <artifactId>registry-federation-admin-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.registry</groupId>
+            <artifactId>registry-federation-admin-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.registry</groupId>
+            <artifactId>registry-ebrim-transformer</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-schema-bindings</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-parser-api</artifactId>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-parser-xml</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -73,10 +76,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.name}</Bundle-Name>
                         <Embed-Dependency>
-                            registry-common,
-                            ddf-security-common,
-                            catalog-core-api-impl;scope=!test
+                            catalog-core-api-impl;scope=!test,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util.http,
@@ -103,24 +106,24 @@
                                     <element>BUNDLE</element>
                                     <limits>
                                         <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.92</minimum>
+                                        </limit>
+                                        <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.74</minimum>
+                                            <minimum>0.83</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.54</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>INSTRUCTION</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
+                                            <minimum>0.76</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.77</minimum>
+                                            <minimum>0.91</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
@@ -131,4 +134,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

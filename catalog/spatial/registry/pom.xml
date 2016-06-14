@@ -93,6 +93,11 @@
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.registry</groupId>
+                <artifactId>registry-source-configuration-handler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.registry</groupId>
                 <artifactId>registry-publication-update-handler</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -170,5 +175,6 @@
         <module>registry-publication-update-handler</module>
         <module>registry-report-action-provider</module>
         <module>registry-report-viewer</module>
+        <module>registry-source-configuration-handler</module>
     </modules>
 </project>

@@ -56,6 +56,7 @@ import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
+import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.transformer.RegistryTransformer;
 import org.codice.ddf.security.common.Security;
 import org.geotools.filter.FilterFactoryImpl;
@@ -177,7 +178,7 @@ public class FederationAdminServiceImplTest {
         federationAdminServiceImpl = spy(new FederationAdminServiceImpl(security));
         federationAdminServiceImpl.setRegistryTransformer(registryTransformer);
         federationAdminServiceImpl.setCatalogFramework(catalogFramework);
-        federationAdminServiceImpl.setParser(parser);
+        federationAdminServiceImpl.setMetacardMarshaller(new MetacardMarshaller(parser));
         federationAdminServiceImpl.setFilterBuilder(filterBuilder);
         System.setProperty(SystemInfo.SITE_NAME, TEST_SITE_NAME);
         System.setProperty(SystemInfo.VERSION, TEST_VERSION);

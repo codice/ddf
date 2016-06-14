@@ -43,6 +43,7 @@ import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
+import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -79,7 +80,7 @@ public class IdentificationPluginTest {
     public void setUp() {
         parser = new XmlParser();
         identificationPlugin = new IdentificationPlugin();
-        identificationPlugin.setParser(parser);
+        identificationPlugin.setMetacardMarshaller(new MetacardMarshaller(parser));
         setParser(parser);
         sampleData = new MetacardImpl();
         sampleData.setId("testNewMetacardId");

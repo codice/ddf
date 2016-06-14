@@ -82,7 +82,7 @@
         <property name="name" value="WFS Endpoint"/>
         <property name="version" value="1.0.0"/>
         <property name="description" value="The endpoint used for wfs."/>
-        <property name="bindingType" value="Wfs_v1_0_0_Federated_Source"/>
+        <property name="bindingType" value="WFS_1.0.0"/>
     </bean>
     <service ref="ddf.catalog.endpoint.wfs" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
 

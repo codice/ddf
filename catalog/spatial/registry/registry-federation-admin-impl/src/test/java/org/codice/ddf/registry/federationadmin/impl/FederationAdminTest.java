@@ -59,6 +59,7 @@ import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
 import org.codice.ddf.registry.schemabindings.converter.type.RegistryPackageTypeConverter;
 import org.codice.ddf.registry.schemabindings.converter.web.RegistryPackageWebConverter;
+import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
 import org.codice.ddf.registry.transformer.RegistryTransformer;
 import org.junit.Before;
@@ -152,7 +153,7 @@ public class FederationAdminTest {
         };
         federationAdmin.setFederationAdminService(federationAdminService);
         federationAdmin.setRegistryTransformer(registryTransformer);
-        federationAdmin.setParser(parser);
+        federationAdmin.setMetacardMarshaller(new MetacardMarshaller(parser));
         federationAdmin.setSlotHelper(new SlotTypeHelper());
         federationAdmin.setRegistryMapConverter(new RegistryPackageWebConverter());
         federationAdmin.setRegistryTypeConverter(new RegistryPackageTypeConverter());
