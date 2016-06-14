@@ -21,6 +21,15 @@
                 name="FTP Port Number" id="port" min="0" max="65535"
                 required="true" type="Integer" default="8021"/>
 
+        <AD
+                description='Whether or not client authentication is required or wanted. A value of "Need" requires client auth, a value of "Want" leaves it up to the client.'
+                name="Client Authentication" id="clientAuth" required="true"
+                type="String" default="want">
+            <Option label="Want" value="want"/>
+            <Option label="Need" value="need"/>
+
+        </AD>
+
     </OCD>
 
     <Designate pid="ddf.catalog.core.ftp.FtpServerStarter">
