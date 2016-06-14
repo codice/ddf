@@ -14,6 +14,7 @@
 package ddf.test.itests.catalog;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -43,13 +44,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -83,6 +91,8 @@ import com.google.common.collect.Maps;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
+import ddf.catalog.data.DefaultAttributeValueRegistry;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.common.test.BeforeExam;
 import ddf.test.itests.AbstractIntegrationTest;
@@ -129,7 +139,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .expect()
                 .log()
                 .all()
-                .statusCode(201)
+                .statusCode(HttpStatus.SC_CREATED)
                 .when()
                 .post(REST_PATH.getUrl())
                 .getHeader("id");
@@ -146,6 +156,18 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(REST_PATH.getUrl())
                     .getHeader("id");
         }
+    }
+
+    public static void update(String id, String data, String mimeType) {
+        LOGGER.info("Update data of type {}:\n{}", mimeType, data);
+        given().header(HttpHeaders.CONTENT_TYPE, mimeType)
+                .body(data)
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_OK)
+                .when()
+                .put(new DynamicUrl(REST_PATH, id).getUrl());
     }
 
     @BeforeExam
@@ -1112,7 +1134,9 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testValidationEnforced() throws Exception {
-        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        getServiceManager().startFeature(true,
+                "catalog-plugin-metacard-validation",
+                "sample-validator");
         // Update metacardMarkerPlugin config with enforcedMetacardValidators
         configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
 
@@ -1196,13 +1220,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             configureEnforcedMetacardValidators(Collections.singletonList(""));
-            getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+            getServiceManager().stopFeature(true,
+                    "catalog-plugin-metacard-validation",
+                    "sample-validator");
         }
     }
 
     @Test
     public void testValidationUnenforced() throws Exception {
-        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        getServiceManager().startFeature(true,
+                "catalog-plugin-metacard-validation",
+                "sample-validator");
         configureEnforcedMetacardValidators(Collections.singletonList(""));
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
@@ -1301,13 +1329,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+            getServiceManager().stopFeature(true,
+                    "catalog-plugin-metacard-validation",
+                    "sample-validator");
         }
     }
 
     @Test
     public void testValidationEnforcedUpdate() throws Exception {
-        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        getServiceManager().startFeature(true,
+                "catalog-plugin-metacard-validation",
+                "sample-validator");
         // metacardMarkerPlugin has no enforced validators so both metacards can be ingested
         final String id1 = ingestXmlFromResource("/metacard1.xml");
         final String id2 = ingestXmlFromResource("/metacard2.xml");
@@ -1354,13 +1386,17 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             configureEnforcedMetacardValidators(Collections.singletonList(""));
-            getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+            getServiceManager().stopFeature(true,
+                    "catalog-plugin-metacard-validation",
+                    "sample-validator");
         }
     }
 
     @Test
     public void testValidationUnenforcedUpdate() throws Exception {
-        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        getServiceManager().startFeature(true,
+                "catalog-plugin-metacard-validation",
+                "sample-validator");
         // metacardMarkerPlugin has no enforced validators so both metacards can be ingested
         final String id1 = ingestXmlFromResource("/metacard1.xml");
         final String id2 = ingestXmlFromResource("/metacard2.xml");
@@ -1409,7 +1445,9 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             configureShowInvalidMetacards("false", "true");
-            getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+            getServiceManager().stopFeature(true,
+                    "catalog-plugin-metacard-validation",
+                    "sample-validator");
         }
     }
 
@@ -1417,7 +1455,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testValidationFiltering() throws Exception {
         getServiceManager().startFeature(true,
                 "catalog-plugin-metacard-validation",
-                "catalog-security-filter");
+                "catalog-security-filter",
+                "sample-validator");
 
         // Update metacardMarkerPlugin config with no enforcedMetacardValidators
         configureEnforcedMetacardValidators(Arrays.asList(""));
@@ -1508,7 +1547,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id2);
             getServiceManager().stopFeature(true,
                     "catalog-plugin-metacard-validation",
-                    "catalog-security-filter");
+                    "catalog-security-filter",
+                    "sample-validator");
             config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
             configProps = new Hashtable<>(new PdpProperties());
             config.update(configProps);
@@ -1517,7 +1557,9 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testValidationChecker() throws Exception {
-        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        getServiceManager().startFeature(true,
+                "catalog-plugin-metacard-validation",
+                "sample-validator");
 
         configureEnforcedMetacardValidators(Arrays.asList(""));
 
@@ -1606,46 +1648,62 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+            getServiceManager().stopFeature(true,
+                    "catalog-plugin-metacard-validation",
+                    "sample-validator");
             configureShowInvalidMetacards("false", "true");
         }
     }
 
-    @Test
-    public void testMetacardDefinitionJsonFile() throws Exception {
-        getServiceManager().startFeature(true, "catalog-core-validator");
-        Path definitionsDir = Paths.get(System.getProperty("ddf.home"), "etc/definitions");
-        definitionsDir = Files.createDirectories(definitionsDir);
-        definitionsDir.toFile()
+    private File copyFileToDefinitionsDir(String filename) throws IOException {
+        Path definitionsDirPath = Paths.get(System.getProperty(DDF_HOME_PROPERTY),
+                "etc/definitions");
+        definitionsDirPath = Files.createDirectories(definitionsDirPath);
+        definitionsDirPath.toFile()
                 .deleteOnExit();
-        Path tmpFile = definitionsDir.resolve("definitions.json");
+
+        Path tmpFile = definitionsDirPath.resolve(filename);
         tmpFile.toFile()
                 .deleteOnExit();
         Files.copy(getClass().getClassLoader()
-                .getResourceAsStream("definitions.json"), tmpFile);
+                .getResourceAsStream(filename), tmpFile);
+        return tmpFile.toFile();
+    }
+
+    private void ingestDefinitionJsonWithMetacardType(String filename, String newMetacardTypeName)
+            throws IOException {
+        File definitionFile = copyFileToDefinitionsDir(filename);
 
         expect("Service to be available: " + MetacardType.class.getName()).within(10,
                 TimeUnit.SECONDS)
                 .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
-                        "(name=new.metacard.type)"), not(empty()));
+                        "(name=" + newMetacardTypeName + ")"), not(empty()));
+
+        FileUtils.deleteQuietly(definitionFile);
+    }
+
+    @Test
+    public void testMetacardDefinitionJsonFile() throws Exception {
+        getServiceManager().startFeature(true, "catalog-core-validationparser");
+
+        final String newMetacardTypeName = "new.metacard.type";
+        ingestDefinitionJsonWithMetacardType("definitions.json", newMetacardTypeName);
 
         String ddfMetacardXml = IOUtils.toString(getClass().getClassLoader()
                 .getResourceAsStream("metacard1.xml"), UTF_8.name());
 
         String modifiedMetacardXml = ddfMetacardXml.replaceFirst("ddf\\.metacard",
-                "new.metacard.type")
+                newMetacardTypeName)
                 .replaceFirst("resource-uri", "new-attribute-required-2");
         String id = ingest(modifiedMetacardXml, "text/xml");
         configureShowInvalidMetacards("true", "true");
         try {
-
             String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]", id);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
                     .assertThat()
-                    .body(hasXPath(newMetacardXpath))
-                    .body(hasXPath(newMetacardXpath + "/type", is("new.metacard.type")))
+                    .body(hasXPath(newMetacardXpath + "/type", is(newMetacardTypeName)))
                     .body(hasXPath("count(" + newMetacardXpath
                             + "/string[@name=\"validation-errors\"]/value)", is("2")))
                     .body(hasXPath(newMetacardXpath
@@ -1655,11 +1713,159 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .body(hasXPath(
                             newMetacardXpath + "/string[@name=\"new-attribute-required-2\"]/value",
                             is("\" + uri + \"")));
-
         } finally {
             deleteMetacard(id);
-            getServiceManager().stopFeature(true, "catalog-core-validator");
+            getServiceManager().stopFeature(true, "catalog-core-validationparser");
             configureShowInvalidMetacards("false", "false");
+        }
+    }
+
+    private String getDefaultExpirationAsString() {
+        final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'");
+        format.setTimeZone(TimeZone.getTimeZone(ZoneId.of("Z")));
+        final Date defaultExpiration = Date.from(OffsetDateTime.of(2020,
+                2,
+                2,
+                2,
+                2,
+                2,
+                0,
+                ZoneOffset.UTC)
+                .toInstant());
+        return format.format(defaultExpiration);
+    }
+
+    private void deregisterDefaults(String metacardType) {
+        DefaultAttributeValueRegistry registry = getServiceManager().getService(
+                DefaultAttributeValueRegistry.class);
+
+        registry.removeDefaultValues(metacardType);
+
+        registry.removeDefaultValue(Metacard.TITLE);
+        registry.removeDefaultValue(Metacard.DESCRIPTION);
+        registry.removeDefaultValue(Metacard.EXPIRATION);
+    }
+
+    private void verifyMetacardDoesNotContainAttribute(String metacardXml, String attribute) {
+        assertThat(metacardXml, not(containsString(attribute)));
+    }
+
+    @Test
+    public void testDefaultValuesCreate() throws Exception {
+        getServiceManager().startFeature(true, "catalog-core-validationparser");
+
+        final String customMetacardTypeName = "custom";
+        ingestDefinitionJsonWithMetacardType("defaults.json", customMetacardTypeName);
+
+        String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
+                .getResourceAsStream("metacard1.xml"), UTF_8.name());
+
+        String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
+                .getResourceAsStream("metacard2.xml"), UTF_8.name());
+
+        metacard2Xml = metacard2Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
+
+        verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.DESCRIPTION);
+        verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.EXPIRATION);
+        verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.DESCRIPTION);
+        verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.EXPIRATION);
+
+        final String id1 = ingest(metacard1Xml, MediaType.APPLICATION_XML);
+        final String id2 = ingest(metacard2Xml, MediaType.APPLICATION_XML);
+
+        try {
+            final String defaultDescription = "Default description";
+            final String defaultCustomMetacardDescription = "Default custom description";
+            final String defaultExpiration = getDefaultExpirationAsString();
+
+            final String metacard1XPath = String.format(METACARD_X_PATH, id1);
+            final String metacard2XPath = String.format(METACARD_X_PATH, id2);
+
+            executeOpenSearch("xml", "q=*").log()
+                    .all()
+                    .assertThat()
+                    // The metacard had a title, so it should not have been set to the default
+                    .body(hasXPath(metacard1XPath + "/string[@name='title']/value",
+                            is("Metacard-1")))
+                    .body(hasXPath(metacard1XPath + "/string[@name='description']/value",
+                            is(defaultDescription)))
+                    .body(hasXPath(metacard1XPath + "/dateTime[@name='expiration']/value",
+                            is(defaultExpiration)))
+                    // The metacard had a title, so it should not have been set to the default
+                    .body(hasXPath(metacard2XPath + "/string[@name='title']/value",
+                            is("Metacard-2")))
+                    .body(hasXPath(metacard2XPath + "/string[@name='description']/value",
+                            is(defaultCustomMetacardDescription)))
+                    .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value",
+                            is(defaultExpiration)));
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
+            deregisterDefaults(customMetacardTypeName);
+            getServiceManager().stopFeature(true, "catalog-core-validationparser");
+        }
+    }
+
+    @Test
+    public void testDefaultValuesUpdate() throws Exception {
+        getServiceManager().startFeature(true, "catalog-core-validationparser");
+
+        final String customMetacardTypeName = "custom";
+        ingestDefinitionJsonWithMetacardType("defaults.json", customMetacardTypeName);
+
+        String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
+                .getResourceAsStream("metacard1.xml"), UTF_8.name());
+
+        final String id1 = ingest(metacard1Xml, MediaType.APPLICATION_XML);
+
+        String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
+                .getResourceAsStream("metacard2.xml"), UTF_8.name());
+
+        metacard2Xml = metacard2Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
+
+        final String id2 = ingest(metacard2Xml, MediaType.APPLICATION_XML);
+
+        try {
+            final String updatedTitle1 = "Metacard-1 (Updated)";
+            final String updatedTitle2 = "Metacard-2 (Updated)";
+            metacard1Xml = metacard1Xml.replaceFirst("Metacard\\-1", updatedTitle1);
+            metacard2Xml = metacard2Xml.replaceFirst("Metacard\\-2", updatedTitle2);
+
+            verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.DESCRIPTION);
+            verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.EXPIRATION);
+            verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.DESCRIPTION);
+            verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.EXPIRATION);
+
+            update(id1, metacard1Xml, MediaType.APPLICATION_XML);
+            update(id2, metacard2Xml, MediaType.APPLICATION_XML);
+
+            final String defaultDescription = "Default description";
+            final String defaultCustomMetacardDescription = "Default custom description";
+            final String defaultExpiration = getDefaultExpirationAsString();
+
+            final String metacard1XPath = String.format(METACARD_X_PATH, id1);
+            final String metacard2XPath = String.format(METACARD_X_PATH, id2);
+
+            executeOpenSearch("xml", "q=*").log()
+                    .all()
+                    .assertThat()
+                    .body(hasXPath(metacard1XPath + "/string[@name='title']/value",
+                            is(updatedTitle1)))
+                    .body(hasXPath(metacard1XPath + "/string[@name='description']/value",
+                            is(defaultDescription)))
+                    .body(hasXPath(metacard1XPath + "/dateTime[@name='expiration']/value",
+                            is(defaultExpiration)))
+                    .body(hasXPath(metacard2XPath + "/string[@name='title']/value",
+                            is(updatedTitle2)))
+                    .body(hasXPath(metacard2XPath + "/string[@name='description']/value",
+                            is(defaultCustomMetacardDescription)))
+                    .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value",
+                            is(defaultExpiration)));
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
+            deregisterDefaults(customMetacardTypeName);
+            getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }
 

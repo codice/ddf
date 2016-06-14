@@ -28,6 +28,7 @@ import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
+import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
@@ -114,6 +115,8 @@ public class FrameworkProperties {
     private List<PostUpdateStoragePlugin> postUpdateStoragePlugins = new ArrayList<>();
 
     private ValidationQueryFactory validationQueryFactory;
+
+    private DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
     public List<CatalogProvider> getCatalogProviders() {
         return catalogProviders;
@@ -359,5 +362,14 @@ public class FrameworkProperties {
 
     public ValidationQueryFactory getValidationQueryFactory() {
         return this.validationQueryFactory;
+    }
+
+    public void setDefaultAttributeValueRegistry(
+            DefaultAttributeValueRegistry defaultAttributeValueRegistry) {
+        this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
+    }
+
+    public DefaultAttributeValueRegistry getDefaultAttributeValueRegistry() {
+        return defaultAttributeValueRegistry;
     }
 }

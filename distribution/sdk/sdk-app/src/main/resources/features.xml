@@ -3,7 +3,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -35,6 +35,7 @@
              description="SDK Sample rest service whoami">
         <bundle>mvn:ddf.distribution/sample-rest-endpoint/${project.version}</bundle>
     </feature>
+
     <feature name="sample-validator" version="${project.version}" install="manual"
              description="SDK sample metacard validator">
         <bundle>
@@ -57,7 +58,6 @@
         <feature>security-expansion-metacard-attributes</feature>
         <feature>sdk-soap</feature>
         <feature>sdk-rest</feature>
-        <feature>sample-validator</feature>
         <feature>sample-storageplugins</feature>
     </feature>
 

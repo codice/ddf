@@ -16,10 +16,13 @@ package ddf.catalog.validation.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,10 +33,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.felix.fileinstall.ArtifactInstaller;
 import org.boon.json.JsonFactory;
 import org.boon.json.annotations.JsonIgnore;
@@ -45,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -65,18 +71,30 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class ValidationParser implements ArtifactInstaller {
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
 
-    private AttributeRegistry attributeRegistry;
+    private final AttributeRegistry attributeRegistry;
 
-    private AttributeValidatorRegistry attributeValidatorRegistry;
+    private final AttributeValidatorRegistry attributeValidatorRegistry;
+
+    private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
     private static Map<String, Outer> sourceMap = new ConcurrentHashMap<>();
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_INSTANT;
+
+    public ValidationParser(AttributeRegistry attributeRegistry,
+            AttributeValidatorRegistry attributeValidatorRegistry,
+            DefaultAttributeValueRegistry defaultAttributeValueRegistry) {
+        this.attributeRegistry = attributeRegistry;
+        this.attributeValidatorRegistry = attributeValidatorRegistry;
+        this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
+    }
 
     @Override
     public void install(File file) throws Exception {
         String data;
         try (InputStream input = new FileInputStream(file)) {
             data = IOUtils.toString(input, StandardCharsets.UTF_8.name());
-            LOGGER.debug("Installing file [{}}. Contents:\n{}", file.getAbsolutePath(), data);
+            LOGGER.debug("Installing file [{}]. Contents:\n{}", file.getAbsolutePath(), data);
         }
         if (StringUtils.isEmpty(data)) {
             LOGGER.warn("File is empty [{}]", file.getAbsolutePath());
@@ -99,46 +117,30 @@ public class ValidationParser implements ArtifactInstaller {
         parseValidators(root, outer);
 
         sourceMap.put(file.getName(), outer);
-        List<Callable<Boolean>> stagedAdds = new ArrayList<>();
 
-        try {
-            if (outer.attributeTypes != null) {
-                stagedAdds.addAll(parseAttributeTypes(outer.attributeTypes));
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Could not parse Attribute Types section of [" + file.getAbsolutePath() + "]",
-                    e);
-        }
-        LOGGER.debug("Committing staged attribute type definitions.");
-        commitStaged(stagedAdds);
-
-        try {
-            if (outer.metacardTypes != null) {
-                stagedAdds.addAll(parseMetacardTypes(outer.metacardTypes));
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Could not parse Metacard Types section of [" + file.getAbsolutePath() + "]",
-                    e);
-        }
-        LOGGER.debug("Committing staged metacard type definitions.");
-        commitStaged(stagedAdds);
-
-        try {
-            if (outer.validators != null) {
-                stagedAdds.addAll(parseValidators(outer.validators));
-
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Could not parse Validators section of [" + file.getAbsolutePath() + "]", e);
-        }
-        LOGGER.debug("Committing staged validator definitions.");
-        commitStaged(stagedAdds);
+        handleSection("Attribute Types", outer.attributeTypes, this::parseAttributeTypes);
+        handleSection("Metacard Types", outer.metacardTypes, this::parseMetacardTypes);
+        handleSection("Validators", outer.validators, this::parseValidators);
+        handleSection("Defaults", outer.defaults, this::parseDefaults);
     }
 
-    private void commitStaged(Collection<Callable<Boolean>> stagedAdds) throws Exception {
+    private <T> void handleSection(String sectionName, T sectionData,
+            Function<T, List<Callable<Boolean>>> parser) throws Exception {
+        if (sectionData != null) {
+            List<Callable<Boolean>> stagedAdds;
+            try {
+                stagedAdds = parser.apply(sectionData);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(String.format("Could not parse %s section.",
+                        sectionName), e);
+            }
+
+            LOGGER.debug("Committing {}", sectionName);
+            commitStaged(stagedAdds);
+        }
+    }
+
+    private void commitStaged(List<Callable<Boolean>> stagedAdds) throws Exception {
         for (Callable<Boolean> staged : stagedAdds) {
             try {
                 staged.call();
@@ -146,7 +148,6 @@ public class ValidationParser implements ArtifactInstaller {
                 LOGGER.warn("Error adding staged item {}", staged, e);
             }
         }
-        stagedAdds.clear();
     }
 
     @Override
@@ -161,15 +162,6 @@ public class ValidationParser implements ArtifactInstaller {
     public boolean canHandle(File file) {
         return file.getName()
                 .endsWith(".json");
-    }
-
-    public void setAttributeRegistry(AttributeRegistry attributeRegistry) {
-        this.attributeRegistry = attributeRegistry;
-    }
-
-    public void setAttributeValidatorRegistry(
-            AttributeValidatorRegistry attributeValidatorRegistry) {
-        this.attributeValidatorRegistry = attributeValidatorRegistry;
     }
 
     @SuppressWarnings("unchecked")
@@ -209,10 +201,9 @@ public class ValidationParser implements ArtifactInstaller {
         List<Callable<Boolean>> staged = new ArrayList<>();
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         if (bundle == null) {
-            LOGGER.warn(String.format(
-                    "Unable to get bundle for [%s], Metacard Types will not be registered",
+            LOGGER.warn("Unable to get bundle for {}. Metacard Types will not be registered",
                     this.getClass()
-                            .getName()));
+                            .getName());
             return new ArrayList<>();
         }
         BundleContext context = bundle.getBundleContext();
@@ -221,8 +212,7 @@ public class ValidationParser implements ArtifactInstaller {
                     new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
             Set<String> requiredAttributes = new HashSet<>();
 
-            for (Map.Entry<String, Outer.MetacardAttribute> entry : metacardType.attributes.entrySet()) {
-                String attributeName = entry.getKey();
+            metacardType.attributes.forEach((attributeName, attribute) -> {
                 AttributeDescriptor descriptor = attributeRegistry.getAttributeDescriptor(
                         attributeName)
                         .orElseThrow(() -> new IllegalStateException(String.format(
@@ -230,10 +220,11 @@ public class ValidationParser implements ArtifactInstaller {
                                 metacardType.type,
                                 attributeName)));
                 attributeDescriptors.add(descriptor);
-                if (entry.getValue().required) {
+                if (attribute.required) {
                     requiredAttributes.add(attributeName);
                 }
-            }
+            });
+
             if (!requiredAttributes.isEmpty()) {
                 final MetacardValidator validator = new RequiredAttributesMetacardValidator(
                         metacardType.type,
@@ -241,6 +232,7 @@ public class ValidationParser implements ArtifactInstaller {
                 staged.add(() -> context.registerService(MetacardValidator.class, validator, null)
                         != null);
             }
+
             Dictionary<String, Object> properties = new Hashtable<>();
             properties.put("name", metacardType.type);
             MetacardType type = new MetacardTypeImpl(metacardType.type, attributeDescriptors);
@@ -305,6 +297,59 @@ public class ValidationParser implements ArtifactInstaller {
         }
     }
 
+    private Serializable parseDefaultValue(AttributeDescriptor descriptor, String defaultValue) {
+        switch (descriptor.getType()
+                .getAttributeFormat()) {
+        case BOOLEAN:
+            return Boolean.parseBoolean(defaultValue);
+        case DATE:
+            return Date.from(Instant.from(DATE_FORMATTER.parse(defaultValue)));
+        case DOUBLE:
+            return Double.parseDouble(defaultValue);
+        case FLOAT:
+            return Float.parseFloat(defaultValue);
+        case SHORT:
+            return Short.parseShort(defaultValue);
+        case INTEGER:
+            return Integer.parseInt(defaultValue);
+        case LONG:
+            return Long.parseLong(defaultValue);
+        case BINARY:
+            return defaultValue.getBytes(StandardCharsets.UTF_8);
+        default:
+            return defaultValue;
+        }
+    }
+
+    private List<Callable<Boolean>> parseDefaults(List<Outer.Default> defaults) {
+        return defaults.stream()
+                .flatMap(defaultObj -> {
+                    String attribute = defaultObj.attribute;
+                    AttributeDescriptor descriptor = attributeRegistry.getAttributeDescriptor(
+                            attribute)
+                            .orElseThrow(() -> new IllegalStateException(String.format(
+                                    "The default value for the attribute [%s] cannot be parsed because that attribute has not been registered in the attribute registry",
+                                    attribute)));
+                    Serializable defaultValue = parseDefaultValue(descriptor, defaultObj.value);
+                    List<String> metacardTypes = defaultObj.metacardTypes;
+                    if (metacardTypes == null || metacardTypes.isEmpty()) {
+                        return Stream.of(() -> {
+                            defaultAttributeValueRegistry.setDefaultValue(attribute, defaultValue);
+                            return true;
+                        });
+                    } else {
+                        return metacardTypes.stream()
+                                .map(metacardType -> (Callable<Boolean>) () -> {
+                                    defaultAttributeValueRegistry.setDefaultValue(metacardType,
+                                            attribute,
+                                            defaultValue);
+                                    return true;
+                                });
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
     private class Outer {
         List<MetacardType> metacardTypes;
 
@@ -312,6 +357,8 @@ public class ValidationParser implements ArtifactInstaller {
 
         @JsonIgnore
         Map<String, List<Validator>> validators;
+
+        List<Default> defaults;
 
         class MetacardType {
             String type;
@@ -340,6 +387,13 @@ public class ValidationParser implements ArtifactInstaller {
 
             List<String> arguments;
         }
-    }
 
+        class Default {
+            String attribute;
+
+            String value;
+
+            List<String> metacardTypes;
+        }
+    }
 }

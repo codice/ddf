@@ -212,6 +212,12 @@
             <artifactId>mime-core-impl</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-defaultvalues</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -393,7 +399,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.57</minimum>
+                                            <minimum>0.58</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
@@ -403,7 +409,7 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.42</minimum>
+                                            <minimum>0.43</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

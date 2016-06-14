@@ -1396,13 +1396,14 @@ This section concerns capabilities that are considered experimental. The feature
 
 ==== Definition File Format
 
-Metacard Types, Attribute Types, and global Attribute Validators can be defined within a definition file. A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed. There are three main types that can be defined in a definition file.
+Metacard types, attribute types, global attribute validators, and default attribute values can be defined within a definition file. A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed. There are four main types that can be defined in a definition file.
 
 - Metacard Types
 - Attribute Types
 - Global Attribute Validators
+- Default Attribute Values
 
-Within a definition file you may define as many of the three types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
+Within a definition file you may define as many of the four types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
 
 ==== Deploying 
 The file must have a `.json` extension in order to be picked up by the deployer. Once the definition file is ready to be deployed, put the definition file `<filename>.json` into the `etc/definitions` folder.
@@ -1506,6 +1507,7 @@ The value of the `type` key is the name of the metacard type being defined.
 
 The value of the `attributes` key is a map where each key is the name of an attribute type to include in this metacard type and each value is a map with a single key named `required` and a boolean value. Required attributes are used for metacard validation - metacards that lack required attributes will be flagged with validation errors.
 
+
 [source,json]
 ----
 {
@@ -1517,6 +1519,9 @@ The value of the `attributes` key is a map where each key is the name of an attr
                     "required": true
                 },
                 "target-areas": {
+                    "required": false
+                },
+                "expiration": {
                     "required": false
                 },
                 "point-of-contact": {
@@ -1670,5 +1675,74 @@ Examples:
             }
         ]
     }
+}
+----
+
+==== Default Attribute Values
+
+To define default attribute values, your definition file must have a `defaults` key in the root object.
+
+[source,json]
+----
+{
+    "defaults": [...]
+}
+----
+
+The value of `defaults` is a list of objects where each object contains the keys `attribute`, `value`, and optionally `metacardTypes`.
+
+[source,json]
+----
+{
+    "defaults": [
+        {
+            "attribute": ...,
+            "value": ...,
+            "metacardTypes": [...]
+        }
+    ]
+}
+----
+
+The value corresponding to the `attribute` key is the name of the attribute to which the default value will be applied. The value corresponding to the `value` key is the default value of the attribute.
+
+[NOTE]
+====
+The attribute's default value must be of the same type as the attribute, but it has to be written as a string (i.e., enclosed in quotation marks) in the JSON file.
+
+Dates must be UTC datetimes in the ISO 8601 format, i.e., `yyyy-MM-ddTHH:mm:ssZ`
+====
+
+The `metacardTypes` key is optional. If it is left out, then the default attribute value will be applied to every metacard that has that attribute. It can be thought of as a 'global' default value. If the `metacardTypes` key is included, then its value must be a list of strings where each string is the name of a metacard type. In this case, the default attribute value will be applied only to metacards that match one of the types given in the list.
+
+[NOTE]
+====
+In the event that an attribute has a 'global' default value as well as a default value for a specific metacard type, the default value for the specific metacard type will be applied (i.e., the more specific default value wins).
+====
+
+Example:
+[source,json]
+----
+{
+    "defaults": [
+        {
+            "attribute": "title",
+            "value": "Default Title"
+        },
+        {
+            "attribute": "description",
+            "value": "Default video description",
+            "metacardTypes": ["video"]
+        },
+        {
+            "attribute": "expiration",
+            "value": "2020-05-06T12:00:00Z",
+            "metacardTypes": ["video", "nitf"]
+        },
+        {
+            "attribute": "frame-rate",
+            "value": "30"
+        }
+    ]
 }
 ----

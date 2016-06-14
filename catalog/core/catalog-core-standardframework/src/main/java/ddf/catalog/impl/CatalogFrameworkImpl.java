@@ -93,8 +93,10 @@ import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
+import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
@@ -1065,6 +1067,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw sourceUnavailableException;
         }
 
+        setDefaultValues(createRequest);
+
         CreateResponse createResponse = null;
 
         Exception ingestError = null;
@@ -1094,9 +1098,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             createRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
-                            OperationTransaction.OperationType.CREATE,
-                            new ArrayList<>()));
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
+                                    new ArrayList<>()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
@@ -1246,6 +1250,48 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         .forEach(metacard::setAttribute));
     }
 
+    private void setDefaultValues(CreateRequest createRequest) {
+        createRequest.getMetacards()
+                .stream()
+                .filter(Objects::nonNull)
+                .forEach(this::setDefaultValues);
+    }
+
+    private void setDefaultValues(UpdateRequest updateRequest) {
+        updateRequest.getUpdates()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(Map.Entry::getValue)
+                .filter(Objects::nonNull)
+                .forEach(this::setDefaultValues);
+    }
+
+    private boolean hasNoValue(Attribute attribute) {
+        return attribute == null || attribute.getValue() == null;
+    }
+
+    private void setDefaultValues(Metacard metacard) {
+        Map<String, Serializable> defaults = new HashMap<>();
+        MetacardType metacardType = metacard.getMetacardType();
+        DefaultAttributeValueRegistry registry =
+                frameworkProperties.getDefaultAttributeValueRegistry();
+
+        metacardType.getAttributeDescriptors()
+                .stream()
+                .map(AttributeDescriptor::getName)
+                .forEach(attributeName -> {
+                    registry.getDefaultValue(metacardType.getName(), attributeName)
+                            .ifPresent(defaultValue -> defaults.put(attributeName, defaultValue));
+                });
+
+        defaults.forEach((attributeName, defaultValue) -> {
+            Attribute attribute = metacard.getAttribute(attributeName);
+            if (hasNoValue(attribute)) {
+                metacard.setAttribute(new AttributeImpl(attributeName, defaultValue));
+            }
+        });
+    }
+
     @Override
     public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
             throws IngestException, SourceUnavailableException {
@@ -1330,8 +1376,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     new UpdateRequestImpl(Iterables.toArray(metacardMap.values()
                             .stream()
                             .map(Metacard::getId)
-                            .collect(Collectors.toList()), String.class), new ArrayList<>(
-                            metacardMap.values()));
+                            .collect(Collectors.toList()), String.class),
+                            new ArrayList<>(metacardMap.values()));
             updateRequest.setProperties(streamUpdateRequest.getProperties());
             updateResponse = update(updateRequest);
         } catch (Exception e) {
@@ -1387,6 +1433,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw new SourceUnavailableException(
                     "Local provider is not available, cannot perform update operation.");
         }
+
+        setDefaultValues(updateRequest);
 
         UpdateResponse updateResponse = null;
         try {
@@ -1458,9 +1506,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             updateReq.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
-                            OperationTransaction.OperationType.UPDATE,
-                            metacardMap.values()));
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
+                                    metacardMap.values()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
@@ -1598,9 +1646,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             deleteRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
-                            OperationTransaction.OperationType.DELETE,
-                            metacards));
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
+                                    metacards));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
@@ -2648,8 +2696,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     String metacardId = (String) value;
                     LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
                     QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(
-                            metacardId), isEnterprise, Collections.singletonList(
-                            site == null ? this.getId() : site), resourceRequest.getProperties());
+                            metacardId),
+                            isEnterprise,
+                            Collections.singletonList(site == null ? this.getId() : site),
+                            resourceRequest.getProperties());
 
                     QueryResponse queryResponse = query(queryRequest, null, true);
                     if (queryResponse.getResults()
