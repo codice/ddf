@@ -167,6 +167,28 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
 
     }
 
+    @Test
+    public void testEmptyAttributeName() {
+        AbstractMetacardActionProvider provider = new MetacardTransformerActionProvider(
+                ACTION_PROVIDER_ID,
+                SAMPLE_TRANSFORMER_ID,
+                "");
+        assertThat(provider.canHandle(new MetacardImpl()), is(true));
+        assertThat(provider.canHandle(new String()), is(false));
+    }
+
+    @Test
+    public void testSpecificAttributeName() {
+        AbstractMetacardActionProvider provider = new MetacardTransformerActionProvider(
+                ACTION_PROVIDER_ID,
+                SAMPLE_TRANSFORMER_ID,
+                "thumbnail");
+        MetacardImpl metacard = new MetacardImpl();
+        assertThat(provider.canHandle(metacard), is(false));
+        metacard.setThumbnail(new byte[] {000});
+        assertThat(provider.canHandle(metacard), is(true));
+    }
+
     private String expectedDefaultAddressWith(String id, String sourceName,
             String transformerName) {
         return SAMPLE_PROTOCOL + SAMPLE_IP + ":" + SAMPLE_PORT + SAMPLE_SERVICES_ROOT + SAMPLE_PATH
