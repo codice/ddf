@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.core.ftp.user;
+package ddf.catalog.ftp.user;
 
 import org.apache.ftpserver.usermanager.impl.BaseUser;
 

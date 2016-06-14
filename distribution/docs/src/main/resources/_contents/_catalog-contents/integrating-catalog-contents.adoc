@@ -1105,6 +1105,32 @@ Use the Admin Menu to install the FTP feature in the ${branding} Catalog. The FT
 
 The configurable properties for the FTP Endpoint are accessed from the *FTP Endpoint* Configuration in the Admin Console under the DDF Catalog application.
 
+[cols="1,1,1,4a,1,1," options="header"]
+|===
+
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|FTP Port
+|`port`
+|Integer
+|Specifies the port for the server to listen on for connections.
+|8021
+|Yes
+
+|Client Authentication
+|`clientAuth`
+|String
+|Whether or not the client authentication is required or wanted by the server. A value of "need" requires client authentication using a certificate, a value of "want" leaves it up to the client.
+|want
+|Yes
+
+|===
+
 ===== Using the FTP Endpoint
 
 ====== Using the endpoint
@@ -1118,11 +1144,11 @@ After creating a custom Ftplet, it needs to be added to the FTP server’s Ftple
 
 ====== From an FTP client:
 
-The FTP endpoint can be accessed from any FTP client of choice. Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal. The default port number is *8021*. Valid usernames and password are stored in the `<INSTALL_DIR>/etc/users.properties` file.
+The FTP endpoint can be accessed from any FTP client of choice. Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal. The default port number is *8021*. If FTPS is enabled with 2-way TLS, a client that supports client authentication is required.
 
 ===== Implementation Details
 
-The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apache Mina provides an API for transport protocols such as TCP and UDP. The FTP server is built on top of Apache Mina to transport its messages. ${branding} implements a custom Ftplet by overriding the `DefaultFtplet` class provided by Apache FTP Server.
+The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apache Mina provides an API for transport protocols such as TCP and UDP. The FTP server is built on top of Apache Mina to transport its messages. ${branding} implements a custom Ftplet by overriding the `DefaultFtplet` class provided by Apache FTP Server. 
 
 ====== Known Issues
 

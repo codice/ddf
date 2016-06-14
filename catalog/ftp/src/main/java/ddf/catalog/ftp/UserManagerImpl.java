@@ -1,21 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.core.ftp;
+package ddf.catalog.ftp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ftpserver.ftplet.Authentication;
@@ -32,7 +33,7 @@ import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.core.ftp.user.FtpUser;
+import ddf.catalog.ftp.user.FtpUser;
 import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -44,13 +45,17 @@ public class UserManagerImpl implements UserManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManagerImpl.class);
 
-    private static final String UPLOAD_DIRECTORY = "";
+    private static final int MAX_IDLE_TIME_SECONDS = 300;
 
     private static SecurityManager securityManager;
 
+    private String karafLocalRoles;
+
+    private String uploadDirectory;
+
     private String admin;
 
-    private HashMap<String, User> users;
+    private Map<String, User> users;
 
     public UserManagerImpl(SecurityManager securityManager) {
         notNull(securityManager, "securityManager");
@@ -130,14 +135,14 @@ public class UserManagerImpl implements UserManager {
 
     /**
      * @param userName name of the user being authenticated
-     * @param subject {@link Subject} of the user
+     * @param subject  {@link Subject} of the user
      * @return {@link FtpUser}
      */
     protected FtpUser createUser(String userName, Subject subject) {
         FtpUser user = new FtpUser();
         user.setName(userName);
         user.setEnabled(true);
-        user.setHomeDirectory(UPLOAD_DIRECTORY);
+        user.setHomeDirectory(uploadDirectory);
 
         List<Authority> authorities = new ArrayList<>();
 
@@ -146,7 +151,7 @@ public class UserManagerImpl implements UserManager {
         authorities.add(new TransferRatePermission(0, 0));
 
         user.setAuthorities(authorities);
-        user.setMaxIdleTime(0);
+        user.setMaxIdleTime(MAX_IDLE_TIME_SECONDS);
 
         user.setSubject(subject);
 
@@ -157,6 +162,10 @@ public class UserManagerImpl implements UserManager {
         return user;
     }
 
+    public void setUploadDirectory(String directoryPath) {
+        uploadDirectory = directoryPath;
+    }
+
     private String[] usersToStringArray(Object[] users) {
         String[] strArray = new String[users.length];
         for (int i = 0; i < users.length; i++) {
@@ -165,14 +174,28 @@ public class UserManagerImpl implements UserManager {
         return strArray;
     }
 
+    public void setKarafLocalRoles(String roles) {
+        this.karafLocalRoles = roles;
+    }
+
     private boolean checkAdmin(String username) {
         return this.admin.equals(username);
     }
 
+    /**
+     * The {@code UserManager} interface expects only one admin. The first admin to login receives admin
+     * status for this {@code UserManager}
+     *
+     * @param user {@link User} eligible for admin
+     */
     private void setAdmin(User user) {
-        Subject subject = ((FtpUser) user).getSubject();
-        if (subject.hasRole("admin") && StringUtils.isEmpty(this.admin)) {
-            this.admin = user.getName();
+        if (StringUtils.isEmpty(this.admin)) {
+            Subject subject = ((FtpUser) user).getSubject();
+            for (String role : karafLocalRoles.split(",")) {
+                if (role.equalsIgnoreCase("admin") && subject.hasRole(role)) {
+                    this.admin = user.getName();
+                }
+            }
         }
     }
 

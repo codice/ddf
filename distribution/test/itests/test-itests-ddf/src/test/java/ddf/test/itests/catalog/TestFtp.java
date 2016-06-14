@@ -55,7 +55,7 @@ public class TestFtp extends AbstractIntegrationTest {
 
     private static final int FTP_DEFAULT_PORT = 8021;
 
-    private static final String FTP_ENDPOINT_FEATURE = "catalog-core-ftp";
+    private static final String FTP_ENDPOINT_FEATURE = "catalog-ftp";
 
     private static final String USERNAME = "admin";
 

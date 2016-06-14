@@ -14,17 +14,26 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD description="FTP Endpoint Configuration"
-         name="FTP Endpoint" id="ddf.catalog.core.ftp.FtpServerStarter">
+         name="FTP Endpoint" id="ddf.catalog.ftp.FtpServerStarter">
 
         <AD
                 description="The port number for the FTP server to listen on."
                 name="FTP Port Number" id="port" min="0" max="65535"
                 required="true" type="Integer" default="8021"/>
 
+        <AD
+                description='Whether or not client authentication is required or wanted. A value of "Need" requires client auth, a value of "Want" leaves it up to the client.'
+                name="Client Authentication" id="clientAuth" required="true"
+                type="String" default="want">
+            <Option label="Want" value="want"/>
+            <Option label="Need" value="need"/>
+
+        </AD>
+
     </OCD>
 
-    <Designate pid="ddf.catalog.core.ftp.FtpServerStarter">
-        <Object ocdref="ddf.catalog.core.ftp.FtpServerStarter"/>
+    <Designate pid="ddf.catalog.ftp.FtpServerStarter">
+        <Object ocdref="ddf.catalog.ftp.FtpServerStarter"/>
     </Designate>
 
 </metatype:MetaData>
