@@ -1,0 +1,255 @@
+@activeColor: #18BC9C;
+@highlightColor : lighten(@activeColor, 35);
+
+
+table.align-middle{
+  td {
+    vertical-align: middle !important;
+  }
+}
+
+#localIdentityNodeRegion,#localAdditionalNodeRegion {
+  a {
+    padding-left: 5px;
+    text-decoration: none;
+  }
+  table {
+    thead {
+      th:last-child{
+        text-align: right;
+      }
+      th {
+        width: 25%;
+      }
+    }
+  }
+  label {
+    color: black;
+  }
+  .table-striped > tbody {
+    tr.highlight-on-hover:hover td {
+      background-color: @highlightColor;
+    }
+
+    tr:nth-child(odd) > td{
+      .configurationSelect {
+        border: none;
+        background-color: #f9f9f9;
+      }
+    }
+
+    tr:nth-child(even) > td{
+      .configurationSelect {
+        border: none;
+        background-color: white;
+      }
+    }
+    td {
+      width: 25%;
+    }
+  }
+  .add-segment{
+    text-align: right;
+  }
+
+}
+
+.button-icon {
+   padding-left: 5px;
+   padding-right: 5px;
+   text-decoration: none!important;
+ }
+.button-icon:hover {
+  text-decoration: underline!important;
+}
+
+.tab-header {
+  display: block;
+  height: 50px;
+  h3 {
+   // float: left;
+  }
+  a {
+   // float: right;
+    margin: 21px;
+  }
+}
+#registry-modal {
+  .nested-label0 {
+    font-size: 28px;
+  }
+  .nested-label1 {
+    font-size: 22px;
+    font-style: oblique;
+    vertical-align: middle;
+  }
+  .nested-label2 {
+    font-size: 18px;
+    vertical-align: middle;
+  }
+  .nested-label3 {
+    font-style: oblique;
+    vertical-align: middle;
+    margin-bottom: 2px;
+  }
+  .clickable {
+    background-color: lightgrey;
+    margin-bottom: 2px;
+    border-radius: 5px;
+    padding: 0px 10px;
+  }
+  .segment-header-table {
+    width: 100%;
+    table
+    td:first-child {
+      width: 95%;
+    };
+    td:last-child {
+      width: 5%;
+    };
+  }
+  .disabled-link{
+    color: grey;
+    pointer-events: none;
+  }
+  .segment-content {
+    border-radius: 5px;
+    border: black 1px;
+  }
+  .add-segment {
+    padding-left: 10px;
+    margin-bottom: 5px;
+  }
+  .add-value {
+    padding-left: 10px;
+  }
+  .remove-field {
+    padding-left: 10px;
+  }
+  .node-field {
+    margin-top: 10px;
+  }
+  .coords {
+    padding-left: 10px;
+    label {
+      font-weight: normal;
+    }
+  }
+  input {
+    line-height : normal;
+  }
+
+  .segment-associations {
+    font-weight: bold;
+  }
+
+  .customizable-header,.association-header {
+    padding-bottom: 1px;
+    border-bottom: 1px solid lightgray;
+  }
+  tbody {
+    tr {
+      .custom-fields {
+        padding-left: 10px;
+      }
+    }
+  }
+
+  .validation-error {
+    border-color: red;
+  }
+
+  .validation-error-text {
+    color: red;
+  }
+
+  .validation-error-icon {
+    color: red;
+    padding-right: 5px;
+    vertical-align: middle;
+  }
+
+  .error-list {
+    text-align: left;
+  }
+  .string-input{
+    width: 80%;
+  }
+  .multi-value-field{
+    width:88.5%;
+  }
+  .string-table-input {
+    width: 100%;
+  }
+  .remove-value {
+    padding-left: 10px;
+  }
+  .lat-lon-input {
+    width: 35%;
+    margin-right: 10px;
+  }
+  .association-table {
+    margin-left: 10px;
+    width: 75%;
+
+    tr:nth-child(odd) > td{
+        border: none;
+        background-color: #f9f9f9;
+
+    }
+    tr:nth-child(even) > td{
+        border: none;
+        background-color: white;
+    }
+    td {
+      padding: 0px;
+    }
+    td:last-child{
+      text-align: right;
+    }
+  }
+  .segment-header-table {
+    width: 100%;
+    td:last-child{
+      text-align: right;
+    }
+  }
+}
+
+.IframeModalDOM {
+  padding-top: 30px;
+  padding-bottom: 30px
+}
+
+.newLink {
+  text-decoration: none!important;
+  width: 100%;
+  font-weight: 700;
+}
+
+.node-table-label {
+  font-weight: bold;
+}
+
+.card-style-toggle .btn {
+  color: #fff;
+  background-color: #95a5a6;
+  border-color: #95a5a6;
+  padding: 7px 6px 4px;
+}
+
+.delete-modal-body {
+  min-height: 400px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.no-results {
+  height: 100px;
+  display: table;
+  .message {
+    display: table-cell;
+    vertical-align: middle;
+  }
+}
+
