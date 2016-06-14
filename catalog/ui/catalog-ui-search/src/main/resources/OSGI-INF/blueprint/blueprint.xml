@@ -161,11 +161,19 @@
         <property name="actionRegistry" ref="metacardActionRegistry"/>
     </bean>
 
+    <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
+
+    <bean id="userApplication" class="org.codice.ddf.catalog.ui.security.UserApplication">
+        <argument ref="persistentStore"/>
+        <argument ref="endpointUtil"/>
+    </bean>
+
     <bean id="querySparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
         <argument>
             <list>
                 <ref component-id="queryApplication"/>
                 <ref component-id="metacardApplication"/>
+                <ref component-id="userApplication"/>
             </list>
         </argument>
     </bean>
