@@ -15,9 +15,18 @@ var httpProxy = require('http-proxy');
 var morgan = require('morgan')
 var server = require('./server-impl');
 
-var proxy = new httpProxy.createProxyServer({ secure: false });
+var proxy = new httpProxy.createProxyServer({ changeOrigin: true, secure: false });
+
 proxy.on('error', function (error) {
     console.error('http-proxy', error);
+});
+
+proxy.on('proxyRes', function(proxyRes, req, res) {
+    var cookie = proxyRes.headers['set-cookie'];
+    if (cookie !== undefined) {
+        // force the cookie to be insecure since the proxy is over http
+        proxyRes.headers['set-cookie'] = cookie[0].replace(/;Secure/, '')
+    }
 });
 
 var app = express();
