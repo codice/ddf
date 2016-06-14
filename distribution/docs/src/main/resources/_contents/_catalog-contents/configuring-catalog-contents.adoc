@@ -264,12 +264,12 @@
 |Default Value
 |Required
 
-1|Metacard Attributes:
-2|metacardAttributes
-3|String
-4|Attributes within the metacard that will be collected for security information.
-5|
-6|No
+|Metacard Attributes:
+|metacardAttributes
+|String
+|Metacard attributes that will be collected and mapped to security information. Example: `security.classification=classification`.
+|
+|No
 
 |===
 

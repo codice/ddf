@@ -27,4 +27,10 @@
         </service-properties>
     </service>
 
+    <reference-list id="contentExtractors" interface="ddf.catalog.content.operation.ContentMetadataExtractor"
+                    availability="optional">
+        <reference-listener bind-method="addContentMetadataExtractors" unbind-method="removeContentMetadataExtractor"
+                            ref="pdfTransformer"/>
+    </reference-list>
+
 </blueprint>

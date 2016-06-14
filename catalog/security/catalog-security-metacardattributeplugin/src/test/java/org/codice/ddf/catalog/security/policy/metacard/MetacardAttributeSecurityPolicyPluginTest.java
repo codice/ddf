@@ -55,11 +55,13 @@ public class MetacardAttributeSecurityPolicyPluginTest {
         metacard1.setAttribute(new AttributeImpl("parsed.countries", Arrays.asList("GBR", "CAN")));
         metacard1.setAttribute(new AttributeImpl("parsed.other", Arrays.asList("E", "F")));
         plugin = new MetacardAttributeSecurityPolicyPlugin();
-        plugin.setMetacardAttributes(Arrays.asList("parsed.security", "parsed.countries"));
+        plugin.setMetacardAttributes(Arrays.asList("parsed.security=mapped.security",
+                "parsed.countries=mapped.countries"));
     }
 
     @Test
-    public void testProcessPreCreate() throws StopProcessingException {
+    public void testBadAttributeDef() throws StopProcessingException {
+        plugin.setMetacardAttributes(Arrays.asList("parsed.security", "parsed.countries"));
         PolicyResponse policyResponse = plugin.processPreCreate(metacard, new HashMap<>());
         assertThat(policyResponse.itemPolicy()
                 .size(), is(2));
@@ -82,6 +84,39 @@ public class MetacardAttributeSecurityPolicyPluginTest {
                 .contains("CAN"));
 
         assertNull(policyResponse.itemPolicy()
+                .get("mapped.security"));
+        assertNull(policyResponse.itemPolicy()
+                .get("mapped.countries"));
+    }
+
+    @Test
+    public void testProcessPreCreate() throws StopProcessingException {
+        PolicyResponse policyResponse = plugin.processPreCreate(metacard, new HashMap<>());
+        assertThat(policyResponse.itemPolicy()
+                .size(), is(2));
+
+        assertTrue(policyResponse.itemPolicy()
+                .get("mapped.security")
+                .contains("A"));
+        assertTrue(policyResponse.itemPolicy()
+                .get("mapped.security")
+                .contains("B"));
+        assertTrue(policyResponse.itemPolicy()
+                .get("mapped.security")
+                .contains("C"));
+
+        assertTrue(policyResponse.itemPolicy()
+                .get("mapped.countries")
+                .contains("USA"));
+        assertTrue(policyResponse.itemPolicy()
+                .get("mapped.countries")
+                .contains("CAN"));
+
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.security"));
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.countries"));
+        assertNull(policyResponse.itemPolicy()
                 .get("parsed.other"));
     }
 
@@ -92,22 +127,26 @@ public class MetacardAttributeSecurityPolicyPluginTest {
                 .size(), is(2));
 
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("A"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("B"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("C"));
 
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("USA"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("CAN"));
 
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.security"));
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.countries"));
         assertNull(policyResponse.itemPolicy()
                 .get("parsed.other"));
     }
@@ -120,33 +159,38 @@ public class MetacardAttributeSecurityPolicyPluginTest {
                 .size(), is(2));
 
         assertTrue(policyResponse.operationPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("A"));
         assertTrue(policyResponse.operationPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("B"));
         assertTrue(policyResponse.operationPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("C"));
         assertTrue(policyResponse.operationPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("X"));
         assertTrue(policyResponse.operationPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("Y"));
         assertTrue(policyResponse.operationPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("Z"));
 
         assertTrue(policyResponse.operationPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("USA"));
         assertTrue(policyResponse.operationPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("CAN"));
         assertTrue(policyResponse.operationPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("GBR"));
+
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.security"));
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.countries"));
     }
 
     @Test
@@ -156,22 +200,26 @@ public class MetacardAttributeSecurityPolicyPluginTest {
                 .size(), is(2));
 
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("A"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("B"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("C"));
 
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("USA"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("CAN"));
 
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.security"));
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.countries"));
         assertNull(policyResponse.itemPolicy()
                 .get("parsed.other"));
     }
@@ -185,22 +233,26 @@ public class MetacardAttributeSecurityPolicyPluginTest {
                 .size(), is(2));
 
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("A"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("B"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("C"));
 
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("USA"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("CAN"));
 
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.security"));
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.countries"));
         assertNull(policyResponse.itemPolicy()
                 .get("parsed.other"));
     }
@@ -213,22 +265,26 @@ public class MetacardAttributeSecurityPolicyPluginTest {
                 .size(), is(2));
 
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("A"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("B"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.security")
+                .get("mapped.security")
                 .contains("C"));
 
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("USA"));
         assertTrue(policyResponse.itemPolicy()
-                .get("parsed.countries")
+                .get("mapped.countries")
                 .contains("CAN"));
 
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.security"));
+        assertNull(policyResponse.itemPolicy()
+                .get("parsed.countries"));
         assertNull(policyResponse.itemPolicy()
                 .get("parsed.other"));
     }
@@ -236,9 +292,11 @@ public class MetacardAttributeSecurityPolicyPluginTest {
     @Test
     public void testUnusedMethods() throws StopProcessingException {
         PolicyResponse policyResponse = plugin.processPreQuery(mock(Query.class), new HashMap<>());
-        assertThat(policyResponse.itemPolicy().size(), is(0));
+        assertThat(policyResponse.itemPolicy()
+                .size(), is(0));
 
         policyResponse = plugin.processPreResource(mock(ResourceRequest.class));
-        assertThat(policyResponse.itemPolicy().size(), is(0));
+        assertThat(policyResponse.itemPolicy()
+                .size(), is(0));
     }
 }
