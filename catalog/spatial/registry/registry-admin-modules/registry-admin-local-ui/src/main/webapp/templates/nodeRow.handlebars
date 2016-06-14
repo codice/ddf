@@ -1,0 +1,48 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+
+<td>
+    <a href='#{{id}}' class='newLink' data-toggle="modal">
+        {{#if name}}
+            {{name}}
+        {{else}}
+            <span class='label label-danger'>[No Title]</span>
+        {{/if}}
+    </a>
+
+    <div class="modal-container">
+
+    </div>
+</td>
+<td>
+    {{#each slots}}
+        {{#is name "liveDate"}}
+            <label class="label">{{value}}</label>
+        {{/is}}
+    {{/each}}
+</td>
+<td>
+    {{#each slots}}
+        {{#is name "lastUpdated"}}
+            <label class="label">{{value}}</label>
+        {{/is}}
+    {{/each}}
+</td>
+<td/>
+<td>
+    {{#unless identityNode}}
+        <a href="#" class="button-icon remove-node-link fa fa-trash-o"></a>
+    {{/unless}}
+
+</td>
