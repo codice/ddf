@@ -139,9 +139,10 @@ public class MetacardApplication implements SparkApplication {
             List<String> ids = JsonFactory.create()
                     .parser()
                     .parseList(String.class, req.body());
-            DeleteResponse deleteResponse = catalogFramework.delete(new DeleteRequestImpl(ids,
-                    Metacard.ID,
-                    null));
+            DeleteResponse deleteResponse =
+                    catalogFramework.delete(new DeleteRequestImpl(new ArrayList<>(ids),
+                            Metacard.ID,
+                            null));
             if (deleteResponse.getProcessingErrors() != null
                     && !deleteResponse.getProcessingErrors()
                     .isEmpty()) {

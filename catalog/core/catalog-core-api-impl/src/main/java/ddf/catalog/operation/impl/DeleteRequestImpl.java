@@ -37,7 +37,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
     /**
      * Ids or URIs
      */
-    protected List<? extends Serializable> values;
+    protected List<Serializable> values;
 
     /**
      * Set of destination ids this request should be sent to
@@ -110,14 +110,14 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
      * @param attributeName - the attribute name associated with the values
      * @param properties    the properties
      */
-    public DeleteRequestImpl(List<? extends Serializable> values, String attributeName,
+    public DeleteRequestImpl(List<Serializable> values, String attributeName,
             Map<String, Serializable> properties) {
         this(values, attributeName, properties, new HashSet<>());
         this.name = attributeName;
         this.values = values;
     }
 
-    public DeleteRequestImpl(List<? extends Serializable> values, String attributeName,
+    public DeleteRequestImpl(List<Serializable> values, String attributeName,
             Map<String, Serializable> properties, Set<String> destinations) {
         super(properties);
         this.name = attributeName;
