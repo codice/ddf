@@ -1,8 +1,7 @@
 @activeColor: #18BC9C;
-@highlightColor : lighten(@activeColor, 35);
+@highlightColor: lighten(@activeColor, 35);
 
-
-table.align-middle{
+table.align-middle {
   td {
     vertical-align: middle !important;
   }
@@ -17,14 +16,14 @@ table.align-middle{
       background-color: @highlightColor;
     }
 
-    tr:nth-child(odd) > td{
+    tr:nth-child(odd) > td {
       .configurationSelect {
         border: none;
         background-color: #f9f9f9;
       }
     }
 
-    tr:nth-child(even) > td{
+    tr:nth-child(even) > td {
       .configurationSelect {
         border: none;
         background-color: white;
@@ -32,6 +31,11 @@ table.align-middle{
     }
   }
 }
+
+.control-label2 {
+  margin-top: 10px;
+}
+
 #sources-modal {
   a {
     text-decoration: none;
@@ -94,7 +98,7 @@ table.align-middle{
 }
 
 .newLink {
-  text-decoration: none!important;
+  text-decoration: none !important;
   width: 100%;
   font-weight: 700;
 }
@@ -119,4 +123,88 @@ table.align-middle{
     display: table-cell;
     vertical-align: middle;
   }
+}
+
+.report-list, .operation-list {
+  list-style: none;
+}
+
+.modal-reports, .modal-operations {
+  label {
+    margin-left: 10px;
+    font-size: small;
+  }
+}
+
+.accordion-title {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+  transition: 0.3s;
+  margin-bottom: 1px;
+  border-radius: 4px;
+}
+
+.accordion-title.active, .accordion-title:hover {
+  background-color: #ddd;
+
+}
+
+.op-status {
+  display: none;
+  margin-left: 10px;
+}
+
+.op-success {
+  color: @activeColor;
+}
+
+.op-failed {
+  color: red;
+}
+
+.accordion-content {
+  padding: 0 18px;
+  background-color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: 0.6s ease-in-out;
+  opacity: 0;
+}
+
+.accordion-content.show {
+  opacity: 1;
+  max-height: 500px;
+  overflow: auto;
+}
+
+.accordion-title:after {
+  font-size: 13px;
+  color: #777;
+  float: right;
+  margin-left: 5px;
+}
+
+.add-configuration {
+  text-align: center;
+}
+
+.activeBindingSelect {
+  display: none;
+}
+
+#checkboxes {
+  margin-top: 10px;
+}
+
+.inactive-link {
+  pointer-events: none;
+  cursor: default;
+  color: lightgray;
 }

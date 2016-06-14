@@ -12,53 +12,56 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
 /*global define*/
 define([
-    'wreqr',
-    'js/application',
-    'js/view/Source.view.js',
-    'poller',
-    'js/model/Source.js',
-    'js/model/Status.js',
-    'js/model/Service.js'
-],
-function(wreqr, Application, SourceView, poller, Source, Status, Service) {
+        'wreqr',
+        'js/application',
+        'js/view/Source.view.js',
+        'poller',
+        'js/model/Source.js',
+        'js/model/Status.js',
+        'js/model/Service.js'
+    ],
+    function (wreqr, Application, SourceView, poller, Source, Status, Service) {
 
-    Application.App.module('Sources', function(SourceModule, App, Backbone, Marionette)  {
+        Application.App.module('Sources', function (SourceModule, App, Backbone, Marionette) {
 
-        var serviceModel = new Service.Response();
-        serviceModel.fetch();
+            var serviceModel = new Service.Response();
+            serviceModel.fetch();
 
-        var sourceResponse = new Source.Response({model: serviceModel});
-
-        var sourcePage = new SourceView.SourcePage({model: sourceResponse});
-
-        // Define a controller to run this module
-        // --------------------------------------
-
-        var Controller = Marionette.Controller.extend({
-
-            initialize: function(options){
-                this.region = options.region;
-            },
-
-            show: function(){
-                this.region.show(sourcePage);
-            }
-
-        });
-
-        // Initialize this module when the app starts
-        // ------------------------------------------
-
-        SourceModule.addInitializer(function(){
-            SourceModule.contentController = new Controller({
-                region: App.mainRegion
+            var sourceResponse = new Source.Response({
+                model: serviceModel
             });
-            SourceModule.contentController.show();
+
+            var sourcePage = new SourceView.SourcePage({
+                model: sourceResponse
+            });
+
+            // Define a controller to run this module
+            // --------------------------------------
+
+            var Controller = Marionette.Controller.extend({
+
+                initialize: function (options) {
+                    this.region = options.region;
+                },
+
+                show: function () {
+                    this.region.show(sourcePage);
+                }
+
+            });
+
+            // Initialize this module when the app starts
+            // ------------------------------------------
+
+            SourceModule.addInitializer(function () {
+                SourceModule.contentController = new Controller({
+                    region: App.mainRegion
+                });
+                SourceModule.contentController.show();
+            });
+
+
         });
-
-
     });
-});
