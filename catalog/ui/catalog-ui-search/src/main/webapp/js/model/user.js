@@ -108,7 +108,8 @@ define([
     });
 
     User.Preferences = Backbone.AssociatedModel.extend({
-        url: '/service/user',
+        useAjaxSync: true,
+        url: '/search/catalog/internal/user/preferences',
         relations: [
             {
                 type: Backbone.One,
@@ -122,8 +123,8 @@ define([
                 collectionType: User.MapLayers
             }
         ],
-        savePreferences: function () {
-            this.save();
+        savePreferences: function (options) {
+            this.sync('update', this, options || {});
         }
     });
 
@@ -136,11 +137,12 @@ define([
             }
         ],
         isGuestUser: function () {
-            return this.get('isGuest') === 'true' || this.get('isGuest') === true;
+            return this.get('isGuest');
         }
     });
 
     User.Response = Backbone.AssociatedModel.extend({
+        useAjaxSync: true,
         relations: [
             {
                 type: Backbone.One,
@@ -148,7 +150,7 @@ define([
                 relatedModel: User.Model
             }
         ],
-        url: '/service/user',
+        url: '/search/catalog/internal/user',
         initialize: function () {
             var user = new User.Model();
             this.set('user', user);
@@ -167,13 +169,14 @@ define([
         parse: function (resp) {
             var parsedData = resp.data ? resp.data : resp;
 
-            if (undefined === parsedData.user.preferences) {
-                var preferences = {};
-                preferences.mapColors = this.getFallbackMapColors();
-                preferences.mapLayers = this.getFallbackMapLayers();
-                parsedData.user.preferences = preferences;
-            }
-            return parsedData;
+            return {
+                user: _.merge({
+                    preferences: {
+                        mapColors: this.getFallbackMapColors(),
+                        mapLayers: this.getFallbackMapLayers()
+                    }
+                }, parsedData)
+            };
         },
         getFallbackMapColors: function () {
             var jsonString = window.localStorage.getItem('org.codice.ddf.search.preferences.mapColors');

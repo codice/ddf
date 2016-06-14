@@ -25,11 +25,6 @@ define([
             'submit .login-form' : 'login',
             'click #sign-out': 'logout'
         },
-        serializeData: function () {
-            var m = this.model.toJSON();
-            m.user.isGuest = m.user.isGuest != 'false';
-            return m;
-        },
         template: template,
         tagName: CustomElements.register('login-form'),
         logout: function () {
