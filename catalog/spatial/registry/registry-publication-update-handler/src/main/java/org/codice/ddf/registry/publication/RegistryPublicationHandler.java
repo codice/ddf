@@ -14,17 +14,13 @@
 package org.codice.ddf.registry.publication;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -32,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeImpl;
 
 /**
  * RegistryPublicationHandler is an org.osgi.service.event.EventHandler that listens for registry
@@ -46,13 +41,13 @@ public class RegistryPublicationHandler implements EventHandler {
 
     private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
 
-    private final FederationAdminService adminService;
+    private final RegistryPublicationService registryPublicationService;
 
     private final ExecutorService executor;
 
-    public RegistryPublicationHandler(FederationAdminService adminService,
+    public RegistryPublicationHandler(RegistryPublicationService registryPublicationService,
             ExecutorService service) {
-        this.adminService = adminService;
+        this.registryPublicationService = registryPublicationService;
         this.executor = service;
     }
 
@@ -93,22 +88,13 @@ public class RegistryPublicationHandler implements EventHandler {
             datePublished = (Date) lastPublished.getValue();
         }
 
-        Set<String> locations = publishedLocations.getValues()
-                .stream()
-                .map(Object::toString)
-                .collect(Collectors.toCollection(HashSet::new));
-
         //If we haven't published this metacard before or if we have had an update
         //since the last time we published send an update to the remote location
-        if ((datePublished == null || datePublished.before(mcard.getModifiedDate()))
-                && CollectionUtils.isNotEmpty(locations)) {
+        if ((datePublished == null || datePublished.before(mcard.getModifiedDate()))) {
             try {
-                adminService.updateRegistryEntry(mcard, locations);
-                mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED,
-                        mcard.getModifiedDate()));
-                adminService.updateRegistryEntry(mcard);
+                registryPublicationService.update(mcard);
             } catch (FederationAdminException e) {
-                LOGGER.warn("Unable to send update for {} to {}", mcard.getTitle(), locations);
+                LOGGER.warn("Unable to send update for {}", mcard.getTitle());
             }
         }
 

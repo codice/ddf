@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -505,10 +506,36 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         return getRegistryPackageFromString(xml);
     }
 
+    @Override
+    public Optional<Metacard> getLocalRegistryIdentityMetacard() throws FederationAdminException {
+        Optional<Metacard> metacardOptional = Optional.empty();
+
+        List<Filter> filters = getBasicFilter();
+        filters.add(filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE)
+                .is()
+                .bool(true));
+        Filter filter = filterBuilder.allOf(filters);
+
+        List<Metacard> identityMetacards = getRegistryMetacardsByFilter(filter);
+        if (CollectionUtils.isNotEmpty(identityMetacards)) {
+
+            if (identityMetacards.size() > 1) {
+                String message =
+                        "Error getting registry identity metacard. More than one result found.";
+                LOGGER.error("{} Found these: {}", message, identityMetacards);
+                throw new FederationAdminException(message);
+            }
+
+            metacardOptional = Optional.of(identityMetacards.get(0));
+        }
+
+        return metacardOptional;
+    }
+
     public void init() {
         org.codice.ddf.security.common.Security.runAsAdmin(() -> {
             try {
-                if (getRegistryIdentityMetacard() == null) {
+                if (!getLocalRegistryIdentityMetacard().isPresent()) {
                     createIdentityNode();
                 }
             } catch (FederationAdminException e) {
@@ -610,31 +637,6 @@ public class FederationAdminServiceImpl implements FederationAdminService {
                         "ValidationError: Metacard does not have a registry tag.");
             }
         }
-    }
-
-    private Metacard getRegistryIdentityMetacard() throws FederationAdminException {
-        Metacard identityMetacard = null;
-
-        List<Filter> filters = getBasicFilter();
-        filters.add(filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE)
-                .is()
-                .bool(true));
-        Filter filter = filterBuilder.allOf(filters);
-
-        List<Metacard> identityMetacards = getRegistryMetacardsByFilter(filter);
-        if (CollectionUtils.isNotEmpty(identityMetacards)) {
-
-            if (identityMetacards.size() > 1) {
-                String message =
-                        "Error getting registry identity metacard. More than one result found.";
-                LOGGER.error("{} Found these: {}", message, identityMetacards);
-                throw new FederationAdminException(message);
-            }
-
-            identityMetacard = identityMetacards.get(0);
-        }
-
-        return identityMetacard;
     }
 
     private List<Metacard> getRegistryMetacardsByFilter(Filter filter)
