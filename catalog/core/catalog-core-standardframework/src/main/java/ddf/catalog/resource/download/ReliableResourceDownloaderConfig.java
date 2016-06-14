@@ -124,5 +124,4 @@ public class ReliableResourceDownloaderConfig {
     public void setCacheWhenCanceled(boolean cacheWhenCanceled) {
         this.cacheWhenCanceled = cacheWhenCanceled;
     }
-
 }

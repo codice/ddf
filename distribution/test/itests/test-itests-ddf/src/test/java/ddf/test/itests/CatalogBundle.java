@@ -42,6 +42,8 @@ public class CatalogBundle {
 
     public static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
 
+    public static final String RESOURCE_DOWNLOAD_MANAGER_PID = "ddf.catalog.resource.download.ReliableResourceDownloadManager";
+
     private final ServiceManager serviceManager;
 
     private final AdminConfig adminConfig;
@@ -159,7 +161,7 @@ public class CatalogBundle {
 
     public void setupCaching(boolean cachingEnabled) throws IOException {
         Map<String, Object> existingProperties = adminConfig.getDdfConfigAdmin()
-                .getProperties(CATALOG_FRAMEWORK_PID);
+                .getProperties(RESOURCE_DOWNLOAD_MANAGER_PID);
         if (existingProperties == null) {
             existingProperties = new Hashtable<String, Object>();
         }
@@ -171,7 +173,7 @@ public class CatalogBundle {
             updatedProperties.put("cacheEnabled", "False");
         }
 
-        Configuration configuration = adminConfig.getConfiguration(CATALOG_FRAMEWORK_PID, null);
+        Configuration configuration = adminConfig.getConfiguration(RESOURCE_DOWNLOAD_MANAGER_PID, null);
         configuration.update(updatedProperties);
     }
 }

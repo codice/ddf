@@ -307,8 +307,6 @@
           init-method="setupCache"
           destroy-method="teardownCache">
         <property name="productCacheDirectory" value=""/>
-        <property name="cacheDirMaxSizeMegabytes" value="10240"/>
-        <!-- 10 GB -->
         <property name="context" ref="blueprintBundleContext"/>
         <property name="xmlConfigFilename" value="reliableResource-hazelcast.xml"/>
     </bean>
@@ -322,9 +320,21 @@
     <bean id="reliableResourceDownloadManager"
           class="ddf.catalog.resource.download.ReliableResourceDownloadManager"
           init-method="init" destroy-method="cleanUp">
-        <argument ref="deprecatedProductCache"/>
-        <argument ref="retrieveStatusEventPublisher"/>
-        <argument ref="retrieveStatusEventListener"/>
+        <cm:managed-properties persistent-id="ddf.catalog.resource.download.ReliableResourceDownloadManager"
+                               update-strategy="container-managed"/>
+        <argument>
+            <bean xml:id="downloaderConfig"
+                  class="ddf.catalog.resource.download.ReliableResourceDownloaderConfig">
+                <property name="cacheEnabled" value="true"/>
+                <property name="delayBetweenAttemptsMS" value="10000"/>
+                <property name="maxRetryAttempts" value="3"/>
+                <property name="monitorPeriodMS" value="5000"/>
+                <property name="cacheWhenCanceled" value="false"/>
+                <property name="resourceCache" ref="deprecatedProductCache"/>
+                <property name="eventPublisher" ref="retrieveStatusEventPublisher"/>
+                <property name="eventListener" ref="retrieveStatusEventListener"/>
+            </bean>
+        </argument>
         <argument ref="downloadStatusInfo"/>
         <argument ref="downloadThreadPool"/>
     </bean>
@@ -374,7 +384,6 @@
                 <property name="pool" ref="queryThreadPool"/>
                 <property name="queryResponsePostProcessor" ref="queryResponsePostProcessor"/>
                 <property name="sourcePoller" ref="sourcePoller"/>
-                <property name="resourceCache" ref="deprecatedProductCache"/>
                 <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
                 <property name="reliableResourceDownloadManager"
                           ref="reliableResourceDownloadManager"/>
@@ -388,11 +397,6 @@
             </bean>
         </argument>
         <property name="masker" ref="sourceListener"/>
-        <property name="cacheEnabled" value="true"/>
-        <property name="delayBetweenRetryAttempts" value="10"/>
-        <property name="maxRetryAttempts" value="3"/>
-        <property name="retrievalMonitorPeriod" value="5"/>
-        <property name="cacheWhenCanceled" value="false"/>
         <property name="notificationEnabled" value="true"/>
     </bean>
 

@@ -73,8 +73,6 @@ import com.google.common.collect.Iterables;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
-import ddf.catalog.cache.impl.CacheKey;
-import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
@@ -154,7 +152,6 @@ import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
-import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
@@ -256,29 +253,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         this.fanoutEnabled = fanoutEnabled;
     }
 
-    void setProductCache(ResourceCacheImpl productCache) {
-        LOGGER.debug("Injecting productCache");
-        frameworkProperties.setResourceCache(productCache);
-    }
-
-    public void setProductCacheDirectory(String productCacheDirectory) {
-        LOGGER.debug("Setting product cache directory to {}", productCacheDirectory);
-        frameworkProperties.getResourceCache()
-                .setProductCacheDirectory(productCacheDirectory);
-    }
-
-    public void setCacheDirMaxSizeMegabytes(long maxSize) {
-        LOGGER.debug("Setting product cache max size to {}", maxSize);
-        frameworkProperties.getResourceCache()
-                .setCacheDirMaxSizeMegabytes(maxSize);
-    }
-
-    public void setCacheEnabled(boolean cacheEnabled) {
-        LOGGER.debug("Setting cacheEnabled = {}", cacheEnabled);
-        frameworkProperties.getReliableResourceDownloadManager()
-                .setCacheEnabled(cacheEnabled);
-    }
-
     public void setNotificationEnabled(boolean notificationEnabled) {
         LOGGER.debug("Setting notificationEnabled = {}", notificationEnabled);
         this.notificationEnabled = notificationEnabled;
@@ -293,44 +267,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 .setActivityEnabled(activityEnabled);
     }
 
-    /**
-     * Set the delay, in seconds, between product retrieval retry attempts.
-     *
-     * @param delayBetweenAttempts Delay in seconds
-     */
-    public void setDelayBetweenRetryAttempts(int delayBetweenAttempts) {
-        LOGGER.debug("Setting delayBetweenRetryAttempts = {} s", delayBetweenAttempts);
-        frameworkProperties.getReliableResourceDownloadManager()
-                .setDelayBetweenAttempts(delayBetweenAttempts);
-    }
-
-    /**
-     * Maximum number of attempts to try and retrieve product
-     */
-    public void setMaxRetryAttempts(int maxRetryAttempts) {
-        LOGGER.debug("Setting maxRetryAttempts = {}", maxRetryAttempts);
-        frameworkProperties.getReliableResourceDownloadManager()
-                .setMaxRetryAttempts(maxRetryAttempts);
-    }
-
-    /**
-     * Set the frequency, in seconds, to monitor the product retrieval.
-     * If this amount of time passes with no bytes being retrieved for
-     * the product, then the monitor will start a new download attempt.
-     *
-     * @param retrievalMonitorPeriod Frequency in seconds
-     */
-    public void setRetrievalMonitorPeriod(int retrievalMonitorPeriod) {
-        LOGGER.debug("Setting retrievalMonitorPeriod = {} s", retrievalMonitorPeriod);
-        frameworkProperties.getReliableResourceDownloadManager()
-                .setMonitorPeriod(retrievalMonitorPeriod);
-    }
-
-    public void setCacheWhenCanceled(boolean cacheWhenCanceled) {
-        LOGGER.debug("Setting cacheWhenCanceled = {}", cacheWhenCanceled);
-        frameworkProperties.getReliableResourceDownloadManager()
-                .setCacheWhenCanceled(cacheWhenCanceled);
-    }
 
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
@@ -2401,6 +2337,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         ResourceResponse resourceResponse = null;
         ResourceRequest resourceReq = resourceRequest;
         String resourceSourceName = resourceSiteName;
+        ResourceRetriever retriever = null;
 
         if (fanoutEnabled) {
             isEnterprise = true;
@@ -2482,74 +2419,37 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 resourceSourceName = resolvedSourceId;
             }
 
-            String key;
-            try {
-                key = new CacheKey(metacard, resourceRequest).generateKey();
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Resource not found", resourceRequest);
-                throw new ResourceNotFoundException("Resource not found : " + resourceRequest);
-            }
+            // retrieve product from specified federated site if not in cache
+            if (!resourceSourceName.equals(getId())) {
+                LOGGER.debug("Searching federatedSource {} for resource.", resourceSourceName);
+                LOGGER.debug("metacard for product found on source: {}", resolvedSourceId);
 
-            if (frameworkProperties.getResourceCache() != null
-                    && frameworkProperties.getResourceCache()
-                    .containsValid(key, metacard)) {
-                Resource resource = frameworkProperties.getResourceCache()
-                        .getValid(key, metacard);
-                if (resource != null) {
-                    resourceResponse = new ResourceResponseImpl(resourceRequest,
-                            requestProperties,
-                            resource);
-                    LOGGER.info("Successfully retrieved product from cache for metacard ID = {}",
-                            metacard.getId());
+                FederatedSource source = frameworkProperties.getFederatedSources()
+                        .get(resourceSourceName);
+
+                if (source != null) {
+                    LOGGER.debug("Adding federated site to federated query: {}",
+                            source.getId());
+                    LOGGER.debug("Retrieving product from remote source {}", source.getId());
+                    retriever = new RemoteResourceRetriever(source,
+                            responseURI,
+                            requestProperties);
                 } else {
-                    LOGGER.info(
-                            "Unable to get resource from cache. Have to retrieve it from source {}",
-                            resourceSourceName);
+                    LOGGER.warn("Could not find federatedSource: {}", resourceSourceName);
                 }
-            }
-
-            if (resourceResponse == null) {
-                // retrieve product from specified federated site if not in cache
-                if (!resourceSourceName.equals(getId())) {
-                    LOGGER.debug("Searching federatedSource {} for resource.", resourceSourceName);
-                    LOGGER.debug("metacard for product found on source: {}", resolvedSourceId);
-                    FederatedSource source;
-
-                    source = frameworkProperties.getFederatedSources()
-                            .get(resourceSourceName);
-                    if (source != null) {
-                        LOGGER.debug("Adding federated site to federated query: {}",
-                                source.getId());
-                    }
-
-                    if (source != null) {
-                        LOGGER.debug("Retrieving product from remote source {}", source.getId());
-                        ResourceRetriever retriever = new RemoteResourceRetriever(source,
+            } else {
+                LOGGER.debug("Retrieving product from local source {}", resourceSourceName);
+                retriever =
+                        new LocalResourceRetriever(frameworkProperties.getResourceReaders(),
                                 responseURI,
                                 requestProperties);
-                        try {
-                            resourceResponse =
-                                    frameworkProperties.getReliableResourceDownloadManager()
-                                            .download(resourceRequest, metacard, retriever);
-                        } catch (DownloadException e) {
-                            LOGGER.info("Unable to download resource", e);
-                        }
-                    } else {
-                        LOGGER.warn("Could not find federatedSource: {}", resourceSourceName);
-                    }
-                } else {
-                    LOGGER.debug("Retrieving product from local source {}", resourceSourceName);
-                    ResourceRetriever retriever =
-                            new LocalResourceRetriever(frameworkProperties.getResourceReaders(),
-                                    responseURI,
-                                    requestProperties);
-                    try {
-                        resourceResponse = frameworkProperties.getReliableResourceDownloadManager()
-                                .download(resourceRequest, metacard, retriever);
-                    } catch (DownloadException e) {
-                        LOGGER.info("Unable to download resource", e);
-                    }
-                }
+            }
+
+            try {
+                resourceResponse = frameworkProperties.getReliableResourceDownloadManager()
+                        .download(resourceRequest, metacard, retriever);
+            } catch (DownloadException e) {
+                LOGGER.info("Unable to download resource", e);
             }
 
             resourceResponse = validateFixGetResourceResponse(resourceResponse, resourceReq);
@@ -2892,7 +2792,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     }
 
     /**
-     * Validates that the {@link ResourceResponse} has a {@link Resource} in it that was retrieved,
+     * Validates that the {@link ResourceResponse} has a {@link ddf.catalog.resource.Resource} in it that was retrieved,
      * and that the original {@link ResourceRequest} is included in the response.
      *
      * @param getResourceResponse the original {@link ResourceResponse} returned from the source
