@@ -14,25 +14,16 @@
  **/
 /*global define*/
 define([
-    'text!templates/emptyView.handlebars',
-    'marionette',
-    'icanhaz'
-], function (emptyViewTemplate, Marionette, ich) {
+    'js/view/Accordion.view.js',
+    'marionette'
+], function (AccordionView, Marionette) {
 
-    if (!ich.emptyViewTemplate) {
-        ich.addTemplate('emptyViewTemplate', emptyViewTemplate);
-    }
 
-    var EmptyView = {};
+    var AccordionCollectionView = {};
 
-    EmptyView.sources = Marionette.ItemView.extend({
-        template: 'emptyViewTemplate',
-        serializeData: function () {
-            return {
-                message: "There are no sources configured."
-            };
-        }
+    AccordionCollectionView = Marionette.CollectionView.extend({
+        itemView: AccordionView
     });
 
-    return EmptyView;
+    return AccordionCollectionView;
 });
