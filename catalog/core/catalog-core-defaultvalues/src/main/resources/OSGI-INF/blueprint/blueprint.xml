@@ -11,24 +11,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- -->
+-->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="metacardValidator" class="ddf.catalog.validation.impl.ReportingMetacardValidatorImpl">
-        <argument ref="attributeValidatorRegistry"/>
-    </bean>
-
-    <service ref="metacardValidator">
-        <interfaces>
-            <value>ddf.catalog.validation.MetacardValidator</value>
-            <value>ddf.catalog.validation.ReportingMetacardValidator</value>
-        </interfaces>
+    <service interface="ddf.catalog.data.DefaultAttributeValueRegistry">
+        <bean class="ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl"/>
     </service>
-
-    <bean id="attributeValidatorRegistry"
-          class="ddf.catalog.validation.impl.AttributeValidatorRegistryImpl"/>
-
-    <service ref="attributeValidatorRegistry"
-             interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
 
 </blueprint>
