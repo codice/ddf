@@ -1053,12 +1053,16 @@ Settings can be found in the ${admin-console} under *${ddf-security} -> Configur
 |Additional Information
 
 |LDAP URL
-`|ldap://localhost:1389`
+|`ldaps://${org.codice.ddf.system.hostname}:1636`
 |
+
+|StartTLS
+|`false`
+|Ignored if the URL uses ldaps.
  
 |LDAP Bind User DN
 |`cn=admin`
-|
+|This user should have the ability to verify passwords and read attributes for any user.
  
 |LDAP Bind User Password
 |`secret`
@@ -1146,12 +1150,16 @@ Configuration settings can be found in the ${admin-console} under *${ddf-securit
 |Additional Information
 
 |LDAP URL
-|`ldaps://localhost:1636`
+|`ldaps://${org.codice.ddf.system.hostname}:1636`
 |
+
+|StartTLS
+|`false`
+|Ignored if the URL uses ldaps.
  
 |LDAP Bind User DN
 |`cn=admin`
-|
+|This user should have the ability to verify passwords and read attributes for any user.
  
 |LDAP Bind User Password
 |`secret`
@@ -1168,10 +1176,6 @@ Configuration settings can be found in the ${admin-console} under *${ddf-securit
 |LDAP Base Group DN
 |`ou=groups,dc=example,dc=com`
 |
- 
-|SSL Keystore Alias
-|`localhost`
-|This alias is used when connecting to the LDAP using SSL/TLS (LDAPS) or startTLS.
 
 |===
 
