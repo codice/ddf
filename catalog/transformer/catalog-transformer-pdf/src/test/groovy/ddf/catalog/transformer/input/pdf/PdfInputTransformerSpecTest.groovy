@@ -13,10 +13,17 @@
  */
 package ddf.catalog.transformer.input.pdf
 
+import ddf.catalog.content.operation.ContentMetadataExtractor
 import ddf.catalog.data.Metacard
+import ddf.catalog.data.impl.AttributeDescriptorImpl
+import ddf.catalog.data.impl.BasicTypes
+import org.osgi.framework.Bundle
+import org.osgi.framework.BundleContext
+import org.osgi.framework.ServiceReference
 import spock.lang.Specification
 
 class PdfInputTransformerSpecTest extends Specification {
+    Bundle bundleMock
     PdfInputTransformer pdfInputTransformer;
 
     def getEncryptedInputStream = {
@@ -36,7 +43,14 @@ class PdfInputTransformerSpecTest extends Specification {
     }
 
     void setup() {
-        pdfInputTransformer = new PdfInputTransformer();
+        bundleMock = Mock(Bundle)
+
+        pdfInputTransformer = new PdfInputTransformer() {
+            @Override
+            def Bundle getBundle() {
+                return bundleMock
+            }
+        };
     }
 
     void verifySamplePdfMetacard(Metacard metacard) {
@@ -140,5 +154,71 @@ class PdfInputTransformerSpecTest extends Specification {
 
         then:
         metacard.getThumbnail() == null
+    }
+
+    def 'Transform with content extractor'() {
+        setup:
+        def bundleCtx = Mock(BundleContext)
+        def cme = Mock(ContentMetadataExtractor)
+        def serviceRef = Mock(ServiceReference)
+
+        when:
+        pdfInputTransformer.addContentMetadataExtractors(serviceRef)
+        Metacard metacard = pdfInputTransformer.transform(getSampleInputStreamWithCatalogMetadata())
+
+        then:
+        1 * bundleMock.getBundleContext() >> bundleCtx
+        1 * bundleCtx.getService(_) >> cme
+        cme.metacardAttributes >>
+                [new AttributeDescriptorImpl('attr1', false, false, false, false, BasicTypes.OBJECT_TYPE),
+                 new AttributeDescriptorImpl('attr2', false, false, false, false, BasicTypes.OBJECT_TYPE)]
+
+        metacard.metacardType.name != BasicTypes.BASIC_METACARD.name
+        def attrNames = metacard.metacardType.attributeDescriptors*.name
+        attrNames.containsAll(['attr1', 'attr2'])
+    }
+
+    def 'Fail transform with content extractor on encrypted pdf'() {
+        setup:
+        def bundleCtx = Mock(BundleContext)
+        def cme = Mock(ContentMetadataExtractor)
+        def serviceRef = Mock(ServiceReference)
+
+        when:
+        pdfInputTransformer.addContentMetadataExtractors(serviceRef)
+        Metacard metacard = pdfInputTransformer.transform(getEncryptedInputStream())
+
+        then:
+        1 * bundleMock.getBundleContext() >> bundleCtx
+        1 * bundleCtx.getService(_) >> cme
+        cme.metacardAttributes >>
+                [new AttributeDescriptorImpl('attr1', false, false, false, false, BasicTypes.OBJECT_TYPE),
+                 new AttributeDescriptorImpl('attr2', false, false, false, false, BasicTypes.OBJECT_TYPE)]
+
+        metacard.metacardType == BasicTypes.BASIC_METACARD
+        def attrNames = metacard.metacardType.attributeDescriptors*.name
+        !attrNames.containsAll(['attr1', 'attr2'])
+    }
+
+    def 'Ensure content extractors are removed'() {
+        setup:
+        def bundleCtx = Mock(BundleContext)
+        def cme = Mock(ContentMetadataExtractor)
+        def serviceRef = Mock(ServiceReference)
+
+        when:
+        pdfInputTransformer.addContentMetadataExtractors(serviceRef)
+        pdfInputTransformer.removeContentMetadataExtractor(serviceRef)
+        Metacard metacard = pdfInputTransformer.transform(getSampleInputStreamWithCatalogMetadata())
+
+        then:
+        1 * bundleMock.getBundleContext() >> bundleCtx
+        1 * bundleCtx.getService(_) >> cme
+        cme.metacardAttributes >>
+                [new AttributeDescriptorImpl('attr1', false, false, false, false, BasicTypes.OBJECT_TYPE),
+                 new AttributeDescriptorImpl('attr2', false, false, false, false, BasicTypes.OBJECT_TYPE)]
+
+        def attrNames = metacard.metacardType.attributeDescriptors*.name
+        !attrNames.containsAll(['attr1', 'attr2'])
     }
 }

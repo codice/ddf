@@ -21,13 +21,19 @@ import static org.junit.Assert.assertThat;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableSet;
+
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
 
 public class MetacardCreatorTest {
     @Test
@@ -48,6 +54,33 @@ public class MetacardCreatorTest {
 
     @Test
     public void testBasicMetacard() {
+        Metacard metacard = testMetacard(null, null);
+        assertThat(metacard.getMetacardType(), is(BasicTypes.BASIC_METACARD));
+    }
+
+    @Test
+    public void testMetacardExtended() {
+        Metacard metacard = testMetacard("test_metacard1",
+                ImmutableSet.of(createObjectAttr("attr1"), createObjectAttr("attr2")));
+        assertThat(metacard.getMetacardType()
+                .getName(), is("test_metacard1"));
+
+        ImmutableSet<String> attrNames = ImmutableSet.of("attr1", "attr2");
+        int count = (int) metacard.getMetacardType()
+                .getAttributeDescriptors()
+                .stream()
+                .map(AttributeDescriptor::getName)
+                .filter(attrNames::contains)
+                .count();
+        assertThat(count, is(attrNames.size()));
+    }
+
+    private AttributeDescriptorImpl createObjectAttr(String name) {
+        return new AttributeDescriptorImpl(name, false, false, false, false,
+                BasicTypes.OBJECT_TYPE);
+    }
+
+    private Metacard testMetacard(String typeName, Set<AttributeDescriptor> extraAttributes) {
         final Metadata metadata = new Metadata();
 
         final String title = "title";
@@ -67,7 +100,13 @@ public class MetacardCreatorTest {
         final String id = "id";
         final String metadataXml = "<xml>test</xml>";
 
-        final Metacard metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataXml);
+        final Metacard metacard;
+        if (typeName == null) {
+            metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataXml);
+        } else {
+            metacard = MetacardCreator.createEnhancedMetacard(metadata, id, metadataXml, typeName,
+                    extraAttributes);
+        }
 
         assertThat(metacard, notNullValue());
         assertThat(metacard.getTitle(), is(title));
@@ -77,6 +116,8 @@ public class MetacardCreatorTest {
         assertThat(metacard.getLocation(), is(String.format("POINT(%s %s)", longitude, latitude)));
         assertThat(metacard.getId(), is(id));
         assertThat(metacard.getMetadata(), is(metadataXml));
+
+        return metacard;
     }
 
     private String convertDate(final Date date) {
