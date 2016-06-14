@@ -14,7 +14,6 @@
 package org.codice.ddf.registry.federationadmin.impl;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
@@ -26,7 +25,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -43,16 +41,12 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tika.io.IOUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
@@ -62,6 +56,7 @@ import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
 import org.codice.ddf.registry.schemabindings.converter.type.RegistryPackageTypeConverter;
 import org.codice.ddf.registry.schemabindings.converter.web.RegistryPackageWebConverter;
+import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -139,9 +134,7 @@ public class FederationAdmin implements FederationAdminMBean {
 
     private InputTransformer registryTransformer;
 
-    private Parser parser;
-
-    private ParserConfigurator marshalConfigurator;
+    private MetacardMarshaller metacardMarshaller;
 
     private Map<String, Object> customSlots;
 
@@ -442,17 +435,7 @@ public class FederationAdmin implements FederationAdminMBean {
         Metacard metacard;
 
         try {
-            JAXBElement<RegistryPackageType> jaxbRegistryObjectType =
-                    EbrimConstants.RIM_FACTORY.createRegistryPackage(registryPackage);
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            parser.marshal(marshalConfigurator, jaxbRegistryObjectType, baos);
-            InputStream xmlInputStream = new ByteArrayInputStream(baos.toByteArray());
-            metacard = registryTransformer.transform(xmlInputStream);
-
-            IOUtils.closeQuietly(baos);
-            IOUtils.closeQuietly(xmlInputStream);
-
+            metacard = registryTransformer.transform(metacardMarshaller.getRegistryPackageAsInputStream(registryPackage));
         } catch (IOException | CatalogTransformerException | ParserException e) {
             String message = "Error creating metacard from registry package.";
             LOGGER.error("{} Registry id: {}", message, registryPackage.getId());
@@ -650,23 +633,8 @@ public class FederationAdmin implements FederationAdminMBean {
         this.federationAdminService = federationAdminService;
     }
 
-    public void setParser(Parser parser) {
-        List<String> contextPath = Arrays.asList(RegistryObjectType.class.getPackage()
-                        .getName(),
-                EbrimConstants.OGC_FACTORY.getClass()
-                        .getPackage()
-                        .getName(),
-                EbrimConstants.GML_FACTORY.getClass()
-                        .getPackage()
-                        .getName());
-
-        ClassLoader classLoader = this.getClass()
-                .getClassLoader();
-
-        this.marshalConfigurator = parser.configureParser(contextPath, classLoader);
-        this.marshalConfigurator.addProperty(Marshaller.JAXB_FRAGMENT, true);
-
-        this.parser = parser;
+    public void setMetacardMarshaller(MetacardMarshaller metacardMarshaller) {
+        this.metacardMarshaller = metacardMarshaller;
     }
 
     public void setRegistryTransformer(InputTransformer inputTransformer) {

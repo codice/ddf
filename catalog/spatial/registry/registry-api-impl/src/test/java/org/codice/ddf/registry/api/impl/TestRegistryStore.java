@@ -34,6 +34,7 @@ import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
@@ -107,7 +108,7 @@ public class TestRegistryStore {
                 provider,
                 factory,
                 encryptionService);
-        registryStore.setParser(parser);
+        registryStore.setMetacardMarshaller(new MetacardMarshaller(parser));
         registryStore.setFilterBuilder(new GeotoolsFilterBuilder());
         registryStore.setSchemaTransformerManager(transformer);
         configAdmin = mock(ConfigurationAdmin.class);
@@ -136,7 +137,7 @@ public class TestRegistryStore {
 
             }
         };
-        registryStore.setParser(parser);
+        registryStore.setMetacardMarshaller(new MetacardMarshaller(parser));
         registryStore.setFilterBuilder(new GeotoolsFilterBuilder());
         registryStore.setSchemaTransformerManager(transformer);
 

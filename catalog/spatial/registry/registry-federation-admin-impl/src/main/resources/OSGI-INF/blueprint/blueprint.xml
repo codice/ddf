@@ -19,11 +19,15 @@
           destroy-method="destroy" init-method="init">
         <argument ref="adminHelper"/>
         <property name="federationAdminService" ref="federationAdminService"/>
-        <property name="parser" ref="xmlParser"/>
+        <property name="metacardMarshaller" ref="metacardMarshaller"/>
         <property name="registryTransformer" ref="inputTransformer"/>
         <property name="registryTypeConverter" ref="registryTypeConverter"/>
         <property name="registryMapConverter" ref="registryMapConverter"/>
         <property name="slotHelper" ref="slotHelper"/>
+    </bean>
+
+    <bean id="metacardMarshaller" class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
+        <argument ref="xmlParser"/>
     </bean>
 
     <bean id="registryTypeConverter" class="org.codice.ddf.registry.schemabindings.converter.type.RegistryPackageTypeConverter"/>

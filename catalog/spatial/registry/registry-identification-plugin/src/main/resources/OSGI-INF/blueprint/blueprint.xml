@@ -20,9 +20,13 @@
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
+    <bean id="metacardMarshaller" class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
+        <argument ref="xmlParser"/>
+    </bean>
+
     <bean id="identificationPlugin"
           class="org.codice.ddf.registry.identification.IdentificationPlugin" init-method="init">
-        <property name="parser" ref="xmlParser"/>
+        <property name="metacardMarshaller" ref="metacardMarshaller"/>
         <property name="catalogFramework" ref="catalogFramework"/>
         <property name="filterBuilder" ref="filterBuilder"/>
     </bean>

@@ -154,7 +154,7 @@
         <property name="name" value="CSW Endpoint"/>
         <property name="version" value="2.0.2"/>
         <property name="description" value="The endpoint used for csw."/>
-        <property name="bindingType" value="Csw_Federated_Source"/>
+        <property name="bindingType" value="CSW_2.0.2"/>
     </bean>
 
     <bean id="validator"
