@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,90 +13,173 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Dictionary;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import ddf.action.ActionProvider;
+import ddf.catalog.Constants;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.transformer.attribute.AttributeMetacardTransformer;
+
+@RunWith(MockitoJUnitRunner.class)
 public class TestActionProviderRegistryProxy {
 
     private static final String SAMPLE_TRANSFORMER_ID = "sampleTransformerId";
 
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(TestActionProviderRegistryProxy.class);
+    @Mock
+    private static BundleContext mockBundleContext;
+
+    @Mock
+    private ServiceReference mockServiceReference;
+
+    @Mock
+    private ServiceRegistration mockServiceRegistration;
+
+    @Captor
+    private ArgumentCaptor captor;
+
+    private MetacardTransformerActionProviderFactory mtapf =
+            new MetacardTransformerActionProviderFactory();
+
+    private static class ActionProviderRegistryProxyTest extends ActionProviderRegistryProxy {
+        public ActionProviderRegistryProxyTest(
+                MetacardTransformerActionProviderFactory actionFactory) {
+            super(actionFactory);
+        }
+
+        @Override
+        protected BundleContext getBundleContext() {
+            return mockBundleContext;
+        }
+    }
+
+    @Before
+    public void setUp() {
+        when(mockBundleContext.registerService(isA(String.class),
+                isA(Object.class),
+                isA(Dictionary.class))).thenReturn(mockServiceRegistration);
+
+        when(mockServiceReference.getProperty(Constants.SERVICE_ID)).thenReturn(
+                SAMPLE_TRANSFORMER_ID);
+    }
 
     @Test
     public void testNoTransformerId() {
         // given
-        ServiceRegistrationAnswer answer = new ServiceRegistrationAnswer();
+        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxyTest(mtapf);
 
-        BundleContext bundleContext = givenBundleContext(answer);
-
-        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxy(bundleContext, null);
-
-        ServiceReference reference = mock(ServiceReference.class);
+        when(mockServiceReference.getProperty(Constants.SERVICE_ID)).thenReturn("");
 
         // when
-        proxy.bind(reference);
+        proxy.bind(mockServiceReference);
 
         // then
-        verify(bundleContext, times(0)).registerService(isA(String.class),
+        verify(mockBundleContext, times(0)).registerService(isA(String.class),
                 isA(Object.class),
                 isA(Dictionary.class));
 
+    }
+
+    @Test
+    public void testValidTransformerId() {
+        // given
+        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxyTest(mtapf);
+
+        // when
+        proxy.bind(mockServiceReference);
+
+        // then
+        verify(mockBundleContext, times(1)).registerService(isA(String.class),
+                isA(Object.class),
+                isA(Dictionary.class));
+
+    }
+
+    @Test
+    public void testValidTransformerShortName() {
+        // given
+        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxyTest(mtapf);
+
+        when(mockServiceReference.getProperty(Constants.SERVICE_ID)).thenReturn("");
+        when(mockServiceReference.getProperty(Constants.SERVICE_SHORTNAME)).thenReturn(
+                SAMPLE_TRANSFORMER_ID);
+
+        // when
+        proxy.bind(mockServiceReference);
+
+        // then
+        verify(mockBundleContext, times(1)).registerService(isA(String.class),
+                isA(Object.class),
+                isA(Dictionary.class));
+
+    }
+
+    @Test
+    public void testAttributeTransformer() throws MimeTypeParseException {
+        // given
+        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxyTest(mtapf);
+
+        when(mockBundleContext.getService(mockServiceReference)).thenReturn(new AttributeMetacardTransformer(
+                "metadata",
+                "metadata",
+                new MimeType("text", "xml")));
+
+        // when
+        proxy.bind(mockServiceReference);
+
+        // then
+        verify(mockBundleContext, times(1)).registerService(anyString(),
+                captor.capture(),
+                any(Dictionary.class));
+
+        Object value = captor.getValue();
+        assertThat(value, notNullValue());
+        assertThat(value instanceof ActionProvider, is(true));
+        ActionProvider provider = (ActionProvider) value;
+        Metacard metacard = new MetacardImpl();
+        assertThat(provider.canHandle(metacard), is(false));
     }
 
     @Test
     public void testRegisterUnRegister() {
 
         // given
-        ServiceRegistrationAnswer answer = new ServiceRegistrationAnswer();
-
-        BundleContext bundleContext = givenBundleContext(answer);
-
-        MetacardTransformerActionProviderFactory mtapf =
-                new MetacardTransformerActionProviderFactory();
-
-        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxy(bundleContext, mtapf);
-
-        ServiceReference reference = mock(ServiceReference.class);
-
-        when(reference.getProperty(isA(String.class))).thenReturn(SAMPLE_TRANSFORMER_ID);
+        ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxyTest(mtapf);
 
         // when
-        proxy.bind(reference);
-        proxy.unbind(reference);
+        proxy.bind(mockServiceReference);
+        proxy.unbind(mockServiceReference);
 
         // then
-        verify(bundleContext, times(1)).registerService(isA(String.class),
+        verify(mockBundleContext, times(1)).registerService(isA(String.class),
                 isA(Object.class),
                 isA(Dictionary.class));
 
-        ServiceRegistration mockRegistration1 = answer.getIssuedServiceRegistrations()
-                .get(0);
-
-        verify(mockRegistration1, times(1)).unregister();
+        verify(mockServiceRegistration, times(1)).unregister();
 
     }
-
-    private BundleContext givenBundleContext(ServiceRegistrationAnswer answer) {
-        BundleContext bundleContext = mock(BundleContext.class);
-
-        when(bundleContext.registerService(isA(String.class),
-                isA(Object.class),
-                isA(Dictionary.class))).then(answer);
-
-        return bundleContext;
-    }
-
 }

@@ -48,9 +48,14 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
      */
     public MetacardTransformerActionProvider(String actionProviderId,
             String metacardTransformerId) {
+        this(actionProviderId, metacardTransformerId, "");
+    }
+
+    public MetacardTransformerActionProvider(String actionProviderId, String metacardTransformerId, String attributeName) {
         super();
         this.actionProviderId = actionProviderId;
         this.metacardTransformerId = metacardTransformerId;
+        this.attributeName = attributeName;
     }
 
     @Override

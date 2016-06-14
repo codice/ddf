@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,7 +18,9 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -26,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import ddf.action.ActionProvider;
 import ddf.catalog.Constants;
+import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transformer.attribute.AttributeMetacardTransformer;
 
 /**
  * Registers {@link ActionProvider} objects into the Service Registry based upon the services
@@ -42,21 +46,16 @@ public class ActionProviderRegistryProxy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionProviderRegistryProxy.class);
 
-    private Map<ServiceReference, ServiceRegistration> actionProviderRegistry =
-            new HashMap<ServiceReference, ServiceRegistration>();
-
-    private BundleContext bundleContext;
+    private Map<ServiceReference<MetacardTransformer>, ServiceRegistration> actionProviderRegistry =
+            new HashMap<>();
 
     private MetacardTransformerActionProviderFactory actionFactory;
 
-    public ActionProviderRegistryProxy(BundleContext bundleContext,
-            MetacardTransformerActionProviderFactory actionFactory) {
-
-        this.bundleContext = bundleContext;
+    public ActionProviderRegistryProxy(MetacardTransformerActionProviderFactory actionFactory) {
         this.actionFactory = actionFactory;
     }
 
-    public void bind(ServiceReference reference) {
+    public void bind(ServiceReference<MetacardTransformer> reference) {
 
         LOGGER.info("New service registered [{}]", reference);
 
@@ -68,26 +67,31 @@ public class ActionProviderRegistryProxy {
                     .toString();
 
             // backwards compatibility
-        } else if (reference.getProperty(Constants.SERVICE_SHORTNAME) != null) {
+        }
+        if (StringUtils.isBlank(transformerId)
+                && reference.getProperty(Constants.SERVICE_SHORTNAME) != null) {
 
             transformerId = reference.getProperty(Constants.SERVICE_SHORTNAME)
                     .toString();
         }
 
-        if (transformerId == null) {
+        if (StringUtils.isBlank(transformerId)) {
             return;
         }
 
         String actionProviderId = ACTION_ID_PREFIX + transformerId;
 
+        String attributeName = getAttributeName(reference);
+
         ActionProvider provider = actionFactory.createActionProvider(actionProviderId,
-                transformerId);
+                transformerId,
+                attributeName);
 
         Dictionary actionProviderProperties = new Hashtable<String, String>();
 
         actionProviderProperties.put(Constants.SERVICE_ID, actionProviderId);
 
-        ServiceRegistration actionServiceRegistration = bundleContext.registerService(
+        ServiceRegistration actionServiceRegistration = getBundleContext().registerService(
                 PROVIDER_INTERFACE_NAME,
                 provider,
                 actionProviderProperties);
@@ -98,7 +102,7 @@ public class ActionProviderRegistryProxy {
 
     }
 
-    public void unbind(ServiceReference reference) {
+    public void unbind(ServiceReference<MetacardTransformer> reference) {
 
         LOGGER.info("Service unregistered [" + reference + "]");
 
@@ -111,5 +115,22 @@ public class ActionProviderRegistryProxy {
                     actionProviderRegistration);
         }
 
+    }
+
+    /* Determines if this ServiceReference is an AttributeMetacardTransformer.
+    If not returns empty string*/
+    private String getAttributeName(ServiceReference<MetacardTransformer> serviceReference) {
+        if (serviceReference != null) {
+            MetacardTransformer transformer = getBundleContext().getService(serviceReference);
+            if (transformer instanceof AttributeMetacardTransformer) {
+                return ((AttributeMetacardTransformer) transformer).getAttributeName();
+            }
+        }
+        return "";
+    }
+
+    protected BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(ActionProviderRegistryProxy.class)
+                .getBundleContext();
     }
 }
