@@ -32,7 +32,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -121,14 +120,14 @@ public class FederationAdminServiceImplTest {
 
     private static final String TEST_XML_STRING = "SomeValidStringVersionOfXml";
 
+    @Mock
+    RefreshRegistrySubscriptions refreshRegistrySubscriptions;
+
     private FederationAdminServiceImpl federationAdminServiceImpl;
 
     private Metacard testMetacard;
 
     private FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
-
-    @Mock
-    RefreshRegistrySubscriptions refreshRegistrySubscriptions;
 
     @Mock
     private ParserConfigurator configurator;
@@ -239,113 +238,6 @@ public class FederationAdminServiceImplTest {
         when(security.getSystemSubject()).thenReturn(subject);
         when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
         federationAdminServiceImpl.getRegistryObjectByRegistryId(TEST_METACARD_ID);
-    }
-
-    @Test
-    public void initWithNoPreviousEntry() throws Exception {
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response = getPopulatedTestQueryResponse(request);
-        Metacard metacard = getTestMetacard();
-        when(security.getSystemSubject()).thenReturn(subject);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        when(registryTransformer.transform(any(InputStream.class))).thenReturn(metacard);
-        federationAdminServiceImpl.init();
-        verify(catalogFramework).query(any(QueryRequest.class));
-    }
-
-    @Test
-    public void initWithPreviousNonPrimaryEntry() throws Exception {
-        Metacard addThisMetacard = getTestMetacard();
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response = getPopulatedTestQueryResponse(request);
-        when(security.getSystemSubject()).thenReturn(subject);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        when(registryTransformer.transform(any(InputStream.class))).thenReturn(addThisMetacard);
-        federationAdminServiceImpl.init();
-        verify(catalogFramework).query(any(QueryRequest.class));
-    }
-
-    @Test
-    public void initWithPreviousWithEmptyMetacard() throws Exception {
-        Metacard addThisMetacard = getTestMetacard();
-        QueryRequest request = getTestQueryRequest();
-        Result result = new ResultImpl();
-        QueryResponse response = getTestQueryResponse(request, Collections.singletonList(result));
-        when(security.getSystemSubject()).thenReturn(subject);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        when(registryTransformer.transform(any(InputStream.class))).thenReturn(addThisMetacard);
-        federationAdminServiceImpl.init();
-        verify(catalogFramework).query(any(QueryRequest.class));
-    }
-
-    @Test
-    public void initWithPreviousPrimaryEntry() throws Exception {
-        Metacard firstMetacard = testMetacard;
-        firstMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE,
-                true));
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response = getPopulatedTestQueryResponse(request, firstMetacard);
-        when(security.getSystemSubject()).thenReturn(subject);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        federationAdminServiceImpl.init();
-        verify(catalogFramework).query(any(QueryRequest.class));
-    }
-
-    @Test
-    public void initWithDuplicatePreviousPrimaryEntry() throws Exception {
-        Metacard firstMetacard = testMetacard;
-        Metacard secondMetacard = testMetacard;
-        secondMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE,
-                true));
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response = getPopulatedTestQueryResponse(request,
-                secondMetacard,
-                secondMetacard);
-        when(security.getSystemSubject()).thenReturn(subject);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        when(registryTransformer.transform(any(InputStream.class))).thenReturn(firstMetacard);
-        federationAdminServiceImpl.init();
-        verify(catalogFramework).query(any(QueryRequest.class));
-    }
-
-    @Test
-    public void initWithQueryException() throws Exception {
-        when(security.getSystemSubject()).thenReturn(subject);
-        doThrow(SourceUnavailableException.class).when(catalogFramework)
-                .query(any(QueryRequest.class));
-        federationAdminServiceImpl.init();
-        verify(catalogFramework).query(any(QueryRequest.class));
-    }
-
-    @Test
-    public void initWithIngestException() throws Exception {
-        QueryRequest request = getTestQueryRequest();
-        Metacard identityMetacard = getTestMetacard();
-        identityMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                "someRegistryId"));
-        identityMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
-                Collections.singletonList(RegistryConstants.REGISTRY_TAG)));
-        QueryResponse response = getPopulatedTestQueryResponse(request);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        when(security.getSystemSubject()).thenReturn(subject);
-        when(registryTransformer.transform(any(InputStream.class))).thenReturn(identityMetacard);
-        doThrow(IngestException.class).when(catalogFramework)
-                .create(any(CreateRequest.class));
-        federationAdminServiceImpl.init();
-        verify(registryTransformer).transform(any(InputStream.class));
-        verify(catalogFramework).create(any(CreateRequest.class));
-    }
-
-    @Test
-    public void initWithMarshalException() throws Exception {
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response = getPopulatedTestQueryResponse(request);
-        when(security.getSystemSubject()).thenReturn(subject);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        doThrow(ParserException.class).when(parser)
-                .marshal(any(ParserConfigurator.class), any(Object.class), any(OutputStream.class));
-        federationAdminServiceImpl.init();
-        verify(catalogFramework).query(any(QueryRequest.class));
     }
 
     @Test
