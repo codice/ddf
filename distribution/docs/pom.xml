@@ -65,7 +65,7 @@
                     <repository>
                         <id>rubygems-proxy-releases</id>
                         <name>RubyGems.org Proxy (Releases)</name>
-                        <url>http://rubygems-proxy.torquebox.org/releases</url>
+                        <url>https://rubygems-proxy.torquebox.org/releases</url>
                         <releases>
                             <enabled>true</enabled>
                         </releases>
@@ -409,13 +409,6 @@
                 </build>
             </profile>
         </profiles>
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
     <dependencies>
         <dependency>
             <groupId>ddf.ui.search</groupId>

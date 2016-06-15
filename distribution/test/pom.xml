@@ -32,13 +32,6 @@
         <module>itests</module>
         <module>performance</module>
     </modules>
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.hamcrest</groupId>

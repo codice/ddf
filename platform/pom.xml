@@ -373,11 +373,4 @@
         <module>landing-page</module>
         <module>platform-app</module>
     </modules>
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
 </project>
