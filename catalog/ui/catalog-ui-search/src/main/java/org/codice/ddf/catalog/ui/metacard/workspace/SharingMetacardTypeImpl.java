@@ -27,10 +27,27 @@ public class SharingMetacardTypeImpl extends MetacardTypeImpl {
 
     public static final String SHARING_METACARD_TYPE_NAME = "metacard.sharing";
 
-    public static final String SHARING_TYPE = "type";
+    /**
+     * What security subject attribute is sharing based off (role/email/...)
+     */
+    public static final String SHARING_ATTRIBUTE = "attribute";
 
-    public static final String SHARING_PERMISSION = "permission";
+    /**
+     * What action is being shared permitted (view/edit/comment/...)
+     */
+    public static final String SHARING_ACTION = "action";
 
+    /**
+     * Current sharing action constants.
+     */
+
+    public static final String SHARING_ACTION_VIEW = "view";
+
+    public static final String SHARING_ACTION_EDIT = "edit";
+
+    /**
+     * Value to check (guest/user@domain/...).
+     */
     public static final String SHARING_VALUE = "value";
 
     private static final Set<AttributeDescriptor> DESCRIPTORS;
@@ -38,14 +55,14 @@ public class SharingMetacardTypeImpl extends MetacardTypeImpl {
     static {
         DESCRIPTORS = new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
 
-        DESCRIPTORS.add(new AttributeDescriptorImpl(SHARING_TYPE,
+        DESCRIPTORS.add(new AttributeDescriptorImpl(SHARING_ATTRIBUTE,
                 false   /* indexed */,
                 true    /* stored */,
                 false   /* tokenized */,
                 false   /* multivalued */,
                 BasicTypes.STRING_TYPE));
 
-        DESCRIPTORS.add(new AttributeDescriptorImpl(SHARING_PERMISSION,
+        DESCRIPTORS.add(new AttributeDescriptorImpl(SHARING_ACTION,
                 false   /* indexed */,
                 true    /* stored */,
                 false   /* tokenized */,

@@ -63,7 +63,7 @@ public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
                     .filter(SharingMetacardImpl::isSharingMetacard)
                     .map(SharingMetacardImpl::from)
                     .filter(SharingMetacardImpl::canEdit)
-                    .collect(Collectors.toMap(SharingMetacardImpl::getSharingType,
+                    .collect(Collectors.toMap(SharingMetacardImpl::getSharingAttribute,
                             s -> ImmutableSet.of(s.getValue()),
                             Sets::union));
 
@@ -105,7 +105,7 @@ public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
                     .filter(SharingMetacardImpl::isSharingMetacard)
                     .map(SharingMetacardImpl::from)
                     .filter(SharingMetacardImpl::canView)
-                    .collect(Collectors.toMap(SharingMetacardImpl::getSharingType,
+                    .collect(Collectors.toMap(SharingMetacardImpl::getSharingAttribute,
                             s -> ImmutableSet.of(s.getValue()),
                             Sets::union));
 

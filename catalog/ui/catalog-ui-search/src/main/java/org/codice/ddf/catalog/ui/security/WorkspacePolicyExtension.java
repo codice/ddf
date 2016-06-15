@@ -41,16 +41,16 @@ public class WorkspacePolicyExtension implements PolicyExtension {
             EMAIL_ADDRESS_CLAIM_URI);
 
     /**
-     * Determine if a permission list has a role claim.
+     * Find a permission from a list of permissions by key.
      *
      * @param permissions
      * @return
      */
-    private static Optional<KeyValuePermission> find(List<Permission> permissions, String name) {
+    private static Optional<KeyValuePermission> find(List<Permission> permissions, String key) {
         return permissions.stream()
                 .map(permission -> (KeyValuePermission) permission)
                 .filter(permission -> permission.getKey()
-                        .equals(name))
+                        .equals(key))
                 .findFirst();
     }
 

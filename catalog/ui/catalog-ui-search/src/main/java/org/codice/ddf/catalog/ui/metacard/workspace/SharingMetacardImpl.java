@@ -59,30 +59,31 @@ public class SharingMetacardImpl extends MetacardImpl {
         return new SharingMetacardImpl(metacard);
     }
 
-    public String getSharingType() {
-        return (String) getAttribute(SharingMetacardTypeImpl.SHARING_TYPE).getValue();
+    public String getSharingAttribute() {
+        return (String) getAttribute(SharingMetacardTypeImpl.SHARING_ATTRIBUTE).getValue();
     }
 
-    public SharingMetacardImpl setSharingType(String type) {
-        setAttribute(SharingMetacardTypeImpl.SHARING_TYPE, type);
+    public SharingMetacardImpl setSharingAttribute(String attribute) {
+        setAttribute(SharingMetacardTypeImpl.SHARING_ATTRIBUTE, attribute);
         return this;
     }
 
-    public String getPermission() {
-        return (String) getAttribute(SharingMetacardTypeImpl.SHARING_PERMISSION).getValue();
+    public String getAction() {
+        return (String) getAttribute(SharingMetacardTypeImpl.SHARING_ACTION).getValue();
     }
 
-    public SharingMetacardImpl setPermission(String permission) {
-        setAttribute(SharingMetacardTypeImpl.SHARING_PERMISSION, permission);
+    public SharingMetacardImpl setAction(String action) {
+        setAttribute(SharingMetacardTypeImpl.SHARING_ACTION, action);
         return this;
     }
 
     public boolean canView() {
-        return "edit".equals(getPermission()) || "view".equals(getPermission());
+        return SharingMetacardTypeImpl.SHARING_ACTION_EDIT.equals(getAction())
+                || SharingMetacardTypeImpl.SHARING_ACTION_VIEW.equals(getAction());
     }
 
     public boolean canEdit() {
-        return "edit".equals(getPermission());
+        return SharingMetacardTypeImpl.SHARING_ACTION_EDIT.equals(getAction());
     }
 
     public String getValue() {

@@ -31,15 +31,15 @@ public class SharingMetacardImplTest {
     }
 
     @Test
-    public void testSharingTypes() {
-        assertThat(sharing.setSharingType("email")
-                .getSharingType(), is("email"));
+    public void testSharingAttribute() {
+        assertThat(sharing.setSharingAttribute("email")
+                .getSharingAttribute(), is("email"));
     }
 
     @Test
-    public void testPermission() {
-        assertThat(sharing.setPermission("view")
-                .getPermission(), is("view"));
+    public void testAction() {
+        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_VIEW)
+                .getAction(), is(SharingMetacardTypeImpl.SHARING_ACTION_VIEW));
     }
 
     @Test
@@ -50,17 +50,17 @@ public class SharingMetacardImplTest {
 
     @Test
     public void testCanEdit() {
-        assertThat(sharing.setPermission("view")
+        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_VIEW)
                 .canEdit(), is(false));
-        assertThat(sharing.setPermission("edit")
+        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_EDIT)
                 .canEdit(), is(true));
     }
 
     @Test
     public void testCanView() {
-        assertThat(sharing.setPermission("view")
+        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_VIEW)
                 .canView(), is(true));
-        assertThat(sharing.setPermission("edit")
+        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_EDIT)
                 .canView(), is(true));
     }
 

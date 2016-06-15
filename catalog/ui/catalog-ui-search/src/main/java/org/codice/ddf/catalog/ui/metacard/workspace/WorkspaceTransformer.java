@@ -73,14 +73,14 @@ public class WorkspaceTransformer {
     public SharingMetacardImpl toSharing(Map<String, Object> map) {
         SharingMetacardImpl sharing = new SharingMetacardImpl();
 
-        Object type = map.get(SharingMetacardTypeImpl.SHARING_TYPE);
+        Object type = map.get(SharingMetacardTypeImpl.SHARING_ATTRIBUTE);
         if (check(type, String.class)) {
-            sharing.setSharingType((String) type);
+            sharing.setSharingAttribute((String) type);
         }
 
-        Object permission = map.get(SharingMetacardTypeImpl.SHARING_PERMISSION);
+        Object permission = map.get(SharingMetacardTypeImpl.SHARING_ACTION);
         if (check(permission, String.class)) {
-            sharing.setPermission((String) permission);
+            sharing.setAction((String) permission);
         }
 
         Object value = map.get(SharingMetacardTypeImpl.SHARING_VALUE);

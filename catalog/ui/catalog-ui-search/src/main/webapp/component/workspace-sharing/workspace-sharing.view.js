@@ -53,23 +53,23 @@ define([
     var SharingByEmailView = Marionette.LayoutView.extend({
         className: 'row',
         template: '<div class="col-md-8 email"></div>' +
-                  '<div class="col-md-4 permission"></div>',
+                  '<div class="col-md-4 action"></div>',
         regions: {
             email: '.email',
-            permission: '.permission'
+            action: '.action'
         },
-        updatePermission: function () {
-            this.model.set('permission', this.permission.currentView.model.get('value')[0]);
+        updateAction: function () {
+            this.model.set('action', this.action.currentView.model.get('value')[0]);
         },
         onRender: function () {
             this.email.show(new Input({ model: this.model }));
 
-            this.permission.show(DropdownView.createSimpleDropdown([
+            this.action.show(DropdownView.createSimpleDropdown([
                 { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' },
                 { icon: 'fa-eye',    label: 'Can view',  value: 'view' }
-            ], false, [this.model.get('permission')], IconView));
+            ], false, [this.model.get('action')], IconView));
 
-            this.listenTo(this.permission.currentView.model, 'change:value', this.updatePermission);
+            this.listenTo(this.action.currentView.model, 'change:value', this.updateAction);
         }
     });
 
@@ -82,22 +82,22 @@ define([
     var SharingByRoleView = Marionette.LayoutView.extend({
         className: 'row',
         template: '<div class="col-md-8 role">{{value}}</div>' +
-                  '<div class="col-md-4 permission"></div>',
+                  '<div class="col-md-4 action"></div>',
         regions: {
             role: '.role',
-            permission: '.permission'
+            action: '.action'
         },
-        updatePermission: function () {
-            this.model.set('permission', this.permission.currentView.model.get('value')[0]);
+        updateAction: function () {
+            this.model.set('action', this.action.currentView.model.get('value')[0]);
         },
         onRender: function () {
-            this.permission.show(DropdownView.createSimpleDropdown([
+            this.action.show(DropdownView.createSimpleDropdown([
                 { icon: 'fa-ban',    label: 'No Access',  value: 'none' },
                 { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' },
                 { icon: 'fa-eye',    label: 'Can view',  value: 'view' }
-            ], false, [this.model.get('permission')], IconView));
+            ], false, [this.model.get('action')], IconView));
 
-            this.listenTo(this.permission.currentView.model, 'change:value', this.updatePermission);
+            this.listenTo(this.action.currentView.model, 'change:value', this.updateAction);
         }
     });
 
@@ -126,7 +126,7 @@ define([
             return this.model.get('metacard.sharing') || [];
         },
         getSharingByEmail: function () {
-            return _.where(this.getSharing(), { type: 'email' });
+            return _.where(this.getSharing(), { attribute: 'email' });
         },
         getSharingByRole: function () {
             var view = this;
@@ -134,8 +134,8 @@ define([
 
             return user.get('roles').map(function (role) {
                 return _.findWhere(view.getSharing(), { value: role }) || {
-                    type: 'role',
-                    permission: 'none',
+                    attribute: 'role',
+                    action: 'none',
                     value: role
                 };
             });
@@ -159,7 +159,7 @@ define([
 
             var roles = this.collection.chain()
                 .filter(function (role) {
-                    return role.get('permission') !== 'none';
+                    return role.get('action') !== 'none';
                 }).map(function (role) {
                     return role.toJSON();
                 }).value();
@@ -167,7 +167,7 @@ define([
             var emails = this.emailCollection.chain()
                 .map(function (email) {
                     return _.extend(email.toJSON(), {
-                        type: 'email'
+                        attribute: 'email'
                     });
                 }).value();
 
