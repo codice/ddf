@@ -1431,14 +1431,17 @@ This section concerns capabilities that are considered experimental. The feature
 
 ==== Definition File Format
 
-Metacard types, attribute types, global attribute validators, and default attribute values can be defined within a definition file. A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed. There are four main types that can be defined in a definition file.
+A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed.
 
-- Metacard Types
+The following may be defined in a JSON definition file:
+
 - Attribute Types
+- Metacard Types
 - Global Attribute Validators
 - Default Attribute Values
+- Global Attribute Mixins
 
-Within a definition file you may define as many of the four types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
+Within a definition file you may define as many of the types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
 
 ==== Deploying 
 The file must have a `.json` extension in order to be picked up by the deployer. Once the definition file is ready to be deployed, put the definition file `<filename>.json` into the `etc/definitions` folder.
@@ -1541,7 +1544,6 @@ The value of `metacardTypes` must be an array of Metacard Type Objects, which ar
 The value of the `type` key is the name of the metacard type being defined.
 
 The value of the `attributes` key is a map where each key is the name of an attribute type to include in this metacard type and each value is a map with a single key named `required` and a boolean value. Required attributes are used for metacard validation - metacards that lack required attributes will be flagged with validation errors.
-
 
 [source,json]
 ----
@@ -1778,6 +1780,32 @@ Example:
             "attribute": "frame-rate",
             "value": "30"
         }
+    ]
+}
+----
+
+==== Attribute Mixin Definition
+
+Global attribute mixins are simply existing attributes that will be mixed (injected) into every metacard type. They allow you to extend metacard types with additional attributes even after those metacard types have been defined.
+
+To define attribute mixins, your definition file must have a `mixins` key in the root object.
+
+[source,json]
+----
+{
+    "mixins": [...]
+}
+----
+
+The value of `mixins` is simply a list of the attributes that should be injected into every metacard type.
+
+Example:
+[source,json]
+----
+{
+    "mixins": [
+        "temperature",
+        "page-count"
     ]
 }
 ----

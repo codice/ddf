@@ -20,13 +20,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -41,6 +46,7 @@ import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -68,6 +74,8 @@ public class TestGeoJsonExtensible {
 
     public static final byte[] DEFAULT_BYTES = {8};
 
+    private static final double DEFAULT_TEMPERATURE = 101.5;
+
     private static final String NUMBER_REVIEWERS_ATTRIBUTE_KEY = "number-reviewers";
 
     private static final String PRECISE_HEIGHT_METERS_ATTRIBUTE_KEY = "precise-height-meters";
@@ -81,6 +89,8 @@ public class TestGeoJsonExtensible {
     private static final String ROWS_ATTRIBUTE_KEY = "rows";
 
     private static final String COLUMNS_ATTRIBUTE_KEY = "columns";
+
+    private static final String TEMPERATURE_KEY = "temperature";
 
     private static final String DEFAULT_DESCRIPTION = "sample description";
 
@@ -104,7 +114,7 @@ public class TestGeoJsonExtensible {
 
     private static final String sampleJsonExtensibleA() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
-                + "        \"multi-string\":[\"foo\", \"bar\"],"
+                + "        \"multi-string\":[\"foo\", \"bar\"]," + "\"temperature\":\"101.5\","
                 + "        \"frequency\":\"14000000\"," + "        \"min-frequency\":\"10000000\","
                 + "        \"max-frequency\":\"20000000\"," + "        \"angle\":\"180\","
                 + "        \"id\":\"myId\"," + "        \"metacard-type\":\"MetacardTypeA\""
@@ -115,7 +125,8 @@ public class TestGeoJsonExtensible {
 
     private static final String sampleJsonExtensibleANoMetacardType() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
-                + "        \"frequency\":\"14000000\"," + "        \"min-frequency\":\"10000000\","
+                + "        \"temperature\":\"101.5\"," + "        \"frequency\":\"14000000\","
+                + "        \"min-frequency\":\"10000000\","
                 + "        \"max-frequency\":\"20000000\"," + "        \"angle\":\"180\","
                 + "        \"id\":\"myId\"," + "    }," + "    \"type\":\"Feature\","
                 + "    \"geometry\":{" + "        \"type\":\"Point\"," + "        \"coordinates\":["
@@ -124,7 +135,8 @@ public class TestGeoJsonExtensible {
 
     private static final String sampleJsonExtensibleAUnregisteredMetacardType() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
-                + "        \"frequency\":\"14000000\"," + "        \"min-frequency\":\"10000000\","
+                + "        \"temperature\":\"101.5\"," + "        \"frequency\":\"14000000\","
+                + "        \"min-frequency\":\"10000000\","
                 + "        \"max-frequency\":\"20000000\"," + "        \"angle\":\"180\","
                 + "        \"id\":\"myId\"," + "        \"metacard-type\":\"unregistered-type\""
                 + "    }," + "    \"type\":\"Feature\"," + "    \"geometry\":{"
@@ -139,7 +151,7 @@ public class TestGeoJsonExtensible {
                 + "        \"created\":\"2012-08-01T00:09:19.368+0000\","
                 + "        \"metadata-content-type-version\":\"myVersion\","
                 + "        \"metadata-content-type\":\"myType\","
-                + "        \"metadata\":\"<xml><\\/xml>\","
+                + "        \"metadata\":\"<xml><\\/xml>\"," + "        \"temperature\":\"101.5\","
                 + "        \"modified\":\"2012-09-01T00:09:19.368+0000\","
                 + "        \"effective\":\"2012-08-15T00:09:19.368+0000\","
                 + "        \"expiration\":\"2013-09-01T00:09:19.368+0000\","
@@ -160,7 +172,7 @@ public class TestGeoJsonExtensible {
                 + "        \"created\":\"2012-08-01T00:09:19.368+0000\","
                 + "        \"metadata-content-type-version\":\"myVersion\","
                 + "        \"metadata-content-type\":\"myType\","
-                + "        \"metadata\":\"<xml><\\/xml>\","
+                + "        \"metadata\":\"<xml><\\/xml>\"," + "        \"temperature\":\"101.5\","
                 + "        \"modified\":\"2012-09-01T00:09:19.368+0000\","
                 + "        \"effective\":\"2012-08-15T00:09:19.368+0000\","
                 + "        \"expiration\":\"2013-09-01T00:09:19.368+0000\","
@@ -176,6 +188,7 @@ public class TestGeoJsonExtensible {
     private static final String sampleJsonExtensibleB() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
                 + "        \"columns\":\"5\"," + "        \"rows\":\"100\","
+                + "        \"temperature\":\"101.5\","
                 + "        \"description\":\"sample description\"," + "        \"id\":\"myId\","
                 + "        \"reviewed\":\"true\"," + "        \"precise-length-meters\":\""
                 + Double.MAX_VALUE + "\"," + "        \"precise-height-meters\":\""
@@ -190,7 +203,7 @@ public class TestGeoJsonExtensible {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
                 + "        \"columns\":\"5\"," + "        \"rows\":\"100\","
                 + "        \"description\":\"sample description\"," + "        \"id\":\"myId\","
-                + "        \"reviewed\":\"true\","
+                + "        \"reviewed\":\"true\"," + "\"temperature\":\"101.5\","
                 + "        \"precise-length-meters\":\"ThisIsNotADouble\","
                 + "        \"precise-height-meters\":\"" + Float.MAX_VALUE + "\","
                 + "        \"number-reviewers\":\"" + Short.MAX_VALUE + "\","
@@ -200,9 +213,40 @@ public class TestGeoJsonExtensible {
                 + "        ]" + "    }" + "}";
     }
 
+    private Map<String, MetacardType> getMetacardTypeMap() {
+        Map<String, MetacardType> map = new HashMap<>();
+        map.put(BASIC_METACARD.getName(), BASIC_METACARD);
+        map.put(SAMPLE_A_METACARD_TYPE_NAME, sampleMetacardTypeA());
+        map.put(SAMPLE_B_METACARD_TYPE_NAME, sampleMetacardTypeB());
+        return map;
+    }
+
+    private MetacardType addMixins(MetacardType metacardType) {
+        Set<AttributeDescriptor> attributeDescriptors =
+                new HashSet<>(metacardType.getAttributeDescriptors());
+        attributeDescriptors.add(new AttributeDescriptorImpl(TEMPERATURE_KEY,
+                true,
+                true,
+                false,
+                false,
+                BasicTypes.DOUBLE_TYPE));
+        return new MetacardTypeImpl(metacardType.getName(), attributeDescriptors);
+    }
+
     @Before
-    public void setup() {
-        transformer.setMetacardTypes(prepareMetacardTypes());
+    public void setUp() {
+        MetacardTypeRegistry metacardTypeRegistry = mock(MetacardTypeRegistry.class);
+
+        when(metacardTypeRegistry.lookup(anyString())).thenAnswer(invocationOnMock -> {
+            String metacardTypeName = (String) invocationOnMock.getArguments()[0];
+            MetacardType originalMetacardType = getMetacardTypeMap().get(metacardTypeName);
+            if (originalMetacardType != null) {
+                return Optional.of(addMixins(originalMetacardType));
+            }
+            throw new CatalogTransformerException();
+        });
+
+        transformer.setMetacardTypeRegistry(metacardTypeRegistry);
     }
 
     @Test
@@ -351,14 +395,18 @@ public class TestGeoJsonExtensible {
         // metacard.
         assertEquals(DEFAULT_TITLE, metacard.getTitle());
         assertEquals(DEFAULT_ID, metacard.getId());
+        assertEquals(BASIC_METACARD.getName(),
+                metacard.getMetacardType()
+                        .getName());
+
+        assertEquals(DEFAULT_TEMPERATURE,
+                metacard.getAttribute(TEMPERATURE_KEY)
+                        .getValue());
 
         assertNull(metacard.getAttribute("frequency"));
         assertNull(metacard.getAttribute("max-frequency"));
         assertNull(metacard.getAttribute("min-frequency"));
         assertNull(metacard.getAttribute("angle"));
-        assertEquals(BasicTypes.BASIC_METACARD.getName(),
-                metacard.getMetacardType()
-                        .getName());
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -389,13 +437,7 @@ public class TestGeoJsonExtensible {
         verifyBasics(metacard);
     }
 
-    private List<MetacardType> prepareMetacardTypes() {
-        return Arrays.asList(sampleMetacardTypeA(),
-                sampleMetacardTypeB(),
-                BasicTypes.BASIC_METACARD);
-    }
-
-    protected void verifyBasics(Metacard metacard) throws ParseException {
+    private void verifyBasics(Metacard metacard) throws ParseException {
         assertEquals(DEFAULT_TITLE, metacard.getTitle());
         assertEquals(DEFAULT_URI,
                 metacard.getResourceURI()
@@ -411,7 +453,10 @@ public class TestGeoJsonExtensible {
         assertEquals(DEFAULT_EXPIRATION_DATE, dateFormat.format(metacard.getExpirationDate()));
         assertEquals(DEFAULT_EFFECTIVE_DATE, dateFormat.format(metacard.getEffectiveDate()));
         assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
-        assertEquals(BasicTypes.BASIC_METACARD.getName(),
+        assertEquals(DEFAULT_TEMPERATURE,
+                metacard.getAttribute(TEMPERATURE_KEY)
+                        .getValue());
+        assertEquals(BASIC_METACARD.getName(),
                 metacard.getMetacardType()
                         .getName());
 

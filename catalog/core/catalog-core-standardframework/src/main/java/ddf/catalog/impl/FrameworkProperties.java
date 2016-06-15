@@ -29,6 +29,7 @@ import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
+import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
@@ -117,6 +118,8 @@ public class FrameworkProperties {
     private ValidationQueryFactory validationQueryFactory;
 
     private DefaultAttributeValueRegistry defaultAttributeValueRegistry;
+
+    private MetacardTypeRegistry metacardTypeRegistry;
 
     public List<CatalogProvider> getCatalogProviders() {
         return catalogProviders;
@@ -371,5 +374,13 @@ public class FrameworkProperties {
 
     public DefaultAttributeValueRegistry getDefaultAttributeValueRegistry() {
         return defaultAttributeValueRegistry;
+    }
+
+    public void setMetacardTypeRegistry(MetacardTypeRegistry metacardTypeRegistry) {
+        this.metacardTypeRegistry = metacardTypeRegistry;
+    }
+
+    public MetacardTypeRegistry getMetacardTypeRegistry() {
+        return metacardTypeRegistry;
     }
 }

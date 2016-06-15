@@ -13,31 +13,25 @@
  */
 package ddf.catalog.transformer.xml.adapter;
 
-import java.util.List;
+import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class MetacardTypeAdapter extends XmlAdapter<String, MetacardType> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTypeAdapter.class);
 
-    private List<MetacardType> types;
+    private final MetacardTypeRegistry registry;
 
-    public MetacardTypeAdapter(List<MetacardType> types) {
-        this.types = types;
-    }
-
-    public MetacardTypeAdapter() {
-        this(null);
+    public MetacardTypeAdapter(MetacardTypeRegistry registry) {
+        this.registry = registry;
     }
 
     @Override
@@ -49,28 +43,24 @@ public class MetacardTypeAdapter extends XmlAdapter<String, MetacardType> {
         return type.getName();
     }
 
+    private MetacardType lookupMetacardType(String metacardTypeName)
+            throws CatalogTransformerException {
+        return registry.lookup(metacardTypeName)
+                .orElseThrow(() -> new CatalogTransformerException(
+                        "MetacardType [" + metacardTypeName
+                                + "] has not been registered with the system. Cannot parse input."));
+    }
+
     @Override
     public MetacardType unmarshal(String typeName) throws CatalogTransformerException {
-
         LOGGER.debug("typeName: '{}'", typeName);
-        LOGGER.debug("types: {}", types);
 
-        if (StringUtils.isEmpty(typeName) || CollectionUtils.isEmpty(types) || typeName.equals(
-                BasicTypes.BASIC_METACARD.getName())) {
-            return BasicTypes.BASIC_METACARD;
+        if (StringUtils.isEmpty(typeName)) {
+            LOGGER.debug(
+                    "MetacardType specified in input is null or empty. Assuming default MetacardType.");
+            return lookupMetacardType(BASIC_METACARD.getName());
         }
 
-        LOGGER.debug("Searching through registerd metacard types {} for '{}'.", types, typeName);
-        for (MetacardType type : types) {
-            if (typeName.equals(type.getName())) {
-                return type;
-            }
-        }
-
-        LOGGER.debug("Metacard type '{}' is not registered.  Using metacard type of '{}'.",
-                typeName,
-                BasicTypes.BASIC_METACARD.getName());
-
-        return BasicTypes.BASIC_METACARD;
+        return lookupMetacardType(typeName);
     }
 }

@@ -11,51 +11,53 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-
 package ddf.catalog.extensiblemetacard;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isIn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.osgi.framework.InvalidSyntaxException;
+import org.mockito.Matchers;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.MetacardTypeRegistry;
-import ddf.catalog.data.MetacardTypeUnregistrationException;
 import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
 import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
 
+@PrepareForTest(FrameworkUtil.class)
 public class MetacardTypeRegistryTest {
+    @Rule
+    public PowerMockRule powerMockRule = new PowerMockRule();
 
-    public static final long SAMPLE_A_FREQUENCY = 14000000;
-
-    public static final long SAMPLE_A_MIN_FREQUENCY = 10000000;
-
-    public static final long SAMPLE_A_MAX_FREQUENCY = 20000000;
-
-    public static final int SAMPLE_A_ANGLE = 180;
-
-    public static final String DEFAULT_TITLE = "myTitle";
-
-    public static final String DEFAULT_ID = "myId";
-
-    public static final String DEFAULT_VERSION = "myVersion";
-
-    public static final String DEFAULT_TYPE = "myType";
-
-    public static final byte[] DEFAULT_BYTES = {8};
+    private static final String TEMPERATURE_ATTRIBUTE_NAME = "temperature";
 
     // Constants for Sample Metacard A defined below
     private static final String ANGLE_ATTRIBUTE_NAME_SAMPLE_METACARD_TYPE_A = "angle";
@@ -111,31 +113,20 @@ public class MetacardTypeRegistryTest {
 
     private static final String QUALIFIED_METACARD_TYPE_NAME_1 = "qmt1";
 
-    private static final String DEFAULT_DESCRIPTION = "sample description";
+    private HashSet<AttributeDescriptor> qmtAttributes;
 
-    private static final int DEFAULT_ROWS = 100;
+    private AttributeRegistry attributeRegistry;
 
-    private static final int DEFAULT_COLUMNS = 5;
+    private MetacardTypeRegistry mtr;
 
-    private static final String DEFAULT_MODIFIED_DATE = "2012-09-01T00:09:19.368+0000";
+    @Before
+    public void setupMetacardTypeRegistry() throws Exception {
+        attributeRegistry = mock(AttributeRegistry.class);
+        when(attributeRegistry.getGlobalAttributes()).thenReturn(Collections.emptySet());
 
-    private static final String DEFAULT_CREATED_DATE = "2012-08-01T00:09:19.368+0000";
+        mtr = new MetacardTypeRegistryImpl(attributeRegistry);
 
-    private static final String DEFAULT_URI = "http://example.com";
-
-    private static final Object DEFAULT_EXPIRATION_DATE = "2013-09-01T00:09:19.368+0000";
-
-    private static final Object DEFAULT_EFFECTIVE_DATE = "2012-08-15T00:09:19.368+0000";
-
-    private static MetacardTypeRegistry mtr;
-
-    private static HashSet<AttributeDescriptor> qmtAttributes;
-
-    @BeforeClass
-    public static void setupMetacardTypeRegistry() throws Exception {
-        mtr = MetacardTypeRegistryImpl.getInstance();
-
-        qmtAttributes = new HashSet<AttributeDescriptor>();
+        qmtAttributes = new HashSet<>();
         AttributeDescriptor ad1 = new AttributeDescriptorImpl(GEO_ATTRIBUTE_DESCRIPTOR_NAME,
                 true,
                 true,
@@ -168,13 +159,13 @@ public class MetacardTypeRegistryTest {
                         QUALIFIED_METACARD_TYPE_NAME_3,
                         qmtAttributes);
         mtr.register(qmt3);
-
     }
 
-    private void assertOnExpectedMetacardTypeFields(QualifiedMetacardType qmtResult) {
+    private void assertOnExpectedMetacardTypeFields(QualifiedMetacardType qmtResult,
+            int expectedAttributeCount) {
         Set<AttributeDescriptor> attributeDescriptors = qmtResult.getAttributeDescriptors();
         assertNotNull(attributeDescriptors);
-        assertEquals(QUALIFIED_METACARD_TYPE_DESCRIPTORS_SIZE, attributeDescriptors.size());
+        assertEquals(expectedAttributeCount, attributeDescriptors.size());
 
         AttributeDescriptor geoAD = qmtResult.getAttributeDescriptor(GEO_ATTRIBUTE_DESCRIPTOR_NAME);
         assertNotNull(geoAD);
@@ -189,12 +180,13 @@ public class MetacardTypeRegistryTest {
     @Test
     public void testLookupMetacardType() {
         QualifiedMetacardType qmtResult = mtr.lookup("ddf.test.namespace",
-                QUALIFIED_METACARD_TYPE_NAME_1);
+                QUALIFIED_METACARD_TYPE_NAME_1)
+                .get();
         assertNotNull(qmtResult);
         assertEquals(QUALIFIED_METACARD_TYPE_NAME_1, qmtResult.getName());
         assertEquals(QUALIFIED_METACARD_TYPE_NAMESPACE_1, qmtResult.getNamespace());
 
-        assertOnExpectedMetacardTypeFields(qmtResult);
+        assertOnExpectedMetacardTypeFields(qmtResult, QUALIFIED_METACARD_TYPE_DESCRIPTORS_SIZE);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -204,12 +196,13 @@ public class MetacardTypeRegistryTest {
 
     @Test
     public void testLookupMetacardTypeEmptyNamespace() {
-        QualifiedMetacardType qmtResult = mtr.lookup("", QUALIFIED_METACARD_TYPE_NAME_3);
+        QualifiedMetacardType qmtResult = mtr.lookup("", QUALIFIED_METACARD_TYPE_NAME_3)
+                .get();
         assertNotNull(qmtResult);
         assertEquals(QUALIFIED_METACARD_TYPE_NAME_3, qmtResult.getName());
         assertEquals("", qmtResult.getNamespace());
 
-        assertOnExpectedMetacardTypeFields(qmtResult);
+        assertOnExpectedMetacardTypeFields(qmtResult, QUALIFIED_METACARD_TYPE_DESCRIPTORS_SIZE);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -225,37 +218,60 @@ public class MetacardTypeRegistryTest {
 
     @Test
     public void testLookupMetacardTypeCantFindName() {
-        QualifiedMetacardType qmt = mtr.lookup(QUALIFIED_METACARD_TYPE_NAMESPACE_1,
-                QUALIFIED_METACARD_TYPE_NAME_BAD);
-        assertNull(qmt);
+        Optional<QualifiedMetacardType> qmtOptional =
+                mtr.lookup(QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_BAD);
+        assertThat(qmtOptional.isPresent(), is(false));
     }
 
     @Test
     public void testLookupMetacardTypeCantFindNamespace() {
-        QualifiedMetacardType qmt = mtr.lookup(QUALIFIED_METACARD_TYPE_NAMESPACE_BAD,
+        Optional<QualifiedMetacardType> qmtOptional = mtr.lookup(
+                QUALIFIED_METACARD_TYPE_NAMESPACE_BAD,
                 QUALIFIED_METACARD_TYPE_NAME_3);
-        assertNull(qmt);
+        assertThat(qmtOptional.isPresent(), is(false));
     }
 
     @Test
     public void testNoNamespaceLookup() {
-        QualifiedMetacardType qmt = mtr.lookup(QUALIFIED_METACARD_TYPE_NAME_3);
+        QualifiedMetacardType qmt = mtr.lookup(QUALIFIED_METACARD_TYPE_NAME_3)
+                .get();
         assertNotNull(qmt);
         assertEquals(QUALIFIED_METACARD_TYPE_NAME_3, qmt.getName());
         assertEquals(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE, qmt.getNamespace());
-        assertOnExpectedMetacardTypeFields(qmt);
+        assertOnExpectedMetacardTypeFields(qmt, QUALIFIED_METACARD_TYPE_DESCRIPTORS_SIZE);
     }
 
     @Test
     public void testNoNamespaceLookupCantFindName() {
-        QualifiedMetacardType qmt = mtr.lookup(QUALIFIED_METACARD_TYPE_NAME_BAD);
-        assertNull(qmt);
+        Optional<QualifiedMetacardType> qmtOptional = mtr.lookup(QUALIFIED_METACARD_TYPE_NAME_BAD);
+        assertThat(qmtOptional.isPresent(), is(false));
     }
 
     @Test
     public void testNoNamespaceLookupMatchingNameMismatchingNamespace() {
-        QualifiedMetacardType qmt = mtr.lookup(QUALIFIED_METACARD_TYPE_NAME_2);
-        assertNull(qmt);
+        Optional<QualifiedMetacardType> qmtOptional = mtr.lookup(QUALIFIED_METACARD_TYPE_NAME_2);
+        assertThat(qmtOptional.isPresent(), is(false));
+    }
+
+    @Test
+    public void testAddsMixinsOnLookup() {
+        final AttributeDescriptor temperature = new AttributeDescriptorImpl(
+                TEMPERATURE_ATTRIBUTE_NAME,
+                true,
+                true,
+                false,
+                false,
+                BasicTypes.DOUBLE_TYPE);
+        when(attributeRegistry.getGlobalAttributes()).thenReturn(Collections.singleton(temperature));
+
+        final Optional<QualifiedMetacardType> qmtOptional = mtr.lookup(
+                QUALIFIED_METACARD_TYPE_NAME_3);
+        assertThat(qmtOptional.isPresent(), is(true));
+
+        final QualifiedMetacardType qmt = qmtOptional.get();
+        assertOnExpectedMetacardTypeFields(qmt, QUALIFIED_METACARD_TYPE_DESCRIPTORS_SIZE + 1);
+
+        assertThat(temperature, isIn(qmt.getAttributeDescriptors()));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -269,8 +285,7 @@ public class MetacardTypeRegistryTest {
     }
 
     @Test
-    public void registerMetacardType() throws InvalidSyntaxException, IllegalArgumentException,
-            MetacardTypeUnregistrationException {
+    public void registerMetacardType() {
         assertEquals(4,
                 mtr.getRegisteredTypes()
                         .size());
@@ -282,7 +297,8 @@ public class MetacardTypeRegistryTest {
 
         QualifiedMetacardType metacardTypeAFromRegistry =
                 mtr.lookup(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
-                        SAMPLE_A_METACARD_TYPE_NAME);
+                        SAMPLE_A_METACARD_TYPE_NAME)
+                        .get();
         assertNotNull(metacardTypeAFromRegistry);
         assertEquals(SAMPLE_A_METACARD_TYPE_NAME, metacardTypeAFromRegistry.getName());
         assertEquals(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
@@ -291,48 +307,44 @@ public class MetacardTypeRegistryTest {
 
         QualifiedMetacardType metacardTypeBFromRegistry = mtr.lookup(
                 SAMPLE_B_METACARD_TYPE_NAMESPACE,
-                SAMPLE_B_METACARD_TYPE_NAME);
+                SAMPLE_B_METACARD_TYPE_NAME)
+                .get();
         assertNotNull(metacardTypeBFromRegistry);
         assertEquals(SAMPLE_B_METACARD_TYPE_NAME, metacardTypeBFromRegistry.getName());
         assertEquals(SAMPLE_B_METACARD_TYPE_NAMESPACE, metacardTypeBFromRegistry.getNamespace());
         assertOnSampleMetacardTypeBExcpectedAttributes(metacardTypeBFromRegistry);
-
-        mtr.unregister(sampleMetacardTypeA());
-        mtr.unregister(sampleMetacardTypeB());
     }
 
     @Test
-    public void registerMetacardTypeNullNamespace()
-            throws IllegalArgumentException, MetacardTypeUnregistrationException {
+    public void registerMetacardTypeNullNamespace() {
         QualifiedMetacardType qmt = new QualifiedMetacardTypeImpl(null,
                 QUALIFIED_METACARD_TYPE_NAME_1,
                 qmtAttributes);
         mtr.register(qmt);
         QualifiedMetacardType metacardTypeFromReg =
                 mtr.lookup(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
-                        QUALIFIED_METACARD_TYPE_NAME_1);
+                        QUALIFIED_METACARD_TYPE_NAME_1)
+                        .get();
         assertNotNull(metacardTypeFromReg);
         assertEquals(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
                 metacardTypeFromReg.getNamespace());
         assertEquals(QUALIFIED_METACARD_TYPE_NAME_1, metacardTypeFromReg.getName());
-        mtr.unregister(qmt);
     }
 
     @Test
-    public void registerMetacardTypeEmptyNamepsace()
-            throws IllegalArgumentException, MetacardTypeUnregistrationException {
+    public void registerMetacardTypeEmptyNamespace() {
         QualifiedMetacardType qmt = new QualifiedMetacardTypeImpl("",
                 QUALIFIED_METACARD_TYPE_NAME_1,
                 qmtAttributes);
         mtr.register(qmt);
         QualifiedMetacardType metacardTypeFromReg =
                 mtr.lookup(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
-                        QUALIFIED_METACARD_TYPE_NAME_1);
+                        QUALIFIED_METACARD_TYPE_NAME_1)
+                        .get();
         assertNotNull(metacardTypeFromReg);
         assertEquals(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
                 metacardTypeFromReg.getNamespace());
         assertEquals(QUALIFIED_METACARD_TYPE_NAME_1, metacardTypeFromReg.getName());
-        mtr.unregister(qmt);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -385,8 +397,7 @@ public class MetacardTypeRegistryTest {
     }
 
     @Test
-    public void testUnregister()
-            throws IllegalArgumentException, MetacardTypeUnregistrationException {
+    public void testUnregister() {
         assertEquals(4,
                 mtr.getRegisteredTypes()
                         .size());
@@ -398,7 +409,8 @@ public class MetacardTypeRegistryTest {
 
         QualifiedMetacardType metacardTypeAFromRegistry =
                 mtr.lookup(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
-                        SAMPLE_A_METACARD_TYPE_NAME);
+                        SAMPLE_A_METACARD_TYPE_NAME)
+                        .get();
         assertNotNull(metacardTypeAFromRegistry);
         assertEquals(SAMPLE_A_METACARD_TYPE_NAME, metacardTypeAFromRegistry.getName());
         assertEquals(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
@@ -407,7 +419,8 @@ public class MetacardTypeRegistryTest {
 
         QualifiedMetacardType metacardTypeBFromRegistry = mtr.lookup(
                 SAMPLE_B_METACARD_TYPE_NAMESPACE,
-                SAMPLE_B_METACARD_TYPE_NAME);
+                SAMPLE_B_METACARD_TYPE_NAME)
+                .get();
         assertNotNull(metacardTypeBFromRegistry);
         assertEquals(SAMPLE_B_METACARD_TYPE_NAME, metacardTypeBFromRegistry.getName());
         assertEquals(SAMPLE_B_METACARD_TYPE_NAMESPACE, metacardTypeBFromRegistry.getNamespace());
@@ -445,6 +458,39 @@ public class MetacardTypeRegistryTest {
                 .contains(qmt3));
 
         mtr.unregister(sampleMetacardTypeB());
+    }
+
+    @Test
+    public void testServiceReferenceBinding() {
+        mockStatic(FrameworkUtil.class);
+
+        Bundle bundle = mock(Bundle.class);
+        BundleContext bundleContext = mock(BundleContext.class);
+        when(bundle.getBundleContext()).thenReturn(bundleContext);
+
+        when(FrameworkUtil.getBundle(MetacardTypeRegistryImpl.class)).thenReturn(bundle);
+
+        final String metacardTypeName = "MetacardType service";
+        final MetacardType metacardType = new QualifiedMetacardTypeImpl(null,
+                metacardTypeName,
+                BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+
+        when(bundleContext.getService(Matchers.<ServiceReference<MetacardType>>any())).thenReturn(
+                metacardType);
+
+        MetacardTypeRegistryImpl registry = new MetacardTypeRegistryImpl(attributeRegistry);
+        @SuppressWarnings("unchecked")
+        ServiceReference<MetacardType> mockService = mock(ServiceReference.class);
+        registry.bind(mockService);
+
+        assertThat(registry.getRegisteredTypes(), hasSize(2));
+        assertThat(registry.lookup(metacardTypeName)
+                .isPresent(), is(true));
+
+        registry.unbind(mockService);
+        assertThat(registry.getRegisteredTypes(), hasSize(1));
+        assertThat(registry.lookup(metacardTypeName)
+                .isPresent(), is(false));
     }
 
     private QualifiedMetacardType sampleMetacardTypeA() {

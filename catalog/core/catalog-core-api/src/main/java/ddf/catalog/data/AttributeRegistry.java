@@ -14,6 +14,7 @@
 package ddf.catalog.data;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Manages registered attribute types.
@@ -32,7 +33,7 @@ public interface AttributeRegistry {
      * @throws IllegalArgumentException if {@code attributeDescriptor} or
      *                                  {@link AttributeDescriptor#getName()} is null
      */
-    boolean registerAttribute(AttributeDescriptor attributeDescriptor);
+    boolean register(AttributeDescriptor attributeDescriptor);
 
     /**
      * Removes an attribute from the registry.
@@ -42,7 +43,29 @@ public interface AttributeRegistry {
      * @param name the name of the attribute to remove
      * @throws IllegalArgumentException if {@code name} is null
      */
-    void deregisterAttribute(String name);
+    void deregister(String name);
+
+    /**
+     * Indicate that the registered attribute with the given name should be added to every metacard
+     * type.
+     *
+     * @param name the name of the attribute to be added to every metacard type, cannot be null
+     * @return true if an attribute with the given name has been registered and false otherwise
+     * @throws IllegalArgumentException if {@code name} is null
+     */
+    // TODO (jrnorth) - Is 'global' the best name for describing what this does?
+    // TODO (jrnorth) - follow-up to above: does this capability belong in the attribute registry? or should it go elsewhere? I'd prefer not to add yet another registry...
+    boolean globalize(String name);
+
+    /**
+     * Stop the attribute with the given name from being added to every metacard type.
+     * <p>
+     * Does nothing if no attribute by the name {@code name} exists in the registry.
+     *
+     * @param name the name of the attribute, cannot be null
+     * @throws IllegalArgumentException if {@code name} is null
+     */
+    void deglobalize(String name);
 
     /**
      * Gets the {@link AttributeDescriptor} for the attribute with the given name.
@@ -54,5 +77,13 @@ public interface AttributeRegistry {
      * @return an {@link Optional} containing the registered {@link AttributeDescriptor}
      * @throws IllegalArgumentException if {@code name} is null
      */
-    Optional<AttributeDescriptor> getAttributeDescriptor(String name);
+    Optional<AttributeDescriptor> lookup(String name);
+
+    /**
+     * Returns a {@link Set} containing the registered {@link AttributeDescriptor}s to be added to
+     * every metacard type.
+     *
+     * @return the set of attributes to be added to every metacard type, or an empty set if none
+     */
+    Set<AttributeDescriptor> getGlobalAttributes();
 }

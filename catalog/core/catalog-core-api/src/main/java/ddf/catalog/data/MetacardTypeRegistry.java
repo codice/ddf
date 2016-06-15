@@ -11,9 +11,9 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-
 package ddf.catalog.data;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -22,83 +22,63 @@ import java.util.Set;
  * DDF components to lookup MetacardTypes based on their qualified name. MetacardTypes should
  * typically be registered by Sources that support that data set. Lookups will typically be
  * performed by InputTransformers to discover how the incoming metadata should be parsed.
- *
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  * </p>
- *
  */
 public interface MetacardTypeRegistry {
-
-    public static final String METACARD_TYPE_NAMESPACE_KEY = "metacardtype.namespace";
-
-    public static final String METACARD_TYPE_NAME_KEY = "metacardtype.name";
-
     /**
      * Registers a {@link QualifiedMetacardType} in the system so that it is accessible to
      * {@link ddf.catalog.transform.InputTransformer}s, {@link ddf.catalog.transform.MetacardTransformer}s, {@link ddf.catalog.transform.QueryResponseTransformer}s,
      * and other components. This allows those components to know how to properly interpret a
      * {@link Metacard} and its {@link Attribute}s.
-     *
+     * <p>
      * If the QualifiedMetacardType does not contain a namespace, the default namespace will be
      * assumed.
      *
-     * @param qualifiedMetacardType
-     *            the {@link QualifiedMetacardType} to make available to the catalog framework.
-     *
-     * @throws IllegalArgumentException
-     *             An IllegalArgumentException will be thrown if qualifiedMetacardType is null. An
-     *             IllegalArgumentException will also be thrown if the {@link QualifiedMetacardType}
-     *             's name is null or empty.
+     * @param qualifiedMetacardType the {@link QualifiedMetacardType} to make available to the catalog framework.
+     * @throws IllegalArgumentException An IllegalArgumentException will be thrown if qualifiedMetacardType is null. An
+     *                                  IllegalArgumentException will also be thrown if the {@link QualifiedMetacardType}
+     *                                  's name is null or empty.
      */
-    public void register(QualifiedMetacardType qualifiedMetacardType)
-            throws IllegalArgumentException;
+    void register(QualifiedMetacardType qualifiedMetacardType);
 
     /**
      * Removes from the registry the given QualifiedMetacardType.
      *
-     * @param qualifiedMetacardType
-     *            The MetacardType to remove from the registry. Cannot be null or empty.
-     *
+     * @param qualifiedMetacardType The MetacardType to remove from the registry. Cannot be null or empty.
      * @throws IllegalArgumentException
-     * @throws MetacardTypeUnregistrationException
      */
-    public void unregister(QualifiedMetacardType qualifiedMetacardType)
-            throws IllegalArgumentException, MetacardTypeUnregistrationException;
+    // TODO (jrnorth) - why not unregister by namespace + metacard type name?
+    void unregister(QualifiedMetacardType qualifiedMetacardType);
 
     /**
      * Gets the {@link MetacardType} identified by the namespace and MetacardType name.
      *
-     * @param namespace
-     *            prefix qualifier in which the {@link MetacardType} name is unique.
-     * @param metacardTypeName
-     *            unique name identifying {@link MetacardType}. Cannot be null or empty.
+     * @param namespace        prefix qualifier in which the {@link MetacardType} name is unique.
+     * @param metacardTypeName unique name identifying {@link MetacardType}. Cannot be null or empty.
      * @return {@link QualifiedMetacardType} matching provided namespace and metacardTypeName or
-     *         null if no matching MetacardType can be found.
-     * @throws IllegalArgumentException
-     *             if the namespace is null or if the metacardTypeName is null or empty.
+     * null if no matching MetacardType can be found.
+     * @throws IllegalArgumentException if the namespace is null or if the metacardTypeName is null or empty.
      */
-    public QualifiedMetacardType lookup(String namespace, String metacardTypeName)
-            throws IllegalArgumentException;
+    Optional<QualifiedMetacardType> lookup(String namespace, String metacardTypeName);
 
     /**
      * Gets the MetacardType identified using the default namespace and the specified MetacardType
      * name.
      *
-     * @param metacardTypeName
-     *            unique name identifying {@link MetacardType}. Cannot be null or empty.
+     * @param metacardTypeName unique name identifying {@link MetacardType}. Cannot be null or empty.
      * @return {@link QualifiedMetacardType} matching provided namespace and metacardTypeName or
-     *         null if no matching MetacardType can be found.
-     * @throws IllegalArgumentException
-     *             if the metacardTypeName is null or empty.
+     * null if no matching MetacardType can be found.
+     * @throws IllegalArgumentException if the metacardTypeName is null or empty.
      */
-    public QualifiedMetacardType lookup(String metacardTypeName) throws IllegalArgumentException;
+    Optional<QualifiedMetacardType> lookup(String metacardTypeName);
 
     /**
      * This must be invoked each time an updated view of the registered types is desired.
      *
      * @return Unmodifiable copy of the set of registered MetacardTypes in the system.
      */
-    public Set<QualifiedMetacardType> getRegisteredTypes();
+    Set<QualifiedMetacardType> getRegisteredTypes();
 }

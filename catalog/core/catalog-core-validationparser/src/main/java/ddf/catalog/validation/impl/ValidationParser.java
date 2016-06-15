@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -122,6 +123,7 @@ public class ValidationParser implements ArtifactInstaller {
         handleSection("Metacard Types", outer.metacardTypes, this::parseMetacardTypes);
         handleSection("Validators", outer.validators, this::parseValidators);
         handleSection("Defaults", outer.defaults, this::parseDefaults);
+        handleSection("Mixins", outer.mixins, this::parseMixins);
     }
 
     private <T> void handleSection(String sectionName, T sectionData,
@@ -192,7 +194,7 @@ public class ValidationParser implements ArtifactInstaller {
                     entry.getValue().multivalued,
                     BasicTypes.getAttributeType(entry.getValue().type));
 
-            staged.add(() -> attributeRegistry.registerAttribute(descriptor));
+            staged.add(() -> attributeRegistry.register(descriptor));
         }
         return staged;
     }
@@ -213,8 +215,7 @@ public class ValidationParser implements ArtifactInstaller {
             Set<String> requiredAttributes = new HashSet<>();
 
             metacardType.attributes.forEach((attributeName, attribute) -> {
-                AttributeDescriptor descriptor = attributeRegistry.getAttributeDescriptor(
-                        attributeName)
+                AttributeDescriptor descriptor = attributeRegistry.lookup(attributeName)
                         .orElseThrow(() -> new IllegalStateException(String.format(
                                 "Metacard type [%s] includes the attribute [%s], but that attribute is not in the attribute registry.",
                                 metacardType.type,
@@ -251,6 +252,17 @@ public class ValidationParser implements ArtifactInstaller {
             });
         }
         return staged;
+    }
+
+    private List<Callable<Boolean>> parseMixins(List<String> mixins) {
+        return mixins.stream()
+                .map(attributeRegistry::lookup)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(attribute -> (Callable<Boolean>) () -> {
+                    return attributeRegistry.globalize(attribute.getName());
+                })
+                .collect(Collectors.toList());
     }
 
     private Set<AttributeValidator> validatorFactory(List<Outer.Validator> validators) {
@@ -325,8 +337,7 @@ public class ValidationParser implements ArtifactInstaller {
         return defaults.stream()
                 .flatMap(defaultObj -> {
                     String attribute = defaultObj.attribute;
-                    AttributeDescriptor descriptor = attributeRegistry.getAttributeDescriptor(
-                            attribute)
+                    AttributeDescriptor descriptor = attributeRegistry.lookup(attribute)
                             .orElseThrow(() -> new IllegalStateException(String.format(
                                     "The default value for the attribute [%s] cannot be parsed because that attribute has not been registered in the attribute registry",
                                     attribute)));
@@ -359,6 +370,8 @@ public class ValidationParser implements ArtifactInstaller {
         Map<String, List<Validator>> validators;
 
         List<Default> defaults;
+
+        List<String> mixins;
 
         class MetacardType {
             String type;

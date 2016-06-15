@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -100,6 +101,8 @@ import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.MetacardTypeRegistry;
+import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -850,12 +853,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 Path tmpPath = null;
                 long size;
                 try {
-                    String sanitizedFilename = InputValidation.sanitizeFilename(
-                            contentItem.getFilename());
+                    String sanitizedFilename =
+                            InputValidation.sanitizeFilename(contentItem.getFilename());
                     if (contentItem.getInputStream() != null) {
-                        tmpPath =
-                                Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
-                                        FilenameUtils.getExtension(sanitizedFilename));
+                        tmpPath = Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
+                                FilenameUtils.getExtension(sanitizedFilename));
                         Files.copy(contentItem.getInputStream(),
                                 tmpPath,
                                 StandardCopyOption.REPLACE_EXISTING);
@@ -1067,6 +1069,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw sourceUnavailableException;
         }
 
+        createRequest = addMixins(createRequest);
+
         setDefaultValues(createRequest);
 
         CreateResponse createResponse = null;
@@ -1183,6 +1187,43 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     buildIngestLog(createRequest));
         }
         return createResponse;
+    }
+
+    private Optional<QualifiedMetacardType> getMetacardTypeWithMixins(String metacardTypeName) {
+        MetacardTypeRegistry registry = frameworkProperties.getMetacardTypeRegistry();
+        return registry.lookup(metacardTypeName);
+    }
+
+    private Metacard changeMetacardType(Metacard original, MetacardType newMetacardType) {
+        MetacardImpl newMetacard = new MetacardImpl(original);
+        newMetacard.setType(newMetacardType);
+        newMetacard.setSourceId(original.getSourceId());
+        return newMetacard;
+    }
+
+    private CreateRequest addMixins(CreateRequest createRequest) {
+        List<Metacard> metacardsWithMixins = createRequest.getMetacards()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(metacard -> {
+                    String metacardTypeName = metacard.getMetacardType()
+                            .getName();
+                    Optional<QualifiedMetacardType> mixinMetacardTypeOptional =
+                            getMetacardTypeWithMixins(metacardTypeName);
+                    if (mixinMetacardTypeOptional.isPresent()) {
+                        return changeMetacardType(metacard, mixinMetacardTypeOptional.get());
+                    } else {
+                        LOGGER.warn(
+                                "Could not find the metacard type with name '{}' in the metacard type registry.",
+                                metacardTypeName);
+                        return metacard;
+                    }
+                })
+                .collect(Collectors.toList());
+
+        return new CreateRequestImpl(metacardsWithMixins,
+                createRequest.getProperties(),
+                createRequest.getStoreIds());
     }
 
     private void applyAttributeOverridesToMetacardMap(Map<String, String> attributeOverrideMap,
@@ -1426,20 +1467,21 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw new IngestException(FANOUT_MESSAGE);
         }
 
-        UpdateRequest updateReq = updateRequest;
-        validateUpdateRequest(updateReq);
+        validateUpdateRequest(updateRequest);
 
         if (Requests.isLocal(updateRequest) && !sourceIsAvailable(catalog)) {
             throw new SourceUnavailableException(
                     "Local provider is not available, cannot perform update operation.");
         }
 
+        addMixins(updateRequest);
+
         setDefaultValues(updateRequest);
 
         UpdateResponse updateResponse = null;
         try {
             List<Filter> idFilters = new ArrayList<>();
-            for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
+            for (Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
                 idFilters.add(frameworkProperties.getFilterBuilder()
                         .attribute(updateRequest.getAttributeName())
                         .is()
@@ -1450,13 +1492,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters));
             queryImpl.setStartIndex(1);
-            queryImpl.setPageSize(updateReq.getUpdates()
+            queryImpl.setPageSize(updateRequest.getUpdates()
                     .size());
             QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl,
-                    updateReq.getStoreIds());
+                    updateRequest.getStoreIds());
 
             QueryResponse query;
-            Map<String, Metacard> metacardMap = new HashMap<>(updateReq.getUpdates()
+            Map<String, Metacard> metacardMap = new HashMap<>(updateRequest.getUpdates()
                     .size());
             if (!frameworkProperties.getPolicyPlugins()
                     .isEmpty()) {
@@ -1471,16 +1513,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
             }
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
+            for (Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
                 HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
                 Metacard oldMetacard = metacardMap.get(getAttributeStringValue(update.getValue(),
                         updateRequest.getAttributeName()));
                 for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                     PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
-                            Collections.unmodifiableMap(updateReq.getProperties()));
+                            Collections.unmodifiableMap(updateRequest.getProperties()));
                     PolicyResponse oldPolicyResponse = plugin.processPreUpdate(oldMetacard,
-                            Collections.unmodifiableMap(updateReq.getProperties()));
+                            Collections.unmodifiableMap(updateRequest.getProperties()));
                     buildPolicyMap(itemPolicyMap,
                             updatePolicyResponse.itemPolicy()
                                     .entrySet());
@@ -1498,38 +1540,38 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             oldItemPolicyMap));
                 }
             }
-            updateReq.getProperties()
+            updateRequest.getProperties()
                     .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
 
             for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                updateReq = plugin.processPreUpdate(updateReq, metacardMap);
+                updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
             }
 
-            updateReq.getProperties()
+            updateRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
                             new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
                                     metacardMap.values()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
-                    updateReq = plugin.process(updateReq);
+                    updateRequest = plugin.process(updateRequest);
                 } catch (PluginExecutionException e) {
                     LOGGER.warn("error processing update in PreIngestPlugin", e);
                 }
             }
-            validateUpdateRequest(updateReq);
+            validateUpdateRequest(updateRequest);
 
             // Call the create on the catalog
             LOGGER.debug("Calling catalog.update() with {} updates.",
                     updateRequest.getUpdates()
                             .size());
 
-            if (Requests.isLocal(updateReq)) {
-                updateResponse = catalog.update(updateReq);
+            if (Requests.isLocal(updateRequest)) {
+                updateResponse = catalog.update(updateRequest);
             }
 
             if (catalogStoreRequest) {
-                UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateReq);
+                UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateRequest);
                 if (updateResponse == null) {
                     updateResponse = remoteUpdateResponse;
                 } else {
@@ -1541,7 +1583,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             // Handle the posting of messages to pubsub
-            updateResponse = validateFixUpdateResponse(updateResponse, updateReq);
+            updateResponse = validateFixUpdateResponse(updateResponse, updateRequest);
             for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
                 try {
                     updateResponse = plugin.process(updateResponse);
@@ -1553,14 +1595,33 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } catch (StopProcessingException see) {
             LOGGER.warn(PRE_INGEST_ERROR, see);
             throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
-
         } catch (RuntimeException re) {
             LOGGER.warn("Exception during runtime while performing update", re);
             throw new InternalIngestException("Exception during runtime while performing update");
-
         }
 
         return updateResponse;
+    }
+
+    private void addMixins(UpdateRequest updateRequest) {
+        updateRequest.getUpdates()
+                .forEach(updateEntry -> {
+                    Metacard original = updateEntry.getValue();
+                    String metacardTypeName = original.getMetacardType()
+                            .getName();
+
+                    Optional<QualifiedMetacardType> mixinMetacardTypeOptional =
+                            getMetacardTypeWithMixins(metacardTypeName);
+                    if (mixinMetacardTypeOptional.isPresent()) {
+                        Metacard withMixins = changeMetacardType(original,
+                                mixinMetacardTypeOptional.get());
+                        updateEntry.setValue(withMixins);
+                    } else {
+                        LOGGER.warn(
+                                "Could not find the metacard type with name '{}' in the metacard type registry.",
+                                metacardTypeName);
+                    }
+                });
     }
 
     @Override
@@ -1843,6 +1904,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             queryResponse = doQuery(queryReq, fedStrategy);
 
+            queryResponse = addMixins(queryResponse);
+
             validateFixQueryResponse(queryResponse, queryReq, overrideFanoutRename);
 
             HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
@@ -1894,6 +1957,39 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         return queryResponse;
 
+    }
+
+    private QueryResponse addMixins(QueryResponse queryResponse) {
+        List<Result> resultsWithMixins = queryResponse.getResults()
+                .stream()
+                .map(result -> {
+                    Metacard original = result.getMetacard();
+                    String metacardTypeName = original.getMetacardType()
+                            .getName();
+                    Optional<QualifiedMetacardType> mixinMetacardTypeOptional =
+                            getMetacardTypeWithMixins(metacardTypeName);
+
+                    if (mixinMetacardTypeOptional.isPresent()) {
+                        Metacard withMixins = changeMetacardType(original,
+                                mixinMetacardTypeOptional.get());
+                        ResultImpl newResult = new ResultImpl(withMixins);
+                        newResult.setDistanceInMeters(result.getDistanceInMeters());
+                        newResult.setRelevanceScore(result.getRelevanceScore());
+                        return newResult;
+                    } else {
+                        LOGGER.warn(
+                                "Could not find the metacard type with name '{}' in the metacard type registry.",
+                                metacardTypeName);
+                        return result;
+                    }
+                })
+                .collect(Collectors.toList());
+
+        return new QueryResponseImpl(queryResponse.getRequest(),
+                resultsWithMixins,
+                true,
+                queryResponse.getHits(),
+                queryResponse.getProperties());
     }
 
     private Filter getTagsQueryFilter() {
