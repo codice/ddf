@@ -39,7 +39,7 @@ import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
 
 import ddf.catalog.cache.impl.CacheKey;
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
@@ -98,7 +98,7 @@ public class ReliableResourceDownloader implements Runnable {
 
     private DownloadsStatusEventListener eventListener;
 
-    private ResourceCache resourceCache;
+    private ResourceCacheImpl resourceCache;
 
     private DownloadsStatusEventPublisher eventPublisher;
 

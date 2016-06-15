@@ -13,9 +13,11 @@
  */
 package ddf.catalog.cache.impl;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -28,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Optional;
 
 import javax.activation.MimeType;
 
@@ -40,23 +43,47 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 
-public class ResourceCacheTest {
+public class ResourceCacheImplTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCacheImplTest.class);
+
     private static final String TEST_PATH = "/src/main/resources/";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCacheTest.class);
+    private static final String SOURCE_ID = "ddf-1";
 
-    public String workingDir;
+    private static final String METACARD_ID = "abc123";
 
-    public ResourceCache resourceCache;
+    private static final String NOT_CACHED_METACARD_ID = "cde456";
+
+    private static final String CACHED_RESOURCE_KEY = String.format("%s-%s",
+            SOURCE_ID,
+            METACARD_ID);
+
+    private String workingDir;
+
+    private ResourceCacheImpl resourceCache;
+
+    // Currently testing the new ResourceCacheImpl using this test class. This will be moved out
+    // when the code gets moved form the old to the new ResourceCacheImpl.
+    private org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl newResourceCache;
 
     private String defaultProductCacheDirectory;
 
+    private Metacard cachedMetacard;
+
+    private Metacard notCachedMetacard;
+
     @Before
     public void setUp() throws MalformedURLException {
+        cachedMetacard = createMetacard(SOURCE_ID, METACARD_ID);
+        notCachedMetacard = createMetacard(SOURCE_ID, NOT_CACHED_METACARD_ID);
 
         // Set system property that Hazelcast uses for its XML Config file
         String xmlConfigFilename = "reliableResource-hazelcast.xml";
@@ -67,20 +94,23 @@ public class ResourceCacheTest {
         System.setProperty("karaf.home", workingDir);
 
         defaultProductCacheDirectory =
-                workingDir + File.separator + ResourceCache.DEFAULT_PRODUCT_CACHE_DIRECTORY;
+                workingDir + File.separator + ResourceCacheImpl.DEFAULT_PRODUCT_CACHE_DIRECTORY;
 
-        // Simulates how blueprint creates the ResourceCache instance
+        // Simulates how blueprint creates the ResourceCacheImpl instance
         Bundle bundle = mock(Bundle.class);
         URL url = new URL("file:///" + new File(xmlConfigLocation).getAbsolutePath());
         when(bundle.getResource(anyString())).thenReturn(url);
         BundleContext context = mock(BundleContext.class);
         when(context.getBundle()).thenReturn(bundle);
 
-        resourceCache = new ResourceCache();
+        resourceCache = new ResourceCacheImpl();
         resourceCache.setContext(context);
         resourceCache.setXmlConfigFilename(xmlConfigFilename);
         resourceCache.setProductCacheDirectory("");
         resourceCache.setCache(null);
+
+        newResourceCache = new org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl(
+                resourceCache);
     }
 
     @After
@@ -120,61 +150,43 @@ public class ResourceCacheTest {
 
     /**
      * Verifies that put() method works.
-     *
      */
     @Test
     public void testPutThenGet() {
-        String fileName = "15bytes.txt";
-        String productLocation = System.getProperty("user.dir") + "/src/test/resources/" + fileName;
-        File rrCachedFile = new File(productLocation);
-        String key = "ddf-1-abc123";
         MetacardImpl metacard = new MetacardImpl();
-        ReliableResource reliableResource = new ReliableResource(key,
-                rrCachedFile.getAbsolutePath(),
-                new MimeType(),
-                fileName,
-                metacard);
+        ReliableResource reliableResource = createCachedResource(metacard);
 
         resourceCache.addPendingCacheEntry(reliableResource);
-        assertTrue(resourceCache.isPending(key));
+        assertTrue(resourceCache.isPending(CACHED_RESOURCE_KEY));
         resourceCache.put(reliableResource);
         assertTrue(assertReliableResourceEquals(reliableResource,
-                resourceCache.getValid(key, metacard)));
-        assertFalse(resourceCache.isPending(key));
+                resourceCache.getValid(CACHED_RESOURCE_KEY, metacard)));
+        assertFalse(resourceCache.isPending(CACHED_RESOURCE_KEY));
     }
 
     /**
      * Verifies that put() method works even if entry being added was never
      * in the pending cache list.
-     *
      */
     @Test
     public void testPutThenGetNotPending() {
-        String fileName = "15bytes.txt";
-        String productLocation = System.getProperty("user.dir") + "/src/test/resources/" + fileName;
-        File rrCachedFile = new File(productLocation);
-        String key = "ddf-1-abc123";
         MetacardImpl metacard = new MetacardImpl();
-        ReliableResource reliableResource = new ReliableResource(key,
-                rrCachedFile.getAbsolutePath(),
-                new MimeType(),
-                fileName,
-                metacard);
+        ReliableResource reliableResource = createCachedResource(metacard);
 
         resourceCache.put(reliableResource);
-        assertFalse(resourceCache.isPending(key));
+        assertFalse(resourceCache.isPending(CACHED_RESOURCE_KEY));
         assertTrue(assertReliableResourceEquals(reliableResource,
-                resourceCache.getValid(key, metacard)));
+                resourceCache.getValid(CACHED_RESOURCE_KEY, metacard)));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testGetWhenNullKey() {
+    public void testGetValidWhenNullKey() {
         resourceCache.getValid(null, new MetacardImpl());
     }
 
     @Test
-    public void testGetWhenNoProductInCache() {
-        String key = "ddf-1-abc123";
+    public void testGetValidWhenNoProductInCache() {
+        String key = CACHED_RESOURCE_KEY;
         assertNull(resourceCache.getValid(key, new MetacardImpl()));
     }
 
@@ -183,8 +195,8 @@ public class ResourceCacheTest {
      * when a get() is done on that cached entry that the missing product is detected, the cache entry is removed.
      */
     @Test
-    public void testGetWhenNoProductInCacheDirectory() {
-        String key = "ddf-1-abc123";
+    public void testGetValidWhenNoProductInCacheDirectory() {
+        String key = CACHED_RESOURCE_KEY;
         MetacardImpl metacard = new MetacardImpl();
 
         assertNull(resourceCache.getValid(key, metacard));
@@ -297,6 +309,120 @@ public class ResourceCacheTest {
         String cacheKey = "cacheKey1";
         resourceCache.put(new ReliableResource(cacheKey, "", null, "name", cachedMetacard));
         assertFalse(resourceCache.containsValid(cacheKey, latestMetacard));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getDefaultResourceWithNullMetacard() {
+        newResourceCache.get(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getSpecificResourceWithNullMetacard() {
+        newResourceCache.get(null, new ResourceRequestById(METACARD_ID));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getSpecificResourceWithNullResourceRequest() {
+        newResourceCache.get(cachedMetacard, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void containsDefaultResourceWithNullMetacard() {
+        newResourceCache.contains(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void containsSpecificResourceWithNullMetacard() {
+        newResourceCache.contains(null, new ResourceRequestById(METACARD_ID));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void containsSpecificResourceWithNullResourceRequest() {
+        newResourceCache.contains(cachedMetacard, null);
+    }
+
+    @Test
+    public void getDefaultResourceInCache() {
+        ReliableResource cachedResource = createCachedResource(cachedMetacard);
+        resourceCache.put(cachedResource);
+
+        Optional<Resource> optionalResource = newResourceCache.get(cachedMetacard);
+
+        assertTrue(optionalResource.isPresent());
+        assertTrue(assertReliableResourceEquals(cachedResource, optionalResource.get()));
+    }
+
+    @Test
+    public void getSpecificResourceInCache() {
+        ReliableResource cachedResource = createCachedResource(cachedMetacard);
+        resourceCache.put(cachedResource);
+
+        Optional<Resource> optionalResource = newResourceCache.get(cachedMetacard,
+                new ResourceRequestById(METACARD_ID));
+
+        assertTrue(optionalResource.isPresent());
+        assertTrue(assertReliableResourceEquals(cachedResource, optionalResource.get()));
+    }
+
+    @Test
+    public void getDefaultResourceNotInCache() {
+        Optional<Resource> optionalResource = newResourceCache.get(notCachedMetacard);
+
+        assertFalse(optionalResource.isPresent());
+    }
+
+    @Test
+    public void getSpecificResourceNotInCache() {
+        Optional<Resource> optionalResource = newResourceCache.get(notCachedMetacard,
+                new ResourceRequestById(NOT_CACHED_METACARD_ID));
+
+        assertFalse(optionalResource.isPresent());
+    }
+
+    @Test
+    public void containsDefaultResourceInCache() {
+        ReliableResource cachedResource = createCachedResource(cachedMetacard);
+        resourceCache.put(cachedResource);
+
+        assertThat(newResourceCache.contains(cachedMetacard), is(true));
+    }
+
+    @Test
+    public void containsSpecificResourceInCache() {
+        ReliableResource cachedResource = createCachedResource(cachedMetacard);
+        resourceCache.put(cachedResource);
+
+        assertThat(newResourceCache.contains(cachedMetacard, new ResourceRequestById(METACARD_ID)),
+                is(true));
+    }
+
+    @Test
+    public void containsDefaultResourceNotInCache() {
+        assertThat(newResourceCache.contains(notCachedMetacard), is(false));
+    }
+
+    @Test
+    public void containsSpecificResourceNotInCache() {
+        assertThat(newResourceCache.contains(notCachedMetacard,
+                new ResourceRequestById(NOT_CACHED_METACARD_ID)), is(false));
+    }
+
+    private Metacard createMetacard(String sourceId, String metacardId) {
+        Metacard metacard = new MetacardImpl();
+        metacard.setSourceId(sourceId);
+        metacard.setAttribute(new AttributeImpl(Metacard.ID, metacardId));
+        return metacard;
+    }
+
+    private ReliableResource createCachedResource(Metacard metacard) {
+        String fileName = "15bytes.txt";
+        String productLocation = System.getProperty("user.dir") + "/src/test/resources/" + fileName;
+        File rrCachedFile = new File(productLocation);
+        return new ReliableResource(CACHED_RESOURCE_KEY,
+                rrCachedFile.getAbsolutePath(),
+                new MimeType(),
+                fileName,
+                metacard);
     }
 
     private void simulateAddFileToCacheDir(String fileName) throws IOException {
