@@ -28,14 +28,14 @@
     "grunt-contrib-clean": "0.4.0",
     "grunt-contrib-cssmin": "0.5.0",
     "grunt-contrib-jshint": "0.10.0",
-    "grunt-contrib-watch": "0.4.4",
+    "grunt-contrib-watch": "0.6.0",
     "grunt-mocha-test": "0.12.7",
     "grunt-newer": "0.8.0",
     "grunt-sed": "0.1.1",
     "jquery": "2.1.4",
     "jshint-stylish": "1.0.2",
     "load-grunt-tasks": "1.0.0",
-    "mocha": "2.3.3",
+    "mocha": "2.3.4",
     "requirejs": "2.1.22",
     "underscore": "1.7.0"
   },
@@ -45,6 +45,6 @@
     "node-fs": "0.1.7",
     "node-options": "0.0.3",
     "path": "0.4.9",
-    "request": "2.49.0"
+    "request": "2.68.0"
   }
 }
