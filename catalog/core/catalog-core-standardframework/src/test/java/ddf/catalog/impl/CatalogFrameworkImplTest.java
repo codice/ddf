@@ -80,7 +80,7 @@ import com.google.common.io.ByteSource;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
@@ -869,7 +869,7 @@ public class CatalogFrameworkImplTest {
 
         String sourceId = "myId";
         resourceFramework.setId(sourceId);
-        ResourceCache resourceCache = mock(ResourceCache.class);
+        ResourceCacheImpl resourceCache = mock(ResourceCacheImpl.class);
         when(resourceCache.containsValid(isA(String.class), isA(Metacard.class))).thenReturn(false);
         //        ResourceResponse resourceResponseInCache = new ResourceResponseImpl(mockResource);
         //        when(resourceCache.put(isA(Metacard.class), isA(ResourceResponse.class),
@@ -2080,7 +2080,7 @@ public class CatalogFrameworkImplTest {
         List<ResourceReader> resourceReaders = new ArrayList<ResourceReader>();
         resourceReaders.add(resourceReader);
 
-        ResourceCache resourceCache = mock(ResourceCache.class);
+        ResourceCacheImpl resourceCache = mock(ResourceCacheImpl.class);
         Resource mockResource = mock(Resource.class);
         when(resourceCache.containsValid(isA(String.class), isA(Metacard.class))).thenReturn(true);
         when(resourceCache.getValid(isA(String.class),

@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.cache.MockInputStream;
 import ddf.catalog.cache.impl.CacheKey;
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
@@ -109,7 +109,7 @@ public class ReliableResourceDownloadManagerTest {
         }
     };
 
-    private ResourceCache resourceCache;
+    private ResourceCacheImpl resourceCache;
 
     private DownloadsStatusEventPublisher eventPublisher;
 
@@ -145,7 +145,7 @@ public class ReliableResourceDownloadManagerTest {
 
     @Before
     public void setup() {
-        resourceCache = mock(ResourceCache.class);
+        resourceCache = mock(ResourceCacheImpl.class);
         when(resourceCache.getProductCacheDirectory()).thenReturn(productCacheDirectory);
         eventPublisher = mock(DownloadsStatusEventPublisher.class);
         eventListener = mock(DownloadsStatusEventListener.class);
@@ -269,7 +269,7 @@ public class ReliableResourceDownloadManagerTest {
 
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache).put(argument.capture());
 
@@ -308,7 +308,7 @@ public class ReliableResourceDownloadManagerTest {
         int clientChunkSize = 2;
         ByteArrayOutputStream clientBytesRead = clientRead(clientChunkSize, productInputStream);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache).put(argument.capture());
 
@@ -369,7 +369,7 @@ public class ReliableResourceDownloadManagerTest {
 
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache).put(argument.capture());
 
@@ -403,7 +403,7 @@ public class ReliableResourceDownloadManagerTest {
 
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache).put(argument.capture());
 
@@ -439,7 +439,7 @@ public class ReliableResourceDownloadManagerTest {
         // of the product download
         clientRead(chunkSize, productInputStream, 2);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache, timeout(3000)).put(argument.capture());
 
@@ -652,7 +652,7 @@ public class ReliableResourceDownloadManagerTest {
         // Verify client did not receive entire product download
         assertTrue(clientBytesRead.size() < expectedFileSize);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         verify(resourceCache, timeout(3000)).put(argument.capture());
 
         verifyCaching(argument.getValue(), EXPECTED_CACHE_KEY);

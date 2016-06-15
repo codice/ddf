@@ -42,11 +42,11 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 
-public class ResourceCache implements ResourceCacheInterface {
+public class ResourceCacheImpl implements ResourceCacheInterface {
 
     private static final String KARAF_HOME = "karaf.home";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCacheImpl.class);
 
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
 
@@ -60,7 +60,7 @@ public class ResourceCache implements ResourceCacheInterface {
 
     private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L;  //10 GB
 
-    private List<String> pendingCache = new ArrayList<String>();
+    private List<String> pendingCache = new ArrayList<>();
 
     /**
      * Directory for products cached to file system
@@ -71,8 +71,8 @@ public class ResourceCache implements ResourceCacheInterface {
 
     private IMap<Object, Object> cache;
 
-    private ProductCacheDirListener<Object, Object> cacheListener =
-            new ProductCacheDirListener<Object, Object>(DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
+    private ProductCacheDirListener<Object, Object> cacheListener = new ProductCacheDirListener<>(
+            DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
 
     private BundleContext context;
 
@@ -345,9 +345,7 @@ public class ResourceCache implements ResourceCacheInterface {
             return false;
         }
         ReliableResource cachedResource = (ReliableResource) cache.get(key);
-        return cachedResource != null ?
-                (validateCacheEntry(cachedResource, latestMetacard)) :
-                false;
+        return (cachedResource != null) && (validateCacheEntry(cachedResource, latestMetacard));
     }
 
     /**

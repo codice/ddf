@@ -40,16 +40,16 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 
 import ddf.catalog.cache.impl.ProductCacheDirListener;
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.data.ReliableResource;
 
-public class ResourceCacheSizeLimitTest {
+public class ResourceCacheImplSizeLimitTest {
 
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(
-            ResourceCacheSizeLimitTest.class);
+            ResourceCacheImplSizeLimitTest.class);
 
     private static TestHazelcastInstanceFactory hcInstanceFactory;
 
@@ -62,7 +62,7 @@ public class ResourceCacheSizeLimitTest {
         String workingDir = System.getProperty("user.dir") + File.separator + "target";
         System.setProperty("karaf.home", workingDir);
         productCacheDir =
-                workingDir + File.separator + ResourceCache.DEFAULT_PRODUCT_CACHE_DIRECTORY;
+                workingDir + File.separator + ResourceCacheImpl.DEFAULT_PRODUCT_CACHE_DIRECTORY;
         hcInstanceFactory = new TestHazelcastInstanceFactory(10);
         listener = new ProductCacheDirListener<Object, Object>(15);
     }

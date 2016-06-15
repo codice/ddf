@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
@@ -64,7 +64,7 @@ public class ReliableResourceDownloadManager {
 
     /**
      * @param resourceCache
-     *            reference to the @ResourceCache to cache the resource in
+     *            reference to the @ResourceCacheImpl to cache the resource in
      * @param eventPublisher
      *            reference to the publisher of status events as the download progresses
      * @param eventListener
@@ -72,7 +72,7 @@ public class ReliableResourceDownloadManager {
      * @param downloadStatusInfo
      *            reference to the {@link DownloadStatusInfo}
      */
-    public ReliableResourceDownloadManager(ResourceCache resourceCache,
+    public ReliableResourceDownloadManager(ResourceCacheImpl resourceCache,
             DownloadsStatusEventPublisher eventPublisher,
             DownloadsStatusEventListener eventListener, DownloadStatusInfo downloadStatusInfo,
             ExecutorService executor) {

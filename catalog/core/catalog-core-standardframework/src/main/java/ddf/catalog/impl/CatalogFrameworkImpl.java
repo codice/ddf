@@ -74,7 +74,7 @@ import com.google.common.collect.Iterables;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.cache.impl.CacheKey;
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
@@ -256,7 +256,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         this.fanoutEnabled = fanoutEnabled;
     }
 
-    void setProductCache(ResourceCache productCache) {
+    void setProductCache(ResourceCacheImpl productCache) {
         LOGGER.debug("Injecting productCache");
         frameworkProperties.setResourceCache(productCache);
     }
