@@ -21,6 +21,9 @@
     </parent>
     <artifactId>test-itests-common</artifactId>
     <name>DDF :: Test :: Integration :: Common</name>
+    <properties>
+        <cometd.version>3.0.9</cometd.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
@@ -113,6 +116,21 @@
             <artifactId>grizzly-http-server</artifactId>
             <version>2.3.17</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.cometd.java</groupId>
+            <artifactId>cometd-java-client</artifactId>
+            <version>${cometd.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cometd.java</groupId>
+            <artifactId>bayeux-api</artifactId>
+            <version>${cometd.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cometd.java</groupId>
+            <artifactId>cometd-java-common</artifactId>
+            <version>${cometd.version}</version>
         </dependency>
     </dependencies>
     <build>
