@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.registry.api.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -108,6 +109,46 @@ public class RegistryPublicationActionProviderTest {
     }
 
     @Test
+    public void testInitWithNullMetacard() throws Exception {
+        Metacard mcard1 = getRegistryMetacard("regId1");
+        Metacard mcard2 = getRegistryMetacard(null);
+        ArrayList<String> locations = new ArrayList<>();
+        locations.add("location1");
+        mcard1.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
+                locations));
+        List<Metacard> metacardList = new ArrayList<>();
+        metacardList.add(mcard1);
+        metacardList.add(mcard2);
+        when(federationAdmin.getRegistryMetacards()).thenReturn(metacardList);
+
+        publicationActionProvider.init();
+
+        Map<String, List<String>> publications = publicationActionProvider.getPublications();
+        assertThat(publications.size(), is(1));
+        assertThat(publications.get("regId1"), equalTo(locations));
+    }
+
+    @Test
+    public void testInitWithBlankMetacard() throws Exception {
+        Metacard mcard1 = getRegistryMetacard("regId1");
+        Metacard mcard2 = getRegistryMetacard(" ");
+        ArrayList<String> locations = new ArrayList<>();
+        locations.add("location1");
+        mcard1.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
+                locations));
+        List<Metacard> metacardList = new ArrayList<>();
+        metacardList.add(mcard1);
+        metacardList.add(mcard2);
+        when(federationAdmin.getRegistryMetacards()).thenReturn(metacardList);
+
+        publicationActionProvider.init();
+
+        Map<String, List<String>> publications = publicationActionProvider.getPublications();
+        assertThat(publications.size(), is(1));
+        assertThat(publications.get("regId1"), equalTo(locations));
+    }
+
+    @Test
     public void testHandleEventNonRegistryMcard() throws Exception {
         Metacard mcard = new MetacardImpl();
         Dictionary<String, Object> eventProperties = new Hashtable<>();
@@ -122,6 +163,28 @@ public class RegistryPublicationActionProviderTest {
     public void testHandleEventNoMcard() throws Exception {
 
         Dictionary<String, Object> eventProperties = new Hashtable<>();
+        Event event = new Event(CREATED_TOPIC, eventProperties);
+        publicationActionProvider.handleEvent(event);
+        assertThat(publicationActionProvider.getPublications()
+                .size(), is(0));
+    }
+
+    @Test
+    public void testHandleEventNoRegistryId() throws Exception {
+        Metacard mcard = getRegistryMetacard(null);
+        Dictionary<String, Object> eventProperties = new Hashtable<>();
+        eventProperties.put(METACARD_PROPERTY, mcard);
+        Event event = new Event(CREATED_TOPIC, eventProperties);
+        publicationActionProvider.handleEvent(event);
+        assertThat(publicationActionProvider.getPublications()
+                .size(), is(0));
+    }
+
+    @Test
+    public void testHandleEventBlankRegistryId() throws Exception {
+        Metacard mcard = getRegistryMetacard(" ");
+        Dictionary<String, Object> eventProperties = new Hashtable<>();
+        eventProperties.put(METACARD_PROPERTY, mcard);
         Event event = new Event(CREATED_TOPIC, eventProperties);
         publicationActionProvider.handleEvent(event);
         assertThat(publicationActionProvider.getPublications()
@@ -181,6 +244,16 @@ public class RegistryPublicationActionProviderTest {
     @Test
     public void testCanHandleRegistryMetacard() throws Exception {
         assertThat(publicationActionProvider.canHandle(getRegistryMetacard("regId1")), is(true));
+    }
+
+    @Test
+    public void testCanHandleRegistryMetacardWithNullRegistryIdAttribute() throws Exception {
+        assertThat(publicationActionProvider.canHandle(getRegistryMetacard(null)), is(false));
+    }
+
+    @Test
+    public void testCanHandleRegistryMetacardWithBlankRegistryIdAttribute() throws Exception {
+        assertThat(publicationActionProvider.canHandle(getRegistryMetacard("  ")), is(false));
     }
 
     @Test
@@ -276,7 +349,9 @@ public class RegistryPublicationActionProviderTest {
     private Metacard getRegistryMetacard(String regId) {
         MetacardImpl mcard = new MetacardImpl(new RegistryObjectMetacardType());
         mcard.setTags(Collections.singleton(RegistryConstants.REGISTRY_TAG));
-        mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, regId);
+        if (StringUtils.isNotEmpty(regId)) {
+            mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, regId);
+        }
         return mcard;
     }
 

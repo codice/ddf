@@ -70,6 +70,10 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -81,7 +85,16 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
-                        <Embed-Dependency>common-system,commons-lang3</Embed-Dependency>
+                        <Import-Package>
+                            !org.codice.ddf.platform.util.http,
+                            !org.codice.ddf.platform.util,
+                            *
+                        </Import-Package>
+                        <Embed-Dependency>
+                            common-system,
+                            commons-lang3,
+                            ddf-security-common
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

@@ -20,17 +20,25 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.Principal;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import javax.security.auth.Subject;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.registry.api.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -98,7 +106,7 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
     @Override
     public <T> List<Action> getActions(T subject) {
         String registryId = getRegistryId(subject);
-        if (registryId == null) {
+        if (StringUtils.isBlank(registryId)) {
             return Collections.emptyList();
         }
         List<Action> actions = new ArrayList<>();
@@ -127,7 +135,7 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
 
     @Override
     public <T> boolean canHandle(T subject) {
-        return getRegistryId(subject) != null;
+        return StringUtils.isNotBlank(getRegistryId(subject));
     }
 
     @Override
@@ -138,9 +146,14 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
             return;
         }
 
-        String registryId = mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                .getValue()
+        Attribute registryIdAttribute = mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
+        if (registryIdAttribute == null || StringUtils.isBlank(registryIdAttribute.getValue()
+                .toString())) {
+            return;
+        }
+        String registryId = registryIdAttribute.getValue()
                 .toString();
+
         Attribute locationAttribute =
                 mcard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
         List<String> locations = new ArrayList<>();
@@ -160,23 +173,43 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
         }
     }
 
-    public void init() throws FederationAdminException {
-        List<Metacard> metacards = federationAdminService.getRegistryMetacards();
-        for (Metacard mcard : metacards) {
+    public void init() throws FederationAdminException, PrivilegedActionException {
+
+        // Change from here
+        // Remove this subject stuff and change to use Security.runAsAdmin() once the PrivilegedException option has been implemented
+        Set<Principal> principals = new HashSet<>();
+        String localRoles = System.getProperty("karaf.local.roles", "");
+        for (String role : localRoles.split(",")) {
+            principals.add(new RolePrincipal(role));
+        }
+        Subject subject = new Subject(true, principals, new HashSet(), new HashSet());
+
+        PrivilegedExceptionAction<List<Metacard>> federationAdminServiceAction =
+                () -> federationAdminService.getRegistryMetacards();
+        List<Metacard> metacards = subject.doAs(subject, federationAdminServiceAction);
+        // To here
+
+        for (Metacard metacard : metacards) {
             Attribute locations =
-                    mcard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
+                    metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
+            Attribute registryIdAttribute =
+                    metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
+            if (registryIdAttribute == null || StringUtils.isBlank(registryIdAttribute.getValue()
+                    .toString())) {
+                LOGGER.warn("Warning metacard (id: {}} did not contain a registry id.",
+                        metacard.getId());
+                continue;
+            }
+            String registryId = registryIdAttribute.getValue()
+                    .toString();
             if (locations != null) {
-                publications.put(mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                                .getValue()
-                                .toString(),
+                publications.put(registryId,
                         locations.getValues()
                                 .stream()
                                 .map(Object::toString)
                                 .collect(Collectors.toList()));
             } else {
-                publications.put(mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                        .getValue()
-                        .toString(), Collections.emptyList());
+                publications.put(registryId, Collections.emptyList());
             }
         }
     }
@@ -210,14 +243,16 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
 
     private <T> String getRegistryId(T subject) {
         if (subject instanceof Metacard) {
-            Metacard mcard = (Metacard) subject;
-            if (!mcard.getTags()
+            Metacard metacard = (Metacard) subject;
+            if (metacard.getTags()
                     .contains(RegistryConstants.REGISTRY_TAG)) {
-                return null;
+                Attribute registryIdAttribute =
+                        metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
+                if (registryIdAttribute != null) {
+                    return registryIdAttribute.getValue()
+                            .toString();
+                }
             }
-            return ((Metacard) subject).getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                    .getValue()
-                    .toString();
         } else if (subject instanceof Source) {
             try {
                 Configuration[] configurations = configAdmin.listConfigurations(String.format(
@@ -256,7 +291,7 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
         this.federationAdminService = adminService;
     }
 
-    public Map<String, List<String>> getPublications() {
+    Map<String, List<String>> getPublications() {
         return publications;
     }
 }
