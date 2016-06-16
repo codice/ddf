@@ -81,7 +81,7 @@ public class ResourceCacheImplTest {
     private Metacard notCachedMetacard;
 
     @Before
-    public void setUp() throws MalformedURLException {
+    public void setUp() throws MalformedURLException, URISyntaxException {
         cachedMetacard = createMetacard(SOURCE_ID, METACARD_ID);
         notCachedMetacard = createMetacard(SOURCE_ID, NOT_CACHED_METACARD_ID);
 
@@ -152,8 +152,8 @@ public class ResourceCacheImplTest {
      * Verifies that put() method works.
      */
     @Test
-    public void testPutThenGet() {
-        MetacardImpl metacard = new MetacardImpl();
+    public void testPutThenGet() throws URISyntaxException {
+        Metacard metacard = generateMetacard();
         ReliableResource reliableResource = createCachedResource(metacard);
 
         resourceCache.addPendingCacheEntry(reliableResource);
@@ -169,8 +169,8 @@ public class ResourceCacheImplTest {
      * in the pending cache list.
      */
     @Test
-    public void testPutThenGetNotPending() {
-        MetacardImpl metacard = new MetacardImpl();
+    public void testPutThenGetNotPending() throws URISyntaxException {
+        MetacardImpl metacard = generateMetacard();
         ReliableResource reliableResource = createCachedResource(metacard);
 
         resourceCache.put(reliableResource);
@@ -314,6 +314,7 @@ public class ResourceCacheImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void getDefaultResourceWithNullMetacard() {
         newResourceCache.get(null);
+
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -407,8 +408,9 @@ public class ResourceCacheImplTest {
                 new ResourceRequestById(NOT_CACHED_METACARD_ID)), is(false));
     }
 
-    private Metacard createMetacard(String sourceId, String metacardId) {
-        Metacard metacard = new MetacardImpl();
+    private Metacard createMetacard(String sourceId, String metacardId) throws URISyntaxException {
+        
+        Metacard metacard = generateMetacard();
         metacard.setSourceId(sourceId);
         metacard.setAttribute(new AttributeImpl(Metacard.ID, metacardId));
         return metacard;
@@ -435,6 +437,7 @@ public class ResourceCacheImplTest {
 
     private MetacardImpl generateMetacard() throws URISyntaxException {
         MetacardImpl metacard = new MetacardImpl();
+        metacard.setAttribute(Metacard.CHECKSUM, "1");
         metacard.setSourceId("source1");
         metacard.setId("id123");
         metacard.setContentTypeName("content-type-name");
