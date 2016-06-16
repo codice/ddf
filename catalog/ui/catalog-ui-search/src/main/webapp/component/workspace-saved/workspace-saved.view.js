@@ -22,8 +22,11 @@ define([
     'component/result-selector/result-selector.view',
     'js/model/Query',
     'js/store',
-    'js/cql'
-], function (Marionette, _, $, workspaceSavedTemplate, CustomElements, ResultSelectorView, Query, store, cql) {
+    'js/cql',
+    'component/confirmation/confirmation.view',
+    'js/jquery.whenAll'
+], function (Marionette, _, $, workspaceSavedTemplate, CustomElements, ResultSelectorView, Query,
+             store, cql, ConfirmationView) {
 
     var WorkspaceSaved = Marionette.LayoutView.extend({
         template: workspaceSavedTemplate,
@@ -38,19 +41,46 @@ define([
         initialize: function () {
         },
         onBeforeShow: function(){
-            this.resultCollection.show(new ResultSelectorView({
-                model: new Query.Model({
-                    cql: cql.write({
-                        type: 'OR',
-                        filters: store.getCurrentWorkspace().get('metacards').map(function(id){
-                            return {
-                                type: '=',
-                                value: id,
-                                property: '"id"'
-                            };
-                        })
+            var self = this;
+            var query = new Query.Model({
+                cql: cql.write({
+                    type: 'OR',
+                    filters: store.getCurrentWorkspace().get('metacards').map(function(id){
+                        return {
+                            type: '=',
+                            value: id,
+                            property: '"id"'
+                        };
                     })
                 })
+            });
+            $.whenAll.apply(this, query.startSearch()).always(function(){
+                var results = query.get('result').get('results').map(function(result){
+                    return result.get('metacard').get('properties').get('id');
+                });
+                var missingMetacards = store.getCurrentWorkspace().get('metacards').filter(function(id){
+                    return results.indexOf(id) === -1;
+                });
+                if (missingMetacards.length !== 0 ){
+                    self.listenTo(ConfirmationView.generateConfirmation({
+                            prompt: missingMetacards.length + ' metacard(s) unable to be found.  ' +
+                            'This could be do to unavailable sources, deletion of the metacard, or lack of permissions to view the metacard.',
+                            no: 'Keep',
+                            yes: 'Remove'
+                        }),
+                        'change:choice',
+                        function(confirmation){
+                            if (confirmation.get('choice')){
+                                var currentWorkspace = store.getCurrentWorkspace();
+                                if (currentWorkspace){
+                                    currentWorkspace.set('metacards', _.difference(currentWorkspace.get('metacards'), missingMetacards));
+                                }
+                            }
+                        });
+                }
+            });
+            this.resultCollection.show(new ResultSelectorView({
+                model: query
             }));
         }
     });

@@ -111,12 +111,28 @@ define([
                         })
                     });
                     $.whenAll.apply(this, queryForMetacard.startSearch()).always(function(){
-                        metacardInstance.set('currentMetacard', queryForMetacard.get('result').get('results').first());
-                        if (Application.App.metacardRegion.currentView===undefined) {
-                            Application.App.metacardRegion.show(new MetacardView());
+                        if (queryForMetacard.get('result').get('results').length === 0) {
+                            self.listenTo(ConfirmationView.generateConfirmation({
+                                    prompt: 'Either the metacard has been deleted or you no longer have permission to access it. ',
+                                    yes: 'Go to Workspaces home screen'
+                                }),
+                                'change:choice',
+                                function(){
+                                    wreqr.vent.trigger('router:navigate', {
+                                        fragment: 'workspaces',
+                                        options: {
+                                            trigger: true
+                                        }
+                                    });
+                                });
+                        } else {
+                            metacardInstance.set('currentMetacard', queryForMetacard.get('result').get('results').first());
+                            if (Application.App.metacardRegion.currentView === undefined) {
+                                Application.App.metacardRegion.show(new MetacardView());
+                            }
+                            Application.App.metacardRegion.$el.removeClass('is-hidden');
+                            self.updateRoute(name, path, args);
                         }
-                        Application.App.metacardRegion.$el.removeClass('is-hidden');
-                        self.updateRoute(name, path, args);
                     });
                     break;
                 case 'home':

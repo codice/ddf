@@ -44,6 +44,14 @@ define([
         },
         archive: function () {
             var self = this;
+            var payload;
+            if (this.model.length){
+                payload = JSON.stringify(self.model.map(function(result){
+                    return result.get('metacard').get('id');
+                }));
+            } else {
+                payload = JSON.stringify([this.model.get('metacard').get('id')]);
+            }
             this.listenTo(ConfirmationView.generateConfirmation({
                     prompt: 'Are you sure you want to archive this metacard?  Doing so will remove it from future search results.',
                     no: 'Cancel',
@@ -56,9 +64,7 @@ define([
                         $.ajax({
                             url: '/search/catalog/internal/metacards',
                             type: 'DELETE',
-                            data: JSON.stringify(self.model.map(function(result){
-                                return result.get('metacard').get('id');
-                            })),
+                            data: payload,
                             contentType: 'application/json'
                         }).always(function (response) {
                             setTimeout(function () {  //let solr flush
