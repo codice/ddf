@@ -36,8 +36,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import ddf.action.Action;
+import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.cache.impl.CacheKey;
-import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 
@@ -51,7 +51,7 @@ public class DownloadResourceActionProviderTest {
     private static final String REMOTE_SOURCE_ID = "remote";
 
     @Mock
-    private ResourceCache resourceCache;
+    private ResourceCacheInterface resourceCache;
 
     @Mock
     private ReliableResourceDownloadManager downloadManager;

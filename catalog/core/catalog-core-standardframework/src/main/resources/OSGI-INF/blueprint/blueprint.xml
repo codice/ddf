@@ -332,7 +332,7 @@
     <bean id="downloadResourceActionProvider"
           class="ddf.catalog.resource.actions.DownloadResourceActionProvider">
         <argument value="catalog.data.metacard.resource.download"/>
-        <argument ref="productCache"/>
+        <argument ref="deprecatedProductCache"/>
         <argument ref="reliableResourceDownloadManager"/>
     </bean>
 
