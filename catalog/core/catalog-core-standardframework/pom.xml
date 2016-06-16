@@ -46,6 +46,15 @@
             <artifactId>action-core-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-impl</artifactId>
         </dependency>
@@ -62,6 +71,11 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>versioning-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.shiro</groupId>
@@ -241,33 +255,38 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+
                         <Embed-Dependency>
+                            activities,
                             catalog-core-actions,
                             catalog-core-solr,
-                            notifications,
-                            activities,
-                            hazelcast;scope=runtime|compile,
                             commons-collections,
                             commons-lang3,
-                            platform-util
+                            ddf-security-common,
+                            hazelcast;scope=runtime|compile,
+                            notifications,
+                            platform-util,
+                            versioning-common
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.cache.impl,
                             ddf.catalog.cache.solr.impl,
-                            ddf.catalog.event.retrievestatus,
-                            ddf.catalog.impl,
                             ddf.catalog.data.impl,
-                            ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl,
+                            ddf.catalog.event.retrievestatus,
                             ddf.catalog.federation.base,
                             ddf.catalog.filter.impl,
-                            ddf.catalog.source.impl,
+                            ddf.catalog.history,
+                            ddf.catalog.impl,
+                            ddf.catalog.operation.impl,
                             ddf.catalog.resource.actions,
                             ddf.catalog.resource.download,
                             ddf.catalog.resource.impl,
                             ddf.catalog.resourceretriever,
+                            ddf.catalog.source.impl,
+                            ddf.catalog.util.impl,
                             org.codice.ddf.catalog.resource.cache,
-                            org.codice.ddf.catalog.resource.cache.impl
+                            org.codice.ddf.catalog.resource.cache.impl,
+                            org.codice.ddf.platform.util,
                         </Private-Package>
                         <Export-Package>
                             ddf.catalog.cache,
@@ -286,29 +305,31 @@
                             com.vividsolutions.jts.operation.valid,
                             com.vividsolutions.jts.simplify,
                             com.vividsolutions.jts.util,
-                            ddf.action;version="1.0",
                             ddf.action.impl,
-                            ddf.catalog;version="2.0",
-                            ddf.catalog.event;version="2.0",
-                            ddf.catalog.filter.delegate;version=${project.version},
-                            ddf.catalog.pubsub;version="2.0",
-                            ddf.catalog.transform;version="2.0",
+                            ddf.action;version="1.0",
+                            ddf.catalog.content.data;version="2.0",
+                            ddf.catalog.content.operation;version="2.0",
+                            ddf.catalog.content.plugin;version="2.0",
+                            ddf.catalog.content;version="2.0",
                             ddf.catalog.data;version="2.0",
+                            ddf.catalog.event;version="2.0",
                             ddf.catalog.federation;version="2.0",
+                            ddf.catalog.filter.delegate;version=${project.version},
                             ddf.catalog.filter;version="2.0",
                             ddf.catalog.operation;version="2.0",
                             ddf.catalog.plugin;version="2.0",
+                            ddf.catalog.pubsub;version="2.0",
                             ddf.catalog.resource;version="2.0",
                             ddf.catalog.source;version="2.0",
+                            ddf.catalog.transform;version="2.0",
                             ddf.catalog.util;version="2.0",
-                            ddf.catalog.content;version="2.0",
-                            ddf.catalog.content.plugin;version="2.0",
-                            ddf.catalog.content.data;version="2.0",
-                            ddf.catalog.content.operation;version="2.0",
+                            ddf.catalog;version="2.0",
                             ddf.measure;version="2.0",
                             ddf.mime,
                             ddf.security,
+                            ddf.security.assertion,
                             ddf.security.permission,
+                            ddf.security.service,
                             javax.activation,
                             javax.annotation,
                             javax.crypto,
@@ -350,20 +371,26 @@
                             org.apache.commons.logging;version="[1.1,2)",
                             org.apache.cxf.jaxrs.client,
                             org.apache.cxf.jaxrs.ext.multipart,
+                            org.apache.cxf.ws.security.tokenstore,
                             org.apache.shiro,
                             org.apache.shiro.authz,
                             org.apache.shiro.subject,
                             org.apache.tika,
-                            org.apache.tika.detect,
                             org.apache.tika.config,
+                            org.apache.tika.detect,
+                            org.apache.tika.metadata,
                             org.apache.tika.mime,
                             org.apache.tika.utils,
-                            org.apache.tika.metadata,
                             org.apache.xerces.parsers,
                             org.apache.xerces.xni.parser,
                             org.apache.xml.resolver,
                             org.apache.xml.resolver.helpers,
+                            org.codice.ddf.security.handler.api,
                             org.geotools.filter.visitor,
+                            org.geotools.geometry.jts.spatialschema,
+                            org.geotools.geometry.jts.spatialschema.geometry.aggregate,
+                            org.geotools.geometry.jts.spatialschema.geometry.geometry,
+                            org.geotools.geometry.jts.spatialschema.geometry.primitive,
                             org.joda.convert,
                             org.opengis.annotation,
                             org.opengis.filter,
@@ -372,19 +399,15 @@
                             org.opengis.filter.temporal,
                             org.opengis.temporal,
                             org.osgi.framework;version="[1.5,2)",
-                            org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
                             org.osgi.service.blueprint.container,
+                            org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
                             org.osgi.service.event,
-                            org.slf4j;version="[1.6,2)",
                             org.slf4j.ext,
+                            org.slf4j;version="[1.6,2)",
                             org.w3c.dom,
                             org.xml.sax,
                             org.xml.sax.ext,
-                            org.xml.sax.helpers,
-                            org.geotools.geometry.jts.spatialschema.geometry.geometry,
-                            org.geotools.geometry.jts.spatialschema.geometry.primitive,
-                            org.geotools.geometry.jts.spatialschema,
-                            org.geotools.geometry.jts.spatialschema.geometry.aggregate
+                            org.xml.sax.helpers
                         </Import-Package>
                     </instructions>
                 </configuration>

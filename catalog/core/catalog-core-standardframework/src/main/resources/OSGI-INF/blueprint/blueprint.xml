@@ -339,6 +339,14 @@
         <argument ref="downloadThreadPool"/>
     </bean>
 
+    <bean id="historian" class="ddf.catalog.history.Historian">
+        <cm:managed-properties persistent-id="ddf.catalog.history.Historian"
+                               update-strategy="container-managed"/>
+        <property name="catalogProviders" ref="catalogProviderSortedList"/>
+        <property name="storageProviders" ref="storageProviderSortedList"/>
+        <property name="catalogFramework" ref="ddf"/>
+    </bean>
+
     <bean id="downloadResourceActionProvider"
           class="ddf.catalog.resource.actions.DownloadResourceActionProvider">
         <argument value="catalog.data.metacard.resource.download"/>
@@ -396,6 +404,7 @@
                 <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
             </bean>
         </argument>
+        <property name="historian" ref="historian"/>
         <property name="masker" ref="sourceListener"/>
         <property name="notificationEnabled" value="true"/>
     </bean>

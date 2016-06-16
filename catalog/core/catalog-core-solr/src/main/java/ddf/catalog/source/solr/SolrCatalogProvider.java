@@ -110,9 +110,9 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     /**
      * Constructor that creates a new instance and allows for a custom {@link DynamicSchemaResolver}
      *
-     * @param solrClient   Solr client
-     * @param adapter  injected implementation of FilterAdapter
-     * @param resolver Solr schema resolver
+     * @param solrClient Solr client
+     * @param adapter    injected implementation of FilterAdapter
+     * @param resolver   Solr schema resolver
      */
     public SolrCatalogProvider(SolrClient solrClient, FilterAdapter adapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory, DynamicSchemaResolver resolver) {
@@ -124,7 +124,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         this.resolver = resolver;
 
         LOGGER.debug("Constructing {} with Solr client [{}]",
-                SolrCatalogProvider.class.getName(), solr);
+                SolrCatalogProvider.class.getName(),
+                solr);
 
         resolver.addFieldsFromClient(solrClient);
         this.client = new ProviderSolrMetacardClient(solrClient,
@@ -136,8 +137,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     /**
      * Convenience constructor that creates a new ddf.catalog.source.solr.DynamicSchemaResolver
      *
-     * @param solrClient  Solr client
-     * @param adapter injected implementation of FilterAdapter
+     * @param solrClient Solr client
+     * @param adapter    injected implementation of FilterAdapter
      */
     public SolrCatalogProvider(SolrClient solrClient, FilterAdapter adapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
@@ -330,7 +331,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
             throw new IngestException("Solr could not ingest metacard(s).");
         }
-
+        // TODO (RCZ) - Do we need to put the req props into the response????
         return new CreateResponseImpl(request, null, output);
     }
 
@@ -473,7 +474,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IngestException("Solr could not ingest metacard(s).");
         }
 
-        return new UpdateResponseImpl(updateRequest, null, updateList);
+        return new UpdateResponseImpl(updateRequest, updateRequest.getProperties(), updateList);
     }
 
     @Override
