@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<csw:Capabilities ns10:schemaLocation="" version="2.0.2"
+                  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                  xmlns:gml="http://www.opengis.net/gml"
+                  xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:ns2="http://www.w3.org/1999/xlink"
+                  xmlns:ogc="http://www.opengis.net/ogc" xmlns:ows="http://www.opengis.net/ows">
+    <ows:ServiceIdentification>
+        <ows:Title>Catalog Service for the Web</ows:Title>
+        <ows:Abstract>DDF CSW Endpoint</ows:Abstract>
+        <ows:ServiceType>CSW</ows:ServiceType>
+        <ows:ServiceTypeVersion>2.0.2</ows:ServiceTypeVersion>
+    </ows:ServiceIdentification>
+    <ows:ServiceProvider>
+        <ows:ProviderName>DDF</ows:ProviderName>
+        <ows:ProviderSite/>
+        <ows:ServiceContact/>
+    </ows:ServiceProvider>
+    <ows:OperationsMetadata>
+        <ows:Operation name="GetCapabilities">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns2:href="$httpRoot$:$port$/services/csw"/>
+                    <ows:Post ns2:href="$httpRoot$:$port$/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="sections">
+                <ows:Value>ServiceIdentification</ows:Value>
+                <ows:Value>ServiceProvider</ows:Value>
+                <ows:Value>OperationsMetadata</ows:Value>
+                <ows:Value>Filter_Capabilities</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Operation name="DescribeRecord">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns2:href="$httpRoot$:$port$/services/csw"/>
+                    <ows:Post ns2:href="$httpRoot$:$port$/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="typeName">
+                <ows:Value>csw:Record</ows:Value>
+                <ows:Value>gmd.MD_Metadata</ows:Value>
+                <ows:Value>rim:RegistryPackage</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputFormat">
+                <ows:Value>application/xml</ows:Value>
+                <ows:Value>application/json</ows:Value>
+                <ows:Value>application/atom+xml</ows:Value>
+                <ows:Value>text/xml</ows:Value>
+                <ows:Value>application/zip</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="schemaLanguage">
+                <ows:Value>http://www.w3.org/XMLSchema</ows:Value>
+                <ows:Value>http://www.w3.org/XML/Schema</ows:Value>
+                <ows:Value>http://www.w3.org/2001/XMLSchema</ows:Value>
+                <ows:Value>http://www.w3.org/TR/xmlschema-1/</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Operation name="GetRecords">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns2:href="$httpRoot$:$port$/services/csw"/>
+                    <ows:Post ns2:href="$httpRoot$:$port$/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="ResultType">
+                <ows:Value>hits</ows:Value>
+                <ows:Value>results</ows:Value>
+                <ows:Value>validate</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputFormat">
+                <ows:Value>application/xml</ows:Value>
+                <ows:Value>application/json</ows:Value>
+                <ows:Value>application/atom+xml</ows:Value>
+                <ows:Value>text/xml</ows:Value>
+                <ows:Value>application/zip</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputSchema">
+                <ows:Value>urn:catalog:metacard</ows:Value>
+                <ows:Value>http://www.isotc211.org/2005/gmd</ows:Value>
+                <ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="typeNames">
+                <ows:Value>csw:Record</ows:Value>
+                <ows:Value>gmd.MD_Metadata</ows:Value>
+                <ows:Value>rim:RegistryPackage</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ConstraintLanguage">
+                <ows:Value>Filter</ows:Value>
+                <ows:Value>CQL_Text</ows:Value>
+            </ows:Parameter>
+            <ows:Constraint name="FederatedCatalogs"/>
+        </ows:Operation>
+        <ows:Operation name="GetRecordById">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns2:href="$httpRoot$:$port$/services/csw"/>
+                    <ows:Post ns2:href="$httpRoot$:$port$/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="OutputSchema">
+                <ows:Value>urn:catalog:metacard</ows:Value>
+                <ows:Value>http://www.isotc211.org/2005/gmd</ows:Value>
+                <ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
+                <ows:Value>http://www.iana.org/assignments/media-types/application/octet-stream</ows:Value>
+            </ows:Parameter>`
+            <ows:Parameter name="OutputFormat">
+                <ows:Value>application/xml</ows:Value>
+                <ows:Value>application/json</ows:Value>
+                <ows:Value>application/atom+xml</ows:Value>
+                <ows:Value>text/xml</ows:Value>
+                <ows:Value>application/zip</ows:Value>
+                <ows:Value>application/octet-stream</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ResultType">
+                <ows:Value>hits</ows:Value>
+                <ows:Value>results</ows:Value>
+                <ows:Value>validate</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ElementSetName">
+                <ows:Value>brief</ows:Value>
+                <ows:Value>summary</ows:Value>
+                <ows:Value>full</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Operation name="Transaction">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Post ns2:href="$httpRoot$:$port$/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="typeNames">
+                <ows:Value>xml</ows:Value>
+                <ows:Value>appxml</ows:Value>
+                <ows:Value>gmd:MD_Metadata</ows:Value>
+                <ows:Value>csw:Record</ows:Value>
+                <ows:Value>tika</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ConstraintLanguage">
+                <ows:Value>Filter</ows:Value>
+                <ows:Value>CQL_Text</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Parameter name="service">
+            <ows:Value>CSW</ows:Value>
+        </ows:Parameter>
+        <ows:Parameter name="version">
+            <ows:Value>2.0.2</ows:Value>
+        </ows:Parameter>
+    </ows:OperationsMetadata>
+    <ogc:Filter_Capabilities>
+        <ogc:Spatial_Capabilities>
+            <ogc:GeometryOperands>
+                <ogc:GeometryOperand>gml:Point</ogc:GeometryOperand>
+                <ogc:GeometryOperand>gml:LineString</ogc:GeometryOperand>
+                <ogc:GeometryOperand>gml:Polygon</ogc:GeometryOperand>
+            </ogc:GeometryOperands>
+            <ogc:SpatialOperators>
+                <ogc:SpatialOperator name="BBOX"/>
+                <ogc:SpatialOperator name="Beyond"/>
+                <ogc:SpatialOperator name="Contains"/>
+                <ogc:SpatialOperator name="Crosses"/>
+                <ogc:SpatialOperator name="Disjoint"/>
+                <ogc:SpatialOperator name="DWithin"/>
+                <ogc:SpatialOperator name="Intersects"/>
+                <ogc:SpatialOperator name="Overlaps"/>
+                <ogc:SpatialOperator name="Touches"/>
+                <ogc:SpatialOperator name="Within"/>
+            </ogc:SpatialOperators>
+        </ogc:Spatial_Capabilities>
+        <ogc:Scalar_Capabilities>
+            <ogc:LogicalOperators/>
+            <ogc:ComparisonOperators>
+                <ogc:ComparisonOperator>Between</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>NullCheck</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>Like</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>EqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>GreaterThan</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>GreaterThanEqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>LessThan</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>LessThanEqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>EqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>NotEqualTo</ogc:ComparisonOperator>
+            </ogc:ComparisonOperators>
+        </ogc:Scalar_Capabilities>
+        <ogc:Id_Capabilities>
+            <ogc:EID/>
+        </ogc:Id_Capabilities>
+    </ogc:Filter_Capabilities>
+</csw:Capabilities>
