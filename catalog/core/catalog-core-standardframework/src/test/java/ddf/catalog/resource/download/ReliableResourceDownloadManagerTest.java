@@ -60,6 +60,8 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 import ddf.catalog.cache.MockInputStream;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCacheImpl;
@@ -159,7 +161,7 @@ public class ReliableResourceDownloadManagerTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         resourceCache = mock(ResourceCacheImpl.class);
         when(resourceCache.getProductCacheDirectory()).thenReturn(productCacheDirectory);
         eventPublisher = mock(DownloadsStatusEventPublisher.class);
@@ -168,7 +170,9 @@ public class ReliableResourceDownloadManagerTest {
 
         downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(),
                 downloadStatusInfo,
-                Executors.newSingleThreadExecutor());
+                MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()));
+
+        FileUtils.forceMkdir(new File(productCacheDirectory));
 
     }
 
@@ -631,7 +635,7 @@ public class ReliableResourceDownloadManagerTest {
 
         downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(),
                 downloadStatusInfo,
-                Executors.newSingleThreadExecutor());
+                MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()));
 
         // Use small chunk size so download takes long enough for client
         // to have time to simulate FileBackedOutputStream exception

@@ -223,6 +223,11 @@
         <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
     </bean>
 
+    <bean id="downloadThreadPoolListener" class="com.google.common.util.concurrent.MoreExecutors"
+          factory-method="listeningDecorator">
+        <argument ref="downloadThreadPool"/>
+    </bean>
+
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider"
                filter="id=catalog.data.metacard.resource"
                availability="optional"/>
@@ -335,7 +340,7 @@
             </bean>
         </argument>
         <argument ref="downloadStatusInfo"/>
-        <argument ref="downloadThreadPool"/>
+        <argument ref="downloadThreadPoolListener"/>
     </bean>
 
     <bean id="historian" class="ddf.catalog.history.Historian">

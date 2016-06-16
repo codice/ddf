@@ -51,6 +51,9 @@ public class ResourceDownloadEndpointTest {
 
     private static final String SOURCE_ID = "ddf.distribution";
 
+    private static final String SUCCESSFUL_DOWNLOAD_TO_CACHE_MSG_TEMPLATE =
+            "The product associated with metacard [%s] from source [%s] is being downloaded to the product cache.";
+
     private static final String DOWNLOAD_ID = "download ID";
 
     private static final String DOWNLOAD_ID_KEY = "downloadId";
