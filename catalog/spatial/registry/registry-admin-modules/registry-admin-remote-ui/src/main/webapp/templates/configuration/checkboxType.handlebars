@@ -1,0 +1,31 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class='{{id}} metatype control-group'>
+    <label class="control-label">{{name}}</label>
+    {{#if description}}
+        <a href='#' class='description' data-title='{{id}}'>
+            <i class='glyphicon glyphicon-question-sign'></i>
+        </a>
+    {{/if}}
+    <div class="controls">
+        <div class="btn-group card-style-toggle" data-toggle="buttons">
+            <label class="btn btn-xs">
+                <input type="radio" name="{{id}}" id="{{id}}" value="true" {{#defaultValue}}{{#.}}checked="checked"{{/.}}{{/defaultValue}}>On</i>
+            </label>
+            <label class="btn btn-xs">
+                <input type="radio" name="{{id}}" id="{{id}}Off" value="false">Off</i>
+            </label>
+        </div>
+    </div>
+</div>

@@ -112,6 +112,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.codice.ddf.registry</groupId>
+                <artifactId>registry-admin-remote-ui</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-ogc-common</artifactId>
                 <version>${project.version}</version>
