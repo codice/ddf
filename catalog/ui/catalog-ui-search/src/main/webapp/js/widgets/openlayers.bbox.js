@@ -193,7 +193,6 @@ define([
                 for (var i = this.views.length - 1; i>=0 ; i-=1){
                     this.destroyView(this.views[i]);
                 }
-                console.log(this.views);
             },
             getViewForModel: function(model){
                 return this.views.filter(function(view){
