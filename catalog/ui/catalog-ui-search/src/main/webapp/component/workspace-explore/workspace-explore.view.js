@@ -20,12 +20,11 @@ define([
     'text!./workspace-explore.hbs',
     'js/CustomElements',
     'component/query-selector/query-selector.view',
-    'component/tabs/results/tabs-results.view',
     'js/store',
     'component/lightbox/lightbox.view.instance',
     'component/queries/queries.view'
 ], function (Marionette, _, $, workspaceExploreTemplate, CustomElements, QuerySelectorView,
-             ResultTabsView, store, lightboxViewInstance, QueriesView) {
+             store, lightboxViewInstance, QueriesView) {
 
     var WorkspaceExplore = Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -50,7 +49,6 @@ define([
             if (this.model) {
                 this.workspaceExploreQueries.show(new QuerySelectorView());
             }
-            //this.workspaceExploreResults.show(new ResultTabsView());
         }
     });
 
