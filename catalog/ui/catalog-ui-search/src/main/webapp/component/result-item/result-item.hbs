@@ -1,0 +1,70 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="result-container" data-metacard-id="{{id}}" data-index="{{index}}"
+     data-query-id="{{metacard.queryId}}">
+    <div class="result-indicator">
+    </div>
+    <div class="result-details is-button">
+        <div class="detail-thumbnail details-property">
+            {{#if metacard.properties.thumbnail}}
+                <img src="{{thumbnailURL}}">
+            {{/if}}
+        </div>
+        <div class="detail-title details-property">
+            <span>
+                {{metacard.properties.title}}
+            </span>
+        </div>
+        <div class="detail-source details-property">
+            {{#if local}}
+                <span class="fa fa-home">
+                </span>
+            {{else}}
+                <span class="fa fa-cloud">
+                </span>
+                <span>
+                    {{metacard.properties.source-id}}
+                </span>
+            {{/if}}
+        </div>
+        <div class="detail-lastModified details-property">
+            <span>
+                {{niceDiff}}
+            </span>
+        </div>
+        {{#each customDetail}}
+            <div class="detail-custom details-property">
+                <span>
+                {{this}}
+                </span>
+            </div>
+        {{/each}}
+    </div>
+    <div class="result-validation">
+        {{#if hasError}}
+            <span class="fa fa-exclamation-triangle resultError">
+            </span>
+        {{else if hasWarning}}
+            <span class="fa fa-exclamation-triangle resultWarning">
+            </span>
+        {{/if}}
+    </div>
+    <div class="result-save fa fa-star-o is-button">
+    </div>
+    <div class="result-unsave fa fa-star is-button">
+    </div>
+    <div class="result-actions is-button">
+
+    </div>
+</div>

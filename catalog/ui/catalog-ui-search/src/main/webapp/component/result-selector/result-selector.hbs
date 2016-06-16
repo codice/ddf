@@ -31,16 +31,7 @@
              Sort
         </span>
     </div>
-    <div class="resultSelector-menu-action">
-        <span class="fa fa-bars">
-
-        </span>
-        <span class="resultSelector-menu-action-descriptor">
-             List
-        </span>
-        <span class="fa fa-caret-down">
-
-        </span>
+    <div class="resultSelector-menu-action menu-resultDisplay">
     </div>
     <div class="resultSelector-menu-action">
         <span class="fa fa-cog">
@@ -48,88 +39,7 @@
         </span>
     </div>
 </div>
-<div class="resultSelector-result resultSelector-result-example">
-    <div class="result-details">
-        <div class="detail-title">
-            <span>
-                Title
-            </span>
-        </div>
-        <div class="detail-source">
-            <span>
-                Source
-            </span>
-        </div>
-        <div class="detail-lastModified">
-            <span>
-                Last Modified
-            </span>
-        </div>
-    </div>
-    <div class="result-validation">
-        <span>
-
-        </span>
-    </div>
+<div class="resultSelector-list">
 </div>
-<div class="resultSelector-list is-list">
-    {{#each results}}
-            <div class="resultSelector-result is-button" data-metacard-id="{{id}}" data-index="{{@key}}"
-                 data-query-id="{{metacard.queryId}}">
-                <div class="result-details">
-                    <div class="detail-title">
-                        <span>
-                            {{metacard.properties.title}}
-                        </span>
-                    </div>
-                    <div class="detail-source">
-                        {{#if local}}
-                            <span class="fa fa-home">
-
-                            </span>
-                        {{else}}
-                            <span class="fa fa-cloud">
-
-                            </span>
-                            <span>
-                                {{metacard.properties.source-id}}
-                            </span>
-                        {{/if}}
-                    </div>
-                    <div class="detail-lastModified">
-                        <span>
-                            {{niceDiff}}
-                        </span>
-                    </div>
-                </div>
-                <div class="result-validation">
-                    {{#if hasError}}
-                        <span class="fa fa-exclamation-triangle resultError">
-
-                        </span>
-                    {{else if hasWarning}}
-                        <span class="fa fa-exclamation-triangle resultWarning">
-
-                        </span>
-                    {{/if}}
-                </div>
-            </div>
-    {{/each}}
-</div>
-<div class="paging">
-    <button class="first" {{#unless hasPreviousPage}}disabled{{/unless}}>
-        <i class="fa fa-angle-double-left" aria-hidden="true"></i>
-    </button>
-    <button class="previous" {{#unless hasPreviousPage}}disabled{{/unless}}>
-        <i class="fa fa-angle-left" aria-hidden="true"></i>
-    </button>
-    <span class="status">
-        {{pages}}
-    </span>
-    <button class="next" {{#unless hasNextPage}}disabled{{/unless}}>
-        <i class="fa fa-angle-right" aria-hidden="true"></i>
-    </button>
-    <button class="last" {{#unless hasNextPage}}disabled{{/unless}}>
-        <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-    </button>
+<div class="resultSelector-paging">
 </div>

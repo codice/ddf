@@ -1,0 +1,24 @@
+@{customElementNamespace}query-feed {
+  display: block;
+  opacity: .8;
+
+  .results-failed {
+    display: none;
+  }
+
+  .results-pending {
+    display: none;
+  }
+}
+
+@{customElementNamespace}query-feed.is-failed {
+  .results-failed {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}query-feed.is-pending {
+  .results-pending {
+    display: inline-block;
+  }
+}

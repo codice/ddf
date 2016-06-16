@@ -110,6 +110,12 @@ define([
     User.Preferences = Backbone.AssociatedModel.extend({
         useAjaxSync: true,
         url: '/search/catalog/internal/user/preferences',
+        defaults: {
+            mapColors: undefined,
+            mapLayers: [],
+            resultDisplay: 'List',
+            resultPreview: ['modified']
+        },
         relations: [
             {
                 type: Backbone.One,

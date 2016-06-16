@@ -10,7 +10,7 @@
 
   .resultSelector-list {
     overflow: auto;
-    height: ~'calc(100% - 165px)';
+    height: ~'calc(100% - 100px)';
   }
 
   .resultSelector-result-example {
@@ -19,74 +19,10 @@
     .boxShadowBottom;
   }
 
-  .resultSelector-result {
-    white-space: nowrap;
-    padding: 0px 10px;
-    height: 2*@minimumLineSize;
-  }
-
-  .result-details,
-  .result-validation {
-    display: inline-block;
-    vertical-align: top;
-    height: 100%;
-  }
-
-  .result-details {
-    width: ~'calc(100% - 30px)';
-    height: 100%;
-  }
-
-  .result-validation {
-    width: 30px;
-    line-height: 2*@minimumLineSize;
-    text-align: center;
-  }
-
-  .resultSelector-result span {
-    overflow: hidden;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    max-height: 100%;
-    max-width: 100%;
-    display: inline-block;
-    white-space: nowrap;
-    line-height: inherit;
-  }
-
-  .detail-title {
-    width: 100%;
-    height: @minimumLineSize;
-    line-height: @minimumLineSize;
-  }
-
-  .detail-source,
-  .detail-lastModified {
-    display: inline-block;
-    width: 50%;
-    height: @minimumLineSize;
-    line-height: @minimumLineSize;
-  }
-
-  .resultError {
-     color: @negative-color !important;
-   }
-
-  .resultWarning {
-    color: @warning-color !important;
-  }
-
   .resultSelector-menu {
     position: relative;
     text-align: right;
     .inlineBlockDisplay(div);
-  }
-
-  .resultSelector-menu > div:last-of-type {
-    display: block;
-    position: absolute;
-    right: 0px;
-    top: ~'calc(@{minimumLineSize}+.5*@{minimumLineSize})';
   }
 
   .resultSelector-menu > div:last-of-type > span {
@@ -99,22 +35,6 @@
 
   .resultSelector-menu-action-descriptor {
     padding: 3px;
-  }
-
-  .paging {
-    width: 100%;
-    text-align: center;
-    padding: 5px 0;
-
-    button {
-      .button-mixin(@primary-color);
-      width: 10%;
-    }
-
-    .status {
-      padding: 0 10px;
-    }
-
   }
 
 }

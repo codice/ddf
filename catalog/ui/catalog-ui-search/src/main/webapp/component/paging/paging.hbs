@@ -11,19 +11,18 @@
  *
  **/
  --}}
-<div>
-    <div class="dropdown-text">
-        {{#each this}}
-            <span class="text-src">
-                {{label}}
-            </span>
-        {{/each}}
-        {{#unless this}}
-            <span class="text-src">
-                Click here to select
-            </span>
-        {{/unless}}
-    </div>
-    <span class="dropdown-icon fa fa-caret-down">
-    </span>
-</div>
+<button class="first" {{#unless hasPreviousPage}}disabled{{/unless}}>
+    <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+</button>
+<button class="previous" {{#unless hasPreviousPage}}disabled{{/unless}}>
+    <i class="fa fa-angle-left" aria-hidden="true"></i>
+</button>
+<span class="status">
+    {{pages}}
+</span>
+<button class="next" {{#unless hasNextPage}}disabled{{/unless}}>
+    <i class="fa fa-angle-right" aria-hidden="true"></i>
+</button>
+<button class="last" {{#unless hasNextPage}}disabled{{/unless}}>
+    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+</button>

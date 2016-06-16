@@ -1,6 +1,11 @@
-@{customElementNamespace}dropdown.is-metacardInterctions {
+@{customElementNamespace}dropdown.is-metacardInteractions {
   cursor: not-allowed;
   display: block;
+
+  > div {
+    position: relative;
+    top: ~'calc(50% - 10px)';
+  }
 
   .dropdown-text {
     display: inline-block;
@@ -11,7 +16,7 @@
   }
 }
 
-@{customElementNamespace}dropdown.is-metacardInterations.is-editing {
+@{customElementNamespace}dropdown.is-metacardInteractions.is-editing {
   cursor: pointer;
 
   .dropdown-icon {

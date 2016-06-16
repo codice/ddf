@@ -38,13 +38,6 @@ define([
         events: {
         },
         initialize: function(){
-            $('body').append(this.el);
-            this.render();
-            this.handleTail();
-            var componentToShow = this.options.linkedView.componentToShow ||  this.options.linkedView.options.componentToShow;
-            this.componentToShow.show(new componentToShow(_.extend(this.options.linkedView.options,{
-                model: this.options.linkedView.modelForComponent
-            })));
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
             this.listenForClose();
         },
@@ -81,6 +74,15 @@ define([
             }
         },
         onOpen: function () {
+            if (!this.el.parentElement){
+                this.render();
+                this.handleTail();
+                var componentToShow = this.options.linkedView.componentToShow ||  this.options.linkedView.options.componentToShow;
+                this.componentToShow.show(new componentToShow(_.extend(this.options.linkedView.options,{
+                    model: this.options.linkedView.modelForComponent
+                })));
+                $('body').append(this.el);
+            }
             this.updatePosition();
             this.$el.addClass('is-open');
             this.listenForOutsideClick();
@@ -88,7 +90,9 @@ define([
             //this.listenForScroll();
         },
         onClose: function () {
-            this.$el.removeClass('is-open');
+            if (this.el.parentElement) {
+                this.$el.removeClass('is-open');
+            }
             this.stopListeningForOutsideClick();
             this.stopListeningForResize();
             //this.stopListeningForScroll();

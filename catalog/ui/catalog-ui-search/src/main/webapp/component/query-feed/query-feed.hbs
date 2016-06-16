@@ -11,19 +11,15 @@
  *
  **/
  --}}
-<div>
-    <div class="dropdown-text">
-        {{#each this}}
-            <span class="text-src">
-                {{label}}
-            </span>
-        {{/each}}
-        {{#unless this}}
-            <span class="text-src">
-                Click here to select
-            </span>
-        {{/unless}}
-    </div>
-    <span class="dropdown-icon fa fa-caret-down">
-    </span>
+<div class="details-results">
+    {{#if pending}}
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+    {{/if}}
+    {{#if failed}}
+        <i class="fa fa-warning"></i>
+    {{/if}}
+    {{resultCount}}
+</div>
+<div class="details-status">
+    {{queryStatus}}
 </div>

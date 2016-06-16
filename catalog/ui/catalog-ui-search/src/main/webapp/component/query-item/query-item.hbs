@@ -12,25 +12,15 @@
  **/
  --}}
 <div class="query-container"  data-queryid="{{id}}">
-    <div class="query-color" style="background: {{query.color}}">
+    <div class="query-color" style="background: {{color}}">
     </div>
     <div class="query-details">
         <div class="details-title">
-            {{query.title}}
+            {{title}}
         </div>
-        <div class="details-results">
-            {{#if pending}}
-                <i class="fa fa-circle-o-notch fa-spin"></i>
-            {{/if}}
-            {{#if failed}}
-                <i class="fa fa-warning"></i>
-            {{/if}}
-            {{resultCount}}
-        </div>
-        <div class="details-status">
-            {{queryStatus}}
+        <div class="details-feed">
         </div>
     </div>
-    <div class="query-actions">
+    <div class="query-actions is-button">
     </div>
 </div>

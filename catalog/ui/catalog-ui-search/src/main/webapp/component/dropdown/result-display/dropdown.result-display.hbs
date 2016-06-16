@@ -13,16 +13,12 @@
  --}}
 <div>
     <div class="dropdown-text">
-        {{#each this}}
-            <span class="text-src">
-                {{label}}
-            </span>
-        {{/each}}
-        {{#unless this}}
-            <span class="text-src">
-                Click here to select
-            </span>
-        {{/unless}}
+        <span class="dropdown-icon fa {{icon}}">
+
+        </span>
+        <span class="text-label">
+            {{selection.value}}
+        </span>
     </div>
     <span class="dropdown-icon fa fa-caret-down">
     </span>

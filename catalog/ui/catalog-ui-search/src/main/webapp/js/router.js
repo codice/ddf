@@ -24,7 +24,8 @@ define([
     'component/metacard/metacard.view',
     'component/metacard/metacard',
     'js/model/Query',
-    'js/cql'
+    'js/cql',
+    'js/jquery.whenAll'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql) {
 
@@ -109,7 +110,7 @@ define([
                             property: '"id"'
                         })
                     });
-                    $.when.apply(this, queryForMetacard.startSearch()).always(function(){
+                    $.whenAll.apply(this, queryForMetacard.startSearch()).always(function(){
                         metacardInstance.set('currentMetacard', queryForMetacard.get('result').get('results').first());
                         if (Application.App.metacardRegion.currentView===undefined) {
                             Application.App.metacardRegion.show(new MetacardView());

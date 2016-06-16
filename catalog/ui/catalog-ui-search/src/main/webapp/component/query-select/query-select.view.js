@@ -30,7 +30,7 @@ define([
 
     var namespace = CustomElements.getNamespace();
     var queryItemClickEvent = 'click '+namespace+'query-item';
-    eventsHash[queryItemClickEvent] = 'handleQueryItemClick'
+    eventsHash[queryItemClickEvent] = 'handleQueryItemClick';
 
     return Marionette.LayoutView.extend({
         template: template,

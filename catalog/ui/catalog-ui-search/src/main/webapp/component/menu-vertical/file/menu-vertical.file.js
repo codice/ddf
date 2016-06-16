@@ -88,6 +88,26 @@ define([
                         wait: true
                     });
                 }
+            },
+            {
+                type: 'action',
+                name: 'Run All Queries',
+                icon: 'play',
+                action: function(){
+                    store.getCurrentQueries().forEach(function(query){
+                        query.startSearch();
+                    });
+                }
+            },
+            {
+                type: 'action',
+                name: 'Cancel All Queries',
+                icon: 'stop',
+                action: function(){
+                    store.getCurrentQueries().forEach(function(query){
+                        query.cancelCurrentSearches();
+                    });
+                }
             }
         ],
         [

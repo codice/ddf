@@ -41,6 +41,10 @@ define([
         ui: {
         },
         initialize: function(){
+            var currentWorkspace = store.getCurrentWorkspace();
+            if (currentWorkspace) {
+                this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
+            }
         },
         onRender: function(){
             this.checkIfSaved();
@@ -58,6 +62,7 @@ define([
             } else {
                 //bring up modal to select workspace(s) to save to
             }
+            this.checkIfSaved();
         },
         handleUnsave: function(){
             var currentWorkspace = store.getCurrentWorkspace();
@@ -67,6 +72,7 @@ define([
                 });
                 currentWorkspace.set('metacards', _.difference(currentWorkspace.get('metacards'), ids));
             }
+            this.checkIfSaved();
         },
         handleHide: function(){
 

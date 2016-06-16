@@ -18,8 +18,12 @@ define([
     'underscore',
     'jquery',
     'text!./workspace-saved.hbs',
-    'js/CustomElements'
-], function (Marionette, _, $, workspaceSavedTemplate, CustomElements) {
+    'js/CustomElements',
+    'component/result-selector/result-selector.view',
+    'js/model/Query',
+    'js/store',
+    'js/cql'
+], function (Marionette, _, $, workspaceSavedTemplate, CustomElements, ResultSelectorView, Query, store, cql) {
 
     var WorkspaceSaved = Marionette.LayoutView.extend({
         template: workspaceSavedTemplate,
@@ -29,8 +33,25 @@ define([
         events: {
         },
         regions: {
+            resultCollection: '.workspaceSaved'
         },
         initialize: function () {
+        },
+        onBeforeShow: function(){
+            this.resultCollection.show(new ResultSelectorView({
+                model: new Query.Model({
+                    cql: cql.write({
+                        type: 'OR',
+                        filters: store.getCurrentWorkspace().get('metacards').map(function(id){
+                            return {
+                                type: '=',
+                                value: id,
+                                property: '"id"'
+                            };
+                        })
+                    })
+                })
+            }));
         }
     });
 

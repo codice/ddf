@@ -31,7 +31,9 @@ define([
         events: {
             'click': 'handleClick'
         },
-        handleClick: function(){
+        handleClick: function(e){
+            e.preventDefault();
+            e.stopPropagation();
             if (this.model.get('isEditing')){
                 this.model.toggleOpen();
             }
@@ -73,7 +75,6 @@ define([
                 this.firstRender = false;
                 this.initializeDropdown();
             }
-            this.dropdownCompanion.updatePosition();
         },
         turnOnEditing: function(){
             this.model.set('isEditing', true);
