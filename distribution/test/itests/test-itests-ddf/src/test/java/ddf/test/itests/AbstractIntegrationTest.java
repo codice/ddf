@@ -422,6 +422,7 @@ public abstract class AbstractIntegrationTest {
                 wrappedBundle(mavenBundle("commons-codec", "commons-codec").versionAsInProject()),
                 wrappedBundle(mavenBundle("commons-logging",
                         "commons-logging").versionAsInProject()),
+                wrappedBundle(mavenBundle("commons-net", "commons-net").versionAsInProject()),
                 // HACK: incorrect version exported to override hamcrest-core from exam
                 // feature which causes a split package issue for rest-assured
                 wrappedBundle(mavenBundle("org.hamcrest",
