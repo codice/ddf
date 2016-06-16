@@ -981,6 +981,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(metacardId);
     }
 
+    // TODO will be fixed with ticket DDF-2207
+    @Ignore
     @Test
     public void testGetMetacardResourceStatusCached()
             throws IOException, XPathExpressionException {
