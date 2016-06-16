@@ -113,7 +113,8 @@ define([
                     $.whenAll.apply(this, queryForMetacard.startSearch()).always(function(){
                         if (queryForMetacard.get('result').get('results').length === 0) {
                             self.listenTo(ConfirmationView.generateConfirmation({
-                                    prompt: 'Either the metacard has been deleted or you no longer have permission to access it. ',
+                                    prompt: 'Metacard(s) unable to be found.  ' +
+                                        'This could be do to unavailable sources, deletion of the metacard, or lack of permissions to view the metacard.',
                                     yes: 'Go to Workspaces home screen'
                                 }),
                                 'change:choice',
