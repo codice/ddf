@@ -88,10 +88,12 @@ define([
                 self.handleRevert();
             };
             //self.resizeButton();
-            if (this.model.getValue() && this.model.getValue().constructor === String && this.model.getValue().substring(0, 4) === 'http') {
-                img.src = this.model.get('value');
-            } else if (this.model.getValue() && this.model.getValue().constructor === String){
-                img.src = "data:image/png;base64,"+this.model.getValue();
+            if (this.model.getValue() && this.model.getValue().constructor === String) {
+                if (this.model.getValue().substring(0, 4) === 'http') {
+                    img.src = this.model.get('value');
+                } else {
+                    img.src = "data:image/png;base64,"+this.model.getValue();
+                }
             }
             this.handleEmpty();
         },

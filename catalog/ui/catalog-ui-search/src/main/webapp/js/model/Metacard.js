@@ -278,8 +278,10 @@ define([
                         result.id = result.metacard.id + result.metacard.properties['source-id'];
                         result.metacard.queryId = queryId;
                         result.metacard.color = color;
-                        if (result.hasThumbnail && result.actions['catalog.data.metacard.thumbnail']) {
-                            result.metacard.properties.thumbnail = result.actions['catalog.data.metacard.thumbnail'].url;
+
+                        var thumbnailAction = _.findWhere(result.actions, {id: 'catalog.data.metacard.thumbnail'});
+                        if (result.hasThumbnail && thumbnailAction) {
+                            result.metacard.properties.thumbnail = thumbnailAction.url;
                         }
                     });
                 }
