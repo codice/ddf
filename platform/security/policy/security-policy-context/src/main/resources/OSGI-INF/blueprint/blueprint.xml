@@ -47,7 +47,7 @@
         <property name="whiteListContexts">
             <array value-type="java.lang.String">
                 <value>${org.codice.ddf.system.rootContext}/SecurityTokenService</value>
-                <value>${org.codice.ddf.system.rootContext}/internal</value>
+                <value>${org.codice.ddf.system.rootContext}/internal/metrics</value>
                 <value>/proxy</value>
                 <value>${org.codice.ddf.system.rootContext}/saml</value>
                 <value>${org.codice.ddf.system.rootContext}/idp</value>

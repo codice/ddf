@@ -38,166 +38,171 @@ import ddf.catalog.operation.ResourceRequest;
 public class CacheKeyTest {
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNullMetacard() {
-
-        // given
-        CacheKey cacheKey = new CacheKey(null, mock(ResourceRequest.class));
-
-        // when
-        cacheKey.generateKey();
-
-        // then
-        // throws an exception
+    public void testNullMetacardValidResourceRequest() {
+        new CacheKey(null, mock(ResourceRequest.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullResourceRequest() {
+        new CacheKey(mock(Metacard.class), null);
+    }
 
-        // given
-        CacheKey cacheKey = new CacheKey(mock(Metacard.class), null);
-
-        // when
-        cacheKey.generateKey();
-
-        // then
-        // throws an exception
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullMetacard() {
+        new CacheKey(null);
     }
 
     @Test
-    public void testKeyGeneration() {
-
-        // given
+    public void testKeyGenerationFromMetacardAndResourceRequest() {
         CacheKey cacheKey = new CacheKey(getMetacardStub("sampleId"), getResourceRequestStub());
 
-        // when
         String key = cacheKey.generateKey();
 
-        // then
         assertNotNull("Key must not be null.", key);
         assertThat("Key must not be empty.", key, not(equalToIgnoringWhiteSpace("")));
-
     }
 
-    @Test()
-    public void testKeyUniquenessMetacardId() {
+    @Test
+    public void testKeyGenerationFromMetacardOnly() {
+        CacheKey cacheKey = new CacheKey(getMetacardStub("sampleId"));
 
-        // given
+        String key = cacheKey.generateKey();
+
+        assertNotNull("Key must not be null.", key);
+        assertThat("Key must not be empty.", key, not(equalToIgnoringWhiteSpace("")));
+    }
+
+    @Test
+    public void testKeyUniquenessMetacardId() {
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId"), getResourceRequestStub());
         CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampledI"), getResourceRequestStub());
 
-        // when
         String key1 = cacheKey1.generateKey();
         String key2 = cacheKey2.generateKey();
 
-        // then
         assertThat("Keys must be different.", key1, not(equalTo(key2)));
-
     }
 
-    @Test()
+    @Test
     public void testKeyUniquenessFromSources() {
-
-        // given
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId", "source1"),
                 getResourceRequestStub());
         CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId", "source2"),
                 getResourceRequestStub());
 
-        // when
         String key1 = cacheKey1.generateKey();
         String key2 = cacheKey2.generateKey();
 
-        // then
         assertThat("Keys must be different.", key1, not(equalTo(key2)));
-
     }
 
-    @Test()
-    public void testKeyUniquenessFromSourcesAndIds() {
+    @Test
+    public void testKeyUniquenessFromSourcesWithoutResourceRequest() {
+        CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId", "source1"));
+        CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId", "source2"));
 
-        // given
+        String key1 = cacheKey1.generateKey();
+        String key2 = cacheKey2.generateKey();
+
+        assertThat("Keys must be different.", key1, not(equalTo(key2)));
+    }
+
+    @Test
+    public void testKeyUniquenessFromSourcesAndIds() {
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"),
                 getResourceRequestStub());
         CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId2", "source2"),
                 getResourceRequestStub());
 
-        // when
         String key1 = cacheKey1.generateKey();
         String key2 = cacheKey2.generateKey();
 
-        // then
         assertThat("Keys must be different.", key1, not(equalTo(key2)));
+    }
 
+    @Test
+    public void testKeyUniquenessFromSourcesAndIdsWithoutResourceRequest() {
+        CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"));
+        CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId2", "source2"));
+        CacheKey cacheKey3 = new CacheKey(getMetacardStub("sampleId1", "source2"));
+        CacheKey cacheKey4 = new CacheKey(getMetacardStub("sampleId2", "source1"));
+
+        String key1 = cacheKey1.generateKey();
+        String key2 = cacheKey2.generateKey();
+        String key3 = cacheKey3.generateKey();
+        String key4 = cacheKey4.generateKey();
+
+        assertThat("Keys must be different.", key1, not(equalTo(key2)));
+        assertThat("Keys must be different.", key1, not(equalTo(key3)));
+        assertThat("Keys must be different.", key1, not(equalTo(key4)));
     }
 
     /**
      * Tests the key will be unique if given a different property in the ResourceRequest.
      */
-    @Test()
+    @Test
     public void testKeyUniquenessProperty() {
-
-        // given
-        Map<String, Serializable> propertyMap = new HashMap<String, Serializable>();
+        Map<String, Serializable> propertyMap = new HashMap<>();
         propertyMap.put(ResourceRequest.OPTION_ARGUMENT, "pdf");
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"),
                 getResourceRequestStub(propertyMap));
         CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId1", "source1"),
                 getResourceRequestStub());
 
-        // when
         String key1 = cacheKey1.generateKey();
         String key2 = cacheKey2.generateKey();
 
-        // then
         assertThat("Keys must be different.", key1, not(equalTo(key2)));
-
     }
 
     /**
      * Tests keys will be unique if given different properties in the ResourceRequest.
      */
-    @Test()
+    @Test
     public void testKeyUniquenessProperties() {
-
-        // given
-        Map<String, Serializable> propertyMap1 = new HashMap<String, Serializable>();
+        Map<String, Serializable> propertyMap1 = new HashMap<>();
         propertyMap1.put(ResourceRequest.OPTION_ARGUMENT, "pdf");
-        Map<String, Serializable> propertyMap2 = new HashMap<String, Serializable>();
+        Map<String, Serializable> propertyMap2 = new HashMap<>();
         propertyMap2.put(ResourceRequest.OPTION_ARGUMENT, "html");
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"),
                 getResourceRequestStub(propertyMap1));
         CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId1", "source1"),
                 getResourceRequestStub(propertyMap2));
-
-        // when
+  
         String key1 = cacheKey1.generateKey();
         String key2 = cacheKey2.generateKey();
 
-        // then
         assertThat("Keys must be different.", key1, not(equalTo(key2)));
-
     }
 
-    @Test()
-    public void testKeyConsistency() {
+    @Test
+    public void testKeyConsistencyWithoutResourceRequest() {
+        CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"));
+        CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId1", "source1"));
 
-        // given
-        Map<String, Serializable> propertyMap = new HashMap<String, Serializable>();
+        String key1 = cacheKey1.generateKey();
+        String key2 = cacheKey2.generateKey();
+
+        assertThat("The same input to cache key should generate the same output.",
+                key1,
+                equalTo(key2));
+    }
+
+    @Test
+    public void testKeyConsistency() {
+        Map<String, Serializable> propertyMap = new HashMap<>();
         propertyMap.put("pdf", "sample.pdf");
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"),
                 getResourceRequestStub(propertyMap));
         CacheKey cacheKey2 = new CacheKey(getMetacardStub("sampleId1", "source1"),
                 getResourceRequestStub(propertyMap));
 
-        // when
         String key1 = cacheKey1.generateKey();
         String key2 = cacheKey2.generateKey();
 
-        // then
         assertThat("The same input to cache key should generate the same output.",
                 key1,
                 equalTo(key2));
-
     }
 
     private ResourceRequest getResourceRequestStub(final Map<String, Serializable> properties) {
