@@ -28,6 +28,7 @@
 
     <modules>
         <module>registry-admin-local-ui</module>
+        <module>registry-admin-remote-ui</module>
     </modules>
 
 </project>
