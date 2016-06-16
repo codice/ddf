@@ -13,6 +13,7 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
@@ -32,6 +33,9 @@ import static com.xebialabs.restito.semantics.Action.success;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -119,6 +123,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final DynamicPort RESTITO_STUB_SERVER_PORT = new DynamicPort(6);
 
+    private static final Path PRODUCT_CACHE = Paths.get("data", "Product_Cache");
+
     private static String[] metacardIds = new String[2];
 
     private List<String> metacardsToDelete = new ArrayList<>();
@@ -128,8 +134,7 @@ public class TestFederation extends AbstractIntegrationTest {
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
 
     public static final DynamicUrl RESTITO_STUB_SERVER = new DynamicUrl("https://localhost:",
-            RESTITO_STUB_SERVER_PORT,
-            SUBSCRIBER);
+            RESTITO_STUB_SERVER_PORT, SUBSCRIBER);
 
     private static StubServer server;
 
@@ -193,7 +198,9 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
+        cleanProductCache();
+        getCatalogBundle().setupCaching(true);
         urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
 
         if (fatalError) {
@@ -951,6 +958,66 @@ public class TestFederation extends AbstractIntegrationTest {
 
     }
 
+    @Test
+    public void testFederatedDownloadProductToCacheOnlyCacheEnabled() throws Exception {
+        /**
+         * Setup Add productDirectory to the URLResourceReader's set of valid root resource
+         * directories.
+         */
+        String fileName = testName.getMethodName() + ".txt";
+        String metacardId = ingestXmlWithProduct(fileName);
+        metacardsToDelete.add(metacardId);
+        String productDirectory = new File(fileName).getAbsoluteFile().getParent();
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
+
+        getCatalogBundle().setupCaching(true);
+
+        String resourceDownloadEndpoint = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID
+                + "/" + metacardId;
+
+        // Perform Test and Verify
+        // @formatter:off
+        when().get(resourceDownloadEndpoint).then().log().all().assertThat().contentType("text/plain")
+                .body(is(String.format("The product associated with metacard [%s] from source [%s] is being downloaded to the product cache.", metacardId, CSW_SOURCE_ID)));
+        // @formatter:on
+
+        assertThat(Files.exists(Paths.get(ddfHome).resolve(PRODUCT_CACHE)
+                .resolve(CSW_SOURCE_ID + "-" + metacardId)), is(true));
+        assertThat(Files.exists(Paths.get(ddfHome).resolve(PRODUCT_CACHE)
+                .resolve(CSW_SOURCE_ID + "-" + metacardId + ".ser")), is(true));
+    }
+
+    @Test
+    public void testFederatedDownloadProductToCacheOnlyCacheDisabled() throws Exception {
+        /**
+         * Setup Add productDirectory to the URLResourceReader's set of valid root resource
+         * directories.
+         */
+        String fileName = testName.getMethodName() + ".txt";
+        String metacardId = ingestXmlWithProduct(fileName);
+        metacardsToDelete.add(metacardId);
+        String productDirectory = new File(fileName).getAbsoluteFile().getParent();
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
+
+        getCatalogBundle().setupCaching(false);
+
+        String resourceDownloadEndpoint = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID
+                + "/" + metacardId;
+
+        // Perform Test and Verify
+        // @formatter:off
+        when().get(resourceDownloadEndpoint).then().log().all().assertThat().contentType("text/plain")
+                .body(is("Caching of products is not enabled."));
+        // @formatter:on
+
+        assertThat(Files.exists(Paths.get(ddfHome).resolve(PRODUCT_CACHE)
+                .resolve(CSW_SOURCE_ID + "-" + metacardId)), is(false));
+        assertThat(Files.exists(Paths.get(ddfHome).resolve(PRODUCT_CACHE)
+                .resolve(CSW_SOURCE_ID + "-" + metacardId + ".ser")), is(false));
+    }
+
     private void verifyEvents(Set<String> metacardIdsExpected, Set<String> metacardIdsNotExpected,
             Set<String> subscriptionIds) {
         long millis = 0;
@@ -1046,6 +1113,10 @@ public class TestFederation extends AbstractIntegrationTest {
         LOGGER.debug("File Location: {}", fileLocation);
         String metacardId = TestCatalog.ingest(Library.getSimpleXml(fileLocation), "text/xml");
         return metacardId;
+    }
+
+    private void cleanProductCache() throws IOException {
+        FileUtils.cleanDirectory(Paths.get(ddfHome).resolve(PRODUCT_CACHE).toFile());
     }
 
     @Override

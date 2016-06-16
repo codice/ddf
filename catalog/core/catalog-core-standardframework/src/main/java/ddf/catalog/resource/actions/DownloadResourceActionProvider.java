@@ -11,10 +11,9 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.endpoints.rest.action;
+package ddf.catalog.resource.actions;
 
-import static org.codice.ddf.endpoints.rest.RESTService.CONTEXT_ROOT;
-import static org.codice.ddf.endpoints.rest.RESTService.SOURCES_PATH;
+import static ddf.catalog.resource.download.ResourceDownloadEndpoint.CONTEXT_PATH;
 
 import java.net.URI;
 import java.net.URL;
@@ -26,16 +25,42 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 
 import ddf.action.Action;
 import ddf.action.impl.ActionImpl;
+import ddf.catalog.cache.ResourceCacheInterface;
+import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 
-public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
+/**
+ * Action provider that creates {@link Action}s used to asynchronously download resources to
+ * the product cache.
+ */
+public class DownloadResourceActionProvider extends AbstractMetacardActionProvider {
 
-    public static final String TITLE = "Export Metacard XML";
+    private static final String TITLE = "Download resource to local cache";
 
-    public static final String DESCRIPTION = "Provides a URL to the metacard";
+    private static final String DESCRIPTION =
+            "Downloads the resource from a federated source to the local product cache";
 
-    public ViewMetacardActionProvider(String id) {
-        super(id, TITLE, DESCRIPTION);
+    private final ResourceCacheInterface resourceCache;
+
+    private final ReliableResourceDownloadManager downloadManager;
+
+    public DownloadResourceActionProvider(String actionProviderId,
+            ResourceCacheInterface resourceCache, ReliableResourceDownloadManager downloadManager) {
+        super(actionProviderId, TITLE, DESCRIPTION);
+        this.resourceCache = resourceCache;
+        this.downloadManager = downloadManager;
+    }
+
+    /**
+     * Returns {@code true} only if caching is enabled and the {@link Metacard} provided is not
+     * already being downloaded or cached.
+     * <p>
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean canHandleMetacard(Metacard metacard) {
+        return downloadManager.isCacheEnabled() && !isCached(metacard);
     }
 
     @Override
@@ -50,10 +75,14 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
         return new ActionImpl(actionProviderId, title, description, url);
     }
 
+    private boolean isCached(Metacard metacard) {
+        String key = new CacheKey(metacard).generateKey();
+        return resourceCache.isPending(key) || resourceCache.containsValid(key, metacard);
+    }
+
     private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
-        return new URI(SystemBaseUrl.constructUrl(String.format("%s%s/%s/%s",
-                CONTEXT_ROOT,
-                SOURCES_PATH,
+        return new URI(SystemBaseUrl.constructUrl(String.format("%s/%s/%s",
+                CONTEXT_PATH,
                 metacardSource,
                 metacardId), true)).toURL();
     }

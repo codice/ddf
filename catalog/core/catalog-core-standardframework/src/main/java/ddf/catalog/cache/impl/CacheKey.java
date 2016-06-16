@@ -13,55 +13,74 @@
  */
 package ddf.catalog.cache.impl;
 
+import java.util.Collections;
 import java.util.Set;
+
+import org.apache.commons.lang.Validate;
 
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 
+/**
+ * Class used to create keys for the {@link ResourceCache} class.
+ */
 public class CacheKey {
 
     private Metacard metacard;
 
+    private Set<String> propertyNames = Collections.emptySet();
+
     private ResourceRequest resourceRequest;
 
+    /**
+     * Constructor used for keys generated from a {@link Metacard} and {@link ResourceRequest}.
+     *
+     * @param metacard        metacard to use to generate the key
+     * @param resourceRequest resource request object to use to generate the key
+     */
     public CacheKey(Metacard metacard, ResourceRequest resourceRequest) {
+        this(metacard);
 
-        if (metacard == null) {
-            throw new IllegalArgumentException("Metacard must not be null.");
-        }
+        Validate.notNull(resourceRequest, "ResourceRequest must not be null.");
 
-        if (resourceRequest == null) {
-            throw new IllegalArgumentException("ResourceRequest must not be null.");
-        }
-
-        this.metacard = metacard;
         this.resourceRequest = resourceRequest;
+        this.propertyNames = resourceRequest.getPropertyNames();
     }
 
     /**
-     * Key is comprised of the source, the metacard ID, and request properties if properties are
-     * found. <br/>
-     * Sample: <br/>
-     * {@code <sourceId>-<metacardId>[-<RESOURCE_OPTION>]}
+     * Constructor used for keys generated from a {@link Metacard} only. Will create a key that
+     * maps to the metacard's default resource. To generate a key for other specific metacard
+     * resources, use {@link #CacheKey(Metacard, ResourceRequest)}.
      *
-     * @return key
+     * @param metacard metacard to use to generate the key
+     */
+    public CacheKey(Metacard metacard) {
+        Validate.notNull(metacard, "Metacard must not be null.");
+        this.metacard = metacard;
+    }
+
+    /**
+     * Generates a cache key based on the metacard (and optionally resource request) object
+     * provided to the constructor.
+     *
+     * @return key key to use when doing {@link ResourceCache} lookups
      */
     public String generateKey() {
-
-        Set<String> names = resourceRequest.getPropertyNames();
 
         String properties = "";
 
         // The OPTION_ARGUMENT, e.g., Photograph, PDF, etc., is the only resource request option 
         // that alters the InputStream to be read for resource retrieval, so only look for that 
         // option when generating the unique cache key.
-        for (String propertyName : names) {
-            if (ResourceRequest.OPTION_ARGUMENT.equals(propertyName)
-                    || ContentItem.QUALIFIER.equals(propertyName)) {
-                properties = "_" + propertyName + "-" + resourceRequest.getPropertyValue(
-                        propertyName);
-                break;
+        if (propertyNames != null) {
+            for (String propertyName : propertyNames) {
+                if (ResourceRequest.OPTION_ARGUMENT.equals(propertyName)
+                        || ContentItem.QUALIFIER.equals(propertyName)) {
+                    properties = "_" + propertyName + "-"
+                            + resourceRequest.getPropertyValue(propertyName);
+                    break;
+                }
             }
         }
 

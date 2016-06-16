@@ -1093,6 +1093,77 @@ None.
 
 None
 
+==== FTP Endpoint
+
+The FTP Endpoint provides a method for ingesting files directly into the ${branding} Catalog using the FTP protocol. The files sent over FTP are not first written to the file system, like the Directory Monitor, but instead the FTP stream of the file is ingested directly into the ${branding} catalog, thus avoiding extra I/O overhead.
+
+===== Installing and Uninstalling
+
+Use the Admin Menu to install the FTP feature in the ${branding} Catalog. The FTP Endpoint is not installed by default.
+
+===== Configuring
+
+The configurable properties for the FTP Endpoint are accessed from the *FTP Endpoint* Configuration in the Admin Console under the DDF Catalog application.
+
+===== Using the FTP Endpoint
+
+====== Using the endpoint
+
+The FTP endpoint supports the PUT and MPUT operations. Any other operation, such as DELETE, will return a 550 action not taken response.
+
+====== From Code:
+
+Custom Ftplets can be implemented by extending the `DefaultFtplet` class provided by Apache FTP Server. Doing this will allow custom handling of various FTP commands by overriding the methods of the `DefaultFtplet`. Refer to `https://mina.apache.org/ftpserver-project/ftplet.html` for available methods that can be overridden.
+After creating a custom Ftplet, it needs to be added to the FTP server’s Ftplets before the server is started. Any Ftplets that are registered to the FTP server will execute the FTP command in the order that they were registered.
+
+====== From an FTP client:
+
+The FTP endpoint can be accessed from any FTP client of choice. Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal. The default port number is *8021*. Valid usernames and password are stored in the `<INSTALL_DIR>/etc/users.properties` file.
+
+===== Implementation Details
+
+The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apache Mina provides an API for transport protocols such as TCP and UDP. The FTP server is built on top of Apache Mina to transport its messages. ${branding} implements a custom Ftplet by overriding the `DefaultFtplet` class provided by Apache FTP Server.
+
+====== Known Issues
+
+None
+
+==== Resource Download Endpoint
+
+The Resource Download Endpoint provides a REST API to trigger downloading resources to the ${branding} cache only. The resource is not returned to the client.
+
+===== Configuring
+
+The Resource Download Endpoint has no configurable properties.
+
+===== Using the Resource Download Endpoint
+
+====== Using the endpoint
+
+The Resource Download Endpoint WADL is accessible from `http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/downloads?_wadl`.
+
+[NOTE]
+====
+If resource caching is not enabled in ${ddf-branding}, the endpoint will return a `400 BAD REQUEST` response.
+====
+
+[cols="2,1,3,4", options="header"]
+|===
+|Operation
+|HTTP Request
+|Details
+|Example URL
+
+|`cache only`
+|HTTP GET
+|Resource caching must be enabled
+|\http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/downloads/<sourceId>/<metacardId>
+
+|===
+====== Known Issues
+
+None
+
 === Developing a New Endpoint
 
 Complete the following procedure to create an endpoint. 
@@ -1405,7 +1476,7 @@ Metacard types, attribute types, global attribute validators, and default attrib
 
 Within a definition file you may define as many of the four types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
 
-==== Deploying 
+==== Deploying
 The file must have a `.json` extension in order to be picked up by the deployer. Once the definition file is ready to be deployed, put the definition file `<filename>.json` into the `etc/definitions` folder.
 
 * * *
@@ -1489,7 +1560,7 @@ To define Metacard Types, your definition file must have a `metacardTypes` key i
 }
 ----
 
-The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` and `attributes` keys. 
+The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` and `attributes` keys.
 
 [source,json]
 ----

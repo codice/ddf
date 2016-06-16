@@ -113,9 +113,9 @@ public class RESTEndpoint implements RESTService {
 
     static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 
-    static final String DEFAULT_FILE_EXTENSION = "bin";
+    private static final String DEFAULT_FILE_EXTENSION = "bin";
 
-    static final String BYTES_TO_SKIP = "BytesToSkip";
+    private static final String BYTES_TO_SKIP = "BytesToSkip";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
 
@@ -140,15 +140,15 @@ public class RESTEndpoint implements RESTService {
 
     private static final String JSON_MIME_TYPE_STRING = "application/json";
 
-    static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+    private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
-    static final String DEFAULT_FILE_NAME = "file";
+    private static final String DEFAULT_FILE_NAME = "file";
 
     /**
      * Basic mime types that will be attempted to refine to a more accurate mime type
      * based on the file extension of the filename specified in the create request.
      */
-    static final List<String> REFINEABLE_MIME_TYPES = Arrays.asList(DEFAULT_MIME_TYPE,
+    private static final List<String> REFINEABLE_MIME_TYPES = Arrays.asList(DEFAULT_MIME_TYPE,
             "text/plain");
 
     private static MimeType jsonMimeType = null;
@@ -362,7 +362,7 @@ public class RESTEndpoint implements RESTService {
      * @return
      */
     @GET
-    @Path("/sources")
+    @Path(SOURCES_PATH)
     public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
         BinaryContent content;
         ResponseBuilder responseBuilder;

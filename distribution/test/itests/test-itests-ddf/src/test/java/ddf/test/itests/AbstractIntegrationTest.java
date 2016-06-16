@@ -248,9 +248,11 @@ public abstract class AbstractIntegrationTest {
             HTTPS_PORT,
             "/admin/jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/allSourceInfo");
 
-    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(SECURE_ROOT,
-            HTTPS_PORT,
+    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
             "/admin/jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/sourceStatus/");
+
+    public static final DynamicUrl RESOURCE_DOWNLOAD_ENDPOINT_ROOT = new DynamicUrl(SERVICE_ROOT,
+            "/catalog/downloads/");
 
     static {
         // Make Pax URL use the maven.repo.local setting if present
