@@ -79,7 +79,7 @@ public class CqlResult {
 
     private Double relevance;
 
-    private Map<String, Action> actions;
+    private List<Action> actions;
 
     private boolean hasThumbnail = false;
 
@@ -100,7 +100,7 @@ public class CqlResult {
 
         actions = actionRegistry.list(result.getMetacard())
                 .stream()
-                .collect(Collectors.toMap(Action::getId, a -> a));
+                .collect(Collectors.toList());
         metacard = metacardToMap(result);
     }
 
@@ -229,7 +229,7 @@ public class CqlResult {
         return relevance;
     }
 
-    public Map<String, Action> getActions() {
+    public List<Action> getActions() {
         return actions;
     }
 
