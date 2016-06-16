@@ -119,6 +119,11 @@ define([
             createWorkspace: function(title){
                this.create({title: title || 'New Workspace'});
             },
+            duplicateWorkspace: function(workspace){
+                var workspaceToDuplicate = workspace.toJSON();
+                delete workspaceToDuplicate.id;
+                this.create(workspaceToDuplicate);
+            },
             saveLocal: function () {
                 var localWorkspaces = this.chain()
                     .filter(function (workspace) {

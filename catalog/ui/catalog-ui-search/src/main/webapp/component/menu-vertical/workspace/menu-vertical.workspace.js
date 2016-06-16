@@ -74,6 +74,24 @@ define([
                         model: this
                     }));
                 }
+            },
+            {
+                type: 'action',
+                name: 'Duplicate',
+                icon: 'copy',
+                action: function () {
+                    var loadingview = new LoadingView();
+                    store.get('workspaces').once('sync', function(workspace, resp, options){
+                        loadingview.remove();
+                        wreqr.vent.trigger('router:navigate', {
+                            fragment: 'workspaces/'+workspace.id,
+                            options: {
+                                trigger: true
+                            }
+                        });
+                    });
+                    store.get('workspaces').duplicateWorkspace(this);
+                }
             }
         ]
     ];
