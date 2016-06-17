@@ -850,12 +850,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 Path tmpPath = null;
                 long size;
                 try {
-                    String sanitizedFilename = InputValidation.sanitizeFilename(
-                            contentItem.getFilename());
+                    String sanitizedFilename =
+                            InputValidation.sanitizeFilename(contentItem.getFilename());
                     if (contentItem.getInputStream() != null) {
-                        tmpPath =
-                                Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
-                                        FilenameUtils.getExtension(sanitizedFilename));
+                        tmpPath = Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
+                                FilenameUtils.getExtension(sanitizedFilename));
                         Files.copy(contentItem.getInputStream(),
                                 tmpPath,
                                 StandardCopyOption.REPLACE_EXISTING);
@@ -1271,7 +1270,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     }
 
     private void setDefaultValues(Metacard metacard) {
-        Map<String, Serializable> defaults = new HashMap<>();
         MetacardType metacardType = metacard.getMetacardType();
         DefaultAttributeValueRegistry registry =
                 frameworkProperties.getDefaultAttributeValueRegistry();
@@ -1279,17 +1277,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         metacardType.getAttributeDescriptors()
                 .stream()
                 .map(AttributeDescriptor::getName)
+                .filter(attributeName -> hasNoValue(metacard.getAttribute(attributeName)))
                 .forEach(attributeName -> {
                     registry.getDefaultValue(metacardType.getName(), attributeName)
-                            .ifPresent(defaultValue -> defaults.put(attributeName, defaultValue));
+                            .ifPresent(defaultValue -> metacard.setAttribute(new AttributeImpl(
+                                    attributeName,
+                                    defaultValue)));
                 });
-
-        defaults.forEach((attributeName, defaultValue) -> {
-            Attribute attribute = metacard.getAttribute(attributeName);
-            if (hasNoValue(attribute)) {
-                metacard.setAttribute(new AttributeImpl(attributeName, defaultValue));
-            }
-        });
     }
 
     @Override
@@ -2137,8 +2131,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
 
                     if (!sourceFound) {
-                        exceptions.add(new ProcessingDetailsImpl(id, new SourceUnavailableException(
-                                "Source id is not found")));
+                        exceptions.add(new ProcessingDetailsImpl(id,
+                                new SourceUnavailableException("Source id is not found")));
                     }
                 }
             }
