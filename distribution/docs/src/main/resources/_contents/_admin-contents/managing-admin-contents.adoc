@@ -261,6 +261,26 @@ If you have integrated ${branding} with your existing security infrastructure, t
 
 .. The whitelist allows child contexts to be excluded from the authentication constraints of their parents.
 
+==== Restricting ${branding} Feature, App, Service, and Configuration Access
+
+. See the documentation for your specific security infrastructure to configure users, roles, and groups.
+
+. Select the Admin Configuration Policy under the ${ddf-admin} Admin App
+
+. To add a feature or app permission:
+
+.. Add a new field to "Feature and App Permissions" in the format of: `feature name/app name = "attribute name=attribute value","attribute name2=attribute value2", ...`
+
+.. For example, to restrict access of any user without an admin role to the catalog-app: `catalog-app = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin", ...`
+
+. To add a configuration permission:
+
+.. Add a new field to "Configuration Permissions" in the format of: `configuration id = "attribute name=attribute value","attribute name2=attribute value2", ...`
+
+.. For example, to restrict access of any user without an admin role to the Web Context Policy Manager: `org.codice.ddf.security.policy.context.impl.PolicyManager="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"`
+
+If a permission is specified, any user without the required attributes will be unable to see or modify the feature, app, or configuration.
+
 ==== LDAP Admin Role Configuration
 
 The admin role will default to `system-admin`. This can be configured to work with an external LDAP with a few minor changes.

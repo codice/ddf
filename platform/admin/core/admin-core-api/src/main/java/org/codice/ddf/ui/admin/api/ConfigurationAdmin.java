@@ -227,9 +227,14 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         if (StringUtils.isBlank(factoryPid)) {
             throw new IOException("Argument factoryPid cannot be null or empty");
         }
-        Configuration config = configurationAdmin.createFactoryConfiguration(factoryPid);
-        config.setBundleLocation(location);
-        return config.getPid();
+
+        if (isPermittedToViewService(factoryPid)) {
+            Configuration config = configurationAdmin.createFactoryConfiguration(factoryPid);
+            config.setBundleLocation(location);
+            return config.getPid();
+        }
+
+        return null;
     }
 
     /**
@@ -246,8 +251,11 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         if (pid == null || pid.length() < 1) {
             throw new IOException("Argument pid cannot be null or empty");
         }
-        Configuration config = configurationAdmin.getConfiguration(pid, location);
-        config.delete();
+
+        if (isPermittedToViewService(pid)) {
+            Configuration config = configurationAdmin.getConfiguration(pid, location);
+            config.delete();
+        }
     }
 
     /**
@@ -300,7 +308,9 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
         if (configurations != null) {
             for (Configuration config : configurations) {
-                result.add(new String[] {config.getPid(), config.getBundleLocation()});
+                if (isPermittedToViewService(config.getPid())) {
+                    result.add(new String[] {config.getPid(), config.getBundleLocation()});
+                }
             }
         }
         return result.toArray(new String[result.size()][]);
@@ -341,12 +351,15 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
         Map<String, Object> propertiesTable = new HashMap<>();
         Configuration config = configurationAdmin.getConfiguration(pid, location);
-        Dictionary<String, Object> properties = config.getProperties();
-        if (properties != null) {
-            Enumeration<String> keys = properties.keys();
-            while (keys.hasMoreElements()) {
-                String key = keys.nextElement();
-                propertiesTable.put(key, properties.get(key));
+
+        if (isPermittedToViewService(config.getPid())) {
+            Dictionary<String, Object> properties = config.getProperties();
+            if (properties != null) {
+                Enumeration<String> keys = properties.keys();
+                while (keys.hasMoreElements()) {
+                    String key = keys.nextElement();
+                    propertiesTable.put(key, properties.get(key));
+                }
             }
         }
         return propertiesTable;
@@ -386,44 +399,46 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
         Configuration config = configurationAdmin.getConfiguration(pid, location);
 
-        final List<Map<String, Object>> metatype = findMetatypeForConfig(config);
-        List<Map.Entry<String, Object>> configEntries = new ArrayList<>();
+        if (isPermittedToViewService(config.getPid())) {
+            final List<Map<String, Object>> metatype = findMetatypeForConfig(config);
+            List<Map.Entry<String, Object>> configEntries = new ArrayList<>();
 
-        CollectionUtils.addAll(configEntries,
-                configurationTable.entrySet()
-                        .iterator());
+            CollectionUtils.addAll(configEntries,
+                    configurationTable.entrySet()
+                            .iterator());
 
-        if (metatype == null) {
-            throw loggedException("Could not find metatype for " + pid);
-        }
-        // now we have to filter each property based on its cardinality
-        CollectionUtils.transform(configEntries, new CardinalityTransformer(metatype, pid));
+            if (metatype == null) {
+                throw loggedException("Could not find metatype for " + pid);
+            }
+            // now we have to filter each property based on its cardinality
+            CollectionUtils.transform(configEntries, new CardinalityTransformer(metatype, pid));
 
-        Dictionary<String, Object> newConfigProperties = new Hashtable<>();
+            Dictionary<String, Object> newConfigProperties = new Hashtable<>();
 
-        // If the configuration entry is a password, and its updated configuration value is
-        // "password", do not update the password.
-        for (Map.Entry<String, Object> configEntry : configEntries) {
-            String configEntryKey = configEntry.getKey();
-            Object configEntryValue = configEntry.getValue();
-            if (configEntryValue.equals("password")) {
-                for (Map<String, Object> metatypeProperties : metatype) {
-                    if (metatypeProperties.get("id")
-                            .equals(configEntry.getKey())
-                            && AttributeDefinition.PASSWORD == (Integer) metatypeProperties.get(
-                            "type")) {
-                        Dictionary<String, Object> configProperties = config.getProperties();
-                        if (configProperties != null) {
-                            configEntryValue = configProperties.get(configEntryKey);
+            // If the configuration entry is a password, and its updated configuration value is
+            // "password", do not update the password.
+            for (Map.Entry<String, Object> configEntry : configEntries) {
+                String configEntryKey = configEntry.getKey();
+                Object configEntryValue = configEntry.getValue();
+                if (configEntryValue.equals("password")) {
+                    for (Map<String, Object> metatypeProperties : metatype) {
+                        if (metatypeProperties.get("id")
+                                .equals(configEntry.getKey())
+                                && AttributeDefinition.PASSWORD == (Integer) metatypeProperties.get(
+                                "type")) {
+                            Dictionary<String, Object> configProperties = config.getProperties();
+                            if (configProperties != null) {
+                                configEntryValue = configProperties.get(configEntryKey);
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
+                newConfigProperties.put(configEntryKey, configEntryValue);
             }
-            newConfigProperties.put(configEntryKey, configEntryValue);
-        }
 
-        config.update(newConfigProperties);
+            config.update(newConfigProperties);
+        }
     }
 
     // unfortunately listServices returns a bunch of nested untyped objects
@@ -446,6 +461,10 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     public Map<String, Object> disableConfiguration(String servicePid) throws IOException {
+        if (!isPermittedToViewService(servicePid)) {
+            return null;
+        }
+
         if (StringUtils.isEmpty(servicePid)) {
             throw new IOException(
                     "Service PID of Source to be disabled must be specified.  Service PID provided: "
@@ -501,6 +520,10 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             throw new IOException(
                     "Service PID of Source to be disabled must be specified.  Service PID provided: "
                             + servicePid);
+        }
+
+        if (!isPermittedToViewService(servicePid)) {
+            return null;
         }
 
         Configuration disabledConfig = configurationAdminExt.getConfiguration(servicePid);
@@ -714,4 +737,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         this.guestClaimsHandlerExt = guestClaimsHandlerExt;
     }
 
+    public boolean isPermittedToViewService(String servicePid) {
+        return configurationAdminExt.isPermittedToViewService(servicePid);
+    }
 }
