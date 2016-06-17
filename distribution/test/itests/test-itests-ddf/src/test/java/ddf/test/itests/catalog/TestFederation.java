@@ -1145,7 +1145,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"));
     }
 
-    @Test
+    @Ignore
     public void testFederatedDownloadProductToCacheOnlyCacheEnabled() throws Exception {
         /**
          * Setup Add productDirectory to the URLResourceReader's set of valid root resource
