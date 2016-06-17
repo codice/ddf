@@ -117,6 +117,7 @@
         <module>catalog-core-validationparser</module>
         <module>catalog-core-attribute-registry</module>
         <module>catalog-core-defaultvalues</module>
+        <module>catalog-core-resourcestatusplugin</module>
         <module>catalog-core-ftp</module>
     </modules>
 </project>

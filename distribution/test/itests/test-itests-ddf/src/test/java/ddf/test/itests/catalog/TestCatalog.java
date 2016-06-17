@@ -957,6 +957,50 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(metacardId);
     }
 
+    @Test
+    public void testGetMetacardResourceStatusNotCached()
+            throws IOException, XPathExpressionException {
+        String fileName = testName.getMethodName() + ".txt";
+        String metacardId = ingestXmlWithProduct(fileName);
+
+        String productDirectory = new File(fileName).getAbsoluteFile()
+                .getParent();
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+
+        String url = REST_PATH.getUrl() + "sources/ddf.distribution/" + metacardId;
+        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()", Metacard.RESOURCE_CACHE_STATUS);
+
+        get(url).
+                then().
+                body(hasXPath(resourceCachedXpath, is("false")));
+
+        deleteMetacard(metacardId);
+    }
+
+    @Test
+    public void testGetMetacardResourceStatusCached()
+            throws IOException, XPathExpressionException {
+        String fileName = testName.getMethodName() + ".txt";
+        String metacardId = ingestXmlWithProduct(fileName);
+
+        String productDirectory = new File(fileName).getAbsoluteFile()
+                .getParent();
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+
+        String url = REST_PATH.getUrl() + "sources/ddf.distribution/" + metacardId;
+        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()", Metacard.RESOURCE_CACHE_STATUS);
+
+        get(url + "?transform=resource").then();
+
+        get(url).
+            then().
+                body(hasXPath(resourceCachedXpath, is("true")));
+
+        deleteMetacard(metacardId);
+    }
+
     private void verifyGetRecordByIdResponse(final ValidatableResponse response,
             final String... ids) {
         final String xPathGetRecordWithId = "//GetRecordByIdResponse/Record[identifier=\"%s\"]";
