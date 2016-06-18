@@ -72,7 +72,7 @@ import ddf.security.Subject;
 public class Historian {
     private static final Logger LOGGER = LoggerFactory.getLogger(Historian.class);
 
-    private boolean historyEnabled = true;
+    private boolean historyEnabled = false;
 
     private List<StorageProvider> storageProviders;
 
@@ -430,38 +430,36 @@ public class Historian {
 
         List<ContentItem> resultItems = new ArrayList<>();
 
-        { // version root content item
-            long size = 0;
+        // version root content item
+        long size = 0;
+        try {
+            size = rootItem.getSize();
+        } catch (IOException e) {
+            LOGGER.warn("Could not get size of item [{}].", rootItem.getId(), e);
+        }
+        resultItems.add(new ContentItemImpl(rootVersion.getId(),
+                Files.asByteSource(tmpContentPaths.get(rootItem.getId())
+                        .toFile()),
+                rootItem.getMimeTypeRawData(),
+                rootItem.getFilename(),
+                size,
+                rootVersion));
+
+        // version derived content items
+        for (ContentItem contentItem : derivedContent) {
+            size = 0;
             try {
-                size = rootItem.getSize();
+                size = contentItem.getSize();
             } catch (IOException e) {
                 LOGGER.warn("Could not get size of item [{}].", rootItem.getId(), e);
             }
             resultItems.add(new ContentItemImpl(rootVersion.getId(),
-                    Files.asByteSource(tmpContentPaths.get(rootItem.getId())
-                            .toFile()),
-                    rootItem.getMimeTypeRawData(),
-                    rootItem.getFilename(),
+                    contentItem.getQualifier(),
+                    new WrappedByteSource(contentItem),
+                    contentItem.getMimeTypeRawData(),
+                    contentItem.getFilename(),
                     size,
                     rootVersion));
-        }
-
-        { // version derived content items
-            for (ContentItem contentItem : derivedContent) {
-                long size = 0;
-                try {
-                    size = contentItem.getSize();
-                } catch (IOException e) {
-                    LOGGER.warn("Could not get size of item [{}].", rootItem.getId(), e);
-                }
-                resultItems.add(new ContentItemImpl(rootVersion.getId(),
-                        contentItem.getQualifier(),
-                        new WrappedByteSource(contentItem),
-                        contentItem.getMimeTypeRawData(),
-                        contentItem.getFilename(),
-                        size,
-                        rootVersion));
-            }
         }
 
         return resultItems;

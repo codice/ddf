@@ -45,6 +45,7 @@ import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.history.Historian;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -91,11 +92,14 @@ public class CatalogFrameworkQueryTest {
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
         framework = new CatalogFrameworkImpl(props);
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+        framework.setHistorian(historian);
         framework.bind(provider);
     }
 
     @Test
-    public void testAfterQuery() {
+    public void testAfterQuery() throws Exception {
         Calendar afterCal = Calendar.getInstance();
         Calendar card1Exp = Calendar.getInstance();
         card1Exp.add(Calendar.YEAR, 1);
@@ -116,13 +120,9 @@ public class CatalogFrameworkQueryTest {
         String mcId2 = null;
 
         CreateResponse createResponse = null;
-        try {
-            createResponse = framework.create(new CreateRequestImpl(metacards, null));
-        } catch (IngestException e1) {
-            fail();
-        } catch (SourceUnavailableException e1) {
-            fail();
-        }
+
+        createResponse = framework.create(new CreateRequestImpl(metacards, null));
+
         assertEquals(createResponse.getCreatedMetacards()
                 .size(), metacards.size());
         for (Metacard curCard : createResponse.getCreatedMetacards()) {

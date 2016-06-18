@@ -109,6 +109,7 @@ import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.history.Historian;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -348,6 +349,9 @@ public class CatalogFrameworkImplTest {
         };
         framework.bind(provider);
         framework.bind(storageProvider);
+
+        framework.setHistorian(new Historian());
+        resourceFramework.setHistorian(new Historian());
 
         ThreadContext.bind(mock(Subject.class));
     }
@@ -2538,6 +2542,7 @@ public class CatalogFrameworkImplTest {
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.bind(provider);
         framework.bind(storageProvider);
+        framework.setHistorian(new Historian());
         return framework;
 
     }
