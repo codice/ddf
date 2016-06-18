@@ -93,7 +93,6 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
 import ddf.catalog.core.versioning.MetacardVersion;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -1994,13 +1993,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .body()
                 .asByteArray();
 
-        String metacardHistoryQuery = new CswQueryBuilder()
-                .addAttributeFilter(PROPERTY_IS_EQUAL_TO,
+        String metacardHistoryQuery = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
                 MetacardVersion.VERSION_OF_ID,
                 id)
-                .addAttributeFilter(PROPERTY_IS_LIKE,
-                        Metacard.TAGS,
-                        MetacardVersion.VERSION_TAG)
+                .addAttributeFilter(PROPERTY_IS_LIKE, Metacard.TAGS, MetacardVersion.VERSION_TAG)
                 .addLogicalOperator(AND)
                 .getQuery();
 
@@ -2022,7 +2018,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .body()
                 .asByteArray();
 
-        assertThat("The two content items should be different", Arrays.equals(content1, content2), is(false));
+        assertThat("The two content items should be different",
+                Arrays.equals(content1, content2),
+                is(false));
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                 .body(metacardHistoryQuery)
                 .post(CSW_PATH.getUrl())

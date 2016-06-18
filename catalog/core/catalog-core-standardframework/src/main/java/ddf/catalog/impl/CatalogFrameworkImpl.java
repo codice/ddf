@@ -790,12 +790,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 Path tmpPath = null;
                 long size;
                 try {
-                    String sanitizedFilename = InputValidation.sanitizeFilename(
-                            contentItem.getFilename());
+                    String sanitizedFilename =
+                            InputValidation.sanitizeFilename(contentItem.getFilename());
                     if (contentItem.getInputStream() != null) {
-                        tmpPath =
-                                Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
-                                        FilenameUtils.getExtension(sanitizedFilename));
+                        tmpPath = Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
+                                FilenameUtils.getExtension(sanitizedFilename));
                         Files.copy(contentItem.getInputStream(),
                                 tmpPath,
                                 StandardCopyOption.REPLACE_EXISTING);
@@ -2097,8 +2096,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
 
                     if (!sourceFound) {
-                        exceptions.add(new ProcessingDetailsImpl(id, new SourceUnavailableException(
-                                "Source id is not found")));
+                        exceptions.add(new ProcessingDetailsImpl(id,
+                                new SourceUnavailableException("Source id is not found")));
                     }
                 }
             }

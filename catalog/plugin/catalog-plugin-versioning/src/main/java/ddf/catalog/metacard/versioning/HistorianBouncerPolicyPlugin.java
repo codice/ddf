@@ -45,39 +45,36 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl();
-//        if (!isMetacardHistory.test(input)) {
-//            /* not modifying history, proceed */
-//            return new PolicyResponseImpl();
-//        }
-//        return new PolicyResponseImpl(new HashMap<>(),
-//                Collections.singletonMap(ROLE_CLAIM, Collections.singleton(HISTORY_ROLE)));
+        if (!isMetacardHistory.test(input)) {
+            /* not modifying history, proceed */
+            return new PolicyResponseImpl();
+        }
+        return new PolicyResponseImpl(new HashMap<>(),
+                Collections.singletonMap(ROLE_CLAIM, Collections.singleton(HISTORY_ROLE)));
 
     }
 
     @Override
     public PolicyResponse processPreUpdate(Metacard newMetacard,
             Map<String, Serializable> properties) throws StopProcessingException {
-        return new PolicyResponseImpl();
-//        if (!isMetacardHistory.test(newMetacard)) {
-//            /* not modifying history, proceed */
-//            return new PolicyResponseImpl();
-//        }
-//        return new PolicyResponseImpl(new HashMap<>(),
-//                Collections.singletonMap(ROLE_CLAIM, Collections.singleton(HISTORY_ROLE)));
+        if (!isMetacardHistory.test(newMetacard)) {
+            /* not modifying history, proceed */
+            return new PolicyResponseImpl();
+        }
+        return new PolicyResponseImpl(new HashMap<>(),
+                Collections.singletonMap(ROLE_CLAIM, Collections.singleton(HISTORY_ROLE)));
     }
 
     @Override
     public PolicyResponse processPreDelete(List<Metacard> metacards,
             Map<String, Serializable> properties) throws StopProcessingException {
-        return new PolicyResponseImpl();
-//        if (!metacards.stream()
-//                .anyMatch(isMetacardHistory)) {
-//            /* not modifying history, proceed */
-//            return new PolicyResponseImpl();
-//        }
-//        return new PolicyResponseImpl(new HashMap<>(),
-//                Collections.singletonMap(ROLE_CLAIM, Collections.singleton(HISTORY_ROLE)));
+        if (!metacards.stream()
+                .anyMatch(isMetacardHistory)) {
+            /* not modifying history, proceed */
+            return new PolicyResponseImpl();
+        }
+        return new PolicyResponseImpl(new HashMap<>(),
+                Collections.singletonMap(ROLE_CLAIM, Collections.singleton(HISTORY_ROLE)));
     }
 
     @Override

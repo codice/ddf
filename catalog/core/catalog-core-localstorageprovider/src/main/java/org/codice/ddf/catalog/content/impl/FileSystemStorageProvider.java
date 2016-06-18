@@ -190,7 +190,11 @@ public class FileSystemStorageProvider implements StorageProvider {
                             .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
                                     contentItem.getSize()));
                 } catch (IOException e) {
-                    LOGGER.warn("Could not set size of content item [{}] on metacard [{}]", contentItem.getId(), contentItem.getMetacard().getId(), e);
+                    LOGGER.warn("Could not set size of content item [{}] on metacard [{}]",
+                            contentItem.getId(),
+                            contentItem.getMetacard()
+                                    .getId(),
+                            e);
                 }
             }
         }

@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -25,8 +24,6 @@ import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 
@@ -140,10 +137,13 @@ public class Historian {
                 .collect(Collectors.toList());
 
         newContentItems.forEach(ci -> {
-            if (ci.getMetacard().getResourceURI() == null) {
-                ci.getMetacard().setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, ci.getUri()));
+            if (ci.getMetacard()
+                    .getResourceURI() == null) {
+                ci.getMetacard()
+                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, ci.getUri()));
                 try {
-                    ci.getMetacard().setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, ci.getSize()));
+                    ci.getMetacard()
+                            .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, ci.getSize()));
                 } catch (IOException e) {
                     LOGGER.warn("Could not get size of content item", e);
                 }
@@ -279,7 +279,8 @@ public class Historian {
     public List<Exception> commit(String historianTransactionKey) {
         List<Callable<Boolean>> ops = staged.remove(historianTransactionKey);
         if (ops == null) {
-            LOGGER.warn("There was no operations staged for historian transaction key [{}]", historianTransactionKey);
+            LOGGER.warn("There was no operations staged for historian transaction key [{}]",
+                    historianTransactionKey);
             return null;
         }
 

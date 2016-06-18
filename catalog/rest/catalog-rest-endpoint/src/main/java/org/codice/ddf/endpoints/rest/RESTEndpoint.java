@@ -430,9 +430,14 @@ public class RESTEndpoint implements RESTService {
     @Path("/sources/{sourceid}/{id}")
     public Response getDocument(@Encoded @PathParam("sourceid") String encodedSourceId,
             @Encoded @PathParam("id") String encodedId,
-            @QueryParam("transform") String transformerParam,
-            @Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
-        return getDocument(encodedSourceId, encodedId, transformerParam, false, uriInfo, httpRequest);
+            @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpRequest) {
+        return getDocument(encodedSourceId,
+                encodedId,
+                transformerParam,
+                false,
+                uriInfo,
+                httpRequest);
     }
 
     /**
