@@ -40,6 +40,10 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.security.SubjectUtils;
 
+/**
+ * Represents a version at a particular instant. Also included are the {@link Action} that was
+ * performed, who it was edited by, and what time it was edited on.
+ */
 public class MetacardVersion extends MetacardImpl {
 
     public enum Action {
@@ -76,7 +80,8 @@ public class MetacardVersion extends MetacardImpl {
                 throw new IllegalArgumentException(
                         "Cannot get action of a non version metacard [" + metacard.getId() + "]");
             }
-            Serializable svalue = metacard.getAttribute(ACTION).getValue();
+            Serializable svalue = metacard.getAttribute(ACTION)
+                    .getValue();
             if (!(svalue instanceof String)) {
                 throw new IllegalArgumentException("The action attribute must be a string");
             }
@@ -85,7 +90,7 @@ public class MetacardVersion extends MetacardImpl {
         }
     }
 
-    public static final String ALREADY_VERSIONED = "already-versioned";
+    public static final String SKIP_VERSIONING = "skip-versioning";
 
     public static final String HISTORY_METACARDS_PROPERTY = "history-metacards";
 

@@ -14,7 +14,7 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="bouncerPlugin" class="ddf.catalog.metacard.versioning.HistorianBouncerPolicyPlugin"/>
+    <bean id="bouncerPlugin" class="ddf.catalog.metacard.versioning.HistorianPolicyPlugin"/>
 
     <service ref="bouncerPlugin" interface="ddf.catalog.plugin.PolicyPlugin"/>
 

@@ -344,7 +344,6 @@
                                update-strategy="container-managed"/>
         <property name="catalogProviders" ref="catalogProviderSortedList"/>
         <property name="storageProviders" ref="storageProviderSortedList"/>
-        <property name="catalogFramework" ref="ddf"/>
     </bean>
 
     <bean id="downloadResourceActionProvider"

@@ -31,7 +31,11 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
-public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
+/**
+ * HistorianPolicyPlugin prevents anyone without the {@link HistorianPolicyPlugin#HISTORY_ROLE}
+ * from modifying a {@link MetacardVersion} in any way.
+ */
+public class HistorianPolicyPlugin implements PolicyPlugin {
 
     public static final String HISTORY_ROLE = "system-history";
 

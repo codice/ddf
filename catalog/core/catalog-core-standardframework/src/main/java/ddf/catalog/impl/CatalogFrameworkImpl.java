@@ -820,7 +820,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
 
                 String fileName = updateFileExtension(mimeTypeRaw, contentItem.getFilename());
-                // TODO (RCZ) - I believe this should be: if (contentItem.getMetacard() != null) {...}
                 Metacard metacard = generateMetacard(mimeTypeRaw,
                         contentItem.getId(),
                         fileName,
@@ -869,6 +868,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw sourceUnavailableException;
         }
 
+        Optional<String> historianTransactionKey = Optional.empty();
+
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems()
                 .size());
@@ -907,7 +908,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
                 }
 
-                createStorageRequest = historian.versionStorageCreate(createStorageRequest);
+                historianTransactionKey = historian.versionStorageCreate(createStorageRequest);
 
                 CreateStorageResponse createStorageResponse;
                 try {
@@ -927,11 +928,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                                 e);
                     }
                 }
-                // TODO (RCZ) - pretty sure this if statement needs to check if content item has qualifier
-                // the only reason this worked correctly is because the root metacard has been first
+
                 for (ContentItem contentItem : createStorageResponse.getCreatedContentItems()) {
                     if (contentItem.getMetacard()
-                            .getResourceURI() == null) {
+                            .getResourceURI() == null
+                            && StringUtils.isBlank(contentItem.getQualifier())) {
                         contentItem.getMetacard()
                                 .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
                                         contentItem.getUri()));
@@ -943,11 +944,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
             }
 
-            streamCreateRequest.getProperties()
-                    .put(Historian.ALREADY_VERSIONED, true);
             CreateRequest createRequest =
                     new CreateRequestImpl(new ArrayList<>(metacardMap.values()),
-                            streamCreateRequest.getProperties());
+                            Optional.ofNullable(createStorageRequest)
+                                    .map(StorageRequest::getProperties)
+                                    .orElseGet(HashMap::new));
 
             createResponse = create(createRequest);
         } catch (Exception e) {
@@ -965,17 +966,30 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             if (createStorageRequest != null) {
                 try {
                     storage.commit(createStorageRequest);
+                    historianTransactionKey.map(historian::commit);
+                    historianTransactionKey = Optional.empty();
                 } catch (StorageException e) {
-                    LOGGER.error("Unable to commit content changes for id: "
-                            + createStorageRequest.getId(), e);
+                    LOGGER.error("Unable to commit content changes for id: {}",
+                            createStorageRequest.getId(),
+                            e);
                     try {
                         storage.rollback(createStorageRequest);
                     } catch (StorageException e1) {
-                        LOGGER.error("Unable to remove temporary content for id: "
-                                + createStorageRequest.getId(), e1);
+                        LOGGER.error("Unable to remove temporary content for id: {}",
+                                createStorageRequest.getId(),
+                                e1);
                     }
                 }
             }
+
+            try {
+                historianTransactionKey.ifPresent(historian::rollback);
+            } catch (RuntimeException re) {
+                LOGGER.error("Unable to commit versioned items for historian transaction: {}",
+                        historianTransactionKey.orElseGet(String::new),
+                        re);
+            }
+
             tmpContentPaths.values()
                     .stream()
                     .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
@@ -1058,8 +1072,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
             validateCreateRequest(createRequest);
 
-            createRequest = historian.versionCreate(createRequest);
-
             // Call the create on the catalog
             LOGGER.debug("Calling catalog.create() with {} entries.",
                     createRequest.getMetacards()
@@ -1067,6 +1079,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             if (Requests.isLocal(createRequest)) {
                 createResponse = catalog.create(createRequest);
             }
+
+            createResponse = historian.versionCreate(createResponse);
 
             if (catalogStoreRequest) {
                 CreateResponse remoteCreateResponse = doRemoteCreate(createRequest);
@@ -1079,8 +1093,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             .addAll(remoteCreateResponse.getProcessingErrors());
                 }
             }
-
-            createResponse = historian.removeHistoryItems(createResponse);
 
         } catch (IngestException iee) {
             INGEST_LOGGER.warn("Ingest error", iee);

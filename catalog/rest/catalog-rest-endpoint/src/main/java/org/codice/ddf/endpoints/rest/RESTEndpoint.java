@@ -452,7 +452,7 @@ public class RESTEndpoint implements RESTService {
      * @return
      */
     @GET
-    @Path("/sources/{sourceid}/*/{id}")
+    @Path("/sources/{sourceid}/anytag/{id}")
     public Response getDocument(@Encoded @PathParam("sourceid") String encodedSourceId,
             @Encoded @PathParam("id") String encodedId,
             @QueryParam("transform") String transformerParam, @QueryParam("anytag") boolean anyTag,
