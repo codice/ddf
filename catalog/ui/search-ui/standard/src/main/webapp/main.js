@@ -14,7 +14,7 @@
 require.config({
     paths: {
 
-        bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
+        bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
         bootstrapselect: 'lib/bootstrap-select/dist/js/bootstrap-select.min',
 
         cometd: 'lib/cometd/org/cometd',
@@ -23,19 +23,17 @@ require.config({
         perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.min',
         spin: 'lib/spin.js/spin',
         q: 'lib/q/q',
-        strapdown: 'lib/strapdown/v/0.2',
         spectrum: 'lib/spectrum/spectrum',
 
         // backbone
-        backbone: 'lib/components-backbone/backbone-min',
+        backbone: 'lib/backbone/backbone',
         backboneassociations: 'lib/backbone-associations/backbone-associations-min',
         backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
-        backboneundo: 'lib/Backbone.Undo.js/Backbone.Undo',
+        backboneundo: 'lib/Backbone.Undo/Backbone.Undo',
         poller: 'lib/backbone-poller/backbone.poller',
         underscore: 'lib/lodash/lodash.min',
         marionette: 'lib/marionette/lib/backbone.marionette.min',
-        // TODO test combining
-        modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
+        'Backbone.ModelBinder': 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
         collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
 
         // application
@@ -50,7 +48,7 @@ require.config({
         properties: 'properties',
 
         // jquery
-        jquery: 'lib/jquery/jquery.min',
+        jquery: 'lib/jquery/dist/jquery.min',
         jsCookie: 'lib/js-cookie/src/js.cookie',
         jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
         datepicker: 'lib/jquery-ui/ui/minified/jquery.ui.datepicker.min',
@@ -60,15 +58,15 @@ require.config({
         datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
         datepickerAddon: 'lib/jqueryui-timepicker-addon/src/jquery-ui-timepicker-addon',
         purl: 'lib/purl/purl',
-        multiselect: 'lib/multiselect/src/jquery.multiselect',
-        multiselectfilter: 'lib/multiselect/src/jquery.multiselect.filter',
+        multiselect: 'lib/jquery-ui-multiselect-widget/src/jquery.multiselect',
+        multiselectfilter: 'lib/jquery-ui-multiselect-widget/src/jquery.multiselect.filter',
         "jquery.ui.widget": 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
         fileupload: 'lib/jquery-file-upload/js/jquery.fileupload',
         jquerySortable: 'lib/jquery-ui/ui/minified/jquery.ui.sortable.min',
 
         // handlebars
         handlebars: 'lib/handlebars/handlebars.min',
-        icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+        icanhaz: 'js/ich',
 
         // require plugins
         text: 'lib/requirejs-plugins/lib/text',
@@ -96,7 +94,7 @@ require.config({
             deps: ['underscore', 'jquery', 'backbone']
         },
         collectionbinder: {
-            deps: ['modelbinder']
+            deps: ['underscore', 'jquery', 'backbone', 'Backbone.ModelBinder']
         },
         poller: {
             deps: ['underscore', 'backbone']

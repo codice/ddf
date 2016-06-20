@@ -31,7 +31,7 @@ define([
     'js/view/preferences/PreferencesMenu',
     'application',
     'properties',
-    'modelbinder',
+    'Backbone.ModelBinder',
     'perfectscrollbar',
     'backbonecometd',
     'progressbar'

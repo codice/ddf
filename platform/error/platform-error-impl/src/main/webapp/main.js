@@ -23,16 +23,16 @@
             q: 'lib/q/q',
 
             // backbone
-            backbone: 'lib/components-backbone/backbone-min',
+            backbone: 'lib/backbone/backbone',
             underscore: 'lib/lodash/dist/lodash.underscore.min',
             marionette: 'lib/marionette/lib/backbone.marionette.min',
 
             // jquery
-            jquery: 'lib/jquery/jquery.min',
+            jquery: 'lib/jquery/dist/jquery.min',
 
             // handlebars
             handlebars: 'lib/handlebars/handlebars.min',
-            icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+            icanhaz: 'js/ich',
 
             // require plugins
             text: 'lib/requirejs-plugins/lib/text',

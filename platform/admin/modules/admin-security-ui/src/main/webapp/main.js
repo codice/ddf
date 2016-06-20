@@ -14,15 +14,15 @@
 require.config({
     paths: {
 
-        bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
+        bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
         bootstrapselect: 'lib/bootstrap-select/dist/js/bootstrap-select.min',
 
         perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.min',
 
         // backbone
-        backbone: 'lib/components-backbone/backbone-min',
+        backbone: 'lib/backbone/backbone',
         backboneassociations: 'lib/backbone-associations/backbone-associations-min',
-        backboneundo: 'lib/Backbone.Undo.js/Backbone.Undo',
+        backboneundo: 'lib/Backbone.Undo/Backbone.Undo',
         poller: 'lib/backbone-poller/backbone.poller',
         underscore: 'lib/lodash/dist/lodash.underscore.min',
         lodash: 'lib/lodash/dist/lodash.min',
@@ -35,13 +35,13 @@ require.config({
         application: 'js/application',
 
         // jquery
-        jquery: 'lib/jquery/jquery.min',
+        jquery: 'lib/jquery/dist/jquery.min',
         jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
         "jquery.ui.widget": 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
 
         // handlebars
         handlebars: 'lib/handlebars/handlebars.min',
-        icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+        icanhaz: 'js/ich',
 
         // require plugins
         text: 'lib/requirejs-plugins/lib/text',

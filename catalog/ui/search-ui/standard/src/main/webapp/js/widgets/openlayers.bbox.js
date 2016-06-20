@@ -140,12 +140,7 @@ define([
             start: function () {
                 var that = this;
                 this.primitive = new ol.interaction.DragBox({
-                    condition: ol.events.condition.always,
-                    style: new ol.style.Style({
-                        stroke: new ol.style.Stroke({
-                            color: [0,0,255,1]
-                        })
-                    })
+                    condition: ol.events.condition.always
                 });
 
                 this.map.addInteraction(this.primitive);

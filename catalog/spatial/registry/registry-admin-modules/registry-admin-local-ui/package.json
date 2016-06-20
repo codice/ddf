@@ -18,7 +18,7 @@
   "devDependencies": {
     "grunt": "0.4.1",
     "grunt-cli": "0.1.13",
-    "bower": "1.4.1",
+    "bower": "1.7.9",
     "grunt-bower-task": "0.4.0",
     "grunt-contrib-jshint": "0.3.0",
     "grunt-contrib-clean": "0.4.0",

@@ -19,7 +19,7 @@ define([
     'require'
 ],function(Application, require) {
 
-    Application.App.module('Configurations', function(ServiceModule, App, Backbone, Marionette, $, _) {
+    Application.App.module('Configurations', function(ServiceModule, App) {
 
         require([
             'js/controllers/App.controller',

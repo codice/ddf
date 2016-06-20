@@ -19,43 +19,36 @@
 
         paths: {
 
-            bootstrap: '../../../admin/lib/components-bootstrap/js/bootstrap.min',
-            spin: '../../../admin/lib/spin.js/spin',
-            q: '../../../admin/lib/q/q',
+            bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
+            q: 'lib/q/q',
 
             // backbone
-            backbone: '../../../admin/lib/components-backbone/backbone',
-            backboneassociation: '../../../admin/lib/backbone-associations/backbone-associations',
-            underscore: '../../../admin/lib/lodash/dist/lodash.underscore',
-            marionette: '../../../admin/lib/marionette/lib/backbone.marionette',
-            modelbinder: '../../../admin/lib/backbone.modelbinder/Backbone.ModelBinder',
-            collectionbinder: '../../../admin/lib/backbone.modelbinder/Backbone.CollectionBinder',
-            poller: '../../../admin/lib/backbone-poller/backbone.poller',
-            iframeresizer: '../../../admin/lib/iframe-resizer/js/iframeResizer.min',
-
-            // ddf
-            spinnerConfig: 'js/spinnerConfig',
+            backbone: 'lib/backbone/backbone',
+            backboneassociation: 'lib/backbone-associations/backbone-associations',
+            underscore: 'lib/lodash/dist/lodash.underscore',
+            marionette: 'lib/marionette/lib/backbone.marionette',
+            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder',
+            collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder',
+            poller: 'lib/backbone-poller/backbone.poller',
+            iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min',
 
             // jquery
-            jquery: '../../../admin/lib/jquery/jquery.min',
-            jqueryui: '../../../admin/lib/jquery-ui/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': '../../../admin/lib/jquery-ui/ui/minified/jquery.ui.widget.min',
-            multiselect: '../../../admin/lib/bootstrap-multiselect/js/bootstrap-multiselect',
-            perfectscrollbar: '../../../admin/lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            jquery: 'lib/jquery/dist/jquery.min',
+            jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
+            'jquery.ui.widget': 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
+            multiselect: 'lib/bootstrap-multiselect/js/bootstrap-multiselect',
+            perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
 
             // handlebars
-            handlebars: '../../../admin/lib/handlebars/handlebars.min',
-            icanhaz: '../../../admin/lib/icanhandlebarz/ICanHandlebarz',
+            handlebars: 'lib/handlebars/handlebars.min',
+            icanhaz: 'js/ich',
 
             // require plugins
-            text: '../../../admin/lib/requirejs-plugins/lib/text',
-            css: '../../../admin/lib/require-css/css',
+            text: 'lib/requirejs-plugins/lib/text',
+            css: 'lib/require-css/css',
 
             // default admin ui
-            app: '../../../admin/js/application',
-
-            // datatables
-            datatables: '../../../admin/lib/datatables/media/js/jquery.dataTables'
+            app: 'js/application'
         },
 
 
