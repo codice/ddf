@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
@@ -170,41 +171,23 @@ public class Historian {
         Map<String, Path> tmpContentPaths = (Map<String, Path>) createStorageRequest.getProperties()
                 .getOrDefault(CONTENT_PATHS, new HashMap<>());
 
-        List<ContentItem> newContentItems = createStorageRequest.getContentItems()
-                .stream()
-                .map(ContentItem::getMetacard)
-                .distinct()
-                .flatMap(mc -> getVersionedContent(mc,
-                        createStorageRequest.getContentItems(),
-                        MetacardVersion.Action.CREATED_CONTENT,
-                        tmpContentPaths).stream())
-                .collect(Collectors.toList());
+        List<ContentItem> newContentItems =
+                versionContentItems(createStorageRequest.getContentItems(),
+                        tmpContentPaths,
+                        MetacardVersion.Action.CREATED_CONTENT);
 
-        newContentItems.forEach(ci -> {
-            if (ci.getMetacard()
-                    .getResourceURI() == null) {
-                ci.getMetacard()
-                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, ci.getUri()));
-                try {
-                    ci.getMetacard()
-                            .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, ci.getSize()));
-                } catch (IOException e) {
-                    LOGGER.warn("Could not get size of content item", e);
-                }
-            }
-        });
+        setResourceUriIfMissing(newContentItems);
 
         CreateStorageRequestImpl versionStorageRequest = new CreateStorageRequestImpl(
                 newContentItems,
                 createStorageRequest.getId(),
                 createStorageRequest.getProperties());
 
-        storageProvider().create(versionStorageRequest);
-
         // These are being staged for delayed execution, to be ran after the storage/catalog has
         // successfully committed/updated
         preStaged.add(() -> {
             getSystemSubject().execute(() -> {
+                storageProvider().create(versionStorageRequest);
                 storageProvider().commit(versionStorageRequest);
                 return true;
             });
@@ -250,15 +233,10 @@ public class Historian {
         List<Callable<Boolean>> preStaged = new ArrayList<>(2);
         staged.put(transactionKey, preStaged);
 
-        List<ContentItem> versionedContentItems = updateStorageResponse.getUpdatedContentItems()
-                .stream()
-                .map(ContentItem::getMetacard)
-                .distinct()
-                .flatMap(mc -> getVersionedContent(mc,
-                        updateStorageResponse.getUpdatedContentItems(),
-                        MetacardVersion.Action.UPDATED_CONTENT,
-                        tmpContentPaths).stream())
-                .collect(Collectors.toList());
+        List<ContentItem> versionedContentItems =
+                versionContentItems(updateStorageResponse.getUpdatedContentItems(),
+                        tmpContentPaths,
+                        MetacardVersion.Action.UPDATED_CONTENT);
 
         List<Metacard> historyMetacards = versionedContentItems.stream()
                 .map(ContentItem::getMetacard)
@@ -268,29 +246,15 @@ public class Historian {
         // These are being staged for delayed execution, to be ran after the storage/catalog has
         // successfully committed/updated
         preStaged.add(() -> {
-            Map<String, Serializable> props = new HashMap<>();
-            props.put(SKIP_VERSIONING, true);
             CreateStorageRequestImpl createStorageRequest = new CreateStorageRequestImpl(
                     versionedContentItems,
-                    props);
+                    new HashMap<>());
+            setSkipFlag(createStorageRequest);
             CreateStorageResponse createStorageResponseResult = getSystemSubject().execute(() -> {
                 CreateStorageResponse createStorageResponse = storageProvider().create(
                         createStorageRequest);
                 storageProvider().commit(createStorageRequest);
-                createStorageResponse.getCreatedContentItems()
-                        .forEach((ci) -> {
-                            try {
-                                ci.getMetacard()
-                                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
-                                                ci.getUri()));
-                                ci.getMetacard()
-                                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
-                                                ci.getSize()));
-                            } catch (IOException e) {
-                                LOGGER.warn("Could not get size", e);
-                            }
-
-                        });
+                overwriteResourceUris(createStorageResponse);
                 return createStorageResponse;
             });
 
@@ -386,6 +350,53 @@ public class Historian {
         return catalogProviders.stream()
                 .findFirst()
                 .orElse(null);
+    }
+
+    private void overwriteResourceUris(CreateStorageResponse createStorageResponse) {
+        createStorageResponse.getCreatedContentItems()
+                .forEach((ci) -> {
+                    try {
+                        ci.getMetacard()
+                                .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
+                                        ci.getUri()));
+                        ci.getMetacard()
+                                .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                        ci.getSize()));
+                    } catch (IOException e) {
+                        LOGGER.warn("Could not get size", e);
+                    }
+
+                });
+    }
+
+    private List<ContentItem> versionContentItems(List<ContentItem> contentItems,
+            Map<String, Path> tmpContentPaths, MetacardVersion.Action action) {
+        return contentItems.stream()
+                .map(ContentItem::getMetacard)
+                .distinct()
+                .flatMap(mc -> getVersionedContent(mc,
+                        contentItems,
+                        action,
+                        tmpContentPaths).stream())
+                .collect(Collectors.toList());
+    }
+
+    private void setResourceUriIfMissing(List<ContentItem> newContentItems) {
+        newContentItems.stream()
+                .filter(ci -> ci.getMetacard()
+                        .getResourceURI() == null)
+                .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
+                .forEach(ci -> {
+                    ci.getMetacard()
+                            .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, ci.getUri()));
+                    try {
+                        ci.getMetacard()
+                                .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                        ci.getSize()));
+                    } catch (IOException e) {
+                        LOGGER.warn("Could not get size of content item", e);
+                    }
+                });
     }
 
     private CreateResponse getVersionedMetacards(List<Metacard> metacards,
