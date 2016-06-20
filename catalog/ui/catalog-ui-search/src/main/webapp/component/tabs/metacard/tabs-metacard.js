@@ -32,7 +32,6 @@ define([
                 'History': MetacardHistoryView,
                 'Associations': MetacardAssociationsView,
                 'Quality': MetacardQualityView,
-                'Sharing': MetacardBasicView,
                 'Actions': MetacardActionsView,
                 'Archive': MetacardArchiveView
             }
