@@ -31,6 +31,7 @@ import java.security.PrivilegedAction;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -41,6 +42,8 @@ import javax.validation.constraints.NotNull;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
@@ -220,6 +223,26 @@ public class Security {
     }
 
     /**
+     * Gets the guest {@link Subject} associated with the specified IP. Uses a cached subject when possible since the subject
+     * will not change between calls.
+     *
+     * @return system's {@link Subject}
+     */
+    public Subject getGuestSubject(String ipAddress) {
+        Subject subject = null;
+        GuestAuthenticationToken token =
+                new GuestAuthenticationToken(BaseAuthenticationToken.DEFAULT_REALM, ipAddress);
+        LOGGER.debug("Getting new Guest user token for {}", ipAddress);
+        try {
+            subject = getSecurityManager().getSubject(token);
+        } catch (SecurityServiceException sse) {
+            LOGGER.warn("Unable to request subject for guest user.", sse);
+        }
+
+        return subject;
+    }
+
+    /**
      * Determines whether a {@link Subject}'s token is about to expire or not.
      *
      * @param subject subject whose token needs to be checked
@@ -232,6 +255,23 @@ public class Security {
                 .oneByType(SecurityAssertion.class)
                 .getSecurityToken()
                 .isAboutToExpire(TimeUnit.MINUTES.toSeconds(1))));
+    }
+
+    /**
+     * Get the expires time from the {@link Subject}'s token.
+     *
+     * @param subject subject whose token needs to be checked
+     * @return {@code Date} or null if subject doesn't have an expire time.
+     */
+    public Date getExpires(Subject subject) {
+        return ((null != subject) && (null != subject.getPrincipals()) && (null
+                != subject.getPrincipals()
+                .oneByType(SecurityAssertion.class))) ?
+                subject.getPrincipals()
+                        .oneByType(SecurityAssertion.class)
+                        .getSecurityToken()
+                        .getExpires() :
+                null;
     }
 
     /**

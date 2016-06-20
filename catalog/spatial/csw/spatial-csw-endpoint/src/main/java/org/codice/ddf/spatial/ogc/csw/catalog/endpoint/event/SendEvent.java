@@ -13,12 +13,18 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.HttpMethod;
@@ -29,6 +35,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.security.common.OutgoingSubjectRetrievalInterceptor;
+import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
@@ -47,6 +54,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.event.DeliveryMethod;
+import ddf.catalog.operation.Pingable;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
@@ -62,13 +70,20 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 /**
  * SendEvent provides a implementation of {@link DeliveryMethod} for sending events to a CSW subscription event endpoint
  */
-public class SendEvent implements DeliveryMethod {
+public class SendEvent implements DeliveryMethod, Pingable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendEvent.class);
 
     private static final List<String> XML_MIME_TYPES = Collections.unmodifiableList(Arrays.asList(
             MediaType.APPLICATION_XML,
             MediaType.TEXT_XML));
+
+    private static final int MAX_RETRY_COUNT = 16;
+
+    public static final double JITTER_PERCENT = 0.25;
+
+    public static final long DEFAULT_PING_PERIOD = TimeUnit.MINUTES.convert(30,
+            TimeUnit.MILLISECONDS);
 
     private final TransformerManager transformerManager;
 
@@ -88,7 +103,17 @@ public class SendEvent implements DeliveryMethod {
 
     private final QueryRequest query;
 
-    private volatile Subject subject;
+    private String ip;
+
+    private volatile long lastPing = System.currentTimeMillis() - DEFAULT_PING_PERIOD;
+
+    private AtomicInteger retryCount = new AtomicInteger();
+
+    private final Random random = new Random();
+
+    Security security = Security.getInstance();
+
+    volatile Subject subject;
 
     SecureCxfClientFactory<CswSubscribe> cxfClientFactory;
 
@@ -132,7 +157,8 @@ public class SendEvent implements DeliveryMethod {
         this.resultType =
                 request.getResultType() == null ? ResultType.HITS : request.getResultType();
 
-        List providers = ImmutableList.builder().add(new CswRecordCollectionMessageBodyWriter(transformerManager)).build();
+        List providers = ImmutableList.of(new CswRecordCollectionMessageBodyWriter(
+                transformerManager));
 
         cxfClientFactory = new SecureCxfClientFactory<>(callbackUrl.toString(),
                 CswSubscribe.class,
@@ -141,9 +167,19 @@ public class SendEvent implements DeliveryMethod {
                 false,
                 false);
         cxfClientFactory.addOutInterceptors(new OutgoingSubjectRetrievalInterceptor());
+        try {
+            InetAddress address = InetAddress.getByName(callbackUrl.getHost());
+            ip = address.getHostAddress();
+        } catch (UnknownHostException e) {
+            LOGGER.error("Unable to resolve callback address", e);
+        }
+        ping();
     }
 
-    private Response sendEvent(String operation, Metacard... metacards) {
+    private void sendEvent(String operation, Metacard... metacards) {
+        if (subject == null) {
+            return;
+        }
         try {
             List<Result> results = Arrays.asList(metacards)
                     .stream()
@@ -165,9 +201,6 @@ public class SendEvent implements DeliveryMethod {
             recordCollection.setMimeType(mimeType);
             recordCollection.setOutputSchema(outputSchema);
 
-            if (subject == null && !ping()) {
-                return null;
-            }
             queryResponse.getRequest()
                     .getProperties()
                     .put(SecurityConstants.SECURITY_SUBJECT, subject);
@@ -179,23 +212,38 @@ public class SendEvent implements DeliveryMethod {
 
             if (queryResponse.getResults()
                     .isEmpty()) {
-                return null;
+                return;
             }
             recordCollection.setSourceResponse(queryResponse);
 
-            return send(operation, recordCollection);
+            send(operation, recordCollection);
         } catch (StopProcessingException | InvalidSyntaxException e) {
             LOGGER.debug("Unable to send event error running AccessPlugin processPostQuery. ", e);
         }
-        return null;
     }
 
-    private Response send(String operation, CswRecordCollection recordCollection) {
+    private boolean send(String operation, CswRecordCollection recordCollection) {
         WebClient webClient = cxfClientFactory.getWebClient();
-        Response response = webClient.invoke(operation, recordCollection);
-        subject = (Subject) response.getHeaders()
-                .getFirst(Subject.class.toString());
-        return response;
+
+        try {
+            Response response = webClient.invoke(operation, recordCollection);
+            Subject pingSubject = (Subject) response.getHeaders()
+                    .getFirst(Subject.class.toString());
+            if (pingSubject == null && ip != null) {
+                subject = security.getGuestSubject(ip);
+            } else {
+                subject = pingSubject;
+            }
+
+            lastPing = System.currentTimeMillis();
+            retryCount.set(0);
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Error contacting event callback url " + callbackUrl, e);
+            lastPing = System.currentTimeMillis();
+            retryCount.incrementAndGet();
+        }
+        return false;
     }
 
     @Override
@@ -224,9 +272,35 @@ public class SendEvent implements DeliveryMethod {
 
     }
 
+    private long introduceJitter(long value, double percent) {
+        long maxJitter = Math.round(value * percent);
+        if (value == 0 || maxJitter == 0) {
+            return value;
+        }
+        return value - Math.abs(random.nextLong() % maxJitter);
+    }
+
+    @Override
     public boolean ping() {
-        send(HttpMethod.HEAD, null);
-        return subject != null;
+        if (retryCount.get() > 0) {
+            // 100ms to a maximum of 54min
+            long retryTimeOffset = (long) Math.pow(2, Math.min(retryCount.get(), MAX_RETRY_COUNT))
+                    * 50;
+            retryTimeOffset = introduceJitter(retryTimeOffset, JITTER_PERCENT);
+            if (lastPing > System.currentTimeMillis() - retryTimeOffset) {
+                return false;
+            }
+        } else {
+            if (security.getExpires(subject) != null) {
+                if (!tokenAboutToExpire(subject)) {
+                    return true;
+                }
+            } else if (lastPing > System.currentTimeMillis() - DEFAULT_PING_PERIOD) {
+                return true;
+            }
+        }
+
+        return send(HttpMethod.HEAD, null);
     }
 
     List<AccessPlugin> getAccessPlugins() throws InvalidSyntaxException {
@@ -238,6 +312,28 @@ public class SendEvent implements DeliveryMethod {
         return serviceCollection.stream()
                 .map(bundleContext::getService)
                 .collect(Collectors.toList());
+    }
+
+    private boolean tokenAboutToExpire(Subject subject) {
+        Date expires = security.getExpires(subject);
+        if (expires == null) {
+            return false;
+        }
+        long millisRemaining = expires.getTime() - System.currentTimeMillis();
+        millisRemaining = introduceJitter(millisRemaining, JITTER_PERCENT);
+        millisRemaining -= 60000L;
+        if (millisRemaining < 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public long getLastPing() {
+        return lastPing;
+    }
+
+    public int getRetryCount() {
+        return retryCount.get();
     }
 
 }

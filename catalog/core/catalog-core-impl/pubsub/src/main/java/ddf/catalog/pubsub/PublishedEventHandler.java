@@ -16,7 +16,9 @@ package ddf.catalog.pubsub;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.Subscription;
+import ddf.catalog.operation.Pingable;
 import ddf.catalog.plugin.PreDeliveryPlugin;
 import ddf.catalog.pubsub.internal.DeliveryProcessor;
 import ddf.catalog.pubsub.internal.PubSubConstants;
@@ -32,6 +35,8 @@ import ddf.catalog.pubsub.predicate.Predicate;
 
 public class PublishedEventHandler implements EventHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(PublishedEventHandler.class);
+
+    private final ExecutorService threadPool;
 
     private Predicate predicate;
 
@@ -42,63 +47,69 @@ public class PublishedEventHandler implements EventHandler {
     private CatalogFramework catalog;
 
     public PublishedEventHandler(Predicate finalPredicate, Subscription subscription,
-            List<PreDeliveryPlugin> preDelivery, CatalogFramework catalog) {
+            List<PreDeliveryPlugin> preDelivery, CatalogFramework catalog,
+            ExecutorService threadPool) {
         this.predicate = finalPredicate;
         this.subscription = subscription;
         this.preDelivery = preDelivery;
         this.catalog = catalog;
+        this.threadPool = threadPool;
     }
 
     public void handleEvent(Event event) {
-        String methodName = "handleEvent";
-        LOGGER.debug("ENTERING: {}", methodName);
+        threadPool.submit(new EventProcessor(event));
+    }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("topic = {}", event.getTopic());
-            for (String propertyName : event.getPropertyNames()) {
-                LOGGER.debug("name = {},   value = {}",
-                        propertyName,
-                        event.getProperty(propertyName));
-            }
+    private class EventProcessor implements Runnable {
+
+        private Event event;
+
+        public EventProcessor(Event event) {
+            this.event = event;
         }
 
-        // if ( event.getProperty( "operation" ).equals( "DELETE" ) )
-        // {
-        // LOGGER.debug( "Processing DELETE operation - unconditionally publish the event" );
-        // new DeliveryProcessor( subscription ).process( event );
-        // }
+        @Override
+        public void run() {
 
-        LOGGER.debug("subscription is enterprise? {}", this.subscription.isEnterprise());
-        Set<String> sourceIds = this.subscription.getSourceIds();
-        LOGGER.debug("subscription has source names: {}", sourceIds);
+            String methodName = "handleEvent";
+            LOGGER.trace("ENTERING: {}", methodName);
 
-        Metacard eventMetacard = (Metacard) event.getProperty(PubSubConstants.HEADER_ENTRY_KEY);
-        String metacardSourceId = eventMetacard.getSourceId();
-        LOGGER.debug("metacard source id: {}", metacardSourceId);
-
-        // if(this.catalog instanceof FanoutCatalogFramework)
-        // {
-        // // if the subscription is an enterprise subscription then evaluate all incoming events
-        // LOGGER.debug("Catalog framework is in fanout configuration - always evaluate events");
-        // evaluateEvent(event);
-        // }
-        // else if(this.subscription.isEnterprise())
-        if (this.subscription.isEnterprise()) {
-            // if the subscription is an enterprise subscription then evaluate all incoming events
-            LOGGER.debug("subscription is an enterprise subscription");
-            evaluateEvent(event);
-        } else if (sourceIds == null || sourceIds.isEmpty()) {
-            LOGGER.debug("subscription is a local subscription. Local Source Id: {}",
-                    catalog.getId());
-            if (catalog.getId() != null && catalog.getId()
-                    .equals(metacardSourceId)) {
-                LOGGER.debug("event received from local site");
-                evaluateEvent(event);
-            } else {
-                LOGGER.debug(
-                        "event is from remote site but subscription is local - not evaluating event against subscription filter");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("topic = {}", event.getTopic());
+                for (String propertyName : event.getPropertyNames()) {
+                    LOGGER.debug("name = {},   value = {}",
+                            propertyName,
+                            event.getProperty(propertyName));
+                }
             }
-        } else if (!sourceIds.isEmpty()) {
+
+            if (subscription.getDeliveryMethod() instanceof Pingable
+                    && !((Pingable) subscription.getDeliveryMethod()).ping()) {
+                LOGGER.debug("Subscription is not active ignoring event");
+                return;
+            }
+
+            LOGGER.debug("subscription is enterprise? {}", subscription.isEnterprise());
+            Set<String> sourceIds = subscription.getSourceIds();
+            LOGGER.debug("subscription has source names: {}", sourceIds);
+
+            Metacard eventMetacard = (Metacard) event.getProperty(PubSubConstants.HEADER_ENTRY_KEY);
+            String metacardSourceId = eventMetacard.getSourceId();
+            LOGGER.debug("metacard source id: {}", metacardSourceId);
+
+            if (subscription.isEnterprise()) {
+                // if the subscription is an enterprise subscription then evaluate all incoming events
+                evaluateEvent(event);
+            } else if (CollectionUtils.isEmpty(sourceIds)) {
+                evaluateLocalSubscription(metacardSourceId);
+            } else {
+                evaluateSiteBasedSubscription(sourceIds, metacardSourceId);
+            }
+
+            LOGGER.trace("EXITING: {}", methodName);
+        }
+
+        private void evaluateSiteBasedSubscription(Set<String> sourceIds, String metacardSourceId) {
             LOGGER.debug("subscription is a site-based subscription starting with site id {}",
                     sourceIds.iterator()
                             .next());
@@ -112,18 +123,24 @@ public class PublishedEventHandler implements EventHandler {
             }
         }
 
-        LOGGER.debug("EXITING: {}", methodName);
-    }
+        private void evaluateLocalSubscription(String metacardSourceId) {
+            LOGGER.debug("subscription is a local subscription. Local Source Id: {}",
+                    catalog.getId());
+            if (catalog.getId() != null && catalog.getId()
+                    .equals(metacardSourceId)) {
+                LOGGER.debug("event received from local site");
+                evaluateEvent(event);
+            } else {
+                LOGGER.debug(
+                        "event is from remote site but subscription is local - not evaluating event against subscription filter");
+            }
+        }
 
-    private void evaluateEvent(Event event) {
-        // If predicate is NULL then we are handling a filterless subscription - publish all events
-        if (predicate == null) {
-            LOGGER.debug(
-                    "predicate is NULL (must be filterless subscription), publishing all events");
-            new DeliveryProcessor(subscription, preDelivery).process(event);
-            // Otherwise, only send events that match the predicate's filter criteria
-        } else if (predicate.matches(event)) {
-            new DeliveryProcessor(subscription, preDelivery).process(event);
+        private void evaluateEvent(Event event) {
+            // If predicate is NULL then we are handling a filterless subscription - publish all events
+            if (predicate == null || predicate.matches(event)) {
+                new DeliveryProcessor(subscription, preDelivery).process(event);
+            }
         }
     }
 

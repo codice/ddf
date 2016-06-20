@@ -21,6 +21,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.lucene.store.Directory;
 import org.osgi.framework.BundleContext;
@@ -71,6 +73,8 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
     private Map<String, ServiceRegistration> existingSubscriptions;
 
+    private final ExecutorService threadPool = Executors.newCachedThreadPool();
+
     public EventProcessorImpl() {
         LOGGER.debug("INSIDE: EventProcessorImpl default constructor");
     }
@@ -85,7 +89,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         this.preSubscription = preSubscription;
         this.preDelivery = preDelivery;
         this.catalog = catalog;
-        this.existingSubscriptions = new HashMap<String, ServiceRegistration>();
+        this.existingSubscriptions = new HashMap<>();
 
         if (this.preSubscription == null) {
             LOGGER.debug("preSubscription plugins list is NULL");
@@ -119,7 +123,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
             LOGGER.debug("catalog ID = {}", metacard.getId());
             LOGGER.debug("operation = {}", operation);
 
-            HashMap<String, Object> properties = new HashMap<String, Object>();
+            HashMap<String, Object> properties = new HashMap<>(3, 1);
 
             // Common headers
             properties.put(PubSubConstants.HEADER_OPERATION_KEY, operation);
@@ -180,7 +184,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                     // index and the entry's metadata (in case subscription has
                     // textPaths, then it can create Lucene
                     // search indices on the metadata using its textPaths)
-                    Map<String, Object> contextualMap = new HashMap<String, Object>();
+                    Map<String, Object> contextualMap = new HashMap<>(2, 1);
                     contextualMap.put("DEFAULT_INDEX", index);
                     contextualMap.put("METADATA", metacard.getMetadata());
                     properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
@@ -280,14 +284,15 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
             String[] topics = new String[] {PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME};
 
-            Dictionary<String, String[]> props = new Hashtable<String, String[]>();
+            Dictionary<String, String[]> props = new Hashtable<>(1, 1);
             props.put(EventConstants.EVENT_TOPIC, topics);
             ServiceRegistration serviceRegistration =
                     bundleContext.registerService(EventHandler.class.getName(),
                             new PublishedEventHandler(finalPredicate,
                                     subscription,
                                     preDelivery,
-                                    catalog),
+                                    catalog,
+                                    threadPool),
                             props);
 
             existingSubscriptions.put(subscriptionId, serviceRegistration);
@@ -391,12 +396,8 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
         LOGGER.debug("Posting to topic: {}", topic);
 
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        Dictionary<String, Object> properties = new Hashtable<>(2, 1);
         properties.put(EventProcessor.EVENT_METACARD, card);
-        // if(oldCard != null)
-        // {
-        // properties.put(EventProcessor.EVENT_OLD_METACARD, oldCard);
-        // }
         properties.put(EventProcessor.EVENT_TIME, System.currentTimeMillis());
         Event event = new Event(topic, properties);
         eventAdmin.postEvent(event);

@@ -27,13 +27,10 @@ public class CswSubscription extends SubscriptionImpl {
 
     private GetRecordsType originalRequest;
 
-    private SendEvent sendEvent;
-
     private CswSubscription(GetRecordsType request, Filter filter, SendEvent sendEvent,
             Set<String> sourceIds, boolean enterprise) {
         super(filter, sendEvent, sourceIds, enterprise);
         this.originalRequest = request;
-        this.sendEvent = sendEvent;
     }
 
     public CswSubscription(TransformerManager mimeTypeTransformerManager, GetRecordsType request,
@@ -57,9 +54,5 @@ public class CswSubscription extends SubscriptionImpl {
 
     public GetRecordsType getOriginalRequest() {
         return originalRequest;
-    }
-
-    public boolean ping() {
-        return sendEvent.ping();
     }
 }
