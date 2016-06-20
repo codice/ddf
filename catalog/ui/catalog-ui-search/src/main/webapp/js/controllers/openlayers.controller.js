@@ -41,6 +41,10 @@ define(['application',
 
         var Controller = Marionette.Controller.extend({
             initialize: function () {
+                this.overlays = {};
+                this.listenTo(wreqr.vent, 'metacard:overlay', this.overlayImage);
+                this.listenTo(wreqr.vent, 'metacard:overlay:remove', this.removeOverlay);
+
                 if (properties.gazetteer) {
                     this.geoCoder = new geocoder.View({el: $('#mapTools')});
                     this.geoCoder.render();
@@ -260,6 +264,47 @@ define(['application',
                 }
             },
 
+            overlayImage: function (model) {
+                var metacardId = model.get('properties').get('id');
+                this.removeOverlay(metacardId);
+
+                var coords = model.get('geometry').getPolygon();
+                var array = _.map(coords, function(coord) {
+                    return ol.proj.transform([coord.longitude, coord.latitude], 'EPSG:4326', properties.projection);
+                });
+
+                var polygon = new ol.geom.Polygon([array]);
+                var extent = polygon.getExtent();
+                var projection = ol.proj.get(properties.projection);
+
+                var overlayLayer = new ol.layer.Image({
+                    source: new ol.source.ImageStatic({
+                        url: model.get('currentOverlayUrl'),
+                        projection: projection,
+                        imageExtent: extent
+                    })
+                });
+
+                this.mapViewer.addLayer(overlayLayer);
+                this.overlays[metacardId] = overlayLayer;
+            },
+
+            removeOverlay: function (metacardId) {
+                if (this.overlays[metacardId]) {
+                    this.mapViewer.removeLayer(this.overlays[metacardId]);
+                    delete this.overlays[metacardId];
+                }
+            },
+
+            removeAllOverlays: function() {
+                for (var overlay in this.overlays) {
+                    if (this.overlays.hasOwnProperty(overlay)) {
+                        this.mapViewer.removeLayer(this.overlays[overlay]);
+                    }
+                }
+                this.overlays = {};
+            },
+
             newActiveSearchResults: function (results) {
                 this.newResults(results);
             },
@@ -269,6 +314,7 @@ define(['application',
                 if (zoomOnResults) {
                     this.flyToCenterPoint(results);
                 }
+                this.removeAllOverlays();
             },
             zoomToSelected: function(){
                 if (store.getSelectedResults().length === 1){

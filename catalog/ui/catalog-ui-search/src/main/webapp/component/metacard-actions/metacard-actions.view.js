@@ -19,10 +19,11 @@ define([
     'jquery',
     'text!./metacard-actions.hbs',
     'js/CustomElements',
-    'js/store'
-], function (Marionette, _, $, template, CustomElements, store) {
+    'js/store',
+    'component/map-actions/map-actions.view'
+], function (Marionette, _, $, template, CustomElements, store, MapActions) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         setDefaultModel: function(){
             this.model = store.getSelectedResults().first();
         },
@@ -32,6 +33,9 @@ define([
         modelEvents: {
             'all': 'render'
         },
+        regions: {
+            mapActions: '.map-actions'
+        },
         events: {
         },
         ui: {
@@ -40,6 +44,9 @@ define([
             if (!options.model){
                 this.setDefaultModel();
             }
+        },
+        onRender: function () {
+            this.mapActions.show(new MapActions({ model: this.model }));
         }
     });
 });

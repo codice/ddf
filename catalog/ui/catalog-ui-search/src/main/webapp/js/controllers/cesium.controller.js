@@ -42,6 +42,10 @@ define(['application',
 
         var Controller = Marionette.Controller.extend({
             initialize: function () {
+                this.overlays = {};
+                this.listenTo(wreqr.vent, 'metacard:overlay', this.overlayImage);
+                this.listenTo(wreqr.vent, 'metacard:overlay:remove', this.removeOverlay);
+
                 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
                 this.mapViewer = this.createMap();
                 this.drawHelper = new DrawHelper(this.mapViewer);
@@ -298,6 +302,42 @@ define(['application',
                 }
             },
 
+            overlayImage: function (model) {
+                var metacardId = model.get('properties').get('id');
+                this.removeOverlay(metacardId);
+
+                var coords = model.get('geometry').getPolygon();
+                var cartographics = _.map(coords, function(coord) {
+                    return Cesium.Cartographic.fromDegrees(coord.longitude, coord.latitude, coord.altitude);
+                });
+
+                var rectangle = Cesium.Rectangle.fromCartographicArray(cartographics);
+
+                var overlayLayer = this.scene.imageryLayers.addImageryProvider(new Cesium.SingleTileImageryProvider({
+                    url: model.get('currentOverlayUrl'),
+                    rectangle: rectangle
+                }));
+
+                this.overlays[metacardId] = overlayLayer;
+            },
+
+            removeOverlay: function (metacardId) {
+                if (this.overlays[metacardId]) {
+                    this.scene.imageryLayers.remove(this.overlays[metacardId]);
+                    delete this.overlays[metacardId];
+                }
+            },
+
+            removeAllOverlays: function() {
+                for (var overlay in this.overlays) {
+                    if (this.overlays.hasOwnProperty(overlay)) {
+                        this.scene.imageryLayers.remove(this.overlays[overlay]);
+                    }
+                }
+                this.overlays = {};
+            },
+
+
             newActiveSearchResults: function (results) {
                 this.newResults(results);
             },
@@ -307,6 +347,7 @@ define(['application',
                 if (zoomOnResults) {
                     this.flyToCenterPoint(results);
                 }
+                this.removeAllOverlays();
             },
             zoomToSelected: function(){
                 if (store.getSelectedResults().length === 1){

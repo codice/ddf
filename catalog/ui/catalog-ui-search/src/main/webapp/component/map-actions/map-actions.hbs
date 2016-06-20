@@ -11,9 +11,16 @@
  *
  **/
  --}}
- {{#each actions}}
-     <a href="{{this.url}}" target="_blank">
-         {{this.title}}
-     </a>
- {{/each}}
- <div class="map-actions"></div>
+{{#if mapActions}}
+    <h5 class="title" title="Map Actions">Map Actions</h5>
+    <hr/>
+    <table class="table table-striped metacard-table">
+        {{#each overlayActions}}
+            <tr>
+                <td>
+                    <a class="overlay-link" title="{{description}}" data-url="{{url}}">{{overlayText}}{{#is url ../currentOverlayUrl}} (remove){{/is}}</a>
+                </td>
+            </tr>
+        {{/each}}
+    </table>
+{{/if}}
