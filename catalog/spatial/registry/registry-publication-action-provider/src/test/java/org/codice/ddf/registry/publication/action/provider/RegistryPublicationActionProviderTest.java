@@ -17,7 +17,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -35,6 +34,9 @@ import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.event.Event;
@@ -45,6 +47,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.source.Source;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RegistryPublicationActionProviderTest {
 
     private static final String METACARD_PROPERTY = "ddf.catalog.event.metacard";
@@ -55,26 +58,25 @@ public class RegistryPublicationActionProviderTest {
 
     private static final String DELETED_TOPIC = "ddf/catalog/event/DELETED";
 
+    @Mock
     private ConfigurationAdmin configAdmin;
 
+    @Mock
     private Configuration configuration;
 
+    @Mock
     private Source source;
 
+    @Mock
     private FederationAdminService federationAdmin;
 
+    @Mock
     private RegistryStore store;
 
     private RegistryPublicationActionProvider publicationActionProvider;
 
     @Before
     public void setup() throws Exception {
-        configAdmin = mock(ConfigurationAdmin.class);
-        federationAdmin = mock(FederationAdminService.class);
-        configuration = mock(Configuration.class);
-        source = mock(Source.class);
-        store = mock(RegistryStore.class);
-
         publicationActionProvider = new RegistryPublicationActionProvider();
         publicationActionProvider.setConfigAdmin(configAdmin);
         publicationActionProvider.setFederationAdminService(federationAdmin);

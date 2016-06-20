@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 
 import javax.security.auth.Subject;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -93,6 +92,8 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
 
     private static final String DELETED_TOPIC = "ddf/catalog/event/DELETED";
 
+    private static final java.lang.String KARAF_LOCAL_ROLES = "karaf.local.roles";
+
     private String providerId;
 
     private ConfigurationAdmin configAdmin;
@@ -105,27 +106,21 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
 
     @Override
     public <T> List<Action> getActions(T subject) {
-        String registryId = getRegistryId(subject);
-        if (StringUtils.isBlank(registryId)) {
+        String registryIdToPublish = getRegistryId(subject);
+        if (StringUtils.isBlank(registryIdToPublish)) {
             return Collections.emptyList();
         }
-        List<Action> actions = new ArrayList<>();
-        List<String> currentPublications = publications.get(registryId);
+        List<String> currentPublications = publications.get(registryIdToPublish);
 
-        for (RegistryStore registry : registryStores) {
-            //can't publish to yourself
-            if (!registry.isPushAllowed() || StringUtils.isBlank(registry.getRegistryId())
-                    || registryId.equals(registry.getRegistryId())) {
-                continue;
-            }
+        return registryStores.stream()
+                .filter((registryStore) -> shouldRegistryPublishToStore(registryIdToPublish,
+                        registryStore))
+                .map(registryStore -> getAction(registryIdToPublish,
+                        registryStore.getId(),
+                        !currentPublications.contains(registryStore.getId())))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
-            CollectionUtils.addIgnoreNull(actions,
-                    getAction(registryId,
-                            registry.getId(),
-                            !currentPublications.contains(registry.getId())));
-        }
-
-        return actions;
     }
 
     @Override
@@ -178,7 +173,7 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
         // Change from here
         // Remove this subject stuff and change to use Security.runAsAdmin() once the PrivilegedException option has been implemented
         Set<Principal> principals = new HashSet<>();
-        String localRoles = System.getProperty("karaf.local.roles", "");
+        String localRoles = System.getProperty(KARAF_LOCAL_ROLES, "");
         for (String role : localRoles.split(",")) {
             principals.add(new RolePrincipal(role));
         }
@@ -190,8 +185,6 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
         // To here
 
         for (Metacard metacard : metacards) {
-            Attribute locations =
-                    metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
             Attribute registryIdAttribute =
                     metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
             if (registryIdAttribute == null || StringUtils.isBlank(registryIdAttribute.getValue()
@@ -200,6 +193,9 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
                         metacard.getId());
                 continue;
             }
+            Attribute locations =
+                    metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
+
             String registryId = registryIdAttribute.getValue()
                     .toString();
             if (locations != null) {
@@ -273,6 +269,13 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
                     .get(RegistryObjectMetacardType.REGISTRY_ID);
         }
         return null;
+    }
+
+    private boolean shouldRegistryPublishToStore(String registryId, RegistryStore registryStore) {
+        // can't publish to yourself
+        return (registryStore.isPushAllowed()
+                && StringUtils.isNotBlank(registryStore.getRegistryId()) && !registryId.equals(
+                registryStore.getRegistryId()));
     }
 
     public void setProviderId(String id) {
