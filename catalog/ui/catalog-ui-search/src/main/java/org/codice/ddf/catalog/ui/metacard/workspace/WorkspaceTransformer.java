@@ -202,8 +202,7 @@ public class WorkspaceTransformer {
         try {
             if (xml instanceof String) {
                 try (InputStream is = IOUtils.toInputStream((String) xml)) {
-                    Metacard m = inputTransformer.transform(is);
-                    return m;
+                    return inputTransformer.transform(is);
                 }
             }
         } catch (Exception ex) {

@@ -36,6 +36,7 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
+import ddf.security.permission.CollectionPermission;
 
 public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
 
@@ -45,37 +46,51 @@ public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
         this.transformer = transformer;
     }
 
+    private Map<String, Set<String>> getSharingPermissions(List<Metacard> metacards,
+            String action) {
+        return metacards.stream()
+                .filter(WorkspaceMetacardImpl::isWorkspaceMetacard)
+                .map(WorkspaceMetacardImpl::from)
+                .map(WorkspaceMetacardImpl::getSharing)
+                .flatMap(Set::stream)
+                .map(transformer::toMetacardFromXml)
+                .filter(SharingMetacardImpl::isSharingMetacard)
+                .map(SharingMetacardImpl::from)
+                .filter(sharing -> action.equals(sharing.getAction()))
+                .collect(Collectors.toMap(SharingMetacardImpl::getSharingAttribute,
+                        s -> ImmutableSet.of(s.getValue()),
+                        Sets::union));
+    }
+
+    private Map<String, Set<String>> getSharingPermissions(Metacard metacard, String action) {
+        return getSharingPermissions(Collections.singletonList(metacard), action);
+    }
+
     @Override
-    public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
+    public PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl();
+        Metacard metacard = input.getMetacard();
+        return new PolicyResponseImpl(Collections.emptyMap(),
+                getSharingPermissions(metacard, CollectionPermission.READ_ACTION));
     }
 
     @Override
     public PolicyResponse processPreUpdate(Metacard metacard, Map<String, Serializable> properties)
             throws StopProcessingException {
-        if (WorkspaceMetacardImpl.isWorkspaceMetacard(metacard)) {
-
-            Map<String, Set<String>> permissions = WorkspaceMetacardImpl.from(metacard)
-                    .getSharing()
-                    .stream()
-                    .map(transformer::toMetacardFromXml)
-                    .filter(SharingMetacardImpl::isSharingMetacard)
-                    .map(SharingMetacardImpl::from)
-                    .filter(SharingMetacardImpl::canEdit)
-                    .collect(Collectors.toMap(SharingMetacardImpl::getSharingAttribute,
-                            s -> ImmutableSet.of(s.getValue()),
-                            Sets::union));
-
-            return new PolicyResponseImpl(Collections.emptyMap(), permissions);
-        } else {
-            return new PolicyResponseImpl();
-        }
+        return new PolicyResponseImpl(Collections.emptyMap(),
+                getSharingPermissions(metacard, CollectionPermission.UPDATE_ACTION));
     }
 
     @Override
     public PolicyResponse processPreDelete(List<Metacard> metacards,
             Map<String, Serializable> properties) throws StopProcessingException {
+        return new PolicyResponseImpl(Collections.emptyMap(),
+                getSharingPermissions(metacards, CollectionPermission.DELETE_ACTION));
+    }
+
+    @Override
+    public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
         return new PolicyResponseImpl();
     }
 
@@ -89,30 +104,6 @@ public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
     public PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties)
             throws StopProcessingException {
         return new PolicyResponseImpl();
-    }
-
-    @Override
-    public PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties)
-            throws StopProcessingException {
-        Metacard metacard = input.getMetacard();
-
-        if (WorkspaceMetacardImpl.isWorkspaceMetacard(metacard)) {
-
-            Map<String, Set<String>> permissions = WorkspaceMetacardImpl.from(metacard)
-                    .getSharing()
-                    .stream()
-                    .map(transformer::toMetacardFromXml)
-                    .filter(SharingMetacardImpl::isSharingMetacard)
-                    .map(SharingMetacardImpl::from)
-                    .filter(SharingMetacardImpl::canView)
-                    .collect(Collectors.toMap(SharingMetacardImpl::getSharingAttribute,
-                            s -> ImmutableSet.of(s.getValue()),
-                            Sets::union));
-
-            return new PolicyResponseImpl(Collections.emptyMap(), permissions);
-        } else {
-            return new PolicyResponseImpl();
-        }
     }
 
     @Override

@@ -105,6 +105,56 @@ define([
         childView: SharingByRoleView
     });
 
+    // aggregates a list of action types
+    // read = view
+    // read + update = edit
+    var aggregateActions = function (actions) {
+        if (_.contains(actions, 'read')) {
+            if (_.contains(actions, 'update')) {
+                return 'edit'
+            }
+            return 'view';
+        }
+        return 'none';
+    };
+
+    var aggregatePermissions = function (permissions) {
+        return _.chain(permissions)
+            .groupBy(function (permission) {
+                return permission.attribute + permission.value;
+            })
+            .map(function (permissions) {
+                return _.extend({}, permissions[0], {
+                    action: aggregateActions(_.pluck(permissions, 'action'))
+                });
+            })
+            .value();
+    };
+
+    // explodes action type
+    // view = read
+    // edit = read + update
+    var explodeActions = function (action) {
+        if (action === 'edit') {
+            return ['read', 'update'];
+        } else if (action === 'view') {
+            return ['read'];
+        } else {
+            return [];
+        }
+    };
+
+    var explodePermissions = function (permissions) {
+        return _.chain(permissions)
+            .map(function (permission) {
+                return _.map(explodeActions(permission.action), function (action) {
+                    return _.extend({}, permission, { action: action })
+                });
+            })
+            .flatten(true)
+            .value();
+    };
+
     var WorkspaceSharing = Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('workspace-sharing'),
@@ -123,7 +173,7 @@ define([
             }
         },
         getSharing: function () {
-            return this.model.get('metacard.sharing') || [];
+            return aggregatePermissions(this.model.get('metacard.sharing') || []);
         },
         getSharingByEmail: function () {
             return _.where(this.getSharing(), { attribute: 'email' });
@@ -171,7 +221,7 @@ define([
                     });
                 }).value();
 
-            this.model.set('metacard.sharing', roles.concat(emails));
+            this.model.set('metacard.sharing', explodePermissions(roles.concat(emails)));
             this.model.save(null, {
                 success: function () {
                     view.$el.trigger(CustomElements.getNamespace()+'close-lightbox');

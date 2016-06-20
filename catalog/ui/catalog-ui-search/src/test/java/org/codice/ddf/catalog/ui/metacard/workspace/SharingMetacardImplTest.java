@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.security.permission.CollectionPermission;
 
 public class SharingMetacardImplTest {
 
@@ -38,30 +39,14 @@ public class SharingMetacardImplTest {
 
     @Test
     public void testAction() {
-        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_VIEW)
-                .getAction(), is(SharingMetacardTypeImpl.SHARING_ACTION_VIEW));
+        assertThat(sharing.setAction(CollectionPermission.READ_ACTION)
+                .getAction(), is(CollectionPermission.READ_ACTION));
     }
 
     @Test
     public void testValue() {
         assertThat(sharing.setValue("guest@localhost")
                 .getValue(), is("guest@localhost"));
-    }
-
-    @Test
-    public void testCanEdit() {
-        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_VIEW)
-                .canEdit(), is(false));
-        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_EDIT)
-                .canEdit(), is(true));
-    }
-
-    @Test
-    public void testCanView() {
-        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_VIEW)
-                .canView(), is(true));
-        assertThat(sharing.setAction(SharingMetacardTypeImpl.SHARING_ACTION_EDIT)
-                .canView(), is(true));
     }
 
     @Test

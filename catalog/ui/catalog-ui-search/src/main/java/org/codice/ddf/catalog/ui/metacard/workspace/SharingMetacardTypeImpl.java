@@ -33,17 +33,9 @@ public class SharingMetacardTypeImpl extends MetacardTypeImpl {
     public static final String SHARING_ATTRIBUTE = "attribute";
 
     /**
-     * What action is being shared permitted (view/edit/comment/...)
+     * What action is being permitted.
      */
     public static final String SHARING_ACTION = "action";
-
-    /**
-     * Current sharing action constants.
-     */
-
-    public static final String SHARING_ACTION_VIEW = "view";
-
-    public static final String SHARING_ACTION_EDIT = "edit";
 
     /**
      * Value to check (guest/user@domain/...).

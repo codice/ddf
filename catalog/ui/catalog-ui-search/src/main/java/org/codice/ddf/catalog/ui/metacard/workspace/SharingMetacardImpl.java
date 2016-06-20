@@ -72,18 +72,19 @@ public class SharingMetacardImpl extends MetacardImpl {
         return (String) getAttribute(SharingMetacardTypeImpl.SHARING_ACTION).getValue();
     }
 
+    /**
+     * Set action type.
+     *
+     * @see ddf.security.permission.CollectionPermission for action values.
+     * Possible values that are recognized by
+     * {@link org.codice.ddf.catalog.ui.security.org.codice.ddf.catalog.ui.security.WorkspaceSharingPolicyPlugin}:
+     * - CollectionPermission.READ_ACTION
+     * - CollectionPermission.UPDATE_ACTION
+     * - CollectionPermission.DELETE_ACTION
+     */
     public SharingMetacardImpl setAction(String action) {
         setAttribute(SharingMetacardTypeImpl.SHARING_ACTION, action);
         return this;
-    }
-
-    public boolean canView() {
-        return SharingMetacardTypeImpl.SHARING_ACTION_EDIT.equals(getAction())
-                || SharingMetacardTypeImpl.SHARING_ACTION_VIEW.equals(getAction());
-    }
-
-    public boolean canEdit() {
-        return SharingMetacardTypeImpl.SHARING_ACTION_EDIT.equals(getAction());
     }
 
     public String getValue() {
