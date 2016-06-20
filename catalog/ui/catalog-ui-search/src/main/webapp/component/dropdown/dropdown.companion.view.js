@@ -29,6 +29,10 @@ define([
         return ((left + element.clientWidth) < window.innerWidth);
     }
 
+    function hasLeftRoom(left){
+        return left > 0;
+    }
+
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('dropdown-companion'),
@@ -36,6 +40,7 @@ define([
             componentToShow: '.dropdown-companion-component'
         },
         events: {
+            'mousedown': 'handleMousedown'
         },
         initialize: function(){
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
@@ -56,6 +61,9 @@ define([
                 }
                 if(!hasRightRoom(necessaryLeft, this.el)){
                     this.$el.css('left', window.innerWidth-menuWidth-2);
+                }
+                if(!hasLeftRoom(necessaryLeft)){
+                    this.$el.css('left', 10);
                 }
             } else {
                 var clientRect = this.options.linkedView.el.getBoundingClientRect();
@@ -101,7 +109,10 @@ define([
             this.options.linkedView.model.close();
         },
         listenForClose: function(){
-            this.$el.on('closeDropdown.'+CustomElements.getNamespace(), function(){
+            this.$el.on('closeDropdown.'+CustomElements.getNamespace(), function(e){
+                // stop from closing dropdowns higher in the dom
+                e.stopPropagation();
+                // close
                 this.close();
             }.bind(this));
         },
@@ -133,6 +144,15 @@ define([
         },
         stopListeningForScroll: function(){
             $('*').off('scroll.'+this.cid);
+        },
+        onDestroy: function(){
+            this.stopListeningForClose();
+            this.stopListeningForOutsideClick();
+            this.stopListeningForResize;
+        },
+        handleMousedown: function(e){
+            // stop from closing dropdowns higher in the dom
+            e.stopPropagation();
         }
     }, {
         getNewCompanionView: function (linkedView) {

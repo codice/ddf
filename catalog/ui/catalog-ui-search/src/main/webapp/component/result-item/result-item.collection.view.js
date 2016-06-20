@@ -18,18 +18,35 @@ define([
     'underscore',
     'jquery',
     'js/CustomElements',
-    './result-item.view'
-], function (Marionette, _, $, CustomElements, childView) {
+    './result-item.view',
+    'js/store'
+], function (Marionette, _, $, CustomElements, childView, store) {
 
     return Marionette.CollectionView.extend({
         tagName: CustomElements.register('result-item-collection'),
         childView: childView,
         className: 'is-list',
-        initialize: function (options) {
+        initialize: function () {
             this.render = _.throttle(this.render, 250);
         },
         onAddChild: function (childView) {
             childView.$el.attr('data-index', this.children.length - 1);
-        }
+        },
+       /* handleFiltering: function () {
+            var resultFilter = store.get('user').get('user').get('preferences').get('resultFilter');
+            if (resultFilter) {
+                this._resultFilter = cql.read(resultFilter);
+            } else {
+                this._resultFilter = undefined;
+            }
+            this.render();
+        },
+        filter: function (child) {
+            if (this._resultFilter) {
+                return matchesFilters(child.get('metacard').toJSON(), this._resultFilter);
+            } else {
+                return true;
+            }
+        }*/
     });
 });

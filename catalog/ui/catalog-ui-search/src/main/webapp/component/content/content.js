@@ -13,10 +13,11 @@
 define([
     'underscore',
     'backbone',
+    'wreqr',
     'js/model/Metacard',
     'js/model/Query',
     'js/model/Workspace'
-], function (_, Backbone, Metacard, Query, Workspace) {
+], function (_, Backbone, wreqr, Metacard, Query, Workspace) {
 
     return Backbone.AssociatedModel.extend({
         relations: [
@@ -41,9 +42,10 @@ define([
                 relatedModel: Query.Model
             },
             {
-                type: Backbone.One,
-                key: 'activeSearchResult',
-                relatedModel: Metacard.SearchResult
+                type: Backbone.Many,
+                key: 'activeSearchResults',
+                collectionType: Metacard.Results,
+                relatedModel: Metacard.MetacardResult
             },
         ],
         defaults: {
@@ -57,9 +59,21 @@ define([
             filteredQueries: [],
             editing: true,
             metacardTypes: {},
-            activeSearchResult: undefined
+            activeSearchResults: [],
+            drawing: false
         },
         initialize: function(){
+            this.listenTo(wreqr.vent, 'search:drawcircle', this.turnOnDrawing);
+            this.listenTo(wreqr.vent, 'search:drawpoly', this.turnOnDrawing);
+            this.listenTo(wreqr.vent, 'search:drawbbox', this.turnOnDrawing);
+            this.listenTo(wreqr.vent, 'search:drawstop', this.turnOffDrawing);
+            this.listenTo(wreqr.vent, 'search:drawend', this.turnOffDrawing)
+        },
+        turnOnDrawing: function(){
+            this.set('drawing', true);
+        },
+        turnOffDrawing: function(){
+            this.set('drawing', false);
         },
         isEditing: function(){
             return this.get('editing');
@@ -76,11 +90,11 @@ define([
         setQuery: function(queryRef){
             this.set('query', queryRef);
         },
-        getActiveSearchResult: function(){
-            return this.get('activeSearchResult');
+        getActiveSearchResults: function(){
+            return this.get('activeSearchResults');
         },
-        setActiveSearchResult: function(result){
-            this.set('activeSearchResult', result);
+        setActiveSearchResults: function(results){
+            this.get('activeSearchResults').reset(results.models);
         },
         filterQuery: function(queryRef) {
             var filteredQueries = this.get('filteredQueries');

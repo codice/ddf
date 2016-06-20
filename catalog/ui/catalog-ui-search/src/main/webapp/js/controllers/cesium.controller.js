@@ -298,14 +298,14 @@ define(['application',
                 }
             },
 
-            newActiveSearchResult: function (content) {
-                this.newResults(content.getActiveSearchResult());
+            newActiveSearchResults: function (results) {
+                this.newResults(results);
             },
 
-            newResults: function (result, zoomOnResults) {
-                this.showResults(result.get('results'));
+            newResults: function (results, zoomOnResults) {
+                this.showResults(results);
                 if (zoomOnResults) {
-                    this.flyToCenterPoint(result.get('results'));
+                    this.flyToCenterPoint(results);
                 }
             },
             zoomToSelected: function(){

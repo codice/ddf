@@ -233,9 +233,15 @@ define([
                 }
             };
             this.$('#radiusUnits').multiselect(singleselectOptions);
+            this.blockMultiselectEvents();
             this.updateLocationFields();
             this.handleEdit();
         },
+       blockMultiselectEvents: function(){
+           $('.ui-multiselect-menu').on('mousedown', function(e){
+               e.stopPropagation();
+           });
+       },
         drawCircle: function () {
             this.clearLocation();
             wreqr.vent.trigger('search:drawcircle', this.model);

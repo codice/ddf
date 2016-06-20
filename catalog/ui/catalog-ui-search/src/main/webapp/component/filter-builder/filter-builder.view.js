@@ -182,6 +182,9 @@ define([
             this.$el.removeClass('is-editing');
             this.filterOperator.currentView.turnOffEditing();
             this.filterContents.currentView.turnOffEditing();
+        },
+        turnOffNesting: function(){
+            this.$el.addClass('hide-nesting');
         }
     });
 });

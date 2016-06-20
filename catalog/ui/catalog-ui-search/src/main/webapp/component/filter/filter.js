@@ -17,9 +17,9 @@ define([
 
     return Backbone.Model.extend({
         defaults: {
-            value: [''],
+            value: ['%'],
             type: 'anyText',
-            comparator: 'Equals',
+            comparator: 'CONTAINS'
         },
         type: 'filter'
     });

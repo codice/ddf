@@ -114,7 +114,8 @@ define([
             mapColors: undefined,
             mapLayers: [],
             resultDisplay: 'List',
-            resultPreview: ['modified']
+            resultPreview: ['modified'],
+            resultFilter: undefined
         },
         relations: [
             {

@@ -25,7 +25,7 @@ define([
         tagName: CustomElements.register('paging'),
         template: template,
         initialize: function (options) {
-            this.listenTo(this.model.get('results'), 'add', _.throttle(this.render, 200));
+            this.listenTo(this.model, 'add', _.throttle(this.render, 200));
         },
         events: {
             'click .first': 'firstPage',
@@ -34,28 +34,24 @@ define([
             'click .last': 'lastPage'
         },
         firstPage: function() {
-            this.model.get('results').getFirstPage();
+            this.model.getFirstPage();
             this.render();
         },
         previousPage: function() {
-            this.model.get('results').getPreviousPage();
+            this.model.getPreviousPage();
             this.render();
         },
         nextPage: function() {
-            this.model.get('results').getNextPage();
+            this.model.getNextPage();
             this.render();
         },
         lastPage: function() {
-            this.model.get('results').getLastPage();
+            this.model.getLastPage();
             this.render();
         },
         serializeData: function(){
-            var status = _.filter(this.model.get('status').toJSON(), function (status) {
-                return status.id !== 'cache';
-            });
-            var resultsCollection = this.model.get('results');
+            var resultsCollection = this.model;
             return {
-                status: status,
                 pages: this.currentPages(resultsCollection.state.currentPage, resultsCollection.state.totalPages),
                 hasPreviousPage: resultsCollection.hasPreviousPage(),
                 hasNextPage: resultsCollection.hasNextPage()

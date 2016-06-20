@@ -24,9 +24,13 @@ define([
     'js/Common',
     'component/result-item/result-item.collection.view',
     'component/paging/paging.view',
-    'component/dropdown/result-display/dropdown.result-display.view'
+    'component/dropdown/result-display/dropdown.result-display.view',
+    'component/dropdown/result-filter/dropdown.result-filter.view',
+    'component/dropdown/dropdown',
+    'js/cql'
 ], function (Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common,
-             ResultItemCollectionView, PagingView, DropdownView) {
+             ResultItemCollectionView, PagingView, DropdownView, ResultFilterDropdownView,
+             DropdownModel, cql) {
 
     var namespace = CustomElements.getNamespace();
     var resultItemSelector = namespace+'result-item';
@@ -46,7 +50,8 @@ define([
         regions: {
             resultList: '.resultSelector-list',
             resultPaging: '.resultSelector-paging',
-            resultDisplay: '.menu-resultDisplay'
+            resultDisplay: '.menu-resultDisplay',
+            resultFilter: '.menu-resultFilter'
         },
         initialize: function(options){
             if (!this.model.get('result')) {
@@ -56,15 +61,15 @@ define([
             this.listenTo(store.getSelectedResults(), 'update', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'add', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'remove', this.handleSelectionChange);
+            this.startListeningToFilter();
 
-            this.updateActiveRecords();
             store.addMetacardTypes(this.model.get('result').get('metacard-types'));
         },
-        updateActiveRecords: function(){
-            var searchResult = this.model.get('result');
-            if (searchResult){
-                store.get('content').setActiveSearchResult(searchResult);
-            }
+        startListeningToFilter: function(){
+            this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultFilter', this.onBeforeShow);
+        },
+        updateActiveRecords: function(results){
+            store.get('content').setActiveSearchResults(results);
         },
         stopTextSelection: function(event){
             event.preventDefault();
@@ -126,14 +131,32 @@ define([
             }
         },
         onBeforeShow: function(){
-            this.resultPaging.show(new PagingView({
-                model: this.model.get('result')
-            }));
-            this.resultList.show(new ResultItemCollectionView({
-                model: this.model.get('result'),
-                collection: this.model.get('result').get('results')
-            }));
+            var resultFilter = store.get('user').get('user').get('preferences').get('resultFilter');
+            if (resultFilter) {
+                resultFilter = cql.simplify(cql.read(resultFilter));
+            }
+            var filteredResults = this.model.get('result').get('results').generateFilteredVersion(resultFilter, store.metacardTypes);
+            this.showResultPaging(filteredResults);
+            this.showResultList(filteredResults);
             this.showResultDisplayDropdown();
+            this.showResultFilterDropdown();
+            this.handleSelectionChange();
+            this.updateActiveRecords(filteredResults);
+        },
+        showResultPaging: function(resultCollection){
+            this.resultPaging.show(new PagingView({
+                model: resultCollection
+            }));
+        },
+        showResultList: function(resultCollection){
+            this.resultList.show(new ResultItemCollectionView({
+                collection: resultCollection
+            }));
+        },
+        showResultFilterDropdown: function(){
+            this.resultFilter.show(new ResultFilterDropdownView({
+                model: new DropdownModel()
+            }));
         },
         showResultDisplayDropdown: function(){
             this.resultDisplay.show(DropdownView.createSimpleDropdown([{
@@ -143,13 +166,11 @@ define([
                 label: 'Grid',
                 value: 'Grid'
             }], false, [store.get('user').get('user').get('preferences').get('resultDisplay')]));
+            this.stopListening(this.resultDisplay.currentView.model);
             this.listenTo(this.resultDisplay.currentView.model, 'change:value', function(){
                 store.get('user').get('user').get('preferences')
                     .set('resultDisplay',  this.resultDisplay.currentView.model.get('value')[0]);
             });
-        },
-        onRender: function(){
-            this.handleSelectionChange();
         }
     });
 

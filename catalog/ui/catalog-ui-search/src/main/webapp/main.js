@@ -72,7 +72,10 @@ require.config({
         drawHelper: 'lib/cesium-drawhelper/DrawHelper',
         openlayers: 'lib/openlayers3/build/ol',
         usngs: 'lib/usng.js/usng',
-        wellknown: 'lib/wellknown/wellknown'
+        wellknown: 'lib/wellknown/wellknown',
+        // terraformer
+        terraformer: 'lib/terraformer/terraformer',
+        terraformerWKTParser: 'lib/terraformer-wkt-parser/terraformer-wkt-parser'
     },
     shim: {
         backbone: {
@@ -170,7 +173,8 @@ require.config({
             exports: 'DrawHelper'
         },
         openlayers: { exports: 'ol' },
-        bootstrapselect: ['bootstrap']
+        bootstrapselect: ['bootstrap'],
+        terraformerWKTParser: ['terraformer']
     },
     waitSeconds: 0
 });

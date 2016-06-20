@@ -50,14 +50,20 @@ define([
             this.listenTo(this, 'change:usng', this.setRadiusUsng);
             this.listenTo(this, 'EndExtent', this.notDrawing);
             this.listenTo(this, 'BeginExtent', this.drawingOn);
-            this.set('color', store.get('content').get('query').get('color'));
+            if (store.get('content').get('query')){
+                this.set('color', store.get('content').get('query').get('color'));
+            } else {
+                this.set('color', '#cab2d6');
+            }
         },
         notDrawing: function () {
             this.drawing = false;
+            store.get('content').turnOffDrawing();
         },
 
         drawingOn: function () {
             this.drawing = true;
+            store.get('content').turnOnDrawing();
         },
 
         repositionLatLon: function () {

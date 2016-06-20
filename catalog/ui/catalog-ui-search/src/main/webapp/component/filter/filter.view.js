@@ -146,6 +146,19 @@ define([
         delete: function(){
             this.model.destroy();
         },
+        setDefaultComparator: function(propertyJSON){
+            switch(propertyJSON.type){
+                case 'LOCATION':
+                    this.model.set('comparator', 'INTERSECTS');
+                    break;
+                case 'DATE':
+                    this.model.set('comparator', 'BEFORE');
+                    break;
+                default:
+                    this.model.set('comparator', 'CONTAINS');
+                    break;
+            }
+        },
         determineInput: function(){
             var propertyJSON = _.extend({},
                 store.metacardTypes[this.model.get('type')],
@@ -165,6 +178,7 @@ define([
             } else {
                 this.turnOffEditing();
             }
+            this.setDefaultComparator(propertyJSON);
            // this.filterInput.currentView.addNewValue();
         },
         getValue: function(){

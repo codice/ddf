@@ -93,9 +93,9 @@ define([
                         });
                     },
                     setupListeners: function(geoController){
-                        geoController.listenTo(store.get('content'), 'change:activeSearchResult', geoController.newActiveSearchResult);
-                        if (store.get('content').getActiveSearchResult()) {
-                            geoController.newActiveSearchResult(store.get('content').getActiveSearchResult());
+                        geoController.listenTo(store.get('content'), 'reset:activeSearchResults', geoController.newActiveSearchResults);
+                        if (store.get('content').getActiveSearchResults()) {
+                            geoController.newActiveSearchResults(store.get('content').getActiveSearchResults());
                         }
                         geoController.listenTo(store.getSelectedResults(), 'update', geoController.zoomToSelected);
                         geoController.listenTo(store.getSelectedResults(), 'add', geoController.zoomToSelected);
@@ -137,9 +137,9 @@ define([
                         });
                     },
                     setupListeners: function(geoController){
-                        geoController.listenTo(store.get('content'), 'change:activeSearchResult', geoController.newActiveSearchResult);
-                        if (store.get('content').getActiveSearchResult()) {
-                            geoController.newActiveSearchResult(store.get('content').getActiveSearchResult());
+                        geoController.listenTo(store.get('content'), 'reset:activeSearchResults', geoController.newActiveSearchResults);
+                        if (store.get('content').getActiveSearchResults()) {
+                            geoController.newActiveSearchResults(store.get('content').getActiveSearchResults());
                         }
 
                         geoController.listenTo(wreqr.vent, 'search:mapshow', geoController.flyToLocation);

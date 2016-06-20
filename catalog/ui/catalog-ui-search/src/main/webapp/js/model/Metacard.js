@@ -9,17 +9,187 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, Terraformer*/
 
 define([
         'backbone',
         'underscore',
         'wreqr',
+        'terraformerWKTParser',
         'backboneassociations',
         'backbonepaginator'
     ],
     function (Backbone, _, wreqr) {
         "use strict";
+
+        var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags'];
+
+        function matchesILIKE(value, filter){
+            var valueToCheckFor = filter.value.toLowerCase();
+            value = value.toLowerCase();
+            var tokens = value.split(' ');
+            for (var i = 0; i <= tokens.length - 1; i++){
+                if (tokens[i] === valueToCheckFor){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function matchesLIKE(value, filter){
+            var valueToCheckFor = filter.value;
+            var tokens = value.split(' ');
+            for (var i = 0; i <= tokens.length - 1; i++){
+                if (tokens[i] === valueToCheckFor){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function matchesEQUALS(value, filter) {
+            var valueToCheckFor = filter.value;
+            if (value === valueToCheckFor) {
+                return true;
+            }
+            return false;
+        }
+
+        function matchesPOLYGON(value, filter){
+            var polygonToCheck = Terraformer.WKT.parse(filter.value.value);
+            if (polygonToCheck.contains(value)){
+                return true;
+            }
+            return false;
+        }
+
+        function matchesCIRCLE(value, filter){
+            var points = filter.value.value.substring(6, filter.value.value.length-1).split(' ');
+            var circleToCheck = new Terraformer.Circle(points, filter.distance, 64);
+            var polygonCircleToCheck = new Terraformer.Polygon(circleToCheck.geometry);
+            if (polygonCircleToCheck.contains(value)){
+                return true;
+            }
+            return false;
+        }
+
+        function matchesBEFORE(value, filter){
+            var date1 = new Date(value);
+            var date2 = new Date(filter.value);
+            if (date1 <= date2){
+                return true;
+            }
+            return false;
+        }
+
+        function matchesAFTER(value, filter){
+            var date1 = new Date(value);
+            var date2 = new Date(filter.value);
+            if (date1 >= date2){
+                return true;
+            }
+            return false;
+        }
+
+        function matchesFilter(metacard, filter, metacardTypes) {
+            var valuesToCheck = [];
+            switch(filter.property){
+                case '"anyText"':
+                    valuesToCheck = Object.keys(metacard.properties).filter(function(property){
+                        return blacklist.indexOf(property) === -1;
+                    }).filter(function(property){
+                        return (metacardTypes[property].type === 'STRING');
+                    }).map(function(property){
+                        return metacard.properties[property];
+                    });
+                    break;
+                case 'anyGeo':
+                    valuesToCheck = Object.keys(metacard.properties).filter(function(property){
+                        return blacklist.indexOf(property) === -1;
+                    }).filter(function(property){
+                        return (metacardTypes[property].type === 'GEOMETRY');
+                    }).map(function(property){
+                        return new Terraformer.Primitive(metacard.properties[property]);
+                    });
+                    if (metacard.geometry){
+                        valuesToCheck.push(new Terraformer.Primitive(metacard.geometry));
+                    }
+                    break;
+                default:
+                    var valueToCheck = metacard.properties[filter.property.replace(/['"]+/g, '')];
+                    if (valueToCheck) {
+                        valuesToCheck.push(valueToCheck);
+                    }
+                    break;
+            }
+
+            if (valuesToCheck.length === 0){
+                return false;
+            }
+
+            for (var i = 0; i <= valuesToCheck.length - 1 ; i++) {
+                switch (filter.type) {
+                    case 'ILIKE':
+                        if (matchesILIKE(valuesToCheck[i], filter)) {
+                            return true;
+                        }
+                        break;
+                    case 'LIKE':
+                        if (matchesLIKE(valuesToCheck[i], filter)){
+                            return true;
+                        }
+                        break;
+                    case '=':
+                        if (matchesEQUALS(valuesToCheck[i], filter)){
+                            return true;
+                        }
+                        break;
+                    case 'INTERSECTS':
+                        if(matchesPOLYGON(valuesToCheck[i], filter)){
+                            return true;
+                        }
+                        break;
+                    case 'DWITHIN':
+                        if (matchesCIRCLE(valuesToCheck[i], filter)){
+                            return true;
+                        }
+                        break;
+                    case 'AFTER':
+                        if (matchesAFTER(valuesToCheck[i], filter)){
+                            return true;
+                        }
+                        break;
+                    case 'BEFORE':
+                        if (matchesBEFORE(valuesToCheck[i], filter)){
+                            return true;
+                        }
+                        break;
+                }
+            }
+            return false;
+        }
+
+        function matchesFilters(metacard, resultFilter, metacardTypes) {
+            switch (resultFilter.type) {
+                case 'AND':
+                    for (var i = 0; i <= resultFilter.filters.length - 1; i++) {
+                        if (!matchesFilter(metacard, resultFilter.filters[i], metacardTypes)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                case 'OR':
+                    for (var j = 0; j <= resultFilter.filters.length - 1; j++) {
+                        if (matchesFilter(metacard, resultFilter.filters[j], metacardTypes)) {
+                            return true;
+                        }
+                    }
+                    break;
+                default:
+                    return matchesFilter(metacard, resultFilter, metacardTypes);
+            }
+        }
+
         var MetaCard = {};
 
         MetaCard.Geometry = Backbone.AssociatedModel.extend({
@@ -238,7 +408,33 @@ define([
 
         MetaCard.Results = Backbone.PageableCollection.extend({
             model: MetaCard.MetacardResult,
-            mode: "client"
+            mode: "client",
+            generateFilteredVersion: function(filter, metacardTypes){
+                if (filter) {
+                    var filteredCollection = new this.constructor();
+                    filteredCollection.set(this.updateFilteredVersion(filter, metacardTypes));
+                    filteredCollection.listenToOriginalCollection(this, filter, metacardTypes);
+                    return filteredCollection;
+                } else {
+                    return this;
+                }
+            },
+            listenToOriginalCollection: function(originalCollection, filter, metacardTypes){
+                this.listenTo(originalCollection, 'add', function(){
+                    this.reset(originalCollection.updateFilteredVersion(filter, metacardTypes));
+                }.bind(this));
+                this.listenTo(originalCollection, 'remove', function(){
+                    this.reset(originalCollection.updateFilteredVersion(filter, metacardTypes));
+                }.bind(this));
+                this.listenTo(originalCollection, 'update', function(){
+                    this.reset(originalCollection.updateFilteredVersion(filter, metacardTypes));
+                }.bind(this));
+            },
+            updateFilteredVersion: function(filter, metacardTypes){
+                return this.filter(function (result) {
+                   return matchesFilters(result.get('metacard').toJSON(), filter, metacardTypes);
+               });
+            }
         });
 
         MetaCard.SourceStatus = Backbone.AssociatedModel.extend({
