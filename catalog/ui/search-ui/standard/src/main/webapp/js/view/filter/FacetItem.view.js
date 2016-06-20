@@ -29,27 +29,11 @@ define([
             events: {
                 'click .toggle-facet': 'toggleFacet',
                 'click .any-button':'anyButtonClicked',
-                'click .toggle-button':'toggleState'
             },
             initialize: function(){
-                this.stateModel = new Backbone.Model({
-                    state: this.options.isAny ? 'any' : 'specific'
-                });
-                this.listenTo(this.stateModel, 'change', this.render);
-            },
-            templateHelpers: function(){
-                return {
-                    isAny: this.options.isAny,
-                    state: this.stateModel.get('state')
-                };
             },
             anyButtonClicked: function(){
                 wreqr.vent.trigger('anyFacetClicked', this.model.get('fieldName'));
-            },
-            toggleState: function(){
-                this.stateModel.set({
-                    state: this.stateModel.get('state') === 'any' ? 'specific' : 'any'
-                });
             },
             toggleFacet: function(evt){
                 if (evt.target.checked) {
