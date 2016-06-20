@@ -41,9 +41,9 @@
     "spectrum": "1.6.0",
     "wellknown": "connexta/wellknown#4d9ae612e7e308509ec76400b258c9db1581ea82",
     "bootstrap-select": "v1.6.4",
-    "eonasdan-bootstrap-datetimepicker": "~4.17.37",
-    "terraformer": "~1.0.5",
-    "terraformer-wkt-parser": "~1.1.0"
+    "eonasdan-bootstrap-datetimepicker": "4.17.37",
+    "terraformer": "1.0.5",
+    "terraformer-wkt-parser": "1.1.0"
   },
   "resolutions": {
     "backbone": "1.3.3",
