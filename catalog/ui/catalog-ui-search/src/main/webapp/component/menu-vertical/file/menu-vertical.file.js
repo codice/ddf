@@ -19,8 +19,10 @@ define([
     '../menu-vertical',
     'js/store',
     'wreqr',
-    'component/loading/loading.view'
-], function (_, Backbone, Vertical, store, wreqr, LoadingView) {
+    'component/loading/loading.view',
+    'component/lightbox/lightbox.view.instance',
+    'component/workspace-sharing/workspace-sharing.view'
+], function (_, Backbone, Vertical, store, wreqr, LoadingView, lightboxInstance, WorkspaceSharing) {
 
     var definition = [
         [
@@ -121,7 +123,14 @@ define([
             {
                 type: 'action',
                 name: 'Share',
-                icon: 'users'
+                icon: 'users',
+                action: function () {
+                    lightboxInstance.model.updateTitle('Workspace Sharing');
+                    lightboxInstance.model.open();
+                    lightboxInstance.lightboxContent.show(new WorkspaceSharing({
+                        model: store.getCurrentWorkspace()
+                    }));
+                }
             }
         ]
     ];

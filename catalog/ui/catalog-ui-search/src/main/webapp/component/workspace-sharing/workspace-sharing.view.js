@@ -58,6 +58,9 @@ define([
             email: '.email',
             action: '.action'
         },
+        initialize: function () {
+            this.model.set('action', this.model.get('action') || 'view');
+        },
         updateAction: function () {
             this.model.set('action', this.action.currentView.model.get('value')[0]);
         },
@@ -65,8 +68,8 @@ define([
             this.email.show(new Input({ model: this.model }));
 
             this.action.show(DropdownView.createSimpleDropdown([
-                { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' },
-                { icon: 'fa-eye',    label: 'Can view',  value: 'view' }
+                { icon: 'fa-eye',    label: 'Can view',  value: 'view' },
+                { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' }
             ], false, [this.model.get('action')], IconView));
 
             this.listenTo(this.action.currentView.model, 'change:value', this.updateAction);
