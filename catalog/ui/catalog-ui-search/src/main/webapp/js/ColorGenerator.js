@@ -18,14 +18,14 @@ define([
             var colors = [
                 // http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=10
                 '#cab2d6',
-                '#fdbf6f',
-                '#fb9a99',
-                '#b2df8a',
-                '#a6cee3',
                 '#6a3d9a',
+                '#fdbf6f',
                 '#ff7f00',
+                '#fb9a99',
                 '#e31a1c',
+                '#b2df8a',
                 '#33a02c',
+                '#a6cee3',
                 '#1f78b4'
             ];
             var idToColor = {};
