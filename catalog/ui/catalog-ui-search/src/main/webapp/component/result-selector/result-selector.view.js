@@ -62,8 +62,12 @@ define([
             this.listenTo(store.getSelectedResults(), 'add', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'remove', this.handleSelectionChange);
             this.startListeningToFilter();
+            this.startListeningToResult();
 
             store.addMetacardTypes(this.model.get('result').get('metacard-types'));
+        },
+        startListeningToResult: function(){
+            this.listenTo(this.model.get('result'), 'sync', this.onBeforeShow);
         },
         startListeningToFilter: function(){
             this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultFilter', this.onBeforeShow);

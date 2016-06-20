@@ -410,30 +410,27 @@ define([
             model: MetaCard.MetacardResult,
             mode: "client",
             generateFilteredVersion: function(filter, metacardTypes){
-                if (filter) {
-                    var filteredCollection = new this.constructor();
-                    filteredCollection.set(this.updateFilteredVersion(filter, metacardTypes));
-                    filteredCollection.listenToOriginalCollection(this, filter, metacardTypes);
-                    return filteredCollection;
-                } else {
-                    return this;
-                }
+                var filteredCollection = new this.constructor();
+                filteredCollection.set(this.updateFilteredVersion(filter, metacardTypes));
+                filteredCollection.listenToOriginalCollection(this, filter, metacardTypes);
+                return filteredCollection;
             },
             listenToOriginalCollection: function(originalCollection, filter, metacardTypes){
-                this.listenTo(originalCollection, 'add', function(){
+                var debouncedUpdate = _.debounce(function(){
                     this.reset(originalCollection.updateFilteredVersion(filter, metacardTypes));
-                }.bind(this));
-                this.listenTo(originalCollection, 'remove', function(){
-                    this.reset(originalCollection.updateFilteredVersion(filter, metacardTypes));
-                }.bind(this));
-                this.listenTo(originalCollection, 'update', function(){
-                    this.reset(originalCollection.updateFilteredVersion(filter, metacardTypes));
-                }.bind(this));
+                }.bind(this), 200);
+                this.listenTo(originalCollection, 'add', debouncedUpdate);
+                this.listenTo(originalCollection, 'remove',debouncedUpdate);
+                this.listenTo(originalCollection, 'update', debouncedUpdate);
             },
             updateFilteredVersion: function(filter, metacardTypes){
-                return this.filter(function (result) {
-                   return matchesFilters(result.get('metacard').toJSON(), filter, metacardTypes);
-               });
+                if (filter ) {
+                    return this.fullCollection.filter(function (result) {
+                        return matchesFilters(result.get('metacard').toJSON(), filter, metacardTypes);
+                    });
+                } else {
+                    return this.fullCollection.models;
+                }
             }
         });
 
