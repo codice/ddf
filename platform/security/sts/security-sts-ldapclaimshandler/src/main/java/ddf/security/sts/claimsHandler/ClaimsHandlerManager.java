@@ -166,16 +166,17 @@ public class ClaimsHandlerManager {
         String truststorePass = System.getProperty("javax.net.ssl.trustStorePassword");
         String keystoreLoc = System.getProperty("javax.net.ssl.keyStore");
         String keystorePass = System.getProperty("javax.net.ssl.keyStorePassword");
-        if (encryptService != null) {
-            keystorePass = encryptService.decryptValue(keystorePass);
-            truststorePass = encryptService.decryptValue(truststorePass);
-        }
 
         try {
             if (useSsl || useTls) {
                 SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
                 if (keystoreLoc != null && truststoreLoc != null) {
 
+                    if (encryptService != null) {
+                        keystorePass = encryptService.decryptValue(keystorePass);
+                        truststorePass = encryptService.decryptValue(truststorePass);
+                    }
+                    
                     sslContext.init(createKeyManagerFactory(keystoreLoc,
                             keystorePass).getKeyManagers(),
                             createTrustManagerFactory(truststoreLoc,
