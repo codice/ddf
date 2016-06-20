@@ -105,18 +105,18 @@ define([
             }
         },
         selectBetween: function(startIndex, endIndex){
-            store.addSelectedResult(this.model.get('result').get('results').slice(startIndex, endIndex));
+            store.addSelectedResult(this.resultList.currentView.collection.slice(startIndex, endIndex));
         },
         handleControlClick: function(resultid, alreadySelected){
             if (alreadySelected){
-                store.removeSelectedResult(this.model.get('result').get('results').get(resultid));
+                store.removeSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
             } else {
-                store.addSelectedResult(this.model.get('result').get('results').get(resultid));
+                store.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
             }
         },
         handleNormalClick: function(resultid){
             store.clearSelectedResults();
-            store.addSelectedResult(this.model.get('result').get('results').get(resultid));
+            store.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
         },
         handleSelectionChange: function(){
             var self = this;
