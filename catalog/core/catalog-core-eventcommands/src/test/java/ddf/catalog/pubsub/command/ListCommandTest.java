@@ -87,11 +87,9 @@ public class ListCommandTest {
         List<String> linesWithText = getConsoleOutputText(buffer);
         assertThat(linesWithText.size(), is(4));
         assertThat(linesWithText,
-                hasItems("Total subscriptions found: 2",
-                        ListCommand.CYAN_CONSOLE_COLOR + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
-                                + ListCommand.DEFAULT_CONSOLE_COLOR,
-                        MY_SUBSCRIPTION_ID,
-                        YOUR_SUBSCRIPTION_ID));
+                hasItems(containsString("Total subscriptions found: 2"),
+                        containsString(MY_SUBSCRIPTION_ID),
+                        containsString(YOUR_SUBSCRIPTION_ID)));
 
         buffer.close();
     }
@@ -226,10 +224,8 @@ public class ListCommandTest {
         List<String> linesWithText = getConsoleOutputText(buffer);
         assertThat(linesWithText.size(), is(3));
         assertThat(linesWithText,
-                hasItems("Total subscriptions found: 1",
-                        ListCommand.CYAN_CONSOLE_COLOR + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
-                                + ListCommand.DEFAULT_CONSOLE_COLOR,
-                        MY_SUBSCRIPTION_ID));
+                hasItems(containsString("Total subscriptions found: 1"),
+                        containsString(MY_SUBSCRIPTION_ID)));
 
         buffer.close();
 
@@ -285,10 +281,8 @@ public class ListCommandTest {
         List<String> linesWithText = getConsoleOutputText(buffer);
         assertThat(linesWithText.size(), is(3));
         assertThat(linesWithText,
-                hasItems("Total subscriptions found: 1",
-                        ListCommand.CYAN_CONSOLE_COLOR + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
-                                + ListCommand.DEFAULT_CONSOLE_COLOR,
-                        MY_SUBSCRIPTION_ID));
+                hasItems(containsString("Total subscriptions found: 1"),
+                        containsString(MY_SUBSCRIPTION_ID)));
 
         buffer.close();
 

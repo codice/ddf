@@ -13,14 +13,16 @@
  */
 package ddf.catalog.pubsub.command;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.catalog.event.Subscription;
 
 public class SubscriptionsCommand extends OsgiCommandSupport {
 
@@ -36,9 +38,9 @@ public class SubscriptionsCommand extends OsgiCommandSupport {
         return null;
     }
 
-    protected List<String> getSubscriptions(String id, boolean ldapFilter)
-            throws InvalidSyntaxException {
-        List<String> subscriptionIds = new ArrayList<String>();
+    protected Map<String, ServiceReference<Subscription>> getSubscriptions(String id,
+            boolean ldapFilter) throws InvalidSyntaxException {
+        Map<String, ServiceReference<Subscription>> subscriptionIds = new HashMap<>();
 
         String subscriptionIdFilter = null;
         if (ldapFilter) {
@@ -65,7 +67,7 @@ public class SubscriptionsCommand extends OsgiCommandSupport {
                     }
                     String subscriptionId = (String) ref.getProperty("subscription-id");
                     LOGGER.debug("subscriptionId = {}", subscriptionId);
-                    subscriptionIds.add(subscriptionId);
+                    subscriptionIds.put(subscriptionId, ref);
                 } else {
                     LOGGER.debug("propertyKeys = NULL");
                 }

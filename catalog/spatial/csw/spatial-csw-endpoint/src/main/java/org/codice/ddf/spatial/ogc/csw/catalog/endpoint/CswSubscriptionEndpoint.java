@@ -353,14 +353,6 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
     }
 
-    public void pingSubscriptionResponseHandlers() {
-        for (String subscriptionId : registeredSubscriptions.keySet()) {
-            CswSubscription cswSubscription = getSubscription(subscriptionId);
-            cswSubscription.ping();
-
-        }
-    }
-
     private void validateResponseSchema(GetRecordsResponseType recordsResponse)
             throws CswException {
         if (!METACARD_SCHEMA.equals(recordsResponse.getSearchResults()

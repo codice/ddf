@@ -17,7 +17,11 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Map;
 
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.MessageContext;
+
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -35,7 +39,8 @@ import ddf.security.service.SecurityServiceException;
 /**
  * OutgoingSubjectRetrievalInterceptor provides a implementation of {@link AbstractPhaseInterceptor} that stores the receivers subject in the header of the response with a key of ddf.security.Subject.
  */
-public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseInterceptor<Message> {
+public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseInterceptor<Message>
+        implements Handler<WrappedMessageContext> {
 
     private final SecurityManager securityManager;
 
@@ -65,6 +70,22 @@ public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseIntercepto
             message.getInterceptorChain()
                     .add(ending);
         }
+    }
+
+    @Override
+    public boolean handleMessage(WrappedMessageContext context) {
+        handleMessage(context.getWrappedMessage());
+        return true;
+    }
+
+    @Override
+    public boolean handleFault(WrappedMessageContext context) {
+        return true;
+    }
+
+    @Override
+    public void close(MessageContext context) {
+
     }
 
     public static class EventSecurityEndingInterceptor extends AbstractPhaseInterceptor<Message> {

@@ -14,12 +14,16 @@
 package ddf.catalog.pubsub.command;
 
 import java.io.PrintStream;
-import java.util.List;
+import java.util.Map;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.jansi.Ansi;
+import org.osgi.framework.ServiceReference;
+
+import ddf.catalog.event.Subscription;
+import ddf.catalog.operation.Pingable;
 
 @Command(scope = SubscriptionsCommand.NAMESPACE, name = "list", description = "Allows users to view registered subscriptions.")
 public class ListCommand extends SubscriptionsCommand {
@@ -36,6 +40,8 @@ public class ListCommand extends SubscriptionsCommand {
             .toString();
 
     static final String SUBSCRIPTION_ID_COLUMN_HEADER = "Subscription ID";
+
+    static final String CALLBACK_COLUMN_HEADER = "Callback URL";
 
     static final String NO_SUBSCRIPTIONS_FOUND_MSG = "No subscriptions found";
 
@@ -59,7 +65,8 @@ public class ListCommand extends SubscriptionsCommand {
 
         PrintStream console = System.out;
 
-        List<String> subscriptionIds = getSubscriptions(id, ldapFilter);
+        Map<String, ServiceReference<Subscription>> subscriptionIds = getSubscriptions(id,
+                ldapFilter);
         if (subscriptionIds.size() == 0) {
             console.println(RED_CONSOLE_COLOR + NO_SUBSCRIPTIONS_FOUND_MSG + DEFAULT_CONSOLE_COLOR);
         } else {
@@ -69,14 +76,30 @@ public class ListCommand extends SubscriptionsCommand {
             console.println();
             console.print(CYAN_CONSOLE_COLOR);
             console.print(SUBSCRIPTION_ID_COLUMN_HEADER);
+            console.print("\t\t| ");
+            console.print(CALLBACK_COLUMN_HEADER);
             console.println(DEFAULT_CONSOLE_COLOR);
-
-            for (String subscriptionId : subscriptionIds) {
-                console.println(subscriptionId);
-            }
+            subscriptionIds.entrySet()
+                    .forEach(this::printSubscription);
         }
 
         return null;
+    }
+
+    private void printSubscription(Map.Entry<String, ServiceReference<Subscription>> entry) {
+        PrintStream console = System.out;
+        Subscription subscription = bundleContext.getService(entry.getValue());
+        String rowColor = "";
+        if (subscription != null && subscription.getDeliveryMethod() instanceof Pingable &&
+                !((Pingable) subscription.getDeliveryMethod()).ping()) {
+            rowColor = RED_CONSOLE_COLOR;
+        }
+        console.println(String.format("%s%s\t %s%s",
+                rowColor,
+                entry.getKey(),
+                entry.getValue()
+                        .getProperty("event-endpoint"),
+                DEFAULT_CONSOLE_COLOR));
     }
 
 }

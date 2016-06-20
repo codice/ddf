@@ -36,6 +36,7 @@ public class FanoutEventProcessor extends EventProcessorImpl {
         LOGGER.trace("EXITING: FanoutEventProcessor constructor");
     }
 
+
     public void init() {
         String methodName = "init";
         LOGGER.debug("ENTERING: {}", methodName);
