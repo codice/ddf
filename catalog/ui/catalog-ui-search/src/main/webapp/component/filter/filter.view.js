@@ -147,15 +147,22 @@ define([
             this.model.destroy();
         },
         setDefaultComparator: function(propertyJSON){
+            var currentComparator = this.model.get('comparator');
             switch(propertyJSON.type){
                 case 'LOCATION':
-                    this.model.set('comparator', 'INTERSECTS');
+                    if (['INTERSECTS'].indexOf(currentComparator) === -1) {
+                        this.model.set('comparator', 'INTERSECTS');
+                    }
                     break;
                 case 'DATE':
-                    this.model.set('comparator', 'BEFORE');
+                    if (['BEFORE', 'AFTER'].indexOf(currentComparator) === -1) {
+                        this.model.set('comparator', 'BEFORE');
+                    }
                     break;
                 default:
-                    this.model.set('comparator', 'CONTAINS');
+                    if (['CONTAINS', 'MATCHCASE', 'EQUALS'].indexOf(currentComparator) === -1) {
+                        this.model.set('comparator', 'CONTAINS');
+                    }
                     break;
             }
         },
