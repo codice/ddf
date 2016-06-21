@@ -242,6 +242,8 @@ public class WfsSource extends MaskableImpl
 
     private FeatureCollectionMessageBodyReaderWfs20 featureCollectionReader;
 
+    private String forcedFeatureType;
+
     public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
             SecureCxfClientFactory factory, EncryptionService encryptionService)
             throws SecurityServiceException {
@@ -496,6 +498,11 @@ public class WfsSource extends MaskableImpl
             String ftSimpleName = featureTypeType.getName()
                     .getLocalPart();
 
+            if (StringUtils.isNotBlank(forcedFeatureType) && !StringUtils.equals(forcedFeatureType,
+                    ftSimpleName)) {
+                continue;
+            }
+
             if (mcTypeRegs.containsKey(ftSimpleName)) {
                 LOGGER.debug(
                         "WfsSource {}: MetacardType {} is already registered - skipping to next metacard type",
@@ -538,6 +545,7 @@ public class WfsSource extends MaskableImpl
                 LOGGER.warn(WFS_ERROR_MESSAGE, ie);
             }
         }
+
 
         registerFeatureMetacardTypes(mcTypeRegs);
 
@@ -1395,5 +1403,9 @@ public class WfsSource extends MaskableImpl
     public void setFeatureCollectionReader(
             FeatureCollectionMessageBodyReaderWfs20 featureCollectionMessageBodyReaderWfs20) {
         this.featureCollectionReader = featureCollectionMessageBodyReaderWfs20;
+    }
+
+    public void setForcedFeatureType(String featureType) {
+        this.forcedFeatureType = featureType;
     }
 }

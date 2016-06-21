@@ -218,6 +218,8 @@ public class WfsSource extends MaskableImpl
 
     protected String configurationPid;
 
+    private String forcedFeatureType;
+
     private FeatureCollectionMessageBodyReaderWfs10 featureCollectionReader;
 
     public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
@@ -492,6 +494,11 @@ public class WfsSource extends MaskableImpl
         for (FeatureTypeType featureTypeType : featureTypes) {
             String ftName = featureTypeType.getName()
                     .getLocalPart();
+
+            if (StringUtils.isNotBlank(forcedFeatureType) && !StringUtils.equals(forcedFeatureType,
+                    ftName)) {
+                continue;
+            }
 
             if (mcTypeRegs.containsKey(ftName)) {
                 LOGGER.debug(
@@ -1155,5 +1162,9 @@ public class WfsSource extends MaskableImpl
             }
             return newAvailability;
         }
+    }
+
+    public void setForcedFeatureType(String featureType) {
+        this.forcedFeatureType = featureType;
     }
 }

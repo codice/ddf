@@ -42,6 +42,7 @@
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="disableCnCheck" value="false"/>
+            <property name="forcedFeatureType" value=""/>
             <property name="nonQueryableProperties">
                 <list/>
             </property>
