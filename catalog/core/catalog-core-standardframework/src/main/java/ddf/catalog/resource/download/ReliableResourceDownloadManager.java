@@ -28,7 +28,6 @@ import com.google.common.base.Stopwatch;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
-import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
@@ -43,18 +42,19 @@ import ddf.catalog.resourceretriever.ResourceRetriever;
  */
 public class ReliableResourceDownloadManager {
 
-    static final int ONE_SECOND_IN_MS = 1000;
+    private static final int ONE_SECOND_IN_MS = 1000;
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(ReliableResourceDownloadManager.class);
 
     private ReliableResourceDownloaderConfig downloaderConfig;
+
     private DownloadStatusInfo downloadStatusInfo;
+
     private ExecutorService executor;
 
     /**
-     * @param downloaderConfig
-     *            reference to the {@link ReliableResourceDownloaderConfig}
+     * @param downloaderConfig reference to the {@link ReliableResourceDownloaderConfig}
      */
     public ReliableResourceDownloadManager(ReliableResourceDownloaderConfig downloaderConfig,
             DownloadStatusInfo downloadStatusInfo, ExecutorService executor) {
@@ -77,14 +77,11 @@ public class ReliableResourceDownloadManager {
     }
 
     /**
-     * @param resourceRequest
-     *            the original @ResourceRequest to retrieve the resource
-     * @param metacard
-     *            the @Metacard associated with the resource being downloaded
-     * @param retriever
-     *            the @ResourceRetriever to be used to get the resource
+     * @param resourceRequest the original @ResourceRequest to retrieve the resource
+     * @param metacard        the @Metacard associated with the resource being downloaded
+     * @param retriever       the @ResourceRetriever to be used to get the resource
      * @return the modified @ResourceResponse with the @ReliableResourceInputStream that the client
-     *         should read from
+     * should read from
      * @throws DownloadException
      */
     public ResourceResponse download(ResourceRequest resourceRequest, Metacard metacard,
@@ -133,17 +130,14 @@ public class ReliableResourceDownloadManager {
                     resourceResponse.getProperties(),
                     resourceResponse.getResource());
 
-            // TODO - this should be before retrieveResource() but eventPublisher requires a
-            // resourceResponse and that resource response must have a resource request in it (to get
-            // USER property)
-            publishStartEvent(resourceResponse, metacard, downloadIdentifier);
-
-            resourceResponse = startDownload(downloadIdentifier, resourceResponse, retriever, metacard);
+            resourceResponse = startDownload(downloadIdentifier,
+                    resourceResponse,
+                    retriever,
+                    metacard);
 
         }
         return resourceResponse;
     }
-
 
     public void setMaxRetryAttempts(int maxRetryAttempts) {
         downloaderConfig.setMaxRetryAttempts(maxRetryAttempts);
@@ -182,21 +176,12 @@ public class ReliableResourceDownloadManager {
     }
 
     public void setProductCacheDirectory(String productCacheDirectory) {
-        this.downloaderConfig.getResourceCache().setProductCacheDirectory(productCacheDirectory);
+        this.downloaderConfig.getResourceCache()
+                .setProductCacheDirectory(productCacheDirectory);
     }
 
-    private void publishStartEvent(ResourceResponse resourceResponse,
-            Metacard metacard, String downloadIdentifier) {
-        downloaderConfig.getEventPublisher().postRetrievalStatus(resourceResponse,
-                ProductRetrievalStatus.STARTED,
-                metacard,
-                null,
-                0L,
-                downloadIdentifier);
-    }
-
-    private ResourceResponse startDownload(String downloadIdentifier, ResourceResponse resourceResponse,
-            ResourceRetriever retriever, Metacard metacard) {
+    private ResourceResponse startDownload(String downloadIdentifier,
+            ResourceResponse resourceResponse, ResourceRetriever retriever, Metacard metacard) {
         AtomicBoolean downloadStarted = new AtomicBoolean(Boolean.FALSE);
         ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,
                 downloadStarted,
@@ -216,6 +201,8 @@ public class ReliableResourceDownloadManager {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
+                Thread.currentThread()
+                        .interrupt();
             }
             long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
             if (elapsedTime > ONE_SECOND_IN_MS) {

@@ -213,6 +213,13 @@ public class ReliableResourceDownloader implements Runnable {
         ReliableResourceStatus reliableResourceStatus = null;
         int retryAttempts = 0;
 
+        downloaderConfig.getEventPublisher().postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.STARTED,
+                metacard,
+                null,
+                0L,
+                downloadIdentifier);
+
         try {
             reliableResourceCallable = new ReliableResourceCallable(resourceInputStream,
                     countingFbos,
