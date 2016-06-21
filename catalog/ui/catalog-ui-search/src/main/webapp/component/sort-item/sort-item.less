@@ -1,0 +1,36 @@
+@{customElementNamespace}sort-item-collection {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  overflow-x: hidden;
+
+  @{customElementNamespace}sort-item + @{customElementNamespace}sort-item {
+    margin-top: 10px;
+  }
+}
+
+@{customElementNamespace}sort-item {
+  display: block;
+  cursor: pointer;
+  white-space: nowrap;
+
+  .sort-attribute,
+  .sort-direction,
+  .sort-remove {
+      display: inline-block;
+  }
+
+  .sort-attribute {
+      width: 50%;
+  }
+
+  .sort-direction {
+    width: ~'calc(50% - @{minimumButtonSize})';
+  }
+
+  .sort-remove {
+    height: @minimumButtonSize;
+    width: @minimumButtonSize;
+  }
+
+}

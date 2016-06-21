@@ -190,6 +190,25 @@ define([
             }
         }
 
+        function checkSortValue(a, b, sorting){
+            var sortOrder = sorting.direction === 'descending' ? -1 : 1;
+            var aVal = a.get('metacard>properties>' + sorting.attribute);
+            var bVal = b.get('metacard>properties>' + sorting.attribute);
+            if (aVal && aVal.constructor === Array){
+                aVal = aVal[0];
+            }
+            if (bVal && bVal.constructor === Array){
+                bVal = bVal[0];
+            }
+            if (aVal < bVal) {
+                return sortOrder * -1;
+            }
+            if (aVal > bVal) {
+                return sortOrder;
+            }
+            return 0;
+        }
+
         var MetaCard = {};
 
         MetaCard.Geometry = Backbone.AssociatedModel.extend({
@@ -430,6 +449,21 @@ define([
                     });
                 } else {
                     return this.fullCollection.models;
+                }
+            },
+            updateSorting: function(sorting){
+                if (sorting) {
+                    this.fullCollection.comparator = function (a, b) {
+                        var sortValue = 0;
+                        for (var i = 0; i <= sorting.length - 1; i++) {
+                            sortValue = checkSortValue(a, b, sorting[i]);
+                            if (sortValue !== 0) {
+                                break;
+                            }
+                        }
+                        return sortValue;
+                    };
+                    this.fullCollection.sort();
                 }
             }
         });

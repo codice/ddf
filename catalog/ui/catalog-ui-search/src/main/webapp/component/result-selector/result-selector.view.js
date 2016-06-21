@@ -27,10 +27,11 @@ define([
     'component/dropdown/result-display/dropdown.result-display.view',
     'component/dropdown/result-filter/dropdown.result-filter.view',
     'component/dropdown/dropdown',
-    'js/cql'
+    'js/cql',
+    'component/dropdown/result-sort/dropdown.result-sort.view'
 ], function (Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common,
              ResultItemCollectionView, PagingView, DropdownView, ResultFilterDropdownView,
-             DropdownModel, cql) {
+             DropdownModel, cql, ResultSortDropdownView) {
 
     var namespace = CustomElements.getNamespace();
     var resultItemSelector = namespace+'result-item';
@@ -51,7 +52,8 @@ define([
             resultList: '.resultSelector-list',
             resultPaging: '.resultSelector-paging',
             resultDisplay: '.menu-resultDisplay',
-            resultFilter: '.menu-resultFilter'
+            resultFilter: '.menu-resultFilter',
+            resultSort: '.menu-resultSort'
         },
         initialize: function(options){
             if (!this.model.get('result')) {
@@ -62,6 +64,7 @@ define([
             this.listenTo(store.getSelectedResults(), 'add', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'remove', this.handleSelectionChange);
             this.startListeningToFilter();
+            this.startListeningToSort();
             this.startListeningToResult();
 
             store.addMetacardTypes(this.model.get('result').get('metacard-types'));
@@ -71,6 +74,9 @@ define([
         },
         startListeningToFilter: function(){
             this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultFilter', this.onBeforeShow);
+        },
+        startListeningToSort: function(){
+            this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultSort', this.onBeforeShow);
         },
         updateActiveRecords: function(results){
             store.get('content').setActiveSearchResults(results);
@@ -140,10 +146,12 @@ define([
                 resultFilter = cql.simplify(cql.read(resultFilter));
             }
             var filteredResults = this.model.get('result').get('results').generateFilteredVersion(resultFilter, store.metacardTypes);
+            filteredResults.updateSorting(store.get('user').get('user').get('preferences').get('resultSort'));
             this.showResultPaging(filteredResults);
             this.showResultList(filteredResults);
             this.showResultDisplayDropdown();
             this.showResultFilterDropdown();
+            this.showResultSortDropdown();
             this.handleSelectionChange();
             this.updateActiveRecords(filteredResults);
         },
@@ -159,6 +167,11 @@ define([
         },
         showResultFilterDropdown: function(){
             this.resultFilter.show(new ResultFilterDropdownView({
+                model: new DropdownModel()
+            }));
+        },
+        showResultSortDropdown: function(){
+            this.resultSort.show(new ResultSortDropdownView({
                 model: new DropdownModel()
             }));
         },
