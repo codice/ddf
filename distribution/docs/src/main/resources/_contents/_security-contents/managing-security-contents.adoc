@@ -19,7 +19,7 @@ ${ddf-security} is included with a standard installation.
 
 === Configuring ${ddf-security}
 
-From the Web Admin Console, the following configurations are available from a standard installation.
+From the ${admin-console}, the following configurations are available from a standard installation.
 
 [cols="1,3,3" options="header"]
 |===

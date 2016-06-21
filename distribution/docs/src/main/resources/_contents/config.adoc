@@ -1,8 +1,8 @@
 Version ${version}. Copyright (c) Codice Foundation
-:imagesdir: target/docs/images
+:imagesdir: target/doc-contents/images
 :toc: left
 :icons: font
-:example-caption!:
+:example-caption:
 :source-highlighter: coderay
 :sectlinks:
 :sectanchors:

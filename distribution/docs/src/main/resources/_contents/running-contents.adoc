@@ -216,7 +216,7 @@ Proceed with caution!
 
 ==== Federation
 
-It is recommended to use the *${ddf-branding} Catalog App -> Sources* tab to configure and manage sites/sources.
+It is recommended to use the *${ddf-catalog} App -> Sources* tab to configure and manage sites/sources.
 
 ==== Console Commands
 
