@@ -51,6 +51,8 @@ public class RegistryPublicationManagerTest {
 
     private static final String DELETED_TOPIC = "ddf/catalog/event/DELETED";
 
+    private static final String DEFAULT_REGISTRY_ID = "defaultRegistryId";
+
     @Mock
     private FederationAdminService federationAdmin;
 
@@ -184,8 +186,29 @@ public class RegistryPublicationManagerTest {
         assertThat(publicationManager.getPublications()
                 .size(), is(1));
         assertThat(publicationManager.getPublications()
-                .get("regId1")
+                .get(DEFAULT_REGISTRY_ID)
                 .size(), is(1));
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testGetPublicationsMapNotModifiable() throws Exception {
+        ArrayList<String> locations = new ArrayList<>();
+        locations.add("location1");
+        Event event = getRegistryEvent(CREATED_TOPIC, locations);
+        publicationManager.handleEvent(event);
+        Map<String, List<String>> map = publicationManager.getPublications();
+        map.put("SomeKey", Collections.singletonList("ShouldNotWork"));
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testGetPublicationsMapValueListNotModifiable() throws Exception {
+        ArrayList<String> locations = new ArrayList<>();
+        locations.add("location1");
+        Event event = getRegistryEvent(CREATED_TOPIC, locations);
+        publicationManager.handleEvent(event);
+        Map<String, List<String>> map = publicationManager.getPublications();
+        List<String> unmodifiable = map.get(DEFAULT_REGISTRY_ID);
+        unmodifiable.add("ShouldNotWork");
     }
 
     @Test
@@ -222,7 +245,7 @@ public class RegistryPublicationManagerTest {
 
     private Event getRegistryEvent(String topic, ArrayList<String> locations) {
         Dictionary<String, Object> eventProperties = new Hashtable<>();
-        Metacard mcard = getRegistryMetacard("regId1");
+        Metacard mcard = getRegistryMetacard(DEFAULT_REGISTRY_ID);
         if (locations != null) {
             mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
                     locations));

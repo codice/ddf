@@ -87,7 +87,7 @@ public class RegistryPublicationManager implements EventHandler {
         if (event.getTopic()
                 .equals(CREATED_TOPIC) || event.getTopic()
                 .equals(UPDATED_TOPIC)) {
-            publications.put(registryId, locations);
+            publications.put(registryId, Collections.unmodifiableList(locations));
         } else if (event.getTopic()
                 .equals(DELETED_TOPIC)) {
             publications.remove(registryId);
@@ -126,10 +126,10 @@ public class RegistryPublicationManager implements EventHandler {
                     .toString();
             if (locations != null) {
                 publications.put(registryId,
-                        locations.getValues()
+                        Collections.unmodifiableList(locations.getValues()
                                 .stream()
                                 .map(Object::toString)
-                                .collect(Collectors.toList()));
+                                .collect(Collectors.toList())));
             } else {
                 publications.put(registryId, Collections.emptyList());
             }
