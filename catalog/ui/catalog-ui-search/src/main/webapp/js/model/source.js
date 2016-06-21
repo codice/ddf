@@ -32,9 +32,9 @@ define([
                 }
             });
         } else {
-            return sources.chain()
+            return _.chain(sources)
                 .map(function (source) {
-                    return source.get('contentTypes');
+                    return source.contentTypes;
                 })
                 .flatten()
                 .filter(function (element) {
@@ -59,12 +59,13 @@ define([
         useAjaxSync: true,
         initialize: function () {
           this._types = new Types();
-          this.on('change', function () {
-            this._types.set(computeTypes(this));
-          }.bind(this));
         },
         types: function () {
           return this._types;
+        },
+        parse: function(response) {
+            this._types.set(computeTypes(response));
+            return response;
         }
     }))();
 
