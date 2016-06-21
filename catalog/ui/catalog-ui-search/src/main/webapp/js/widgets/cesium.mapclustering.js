@@ -19,6 +19,8 @@ define(['backbone',
 
     var MAX_RADIUS_DISTANCE = 2500000;
 
+    var MIN_CAMERA_HEIGHT = 5;
+
     var MapClustering = {};
 
     var clusters = [];
@@ -35,7 +37,7 @@ define(['backbone',
         clusteringAlgorithm : function (cameraHeight) {
             if(typeof entities === "undefined") {
                 return;
-            } else if(cameraHeight < 5) {
+            } else if(cameraHeight < MIN_CAMERA_HEIGHT) {
                 this.resetBillboard();
             } else {
                 this.removeClusters();
@@ -133,9 +135,6 @@ define(['backbone',
             var boundingSphere = Cesium.BoundingSphere.fromPoints(points);
             var center = boundingSphere.center;
             cluster.position = center;
-            /*if(view.color !== cluster.color) {
-                cluster.color = MARKER_COLOR;
-            } */
         },
         removeClusters : function () {
             $.each(clusters, function(index, cluster) {
