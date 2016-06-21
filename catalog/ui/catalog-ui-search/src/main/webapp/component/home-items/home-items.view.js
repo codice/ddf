@@ -49,23 +49,38 @@ define([
             }
         },
         onBeforeShow: function(){
+            var preferences = store.get('user').get('user').get('preferences');
+
             var workspaceItemCollection = new WorkspaceItemCollection({
                 collection: this.model
             });
-            var displayDropdownModel = new DropdownModel({value: 'Grid'});
-            workspaceItemCollection.listenTo(displayDropdownModel, 'change:value',
-                workspaceItemCollection.switchDisplay);
-            workspaceItemCollection.activateGridDisplay();
+
+            var displayDropdownModel = new DropdownModel({value: preferences.get('homeDisplay')});
+            var homeFilter = new DropdownModel({value: preferences.get('homeFilter')});
+            var homeSort = new DropdownModel({value: preferences.get('homeSort')});
+
+            this.listenTo(displayDropdownModel, 'change:value', this.save('homeDisplay'));
+            this.listenTo(homeFilter, 'change:value', this.save('homeFilter'));
+            this.listenTo(homeSort, 'change:value', this.save('homeSort'));
+
             this.homeItems.show(workspaceItemCollection);
+
             this.homeFilter.show(new FilterDropdownView({
-                model: new DropdownModel({value: 'Owned by anyone'})
+                model: homeFilter
             }));
             this.homeSort.show(new SortDropdownView({
-                model: new DropdownModel({value: 'Last modified by me'})
+                model: homeSort
             }));
             this.homeDisplay.show(new DisplayDropdownView({
                 model: displayDropdownModel
             }));
         },
+        save: function (key) {
+            return function (model, value) {
+                var prefs = store.get('user').get('user').get('preferences');
+                prefs.set(key, value);
+                prefs.savePreferences();
+            }.bind(this);
+        }
     });
 });

@@ -21,16 +21,6 @@ define([
 
     var User = {};
 
-    var defaultColors = {
-        pointColor: '#FFA467',
-        multiPointColor: '#FFA467',
-        lineColor: '#5B93FF',
-        multiLineColor: '#5B93FF',
-        polygonColor: '#FF6776',
-        multiPolygonColor: '#FF6776',
-        geometryCollectionColor: '#FFFF67'
-    };
-
     var mapLayerConfigForURL = {};
 
     _.each(properties.imageryProviders, function (providerConfig, index) {
@@ -43,8 +33,7 @@ define([
         var configIndex;
         if (providerConfig.index && !isNaN(Number(providerConfig.index))) {
             configIndex = Number(providerConfig.index);
-        }
-        else {
+        } else {
             configIndex = index;
         }
 
@@ -74,15 +63,17 @@ define([
         }).value();
 
     User.MapColors = Backbone.AssociatedModel.extend({
-        getDefaults: function () {
-            return defaultColors;
+        defaults: {
+            pointColor: '#FFA467',
+            multiPointColor: '#FFA467',
+            lineColor: '#5B93FF',
+            multiLineColor: '#5B93FF',
+            polygonColor: '#FF6776',
+            multiPolygonColor: '#FF6776',
+            geometryCollectionColor: '#FFFF67'
         },
         savePreferences: function () {
-            if (this.parents[0].parents[0].isGuestUser()) {
-                window.localStorage.setItem('org.codice.ddf.search.preferences.mapColors', JSON.stringify(this.toJSON()));
-            } else {
-                this.parents[0].savePreferences();
-            }
+            this.parents[0].savePreferences();
         }
     });
 
@@ -90,6 +81,16 @@ define([
 
     User.MapLayers = Backbone.Collection.extend({
         model: User.MapLayer,
+        defaults: function () {
+            return _.map(_.values(mapLayerConfigForURL), function (layerConfig) {
+                return layerConfig;
+            });
+        },
+        initialize: function (models) {
+            if (!models || models.length === 0) {
+                this.set(this.defaults());
+            }
+        },
         comparator: function (model) {
             return model.get('index');
         },
@@ -97,26 +98,25 @@ define([
             return mapLayerConfigForURL[url];
         },
         savePreferences: function () {
-            if (this.parents[0].parents[0].isGuestUser()) {
-                var mapLayersJson = JSON.stringify(this.toJSON());
-                window.localStorage.setItem('org.codice.ddf.search.preferences.mapLayers', mapLayersJson);
-            } else {
-                // Backbone.Collection does not have a builtin save().
-                this.parents[0].savePreferences();
-            }
+            this.parents[0].savePreferences();
         }
     });
 
     User.Preferences = Backbone.AssociatedModel.extend({
         useAjaxSync: true,
         url: '/search/catalog/internal/user/preferences',
-        defaults: {
-            mapColors: undefined,
-            mapLayers: [],
-            resultDisplay: 'List',
-            resultPreview: ['modified'],
-            resultFilter: undefined,
-            resultSort: undefined
+        defaults: function () {
+            return {
+                mapColors: new User.MapColors(),
+                mapLayers: new User.MapLayers(),
+                resultDisplay: 'List',
+                resultPreview: ['modified'],
+                resultFilter: undefined,
+                resultSort: undefined,
+                homeFilter: 'Owned by anyone',
+                homeSort: 'Last modified',
+                homeDisplay: 'Grid'
+            };
         },
         relations: [
             {
@@ -132,11 +132,23 @@ define([
             }
         ],
         savePreferences: function (options) {
-            this.sync('update', this, options || {});
+            if (this.parents[0].isGuestUser()) {
+                window.localStorage.setItem('preferences', JSON.stringify(this.toJSON()));
+            } else {
+                this.sync('update', this, options || {});
+            }
         }
     });
 
     User.Model = Backbone.AssociatedModel.extend({
+        defaults: function () {
+            return {
+                preferences: new User.Preferences(),
+                isGuest: true,
+                username: 'guest',
+                roles: ['guest']
+            };
+        },
         relations: [
             {
                 type: Backbone.One,
@@ -151,6 +163,7 @@ define([
 
     User.Response = Backbone.AssociatedModel.extend({
         useAjaxSync: true,
+        url: '/search/catalog/internal/user',
         relations: [
             {
                 type: Backbone.One,
@@ -158,58 +171,27 @@ define([
                 relatedModel: User.Model
             }
         ],
-        url: '/search/catalog/internal/user',
         initialize: function () {
-            var user = new User.Model();
-            this.set('user', user);
-
-            var preferences = new User.Preferences();
-            user.set({
-                preferences: preferences,
-                isGuest: true,
-                username: 'guest',
-                roles: ['guest']
-            });
-
-            preferences.set('mapColors', this.getFallbackMapColors());
-            preferences.set('mapLayers', this.getFallbackMapLayers());
+            this.set('user', new User.Model());
         },
-        parse: function (resp) {
-            var parsedData = resp.data ? resp.data : resp;
-
-            return {
-                user: _.merge({
-                    preferences: {
-                        mapColors: this.getFallbackMapColors(),
-                        mapLayers: this.getFallbackMapLayers()
-                    }
-                }, parsedData)
-            };
+        getGuestPreferences: function () {
+            try {
+                return JSON.parse(window.localStorage.getItem('preferences')) || {};
+            } catch (e) {
+                return {};
+            }
         },
-        getFallbackMapColors: function () {
-            var jsonString = window.localStorage.getItem('org.codice.ddf.search.preferences.mapColors');
-            var colorPreferences;
-            if (jsonString && jsonString !== '') {
-                colorPreferences = JSON.parse(jsonString);
+        parse: function (body) {
+            if (body.isGuest) {
+                return {
+                    user: _.extend({}, body, {
+                        preferences: this.getGuestPreferences()
+                    })
+                };
+            } else {
+                return { user: body };
             }
-            else {
-                colorPreferences = defaultColors;
-            }
-            return colorPreferences;
         },
-        getFallbackMapLayers: function () {
-            var layerPreferences = [];
-            var jsonString = window.localStorage.getItem('org.codice.ddf.search.preferences.mapLayers');
-            if (jsonString && jsonString !== '') {
-                layerPreferences = JSON.parse(jsonString);
-            }
-            else {
-                _.each(_.values(mapLayerConfigForURL), function (layerConfig) {
-                    layerPreferences.push(layerConfig);
-                });
-            }
-            return layerPreferences;
-        }
     });
 
     return User;

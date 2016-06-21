@@ -18,14 +18,52 @@ define([
     'underscore',
     'jquery',
     'js/CustomElements',
-    './workspace-item.view'
-], function (Marionette, _, $, CustomElements, WorkspaceItemView) {
+    './workspace-item.view',
+    'js/store'
+], function (Marionette, _, $, CustomElements, WorkspaceItemView, store) {
+
+    var getUser = function () {
+         return store.get('user').get('user');
+    };
+
+    var getPrefs = function () {
+         return getUser().get('preferences');
+    };
 
     return Marionette.CollectionView.extend({
         tagName: CustomElements.register('workspace-item-collection'),
         childView: WorkspaceItemView,
+        filter: function (workspace) {
+            var localStorage = workspace.get('localStorage') || false;
+            var owner = workspace.get('owner');
+            var user = getUser().get('email');
+
+            switch (getPrefs().get('homeFilter')) {
+                case 'Not owned by me':
+                    return !localStorage && user !== owner;
+                case 'Owned by me':
+                    return localStorage || user === owner;
+                case 'Owned by anyone':
+                default:
+                    return true;
+            }
+        },
+        viewComparator: function (workspace) {
+            switch (getPrefs().get('homeSort')) {
+                case 'Title':
+                    return workspace.get('title');
+                case 'Last modified':
+                default:
+                    return workspace.get('modified')
+            }
+        },
+        initialize: function () {
+            this.listenTo(getPrefs(), 'change:homeDisplay', this.switchDisplay);
+            this.listenTo(getPrefs(), 'change:homeFilter', this.render);
+            this.listenTo(getPrefs(), 'change:homeSort', this.render);
+        },
         onBeforeAddChild: function(childView){
-            switch(this.displayType){
+            switch(getPrefs().get('homeDisplay')){
                 case 'List':
                     childView.activateListDisplay();
                     break;
@@ -35,13 +73,11 @@ define([
             }
         },
         activateGridDisplay: function(){
-            this.displayType = 'Grid';
             this.children.forEach(function (childView) {
                 childView.activateGridDisplay();
             });
         },
         activateListDisplay: function(){
-            this.displayType = 'List';
             this.children.forEach(function (childView) {
                 childView.activateListDisplay();
             });
@@ -55,7 +91,6 @@ define([
                     this.activateGridDisplay();
                     break;
             }
-        },
-        displayType: 'Grid'
+        }
     });
 });

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.boon.json.JsonFactory;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -107,12 +108,22 @@ public class UserApplication implements SparkApplication {
 
     private Map<String, Object> getSubjectAttributes(Subject subject) {
         // @formatter:off
-        return ImmutableMap.of(
+        Map<String, Object> required = ImmutableMap.of(
                 "username", SubjectUtils.getName(subject),
                 "isGuest", subject.isGuest(),
                 "roles", getSubjectRoles(subject),
                 "preferences", getSubjectPreferences(subject));
         // @formatter:on
+
+        String email = SubjectUtils.getEmailAddress(subject);
+
+        if (StringUtils.isEmpty(email)) {
+            return required;
+        }
+
+        return ImmutableMap.<String, Object>builder().putAll(required)
+                .put("email", email)
+                .build();
     }
 
     @Override
@@ -125,6 +136,11 @@ public class UserApplication implements SparkApplication {
 
         put("/user/preferences", APPLICATION_JSON, (req, res) -> {
             Subject subject = (Subject) SecurityUtils.getSubject();
+
+            if (subject.isGuest()) {
+                res.status(401);
+                return ImmutableMap.of("message", "Guest cannot save preferences.");
+            }
 
             Map<String, Object> preferences = JsonFactory.create()
                     .parser()
