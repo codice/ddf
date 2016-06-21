@@ -22,11 +22,15 @@
     <reference-list id="registryStores" interface="org.codice.ddf.registry.api.RegistryStore" availability="optional"/>
 
     <bean id="registryActionProvider"
-          class="org.codice.ddf.registry.publication.action.provider.RegistryPublicationActionProvider" init-method="init">
+          class="org.codice.ddf.registry.publication.action.provider.RegistryPublicationActionProvider">
+        <property name="registryPublicationManager" ref="registryPublicationManager"/>
         <property name="providerId" value="catalog.source.operation.publication.registry"/>
-        <property name="federationAdminService" ref="federationAdminService"/>
         <property name="configAdmin" ref="configurationAdmin"/>
         <property name="registryStores" ref="registryStores"/>
+    </bean>
+
+    <bean id="registryPublicationManager" class="org.codice.ddf.registry.publication.manager.RegistryPublicationManager" init-method="init">
+        <property name="federationAdminService" ref="federationAdminService"/>
     </bean>
 
     <service ref="registryActionProvider" interface="ddf.action.ActionProvider">
@@ -35,7 +39,7 @@
         </service-properties>
     </service>
 
-    <service ref="registryActionProvider" interface="org.osgi.service.event.EventHandler">
+    <service ref="registryPublicationManager" interface="org.osgi.service.event.EventHandler">
         <service-properties>
             <entry key="event.topics">
                 <array value-type="java.lang.String">

@@ -17,11 +17,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +33,7 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.registry.api.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
+import org.codice.ddf.registry.publication.manager.RegistryPublicationManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,24 +41,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.event.Event;
 
 import ddf.action.Action;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.source.Source;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegistryPublicationActionProviderTest {
-
-    private static final String METACARD_PROPERTY = "ddf.catalog.event.metacard";
-
-    private static final String CREATED_TOPIC = "ddf/catalog/event/CREATED";
-
-    private static final String UPDATED_TOPIC = "ddf/catalog/event/UPDATED";
-
-    private static final String DELETED_TOPIC = "ddf/catalog/event/DELETED";
 
     @Mock
     private ConfigurationAdmin configAdmin;
@@ -68,10 +60,10 @@ public class RegistryPublicationActionProviderTest {
     private Source source;
 
     @Mock
-    private FederationAdminService federationAdmin;
+    private RegistryStore store;
 
     @Mock
-    private RegistryStore store;
+    private RegistryPublicationManager publicationManager;
 
     private RegistryPublicationActionProvider publicationActionProvider;
 
@@ -79,158 +71,13 @@ public class RegistryPublicationActionProviderTest {
     public void setup() throws Exception {
         publicationActionProvider = new RegistryPublicationActionProvider();
         publicationActionProvider.setConfigAdmin(configAdmin);
-        publicationActionProvider.setFederationAdminService(federationAdmin);
         publicationActionProvider.setProviderId("catalog.source.operation.registry");
         publicationActionProvider.setRegistryStores(Collections.singletonList(store));
+        publicationActionProvider.setRegistryPublicationManager(publicationManager);
 
         when(configAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {
                 configuration});
 
-    }
-
-    @Test
-    public void testInit() throws Exception {
-        Metacard mcard1 = getRegistryMetacard("regId1");
-        Metacard mcard2 = getRegistryMetacard("regId2");
-        ArrayList<String> locations = new ArrayList<>();
-        locations.add("location1");
-        mcard1.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
-                locations));
-        List<Metacard> metacardList = new ArrayList<>();
-        metacardList.add(mcard1);
-        metacardList.add(mcard2);
-        when(federationAdmin.getRegistryMetacards()).thenReturn(metacardList);
-
-        publicationActionProvider.init();
-
-        Map<String, List<String>> publications = publicationActionProvider.getPublications();
-        assertThat(publications.size(), is(2));
-        assertThat(publications.get("regId1"), equalTo(locations));
-        assertThat(publications.get("regId2")
-                .size(), is(0));
-    }
-
-    @Test
-    public void testInitWithNullMetacard() throws Exception {
-        Metacard mcard1 = getRegistryMetacard("regId1");
-        Metacard mcard2 = getRegistryMetacard(null);
-        ArrayList<String> locations = new ArrayList<>();
-        locations.add("location1");
-        mcard1.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
-                locations));
-        List<Metacard> metacardList = new ArrayList<>();
-        metacardList.add(mcard1);
-        metacardList.add(mcard2);
-        when(federationAdmin.getRegistryMetacards()).thenReturn(metacardList);
-
-        publicationActionProvider.init();
-
-        Map<String, List<String>> publications = publicationActionProvider.getPublications();
-        assertThat(publications.size(), is(1));
-        assertThat(publications.get("regId1"), equalTo(locations));
-    }
-
-    @Test
-    public void testInitWithBlankMetacard() throws Exception {
-        Metacard mcard1 = getRegistryMetacard("regId1");
-        Metacard mcard2 = getRegistryMetacard(" ");
-        ArrayList<String> locations = new ArrayList<>();
-        locations.add("location1");
-        mcard1.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
-                locations));
-        List<Metacard> metacardList = new ArrayList<>();
-        metacardList.add(mcard1);
-        metacardList.add(mcard2);
-        when(federationAdmin.getRegistryMetacards()).thenReturn(metacardList);
-
-        publicationActionProvider.init();
-
-        Map<String, List<String>> publications = publicationActionProvider.getPublications();
-        assertThat(publications.size(), is(1));
-        assertThat(publications.get("regId1"), equalTo(locations));
-    }
-
-    @Test
-    public void testHandleEventNonRegistryMcard() throws Exception {
-        Metacard mcard = new MetacardImpl();
-        Dictionary<String, Object> eventProperties = new Hashtable<>();
-        eventProperties.put(METACARD_PROPERTY, mcard);
-        Event event = new Event(CREATED_TOPIC, eventProperties);
-        publicationActionProvider.handleEvent(event);
-        assertThat(publicationActionProvider.getPublications()
-                .size(), is(0));
-    }
-
-    @Test
-    public void testHandleEventNoMcard() throws Exception {
-
-        Dictionary<String, Object> eventProperties = new Hashtable<>();
-        Event event = new Event(CREATED_TOPIC, eventProperties);
-        publicationActionProvider.handleEvent(event);
-        assertThat(publicationActionProvider.getPublications()
-                .size(), is(0));
-    }
-
-    @Test
-    public void testHandleEventNoRegistryId() throws Exception {
-        Metacard mcard = getRegistryMetacard(null);
-        Dictionary<String, Object> eventProperties = new Hashtable<>();
-        eventProperties.put(METACARD_PROPERTY, mcard);
-        Event event = new Event(CREATED_TOPIC, eventProperties);
-        publicationActionProvider.handleEvent(event);
-        assertThat(publicationActionProvider.getPublications()
-                .size(), is(0));
-    }
-
-    @Test
-    public void testHandleEventBlankRegistryId() throws Exception {
-        Metacard mcard = getRegistryMetacard(" ");
-        Dictionary<String, Object> eventProperties = new Hashtable<>();
-        eventProperties.put(METACARD_PROPERTY, mcard);
-        Event event = new Event(CREATED_TOPIC, eventProperties);
-        publicationActionProvider.handleEvent(event);
-        assertThat(publicationActionProvider.getPublications()
-                .size(), is(0));
-    }
-
-    @Test
-    public void testHandleEventCreate() throws Exception {
-        Event event = getRegistryEvent(CREATED_TOPIC);
-        publicationActionProvider.handleEvent(event);
-        assertThat(publicationActionProvider.getPublications()
-                .size(), is(1));
-    }
-
-    @Test
-    public void testHandleEventCreateExistingPublications() throws Exception {
-        ArrayList<String> locations = new ArrayList<>();
-        locations.add("location1");
-        Event event = getRegistryEvent(CREATED_TOPIC, locations);
-        publicationActionProvider.handleEvent(event);
-        assertThat(publicationActionProvider.getPublications()
-                .size(), is(1));
-        assertThat(publicationActionProvider.getPublications()
-                .get("regId1")
-                .size(), is(1));
-    }
-
-    @Test
-    public void testHandleEventUpdate() throws Exception {
-        Event event = getRegistryEvent(UPDATED_TOPIC);
-        publicationActionProvider.handleEvent(event);
-        assertThat(publicationActionProvider.getPublications()
-                .size(), is(1));
-    }
-
-    @Test
-    public void testHandleEventDelete() throws Exception {
-        publicationActionProvider.handleEvent(getRegistryEvent(CREATED_TOPIC));
-        assertThat(publicationActionProvider.getPublications()
-                .size(), is(1));
-        Event event = getRegistryEvent(DELETED_TOPIC);
-        publicationActionProvider.handleEvent(event);
-        assertThat(publicationActionProvider.getPublications()
-                .size(), is(0));
     }
 
     @Test
@@ -319,8 +166,12 @@ public class RegistryPublicationActionProviderTest {
         when(store.isPushAllowed()).thenReturn(true);
         when(store.getId()).thenReturn("store1");
         when(store.getRegistryId()).thenReturn("regId2");
-        publicationActionProvider.getPublications()
-                .put("regId1", new ArrayList<>());
+
+        Map<String, List<String>> publications = new HashMap<>();
+        publications.put("regId1", new ArrayList<>());
+        doReturn(publications).when(publicationManager)
+                .getPublications();
+
         List<Action> actions = publicationActionProvider.getActions(getRegistryMetacard("regId1"));
         assertThat(actions.size(), is(1));
         assertThat(actions.get(0)
@@ -336,8 +187,11 @@ public class RegistryPublicationActionProviderTest {
         when(store.isPushAllowed()).thenReturn(true);
         when(store.getId()).thenReturn("store1");
         when(store.getRegistryId()).thenReturn("regId2");
-        publicationActionProvider.getPublications()
-                .put("regId1", Collections.singletonList("store1"));
+
+        Map<String, List<String>> publications = new HashMap<>();
+        publications.put("regId1", Collections.singletonList("store1"));
+        doReturn(publications).when(publicationManager)
+                .getPublications();
         List<Action> actions = publicationActionProvider.getActions(getRegistryMetacard("regId1"));
         assertThat(actions.size(), is(1));
         assertThat(actions.get(0)
@@ -355,21 +209,6 @@ public class RegistryPublicationActionProviderTest {
             mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, regId);
         }
         return mcard;
-    }
-
-    private Event getRegistryEvent(String topic) {
-        return getRegistryEvent(topic, null);
-    }
-
-    private Event getRegistryEvent(String topic, ArrayList<String> locations) {
-        Dictionary<String, Object> eventProperties = new Hashtable<>();
-        Metacard mcard = getRegistryMetacard("regId1");
-        if (locations != null) {
-            mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
-                    locations));
-        }
-        eventProperties.put(METACARD_PROPERTY, mcard);
-        return new Event(topic, eventProperties);
     }
 
 }

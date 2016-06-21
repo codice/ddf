@@ -20,35 +20,21 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.Principal;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.security.auth.Subject;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.registry.api.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
+import org.codice.ddf.registry.publication.manager.RegistryPublicationManager;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +45,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.source.Source;
 
-public class RegistryPublicationActionProvider implements ActionProvider, EventHandler {
+public class RegistryPublicationActionProvider implements ActionProvider {
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(RegistryPublicationActionProvider.class);
@@ -84,25 +70,13 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
 
     private static final String HTTP_DELETE = "HTTP_DELETE";
 
-    private static final String METACARD_PROPERTY = "ddf.catalog.event.metacard";
-
-    private static final String CREATED_TOPIC = "ddf/catalog/event/CREATED";
-
-    private static final String UPDATED_TOPIC = "ddf/catalog/event/UPDATED";
-
-    private static final String DELETED_TOPIC = "ddf/catalog/event/DELETED";
-
-    private static final java.lang.String KARAF_LOCAL_ROLES = "karaf.local.roles";
-
     private String providerId;
 
     private ConfigurationAdmin configAdmin;
 
-    private FederationAdminService federationAdminService;
-
     private List<RegistryStore> registryStores;
 
-    private Map<String, List<String>> publications = new ConcurrentHashMap<>();
+    private RegistryPublicationManager registryPublicationManager;
 
     @Override
     public <T> List<Action> getActions(T subject) {
@@ -110,7 +84,9 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
         if (StringUtils.isBlank(registryIdToPublish)) {
             return Collections.emptyList();
         }
-        List<String> currentPublications = publications.get(registryIdToPublish);
+
+        List<String> currentPublications = registryPublicationManager.getPublications()
+                .get(registryIdToPublish);
 
         return registryStores.stream()
                 .filter((registryStore) -> shouldRegistryPublishToStore(registryIdToPublish,
@@ -131,83 +107,6 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
     @Override
     public <T> boolean canHandle(T subject) {
         return StringUtils.isNotBlank(getRegistryId(subject));
-    }
-
-    @Override
-    public void handleEvent(Event event) {
-        Metacard mcard = (Metacard) event.getProperty(METACARD_PROPERTY);
-        if (mcard == null || !mcard.getTags()
-                .contains(RegistryConstants.REGISTRY_TAG)) {
-            return;
-        }
-
-        Attribute registryIdAttribute = mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
-        if (registryIdAttribute == null || StringUtils.isBlank(registryIdAttribute.getValue()
-                .toString())) {
-            return;
-        }
-        String registryId = registryIdAttribute.getValue()
-                .toString();
-
-        Attribute locationAttribute =
-                mcard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
-        List<String> locations = new ArrayList<>();
-        if (locationAttribute != null) {
-            locations = locationAttribute.getValues()
-                    .stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toList());
-        }
-        if (event.getTopic()
-                .equals(CREATED_TOPIC) || event.getTopic()
-                .equals(UPDATED_TOPIC)) {
-            publications.put(registryId, locations);
-        } else if (event.getTopic()
-                .equals(DELETED_TOPIC)) {
-            publications.remove(registryId);
-        }
-    }
-
-    public void init() throws FederationAdminException, PrivilegedActionException {
-
-        // Change from here
-        // Remove this subject stuff and change to use Security.runAsAdmin() once the PrivilegedException option has been implemented
-        Set<Principal> principals = new HashSet<>();
-        String localRoles = System.getProperty(KARAF_LOCAL_ROLES, "");
-        for (String role : localRoles.split(",")) {
-            principals.add(new RolePrincipal(role));
-        }
-        Subject subject = new Subject(true, principals, new HashSet(), new HashSet());
-
-        PrivilegedExceptionAction<List<Metacard>> federationAdminServiceAction =
-                () -> federationAdminService.getRegistryMetacards();
-        List<Metacard> metacards = subject.doAs(subject, federationAdminServiceAction);
-        // To here
-
-        for (Metacard metacard : metacards) {
-            Attribute registryIdAttribute =
-                    metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
-            if (registryIdAttribute == null || StringUtils.isBlank(registryIdAttribute.getValue()
-                    .toString())) {
-                LOGGER.warn("Warning metacard (id: {}} did not contain a registry id.",
-                        metacard.getId());
-                continue;
-            }
-            Attribute locations =
-                    metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
-
-            String registryId = registryIdAttribute.getValue()
-                    .toString();
-            if (locations != null) {
-                publications.put(registryId,
-                        locations.getValues()
-                                .stream()
-                                .map(Object::toString)
-                                .collect(Collectors.toList()));
-            } else {
-                publications.put(registryId, Collections.emptyList());
-            }
-        }
     }
 
     private Action getAction(String regId, String destinationId, boolean publish) {
@@ -290,11 +189,8 @@ public class RegistryPublicationActionProvider implements ActionProvider, EventH
         this.registryStores = registryStores;
     }
 
-    public void setFederationAdminService(FederationAdminService adminService) {
-        this.federationAdminService = adminService;
-    }
-
-    Map<String, List<String>> getPublications() {
-        return publications;
+    public void setRegistryPublicationManager(
+            RegistryPublicationManager registryPublicationManager) {
+        this.registryPublicationManager = registryPublicationManager;
     }
 }
