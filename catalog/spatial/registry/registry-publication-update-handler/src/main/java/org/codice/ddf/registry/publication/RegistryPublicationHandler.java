@@ -13,14 +13,15 @@
  */
 package org.codice.ddf.registry.publication;
 
+import java.security.PrivilegedActionException;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
+import org.codice.ddf.security.common.Security;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -92,8 +93,11 @@ public class RegistryPublicationHandler implements EventHandler {
         //since the last time we published send an update to the remote location
         if ((datePublished == null || datePublished.before(mcard.getModifiedDate()))) {
             try {
-                registryPublicationService.update(mcard);
-            } catch (FederationAdminException e) {
+                Security.runAsAdminWithException(() -> {
+                    registryPublicationService.update(mcard);
+                    return null;
+                });
+            } catch (PrivilegedActionException e) {
                 LOGGER.warn("Unable to send update for {}", mcard.getTitle());
             }
         }
