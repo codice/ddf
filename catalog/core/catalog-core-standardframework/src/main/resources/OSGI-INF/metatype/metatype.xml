@@ -21,28 +21,6 @@
         <AD name="Enable Fanout Proxy" id="fanoutEnabled" required="true" type="Boolean"
             default="false"
             description="When enabled the Framework acts as a proxy, federating requests to all available sources. All requests are executed as federated queries and resource retrievals, allowing the framework to be the sole component exposing the functionality of all of its Federated Sources."/>
-        <AD name="Product Cache Directory" id="productCacheDirectory" required="false"
-            type="String" default=""
-            description="Directory where retrieved products will be cached for faster, future retrieval. If a directory path is specified with directories that do not exist, Catalog Framework will attempt to create those directories. Out of the box (without configuration), the product cache directory is INSTALL_DIR/data/product-cache. If a relative path is provided it will be relative to the INSTALL_DIR. It is recommended to enter an absolute directory path such as /opt/product-cache in Linux or C:/product-cache in Windows."/>
-        <AD name="Enable Product Caching" id="cacheEnabled" required="false" type="Boolean"
-            default="true"
-            description="Check to enable caching of retrieved products."/>
-        <AD name="Max Cache Directory Size in Megabytes" id="cacheDirMaxSizeMegabytes"
-            required="false" type="Long" default="10240"
-            description="Configure maximum directory size for product caching.  Oldest product cached will be evicted when a new product pushes the size over the specified limit.  Don't set this value to the available disk space because the cache will allow a new product to get cached and then check to see if the cache exceeds the maximum allowable size. A value of 0 disables the max limit."/>
-        <AD name="Delay (in seconds) between product retrieval retry attempts"
-            id="delayBetweenRetryAttempts" required="false"
-            type="Integer" default="10"
-            description="The time to wait (in seconds) between attempting to retry retrieving a product."/>
-        <AD name="Max product retrieval retry attempts" id="maxRetryAttempts" required="false"
-            type="Integer" default="3"
-            description="The maximum number of attempts to retry retrieving a product."/>
-        <AD name="Product Retrieval Monitor Period" id="retrievalMonitorPeriod" required="false"
-            type="Integer" default="5"
-            description="How many seconds to wait and not receive product data before retrying to retrieve a product."/>
-        <AD name="Always Cache Product" id="cacheWhenCanceled" required="false" type="Boolean"
-            default="false"
-            description="Check to enable caching of retrieved products even if client cancels the download."/>
         <AD name="Enable Notifications" id="notificationEnabled" required="false" type="Boolean"
             default="true"
             description="Check to enable notifications."/>
