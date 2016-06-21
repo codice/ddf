@@ -31,7 +31,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -73,13 +76,15 @@ import ddf.security.Subject;
 public class Historian {
     private static final Logger LOGGER = LoggerFactory.getLogger(Historian.class);
 
+    private final Map<String, List<Callable<Boolean>>> staged = new ConcurrentHashMap<>();
+
     private boolean historyEnabled = false;
 
     private List<StorageProvider> storageProviders;
 
     private List<CatalogProvider> catalogProviders;
 
-    private final Map<String, List<Callable<Boolean>>> staged = new HashMap<>();
+    private Supplier<org.apache.shiro.subject.Subject> getSubject = SecurityUtils::getSubject;
 
     /**
      * Versions {@link Metacard}s from the given {@link CreateResponse}.
@@ -97,9 +102,7 @@ public class Historian {
         List<Metacard> versionedMetacards = createResponse.getCreatedMetacards()
                 .stream()
                 .filter(MetacardVersion::isNotVersion)
-                .map(m -> new MetacardVersion(m,
-                        MetacardVersion.Action.CREATED,
-                        SecurityUtils.getSubject()))
+                .map(m -> new MetacardVersion(m, MetacardVersion.Action.CREATED, getSubject.get()))
                 .collect(Collectors.toList());
 
         if (!versionedMetacards.isEmpty()) {
@@ -131,7 +134,7 @@ public class Historian {
                 .map(Update::getNewMetacard)
                 .collect(Collectors.toList());
 
-        CreateResponse createdHistory = getVersionedMetacards(inputMetacards,
+        CreateResponse createdHistory = versionMetacards(inputMetacards,
                 MetacardVersion.Action.UPDATED);
         if (createdHistory == null) {
             return updateResponse;
@@ -399,12 +402,12 @@ public class Historian {
                 });
     }
 
-    private CreateResponse getVersionedMetacards(List<Metacard> metacards,
+    private CreateResponse versionMetacards(List<Metacard> metacards,
             final MetacardVersion.Action action)
             throws SourceUnavailableException, IngestException {
         final List<Metacard> versionedMetacards = metacards.stream()
                 .filter(MetacardVersion::isNotVersion)
-                .map(metacard -> new MetacardVersion(metacard, action, SecurityUtils.getSubject()))
+                .map(metacard -> new MetacardVersion(metacard, action, getSubject.get()))
                 .collect(Collectors.toList());
 
         if (versionedMetacards.isEmpty()) {
@@ -418,16 +421,12 @@ public class Historian {
     private List<ContentItem> getVersionedContent(Metacard root, List<ContentItem> contentItems,
             MetacardVersion.Action versionAction, Map<String, Path> tmpContentPaths) {
         String id = root.getId();
-        MetacardVersion rootVersion = new MetacardVersion(root,
-                versionAction,
-                SecurityUtils.getSubject());
-
-        List<ContentItem> relatedContent = contentItems.stream()
+        MetacardVersion rootVersion = new MetacardVersion(root, versionAction, getSubject.get());
+        Supplier<Stream<ContentItem>> relatedContent = () -> contentItems.stream()
                 .filter(ci -> ci.getId()
-                        .equals(id))
-                .collect(Collectors.toList());
+                        .equals(id));
 
-        ContentItem rootItem = relatedContent.stream()
+        ContentItem rootItem = relatedContent.get()
                 .filter(ci -> !isNullOrEmpty(ci.getUri()))
                 .filter(ci -> !ci.getUri()
                         .contains("#"))
@@ -435,7 +434,7 @@ public class Historian {
                 .orElseThrow(() -> new RuntimeException(
                         "Could not find root content item for: " + id));
 
-        List<ContentItem> derivedContent = relatedContent.stream()
+        List<ContentItem> derivedContent = relatedContent.get()
                 .filter(ci -> !ci.equals(rootItem))
                 .collect(Collectors.toList());
 
@@ -477,8 +476,8 @@ public class Historian {
     }
 
     private Subject getSystemSubject() {
-        Subject systemSubject = Security.getInstance()
-                .getSystemSubject();
+        Subject systemSubject = Security.runAsAdmin(() -> Security.getInstance()
+                .getSystemSubject());
         if (systemSubject == null) {
             throw new RuntimeException("Could not get systemSubject to version metacards.");
         }

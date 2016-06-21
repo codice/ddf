@@ -92,7 +92,6 @@ import com.google.common.collect.Maps;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
-import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -1970,6 +1969,14 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testContentVersioning() throws Exception {
+
+        Configuration config = getAdminConfig().getConfiguration("ddf.catalog.history.Historian");
+        config.setBundleLocation(
+                "mvn:ddf.catalog.core/catalog-core-standardframework/2.10.0-SNAPSHOT");
+        Dictionary properties = new Hashtable<>();
+        properties.put("historyEnabled", true);
+        config.update(properties);
+
         String fileName1 = "testcontent" + ".jpg";
         File tmpFile1 = createTemporaryFile(fileName1,
                 TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
@@ -1994,17 +2001,19 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .asByteArray();
 
         String metacardHistoryQuery = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
-                MetacardVersion.VERSION_OF_ID,
+                "metacard.version.id",
                 id)
-                .addAttributeFilter(PROPERTY_IS_LIKE, Metacard.TAGS, MetacardVersion.VERSION_TAG)
+                .addAttributeFilter(PROPERTY_IS_LIKE, Metacard.TAGS, "revision")
                 .addLogicalOperator(AND)
-                .getQuery();
+                .getQuery("application/xml", "urn:catalog:metacard");
 
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                 .body(metacardHistoryQuery)
                 .post(CSW_PATH.getUrl())
                 .then()
-                .body(hasXPath("count(/GetRecordsResponse/SearchResults/Record)", is("1")));
+                .body(hasXPath("count(/GetRecordsResponse/SearchResults/metacard)", is("1")),
+                        hasXPath(
+                                "/GetRecordsResponse/SearchResults/metacard/string[@name='metacard.version.action']/value[text()=\"Created-Content\"]"));
 
         given().multiPart(tmpFile2)
                 .expect()
@@ -2025,8 +2034,12 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .body(metacardHistoryQuery)
                 .post(CSW_PATH.getUrl())
                 .then()
-                .body(hasXPath("count(/GetRecordsResponse/SearchResults/Record)", is("2")));
+                .body(hasXPath("count(/GetRecordsResponse/SearchResults/metacard)", is("2")),
+                        hasXPath(
+                                "/GetRecordsResponse/SearchResults/metacard/string[@name='metacard.version.action']/value[text()=\"Updated-Content\"]"));
 
+        properties.put("historyEnabled", false);
+        config.update(properties);
         deleteMetacard(id);
     }
 

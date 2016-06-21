@@ -82,7 +82,6 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryResponse;
@@ -432,31 +431,6 @@ public class RESTEndpoint implements RESTService {
             @Encoded @PathParam("id") String encodedId,
             @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo,
             @Context HttpServletRequest httpRequest) {
-        return getDocument(encodedSourceId,
-                encodedId,
-                transformerParam,
-                false,
-                uriInfo,
-                httpRequest);
-    }
-
-    /**
-     * REST Get. Retrieves the metadata entry specified by the id from the federated source
-     * specified by sourceid. Transformer argument is optional, but is used to specify what format
-     * the data should be returned.
-     *
-     * @param sourceid
-     * @param id
-     * @param transformerParam
-     * @param uriInfo
-     * @return
-     */
-    @GET
-    @Path("/sources/{sourceid}/anytag/{id}")
-    public Response getDocument(@Encoded @PathParam("sourceid") String encodedSourceId,
-            @Encoded @PathParam("id") String encodedId,
-            @QueryParam("transform") String transformerParam, @QueryParam("anytag") boolean anyTag,
-            @Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
 
         Response response = null;
         Response.ResponseBuilder responseBuilder;
@@ -489,13 +463,6 @@ public class RESTEndpoint implements RESTService {
                         .is()
                         .equalTo()
                         .text(id);
-                if (anyTag) {
-                    filter = getFilterBuilder().allOf(filter,
-                            getFilterBuilder().attribute(Metacard.TAGS)
-                                    .is()
-                                    .like()
-                                    .text(FilterDelegate.WILDCARD_CHAR));
-                }
 
                 Collection<String> sources = null;
                 if (encodedSourceId != null) {

@@ -331,8 +331,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
             throw new IngestException("Solr could not ingest metacard(s).");
         }
-        // TODO (RCZ) - Do we need to put the req props into the response????
-        return new CreateResponseImpl(request, null, output);
+        return new CreateResponseImpl(request, request.getProperties(), output);
     }
 
     @Override
