@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "standard": "^5.4.1",
-    "tap": "^5.4.2"
+    "tap": "^5.7.2"
   },
   "repository": {
     "type": "git",
