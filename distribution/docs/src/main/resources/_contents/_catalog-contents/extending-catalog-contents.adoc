@@ -1234,14 +1234,14 @@ None
 
 ===== Metacard Validity Marker
 
-The Metacard Validity Marker Pre-Ingest plugin makes modifications to `CreateRequest` and `UpdateRequest` metacards.
+The Metacard Validity Marker Pre-Ingest plugin modifies the metacards contained in `CreateRequest`s and `UpdateRequest`s.
 
-The plugin runs the metacards contained in the `CreateRequest` and `UpdateRequest` with each service registered as a `MetacardValidator`.
+The plugin runs each metacard in the `CreateRequest` and `UpdateRequest` against each registered `MetacardValidator` service.
 
 [NOTE]
 ====
 This plugin can make it seem like ingested products are not successfully ingested.
-If after ingesting, the ingest did not fail but the expected results does not show up after a query,
+If after ingesting, the ingest did not fail and there are no errors in the ingest log, but the expected results do not show up after a query,
 verify either that the ingested data is valid or that the <<catalogFederationStrategy, Catalog Federation Strategy>> is configured to show warnings and/or errors.
 ====
 
