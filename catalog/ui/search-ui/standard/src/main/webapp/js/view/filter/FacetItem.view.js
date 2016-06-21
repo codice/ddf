@@ -27,13 +27,9 @@ define([
             template: 'facetItemTemplate',
             tagName: 'div',
             events: {
-                'click .toggle-facet': 'toggleFacet',
-                'click .any-button':'anyButtonClicked',
+                'click .toggle-facet': 'toggleFacet'
             },
             initialize: function(){
-            },
-            anyButtonClicked: function(){
-                wreqr.vent.trigger('anyFacetClicked', this.model.get('fieldName'));
             },
             toggleFacet: function(evt){
                 if (evt.target.checked) {
