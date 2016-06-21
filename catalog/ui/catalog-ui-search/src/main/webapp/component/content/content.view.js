@@ -62,6 +62,7 @@ define([
                     template: map,
                     className: 'height-full',
                     regions: { mapDrawingPopup: '#mapDrawingPopup' },
+                    events: { 'click .cluster-results': 'toggleClustering' },
                     onShow: function () {
                         var self = this;
                         require([
@@ -90,7 +91,11 @@ define([
                                 drawHelper: geoController.drawHelper,
                                 geoController: geoController
                             });
+                            self.geoController = geoController;
                         });
+                    },
+                    toggleClustering: function () {
+                        this.geoController.toggleClustering();
                     },
                     setupListeners: function(geoController){
                         geoController.listenTo(store.get('content'), 'reset:activeSearchResults', geoController.newActiveSearchResults);

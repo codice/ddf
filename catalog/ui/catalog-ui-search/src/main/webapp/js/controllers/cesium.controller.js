@@ -24,12 +24,15 @@ define(['application',
         'js/view/cesium.metacard',
         'jquery',
         'drawHelper',
-        'js/controllers/cesium.layerCollection.controller'
+        'js/controllers/cesium.layerCollection.controller',
+        'js/widgets/cesium.mapclustering'
     ], function (Application, _, Backbone, Marionette, Cesium, Q, wreqr, store, properties, CesiumMetacard,
-                 $, DrawHelper, LayerCollectionController) {
+                 $, DrawHelper, LayerCollectionController, MapClustering) {
         "use strict";
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
+
+         var mapclustering = new MapClustering();
 
         var CesiumLayerCollectionController = LayerCollectionController.extend({
             initialize: function () {
@@ -45,6 +48,7 @@ define(['application',
                 this.overlays = {};
                 this.listenTo(wreqr.vent, 'metacard:overlay', this.overlayImage);
                 this.listenTo(wreqr.vent, 'metacard:overlay:remove', this.removeOverlay);
+                this.clustering = false;
 
                 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
                 this.mapViewer = this.createMap();
@@ -57,6 +61,17 @@ define(['application',
                 this.setupEvents();
                 this._billboardPromise = this.preloadBillboards();
             },
+
+            toggleClustering: function() {
+                if(!this.clustering) {
+                    this.clustering = true;
+                    mapclustering.clusteringAlgorithm();
+                } else {
+                    this.clustering = false;
+                    mapclustering.resetBillboard();
+                }
+             },
+
             createMap: function () {
                 var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
                 var layerCollectionController = new CesiumLayerCollectionController({
@@ -82,6 +97,19 @@ define(['application',
                     }
                 );
 
+                var that = this;
+                viewer.camera.moveEnd.addEventListener(function() {
+                    if(that.clustering) {
+                        var cartographic = new Cesium.Cartographic();
+                        var metersToKm = 0.001;
+                        viewer.scene.mapProjection.ellipsoid.cartesianToCartographic(viewer.camera.positionWC, cartographic);
+                        var cameraHeight = (cartographic.height * metersToKm).toFixed(1);
+                        mapclustering.clusteringAlgorithm(cameraHeight);
+                    }
+                });
+
+                 mapclustering.setViewer(viewer);
+
                 if (properties.terrainProvider) {
                     var type = imageryProviderTypes[properties.terrainProvider.type];
                     var initObj = _.omit(properties.terrainProvider, 'type');
@@ -97,6 +125,8 @@ define(['application',
                         scene: viewer.scene
                     });
                 }
+                $(".cesium-viewer-toolbar").append("<button class='cesium-button cesium-toolbar-button cesium-home-button'><span class='cluster-results'></span></button>");
+
                 return viewer;
             },
 
@@ -366,6 +396,14 @@ define(['application',
                     geoController: this
                 });
                 this.mapViews.render();
+                mapclustering.setResultLists(this.mapViews);
+
+                if(this.clustering && typeof results !== "undefined") {
+                    mapclustering.clusteringAlgorithm();
+                }
+
+
+
             },
             
             showResult: function(result){
@@ -374,7 +412,12 @@ define(['application',
                     collection: new Backbone.Collection([result]),
                     geoController: this
                 });
-                this.mapViews.render();  
+                this.mapViews.render();
+                mapclustering.setResultLists(this.mapViews);
+
+                if(this.clustering && typeof results !== "undefined") {
+                    mapclustering.clusteringAlgorithm();
+                }
             },
 
             clear: function () {
@@ -385,6 +428,9 @@ define(['application',
             clearResults: function () {
                 if (this.mapViews) {
                     this.mapViews.destroy();
+                }
+                if (this.clustering) {
+                    mapclustering.resetBillboard();
                 }
             }
 

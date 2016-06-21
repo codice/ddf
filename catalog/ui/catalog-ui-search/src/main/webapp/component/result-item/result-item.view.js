@@ -95,7 +95,11 @@ define([
                 result.hasWarning = true;
                 result.warning = validationWarnings;
             }
-            result.thumbnailURL = result.metacard.properties['resource-download-url'].split('?')[0] + '?transform=thumbnail';
+
+            var resourceDownloadUrl = result.metacard.properties['resource-download-url'];
+            if(typeof resourceDownloadUrl !== "undefined") {
+                result.thumbnailURL = resourceDownloadUrl.split('?')[0] + '?transform=thumbnail';
+            }
             return result;
         },
         serializeData: function(){

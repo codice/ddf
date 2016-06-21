@@ -1267,6 +1267,12 @@ a.pause:hover, a.pause:focus {
     width: 100%
 }
 
+.cluster-results {
+   display:block;
+   height:100%;
+   background-image: url('../images/clustering.png');
+}
+
 .fileinput-button {
     margin: 10px;
     height: 100%;
