@@ -27,8 +27,14 @@
 
     <reference-list id="userAttributeExpansionList" interface="ddf.security.expansion.Expansion"
                     filter="(mapping=security.user.attribute.mapping)" availability="optional">
-        <reference-listener bind-method="addExpansion"
-                            unbind-method="removeExpansion" ref="pdpAuthzRealm"/>
+        <reference-listener bind-method="addUserExpansion"
+                            unbind-method="removeUserExpansion" ref="pdpAuthzRealm"/>
+    </reference-list>
+
+    <reference-list id="metacardAttributeExpansionList" interface="ddf.security.expansion.Expansion"
+                    filter="(mapping=security.metacard.attribute.mapping)" availability="optional">
+        <reference-listener bind-method="addMetacardExpansion"
+                            unbind-method="removeMetacardExpansion" ref="pdpAuthzRealm"/>
     </reference-list>
 
     <reference-list id="policyExtensionList" interface="ddf.security.policy.extension.PolicyExtension" availability="optional">

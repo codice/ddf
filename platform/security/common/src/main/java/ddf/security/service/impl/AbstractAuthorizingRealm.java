@@ -56,25 +56,46 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
 
     private static final String SAML_ROLE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
-    protected Map<ServiceReference, Expansion> expansionServices = new ConcurrentHashMap<>();
+    protected Map<ServiceReference, Expansion> userExpansionServices = new ConcurrentHashMap<>();
 
-    public void addExpansion(ServiceReference<Expansion> expansionServiceRef) {
+    protected Map<ServiceReference, Expansion> metacardExpansionServices = new ConcurrentHashMap<>();
+
+    public void addUserExpansion(ServiceReference<Expansion> expansionServiceRef) {
         Bundle bundle = FrameworkUtil.getBundle(AbstractAuthorizingRealm.class);
         if (bundle != null) {
             Expansion expansion = bundle.getBundleContext()
                     .getService(expansionServiceRef);
-            addExpansion(expansionServiceRef, expansion);
+            addUserExpansion(expansionServiceRef, expansion);
         }
     }
 
-    public void addExpansion(ServiceReference<Expansion> expansionServiceRef, Expansion expansion) {
+    public void addUserExpansion(ServiceReference<Expansion> expansionServiceRef, Expansion expansion) {
         if (expansionServiceRef != null) {
-            expansionServices.put(expansionServiceRef, expansion);
+            userExpansionServices.put(expansionServiceRef, expansion);
         }
     }
 
-    public void removeExpansion(ServiceReference<Expansion> expansionServiceRef) {
-        expansionServices.remove(expansionServiceRef);
+    public void removeUserExpansion(ServiceReference<Expansion> expansionServiceRef) {
+        userExpansionServices.remove(expansionServiceRef);
+    }
+
+    public void addMetacardExpansion(ServiceReference<Expansion> expansionServiceRef) {
+        Bundle bundle = FrameworkUtil.getBundle(AbstractAuthorizingRealm.class);
+        if (bundle != null) {
+            Expansion expansion = bundle.getBundleContext()
+                    .getService(expansionServiceRef);
+            addMetacardExpansion(expansionServiceRef, expansion);
+        }
+    }
+
+    public void addMetacardExpansion(ServiceReference<Expansion> expansionServiceRef, Expansion expansion) {
+        if (expansionServiceRef != null) {
+            metacardExpansionServices.put(expansionServiceRef, expansion);
+        }
+    }
+
+    public void removeMetacardExpansion(ServiceReference<Expansion> expansionServiceRef) {
+        metacardExpansionServices.remove(expansionServiceRef);
     }
 
     public AbstractAuthorizingRealm() {
@@ -106,7 +127,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         Set<String> roles = new HashSet<>();
 
         Map<String, Set<String>> permissionsMap = new HashMap<>();
-        Collection<Expansion> expansionServices = getExpansionServices();
+        Collection<Expansion> expansionServices = getUserExpansionServices();
         for (AttributeStatement curStatement : attributeStatements) {
             addAttributesToMap(curStatement.getAttributes(), permissionsMap,
                     expansionServices);
@@ -183,7 +204,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     }
 
     protected List<Permission> expandPermissions(List<Permission> permissions) {
-        Collection<Expansion> expansionServices = getExpansionServices();
+        Collection<Expansion> expansionServices = getMetacardExpansionServices();
         if (CollectionUtils.isEmpty(expansionServices)) {
             return permissions;
         }
@@ -213,8 +234,12 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         return expandedPermissions;
     }
 
-    private Collection<Expansion> getExpansionServices() {
-        return expansionServices.values();
+    private Collection<Expansion> getUserExpansionServices() {
+        return userExpansionServices.values();
+    }
+
+    private Collection<Expansion> getMetacardExpansionServices() {
+        return metacardExpansionServices.values();
     }
 
     private <T> List<T> castToKeyValueList(List<Permission> permissionList) {
