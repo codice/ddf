@@ -151,11 +151,7 @@ public class ReliableResourceDownloadManagerTest {
         eventListener = mock(DownloadsStatusEventListener.class);
         downloadStatusInfo = new DownloadStatusInfoImpl();
 
-        downloadMgr = new ReliableResourceDownloadManager(resourceCache,
-                eventPublisher,
-                eventListener,
-                downloadStatusInfo,
-                Executors.newSingleThreadExecutor());
+        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(), downloadStatusInfo, Executors.newSingleThreadExecutor());
 
     }
 
@@ -616,11 +612,7 @@ public class ReliableResourceDownloadManagerTest {
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
 
-        downloadMgr = new ReliableResourceDownloadManager(resourceCache,
-                eventPublisher,
-                eventListener,
-                downloadStatusInfo,
-                Executors.newSingleThreadExecutor());
+        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(), downloadStatusInfo, Executors.newSingleThreadExecutor());
 
         // Use small chunk size so download takes long enough for client
         // to have time to simulate FileBackedOutputStream exception
@@ -662,11 +654,7 @@ public class ReliableResourceDownloadManagerTest {
 
     private void startDownload(boolean cacheEnabled, int chunkSize, boolean cacheWhenCanceled,
             Metacard metacard, ResourceRetriever retriever) throws Exception {
-        downloadMgr = new ReliableResourceDownloadManager(resourceCache,
-                eventPublisher,
-                eventListener,
-                downloadStatusInfo,
-                Executors.newSingleThreadExecutor());
+//        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig());
         downloadMgr.setCacheEnabled(cacheEnabled);
         downloadMgr.setChunkSize(chunkSize);
         downloadMgr.setCacheWhenCanceled(cacheWhenCanceled);
@@ -912,6 +900,13 @@ public class ReliableResourceDownloadManagerTest {
         executor.shutdownNow();
     }
 
+    private ReliableResourceDownloaderConfig getDownloaderConfig() {
+        ReliableResourceDownloaderConfig downloaderConfig = new ReliableResourceDownloaderConfig();
+        downloaderConfig.setResourceCache(resourceCache);
+        downloaderConfig.setEventPublisher(eventPublisher);
+        downloaderConfig.setEventListener(eventListener);
+        return downloaderConfig;
+    }
     private enum RetryType {
         INPUT_STREAM_IO_EXCEPTION,
         TIMEOUT_EXCEPTION,

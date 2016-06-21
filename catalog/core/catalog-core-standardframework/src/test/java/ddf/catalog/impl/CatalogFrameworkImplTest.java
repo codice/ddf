@@ -128,7 +128,6 @@ import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.operation.impl.SourceInfoRequestSources;
 import ddf.catalog.operation.impl.SourceResponseImpl;
@@ -871,10 +870,6 @@ public class CatalogFrameworkImplTest {
         resourceFramework.setId(sourceId);
         ResourceCacheImpl resourceCache = mock(ResourceCacheImpl.class);
         when(resourceCache.containsValid(isA(String.class), isA(Metacard.class))).thenReturn(false);
-        //        ResourceResponse resourceResponseInCache = new ResourceResponseImpl(mockResource);
-        //        when(resourceCache.put(isA(Metacard.class), isA(ResourceResponse.class),
-        //             isA(ResourceRetriever.class), isA(Boolean.class))).thenReturn(resourceResponseInCache);
-        resourceFramework.setProductCache(resourceCache);
 
         String resourceSiteName = "myId";
 
@@ -2021,99 +2016,6 @@ public class CatalogFrameworkImplTest {
         optionsMap = framework.getResourceOptions(metacardId, "");
         LOGGER.debug("localProvider optionsMap = {}", optionsMap);
         assertThat(optionsMap, hasEntry("RESOURCE_OPTION", supportedOptions));
-    }
-
-    @Test
-    public void testGetResourceFromCache() throws Exception {
-        String localProviderName = "ddf";
-        String federatedSite1Name = "fed-site-1";
-        String metacardId = "123";
-
-        // The resource's URI
-        URI metacardUri = new URI(
-                "http:///27+Nov+12+12%3A30%3A04?MyPhotograph%0Ahttp%3A%2F%2F172.18.14.53%3A8080%2Fabc%2Fimages%2FActionable.jpg%0AMyAttachment%0Ahttp%3A%2F%2F172.18.14.53%3A8080%2Fabc#abc.xyz.dao.URLResourceOptionDataAccessObject");
-
-        Set<String> supportedOptions = new HashSet<String>();
-        supportedOptions.add("MyPhotograph");
-        supportedOptions.add("MyAttachment");
-
-        // Catalog Provider
-        CatalogProvider provider = mock(CatalogProvider.class);
-        when(provider.getId()).thenReturn(localProviderName);
-        when(provider.isAvailable(isA(SourceMonitor.class))).thenReturn(true);
-        when(provider.isAvailable()).thenReturn(true);
-
-        // Federated Source 1
-        FederatedSource federatedSource1 = mock(FederatedSource.class);
-        when(federatedSource1.getId()).thenReturn(federatedSite1Name);
-        when(federatedSource1.isAvailable(isA(SourceMonitor.class))).thenReturn(true);
-        when(federatedSource1.isAvailable()).thenReturn(true);
-        when(federatedSource1.getOptions(isA(Metacard.class))).thenReturn(supportedOptions);
-
-        List<FederatedSource> federatedSources = new ArrayList<FederatedSource>();
-        federatedSources.add(federatedSource1);
-
-        // Mock register the provider in the container
-        // Mock the source poller
-        SourcePoller mockPoller = mock(SourcePoller.class);
-        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
-
-        Metacard metacard = mock(Metacard.class);
-        when(metacard.getId()).thenReturn(metacardId);
-        when(metacard.getResourceURI()).thenReturn(metacardUri);
-        Result result = mock(Result.class);
-        when(result.getMetacard()).thenReturn(metacard);
-        List<Result> results = new ArrayList<Result>();
-        results.add(result);
-
-        QueryResponse queryResponse = mock(QueryResponse.class);
-        when(queryResponse.getResults()).thenReturn(results);
-        FederationStrategy strategy = mock(FederationStrategy.class);
-        when(strategy.federate(isA(federatedSources.getClass()),
-                isA(QueryRequest.class))).thenReturn(queryResponse);
-
-        ResourceReader resourceReader = mock(ResourceReader.class);
-        Set<String> supportedSchemes = new HashSet<String>();
-        supportedSchemes.add("http");
-        when(resourceReader.getSupportedSchemes()).thenReturn(supportedSchemes);
-        when(resourceReader.getOptions(isA(Metacard.class))).thenReturn(supportedOptions);
-        List<ResourceReader> resourceReaders = new ArrayList<ResourceReader>();
-        resourceReaders.add(resourceReader);
-
-        ResourceCacheImpl resourceCache = mock(ResourceCacheImpl.class);
-        Resource mockResource = mock(Resource.class);
-        when(resourceCache.containsValid(isA(String.class), isA(Metacard.class))).thenReturn(true);
-        when(resourceCache.getValid(isA(String.class),
-                isA(Metacard.class))).thenReturn(mockResource);
-
-        FrameworkProperties props = new FrameworkProperties();
-        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
-        props.setFederatedSources(Collections.singletonMap(federatedSite1Name, federatedSource1));
-        props.setResourceReaders(resourceReaders);
-        props.setFederationStrategy(strategy);
-        props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
-        props.setSourcePoller(mockPoller);
-        props.setResourceCache(resourceCache);
-
-        props.setFilterBuilder(new GeotoolsFilterBuilder());
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
-        framework.bind(provider);
-        framework.setId("ddf");
-
-        Set<String> ids = new HashSet<String>();
-        for (FederatedSource source : federatedSources) {
-            ids.add(source.getId());
-        }
-        ids.add(framework.getId());
-
-        ResourceRequestById request = new ResourceRequestById(metacardId);
-
-        ResourceResponse response = framework.getResource(request, federatedSite1Name);
-
-        assertThat(response, is(ResourceResponse.class));
-        Metacard responseMetacard = (Metacard) response.getProperties()
-                .get("metacard");
-        assertThat(responseMetacard, is(Metacard.class));
     }
 
     @Test
