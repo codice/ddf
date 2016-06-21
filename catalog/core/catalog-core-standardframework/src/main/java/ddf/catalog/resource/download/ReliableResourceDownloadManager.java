@@ -14,6 +14,8 @@
 package ddf.catalog.resource.download;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Stopwatch;
 
 import ddf.catalog.cache.impl.CacheKey;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
 import ddf.catalog.operation.ResourceRequest;
@@ -34,6 +37,7 @@ import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
 /**
@@ -52,6 +56,8 @@ public class ReliableResourceDownloadManager {
     private DownloadStatusInfo downloadStatusInfo;
 
     private ExecutorService executor;
+
+    private List<String> pendingCache = new ArrayList<>();
 
     /**
      * @param downloaderConfig reference to the {@link ReliableResourceDownloaderConfig}
@@ -73,6 +79,30 @@ public class ReliableResourceDownloadManager {
             executor.awaitTermination(ONE_SECOND_IN_MS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             executor.shutdownNow();
+        }
+    }
+
+    public boolean isPending(String key) {
+        return pendingCache.contains(key);
+    }
+
+    public void addPendingCacheEntry(ReliableResource reliableResource) {
+        ResourceCacheImpl resourceCache = downloaderConfig.getResourceCache();
+        String key = reliableResource.getKey();
+        if (isPending(key)) {
+            LOGGER.debug("Cache entry with key = {} is already pending", key);
+        } else if (resourceCache.containsValid(key, reliableResource.getMetacard())) {
+            LOGGER.debug("Cache entry with key = {} is already in cache", key);
+        } else {
+            pendingCache.add(key);
+        }
+    }
+
+    public void removePendingCacheEntry(String key) {
+        if (!pendingCache.remove(key)) {
+            LOGGER.debug("Did not find pending cache entry with key = {}", key);
+        } else {
+            LOGGER.debug("Removed pending cache entry with key = {}", key);
         }
     }
 
@@ -189,7 +219,10 @@ public class ReliableResourceDownloadManager {
                 resourceResponse,
                 retriever);
 
-        ResourceResponse response = downloader.setupDownload(metacard, downloadStatusInfo);
+        ResourceResponse response = downloader.setupDownload(
+                metacard,
+                downloadStatusInfo,
+                this);
 
         // Start download in separate thread so can return ResourceResponse with
         // ReliableResourceInputStream available for client to start reading from

@@ -77,7 +77,7 @@ public class DownloadResourceActionProvider extends AbstractMetacardActionProvid
 
     private boolean isCached(Metacard metacard) {
         String key = new CacheKey(metacard).generateKey();
-        return resourceCache.isPending(key) || resourceCache.containsValid(key, metacard);
+        return downloadManager.isPending(key) || resourceCache.containsValid(key, metacard);
     }
 
     private URL getActionUrl(String metacardSource, String metacardId) throws Exception {

@@ -17,8 +17,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -41,6 +39,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 
 public class ResourceCacheImpl implements ResourceCacheInterface {
 
@@ -60,8 +59,6 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
 
     private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L;  //10 GB
 
-    private List<String> pendingCache = new ArrayList<>();
-
     /**
      * Directory for products cached to file system
      */
@@ -77,6 +74,12 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
     private BundleContext context;
 
     private String xmlConfigFilename;
+
+    private ReliableResourceDownloadManager manager;
+
+    public void setManager(ReliableResourceDownloadManager manager) {
+        this.manager = manager;
+    }
 
     /**
      * Called after all parameters are set
@@ -248,7 +251,7 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
      */
     @Override
     public boolean isPending(String key) {
-        return pendingCache.contains(key);
+        return manager.isPending(key);
     }
 
     /**
@@ -269,23 +272,12 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
 
     @Override
     public void removePendingCacheEntry(String cacheKey) {
-        if (!pendingCache.remove(cacheKey)) {
-            LOGGER.debug("Did not find pending cache entry with key = {}", cacheKey);
-        } else {
-            LOGGER.debug("Removed pending cache entry with key = {}", cacheKey);
-        }
+        manager.removePendingCacheEntry(cacheKey);
     }
 
     @Override
     public void addPendingCacheEntry(ReliableResource reliableResource) {
-        String cacheKey = reliableResource.getKey();
-        if (isPending(cacheKey)) {
-            LOGGER.debug("Cache entry with key = {} is already pending", cacheKey);
-        } else if (containsValid(cacheKey, reliableResource.getMetacard())) {
-            LOGGER.debug("Cache entry with key = {} is already in cache", cacheKey);
-        } else {
-            pendingCache.add(cacheKey);
-        }
+        manager.addPendingCacheEntry(reliableResource);
     }
 
     /**
