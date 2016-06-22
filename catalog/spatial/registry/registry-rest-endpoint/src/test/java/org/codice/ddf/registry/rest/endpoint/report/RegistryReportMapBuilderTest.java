@@ -39,12 +39,12 @@ import org.junit.Test;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 
-public class RegistryReportHelperTest {
+public class RegistryReportMapBuilderTest {
     private Parser parser;
 
     private ParserConfigurator configurator;
 
-    private RegistryReportHelper reportHelper;
+    private RegistryReportMapBuilder reportHelper;
 
     @Before
     public void setup() {
@@ -61,7 +61,7 @@ public class RegistryReportHelperTest {
                 this.getClass()
                         .getClassLoader());
 
-        reportHelper = new RegistryReportHelper();
+        reportHelper = new RegistryReportMapBuilder();
     }
 
     @Test

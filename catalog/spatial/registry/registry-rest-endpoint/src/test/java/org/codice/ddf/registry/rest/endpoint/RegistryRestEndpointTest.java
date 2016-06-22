@@ -32,7 +32,7 @@ import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
-import org.codice.ddf.registry.rest.endpoint.report.RegistryReportHelper;
+import org.codice.ddf.registry.rest.endpoint.report.RegistryReportMapBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class RegistryRestEndpointTest {
 
     private RegistryRestEndpoint restEndpoint;
 
-    private RegistryReportHelper reportHelper = mock(RegistryReportHelper.class);
+    private RegistryReportMapBuilder reportMapBuilder = mock(RegistryReportMapBuilder.class);
 
     private RegistryPublicationService registryPublicationService =
             mock(RegistryPublicationService.class);
@@ -59,10 +59,10 @@ public class RegistryRestEndpointTest {
     public void setup() {
         restEndpoint = new RegistryRestEndpoint();
         restEndpoint.setFederationAdminService(federationAdminService);
-        restEndpoint.setReportHelper(reportHelper);
+        restEndpoint.setRegistryReportMapBuilder(reportMapBuilder);
         restEndpoint.setRegistryPublicationService(registryPublicationService);
 
-        when(reportHelper.buildRegistryMap(any(RegistryPackageType.class))).thenReturn(new HashMap<>());
+        when(reportMapBuilder.buildRegistryMap(any(RegistryPackageType.class))).thenReturn(new HashMap<>());
     }
 
     @Test
@@ -103,14 +103,14 @@ public class RegistryRestEndpointTest {
     }
 
     @Test
-    public void testPublishMissingFirstArg() throws Exception {
+    public void testPublishWithNullRegistryId() throws Exception {
         Response response = restEndpoint.publish(null, DESTINATION_ID);
         assertThat(response.getStatusInfo()
                 .getStatusCode(), is(Response.Status.BAD_REQUEST.getStatusCode()));
     }
 
     @Test
-    public void testPublishMissingSecondArg() throws Exception {
+    public void testPublishWithNullDestinationId() throws Exception {
         Response response = restEndpoint.publish(REGISTRY_ID, null);
         assertThat(response.getStatusInfo()
                 .getStatusCode(), is(Response.Status.BAD_REQUEST.getStatusCode()));
@@ -125,7 +125,7 @@ public class RegistryRestEndpointTest {
         verify(registryPublicationService).publish(REGISTRY_ID, DESTINATION_ID);
 
         assertThat(response.getStatusInfo()
-                .getStatusCode(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+                .getStatusCode(), is(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()));
     }
 
     @Test
@@ -137,14 +137,14 @@ public class RegistryRestEndpointTest {
     }
 
     @Test
-    public void testUnpublishMissingFirstArg() throws Exception {
+    public void testUnpublishWithNullRegistryId() throws Exception {
         Response response = restEndpoint.unpublish(null, DESTINATION_ID);
         assertThat(response.getStatusInfo()
                 .getStatusCode(), is(Response.Status.BAD_REQUEST.getStatusCode()));
     }
 
     @Test
-    public void testUnpublishMissingSecondArg() throws Exception {
+    public void testUnpublishWithNullDestinationId() throws Exception {
         Response response = restEndpoint.unpublish(REGISTRY_ID, null);
         assertThat(response.getStatusInfo()
                 .getStatusCode(), is(Response.Status.BAD_REQUEST.getStatusCode()));
@@ -159,7 +159,7 @@ public class RegistryRestEndpointTest {
         verify(registryPublicationService).unpublish(REGISTRY_ID, DESTINATION_ID);
 
         assertThat(response.getStatusInfo()
-                .getStatusCode(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+                .getStatusCode(), is(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()));
     }
 
     @Test

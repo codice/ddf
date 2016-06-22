@@ -41,7 +41,7 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.TelephoneNumberType;
 
-public class RegistryReportHelper {
+public class RegistryReportMapBuilder {
 
     private static final String BINDING_TYPE = "bindingType";
 

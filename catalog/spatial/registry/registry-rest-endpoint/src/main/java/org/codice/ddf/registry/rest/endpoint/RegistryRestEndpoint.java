@@ -32,7 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
-import org.codice.ddf.registry.rest.endpoint.report.RegistryReportHelper;
+import org.codice.ddf.registry.rest.endpoint.report.RegistryReportMapBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class RegistryRestEndpoint {
 
     private RegistryPublicationService registryPublicationService;
 
-    private RegistryReportHelper reportHelper;
+    private RegistryReportMapBuilder reportMapBuilder;
 
     public RegistryRestEndpoint() {
         templateLoader = new ClassPathTemplateLoader();
@@ -64,16 +64,17 @@ public class RegistryRestEndpoint {
     @POST
     public Response publish(@PathParam("registryId") String registryId,
             @PathParam("sourceId") String destinationId) {
-        if (StringUtils.isBlank(registryId) || StringUtils.isBlank(destinationId)) {
+
+        if (!isValidPublishUnpublishParams(registryId, destinationId)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Registry and destination ID cannot be blank")
+                    .entity("Registry ID and destination ID cannot be blank")
                     .build();
         }
 
         try {
             registryPublicationService.publish(registryId, destinationId);
         } catch (FederationAdminException e) {
-            return Response.status(Response.Status.BAD_REQUEST)
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error publishing node to destination " + destinationId)
                     .build();
         }
@@ -86,17 +87,17 @@ public class RegistryRestEndpoint {
     @DELETE
     public Response unpublish(@PathParam("registryId") String registryId,
             @PathParam("sourceId") String destinationId) {
-        if (StringUtils.isBlank(registryId) || StringUtils.isBlank(destinationId)) {
+        if (!isValidPublishUnpublishParams(registryId, destinationId)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Registry and destination ID cannot be blank")
+                    .entity("Registry ID and destination ID cannot be blank")
                     .build();
         }
 
         try {
             registryPublicationService.unpublish(registryId, destinationId);
         } catch (FederationAdminException e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error publishing node to destination " + destinationId)
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error unpublishing node from destination " + destinationId)
                     .build();
         }
 
@@ -122,7 +123,7 @@ public class RegistryRestEndpoint {
                     sourceIds);
         } catch (FederationAdminException e) {
             String message = "Error getting registry package.";
-            LOGGER.error("{} For metacard id: '{}', optional sources: {}",
+            LOGGER.error("{} For registry id: '{}', optional sources: {}",
                     message,
                     registryId,
                     sourceIds);
@@ -133,7 +134,7 @@ public class RegistryRestEndpoint {
 
         if (registryPackage == null) {
             String message = "No registry package was found.";
-            LOGGER.error("{} For metacard id: '{}', optional source ids: {}.",
+            LOGGER.error("{} For registry id: '{}', optional source ids: {}.",
                     message,
                     registryId,
                     sourceIds);
@@ -142,7 +143,7 @@ public class RegistryRestEndpoint {
                     .build();
         }
 
-        Map<String, Object> registryMap = reportHelper.buildRegistryMap(registryPackage);
+        Map<String, Object> registryMap = reportMapBuilder.buildRegistryMap(registryPackage);
 
         try {
             Handlebars handlebars = new Handlebars(templateLoader);
@@ -156,13 +157,17 @@ public class RegistryRestEndpoint {
                 .build();
     }
 
+    private boolean isValidPublishUnpublishParams(String registryId, String destinationId) {
+        return (StringUtils.isNotBlank(registryId) && StringUtils.isNotBlank(destinationId));
+    }
+
     public void setRegistryPublicationService(
             RegistryPublicationService registryPublicationService) {
         this.registryPublicationService = registryPublicationService;
     }
 
-    public void setReportHelper(RegistryReportHelper reportHelper) {
-        this.reportHelper = reportHelper;
+    public void setRegistryReportMapBuilder(RegistryReportMapBuilder reportMapBuilder) {
+        this.reportMapBuilder = reportMapBuilder;
     }
 
     public void setFederationAdminService(FederationAdminService federationAdminService) {
