@@ -185,8 +185,10 @@ define([
             }], false, [store.get('user').get('user').get('preferences').get('resultDisplay')]));
             this.stopListening(this.resultDisplay.currentView.model);
             this.listenTo(this.resultDisplay.currentView.model, 'change:value', function(){
-                store.get('user').get('user').get('preferences')
-                    .set('resultDisplay',  this.resultDisplay.currentView.model.get('value')[0]);
+                var prefs = store.get('user').get('user').get('preferences');
+                var value = this.resultDisplay.currentView.model.get('value')[0];
+                prefs.set('resultDisplay', value);
+                prefs.savePreferences();
             });
         }
     });
