@@ -32,7 +32,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -73,6 +75,7 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
 public class ReliableResourceDownloadManagerTest {
@@ -95,6 +98,18 @@ public class ReliableResourceDownloadManagerTest {
     private static long expectedFileSize;
 
     private static String expectedFileContents;
+
+    private static final String DOWNLOAD_ID_KEY = "downloadId";
+
+    private static final String FILE_NAME_KEY = "fileName";
+
+    private static final String BYTES_DOWNLOADED_KEY = "bytesDownloaded";
+
+    private static final String PERCENT_KEY = "percent";
+
+    private static final String USER_KEY = "user";
+
+    private static final String STATUS_KEY = "status";
 
     @Rule
     public MethodRule watchman = new TestWatchman() {
@@ -650,6 +665,88 @@ public class ReliableResourceDownloadManagerTest {
         verifyCaching(argument.getValue(), EXPECTED_CACHE_KEY);
 
         cleanup();
+    }
+
+    @Test
+    public void testGetDownloadsInProgress() {
+        List<String> downloadIds = new ArrayList<>();
+        downloadIds.add("03e3f850-240c-4cc6-a5a3-318dc34ad4bd");
+        downloadIds.add("5tygH67-345t-3er5-r86y-5tyZHU7UGD092");
+        downloadIds.add("9tY75f4-345t-4er8-jj87-Y67hJJK098yaq");
+        downloadIds.add("56lJOJl-45gg-3wf5-ww23-tldf7HewfhweJ");
+        downloadIds.add("rRdlefj-ggal-erty-rr6e-ZZefoeje546kL");
+
+        List<Map<String, String>> downloadStatusMaps = getDownloadStatusMaps(downloadIds);
+
+        DownloadStatusInfo downloadStatusInfo = mock(DownloadStatusInfo.class);
+        when(downloadStatusInfo.getAllDownloads()).thenReturn(downloadIds);
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(0)))
+                .thenReturn(downloadStatusMaps.get(0));
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(1)))
+                .thenReturn(downloadStatusMaps.get(1));
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(2)))
+                .thenReturn(downloadStatusMaps.get(2));
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(3)))
+                .thenReturn(downloadStatusMaps.get(3));
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(4)))
+                .thenReturn(downloadStatusMaps.get(4));
+
+        ReliableResourceDownloadManager reliableResorceDownloadManager = new ReliableResourceDownloadManager(
+                null, downloadStatusInfo, null);
+
+        List<DownloadInfo> downloadInfoList = reliableResorceDownloadManager
+                .getDownloadsInProgress();
+
+        assertThat(downloadInfoList.size(), is(2));
+        for (DownloadInfo downloadInfo : downloadInfoList) {
+            assertThat(downloadInfo.isDownloadInState(DownloadState.IN_PROGRESS), is(true));
+        }
+    }
+
+    private List<Map<String, String>> getDownloadStatusMaps(List<String> downloadIds) {
+        List<Map<String, String>> downloads = new ArrayList<>();
+        Map<String, String> downloadStatus1 = new HashMap<>();
+        downloadStatus1.put(DOWNLOAD_ID_KEY, downloadIds.get(0));
+        downloadStatus1.put(FILE_NAME_KEY, "image1.jpg");
+        downloadStatus1.put(STATUS_KEY, DownloadState.IN_PROGRESS.name());
+        downloadStatus1.put(BYTES_DOWNLOADED_KEY, "862978048");
+        downloadStatus1.put(PERCENT_KEY, "76");
+        downloadStatus1.put(USER_KEY, "admin");
+        downloads.add(downloadStatus1);
+        Map<String, String> downloadStatus2 = new HashMap<>();
+        downloadStatus2.put(DOWNLOAD_ID_KEY, downloadIds.get(1));
+        downloadStatus2.put(FILE_NAME_KEY, "image2.jpg");
+        downloadStatus2.put(STATUS_KEY, DownloadState.IN_PROGRESS.name());
+        downloadStatus2.put(BYTES_DOWNLOADED_KEY, "456212");
+        downloadStatus2.put(PERCENT_KEY, "21");
+        downloadStatus2.put(USER_KEY, "localhost");
+        downloads.add(downloadStatus2);
+        Map<String, String> downloadStatus3 = new HashMap<>();
+        downloadStatus3.put(DOWNLOAD_ID_KEY, downloadIds.get(2));
+        downloadStatus3.put(FILE_NAME_KEY, "image3.jpg");
+        downloadStatus3.put(STATUS_KEY, DownloadState.COMPLETED.name());
+        downloadStatus3.put(BYTES_DOWNLOADED_KEY, "3487");
+        downloadStatus3.put(PERCENT_KEY, "11");
+        downloadStatus3.put(USER_KEY, "andrewreynolds");
+        downloads.add(downloadStatus3);
+        Map<String, String> downloadStatus4 = new HashMap<>();
+        downloadStatus4.put(DOWNLOAD_ID_KEY, downloadIds.get(3));
+        downloadStatus4.put(FILE_NAME_KEY, "image4.jpg");
+        downloadStatus4.put(STATUS_KEY, DownloadState.FAILED.name());
+        downloadStatus4.put(BYTES_DOWNLOADED_KEY, "6567544543");
+        downloadStatus4.put(PERCENT_KEY, "11");
+        downloadStatus4.put(USER_KEY, "markjohnson");
+        downloads.add(downloadStatus4);
+        Map<String, String> downloadStatus5 = new HashMap<>();
+        downloadStatus5.put(DOWNLOAD_ID_KEY, downloadIds.get(4));
+        downloadStatus5.put(FILE_NAME_KEY, "image5.jpg");
+        downloadStatus5.put(STATUS_KEY, DownloadState.CANCELED.name());
+        downloadStatus5.put(BYTES_DOWNLOADED_KEY, "243");
+        downloadStatus5.put(PERCENT_KEY, "1");
+        downloadStatus5.put(USER_KEY, "chriscole");
+        downloads.add(downloadStatus5);
+
+        return downloads;
     }
 
     private void startDownload(boolean cacheEnabled, int chunkSize, boolean cacheWhenCanceled,

@@ -25,7 +25,7 @@
         <bean id="mapConverter" class="ddf.catalog.util.impl.MapConverter"/>
     </type-converters>
 
-    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]" />
+    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
@@ -320,8 +320,9 @@
     <bean id="reliableResourceDownloadManager"
           class="ddf.catalog.resource.download.ReliableResourceDownloadManager"
           init-method="init" destroy-method="cleanUp">
-        <cm:managed-properties persistent-id="ddf.catalog.resource.download.ReliableResourceDownloadManager"
-                               update-strategy="container-managed"/>
+        <cm:managed-properties
+                persistent-id="ddf.catalog.resource.download.ReliableResourceDownloadManager"
+                update-strategy="container-managed"/>
         <argument>
             <bean xml:id="downloaderConfig"
                   class="ddf.catalog.resource.download.ReliableResourceDownloaderConfig">
@@ -456,17 +457,20 @@
         </service-properties>
     </service>
 
+    <bean id="objectMapper" class="org.boon.json.JsonFactory" factory-method="create"/>
+
     <bean id="resourceDownloadBean" class="ddf.catalog.resource.download.ResourceDownloadEndpoint">
         <argument ref="ddf"/>
         <argument ref="reliableResourceDownloadManager"/>
+        <argument ref="objectMapper"/>
     </bean>
 
     <jaxrs:server id="resourceDownloadEnpoint" address="/catalog/downloads">
         <jaxrs:serviceBeans>
-            <ref component-id="resourceDownloadBean" />
+            <ref component-id="resourceDownloadBean"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
-            <bean class="ddf.catalog.resource.download.DownloadToCacheOnlyExceptionMapper" />
+            <bean class="ddf.catalog.resource.download.DownloadToCacheOnlyExceptionMapper"/>
         </jaxrs:providers>
     </jaxrs:server>
 

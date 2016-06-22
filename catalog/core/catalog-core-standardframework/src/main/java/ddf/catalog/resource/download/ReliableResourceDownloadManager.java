@@ -14,6 +14,9 @@
 package ddf.catalog.resource.download;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +37,7 @@ import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
 /**
@@ -180,6 +184,20 @@ public class ReliableResourceDownloadManager {
                 .setProductCacheDirectory(productCacheDirectory);
     }
 
+    public List<DownloadInfo> getDownloadsInProgress() {
+        List<DownloadInfo> downloadsInProgress = new ArrayList<>();
+        for (String downloadIdentifier : downloadStatusInfo.getAllDownloads()) {
+            Map<String, String> downloadStatus = downloadStatusInfo
+                    .getDownloadStatus(downloadIdentifier);
+            DownloadInfo downloadInfo = new DownloadInfo(downloadStatus);
+            if (downloadInfo.isDownloadInState(DownloadState.IN_PROGRESS)) {
+                downloadsInProgress.add(downloadInfo);
+            }
+        }
+
+        return downloadsInProgress;
+    }
+
     private ResourceResponse startDownload(String downloadIdentifier,
             ResourceResponse resourceResponse, ResourceRetriever retriever, Metacard metacard) {
         AtomicBoolean downloadStarted = new AtomicBoolean(Boolean.FALSE);
@@ -190,6 +208,7 @@ public class ReliableResourceDownloadManager {
                 retriever);
 
         ResourceResponse response = downloader.setupDownload(metacard, downloadStatusInfo);
+        response.getProperties().put("downloadIdentifier", downloadIdentifier);
 
         // Start download in separate thread so can return ResourceResponse with
         // ReliableResourceInputStream available for client to start reading from
