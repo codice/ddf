@@ -108,6 +108,11 @@
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.registry</groupId>
+                <artifactId>registry-publication-action-provider</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.registry</groupId>
                 <artifactId>registry-report-viewer</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -179,6 +184,7 @@
         <module>registry-admin-modules</module>
         <module>registry-publication-update-handler</module>
         <module>registry-report-action-provider</module>
+        <module>registry-publication-action-provider</module>
         <module>registry-report-viewer</module>
         <module>registry-source-configuration-handler</module>
     </modules>
