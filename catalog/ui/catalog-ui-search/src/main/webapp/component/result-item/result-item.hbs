@@ -16,11 +16,11 @@
     <div class="result-indicator">
     </div>
     <div class="result-details is-button">
+        {{#if metacard.properties.thumbnail}}
         <div class="detail-thumbnail details-property">
-            {{#if metacard.properties.thumbnail}}
-                <img src="{{thumbnailURL}}">
-            {{/if}}
+                <img src="{{metacard.properties.thumbnail}}">
         </div>
+        {{/if}}
         <div class="detail-title details-property">
             <span>
                 {{metacard.properties.title}}

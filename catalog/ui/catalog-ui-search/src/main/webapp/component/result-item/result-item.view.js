@@ -96,10 +96,6 @@ define([
                 result.warning = validationWarnings;
             }
 
-            var resourceDownloadUrl = result.metacard.properties['resource-download-url'];
-            if(typeof resourceDownloadUrl !== "undefined") {
-                result.thumbnailURL = resourceDownloadUrl.split('?')[0] + '?transform=thumbnail';
-            }
             return result;
         },
         serializeData: function(){
