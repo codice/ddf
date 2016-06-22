@@ -26,6 +26,11 @@
         </argument>
     </bean>
 
-    <service ref="validationDeployer" interface="org.apache.felix.fileinstall.ArtifactInstaller"/>
+    <service ref="validationDeployer">
+        <interfaces>
+            <value>org.apache.felix.fileinstall.ArtifactInstaller</value>
+            <value>ddf.catalog.validation.ValidationSourcer</value>
+        </interfaces>
+    </service>
 
 </blueprint>
