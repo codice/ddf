@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -58,6 +58,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,8 +154,6 @@ public class RESTEndpoint implements RESTService {
 
     private static MimeType jsonMimeType = null;
 
-    private MimeTypeMapper mimeTypeMapper;
-
     static {
         MimeType mime = null;
         try {
@@ -165,6 +164,8 @@ public class RESTEndpoint implements RESTService {
         jsonMimeType = mime;
 
     }
+
+    private MimeTypeMapper mimeTypeMapper;
 
     private FilterBuilder filterBuilder;
 
@@ -982,7 +983,7 @@ public class RESTEndpoint implements RESTService {
 
         Metacard generatedMetacard = null;
 
-        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
+        try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {
 
             try {
                 if (null != message) {

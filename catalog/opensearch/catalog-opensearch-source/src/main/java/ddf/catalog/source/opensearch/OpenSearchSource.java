@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -44,6 +44,7 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.endpoints.OpenSearch;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.geotools.filter.FilterTransformer;
 import org.jdom2.Element;
 import org.osgi.framework.Bundle;
@@ -54,7 +55,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.FileBackedOutputStream;
 import com.rometools.rome.feed.synd.SyndCategory;
 import com.rometools.rome.feed.synd.SyndContent;
 import com.rometools.rome.feed.synd.SyndEntry;
@@ -120,6 +120,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private final EncryptionService encryptionService;
 
+    protected SecureCxfClientFactory<OpenSearch> factory;
+
     private boolean isInitialized = false;
 
     // service properties
@@ -148,8 +150,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     private long receiveTimeout = 0;
 
     private XMLInputFactory xmlInputFactory;
-
-    protected SecureCxfClientFactory<OpenSearch> factory;
 
     private ResourceReader resourceReader;
 
@@ -283,8 +283,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
                 Metacard metacard = null;
                 List<Result> resultQueue = new ArrayList<Result>();
-                try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(
-                        1000000)) {
+                try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {
                     if (responseStream != null) {
                         IOUtils.copyLarge(responseStream, fileBackedOutputStream);
                         InputTransformer inputTransformer = null;

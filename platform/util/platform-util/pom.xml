@@ -45,6 +45,10 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
