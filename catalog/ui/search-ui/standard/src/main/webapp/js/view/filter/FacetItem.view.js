@@ -29,8 +29,6 @@ define([
             events: {
                 'click .toggle-facet': 'toggleFacet'
             },
-            initialize: function(){
-            },
             toggleFacet: function(evt){
                 if (evt.target.checked) {
                     this.addFacet(evt);
