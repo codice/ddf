@@ -14,8 +14,7 @@
 package org.codice.ddf.registry.federationadmin.service.impl;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,52 +23,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
-import org.codice.ddf.configuration.SystemInfo;
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.registry.api.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
-import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
-import org.codice.ddf.registry.transformer.RegistryTransformer;
-import org.codice.ddf.security.common.Security;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.AttributeBuilder;
-import ddf.catalog.filter.ExpressionBuilder;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RefreshRegistrySubscriptionsTest {
@@ -91,293 +60,196 @@ public class RefreshRegistrySubscriptionsTest {
 
     private RefreshRegistrySubscriptions refreshRegistrySubscriptions;
 
-    private Metacard testMetacard;
-
-    @Mock
-    private ParserConfigurator configurator;
-
-    @Mock
-    private CatalogFramework catalogFramework;
-
-    @Mock
-    private Parser parser;
-
-    @Mock
-    private RegistryTransformer registryTransformer;
-
-    @Mock
-    private Security security;
-
-    @Mock
-    private FilterBuilder filterBuilder;
-
-    @Mock
-    private AttributeBuilder attributeBuilder;
-
-    @Mock
-    private ExpressionBuilder expressionBuilder;
-
-    @Mock
-    private Subject subject;
-
-    @Mock
-    private BundleContext bundleContext;
-
-    @Mock
-    private ServiceReference serviceReference;
 
     @Mock
     private RegistryStore registryStore;
 
     @Before
     public void setUp() throws Exception {
-        when(parser.configureParser(anyList(), any(ClassLoader.class))).thenReturn(configurator);
-        when(filterBuilder.attribute(any(String.class))).thenReturn(attributeBuilder);
-        when(attributeBuilder.is()).thenReturn(expressionBuilder);
-        when(expressionBuilder.bool(any(Boolean.class))).thenReturn(getTestFilter());
         refreshRegistrySubscriptions = spy(new RefreshRegistrySubscriptions());
-        federationAdminService.setRegistryTransformer(registryTransformer);
-        federationAdminService.setCatalogFramework(catalogFramework);
-        federationAdminService.setMetacardMarshaller(new MetacardMarshaller(parser));
-        federationAdminService.setFilterBuilder(filterBuilder);
         refreshRegistrySubscriptions.setFederationAdminService(federationAdminService);
-        System.setProperty(SystemInfo.SITE_NAME, TEST_SITE_NAME);
-        System.setProperty(SystemInfo.VERSION, TEST_VERSION);
-        testMetacard = getPopulatedTestRegistryMetacard();
-
+        refreshRegistrySubscriptions.setRegistryStores(Collections.emptyList());
     }
 
     @Test
     public void testRefreshRegistrySubscriptionsWhenPollableSourceIdsIAreEmpty() throws Exception {
         refreshRegistrySubscriptions.refreshRegistrySubscriptions();
-        verify(refreshRegistrySubscriptions).refreshRegistrySubscriptions();
+        verify(federationAdminService, never()).getRegistryMetacards();
     }
 
     @Test
     public void testCreateRemoteEntries() throws Exception {
-        Metacard firstMetacard = testMetacard;
-        Metacard secondMetacard = testMetacard;
-        Metacard thirdMetacard = getPopulatedTestRegistryMetacard();
-        thirdMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID + "1"));
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response = getPopulatedTestQueryResponse(request,
-                firstMetacard,
-                secondMetacard);
-        List<Metacard> localMetacards = new ArrayList<>();
-        localMetacards.add(firstMetacard);
-        localMetacards.add(secondMetacard);
-        doReturn(localMetacards).when(federationAdminService)
-                .getRegistryMetacards();
-        QueryRequest request1 = getTestQueryRequest();
-        QueryResponse response1 = getPopulatedTestQueryResponse(request1, thirdMetacard);
-        when(refreshRegistrySubscriptions.getBundleContext()).thenReturn(bundleContext);
-        when(bundleContext.getService(serviceReference)).thenReturn(registryStore);
-        when(registryStore.isPullAllowed()).thenReturn(true);
-        when(registryStore.getId()).thenReturn(TEST_ID);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response, response1);
-        refreshRegistrySubscriptions.bindRegistryStore(serviceReference);
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
-    }
+        Metacard remoteMetacard = getPopulatedTestRegistryMetacard();
+        when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.emptyList());
+        when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
+                remoteMetacard));
 
-    @Test(expected = FederationAdminException.class)
-    public void testcreateRemoteEntriesSourceUnavailableOnQuery() throws Exception {
-        Metacard firstMetacard = testMetacard;
-        Metacard secondMetacard = testMetacard;
-        Metacard thirdMetacard = getPopulatedTestRegistryMetacard();
-        thirdMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID + "1"));
-        List<Metacard> localMetacards = new ArrayList<>();
-        localMetacards.add(firstMetacard);
-        localMetacards.add(secondMetacard);
-        doReturn(localMetacards).when(federationAdminService)
-                .getRegistryMetacards();
-        when(refreshRegistrySubscriptions.getBundleContext()).thenReturn(bundleContext);
-        when(bundleContext.getService(serviceReference)).thenReturn(registryStore);
+        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
-        when(federationAdminService.getRegistryMetacards()).thenThrow(SourceUnavailableException.class);
-        refreshRegistrySubscriptions.bindRegistryStore(serviceReference);
+        when(registryStore.isAvailable()).thenReturn(true);
+
         refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+
+        verify(federationAdminService).addRegistryEntries(Collections.singletonList(remoteMetacard),
+                null);
     }
 
     @Test
-    public void testcreateRemoteEntriesSourceUnavailableOnCreate() throws Exception {
-        Metacard firstMetacard = testMetacard;
-        Metacard secondMetacard = getPopulatedTestRegistryMetacard();
-        secondMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID + "1"));
-        List<Metacard> localMetacards = new ArrayList<>();
-        localMetacards.add(firstMetacard);
-        List<Metacard> localMetacards2 = new ArrayList<>();
-        localMetacards2.add(secondMetacard);
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response1 = getPopulatedTestQueryResponse(request, firstMetacard);
-        when(federationAdminService.getRegistryMetacards()).thenReturn(localMetacards,
-                localMetacards2);
-        QueryRequest request1 = getTestQueryRequest();
-        QueryResponse response2 = getPopulatedTestQueryResponse(request1, secondMetacard);
-        when(refreshRegistrySubscriptions.getBundleContext()).thenReturn(bundleContext);
-        when(bundleContext.getService(serviceReference)).thenReturn(registryStore);
+    public void testCreateRemoteEntriesSourceUnavailable() throws Exception {
+        Metacard remoteMetacard = getPopulatedTestRegistryMetacard();
+        when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.emptyList());
+        when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
+                remoteMetacard));
+
+        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response1, response2);
-        when(catalogFramework.create(any(CreateRequest.class))).thenThrow(SourceUnavailableException.class);
-        when(security.getSystemSubject()).thenReturn(subject);
-        refreshRegistrySubscriptions.bindRegistryStore(serviceReference);
+        when(registryStore.isAvailable()).thenReturn(false);
+
+        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+
+        verify(federationAdminService, never()).addRegistryEntries(Collections.singletonList(
+                remoteMetacard), null);
+    }
+
+    @Test
+    public void testCreateRemoteEntriesPullNotAllowed() throws Exception {
+        Metacard remoteMetacard = getPopulatedTestRegistryMetacard();
+        when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.emptyList());
+        when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
+                remoteMetacard));
+
+        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        when(registryStore.isPullAllowed()).thenReturn(false);
+        when(registryStore.getId()).thenReturn(TEST_ID);
+        when(registryStore.isAvailable()).thenReturn(true);
+
+        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+
+        verify(federationAdminService, never()).addRegistryEntries(Collections.singletonList(
+                remoteMetacard), null);
     }
 
     @Test
     public void testWriteRemoteUpdates() throws Exception {
-        Metacard firstMetacard = testMetacard;
-        Metacard secondMetacard = getPopulatedTestRegistryMetacard();
-        Metacard diffDateMetacard = getPopulatedTestRegistryMetacard();
-        firstMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID + "1"));
-        secondMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID + "2"));
-        //Assign diffDateMetacard sameId as firstMetacard but with a different modified date
-        diffDateMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID + "1"));
-        //Date set 1000ms in the future to avoid timing issues
-        diffDateMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED,
-                new Date(new Date().getTime() - 1000)));
-        //Add only first two metacarsds to localMetacards, in order to compare them against response containing diffDateMetacard
-        List<Metacard> localMetacards = new ArrayList<>();
-        localMetacards.add(firstMetacard);
-        List<Metacard> localMetacards2 = new ArrayList<>();
-        localMetacards2.add(diffDateMetacard);
-        when(federationAdminService.getRegistryMetacards()).thenReturn(localMetacards,
-                localMetacards2);
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response = getPopulatedTestQueryResponse(request, diffDateMetacard);
-        when(refreshRegistrySubscriptions.getBundleContext()).thenReturn(bundleContext);
-        when(bundleContext.getService(serviceReference)).thenReturn(registryStore);
+        Metacard localMcard = getPopulatedTestRegistryMetacard();
+        Metacard remoteMcard =
+                getPopulatedTestRegistryMetacard(RegistryObjectMetacardType.REGISTRY_ID, 1000L);
+
+        when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.singletonList(
+                localMcard));
+        when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
+                remoteMcard));
+
+        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        when(catalogFramework.update(any(UpdateRequest.class))).thenReturn(null);
-        //bindRegistryStore calls the method being tested: writeRemoteUpdates()
-        refreshRegistrySubscriptions.bindRegistryStore(serviceReference);
-    }
+        when(registryStore.isAvailable()).thenReturn(true);
 
-    @Test
-    public void testWriteRemoteUpdatesSourceUnavailable() throws Exception {
-        Metacard firstMetacard = testMetacard;
-        Metacard secondMetacard = getPopulatedTestRegistryMetacard();
-        Metacard diffDateMetacard = getPopulatedTestRegistryMetacard();
-        firstMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID + "1"));
-        secondMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID + "2"));
-        //Assign diffDateMetacard sameId as firstMetacard but with a different modified date
-        diffDateMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID + "1"));
-        //Date set 1000ms in the future to avoid timing issues
-        diffDateMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED,
-                new Date(new Date().getTime() + 1000)));
-        //Add only first two metacarsds to localMetacards, in order to compare them against response containing diffDateMetacard
-        List<Metacard> localMetacards = new ArrayList<>();
-        localMetacards.add(firstMetacard);
-        localMetacards.add(secondMetacard);
-        doReturn(localMetacards).when(federationAdminService)
-                .getRegistryMetacards();
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response = getPopulatedTestQueryResponse(request, diffDateMetacard);
-        when(refreshRegistrySubscriptions.getBundleContext()).thenReturn(bundleContext);
-        when(bundleContext.getService(serviceReference)).thenReturn(registryStore);
-        when(registryStore.isPullAllowed()).thenReturn(true);
-        when(registryStore.getId()).thenReturn(TEST_ID);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        when(catalogFramework.update(any(UpdateRequest.class))).thenThrow(SourceUnavailableException.class);
-        //bindRegistryStore calls the method being tested: writeRemoteUpdates()
-        refreshRegistrySubscriptions.bindRegistryStore(serviceReference);
-    }
-
-    @Test
-    public void testBindRegistryStoreNullServiceReference() {
-        refreshRegistrySubscriptions.bindRegistryStore(null);
-    }
-
-    @Test
-    public void testUnbindRegistryStore()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        when(refreshRegistrySubscriptions.getBundleContext()).thenReturn(bundleContext);
-        when(bundleContext.getService(serviceReference)).thenReturn(registryStore);
-        when(registryStore.isPullAllowed()).thenReturn(true);
-        when(registryStore.getId()).thenReturn(RegistryObjectMetacardType.REGISTRY_ID);
-        QueryRequest request = getTestQueryRequest();
-        Metacard metacard = testMetacard;
-        QueryResponse response = getPopulatedTestQueryResponse(request, metacard);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        refreshRegistrySubscriptions.bindRegistryStore(serviceReference);
-        refreshRegistrySubscriptions.unbindRegistryStore(serviceReference);
-    }
-
-    @Test
-    public void testRefreshRegistrySubscriptions() throws Exception {
-        Metacard firstMetacard = testMetacard;
-        Metacard secondMetacard = testMetacard;
-        QueryRequest request = getTestQueryRequest();
-        QueryResponse response = getPopulatedTestQueryResponse(request,
-                firstMetacard,
-                secondMetacard);
-        List<Metacard> localMetacards = new ArrayList<>();
-        localMetacards.add(firstMetacard);
-        localMetacards.add(secondMetacard);
-        doReturn(localMetacards).when(federationAdminService)
-                .getRegistryMetacards();
-        when(refreshRegistrySubscriptions.getBundleContext()).thenReturn(bundleContext);
-        when(bundleContext.getService(serviceReference)).thenReturn(registryStore);
-        when(registryStore.isPullAllowed()).thenReturn(true);
-        when(registryStore.getId()).thenReturn(TEST_ID);
-        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        refreshRegistrySubscriptions.bindRegistryStore(serviceReference);
         refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+
+        verify(federationAdminService).updateRegistryEntry(remoteMcard);
     }
 
-    private Metacard getTestMetacard() {
-        return new MetacardImpl(new RegistryObjectMetacardType());
+    @Test
+    public void testNoUpdatesOnLocal() throws Exception {
+        MetacardImpl localMcard = getPopulatedTestRegistryMetacard();
+        localMcard.setAttribute(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE, true);
+        Metacard remoteMcard =
+                getPopulatedTestRegistryMetacard(RegistryObjectMetacardType.REGISTRY_ID, 1000L);
+
+        when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.singletonList(
+                localMcard));
+        when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
+                remoteMcard));
+
+        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        when(registryStore.isPullAllowed()).thenReturn(true);
+        when(registryStore.getId()).thenReturn(TEST_ID);
+        when(registryStore.isAvailable()).thenReturn(true);
+
+        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+
+        verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
     }
 
-    private Filter getTestFilter() {
-        return FILTER_FACTORY.and(FILTER_FACTORY.like(FILTER_FACTORY.property(Metacard.CONTENT_TYPE),
-                RegistryConstants.REGISTRY_NODE_METACARD_TYPE_NAME),
-                FILTER_FACTORY.like(FILTER_FACTORY.property(Metacard.TAGS),
-                        RegistryConstants.REGISTRY_TAG));
+    @Test
+    public void testNoUpdatesOnOlder() throws Exception {
+        MetacardImpl localMcard = getPopulatedTestRegistryMetacard();
+        Metacard remoteMcard =
+                getPopulatedTestRegistryMetacard(RegistryObjectMetacardType.REGISTRY_ID, -5000L);
 
+        when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.singletonList(
+                localMcard));
+        when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
+                remoteMcard));
+
+        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        when(registryStore.isPullAllowed()).thenReturn(true);
+        when(registryStore.getId()).thenReturn(TEST_ID);
+        when(registryStore.isAvailable()).thenReturn(true);
+
+        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+
+        verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
     }
 
-    private QueryRequest getTestQueryRequest() {
-        Filter filter = getTestFilter();
-        SortBy sortBy = FILTER_FACTORY.sort(Metacard.CREATED, SortOrder.ASCENDING);
-        Query query = new QueryImpl(filter);
-        ((QueryImpl) query).setSortBy(sortBy);
-        QueryRequest request = new QueryRequestImpl(query);
-        request.getProperties()
-                .put(SecurityConstants.SECURITY_SUBJECT, subject);
-        return request;
+    @Test
+    public void testMultipleRemoteSameEntry() throws Exception {
+        MetacardImpl remoteMcard1 = getPopulatedTestRegistryMetacard();
+        MetacardImpl remoteMcard2 = getPopulatedTestRegistryMetacard();
+        List<Metacard> mcards = new ArrayList<>();
+        mcards.add(remoteMcard1);
+        mcards.add(remoteMcard2);
+
+        when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.emptyList());
+        when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(mcards);
+
+        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        when(registryStore.isPullAllowed()).thenReturn(true);
+        when(registryStore.getId()).thenReturn(TEST_ID);
+        when(registryStore.isAvailable()).thenReturn(true);
+
+        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+
+        verify(federationAdminService).addRegistryEntries(Collections.singletonList(remoteMcard1),
+                null);
     }
 
-    private QueryResponse getPopulatedTestQueryResponse(QueryRequest request,
-            Metacard... metacards) {
-        List<Result> results = new ArrayList<>();
-        for (Metacard metacard : metacards) {
-            results.add(new ResultImpl(metacard));
-        }
+    @Test
+    public void testMultipleRemoteNewerEntry() throws Exception {
+        MetacardImpl remoteMcard1 = getPopulatedTestRegistryMetacard();
+        MetacardImpl remoteMcard2 =
+                getPopulatedTestRegistryMetacard(RegistryObjectMetacardType.REGISTRY_ID, 5000L);
+        List<Metacard> mcards = new ArrayList<>();
+        mcards.add(remoteMcard1);
+        mcards.add(remoteMcard2);
 
-        return getTestQueryResponse(request, results);
+        when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.emptyList());
+        when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(mcards);
+
+        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        when(registryStore.isPullAllowed()).thenReturn(true);
+        when(registryStore.getId()).thenReturn(TEST_ID);
+        when(registryStore.isAvailable()).thenReturn(true);
+
+        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+
+        verify(federationAdminService).addRegistryEntries(Collections.singletonList(remoteMcard2),
+                null);
     }
 
-    private QueryResponse getTestQueryResponse(QueryRequest request, List<Result> results) {
-        return new QueryResponseImpl(request, results, results.size());
+    private MetacardImpl getPopulatedTestRegistryMetacard() {
+        return getPopulatedTestRegistryMetacard(RegistryObjectMetacardType.REGISTRY_ID, 0);
     }
 
-    private Metacard getPopulatedTestRegistryMetacard() {
-        Metacard registryMetacard = getTestMetacard();
+    private MetacardImpl getPopulatedTestRegistryMetacard(String id, long dateOffset) {
+        MetacardImpl registryMetacard = new MetacardImpl(new RegistryObjectMetacardType());
         registryMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-                RegistryObjectMetacardType.REGISTRY_ID));
-        registryMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, new Date()));
+                id));
+        registryMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED,
+                new Date(new Date().getTime() + dateOffset)));
         registryMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
                 Collections.singletonList(RegistryConstants.REGISTRY_TAG)));
         registryMetacard.setAttribute(new AttributeImpl(Metacard.ID, TEST_METACARD_ID));

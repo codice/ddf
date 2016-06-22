@@ -20,9 +20,11 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.api.RegistryStore;
@@ -45,12 +47,19 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.CreateResponseImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
@@ -65,15 +74,19 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryStoreImpl.class);
 
-    public static final String PUSH_ALLOWED_PROPERTY = "pushAllowed";
+    private static final String PUSH_ALLOWED_PROPERTY = "pushAllowed";
 
-    public static final String PULL_ALLOWED_PROPERTY = "pullAllowed";
+    private static final String PULL_ALLOWED_PROPERTY = "pullAllowed";
 
-    public static final String REMOTE_NAME = "remoteName";
+    private static final String REMOTE_NAME = "remoteName";
+
+    private static final String AUTO_PUSH = "autoPush";
 
     private boolean pushAllowed = true;
 
     private boolean pullAllowed = true;
+
+    private boolean autoPush = true;
 
     private String registryId = "";
 
@@ -96,6 +109,8 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
     @Override
     protected Map<String, Consumer<Object>> getAdditionalConsumers() {
         Map<String, Consumer<Object>> map = new HashMap<>();
+        map.put(AUTO_PUSH, value -> setAutoPush((Boolean) value));
+        map.put(REMOTE_NAME, value -> setRemoteName((String) value));
         map.put(PUSH_ALLOWED_PROPERTY, value -> setPushAllowed((Boolean) value));
         map.put(PULL_ALLOWED_PROPERTY, value -> setPullAllowed((Boolean) value));
         map.put(RegistryObjectMetacardType.REGISTRY_ID, value -> setRegistryId((String) value));
@@ -113,7 +128,71 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
     }
 
     @Override
+    public boolean isAutoPush() {
+        return autoPush;
+    }
+
+    @Override
+    public CreateResponse create(CreateRequest request) throws IngestException {
+
+        if (request.getMetacards()
+                .stream()
+                .map(this::getRegistryId)
+                .anyMatch(Objects::isNull)) {
+            throw new IngestException("One or more of the metacards is not a registry metacard");
+        }
+
+        List<Filter> regIdFilters = request.getMetacards()
+                .stream()
+                .map(e -> filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_ID)
+                        .is()
+                        .equalTo()
+                        .text(getRegistryId(e)))
+                .collect(Collectors.toList());
+        Filter tagFilter = filterBuilder.attribute(Metacard.TAGS)
+                .is()
+                .equalTo()
+                .text(RegistryConstants.REGISTRY_TAG);
+        QueryImpl query = new QueryImpl(filterBuilder.allOf(tagFilter,
+                filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE)
+                        .empty(),
+                filterBuilder.anyOf(regIdFilters)));
+        QueryRequest queryRequest = new QueryRequestImpl(query);
+        try {
+            SourceResponse queryResponse = super.query(queryRequest);
+
+            Map<String, Metacard> responseMap = queryResponse.getResults()
+                    .stream()
+                    .collect(Collectors.toMap(e -> getRegistryId(e.getMetacard()),
+                            e -> e.getMetacard()));
+            List<Metacard> metacardsToCreate = request.getMetacards()
+                    .stream()
+                    .filter(e -> !responseMap.containsKey(getRegistryId(e)))
+                    .collect(Collectors.toList());
+            List<Metacard> allMetacards = new ArrayList<>(responseMap.values());
+            if (CollectionUtils.isNotEmpty(metacardsToCreate)) {
+                CreateResponse createResponse =
+                        super.create(new CreateRequestImpl(metacardsToCreate));
+                allMetacards.addAll(createResponse.getCreatedMetacards());
+            }
+            return new CreateResponseImpl(request, request.getProperties(), allMetacards);
+        } catch (UnsupportedQueryException e) {
+            LOGGER.warn(
+                    "Unable to perform pre-create remote query. Proceeding with original query. Error was {}",
+                    e.getMessage());
+        }
+        return super.create(request);
+    }
+
+    @Override
     public UpdateResponse update(UpdateRequest request) throws IngestException {
+
+        if (request.getUpdates()
+                .stream()
+                .map(e -> getRegistryId(e.getValue()))
+                .anyMatch(Objects::isNull)) {
+            throw new IngestException("One or more of the metacards is not a registry metacard");
+        }
 
         Map<String, Metacard> updatedMetacards = request.getUpdates()
                 .stream()
@@ -122,7 +201,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         Map<String, Metacard> origMetacards = ((OperationTransaction) request.getPropertyValue(
                 Constants.OPERATION_TRANSACTION_KEY)).getPreviousStateMetacards()
                 .stream()
-                .collect(Collectors.toMap(e -> getRegistryId(e), e -> e));
+                .collect(Collectors.toMap(this::getRegistryId, e -> e));
 
         //update the new metacards with the id from the orig so that they can be found on the remote system
         try {
@@ -139,6 +218,23 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
     }
 
     @Override
+    public DeleteResponse delete(DeleteRequest request) throws IngestException {
+        //delete's for registry are normally done by registry-id but the '-' in the
+        //registry-id attribute name is not understood by the csw endpoint so we
+        //replace the request with one based on the metacard id's from the remote
+        //system which have been stored in the operation transaction
+        List<String> ids =
+                ((OperationTransaction) request.getPropertyValue(Constants.OPERATION_TRANSACTION_KEY)).getPreviousStateMetacards()
+                        .stream()
+                        .map(e -> e.getId())
+                        .collect(Collectors.toList());
+        DeleteRequest newRequest = new DeleteRequestImpl(ids.toArray(new String[ids.size()]),
+                request.getProperties());
+
+        return super.delete(newRequest);
+    }
+
+    @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
 
         //This is a registry store so only allow registry requests through
@@ -148,14 +244,15 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             return new SourceResponseImpl(request, Collections.emptyList());
         }
 
-        SourceResponse registryQueryResponse = queryResponse(request);
+        SourceResponse registryQueryResponse = super.query(request);
         for (Result singleResult : registryQueryResponse.getResults()) {
             if (singleResult.getMetacard()
                     .getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
                     .getValue()
                     .toString()
                     .equals(registryId)) {
-                String metacardTitle = singleResult.getMetacard().getTitle();
+                String metacardTitle = singleResult.getMetacard()
+                        .getTitle();
                 if (metacardTitle != null && !remoteName.equals(metacardTitle)) {
                     remoteName = metacardTitle;
                     updateConfiguration();
@@ -166,14 +263,8 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         return registryQueryResponse;
     }
 
-    /*
-    * After reviewing the various ways to test the query method above, it was decided
-    * that moving the super.query method call into its own method was the least offensive option.
-    * This is due to the inability to mock or spy an abstract super class method that is being
-    * overwritten without resorting to... Power Mock.
-    */
-    SourceResponse queryResponse(QueryRequest request) throws UnsupportedQueryException {
-        return super.query(request);
+    public void setAutoPush(boolean autoPush) {
+        this.autoPush = autoPush;
     }
 
     public void setPushAllowed(boolean pushAllowed) {
@@ -239,7 +330,6 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
         addSourceMonitor(registrySourceMonitor);
         super.init();
-        isAvailable();
     }
 
     void registryInfoQuery() throws UnsupportedQueryException {

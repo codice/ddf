@@ -19,7 +19,7 @@
         <AD description="The unique name of the store" name="Registry ID" id="id" required="true"
             type="String"/>
 
-        <AD description="URL to the endpoint implementing CSW spec capable of returning ebrim formatted records, e.g. https://hostname.here:port#/services/csw"
+        <AD description="URL to the endpoint implementing CSW spec capable of returning ebrim formatted records"
             name="Registry Service URL" id="cswUrl" required="true" type="String"/>
 
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
@@ -27,12 +27,16 @@
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
             required="false" type="Password"/>
 
-        <AD description="Enable push (write) to this registry store"
+        <AD description="Enable push (write) to this registry"
             name="Allow Push" id="pushAllowed" required="true"
             type="Boolean" default="true"/>
 
-        <AD description="Enable pull (read) from this registry store"
+        <AD description="Enable pull (read) from this registry"
             name="Allow Pull" id="pullAllowed" required="true"
+            type="Boolean" default="true"/>
+
+        <AD description="Enable an automatic publish from the local identity node to this registry. Setting this to Off will have the effect of unpublishing the identity from this registry."
+            name="Push Identity Node" id="autoPush" required="true"
             type="Boolean" default="true"/>
 
     </OCD>

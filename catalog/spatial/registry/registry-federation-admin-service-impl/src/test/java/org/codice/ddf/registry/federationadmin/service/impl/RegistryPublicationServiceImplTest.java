@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -218,7 +217,7 @@ public class RegistryPublicationServiceImplTest {
 
         Attribute publicationsAfter =
                 metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
-        assertThat(publicationsAfter, nullValue());
+        assertThat(publicationsAfter.getValue(), is("No_Publications"));
     }
 
     @Test
@@ -284,7 +283,8 @@ public class RegistryPublicationServiceImplTest {
 
     @Test(expected = FederationAdminException.class)
     public void testNoRegistryStores() throws Exception {
-        doReturn(Collections.singletonList(metacard)).when(federationAdminService).getRegistryMetacardsByRegistryIds(any(List.class));
+        doReturn(Collections.singletonList(metacard)).when(federationAdminService)
+                .getRegistryMetacardsByRegistryIds(any(List.class));
         registryPublicationService.unbindRegistryStore(serviceReference);
         String publishThisRegistryId = "publishThisRegistryId";
         Date now = new Date();
@@ -296,7 +296,6 @@ public class RegistryPublicationServiceImplTest {
                         Collections.singletonList(REGISTRY_STORE_REGISTRY_ID));
         metacard.setAttribute(publishedLocationsAttribute);
         metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED, before));
-
 
         registryPublicationService.publish(publishThisRegistryId, REGISTRY_STORE_REGISTRY_ID);
         verify(federationAdminService, never()).updateRegistryEntry(metacard);
