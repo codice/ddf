@@ -179,7 +179,7 @@ public class RegistryPublicationActionProviderTest {
         assertThat(actions.get(0)
                         .getUrl()
                         .toString(),
-                equalTo(SystemBaseUrl.constructUrl("registries/regId1/publication/store1", true)));
+                equalTo(SystemBaseUrl.constructUrl("registries/regId1/publication/regId2", true)));
     }
 
     @Test
@@ -189,7 +189,7 @@ public class RegistryPublicationActionProviderTest {
         when(store.getRegistryId()).thenReturn("regId2");
 
         Map<String, List<String>> publications = new HashMap<>();
-        publications.put("regId1", Collections.singletonList("store1"));
+        publications.put("regId1", Collections.singletonList("regId2"));
         doReturn(publications).when(publicationManager)
                 .getPublications();
         List<Action> actions = publicationActionProvider.getActions(getRegistryMetacard("regId1"));
@@ -199,7 +199,7 @@ public class RegistryPublicationActionProviderTest {
         assertThat(actions.get(0)
                         .getUrl()
                         .toString(),
-                equalTo(SystemBaseUrl.constructUrl("registries/regId1/publication/store1", true)));
+                equalTo(SystemBaseUrl.constructUrl("registries/regId1/publication/regId2", true)));
     }
 
     private Metacard getRegistryMetacard(String regId) {

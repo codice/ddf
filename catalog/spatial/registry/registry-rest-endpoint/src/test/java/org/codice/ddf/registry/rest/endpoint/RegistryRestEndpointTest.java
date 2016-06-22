@@ -16,7 +16,7 @@ package org.codice.ddf.registry.rest.endpoint;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -75,8 +75,8 @@ public class RegistryRestEndpointTest {
 
     @Test
     public void testReportWithFederationAdminException() throws FederationAdminException {
-        when(federationAdminService.getRegistryObjectByRegistryId(anyString(),
-                anyList())).thenThrow(new FederationAdminException());
+        when(federationAdminService.getRegistryObjectByRegistryId(anyString(), anySet())).thenThrow(
+                new FederationAdminException());
         Response response = restEndpoint.viewRegInfoHtml("metacardId", Arrays.asList("sourceIds"));
         assertThat(response.getStatusInfo()
                 .getStatusCode(), is(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()));
@@ -85,7 +85,7 @@ public class RegistryRestEndpointTest {
     @Test
     public void testReportRegistryPackageNotFound() throws FederationAdminException {
         when(federationAdminService.getRegistryObjectByRegistryId(anyString(),
-                anyList())).thenReturn(null);
+                anySet())).thenReturn(null);
         Response response = restEndpoint.viewRegInfoHtml("metacardId", Arrays.asList("sourceIds"));
         assertThat(response.getStatusInfo()
                 .getStatusCode(), is(Response.Status.NOT_FOUND.getStatusCode()));
@@ -94,7 +94,7 @@ public class RegistryRestEndpointTest {
     @Test
     public void testReportWithRegistryPackage() throws ParserException, FederationAdminException {
         when(federationAdminService.getRegistryObjectByRegistryId(anyString(),
-                anyList())).thenReturn(registryPackage);
+                anySet())).thenReturn(registryPackage);
 
         Response response = restEndpoint.viewRegInfoHtml("metacardId", Arrays.asList("sourceIds"));
         assertThat(response.getStatusInfo()

@@ -38,4 +38,10 @@ public interface RegistryStore extends CatalogStore, ConfiguredService {
      * @return registry id in a string
      */
     String getRegistryId();
+
+    /**
+     * Indicates if the identity node should be automatically pushed to another registry store
+     * @return true if enabled otherwise false
+     */
+    boolean isAutoPush();
 }

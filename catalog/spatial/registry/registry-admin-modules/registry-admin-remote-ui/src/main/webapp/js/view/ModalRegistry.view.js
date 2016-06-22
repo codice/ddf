@@ -91,6 +91,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,wreqr,_,$,Utils,Service,moda
             wreqr.vent.trigger('beforesave');
             var view = this;
             var service = view.model.get('registryConfiguration').at(0);
+            service.get('properties').set('remoteName', view.model.get('remoteName'));
             if (service) {
                 if (_.isUndefined(service.get('properties').id)) {
                     var name = this.$(".registryName").find('input').val().trim();
