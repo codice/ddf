@@ -98,7 +98,7 @@
 |OpenSearch service URL
 |endpointUrl
 |String
-|The OpenSearch endpoint URL or DDF's OpenSearch endpoint (https://localhost:8993/services/catalog/query)
+|The OpenSearch endpoint URL or ${ddf-branding}'s OpenSearch endpoint (${secure_url}/services/catalog/query)
 |${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/catalog/query
 |Yes
 

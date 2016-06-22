@@ -765,7 +765,7 @@ Sub-directories under `src/main/resources` can be used, e.g., `etc/security`.
 When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded.
 To install manually, the KAR file can be placed in the `<${branding}_INSTALL_DIR>/deploy` directory of the running ${branding} instance. ${branding} then detects that a file with a `.kar` file extension has been placed in this monitored directory, unzips the KAR file into the `<${branding}_INSTALL_DIR>/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file.
 To install via the ${admin-console}:
-. Navigate to https://localhost:8993/admin
+. Navigate to ${secure_url}/admin
 . Click the *Manage* button in the upper right
 . Click the *Add an Application* tile
 . Upload the KAR file via the popup window
@@ -1679,7 +1679,7 @@ This XML file is found inside of the STS bundle and is named `ws-trust-1.4-servi
     </wsp:Policy>
     <wsdl:service name="SecurityTokenService">
         <wsdl:port name="STS_Port" binding="tns:STS_Binding">
-            <soap:address location="http://localhost:8181/services/SecurityTokenService"/>
+            <soap:address location="${public_url}/services/SecurityTokenService"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

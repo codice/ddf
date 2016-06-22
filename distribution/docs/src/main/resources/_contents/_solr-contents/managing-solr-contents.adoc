@@ -42,7 +42,7 @@ The configurable properties for this SCP are accessed from the Catalog External
 |`url`
 |String
 |HTTP URL of the standalone, preconfigured Solr Server.
-|\https://localhost:8993/solr
+|\${secure_url}/solr
 |Yes
 
 |Force AutoCommit
@@ -219,14 +219,14 @@ Replace `<CORE_NAME>` in the following command with a valid Solr core to delete 
 
 .How to delete Solr Core data with curl
 ----
-curl 'https://localhost:8993/solr/<CORE_NAME>/update?commit=true' -H 'Content-type: text/xml' -d '<delete><query>*:*</query></delete>'
+curl '${secure_url}/solr/<CORE_NAME>/update?commit=true' -H 'Content-type: text/xml' -d '<delete><query>*:*</query></delete>'
 ----
 
 Use the core selector in the Solr administration page to get a list of available Solr cores.
 
 .Solr administration page
 ----
-https://localhost:8993/solr
+${secure_url}/solr
 ----
 
 ==== Configuring

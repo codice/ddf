@@ -640,7 +640,7 @@ Once that bundle is started by fixing its error, the catalog application will sh
 
 ==== Command Scheduler
 
-Command Scheduler is a capability exposed through the ${admin-console} (\https://localhost:8993/admin) that allows administrators to schedule Command Line Commands to be run at specified intervals.
+Command Scheduler is a capability exposed through the ${admin-console} (\${secure_url}/admin) that allows administrators to schedule Command Line Commands to be run at specified intervals.
 
 ===== Using the Command Scheduler
 
@@ -653,7 +653,7 @@ In addition, when the container is restarted, the commands are rescheduled and e
 
 ====== Schedule a Command
 
-. Navigate to the ${admin-console} (https://localhost:8993/admin).
+. Navigate to the ${admin-console} (${secure_url}/admin).
 . Select *${branding} Platform*
 . Select *Platform Command Scheduler*.
 . Type the command or commands to be executed in the *Command* text field. Commands can be separated by a semicolon and will execute in order from left to right.
@@ -1140,12 +1140,12 @@ Several third-party tools, such as cURL.exe and the Chrome Advanced Rest Client,
 
 .Windows Example
 ----
-curl -H "Content-type: application/json;id=geojson" -i -X POST -d ${at-symbol}"C:\path\to\geojson_valid.json" https://localhost:8993/services/catalog
+curl -H "Content-type: application/json;id=geojson" -i -X POST -d ${at-symbol}"C:\path\to\geojson_valid.json" ${secure_url}/services/catalog
 ----
 +
 .*NIX Example
 ----
-curl -H "Content-type: application/json;id=geojson" -i -X POST -d ${at-symbol}geojson_valid.json https://localhost:8993/services/catalog
+curl -H "Content-type: application/json;id=geojson" -i -X POST -d ${at-symbol}geojson_valid.json ${secure_url}/services/catalog
 ----
 +
 Where:
@@ -1165,7 +1165,7 @@ HTTP/1.1 201 Created
 Content-Length: 0
 Date: Mon, 22 Apr 2015 22:02:22 GMT
 id: 44dc84da101c4f9d9f751e38d9c4d97b
-Location: https://localhost:8993/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b
+Location: ${secure_url}/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b
 Server: Jetty(7.5.4.v20111024)
 ----
 +
@@ -1181,13 +1181,13 @@ Server: Jetty(7.5.4.v20111024)
 .Windows Example
 [source,terminal]
 ----
-curl -X GET https://localhost:8993/services/content/c90147bf86294d46a9d35ebbd44992c5
+curl -X GET ${secure_url}/services/content/c90147bf86294d46a9d35ebbd44992c5
 ----
 
 .*NIX Example
 [source,terminal]
 ----
-curl -X GET https://localhost:8993/services/content/c90147bf86294d46a9d35ebbd44992c5
+curl -X GET ${secure_url}/services/content/c90147bf86294d46a9d35ebbd44992c5
 ----
 
 The response to the GET command will be the contents of the `geojson_valid.json` file originally ingested.

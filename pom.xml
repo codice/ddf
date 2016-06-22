@@ -105,6 +105,9 @@
         <ddf-branding-lowercase>ddf</ddf-branding-lowercase>
         <ddf-branding-expanded>Distributed Data Framework</ddf-branding-expanded>
         <ddf.version>${project.version}</ddf.version>
+        <!--default url substitutions-->
+        <public_url>http://localhost:8181</public_url>
+        <secure_url>https://localhost:8993</secure_url>
         <!--Needed for documentation formatting
             '@' is an escape character for maven filtering. Use this property if '@'
             appears on the same line as other filtered properties-->
