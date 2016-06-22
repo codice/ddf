@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -47,6 +47,7 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToXMLContentHandler;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.imgscalr.Scalr;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -55,7 +56,6 @@ import org.slf4j.LoggerFactory;
 
 import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
 import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
-import com.google.common.io.FileBackedOutputStream;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -73,7 +73,8 @@ public class TikaInputTransformer implements InputTransformer {
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            Thread.currentThread()
+                    .setContextClassLoader(getClass().getClassLoader());
             templates =
                     TransformerFactory.newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
                             net.sf.saxon.TransformerFactoryImpl.class.getClassLoader())
@@ -82,7 +83,8 @@ public class TikaInputTransformer implements InputTransformer {
         } catch (TransformerConfigurationException e) {
             LOGGER.warn("Couldn't create XML transformer", e);
         } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            Thread.currentThread()
+                    .setContextClassLoader(tccl);
         }
 
         if (bundleContext == null) {
@@ -112,7 +114,7 @@ public class TikaInputTransformer implements InputTransformer {
             throw new CatalogTransformerException("Cannot transform null input.");
         }
 
-        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
+        try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {
             try {
                 IOUtils.copy(input, fileBackedOutputStream);
             } catch (IOException e) {

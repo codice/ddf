@@ -59,6 +59,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-common</artifactId>
             <version>${project.version}</version>
@@ -88,7 +93,8 @@
                             registry-common,
                             catalog-core-api-impl;scope=!test,
                             jaxb2-basics-runtime,
-                            ogc-tools-gml-jts
+                            ogc-tools-gml-jts,
+                            platform-util
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util,

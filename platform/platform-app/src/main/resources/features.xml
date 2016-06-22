@@ -945,6 +945,7 @@
         <feature prerequisite="true" version="${project.version}">kernel</feature>
         <feature prerequisite="true">pax-http-jetty</feature>
         <feature prerequisite="true">pax-jetty</feature>
+        <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
         <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
     </feature>
 

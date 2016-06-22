@@ -28,10 +28,9 @@ import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.apache.poi.sl.usermodel.SlideShow;
 import org.apache.poi.sl.usermodel.SlideShowFactory;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.FileBackedOutputStream;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -54,8 +53,6 @@ public class PptxInputTransformer implements InputTransformer {
     private static final float IMAGE_HEIGHTWIDTH = 128;
 
     private static final String FORMAT_NAME = "jpg";
-
-    private static final int FILE_BACKED_THRESHOLD = 1000000;
 
     private final InputTransformer inputTransformer;
 
@@ -104,8 +101,7 @@ public class PptxInputTransformer implements InputTransformer {
     private Metacard transformLogic(InputStream input, String id)
             throws IOException, CatalogTransformerException {
 
-        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(
-                FILE_BACKED_THRESHOLD)) {
+        try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {
             try {
                 int c = IOUtils.copy(input, fileBackedOutputStream);
                 LOGGER.debug("copied {} bytes from input stream to file backed output stream", c);

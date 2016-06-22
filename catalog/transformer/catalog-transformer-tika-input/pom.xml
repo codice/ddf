@@ -41,6 +41,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
@@ -95,7 +100,8 @@
                             jai-imageio-core,
                             jai-imageio-jpeg2000,
                             Saxon-HE,
-                            commons-io
+                            commons-io,
+                            platform-util
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.transformer.input.tika,
