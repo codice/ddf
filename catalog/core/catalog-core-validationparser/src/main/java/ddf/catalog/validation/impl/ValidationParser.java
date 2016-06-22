@@ -58,6 +58,7 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.MetacardValidator;
+import ddf.catalog.validation.ValidationSourcer;
 import ddf.catalog.validation.impl.validator.EnumerationValidator;
 import ddf.catalog.validation.impl.validator.FutureDateValidator;
 import ddf.catalog.validation.impl.validator.PastDateValidator;
@@ -68,7 +69,7 @@ import ddf.catalog.validation.impl.validator.SizeValidator;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @SuppressFBWarnings
-public class ValidationParser implements ArtifactInstaller {
+public class ValidationParser implements ArtifactInstaller, ValidationSourcer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
 
     private final AttributeRegistry attributeRegistry;
@@ -162,6 +163,11 @@ public class ValidationParser implements ArtifactInstaller {
     public boolean canHandle(File file) {
         return file.getName()
                 .endsWith(".json");
+    }
+
+    @Override
+    public String getSource() {
+        return JsonFactory.create().toJson(sourceMap);
     }
 
     @SuppressWarnings("unchecked")
