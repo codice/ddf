@@ -173,6 +173,13 @@
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
                                     <destFileName>bcpkix-${bouncy.version}.jar</destFileName>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.aries.blueprint</groupId>
+                                    <artifactId>org.apache.aries.blueprint.core</artifactId>
+                                    <version>1.6.2</version>
+                                    <outputDirectory>${setup.folder}/${karaf.folder}/system/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.6.2</outputDirectory>
+                                    <destFileName>org.apache.aries.blueprint.core-1.6.2.jar</destFileName>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
