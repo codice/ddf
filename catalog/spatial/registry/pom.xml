@@ -180,12 +180,12 @@
         <module>registry-federation-admin-service-impl</module>
         <module>registry-federation-admin-api</module>
         <module>registry-federation-admin-impl</module>
-        <module>registry-app</module>
         <module>registry-admin-modules</module>
         <module>registry-publication-update-handler</module>
         <module>registry-report-action-provider</module>
         <module>registry-publication-action-provider</module>
         <module>registry-rest-endpoint</module>
         <module>registry-source-configuration-handler</module>
+        <module>registry-app</module>
     </modules>
 </project>
