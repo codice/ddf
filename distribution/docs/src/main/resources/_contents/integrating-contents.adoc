@@ -924,7 +924,7 @@ The response is returned as a data map that contains an internal map with the fo
                         "metadata-content-type": "image/jpeg",
                         "metacard-type": "ddf.metacard",
                         "title": "fixTheBugs_geotagged.jpg",
-                        "resource-download-url": "https://localhost:8993/services/catalog/sources/ddf.distribution/1a83781dd56a4050afc420016d078e22?transform=resource",
+                        "resource-download-url": "${secure_url}services/catalog/sources/ddf.distribution/1a83781dd56a4050afc420016d078e22?transform=resource",
                         "source-id": "ddf.distribution",
                         "effective": "2016-06-09T22:46:37.707+0000",
                         "point-of-contact": "",
