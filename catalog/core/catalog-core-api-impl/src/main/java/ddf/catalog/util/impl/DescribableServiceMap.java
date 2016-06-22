@@ -15,20 +15,27 @@ package ddf.catalog.util.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.util.Describable;
 
-public class DescribableServiceMap<V extends Describable> implements Map<String, V> {
+public class DescribableServiceMap<V extends Describable> implements Map<String, V>, EventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DescribableServiceMap.class);
 
@@ -36,8 +43,18 @@ public class DescribableServiceMap<V extends Describable> implements Map<String,
 
     private Map<String, V> serviceMap = Collections.synchronizedMap(new HashMap<>());
 
+    private Map<String, String> pidToNameMap = Collections.synchronizedMap(new HashMap<>());
+
+    public DescribableServiceMap() {
+        String[] topics = new String[] {"org/osgi/framework/ServiceEvent/MODIFIED"};
+
+        Dictionary props = new Hashtable();
+        props.put(EventConstants.EVENT_TOPIC, topics);
+        getContext().registerService(EventHandler.class.getName(), this, props);
+    }
+
     protected BundleContext getContext() {
-        Bundle bundle = FrameworkUtil.getBundle(SortedServiceList.class);
+        Bundle bundle = FrameworkUtil.getBundle(DescribableServiceMap.class);
         if (bundle != null) {
             return bundle.getBundleContext();
         }
@@ -53,6 +70,7 @@ public class DescribableServiceMap<V extends Describable> implements Map<String,
             try {
                 V service = (V) context.getService(ref);
                 serviceMap.put(service.getId(), service);
+                pidToNameMap.put((String) ref.getProperty(Constants.SERVICE_PID), service.getId());
             } catch (ClassCastException e) {
                 LOGGER.warn("Service {} could not be added to service map {} due to incorrect type",
                         ref,
@@ -65,12 +83,13 @@ public class DescribableServiceMap<V extends Describable> implements Map<String,
     }
 
     public void unbind(ServiceReference ref) {
-        if (ref != null) {
+        BundleContext context = getContext();
+        if (ref != null && context != null) {
             LOGGER.debug("{} Unbinding {}", this, ref);
-            BundleContext context = getContext();
             V service = (V) context.getService(ref);
 
             if (service != null) {
+                pidToNameMap.remove(ref.getProperty(Constants.SERVICE_PID));
                 serviceMap.remove(service.getId());
             }
         }
@@ -134,5 +153,40 @@ public class DescribableServiceMap<V extends Describable> implements Map<String,
     @Override
     public Set<Entry<String, V>> entrySet() {
         return serviceMap.entrySet();
+    }
+
+    /**
+     * The handleEvent method takes care of keeping the internal describable map up to date when
+     * service name changes occur.
+     *
+     * @param event
+     */
+    @Override
+    public void handleEvent(Event event) {
+        if (((ServiceEvent) event.getProperty(EventConstants.EVENT)).getType()
+                != ServiceEvent.MODIFIED) {
+            return;
+        }
+        String pid = event.getProperty(Constants.SERVICE_PID)
+                .toString();
+        String oldName = pidToNameMap.get(pid);
+
+        //if we don't have it in our map then it's a service we don't care about
+        if (oldName == null) {
+            return;
+        }
+
+        V service = serviceMap.get(oldName);
+        if (service == null) {
+            return;
+        }
+
+        String newName = service.getId();
+        if (!oldName.equals(newName)) {
+            pidToNameMap.put(pid, newName);
+            serviceMap.remove(oldName);
+            serviceMap.put(newName, service);
+            LOGGER.debug("Changed mapping name from {} to {}", oldName, newName);
+        }
     }
 }
