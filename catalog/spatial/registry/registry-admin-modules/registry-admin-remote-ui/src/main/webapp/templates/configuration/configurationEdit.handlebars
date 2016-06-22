@@ -1,0 +1,34 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">{{name}}</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal add-federated-source">
+            <fieldset>
+                <label>Configuration ID: </label><span> {{id}}</span>
+                <div class="data-section" id="config-div">
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary submit-button" data-dismiss="modal">Save changes</button>
+            <button type="button" class="btn btn-default cancel-button" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</div><!-- /.modal-content -->

@@ -1118,68 +1118,6 @@ The `commons-${ddf-branding}`bundle, located in `<DDF_HOME_SOURCE_DIRECTORY>/c
 `${ddf-branding}.util.XPathHelper` provides convenience methods for executing XPath operations on XML.
 It also provides convenience methods for converting XML as a `String` from a `org.w3c.dom.Document` object and vice versa.
 
-==== Working with Settings
-
-${branding} provides the ability to obtain ${branding} settings/properties.
-The `DdfConfigurationWatcher` will provide an update of properties to watchers. For example, if the port number changes, the `DDF_PORT` property value will be propagated to the watcher(s) in the form of a map.
-
-==== Property Values
-
-To obtain the property values, complete the following procedure.
-
-. Import and implement the `${ddf-branding}.catalog.util.DdfConfigurationWatcher` interface.
-
-.Implement DdfConfigurationWatcher
-[source,java]
-----
-public class SettingsWatcher implements DdfConfigurationWatcher
-----
-
-. Get properties map and search for the property.
-
-.Handle Properties
-[source,java,linenums]
-----
-public void ${ddf-branding}ConfigurationUpdated( Map properties )
-{
-  //Get property by name
-  Object value = properties.get( DdfConfigurationManager.DDF_HOME_DIR );
-  if ( value != null )
-  {
-    this.${ddf-branding}HomeDir = value.toString();
-    logger.debug( "${ddf-branding}HomeDir = " + this.${ddf-branding}HomeDir );
-  }
-}
-----
-
-. Export the watcher class as a service in the OSGi Registry. The example below uses the Blueprint dependency injection framework to add this watcher to the OSGi Registry. The 
-`${ddf-branding}.catalog.DdfConfigurationManager` will search for `ConfigurationWatcher`(s) to send
-properties updates.
-
-.Blueprint Example of Export
-[source,xml,linenums]
-----
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
-
- <!-- create the bean -->
- <bean id="SettingsWatcher" class="${ddf-branding}.catalog.SettingsWatcher">
-   <cm:managed-properties
-     persistent-id="${ddf-branding}.catalog.SettingsWatcher"
-     update-strategy="container-managed" />
- </bean>
-
- <!-- export the bean in the service registry as a DdfConfigurationWatcher -->
- <service ref="SettingsWatcher" interface="${ddf-branding}.catalog.util.DdfConfigurationWatcher">
- </service>
-
-</blueprint>
-----
-. Import the DDFpackages to the bundle's manifest for run-time (in addition to any other required packages).
-`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.util, ${ddf-branding}.catalog.*`
-
-. Deploy the packaged service to ${branding} (refer to the Working with OSGi - Bundles section).
-
-
 === Extending Catalog Plugins
 
 The Catalog Framework calls Catalog Plugins to process requests and responses as they enter and leave the Framework. 
@@ -2346,10 +2284,6 @@ If no local catalog provider is configured, the site information returned includ
 |
 |
 
-|`org.codice.${ddf-branding}.configuration.ConfigurationWatcher`
-|
-| 
-
 |`${ddf-branding}.catalog.event.EventProcessor`
 |
 |
@@ -2632,10 +2566,6 @@ Details of the individual federated sources is not included, only the fanout cat
 |
 |
 
-|`org.codice.${ddf-branding}.configuration.ConfigurationWatcher`
-|
-| 
-
 |`${ddf-branding}.catalog.event.EventProcessor`
 |
 | 
@@ -2909,11 +2839,8 @@ Recommendations for Framework Development
 ===== Console Commands
 
 ${branding} supports development of custom console commands.
-For more information, see the Karaf website on http://karaf.apache.org/manual/latest-2.2.x/developers-guide/extending-console.html[Extending the Console]. 
 
-===== Custom ${branding} Console Commands
-
-${branding} includes custom commands for working with the Catalog, as described in the Console Commands section.
+${branding} includes custom commands for working with the Catalog, as described in the <<managing.adoc#_console_commands, Managing Console Commands>> section.
 
 === Extending Sources
 Catalog sources are used to connect Catalog components to data sources, local and remote.
@@ -3069,31 +2996,6 @@ The configurable properties for the OpenSearch source are accessed from the Cata
 ===== Using
 
 Use the OpenSearch source if querying a CDR-compliant search service is desired.
-
-===== Source Details
-
-====== Default Security Settings (applicable to all OpenSearch Sources)
-
-These settings are used to provide default security settings for the Title, Description, and Security elements in a record.
-The purpose of these defaults is that many providers fail to deliver a classification and Owner/Producer with the metadata returned.
-These default settings are used if a metadata record is returned without security settings. *This feature can be enabled/disabled*.
-
-. Open the Web Console.
-.. `http://localhost:8181/system/console`
-.. Username/Password: `admin`/`admin`
-. Click on the `Configuration` tab.
-. Find `Catalog Security Defaults`
-. Select whether or not to apply these defaults by checking or unchecking the box marked "Apply Default Security Settings."
-. If the applied defaults are selected, change the settings in the console to the default metadata security.
-.. These settings can also be changed by editing the file `<INSTALL_DIRECTORY>/etc/${ddf-branding}/${ddf-branding}.DefaultSiteSecurity.cfg`
-. Click Save at the bottom of the configuration window (or save the file).
-
-[WARNING]
-====
-* In the CDR Open Search Service, if one of the properties has a blank value, the "last-resort" default is U and USA.
-* If the `DefaultSiteSecurity.cfg` file is deleted, it needs to be replaced otherwise all classification values are set to "last-resort" defaults U and USA.
-* After the file is replaced, either restart ${branding} or the restart the CDR Open Search Service to reload the property values.
-====
 
 ===== Query Format
 
@@ -3624,12 +3526,13 @@ This allows any registered input transformer that are more specific for any of t
 ====== Installing and Uninstalling
 
 This transformer is installed by default.
-To install or uninstall manually, use the `tika-input-transformer` feature in the ${admin-console} (https://localhost:8993/admin) under DDF Catalog -> Features or use the System Console.
+To install or uninstall manually, use the `tika-input-transformer` feature in the ${admin-console} (${secure_url}/admin) under DDF Catalog -> Features or use the System Console.
 
-Install the `catalog-transformer-tika` feature using the http://localhost:8181/admin[${admin-console].
+Install the `catalog-transformer-tika` feature using the ${admin-console}.
 This feature is uninstalled by default.
 
 ====== Configuring
+
 None
 
 ====== Using
@@ -3685,7 +3588,7 @@ The PPTX Input Transformer is the input transformer responsible for translating 
 The PPTX Input Transformer will take precedence over the Tika Input Transformer for PPTX documents.
 
 ====== Installing and Uninstalling
-This transformer is installed by default. To install or uninstall manually, use the `catalog-transformer-pptx` feature in the ${admin-console} (https://localhost:8993/admin) under DDF Catalog -> Features.
+This transformer is installed by default. To install or uninstall manually, use the `catalog-transformer-pptx` feature in the ${admin-console} (${secure_url}/admin) under DDF Catalog -> Features.
 
 
 ====== Configuring
@@ -3726,7 +3629,7 @@ the first page in the PPTX document.
 The video input transformer is responsible for creating Catalog metacards from certain video file types. Currently, it is responsible for handling MPEG-2 transport streams as well as MPEG-4, AVI, MOV, and WMV videos. This input transformer uses Apache Tika to extract basic metadata from the video files and applies more sophisticated methods to extract more meaningful metadata from these types of video.
 
 ====== Installing and Uninstalling
-This transformer is installed by default. To install or uninstall manually, use the `video-input-transformer` feature in the Admin Console (https://localhost:8993/admin) under DDF Catalog -> Features or use the System Console.
+This transformer is installed by default. To install or uninstall manually, use the `video-input-transformer` feature in the Admin Console (${secure_url}/admin) under DDF Catalog -> Features or use the System Console.
 
 ====== Configuring
 None
@@ -3768,7 +3671,7 @@ The GeoJSON input transformer is responsible for translating specific GeoJSON in
 
 ====== Installing and Uninstalling
 
-Install the catalog-rest-endpoint feature using the http://localhost:8181/admin[Admin Console].
+Install the `catalog-rest-endpoint` feature using the \${secure_url}/admin.
 
 ====== Configuring
 
@@ -3781,7 +3684,7 @@ Once the REST Endpoint receives the GeoJSON Metacard, it is converted to a Catal
 
 .Example HTTP POST of a local `metacard.json` file using the Curl Command
 ----
-curl -X POST -i -H "Content-Type: application/json" -d "@metacard.json" http://localhost:8181/services/catalog
+curl -X POST -i -H "Content-Type: application/json" -d "${at-symbol}metacard.json" ${secure_url}/services/catalog
 ----
 
 ====== Conversion
@@ -4073,7 +3976,7 @@ A metacard transformer transforms a metacard into other data formats.
 The HTML metacard transformer is responsible for translating a metacard into an HTML formatted document.
 
 ====== Installing and Uninstalling
-Install the `catalog-transformer-html` feature using the Web Console (http://localhost:8181/system/console) or System Console.
+Install the `catalog-transformer-html` feature using the Admin Console.
 
 ===== Configuring
 
@@ -4083,7 +3986,7 @@ None
 
 Using the REST Endpoint for example, request a metacard with the transform option set to the HTML shortname.
 ----
-http://localhost:8181/services/catalog/0123456789abcdef0123456789abcdef?transform=html
+${public_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=html
 ----
 
 ====== Example Output
@@ -4128,7 +4031,7 @@ None
 ===== Using
 Using the REST Endpoint for example, request a metacard with the transform option set to the XML shortname.
 ----
-http://localhost:8181/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml
+${secure_url}/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml
 ----
 
 ===== Implementation Details
@@ -4197,7 +4100,7 @@ It can also be used within the REST Endpoint by providing the transform option a
 
 .Example REST GET method with the GeoJSON MetacardTransformer
 ----
-http://localhost:8181/services/catalog/0123456789abcdef0123456789abcdef?transform=geojson
+${public_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=geojson
 ----
 
 .Example Output
@@ -4327,7 +4230,7 @@ It can also be used within the REST Endpoint by providing the transform option a
 
 .Example REST GET method with the Metadata MetacardTransformer
 ----
-http://localhost:8181/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
+${public_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
 ----
 
 ===== Implementation Details
@@ -4482,7 +4385,7 @@ The client can query with the format option set to the shortname, atom.
 
 .Sample OpenSearch query with Atom specified as return format
 ----
-http://localhost:8181/services/catalog/query?q=${ddf-branding}?format=atom
+${public_url}/services/catalog/query?q=${ddf-branding}?format=atom
 ----
 
 Developers could use this transformer to programmatically transform `QueryResponse` objects on the fly.
@@ -4651,7 +4554,7 @@ Using the OpenSearch Endpoint, for example, query with the format option set to 
 
 [source,http]
 ----
-http://localhost:8181/services/catalog/query?q=input?format=xml
+${public_url}/services/catalog/query?q=input?format=xml
 ----
 
 .Example Output
@@ -4773,7 +4676,7 @@ In the Admin Console the SearchUI can be configured under the Catalog HTML Query
 ===== Using
 
 In order to obtain the SearchUI, a user must use the transformer with an endpoint that queries the Catalog such as the OpenSearch Endpoint.
-If a distribution is running locally, \http://localhost:8181/search/simple should bring up the Simple Search UI.
+If a distribution is running locally, \${secure_url}/search/simple should bring up the Simple Search UI.
 After the page has loaded, enter the desired search criteria in the appropriate fields.
 Then click the "Search" button in order to execute the search on the Catalog.
 
@@ -5283,7 +5186,7 @@ The Catalog Federation Strategy configuration can be found in the admin console 
 |`url`
 |String
 |HTTP URL of Solr Server
-|https://localhost:8993/solr
+|${secure_url}/solr
 |yes
 
 |`cachingEverything`

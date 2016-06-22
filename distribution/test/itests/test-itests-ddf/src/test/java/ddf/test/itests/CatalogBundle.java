@@ -16,12 +16,14 @@ package ddf.test.itests;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,8 @@ public class CatalogBundle {
     public static final long CATALOG_PROVIDER_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
     public static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
+
+    public static final String RESOURCE_DOWNLOAD_MANAGER_PID = "ddf.catalog.resource.download.ReliableResourceDownloadManager";
 
     private final ServiceManager serviceManager;
 
@@ -153,5 +157,23 @@ public class CatalogBundle {
         }
 
         serviceManager.startManagedService(CATALOG_FRAMEWORK_PID, properties);
+    }
+
+    public void setupCaching(boolean cachingEnabled) throws IOException {
+        Map<String, Object> existingProperties = adminConfig.getDdfConfigAdmin()
+                .getProperties(RESOURCE_DOWNLOAD_MANAGER_PID);
+        if (existingProperties == null) {
+            existingProperties = new Hashtable<String, Object>();
+        }
+        Hashtable<String, Object> updatedProperties = new Hashtable<>();
+        updatedProperties.putAll(existingProperties);
+        if (cachingEnabled) {
+            updatedProperties.put("cacheEnabled", "True");
+        } else {
+            updatedProperties.put("cacheEnabled", "False");
+        }
+
+        Configuration configuration = adminConfig.getConfiguration(RESOURCE_DOWNLOAD_MANAGER_PID, null);
+        configuration.update(updatedProperties);
     }
 }

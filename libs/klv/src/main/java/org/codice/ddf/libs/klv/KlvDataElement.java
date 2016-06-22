@@ -69,4 +69,16 @@ public abstract class KlvDataElement<T> {
     }
 
     protected abstract KlvDataElement copy();
+
+    /**
+     * If the data element was encoded with an error indicator value and the value matches that
+     * indicator, then this method will return {@code true}. Child classes should override the
+     * default implementation if they support error indicator values.
+     *
+     * @return true if error was encoded
+     */
+    public boolean isErrorIndicated() {
+        return false;
+    }
+
 }

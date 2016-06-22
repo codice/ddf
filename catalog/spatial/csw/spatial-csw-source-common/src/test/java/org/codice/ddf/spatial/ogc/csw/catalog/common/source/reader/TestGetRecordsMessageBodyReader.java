@@ -62,10 +62,13 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
+import ddf.security.encryption.EncryptionService;
 
 public class TestGetRecordsMessageBodyReader {
 
     private Converter mockProvider = mock(Converter.class);
+
+    private EncryptionService encryptionService = mock(EncryptionService.class);
 
     @Before
     public void setUp() {
@@ -75,7 +78,7 @@ public class TestGetRecordsMessageBodyReader {
     @Test
     public void testConfigurationArguments() throws Exception {
 
-        CswSourceConfiguration config = new CswSourceConfiguration();
+        CswSourceConfiguration config = new CswSourceConfiguration(encryptionService);
         config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setCswAxisOrder(CswAxisOrder.LAT_LON);
@@ -131,7 +134,7 @@ public class TestGetRecordsMessageBodyReader {
         collection.setCswRecords(inputMetacards);
         when(mockProvider.unmarshal(any(), any())).thenReturn(collection);
 
-        CswSourceConfiguration config = new CswSourceConfiguration();
+        CswSourceConfiguration config = new CswSourceConfiguration(encryptionService);
         Map<String, String> mappings = new HashMap<>();
         mappings.put(Metacard.CREATED, "dateSubmitted");
         mappings.put(Metacard.EFFECTIVE, "created");
@@ -169,7 +172,7 @@ public class TestGetRecordsMessageBodyReader {
         CswRecordCollection collection = new CswRecordCollection();
         collection.setCswRecords(inputMetacards);
         when(mockProvider.unmarshal(any(), any())).thenReturn(collection);
-        CswSourceConfiguration config = new CswSourceConfiguration();
+        CswSourceConfiguration config = new CswSourceConfiguration(encryptionService);
         config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
@@ -189,7 +192,7 @@ public class TestGetRecordsMessageBodyReader {
 
     @Test
     public void testReadProductData() throws Exception {
-        CswSourceConfiguration config = new CswSourceConfiguration();
+        CswSourceConfiguration config = new CswSourceConfiguration(encryptionService);
         config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);

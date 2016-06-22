@@ -27,7 +27,13 @@
             name="Match-One Mappings" id="matchOneMappings" required="false"
             cardinality="100"
             type="String"
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=invalid-state"/>
+            default=""/>
+
+        <AD description="List of environment attributes to pass to the XACML engine. Format is attributeId=attributeValue1,attributeValue2."
+            name="Environment Attributes" id="environmentAttributes" required="false"
+            cardinality="100"
+            type="String"
+            default=""/>
     </OCD>
 
     <Designate pid="ddf.security.pdp.realm.AuthzRealm">

@@ -14,6 +14,7 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -35,7 +36,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistentStore;
@@ -59,6 +59,8 @@ public class NotificationControllerTest {
     // NOTE: The ServerSession ID == The ClientSession ID
     private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
 
+    private static final String MOCK_INVALID_SESSION_ID = "0987-6543-2109-8765";
+
     private static final String MOCK_APPLICATION = "Downloads";
 
     private static final String MOCK_TITLE = "SUCCESS - Download Complete - JPEG of San Francisco";
@@ -68,8 +70,9 @@ public class NotificationControllerTest {
 
     private static final long MOCK_TIMESTAMP = new Date().getTime();
 
-    private static final String MOCK_USER_ID = UUID.randomUUID()
-            .toString();
+    private static final String MOCK_USER_ID = "validUserId";
+
+    private static final String MOCK_INVALID_USER_ID = "invalidUserId";
 
     private static final String EXPECTED_COMETD_NOTIFICATIONS_CHANNEL_PREFIX =
             "/ddf/notifications/";
@@ -92,6 +95,7 @@ public class NotificationControllerTest {
                 mock(EventAdmin.class));
 
         when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
+        when(mockServerSession.getAttribute("session")).thenReturn(MOCK_SESSION_ID);
 
         testEventProperties = new HashMap<>();
         testEventProperties.put(Notification.NOTIFICATION_KEY_APPLICATION, MOCK_APPLICATION);
@@ -245,11 +249,13 @@ public class NotificationControllerTest {
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
      * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
-     * {@link Notification#NOTIFICATION_KEY_USER_ID} property is empty.
+     * {@link Notification#NOTIFICATION_KEY_USER_ID} and
+     * {@link Notification#NOTIFICATION_KEY_SESSION_ID} properties are null.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyUser() {
+    public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyUserAndSessionId() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_USER_ID, "");
+        testEventProperties.put(Notification.NOTIFICATION_KEY_SESSION_ID, "");
         notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
                 testEventProperties));
     }
@@ -310,14 +316,54 @@ public class NotificationControllerTest {
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
      * <p>
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
-     * {@link Notification#NOTIFICATION_KEY_USER_ID} property is null.
+     * {@link Notification#NOTIFICATION_KEY_USER_ID} and
+     * {@link Notification#NOTIFICATION_KEY_SESSION_ID} properties are null.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testHandleEventThrowsIllegalArgumentExceptionOnNullUser() {
+    public void testHandleEventThrowsIllegalArgumentExceptionOnNullUserAndSessionId() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_USER_ID, null);
+        testEventProperties.put(Notification.NOTIFICATION_KEY_SESSION_ID, null);
         notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
                 testEventProperties));
     }
+
+    /**
+     * Verifies that the session lookup works properly if the userId is provided
+     */
+    @Test
+    public void testLookupSessionViaUserIdIfPresent() {
+        notificationController.userSessionMap.put(MOCK_USER_ID, mockServerSession);
+        // checks that a session is returned with no provided sessionId
+        assertThat(notificationController.getSessionById(MOCK_USER_ID, null), is(mockServerSession));
+        // checks that the sessionId is not used if userId is present
+        assertThat(notificationController.getSessionById(MOCK_USER_ID, MOCK_INVALID_SESSION_ID),
+                is(mockServerSession));
+    }
+
+    /**
+     * Verifies that the session lookup properly falls back to sessionId lookup if
+     * the userId is not provided or is invalid
+     */
+    @Test
+    public void testFallbackToSessionIdLookupIfUserIdFails() {
+        notificationController.userSessionMap.put(MOCK_USER_ID, mockServerSession);
+        // checks that the sessionId is used if the userId cannot be found
+        assertThat(notificationController.getSessionById(MOCK_INVALID_USER_ID, MOCK_SESSION_ID), is(mockServerSession));
+        // checks that the sessionId is used if the userID is not provided
+        assertThat(notificationController.getSessionById(null, MOCK_SESSION_ID), is(mockServerSession));
+    }
+
+    /**
+     * Verifies that sessions are only returned if an identifier is supplied
+     */
+    @Test
+    public void testSessionLookupsWithoutIdentifiersFail() {
+        notificationController.userSessionMap.put(MOCK_USER_ID, mockServerSession);
+        // checks that nothing is returned if nothing is given
+        assertThat(notificationController.getSessionById(null, null), is(nullValue()));
+    }
+
+
 
     /**
      * Test method for deletePersistentNotification(ServerSession serverSession, ServerMessage

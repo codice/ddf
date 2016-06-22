@@ -1,0 +1,52 @@
+#!/bin/sh
+# Copyright (c) Codice Foundation
+#
+# This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+# version 3 of the License, or any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+# <http://www.gnu.org/licenses/lgpl.html>.
+
+usage() { echo "Usage: $0 <-d directory> <-z zipname> <-k keystore location> [-a alias]" 1>&2; exit 1; }
+
+JARSIGNER='jarsigner'
+
+while getopts ":d:z:k:a:" o; do
+    case "${o}" in
+        d)
+            d=${OPTARG}
+            ;;
+        z)
+            z=${OPTARG}
+            ;;
+        k)
+            k=${OPTARG}
+            ;;
+        a)
+            a=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -z "${a}" ]; then
+    a=localhost
+fi
+
+if [ -z "${d}" ] || [ -z "${z}" ] || [ -z "${k}" ]; then
+    usage
+fi
+
+echo "Connecting to running DDF and exporting catalog to ${z}..."
+./client "catalog:dump --include-content=${z} ${d}"
+if which ${JARSIGNER} >/dev/null; then
+        echo "Running  ${JARSIGNER} on ${z}, which will prompt you to enter the keystore password to sign the zip file..."
+         ${JARSIGNER} -keystore ${k} ${d}/${z} ${a}
+else
+    echo "Unable to find ${JARSIGNER}, ensure that $JAVA_HOME and $JAVA_HOME/bin are set on the path."
+    exit 1
+fi

@@ -27,6 +27,7 @@
     <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
         filter="(shortname=URLResourceReader)" />
 
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <cm:managed-service-factory id="DDFfederationPrototypeServiceFactory"
         factory-pid="OpenSearchSource" interface="ddf.catalog.source.FederatedSource">
@@ -67,7 +68,7 @@
                 </list>
             </property>
             <property name="resourceReader" ref="resourceReader" />
-
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id=""
                 update-strategy="container-managed" />
         </cm:managed-component>

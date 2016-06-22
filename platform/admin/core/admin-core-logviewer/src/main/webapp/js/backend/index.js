@@ -19,7 +19,7 @@ import http from 'http'
 
 // retrieves logs from the endpoint
 const getLogs = function (done) {
-  const endpoint = '/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents'
+  const endpoint = '/admin/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents'
 
   http.get({
     path: endpoint

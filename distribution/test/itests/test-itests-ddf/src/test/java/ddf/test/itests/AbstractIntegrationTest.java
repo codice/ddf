@@ -41,7 +41,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -56,6 +58,7 @@ import org.junit.Rule;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.metatype.MetaTypeService;
 import org.slf4j.Logger;
@@ -243,11 +246,13 @@ public abstract class AbstractIntegrationTest {
 
     public static final DynamicUrl ADMIN_ALL_SOURCES_PATH = new DynamicUrl(SECURE_ROOT,
             HTTPS_PORT,
-            "/jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/allSourceInfo");
+            "/admin/jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/allSourceInfo");
 
-    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(SECURE_ROOT,
-            HTTPS_PORT,
-            "/jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/sourceStatus/");
+    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
+            "/admin/jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/sourceStatus/");
+
+    public static final DynamicUrl RESOURCE_DOWNLOAD_ENDPOINT_ROOT = new DynamicUrl(SERVICE_ROOT,
+            "/catalog/downloads/");
 
     static {
         // Make Pax URL use the maven.repo.local setting if present
@@ -379,7 +384,6 @@ public abstract class AbstractIntegrationTest {
                 .versionAsInProject()
                 .getURL(), "ddf", KARAF_VERSION).unpackDirectory(new File("target/exam"))
                 .useDeployFolder(false));
-
     }
 
     protected Option[] configurePaxExam() {
@@ -532,6 +536,40 @@ public abstract class AbstractIntegrationTest {
 
     protected Integer getBasePort() {
         return Integer.parseInt(System.getProperty(BASE_PORT.getSystemProperty()));
+    }
+
+    protected void configureEnforcedMetacardValidators(List<String> enforcedValidators)
+            throws IOException {
+
+        // Update metacardMarkerPlugin config with no enforcedMetacardValidators
+        Configuration config = configAdmin.getConfiguration(
+                "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
+                null);
+
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put("enforcedMetacardValidators", enforcedValidators);
+        config.update(properties);
+    }
+
+    protected void configureMetacardValidityFilterPlugin(List<String> securityAttributeMappings)
+            throws IOException {
+        Configuration config = configAdmin.getConfiguration(
+                "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin",
+                null);
+        Dictionary properties = new Hashtable<>();
+        properties.put("attributeMap", securityAttributeMappings);
+        config.update(properties);
+    }
+
+    protected void configureShowInvalidMetacards(String showErrors, String showWarnings) throws IOException {
+        Configuration config = configAdmin.getConfiguration(
+                "ddf.catalog.federation.impl.CachingFederationStrategy",
+                null);
+
+        Dictionary properties = new Hashtable<>();
+        properties.put("showErrors", showErrors);
+        properties.put("showWarnings", showWarnings);
+        config.update(properties);
     }
 
     /**

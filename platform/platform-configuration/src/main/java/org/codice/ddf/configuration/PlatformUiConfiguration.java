@@ -14,15 +14,13 @@
 package org.codice.ddf.configuration;
 
 import java.io.IOException;
-import java.util.Base64;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.ddf.branding.BrandingResourceProvider;
+import org.codice.ddf.branding.BrandingPlugin;
 
 import net.minidev.json.JSONObject;
 
@@ -74,8 +72,6 @@ public class PlatformUiConfiguration {
 
     private BrandingPlugin branding;
 
-    private BrandingResourceProvider provider;
-
     private String title;
 
     private String version;
@@ -124,17 +120,6 @@ public class PlatformUiConfiguration {
     public void setBranding(BrandingPlugin branding) throws IOException {
         this.branding = branding;
         setInfo();
-    }
-
-    private String getBase64(String productImage) throws IOException {
-        if (provider != null) {
-            byte[] resourceAsBytes = provider.getResourceAsBytes(productImage);
-            if (resourceAsBytes.length > 0) {
-                return Base64.getEncoder()
-                        .encodeToString(resourceAsBytes);
-            }
-        }
-        return "";
     }
 
     public boolean getSystemUsageEnabled() {
@@ -201,17 +186,16 @@ public class PlatformUiConfiguration {
         this.background = background;
     }
 
-    public void setProvider(BrandingResourceProvider provider) throws IOException {
-        this.provider = provider;
+    public void setProvider() throws IOException {
         setInfo();
     }
 
     private void setInfo() throws IOException {
-        if (branding != null && provider != null) {
+        if (branding != null) {
             setVersion();
             setTitle();
-            this.productImage = getBase64(branding.getProductImage());
-            this.favicon = getBase64(branding.getFavIcon());
+            this.productImage = branding.getBase64ProductImage();
+            this.favicon = branding.getBase64FavIcon();
         }
     }
 }

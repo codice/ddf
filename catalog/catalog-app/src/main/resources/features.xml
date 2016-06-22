@@ -64,8 +64,11 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-resourcestatusplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-defaultvalues/${project.version}</bundle>
 
         <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
@@ -84,6 +87,12 @@
         </configfile>
         <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
+        <configfile finalname="/bin/catalog-export">
+            mvn:ddf.catalog.core/catalog-core-commands/${project.version}/bin/export
+        </configfile>
+        <configfile finalname="/bin/catalog-export.bat">
+            mvn:ddf.catalog.core/catalog-core-commands/${project.version}/bin/batexport
         </configfile>
     </feature>
 
@@ -182,7 +191,7 @@
 
     <feature name="catalog-plugin-federationreplication" install="manual"
              version="${project.version}" description="">
-            <feature prerequisite="true">catalog-app</feature>
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.plugin/plugin-federation-replication/${project.version}</bundle>
     </feature>
 
@@ -271,6 +280,12 @@
         <bundle>mvn:commons-collections/commons-collections/3.2.1</bundle>
     </feature>
 
+    <feature name="catalog-transformer-zip" install="auto" version="${project.version}"
+             description="ZIP Transformer">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-zip/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-security-filter" install="auto" version="${project.version}"
              description="DDF Catalog Security Filtering">
         <feature prerequisite="true">catalog-app</feature>
@@ -343,6 +358,12 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-validator/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-attribute-registry/${project.version}</bundle>
         <feature>catalog-plugin-metacard-validation</feature>
+    </feature>
+
+    <feature name="catalog-core-validationparser" install="manual" version="${project.version}"
+             description="Provides the ability to define new metacard types, attributes, attribute validators, and default values via JSON files">
+        <feature prerequisite="true">catalog-core-validator</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-validationparser/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-pdf" install="auto" version="${project.version}"

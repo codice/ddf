@@ -26,15 +26,43 @@
         <feature prerequisite="true" version="${karaf.version}">http</feature>
     </feature>
 
-    <feature name="kernel-webconsole" install="manual" version="${project.version}">
-        <feature>webconsole</feature>
-        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+    <feature name="branding-api" version="${project.version}" description="Branding API">
+        <bundle>mvn:ddf.distribution/branding-api/${project.version}</bundle>
     </feature>
 
-    <feature name="kernel-webconsolebranding" description="" version="${project.version}">
-        <feature prerequisite="true">kernel-webconsole</feature>
-        <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
-        <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
+    <feature name="ddf-branding" version="${project.version}" description="DDF Branding">
+        <feature prerequisite="true">web-container</feature>
+        <feature prerequisite="true">branding-api</feature>
+        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+        <bundle>mvn:commons-configuration/commons-configuration/${commons-configuration.version}</bundle>
+        <bundle>mvn:ddf.distribution/ddf-branding-plugin/${project.version}</bundle>
+    </feature>
+
+    <!-- Blueprint 1.6.2 is required to fix an issue with schemas not being resolved when offline
+         Remove this when Karaf has upgraded past 1.6.2 -->
+    <feature name="aries-blueprint" description="Aries Blueprint" version="${karaf.version}">
+        <feature prerequisite="false" dependency="false">aries-proxy</feature>
+        <bundle start-level="20">
+            mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.api/1.0.1
+        </bundle>
+        <bundle start-level="20">
+            mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/1.0.8
+        </bundle>
+        <bundle start-level="20">
+            mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core.compatibility/1.0.0
+        </bundle>
+        <bundle start-level="20">
+            mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/1.6.2
+        </bundle>
+        <conditional>
+            <condition>bundle</condition>
+            <bundle start-level="30">
+                mvn:org.apache.karaf.bundle/org.apache.karaf.bundle.blueprintstate/4.0.5
+            </bundle>
+        </conditional>
+        <capability>
+            osgi.service;effective:=active;objectClass=org.apache.aries.blueprint.services.ParserService, osgi.extender; osgi.extender="osgi.blueprint";uses:="org.osgi.service.blueprint.container,org.osgi.service.blueprint.reflect";version:Version="1.0"
+        </capability>
     </feature>
 
 </features>

@@ -50,6 +50,8 @@
         <value>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
             &lt;Resource&gt;
             &lt;name&gt;Space Needle Far&lt;/name&gt;
+            &lt;xpathElement type='attribute'&gt;hasAttribute&lt;/xpathElement&gt;
+            &lt;xpathElement&gt;noAttribute&lt;/xpathElement&gt;
             &lt;testNumbers&gt;
             &lt;Short&gt;100&lt;/Short&gt;
             &lt;Int&gt;200&lt;/Int&gt;

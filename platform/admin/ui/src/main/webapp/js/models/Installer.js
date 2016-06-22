@@ -47,9 +47,9 @@ define([
     };
 
     Installer.Model = Backbone.Model.extend({
-        installUrl: '/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/',
-        uninstallUrl: '/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/',
-        shutdownUrl: '/jolokia/exec/org.apache.karaf:type=system,name=root/halt()',
+        installUrl: '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/',
+        uninstallUrl: '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/',
+        shutdownUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/halt()',
         defaults: function () {
             return {
                 hasNext: true,

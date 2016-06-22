@@ -1,0 +1,40 @@
+{
+  "name": "remote-registries-module",
+  "author": "Codice",
+  "description": "The Registry-App Remote Registries Module",
+  "version": "2.5.0",
+  "license": "LGPL-3.0",
+  "keywords": [
+    "backbone",
+    "express"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codice/ddf.git"
+  },
+  "engines": {
+    "node": ">=0.10.5"
+  },
+  "devDependencies": {
+    "grunt": "0.4.1",
+    "grunt-cli": "0.1.13",
+    "bower": "1.4.1",
+    "grunt-bower-task": "0.4.0",
+    "grunt-contrib-jshint": "0.3.0",
+    "grunt-contrib-clean": "0.4.0",
+    "grunt-contrib-watch": "0.4.4",
+    "grunt-contrib-cssmin": "0.5.0",
+    "grunt-contrib-less": "0.11.0",
+    "connect-livereload": "0.3.2",
+    "grunt-express": "1.2.1",
+    "load-grunt-tasks": "1.0.0"
+  },
+  "dependencies": {
+    "lodash": "2.4.1",
+    "http-proxy": "0.10.0",
+    "express": "3.21.0",
+    "node-fs": "0.1.7",
+    "node-options": "0.0.3",
+    "path": "0.4.9"
+  }
+}

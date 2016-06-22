@@ -20,7 +20,7 @@
     cometd.websocketEnabled=false;
     
     // CometD endpoint is assumed to be at localhost, change if otherwise
-    var cometURL = "https://localhost:8993/cometd";
+    var cometURL = "https://localhost:8993/search/cometd";
 
     $(document).ready(function() {
 
@@ -65,7 +65,7 @@
             // Add Notification Subscription
             cometd.subscribe('/ddf/notifications/**', function(message) {
               console.log("Got a message!");
-              console.log("message id: " + message.data.id);
+              console.log("Message id: " + message.data.id);
 
               // Add Notification
               getNotification(message);
@@ -82,8 +82,12 @@
 
       // Displays new notifications to the user.
       function addNotification(message) {
+        // Print out the raw JSON
+        console.log('Adding Notification - Message JSON: ');
+        console.log(JSON.stringify(message, null, 4));
+        document.getElementById("json-responses").appendChild(renderjson(message));
+
         // Grab notification elements
-        console.log('Adding Notification: ' + JSON.stringify(message))
         var notifyId      = message.data.id,
             notifyTitle   = message.data.title,
             notifyUser    = message.data.user,
@@ -100,7 +104,11 @@
 
       // Update notifications.
       function updateNotification(message) {
-        console.log('Updating Notification: ' + JSON.stringify(message))
+        // Print out the raw JSON
+        console.log('Updating Notification - Message JSON: ');
+        console.log(JSON.stringify(message, null, 4));
+        document.getElementById("json-responses").appendChild(renderjson(message));
+
         var notifyId      = message.data.id,
             notifyTitle   = message.data.title,
             notifyUser    = message.data.user,
@@ -142,7 +150,10 @@
 
       // Add Query results to page
       function addResult(message) {
-        console.log('Results: ' + JSON.stringify(message));
+        console.log('Results: ');
+        console.log(JSON.stringify(message, null, 4));
+        document.getElementById("json-responses").appendChild(renderjson(message));
+
         var results = message.data.results.length;
         console.log("Result Length: " + results);
         for (var i = 0; i < results; i++) {
@@ -175,7 +186,10 @@
                       };
 
         // Add query response subscription
-        console.log("Query Request: " + JSON.stringify(request));
+        console.log("Query Request: ");
+        console.log(JSON.stringify(request, null, 4));
+        document.getElementById("json-responses").appendChild(renderjson(request));
+
         cometd.subscribe(guidChannel, function(message) {
           addResult(message);
         });

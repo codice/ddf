@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,6 +13,10 @@
  */
 package org.codice.ddf.libs.klv;
 
+import static java.lang.System.arraycopy;
+import static org.codice.ddf.libs.klv.Utilities.intToBytes;
+import static org.codice.ddf.libs.klv.Utilities.longToBytes;
+import static org.codice.ddf.libs.klv.Utilities.shortToBytes;
 import static org.codice.ddf.libs.klv.data.Klv.KeyLength;
 import static org.codice.ddf.libs.klv.data.Klv.LengthEncoding;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -29,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -542,4 +547,215 @@ public class KlvDecoderTest {
             assertThat(e.getCause(), instanceOf(IndexOutOfBoundsException.class));
         }
     }
+
+    private boolean isErrorIndicatedByte(byte value, Optional<Byte> errorValue)
+            throws KlvDecodingException {
+        KlvByte klvByte = new KlvByte(new byte[] {0}, "test", errorValue);
+
+        KlvContext decodedKlvContext = decodeKLV(KeyLength.OneByte,
+                LengthEncoding.OneByte,
+                klvByte,
+                new byte[] {0, 1, value});
+
+        return decodedKlvContext.getDataElementByName("test")
+                .isErrorIndicated();
+    }
+
+    @Test
+    public void testIsErrorIndicatedByte() throws KlvDecodingException {
+        assertThat(isErrorIndicatedByte((byte) 1, Optional.of((byte) 1)), is(true));
+        assertThat(isErrorIndicatedByte((byte) 1, Optional.of((byte) 2)), is(false));
+        assertThat(isErrorIndicatedByte((byte) 1, Optional.empty()), is(false));
+    }
+
+    @Test
+    public void testLongToBytes() {
+        long longValue = 0x0102030405060708L;
+        byte[] bytes = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+        assertThat(longToBytes(longValue), is(bytes));
+    }
+
+    @Test
+    public void testIntToBytes() {
+        int intValue = 0x01020304;
+        byte[] bytes = {0x01, 0x02, 0x03, 0x04};
+        assertThat(intToBytes(intValue), is(bytes));
+    }
+
+    @Test
+    public void testShortToBytes() {
+        short shortValue = 0x0102;
+        byte[] bytes = {0x01, 0x02};
+        assertThat(shortToBytes(shortValue), is(bytes));
+    }
+
+    private boolean isErrorIndicatedDouble(double value, Optional<Double> errorValue)
+            throws KlvDecodingException {
+
+        KlvDouble klvDouble = new KlvDouble(new byte[] {0}, "test", errorValue);
+
+        byte[] dataBytes = new byte[10];
+
+        dataBytes[0] = 0;
+        dataBytes[1] = 8;
+        arraycopy(longToBytes(Double.doubleToLongBits(value)), 0, dataBytes, 2, 8);
+
+        return isErrorIndicatedDecode(klvDouble, dataBytes);
+    }
+
+    @Test
+    public void testIsErrorIndicatedDouble() throws KlvDecodingException {
+        assertThat(isErrorIndicatedDouble(0, Optional.of(0D)), is(true));
+        assertThat(isErrorIndicatedDouble(1, Optional.of(0D)), is(false));
+        assertThat(isErrorIndicatedDouble(1, Optional.empty()), is(false));
+    }
+
+    private boolean isErrorIndicatedFloat(float value, Optional<Float> errorValue)
+            throws KlvDecodingException {
+
+        KlvFloat klvFloat = new KlvFloat(new byte[] {0}, "test", errorValue);
+
+        byte[] dataBytes = new byte[6];
+
+        dataBytes[0] = 0;
+        dataBytes[1] = 4;
+        arraycopy(intToBytes(Float.floatToIntBits(value)), 0, dataBytes, 2, 4);
+
+        return isErrorIndicatedDecode(klvFloat, dataBytes);
+    }
+
+    private boolean isErrorIndicatedDecode(KlvDataElement klvDataElement, byte[] dataBytes)
+            throws KlvDecodingException {
+        KlvContext decodedKlvContext = decodeKLV(KeyLength.OneByte,
+                LengthEncoding.OneByte,
+                klvDataElement,
+                dataBytes);
+
+        return decodedKlvContext.getDataElementByName("test")
+                .isErrorIndicated();
+    }
+
+    @Test
+    public void testIsErrorIndicatedFloat() throws KlvDecodingException {
+        assertThat(isErrorIndicatedFloat(0, Optional.of(0F)), is(true));
+        assertThat(isErrorIndicatedFloat(1, Optional.of(0F)), is(false));
+        assertThat(isErrorIndicatedFloat(1, Optional.empty()), is(false));
+    }
+
+    private boolean isErrorIndicatedInt(int value, Optional<Integer> errorValue)
+            throws KlvDecodingException {
+
+        KlvInt klvInt = new KlvInt(new byte[] {0}, "test", errorValue);
+
+        byte[] dataBytes = new byte[6];
+
+        dataBytes[0] = 0;
+        dataBytes[1] = 4;
+        arraycopy(intToBytes(value), 0, dataBytes, 2, 4);
+
+        return isErrorIndicatedDecode(klvInt, dataBytes);
+    }
+
+    @Test
+    public void testIsErrorIndicatedInt() throws KlvDecodingException {
+        assertThat(isErrorIndicatedInt(0, Optional.of(0)), is(true));
+        assertThat(isErrorIndicatedInt(1, Optional.of(0)), is(false));
+        assertThat(isErrorIndicatedInt(1, Optional.empty()), is(false));
+    }
+
+    private boolean isErrorIndicatedIntegerIndicatedFloatingPoint(int value,
+            Optional<Integer> errorValue) throws KlvDecodingException {
+
+        KlvIntegerEncodedFloatingPoint klvIntegerEncodedFloatingPoint =
+                new KlvIntegerEncodedFloatingPoint(new KlvInt(new byte[] {0}, "test", errorValue),
+                        Integer.MIN_VALUE + 1,
+                        Integer.MAX_VALUE,
+                        -90,
+                        90);
+
+        byte[] dataBytes = new byte[6];
+
+        dataBytes[0] = 0;
+        dataBytes[1] = 4;
+        arraycopy(intToBytes(value), 0, dataBytes, 2, 4);
+
+        return isErrorIndicatedDecode(klvIntegerEncodedFloatingPoint, dataBytes);
+    }
+
+    @Test
+    public void testIsErrorIndicatedIntegerEncodedFloatingPoint() throws KlvDecodingException {
+        assertThat(isErrorIndicatedIntegerIndicatedFloatingPoint(Integer.MIN_VALUE,
+                Optional.of(Integer.MIN_VALUE)), is(true));
+        assertThat(isErrorIndicatedIntegerIndicatedFloatingPoint(Integer.MIN_VALUE + 1,
+                Optional.of(Integer.MIN_VALUE)), is(false));
+
+        assertThat(isErrorIndicatedIntegerIndicatedFloatingPoint(Integer.MIN_VALUE,
+                Optional.empty()), is(false));
+        assertThat(isErrorIndicatedIntegerIndicatedFloatingPoint(Integer.MIN_VALUE + 1,
+                Optional.empty()), is(false));
+    }
+
+    private boolean isErrorIndicatedLong(long value, Optional<Long> errorValue)
+            throws KlvDecodingException {
+
+        KlvLong klvLong = new KlvLong(new byte[] {0}, "test", errorValue);
+
+        byte[] dataBytes = new byte[10];
+
+        dataBytes[0] = 0;
+        dataBytes[1] = 8;
+        arraycopy(longToBytes(value), 0, dataBytes, 2, 8);
+
+        return isErrorIndicatedDecode(klvLong, dataBytes);
+    }
+
+    @Test
+    public void testIsErrorIndicatedLong() throws KlvDecodingException {
+        assertThat(isErrorIndicatedLong(0L, Optional.of(0L)), is(true));
+        assertThat(isErrorIndicatedLong(1L, Optional.of(0L)), is(false));
+        assertThat(isErrorIndicatedLong(1L, Optional.empty()), is(false));
+    }
+
+    private boolean isErrorIndicatedShort(short value, Optional<Short> errorValue)
+            throws KlvDecodingException {
+
+        KlvShort klvShort = new KlvShort(new byte[] {0}, "test", errorValue);
+
+        byte[] dataBytes = new byte[4];
+
+        dataBytes[0] = 0;
+        dataBytes[1] = 2;
+        arraycopy(shortToBytes(value), 0, dataBytes, 2, 2);
+
+        return isErrorIndicatedDecode(klvShort, dataBytes);
+    }
+
+    @Test
+    public void testIsErrorIndicatedShort() throws KlvDecodingException {
+        assertThat(isErrorIndicatedShort((short) 0, Optional.of((short) 0)), is(true));
+        assertThat(isErrorIndicatedShort((short) 1, Optional.of((short) 0)), is(false));
+        assertThat(isErrorIndicatedShort((short) 1, Optional.empty()), is(false));
+    }
+
+    private boolean isErrorIndicatedUnsignedByte(short value, Optional<Short> errorValue)
+            throws KlvDecodingException {
+
+        KlvUnsignedByte klvUnsignedByte = new KlvUnsignedByte(new byte[] {0}, "test", errorValue);
+
+        byte[] dataBytes = new byte[3];
+
+        dataBytes[0] = 0;
+        dataBytes[1] = 1;
+        dataBytes[2] = (byte) (0xFF & value);
+
+        return isErrorIndicatedDecode(klvUnsignedByte, dataBytes);
+    }
+
+    @Test
+    public void testIsErrorIndicatedUnsignedByte() throws KlvDecodingException {
+        assertThat(isErrorIndicatedUnsignedByte((short) 0, Optional.of((short) 0)), is(true));
+        assertThat(isErrorIndicatedUnsignedByte((short) 1, Optional.of((short) 0)), is(false));
+        assertThat(isErrorIndicatedUnsignedByte((short) 1, Optional.empty()), is(false));
+    }
+
 }

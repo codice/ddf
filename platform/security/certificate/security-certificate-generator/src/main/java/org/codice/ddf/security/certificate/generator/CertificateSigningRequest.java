@@ -86,6 +86,11 @@ public class CertificateSigningRequest {
         subjectName = PkiTools.makeDistinguishedName(name);
     }
 
+    public void setDistinguishedName(String... name) {
+        Validate.notNull(name, "Subject DN of certificate signing request cannot be null");
+        subjectName = PkiTools.convertDistinguishedName(name);
+    }
+
     /**
      * Set the serial number of the certificate. The serial number is arbitrary, but should not be negative.
      *
@@ -110,12 +115,8 @@ public class CertificateSigningRequest {
     }
 
     JcaX509v3CertificateBuilder newCertificateBuilder(X509Certificate certificate) {
-        return new JcaX509v3CertificateBuilder(certificate,
-                serialNumber,
-                notBefore.toDate(),
-                notAfter.toDate(),
-                subjectName,
-                getSubjectPublicKey());
+        return new JcaX509v3CertificateBuilder(certificate, serialNumber, notBefore.toDate(),
+                notAfter.toDate(), subjectName, getSubjectPublicKey());
     }
 
     //Set reasonable defaults

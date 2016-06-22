@@ -36,6 +36,13 @@ include::${project.build.directory}/doc-contents/_contents/_platform-contents/ma
 
 <<<
 
+== Managing ${ddf-registry}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_registry-contents/managing-registry-contents.adoc[]
+
+<<<
+
 == Managing ${ddf-security}
 [small]#Version: ${project.version}#
 

@@ -9,7 +9,7 @@ A banner is displayed on the admin console notifying "The system is insecure bec
 A detailed view is available of the properties to update.
 ====
 
-==== Web Context Policy Manager
+==== Securing the Web Context Policy Manager
 
 The Web Context Policy Manager defines all security policies for REST endpoints within ${branding}.
 It defines :
@@ -18,14 +18,25 @@ It defines :
 * the type of authentication that a context requires.
 * any user attributes required for authorization.
 
-===== Configuring Web Context Policy Manager
+See <<web_context_policy_manager_table, Web Context Policy Manager Configurations>> for detailed descriptions of all fields.
 
-The karaf realm is the only realm available by default and it authenticates against the `user.properties` file.
+===== Context Realms
+
+The karaf realm is the only realm available by default and it authenticates against the `users.properties` file.
 As JAAS authentication realms are added to the STS, more realms become available to authenticate against.
 
 For example, installing the `security-sts-ldaplogin` feature adds an ldap realm.
 Contexts can then be pointed to the ldap realm for authentication and STS will be instructed to authenticate them against ldap.
+
+===== Authentication Types
+
 As you add REST endpoints, you may need to add different types of authentication through the Web Context Policy Manager.
+
+Any web context that allows or requires specific authentication types should be added here with the following format:
+
+----
+/<CONTEXT>=<AUTH_TYPE>|<AUTH_TYPE|...
+----
 
 .Default Types of Authentication
 [cols="1,4" options="header"]
@@ -35,24 +46,43 @@ As you add REST endpoints, you may need to add different types of authentication
 |Description
 
 |`saml`
-|Activates single-sign on (SSO) across all REST endpoints that use.
+|Activates single-sign on (SSO) across all REST endpoints that use SAML.
 
 |`basic`
 |Activates basic authentication.
 
 |`PKI`
-|Activates public key infrastructure authentication
+|Activates public key infrastructure authentication.
 
 |`IdP`
-|
+|Activates SAML Web SSO authentication support. Additional configuration is necessary.
 
 |`CAS`
-|
+|Enables SSO through a Central Authentication Server
 
 |`guest`
 |provides guest access
 
 |===
+
+==== Required Attributes
+
+The fields for required attributes allows configuring certain contexts to only be accessible to users with pre-defined attributes.
+For example, the default required attribute for the `/admin` context is `role=system-admin`, limiting access to the ${admin-console} to system administrators
+
+===== White Listed Contexts
+
+White listed contexts are trusted contexts which will bypass security.
+Any sub-contexts of a white listed context will be white listed as well, unless they are specifically assigned a policy.
+
+==== Limiting Access to the STS
+
+Be sure to limit the hosts that are allowed to connect to the STS:
+
+* Open `<INSTALL_HOME>/etc/system.properties`
+* Edit the line `ws-security.subject.cert.constraints = .*`
+** Remove the `.*` and replace with the desired host (<MY_HOST>):
+*** `ws-security.subject.cert.constraints = <MY_HOST>.*`
 
 ==== IdP/SP
 
@@ -75,19 +105,17 @@ The IdP client that interacts with the specified Identity Provider.
 
 ===== IdP SSO Configuration
 
-===== Configuring
-
 . Navigate to ${admin-console} -> ${ddf-security} -> Configuration -> IdP Client
 . Populate IdP Metadata field through one of the following:
 .. An HTTPS URL (https://)
 .. A file URL (file:)
 .. An XML block to refer to desired metadata
-... (e.g., \https://localhost:8993/services/idp/login/metadata)
+... (e.g., \${secure_url}/services/idp/login/metadata)
 
 .IdP Client (SP) example.xml
 [source,xml,linenums]
 ----
-<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://localhost:8993/services/idp/login">
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="${secure_url}/services/idp/login">
   <md:IDPSSODescriptor WantAuthnRequestsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
     <md:KeyDescriptor use="signing">
       <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
@@ -107,8 +135,8 @@ The IdP client that interacts with the specified Identity Provider.
         </ds:X509Data>
       </ds:KeyInfo>
     </md:KeyDescriptor>
-    <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/logout"/>
-    <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/logout"/>
+    <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${secure_url}/logout"/>
+    <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${secure_url}/logout"/>
     <md:NameIDFormat>
       urn:oasis:names:tc:SAML:2.0:nameid-format:persistent
     </md:NameIDFormat>
@@ -118,8 +146,8 @@ The IdP client that interacts with the specified Identity Provider.
     <md:NameIDFormat>
       urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName
     </md:NameIDFormat>
-    <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/services/idp/login"/>
-    <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/services/idp/login"/>
+    <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${secure_url}/services/idp/login"/>
+    <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${secure_url}/services/idp/login"/>
   </md:IDPSSODescriptor>
 </md:EntityDescriptor>
 ----
@@ -135,12 +163,12 @@ An internal Identity Provider solution.
 . Populate the new entry:
 .. with an HTTPS URL (https://),
 .. file URL (file:), or
-.. XML block to refer to desired metadata, e.g. (https://localhost:8993/services/saml/sso/metadata)
+.. XML block to refer to desired metadata, e.g. (${secure_url}/services/saml/sso/metadata)
 
 .IdP Server example.xml
 [source,xml,linenums]
 ----
-<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://localhost:8993/services/saml">
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="${secure_url}/services/saml">
   <md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
   <md:KeyDescriptor use="signing">
     <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
@@ -160,10 +188,10 @@ An internal Identity Provider solution.
       </ds:X509Data>
     </ds:KeyInfo>
   </md:KeyDescriptor>
-  <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/logout"/>
-  <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/logout"/>
-  <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/services/saml/sso"/>
-  <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/services/saml/sso"/>
+  <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${secure_url}/logout"/>
+  <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${secure_url}/logout"/>
+  <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${secure_url}/services/saml/sso"/>
+  <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${secure_url}/services/saml/sso"/>
   </md:SPSSODescriptor>
 </md:EntityDescriptor>
 ----
@@ -326,7 +354,7 @@ EXCEPTION: org.apache.cxf.ws.security.sts.provider.STSException: The specified r
 [INFO ] 2014-07-17 15:03:39,379 | qtp1401560510-74 | securityLogger  |  Security Token Service REQUEST
 STATUS: SUCCESS
 OPERATION: Issue
-URL: https://localhost:8993/services/SecurityTokenService
+URL: ${secure_url}/services/SecurityTokenService
 WS_SEC_PRINCIPAL: 1.2.840.113549.1.9.1=#160d69346365406c6d636f2e636f6d,CN=client,OU=I4CE,O=Lockheed Martin,L=Goodyear,ST=Arizona,C=US
 TOKENTYPE: http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
 CLAIMS_SECONDARY: [http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname]
@@ -1010,7 +1038,7 @@ Resources for changing truststore values can be found in the ${branding} Certifi
 ====== Certificate Configuration Management
 
 Configuration management includes configuring ${branding} to use existing certificates and defining configuration options for the system.
-This includes configuration certificate revocation and keystores.
+This includes configuring certificate revocation and keystores.
 
 ====== Certificate Revocation Configuration
 
@@ -1286,7 +1314,6 @@ Self signed certificates should never be used outside of development/testing are
 SSL/TLS is enabled out of the box for ${branding}.
 ====
 
-// Still an issue?
 [IMPORTANT]
 ====
 Do not use the ${admin-console} to SSL enable the ${branding} services.
@@ -1469,7 +1496,7 @@ All ${branding} Catalog operations can be restricted to users with certain attri
 
 ===== Configuring Operation Authorization
 
-. Open the ${admin-console} at \https://localhost:8993/admin
+. Open the ${admin-console} at \${secure_url}/admin
 . Click the ${ddf-catalog} application tile
 . Click the *Configuration* tab
 . Click on the *Catalog Policy Plugin* configuration.
@@ -1545,7 +1572,7 @@ In this particular case, the metacard might be allowed if the policy is configur
 The procedure for setting up a policy differs depending on whether that policy is to be used internally or by the external XACML processing engine.
 Setting up an internal policy is as follows:
 
-. Open the ${admin-console} at \https://localhost:8993/admin
+. Open the ${admin-console} at \${secure_url}/admin
 . Click the ${ddf-security} application tile
 . Click the *Configuration* tab
 . Click on the *Security AuthZ Realm* configuration.
@@ -1578,7 +1605,7 @@ The *Metacard Attribute Security Policy Plugin* will pull attributes directly of
 This plugin assumes that the pertinent information has already been parsed out of the metadata and placed directly on the metacard itself.
 
 To configure these policy plugins:
-. Open the ${admin-console} at \https://localhost:8993/admin
+. Open the ${admin-console} at \${secure_url}/admin
 . Click the ${ddf-catalog} application tile
 . Click the *Configuration* tab
 . Click on either the *Metacard Attribute Security Policy Plugin* or *XML Attribute Security Policy Plugin* configuration.
@@ -1835,12 +1862,11 @@ The expansion service defines rulesets to map metacard attributes and user attri
 For example if a user has an attribute "alphabet" that contained the value "full", the expansion service can be configured to expand the "full" value out to ["a","b","c",...].
 
 ===== Configuring Expansion Service
-// NOTE: This will change with completion of this task DDF-1829
 
-To use the expansion service, create the following two files within the `<INSTALLATION_HOME>` directory:
+To use the expansion service, modify the following two files within the `<INSTALLATION_HOME>/etc` directory:
 
-* `security/${ddf-branding-lowercase}-metacard-attribute-ruleset.cfg`
-* `security/${ddf-branding-lowercase}-user-attribute-ruleset.cfg`
+* `<INSTALLATION_HOME>/etc/pdp/${ddf-branding-lowercase}-metacard-attribute-ruleset.cfg`
+* `<INSTALLATION_HOME>/etc/pdp/${ddf-branding-lowercase}-user-attribute-ruleset.cfg`
 
 Within these files, the following configuration details will be defined.
 
@@ -1997,7 +2023,7 @@ An LDAP server can be used to maintain a list of ${branding} users and the attri
 The STS can use an LDAP server as an attribute store and convert those attributes to SAML claims.
 
 . Start the ${branding} distribution.
-. Run the installer at https://localhost:8993/admin (default username/password is `admin`/`admin`)
+. Run the installer at ${secure_url}/admin (default username/password is `admin`/`admin`)
 . After the installer completes, Click the *Manage* button in the upper right hand corner of the ${admin-console}
 . Click the *Play* button on the *Opendj Embedded* tile to install the application.
 
@@ -2009,11 +2035,11 @@ The STS is installed by default in ${ddf-branding}.
 
 . Verify that the `serverKeystores.jks` file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, and any ${branding} users that make use of this STS server).
 . Start the distribution.
-. Run the installer at https://localhost:8993/admin (if needed)
+. Run the installer at ${secure_url}/admin (if needed)
 . After the installer completes, click the ${ddf-security} application tile
 . Click the *Features* tab
 . Install `security-sts-ldaplogin` and `security-sts-ldapclaimshandler` features by clicking the *Play* button next to each
-. Open the ${admin-console} as an administrator (https://localhost:8993/admin).
+. Open the ${admin-console} as an administrator (${secure_url}/admin).
 . Click the *${ddf-security}* application tile
 . Click the *Configuration* tab
 . Open the *Security STS LDAP Login* configuration.

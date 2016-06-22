@@ -13,7 +13,7 @@
  */
 package ddf.catalog.resource.download;
 
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 
@@ -37,7 +37,7 @@ public class ReliableResourceDownloaderConfig {
 
     private boolean cacheWhenCanceled = false;
 
-    private ResourceCache resourceCache;
+    private ResourceCacheImpl resourceCache;
 
     private DownloadsStatusEventPublisher eventPublisher;
 
@@ -77,11 +77,11 @@ public class ReliableResourceDownloaderConfig {
         this.eventPublisher = eventPublisher;
     }
 
-    public ResourceCache getResourceCache() {
+    public ResourceCacheImpl getResourceCache() {
         return resourceCache;
     }
 
-    public void setResourceCache(ResourceCache resourceCache) {
+    public void setResourceCache(ResourceCacheImpl resourceCache) {
         this.resourceCache = resourceCache;
     }
 
@@ -124,5 +124,4 @@ public class ReliableResourceDownloaderConfig {
     public void setCacheWhenCanceled(boolean cacheWhenCanceled) {
         this.cacheWhenCanceled = cacheWhenCanceled;
     }
-
 }

@@ -35,6 +35,11 @@
             <artifactId>admin-core-appservice</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.error</groupId>
+            <artifactId>platform-error-servlet</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -78,6 +83,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
+                        <Embed-Dependency>platform-error-servlet</Embed-Dependency>
                         <Web-ContextPath>/admin/logviewer</Web-ContextPath>
                         <_wab>${project.build.directory}/webapp/</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>

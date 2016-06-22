@@ -12,7 +12,9 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>admin</artifactId>
         <groupId>ddf.admin</groupId>
@@ -38,10 +40,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.karaf.webconsole</groupId>
-            <artifactId>org.apache.karaf.webconsole.console</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
             <version>2.0-m10</version>
@@ -65,6 +63,10 @@
             <version>${project.version}</version>
             <type>tar.gz</type>
             <classifier>npm</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>branding-api</artifactId>
         </dependency>
     </dependencies>
     <build>

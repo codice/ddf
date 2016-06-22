@@ -17,9 +17,9 @@ Before the ${ddf-security} application can be installed:
 
 ${ddf-security} is included with a standard installation.
 
-==== Configuring ${ddf-security}
+=== Configuring ${ddf-security}
 
-From the Web Admin Console, the following configurations are available from a standard installation.
+From the ${admin-console}, the following configurations are available from a standard installation.
 
 [cols="1,3,3" options="header"]
 |===
@@ -27,67 +27,642 @@ From the Web Admin Console, the following configurations are available from a st
 |Configuration ID
 |Description
 
-|Login Page
-|`org.codice.${ddf-branding-lowercase}security.handler.guest.configuration`
+|<<login_page_table,Login Page>>
+|`org.codice.ddf.security.handler.guest.configuration`
 |Options for customizing the Login page, such as header, footer, text style
 
-|SAML NameID Policy
-|`${ddf-branding-lowercase}security.service.SecurityManager`
+|<<saml_nameid_policy_table,SAML NameID Policy>>
+|`ddf.security.service.SecurityManager`
 |Customize attributes to replace username of logged-in user.
 
-|STS Server Token Endpoint
-|`${ddf-branding-lowercase}security.sts.StsStaticService`
+|<<sts_server_token_endpoint_table,STS Server Token Endpoint>>
+|`ddf.security.sts.StsStaticService`
 |Add or update addresses to use with STS service.
 
-|Security SOAP Guest Interceptor
-|`org.codice.${ddf-branding-lowercase}security.interceptor.GuestInterceptor`
+|<<security_soap_guest_interceptor_table,Security SOAP Guest Interceptor>>
+|`org.codice.ddf.security.interceptor.GuestInterceptor`
 |Settings for allowing Guest access.
 
-|Security STS Address Provider
-|`${ddf-branding-lowercase}security.sts.address.provider`
+|<<security_sts_address_provider_table,Security STS Address Provider>>
+|`ddf.security.sts.address.provider`
 |Configure use of alternate STS address provider
 
-|Security STS Client
-|`${ddf-branding-lowercase}security.sts.client.configuration`
+|<<security_sts_client_table,Security STS Client>>
+|`ddf.security.sts.client.configuration`
 |Settings for STS client
 
-|Security STS Guest Claims Handler
-|`${ddf-branding-lowercase}security.sts.guestclaims`
+|<<guest_claims_handler_configuration_table,Security STS Guest Claims Handler>>
+|`ddf.security.sts.guestclaims`
 |Add or remove attributes to be attached to claims for guest users.
 
-|Security STS Guest Validator
-|`${ddf-branding-lowercase}security.sts.guestvalidator`
+|<<security_sts_guest_validator_table,Security STS Guest Validator>>
+|`ddf.security.sts.guestvalidator`
 |Configure realms to use with Guest Validator
 
-|Security STS PKI Token Validator
-|`org.codice.${ddf-branding-lowercase}security.validator.pki`
+|<<security_sts_pki_token_validator_table,Security STS PKI Token Validator>>
+|`org.codice.ddf.security.validator.pki`
 |Configure realms to use with PKI Token Validator
 
-|Security STS Property File Claims Handler
-|`org.codice.${ddf-branding-lowercase}security.sts.claims.property.PropertyFileClaimsHandler`
+|<<file_based_claims_handler_table,Security STS Property File Claims Handler>>
+|`org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler`
 |Settings for retrieving claims from properties file
 
-|Security STS Server
-|`${ddf-branding-lowercase}security.sts`
+|<<security_sts_server_table,Security STS Server>>
+|`ddf.security.sts`
 |Settings for STS Server
 
-|Security STS WSS
-|`${ddf-branding-lowercase}security.sts.wss.configuration`
+|<<security_sts_wss_table,Security STS WSS>>
+|`ddf.security.sts.wss.configuration`
 |WSS-enabled version of STS
 
-|Security AuthZ Realm
-|`${ddf-branding-lowercase}security.pdp.realm.AuthzRealm`
+|<<security_authz_realm_table,Security AuthZ Realm>>
+|`ddf.security.pdp.realm.AuthzRealm`
 |Configuration of Match-One and/or Match-All mappings in SimpleAuthz realme
 
-|Session
-|`org.codice.${ddf-branding-lowercase}security.filter.login.Session`
+|<<session_table,Session>>
+|`org.codice.ddf.security.filter.login.Session`
 |Set session timeout
 
-|Web Context Policy Manager
-|`org.codice.${ddf-branding-lowercase}security.policy.context.impl.PolicyManager`
+|<<web_context_policy_manager_table, Web Context Policy Manager>>
+|`org.codice.ddf.security.policy.context.impl.PolicyManager`
 |Configure Realms, Auth types, and Attributes for different contexts.
 
 |===
+
+.[[login_page_table]]Login Page
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Header
+|header
+|String
+|Specifies the header text to be rendered on the Login page
+|
+|yes
+
+|Footer
+|footer
+|String
+|Specifies the footer text to be rendered on the Login page
+|
+|yes
+
+|Style
+|style
+|String
+|Specifies the style of the Header and Footer.
+|green
+|yes
+
+|Text Color
+|textColor
+|String
+|Specifies the text color of the Header and Footer.
+|banner-text-white
+|yes
+
+|===
+
+.[[saml_nameid_policy_table]]SAML NameID Policy
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|SAML NameID Policy
+|usernameAttributeList
+|String
+|List of attributes that are considered for replacing the username of the logged in user. If any of these attributes match any of the attributes within the SecurityAssertion, the value of the first matching attribute will be used as the username. (Does not apply when NameIDFormat is of the following: X509, persistent, kerberos or unspecified, and the username is not empty).
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, uid
+|yes
+
+|===
+
+.[[security_soap_guest_interceptor_table]]Security SOAP Guest Interceptor
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Deny Anonymous Access
+|anonymousAccessDenied
+|Boolean
+|If set to true, no anonymous access will be allowed via this anonymous interceptor. If set to false, this interceptor will generate anonymous tokens for incoming requests that lack a WS-Security header.
+|false
+|no
+
+|Override Endpoint Policies
+|overrideEndpointPolicies
+|Boolean
+|If checked, forces anonymous tokens to be created and inserted into the incoming request regardless of whether the policy requires an issued token. If set to false, if the endpoint policies cannot be satisfied, no changes will be made to the incoming request. This only applies to incoming requests that lack a WS-Security header - those with a WS-Security header are passed through unchanged.
+|false
+|no
+
+|===
+
+.[[sts_server_token_endpoint_table]]STS Server Token Endpoint
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|
+|endpoints
+|String
+|The list of endpoint addresses that correspond to this service
+|.*
+|yes
+
+|===
+
+.[[security_sts_address_provider_table]]Security STS Address Provider
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Use WSS STS
+|useWss
+|Boolean
+|If you have a WSS STS configured, you may prefer to use it for services that need the STS address, such as SOAP sources.
+|false
+|yes
+
+|===
+
+
+.[[security_sts_client_table]]Security STS Client
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|SAML Assertion Type:
+|assertionType
+|String
+|The version of SAML to use. Most services require SAML v2.0. Changing this value from the default could cause services to stop responding.
+|http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
+|yes
+
+|SAML Key Type:
+|keyType
+|String
+|The key type to use with SAML. Most services require Bearer. Changing this value from the default could cause services to stop responding.
+|http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer
+|yes
+
+|SAML Key Size:
+|keySize
+|String
+|The key size to use with SAML. The default key size is 256 and this is fine for most applications. Changing this value from the default could cause services to stop responding.
+|256
+|yes
+
+|Use Key:
+|useKey
+|Boolean
+|Signals whether or not the STS Client should supply a public key to embed as the proof key. Changing this value from the default could cause services to stop responding.
+|true
+|yes
+
+|STS WSDL Address:
+|address
+|String
+|STS WSDL Address
+|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/SecurityTokenService?wsdl
+|yes
+
+|STS Endpoint Name:
+|endpointName
+|String
+|STS Endpoint Name.
+|no
+|{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port
+
+|STS Service Name:
+|serviceName
+|String
+|STS Service Name.
+|{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService
+|no
+
+|Signature Properties:
+|signatureProperties
+|String
+|Path to Signature crypto properties. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+|etc/ws-security/server/signature.properties
+|yes
+
+|Encryption Properties:
+|encryptionProperties
+|String
+|Path to Encryption crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+|etc/ws-security/server/encryption.properties
+|yes
+
+|STS Properties:
+|tokenProperties
+|String
+|Path to STS crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+|etc/ws-security/server/signature.properties
+|yes
+
+|Claims:
+|claims
+|String
+|List of claims that should be requested by the STS Client.
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role
+|yes
+|===
+
+.[[guest_claims_handler_configuration_table]]Security STS Guest Claims Handler
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Attributes
+|attributes
+|String
+|The attributes to be returned for any Guest user.
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
+|yes
+
+|===
+
+.[[security_sts_guest_validator_table]]Security STS Guest Validator
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Supported Realms
+|supportedRealm
+|String
+|The realms that this validator supports.
+|karaf,ldap
+|yes
+
+|===
+
+.[[security_sts_server_table]]Security STS Server
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|SAML Assertion Lifetime:
+|lifetime
+|Long
+|Set the number of seconds that an issued SAML assertion will be good for.
+|1800
+|yes
+
+|Token Issuer:
+|issuer
+|String
+|The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network.
+|${org.codice.ddf.system.hostname}
+|yes
+
+|Signature Username:
+|signatureUsername
+|String
+|Alias of the private key in the STS Server's keystore used to sign messages.
+|${org.codice.ddf.system.hostname}
+|yes
+
+|Encryption Username:
+|encryptionUsername
+|String
+|Alias of the private key in the STS Server's keystore used to encrypt messages.
+|${org.codice.ddf.system.hostname}
+|yes
+
+|===
+
+.[[security_sts_pki_token_validator_table]]Security STS PKI Token Validator
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Realms
+|realms
+|String
+|The realms to be validated by this validator.
+|karaf
+|yes
+
+|Do Full Path Validation
+|pathValidation
+|Boolean
+|Validate the full certificate path. Uncheck to only validate the subject cert. (RFC5280 6.1)
+|true
+|yes
+
+|===
+
+.[[file_based_claims_handler_table]]File Based Claims Handler
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Role Claim Type:
+|roleClaimType
+|String
+|Role claim URI.
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role
+|yes
+
+|User Role File:
+|propertyFileLocation
+|String
+|Location of the file that maps roles to users.
+|etc/users.properties
+|yes
+
+|User Attribute File:
+|attributeFileLocation
+|String
+|Location of the file that maps attributes to users.
+|etc/users.attributes
+|yes
+
+|===
+
+.[[security_sts_server_table]]Security STS Server
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|SAML Assertion Lifetime:
+|lifetime
+|Long
+|Set the number of seconds that an issued SAML assertion will be good for.
+|1800
+|yes
+
+|Token Issuer:
+|issuer
+|String
+|The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network.
+|${org.codice.ddf.system.hostname}
+|yes
+
+|Signature Username:
+|signatureUsername
+|String
+|Alias of the private key in the STS Server's keystore used to sign messages.
+|${org.codice.ddf.system.hostname}
+|yes
+
+|Encryption Username:
+|encryptionUsername
+|String
+|Alias of the private key in the STS Server's keystore used to encrypt messages.
+|${org.codice.ddf.system.hostname}
+|yes
+
+|===
+
+
+.[[security_sts_wss_table]]Security STS WSS
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|SAML Assertion Type:
+|assertionType
+|String
+|The version of SAML to use. Most services require SAML v2.0. Changing this value from the default could cause services to stop responding.
+|http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
+|yes
+
+|SAML Key Type:
+|keyType
+|String
+|The key type to use with SAML. Most services require Bearer. Changing this value from the default could cause services to stop responding.
+|http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer
+|yes
+
+|SAML Key Size:
+|keySize
+|String
+|The key size to use with SAML. The default key size is 256 and this is fine for most applications. Changing this value from the default could cause services to stop responding.
+|256
+|yes
+
+|Use Key:
+|useKey
+|Boolean
+|Signals whether or not the STS Client should supply a public key to embed as the proof key. Changing this value from the default could cause services to stop responding.
+|true
+|yes
+
+|STS WSDL Address:
+|address
+|String
+|STS WSDL Address
+|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}${org.codice.ddf.system.rootContext}/SecurityTokenService?wsdl
+|yes
+
+|STS Endpoint Name:
+|endpointName
+|String
+|STS Endpoint Name.
+|{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port
+|no
+
+|STS Service Name:
+|serviceName
+|String
+|STS Service Name.
+|{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService
+|no
+
+|Signature Properties:
+|signatureProperties
+|String
+|Path to Signature crypto properties. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+|etc/ws-security/server/signature.properties
+|yes
+
+|Encryption Properties:
+|encryptionProperties
+|String
+|Path to Encryption crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+|etc/ws-security/server/encryption.properties
+|yes
+
+|STS Properties:
+|tokenProperties
+|String
+|Path to STS crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+|etc/ws-security/server/signature.properties
+|yes
+
+|Claims:
+|claims
+|String
+|Comma-delimited list of claims that should be requested by the STS.
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role
+|yes
+
+|===
+
+.[[security_authz_realm_table]]Security AuthZ Realm
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Match-All Mappings
+|matchAllMappings
+|String
+|List of 'Match-All' subject attribute to Metacard attribute mapping. All values of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName.
+|
+|no
+
+|Match-One Mappings
+|matchOneMappings
+|String
+|List of 'Match-One' subject attribute to Metacard attribute mapping. One value of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName.
+|
+|no
+
+|Environment Attributes
+|environmentAttributes
+|String
+|List of environment attributes to pass to the XACML engine. Format is attributeId=attributeValue1,attributeValue2.
+|
+|no
+
+|===
+
+.[[session_table]]Session
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Session Timeout (in minutes)
+|expirationTime
+|Integer
+|The number of minutes after a session has been inactive that it should be invalidated.
+|31
+|yes
+
+|===
+
+.[[web_context_policy_manager_table]]Web Context Policy Manager Configuration
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Context Realms
+|realms
+|String
+|List of realms supporting each context. `karaf` is provided by default. Example: `/=karaf`
+|/=karaf
+|yes
+
+|Authentication Types
+|authenticationTypes
+|String
+a|List of authentication types required for each context. List of default valid authentication types are: SAML, BASIC, PKI, GUEST. Example: /context=AUTH1\|AUTH2\|AUTH3
+a|/=SAML\|GUEST,/admin=SAML\|basic,/system=basic,/solr=SAML\|PKI\|basic,/sources=SAML\|basic,/security-config=SAML\|basic
+|yes
+
+|Required Attributes
+|requiredAttributes
+|String
+|List of attributes required for each Web Context. Example: /context={role=role1;type=type1}"
+|/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}
+|yes
+
+|White Listed Contexts
+|whiteListContexts
+|String
+|List of contexts that will not use security. Note that sub-contexts to ones listed here will also skip security, unless authentication types are provided for it. For example: if /foo is listed here, then /foo/bar will also not require any sort of authentication. However, if /foo is listed and /foo/bar has authentication types provided in the 'Authentication Types' field, then that more specific policy will be used.
+|${org.codice.ddf.system.rootContext}/SecurityTokenService,${org.codice.ddf.system.rootContext}/internal/metrics,${org.codice.ddf.system.rootContext}/saml,/proxy,${org.codice.ddf.system.rootContext}/saml,${org.codice.ddf.system.rootContext}/idp,/idp,${org.codice.ddf.system.rootContext}/platform/config/ui
+|yes
+|===
+
+[NOTE]
+====
+For more details on how sub-contexts affect authentication realms, see <<Configuring ${branding} Authentication Scheme>>.
+====
 
 ==== Applications Included in ${ddf-security}
 

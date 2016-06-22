@@ -409,18 +409,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         try {
             boolean isLoggedIn = doLogin();
 
-            if (isLoggedIn) {
-                SecurityLogger.audit("Username [" + user
-                        + "] successfully logged in using LDAP authentication.");
-            } else {
+            if (!isLoggedIn) {
                 SecurityLogger.audit("Username [" + user + "] failed LDAP authentication.");
             }
             return isLoggedIn;
 
         } catch (Exception le) {
-            SecurityLogger.audit("Username [" + user
-                            + "] could not log in successfuly using LDAP authentication due to an exception",
-                    le);
             throw new LoginException("Username [" + user
                     + "] could not log in successfuly using LDAP authentication due to an exception");
         }

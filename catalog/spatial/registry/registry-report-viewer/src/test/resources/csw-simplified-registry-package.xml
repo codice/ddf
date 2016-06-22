@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<!-- This example csw-ebrim message represents a single node in a system. The ddf registry is not a ebrim registry but uses the csw ebrim format to hold and transmit registry information. In
+     a sense each node contains its own ebrim registry less the canonical classifications. The full registry package and all its RegistryObjects are stored in one metacard. In places where
+     you might reference a pre existing ClassificationNode or ClassificationSchema as defined in a standard ebrim registry we have opted to just use string identifiers that are consistent
+     with the canonical classification nodes. Associations are used to associate the various object. Primarily associations are ued to associate organizations and people with content collections,
+     services and the general node description. Each of the user defined id's (not the framework generated ones) are arbitrary and are only required to be unique in the document. The top level
+     objects id should be a uuid that is globally unique-->
+<!-- top level registry object id is turned into the regsitry-id internally. metacard content type will be set using the lid.-->
+<!-- home attribute should be set by the framework to the base url of the originating instance -->
+<rim:RegistryPackage id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" home="https://somehost:someport" objectType="urn:registry:federation:node"
+                     xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+                     xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
+                     xmlns:gml="http://www.opengis.net/gml">
+
+    <!-- external identifiers are set by the framework to track the local metacard id and the origin-id. origin-id is the metacard id of the registry entry on the originating instance-->
+    <rim:ExternalIdentifier id="urn:mcard:local-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="someUUID"/>
+    <rim:ExternalIdentifier id="urn:mcard:origin-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="someUUID"/>
+
+    <!-- RegistryObjectList holds all the actual registry content-->
+    <rim:RegistryObjectList>
+        <!-- defines the general node information -->
+        <rim:ExtrinsicObject id="urn:registry:node" objectType="urn:registry:federation:node">
+            <!--Optional: Sorces of information that contribute to this instances data-->
+            <rim:Slot name="inputDataSources" slotType="xs:string">
+                <rim:ValueList>
+                    <rim:Value>youtube</rim:Value>
+                    <rim:Value>myCamera</rim:Value>
+                </rim:ValueList>
+            </rim:Slot>
+
+            <!-- Name used primarily for display in UI interfaces to uniquely identify this node -->
+            <rim:Name>
+                <rim:LocalizedString value="Node Name"/>
+            </rim:Name>
+            <rim:Classification id="urn:classification:id0" classifiedObject="classifiedObjectId"/>
+        </rim:ExtrinsicObject>
+
+        <rim:ExtrinsicObject id="urn:service:params:id0" mimeType="application/octet-stream" isOpaque="false">
+            <rim:ContentVersionInfo comment="someComment" versionName="versionName"/>
+            <rim:Slot name="parameters">
+                <rim:ValueList>
+                    <rim:Value>param1</rim:Value>
+                </rim:ValueList>
+            </rim:Slot>
+            <rim:Name>
+              <rim:LocalizedString value="Another Name"/>
+            </rim:Name>
+        </rim:ExtrinsicObject>
+
+        <!-- There should be only one service defined with lid=urn:registry:federation:service. Multiple service bindings can be added to this one service -->
+        <rim:Service id="urn:service:id0" objectType="urn:registry:federation:service">
+            <!--
+            Zero or more repetitions: Service bindings represent a way to query data
+            from this instance. Each binding can have one or more slots that define URLs or other properties.
+            For more complex properties such as query parameters use specification links to point to an
+            ExtrinsicObject that contains the required information. For federation source creation all the
+            serviceBinding slots and name will be used as properties for creating the source. Which source is
+            created will be based on the bindingType attribute which should be the factory pid of a managed service factory
+            -->
+            <rim:ServiceBinding id="urn:registry:federation:method:csw"
+                                service="urn:uuid:service:2014ca7f59ac46f495e32b4a67a51276">
+                <!--Slot defining the query url for this particular method of communicating with this instance-->
+                <rim:Slot name="cswUrl" slotType="xs:anyURI">
+                    <rim:ValueList>
+                        <rim:Value>https://some/address/here</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <!-- bindingType identifies communication message type for this binding-->
+                <rim:Slot name="bindingType" slotType="xs:string">
+                    <rim:ValueList>
+                        <rim:Value>Csw_Federated_Source</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <rim:Name>
+                    <rim:LocalizedString value="CSW Federation Method"/>
+                </rim:Name>
+
+                <!-- SpecificationLinks are also RegistryObjects so if needed slots can be added directly to them. If possible use an ExtrinsicObject instead.-->
+                <rim:SpecificationLink id="urn:request:parameters" serviceBinding="urn:registry:federation:method:csw" specificationObject="urn:service:params:id0"/>
+            </rim:ServiceBinding>
+        </rim:Service>
+
+        <rim:Organization id="urn:organization:id0"
+                          parent="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"
+                          primaryContact="somePrimaryContact"
+                          lid="someLid"
+                          status="someStatus">
+            <rim:Name>
+                <rim:LocalizedString value="Codice"/>
+            </rim:Name>
+            <rim:Address city="Phoenix" country="USA" postalCode="85037" stateOrProvince="AZ"
+                         street="1234 Some Street"/>
+            <rim:TelephoneNumber areaCode="555" number="555-5555" extension="1234"/>
+            <rim:EmailAddress address="emailaddress@something.com"/>
+            <rim:Classification id="urn:classification:id0" classifiedObject="classifiedObjectId" classificationScheme="classificationScheme" classificationNode="classificationNode" nodeRepresentation="nodeRepresentation"/>
+        </rim:Organization>
+
+        <rim:Person id="urn:contact:id0" >
+            <rim:PersonName firstName="foo" middleName="joe" lastName="bar"/>
+            <rim:TelephoneNumber areaCode="111" number="111-1111" extension="1234" countryCode="country" phoneType="cell phone"/>
+            <rim:EmailAddress address="emailaddress@something.com"/>
+            <rim:Address city="Phoenix" country="USA" postalCode="85037" stateOrProvince="AZ"
+                         street="1234 Some Street" streetNumber="1234"/>
+        </rim:Person>
+
+
+        <!-- An organization or person associated with the 'registry.node' will be set as the overall metacards organization and contact. If there is more than one organization or person associated
+        with the registry.node the first assocaition will be used. If no association is made to the registry.node the first organization or contact found will be used-->
+        <rim:Association id="urn:assoication:1" associationType="RelatedTo" sourceObject="urn:registry:node" targetObject="urn:contact:id0"/>
+        <rim:Association id="urn:assoication:2" associationType="RelatedTo" sourceObject="urn:registry:node" targetObject="urn:organization:id0"/>
+        <rim:Association id="urn:assoication:3" associationType="RelatedTo" sourceObject="urn:contact:person1" targetObject="urn:content:collection:id0"/>
+        <rim:Association id="urn:assoication:4" associationType="RelatedTo" sourceObject="urn:contact:person2" targetObject="urn:content:collection:id1"/>
+        <rim:Association id="urn:assoication:5" associationType="RelatedTo" sourceObject="urn:organization:id1" targetObject="urn:service:id0"/>
+        <rim:Association id="urn:assoication:6" associationType="RelatedTo" sourceObject="urn:organization:id0" targetObject="urn:content:collection:id0"/>
+
+    </rim:RegistryObjectList>
+</rim:RegistryPackage>

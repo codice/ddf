@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.cache.MockInputStream;
 import ddf.catalog.cache.impl.CacheKey;
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
@@ -109,7 +109,7 @@ public class ReliableResourceDownloadManagerTest {
         }
     };
 
-    private ResourceCache resourceCache;
+    private ResourceCacheImpl resourceCache;
 
     private DownloadsStatusEventPublisher eventPublisher;
 
@@ -145,17 +145,13 @@ public class ReliableResourceDownloadManagerTest {
 
     @Before
     public void setup() {
-        resourceCache = mock(ResourceCache.class);
+        resourceCache = mock(ResourceCacheImpl.class);
         when(resourceCache.getProductCacheDirectory()).thenReturn(productCacheDirectory);
         eventPublisher = mock(DownloadsStatusEventPublisher.class);
         eventListener = mock(DownloadsStatusEventListener.class);
         downloadStatusInfo = new DownloadStatusInfoImpl();
 
-        downloadMgr = new ReliableResourceDownloadManager(resourceCache,
-                eventPublisher,
-                eventListener,
-                downloadStatusInfo,
-                Executors.newSingleThreadExecutor());
+        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(), downloadStatusInfo, Executors.newSingleThreadExecutor());
 
     }
 
@@ -269,7 +265,7 @@ public class ReliableResourceDownloadManagerTest {
 
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache).put(argument.capture());
 
@@ -308,7 +304,7 @@ public class ReliableResourceDownloadManagerTest {
         int clientChunkSize = 2;
         ByteArrayOutputStream clientBytesRead = clientRead(clientChunkSize, productInputStream);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache).put(argument.capture());
 
@@ -369,7 +365,7 @@ public class ReliableResourceDownloadManagerTest {
 
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache).put(argument.capture());
 
@@ -403,7 +399,7 @@ public class ReliableResourceDownloadManagerTest {
 
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache).put(argument.capture());
 
@@ -439,7 +435,7 @@ public class ReliableResourceDownloadManagerTest {
         // of the product download
         clientRead(chunkSize, productInputStream, 2);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
         verify(resourceCache, timeout(3000)).put(argument.capture());
 
@@ -616,11 +612,7 @@ public class ReliableResourceDownloadManagerTest {
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
 
-        downloadMgr = new ReliableResourceDownloadManager(resourceCache,
-                eventPublisher,
-                eventListener,
-                downloadStatusInfo,
-                Executors.newSingleThreadExecutor());
+        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(), downloadStatusInfo, Executors.newSingleThreadExecutor());
 
         // Use small chunk size so download takes long enough for client
         // to have time to simulate FileBackedOutputStream exception
@@ -652,7 +644,7 @@ public class ReliableResourceDownloadManagerTest {
         // Verify client did not receive entire product download
         assertTrue(clientBytesRead.size() < expectedFileSize);
 
-        // Captures the ReliableResource object that should have been put in the ResourceCache's map
+        // Captures the ReliableResource object that should have been put in the ResourceCacheImpl's map
         verify(resourceCache, timeout(3000)).put(argument.capture());
 
         verifyCaching(argument.getValue(), EXPECTED_CACHE_KEY);
@@ -662,11 +654,7 @@ public class ReliableResourceDownloadManagerTest {
 
     private void startDownload(boolean cacheEnabled, int chunkSize, boolean cacheWhenCanceled,
             Metacard metacard, ResourceRetriever retriever) throws Exception {
-        downloadMgr = new ReliableResourceDownloadManager(resourceCache,
-                eventPublisher,
-                eventListener,
-                downloadStatusInfo,
-                Executors.newSingleThreadExecutor());
+//        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig());
         downloadMgr.setCacheEnabled(cacheEnabled);
         downloadMgr.setChunkSize(chunkSize);
         downloadMgr.setCacheWhenCanceled(cacheWhenCanceled);
@@ -912,6 +900,13 @@ public class ReliableResourceDownloadManagerTest {
         executor.shutdownNow();
     }
 
+    private ReliableResourceDownloaderConfig getDownloaderConfig() {
+        ReliableResourceDownloaderConfig downloaderConfig = new ReliableResourceDownloaderConfig();
+        downloaderConfig.setResourceCache(resourceCache);
+        downloaderConfig.setEventPublisher(eventPublisher);
+        downloaderConfig.setEventListener(eventListener);
+        return downloaderConfig;
+    }
     private enum RetryType {
         INPUT_STREAM_IO_EXCEPTION,
         TIMEOUT_EXCEPTION,

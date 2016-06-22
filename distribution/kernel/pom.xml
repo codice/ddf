@@ -74,18 +74,6 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>webconsole-branding</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>webconsole-branding-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -184,6 +172,13 @@
                                     <version>${bouncy.version}</version>
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
                                     <destFileName>bcpkix-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.aries.blueprint</groupId>
+                                    <artifactId>org.apache.aries.blueprint.core</artifactId>
+                                    <version>1.6.2</version>
+                                    <outputDirectory>${setup.folder}/${karaf.folder}/system/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.6.2</outputDirectory>
+                                    <destFileName>org.apache.aries.blueprint.core-1.6.2.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

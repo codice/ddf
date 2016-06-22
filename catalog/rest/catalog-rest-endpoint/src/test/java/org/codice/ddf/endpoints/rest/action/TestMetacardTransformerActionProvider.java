@@ -13,158 +13,116 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.codice.ddf.endpoints.rest.RESTService.CONTEXT_ROOT;
+import static org.codice.ddf.endpoints.rest.RESTService.SOURCES_PATH;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.List;
+
+import org.apache.commons.lang.CharEncoding;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import ddf.action.Action;
-import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TestMetacardTransformerActionProvider extends AbstractActionProviderTest {
 
     private static final String SAMPLE_TRANSFORMER_ID = "XML";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            TestMetacardTransformerActionProvider.class);
+    private static final String ACTION_PROVIDER_ID = "actionID";
 
-    @Test
-    public void testMalformedUrlException() {
+    private static final String METACARD_ID = "metacardID";
 
-        String noSource = null;
-        Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
+    private static final String REMOTE_SOURCE_ID = "remote";
 
-        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID,
+    @Mock
+    private Metacard metacard;
+
+    private URL actionUrl;
+
+    private MetacardTransformerActionProvider actionProvider;
+
+    @Before
+    public void setup() throws Exception {
+        System.setProperty(SystemBaseUrl.HOST, "localhost");
+
+        when(metacard.getId()).thenReturn(METACARD_ID);
+        when(metacard.getSourceId()).thenReturn(REMOTE_SOURCE_ID);
+
+        actionUrl = getUrl(METACARD_ID);
+
+        actionProvider = new MetacardTransformerActionProvider(ACTION_PROVIDER_ID,
                 SAMPLE_TRANSFORMER_ID);
-
-        this.configureActionProvider("badProtocol",
-                SAMPLE_IP,
-                SAMPLE_PORT,
-                SAMPLE_SERVICES_ROOT,
-                SAMPLE_SOURCE_NAME);
-
-        assertThat("A bad url should have been caught and an empty list returned.",
-                actionProvider.getActions(metacard),
-                hasSize(0));
-
     }
 
     @Test
-    public void testUriSyntaxException() {
+    public void canHandle() {
+        assertThat(actionProvider.canHandle(metacard), is(true));
+    }
 
-        String noSource = null;
-        Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
+    @Test
+    public void createMetacardAction() throws MalformedURLException {
+        List<Action> actions = actionProvider.getActions(metacard);
 
-        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID,
+        assertThat(actions, hasSize(1));
+        Action action = actions.get(0);
+        assertThat(action.getId(), is(ACTION_PROVIDER_ID));
+        assertThat(action.getTitle(), is("Export as " + SAMPLE_TRANSFORMER_ID));
+        assertThat(action.getDescription(),
+                is("Provides a URL to the metacard that transforms the return value via the "
+                        + SAMPLE_TRANSFORMER_ID + " transformer"));
+        assertThat(action.getUrl(), is(actionUrl));
+    }
+
+    @Test
+    public void getMetacardActionUrl() throws Exception {
+        URL url = actionProvider.getMetacardActionUrl(REMOTE_SOURCE_ID, metacard);
+
+        assertThat(url, is(actionUrl));
+    }
+
+    @Test
+    public void getMetacardActionUrlEncodedAmpersand() throws Exception {
+        String metacardId = "abc&def";
+        when(metacard.getId()).thenReturn(metacardId);
+
+        URL url = actionProvider.getMetacardActionUrl(REMOTE_SOURCE_ID, metacard);
+
+        assertThat(url, is(getUrl(metacardId)));
+    }
+
+    @Test(expected = URISyntaxException.class)
+    public void getMetacardActionUrlWhenUrlIsMalformed() throws Exception {
+        String invalidHost = "23^&*#";
+        System.setProperty(SystemBaseUrl.HOST, invalidHost);
+
+        actionProvider.getMetacardActionUrl(REMOTE_SOURCE_ID, metacard);
+    }
+
+    private URL getUrl(String metacardId)
+            throws MalformedURLException, UnsupportedEncodingException {
+        String encodedMetacardId = URLEncoder.encode(metacardId, CharEncoding.UTF_8);
+        String urlString = String.format("%s%s/%s/%s?transform=%s",
+                CONTEXT_ROOT,
+                SOURCES_PATH,
+                REMOTE_SOURCE_ID,
+                encodedMetacardId,
                 SAMPLE_TRANSFORMER_ID);
-
-        this.configureActionProvider(SAMPLE_PROTOCOL,
-                "23^&*#",
-                SAMPLE_PORT,
-                SAMPLE_SERVICES_ROOT,
-                SAMPLE_SOURCE_NAME);
-
-        assertThat("A bad url should have been caught and an empty list returned.",
-                actionProvider.getActions(metacard),
-                hasSize(0));
-
-    }
-
-    @Test
-    public void testMetacard() {
-
-        // given
-
-        String noSource = null;
-        Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
-
-        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID,
-                SAMPLE_TRANSFORMER_ID);
-        this.configureActionProvider();
-
-        // when
-        Action action = actionProvider.getActions(metacard)
-                .get(0);
-
-        // then
-        assertEquals(MetacardTransformerActionProvider.TITLE_PREFIX + SAMPLE_TRANSFORMER_ID,
-                action.getTitle());
-
-        assertEquals(MetacardTransformerActionProvider.DESCRIPTION_PREFIX + SAMPLE_TRANSFORMER_ID +
-                MetacardTransformerActionProvider.DESCRIPTION_SUFFIX, action.getDescription());
-
-        assertThat(action.getUrl()
-                        .toString(),
-                is(expectedDefaultAddressWith(metacard.getId(),
-                        SAMPLE_SOURCE_NAME,
-                        SAMPLE_TRANSFORMER_ID)));
-        assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
-
-    }
-
-    @Test
-    public void testToString() {
-        String toString = new MetacardTransformerActionProvider(ACTION_PROVIDER_ID,
-                SAMPLE_TRANSFORMER_ID).toString();
-
-        LOGGER.info(toString);
-
-        assertThat(toString, containsString(ActionProvider.class.getName()));
-        assertThat(toString, containsString(ACTION_PROVIDER_ID));
-
-    }
-
-    private Metacard givenMetacard(String sampleId, String sourceName) {
-
-        Metacard metacard = mock(Metacard.class);
-
-        when(metacard.getId()).thenReturn(sampleId);
-        when(metacard.getSourceId()).thenReturn(sourceName);
-
-        return metacard;
-    }
-
-    @Test
-    public void testFederatedMetacard() {
-
-        // given
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-
-        String newSourceName = "newSource";
-
-        metacard.setSourceId(newSourceName);
-
-        AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID,
-                SAMPLE_TRANSFORMER_ID);
-        this.configureActionProvider();
-
-        // when
-        Action action = actionProvider.getActions(metacard)
-                .get(0);
-
-        // then
-        assertThat(action.getUrl()
-                        .toString(),
-                is(expectedDefaultAddressWith(metacard.getId(),
-                        newSourceName,
-                        SAMPLE_TRANSFORMER_ID)));
-        assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
-
+        return new URL(SystemBaseUrl.constructUrl(urlString, true));
     }
 
     private String expectedDefaultAddressWith(String id, String sourceName,

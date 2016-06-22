@@ -91,6 +91,7 @@
     <modules>
         <module>catalog-core-api</module>
         <module>catalog-core-api-impl</module>
+        <module>catalog-core-actions</module>
         <module>catalog-core-commons</module>
         <module>catalog-core-commands</module>
         <module>catalog-core-urlresourcereader</module>
@@ -113,6 +114,9 @@
         <module>catalog-core-directorymonitor</module>
         <module>catalog-core-versioning</module>
         <module>catalog-core-validator</module>
+        <module>catalog-core-validationparser</module>
         <module>catalog-core-attribute-registry</module>
+        <module>catalog-core-defaultvalues</module>
+        <module>catalog-core-resourcestatusplugin</module>
     </modules>
 </project>

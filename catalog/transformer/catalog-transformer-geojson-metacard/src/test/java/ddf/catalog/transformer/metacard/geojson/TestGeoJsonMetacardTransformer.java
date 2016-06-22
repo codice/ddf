@@ -21,12 +21,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.json.simple.JSONObject;
@@ -36,10 +40,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.geo.formatter.CompositeGeometry;
 import ddf.geo.formatter.GeometryCollection;
@@ -528,6 +536,32 @@ public class TestGeoJsonMetacardTransformer {
         verifyBasicMetacardJson(now, obj2);
 
     }
+
+    @Test
+    public void testWithMultiValueAttributes() throws Exception {
+        Set<AttributeDescriptor> descriptors = new HashSet(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+        descriptors.add(new AttributeDescriptorImpl("multi-string",
+                true,
+                true,
+                false,
+                true, /* multivalued */
+                BasicTypes.STRING_TYPE));
+        MetacardType type = new MetacardTypeImpl("multi", descriptors);
+        MetacardImpl metacard = new MetacardImpl(type);
+
+        metacard.setAttribute("multi-string", (Serializable) Arrays.asList("foo", "bar"));
+
+        GeoJsonMetacardTransformer transformer = new GeoJsonMetacardTransformer();
+        BinaryContent content = transformer.transform(metacard, null);
+        String jsonText = new String(content.getByteArray());
+        JSONObject json = (JSONObject) PARSER.parse(jsonText);
+
+        Map properties = (Map) json.get("properties");
+        List<String> strings = (List<String>) properties.get("multi-string");
+        assertThat(strings.get(0), is("foo"));
+        assertThat(strings.get(1), is("bar"));
+    }
+
 
     protected void testPopularPolygon(List<List> exteriorRing) {
 

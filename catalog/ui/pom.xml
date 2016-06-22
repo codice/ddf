@@ -59,11 +59,6 @@
                 <artifactId>servlet-api</artifactId>
                 <version>2.5</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.karaf.webconsole</groupId>
-                <artifactId>org.apache.karaf.webconsole.console</artifactId>
-                <version>${karaf.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

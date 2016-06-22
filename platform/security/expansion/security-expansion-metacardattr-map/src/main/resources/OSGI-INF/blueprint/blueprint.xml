@@ -13,13 +13,15 @@
  **/
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0">
+    <ext:property-placeholder/>
 
     <bean id="metacardAttributeExpansion" class="ddf.security.expansion.impl.StraightExpansionImpl">
         <cm:managed-properties persistent-id="ddf.security.metacard.attribute.mapping"
                                update-strategy="component-managed" update-method="update"/>
         <property name="attributeSeparator" value=" "/>
-        <property name="expansionFileName" value="security/ddf-metacard-attribute-ruleset.cfg"/>
+        <property name="expansionFileName" value="${ddf.home}/etc/pdp/ddf-metacard-attribute-ruleset.cfg"/>
     </bean>
 
     <service ref="metacardAttributeExpansion" interface="ddf.security.expansion.Expansion"

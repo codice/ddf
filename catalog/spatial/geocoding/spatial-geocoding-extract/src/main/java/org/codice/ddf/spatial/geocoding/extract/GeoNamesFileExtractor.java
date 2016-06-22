@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryCreator;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
@@ -42,12 +43,11 @@ import org.codice.ddf.spatial.geocoding.GeoNamesRemoteDownloadException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
 
 import com.google.common.io.ByteSource;
-import com.google.common.io.FileBackedOutputStream;
 
 public class GeoNamesFileExtractor implements GeoEntryExtractor {
-    private GeoEntryCreator geoEntryCreator;
-
     private static final int BUFFER_SIZE = 4096;
+
+    private GeoEntryCreator geoEntryCreator;
 
     private WebClient webClient;
 
@@ -107,7 +107,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
 
         try (InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream,
                 StandardCharsets.UTF_8);
-                BufferedReader reader = new BufferedReader(inputStreamReader);) {
+                BufferedReader reader = new BufferedReader(inputStreamReader)) {
 
             double bytesRead = 0.0;
 
@@ -198,7 +198,8 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             throws GeoNamesRemoteDownloadException {
         int responseCode = 0;
 
-        try (FileBackedOutputStream fileOutputStream = new FileBackedOutputStream(BUFFER_SIZE);) {
+        try (TemporaryFileBackedOutputStream fileOutputStream = new TemporaryFileBackedOutputStream(
+                BUFFER_SIZE)) {
 
             responseCode = response.getStatus();
 
@@ -289,8 +290,9 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
      */
     private InputStream unZipInputStream(String resource, InputStream inputStream)
             throws GeoEntryExtractionException {
-        try (FileBackedOutputStream bufferedOutputStream = new FileBackedOutputStream(BUFFER_SIZE);
-                ZipInputStream zipInputStream = new ZipInputStream(inputStream);) {
+        try (TemporaryFileBackedOutputStream bufferedOutputStream = new TemporaryFileBackedOutputStream(
+                BUFFER_SIZE);
+                ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
 
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {

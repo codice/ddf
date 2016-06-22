@@ -7,45 +7,45 @@
 |ID
 |Description
 
-|<<Backup Post-Ingest Plugin>>
+|<<backup_post-ingest_plugin, Backup Post-Ingest Plugin>>
 |plugin.backup
 |Enable and configure Backup Plugin
 
-|<<Catalog OpenSearch Federated Source>>
+|<<catalog_opensearch_federated_source, Catalog OpenSearch Federated Source>>
 |OpenSearchSource
 |Configure settings for OpenSearch Source.
 
-|<<Catalog Policy Plugin>>
+|<<catalog_policy_plugin, Catalog Policy Plugin>>
 |org.codice.ddf.catalog.security.CatalogPolicy
 |Configure security policy attributes for Catalog.
 
-|<<Catalog Standard Framework>>
+|<<catalog_standard_framework, Catalog Standard Framework>>
 |${ddf-branding-lowercase}.catalog.CatalogFrameworkImpl
 |Configure settings for product retrieval through Catalog Standard Framework
 
-|<<Metacard Attribute Security Policy Plugin>>
+|<<metacard_attribute_security_policy_plugin, Metacard Attribute Security Policy Plugin>>
 |org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin
 |Configure settings for Metacard security attributes.
 
-|<<Schematron Validation Services>>
+|<<schematron_validation_services, Schematron Validation Services>>
 |ddf.services.schematron.SchematronValidationService
 |Configure Schematron rulesets.
 
-|<<XML Attribute Security Policy Plugin>>
+|<<xml_attribute_security_policy_plugin, XML Attribute Security Policy Plugin>>
 |org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin
 |Configure settings for locating security attributes on XML elements.
 
-|<<Xml Query Transformer>>
+|<<xml_query_transformer, Xml Query Transformer>>
 |${ddf-branding-lowercase}.catalog.transformer.xml.XmlResponseQueueTransformer
 |Set threshold for running marshalling in parallel
 
-|<<Catalog Duplicate Validator>>
+|<<catalog_duplicate_validator, Catalog Duplicate Validator>>
 |${ddf-branding-lowercase}.catalog.metacard.duplication.DuplicationValidator
 |Configure rules to check for duplicate data
 
 |===
 
-.Backup Post-Ingest Plugin
+.[[backup_post-ingest_plugin]]Backup Post-Ingest Plugin
 [cols="1,1m,1,2,1,1" options="header"]
 |===
 |Name
@@ -78,7 +78,7 @@
 
 |===
 
-.Catalog OpenSearch Federated Source
+.[[catalog_opensearch_federated_source]]Catalog OpenSearch Federated Source
 [cols="1,1m,1,2,1,1" options="header"]
 |===
 |Name
@@ -98,7 +98,7 @@
 |OpenSearch service URL
 |endpointUrl
 |String
-|The OpenSearch endpoint URL or DDF's OpenSearch endpoint (https://localhost:8993/services/catalog/query)
+|The OpenSearch endpoint URL or ${ddf-branding}'s OpenSearch endpoint (${secure_url}/services/catalog/query)
 |${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/catalog/query
 |Yes
 
@@ -139,7 +139,7 @@
 
 |===
 
-.Catalog Policy Plugin
+.[[catalog_policy_plugin]]Catalog Policy Plugin
 [cols="1,1m,1,2,1,1" options="header"]
 |===
 |Name
@@ -179,7 +179,7 @@
 
 |===
 
-.Catalog Standard Framework
+.[[catalog_standard_framework]]Catalog Standard Framework
 [cols="1,1m,2,1,1,1" options="header"]
 |===
 |Name
@@ -254,7 +254,7 @@
 
 |===
 
-.Metacard Attribute Security Policy Plugin
+.[[metacard_attribute_security_policy_plugin]]Metacard Attribute Security Policy Plugin
 [cols="1,1m,1,2,1,1" options="header"]
 |===
 |Name
@@ -269,11 +269,11 @@
 3|String
 4|Attributes within the metacard that will be collected for security information.
 5|
-6|Notrue
+6|No
 
 |===
 
-.Schematron Validation Services
+.[[schematron_validation_services]]Schematron Validation Services
 [cols="1,1m,1,2,1,1" options="header"]
 |===
 |Name
@@ -306,7 +306,7 @@
 
 |===
 
-.XML Attribute Security Policy Plugin
+.[[xml_attribute_security_policy_plugin]]XML Attribute Security Policy Plugin
 [cols="1,1m,1,2,1,1" options="header"]
 |===
 |Name
@@ -344,7 +344,7 @@ The X value will be the value that is placed within the security attribute on th
 
 |===
 
-.Xml Query Transformer
+.[[xml_query_transformer]]Xml Query Transformer
 [cols="1,1m,1,2,1,1" options="header"]
 |===
 |Name
@@ -363,7 +363,7 @@ The X value will be the value that is placed within the security attribute on th
 
 |===
 
-.Catalog Duplicate Validator
+.[[catalog_duplicate_validator]]Catalog Duplicate Validator
 [cols="1,1m,1,2,1,1" options="header"]
 |===
 |Name

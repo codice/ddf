@@ -16,9 +16,9 @@ package org.codice.ddf.catalog.admin.poller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -26,9 +26,9 @@ import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -38,32 +38,19 @@ import java.util.Map;
 import org.apache.shiro.util.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import ddf.catalog.CatalogFramework;
+import com.google.common.collect.ImmutableList;
+
+import ddf.action.Action;
+import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.operation.impl.CreateResponseImpl;
-import ddf.catalog.operation.impl.DeleteRequestImpl;
-import ddf.catalog.operation.impl.DeleteResponseImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.service.ConfiguredService;
-import ddf.catalog.source.CatalogStore;
-import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.opensearch.OpenSearchSource;
 
 public class AdminPollerTest {
@@ -76,76 +63,80 @@ public class AdminPollerTest {
 
     public static MockedAdminPoller poller;
 
-    private static final String REGISTRY_ID = "registry-id";
-
-    private static final String PUBLISHED_LOCATIONS = "published-locations";
-
-    @Mock
-    private CatalogFramework catalogFramework;
-
-    @Mock
-    private CatalogStore catalogStore1;
-
-    @Mock
-    private CatalogStore catalogStore2;
-
-    @Mock
-    private CatalogStore catalogStore3;
-
-    private FilterBuilder filterBuilder;
-
-    private Map<String, CatalogStore> catalogStoreMap;
-
-    private ArrayList<String> publishedPlaces;
-
-    private ArrayList<String> destinations;
-
     private List<Result> results;
 
     private Metacard metacard1;
 
+    private static final String MAP_ENTRY_ACTION_ID = "id";
+
+    private static final String MAP_ENTRY_ACTION_TITLE = "title";
+
+    private static final String MAP_ENTRY_ACTION_DESCRIPTION = "description";
+
+    private static final String MAP_ENTRY_ACTION_URL = "url";
+
     @Before
     public void setup() {
-        catalogFramework = mock(CatalogFramework.class);
-        catalogStoreMap = new HashMap<>();
-
-        catalogStore1 = mock(CatalogStore.class);
-        catalogStore2 = mock(CatalogStore.class);
-        catalogStore3 = mock(CatalogStore.class);
-        catalogStoreMap.put("destination1", catalogStore1);
-        catalogStoreMap.put("destination2", catalogStore2);
-        catalogStoreMap.put("destination3", catalogStore3);
-
-        publishedPlaces = new ArrayList<>();
-        publishedPlaces.add("destination1");
-        publishedPlaces.add("destination3");
-
-        destinations = new ArrayList<>();
-        destinations.add("destination1");
-        destinations.add("destination2");
 
         metacard1 = new MetacardImpl();
-        metacard1.setAttribute(new AttributeImpl(PUBLISHED_LOCATIONS, publishedPlaces));
-        metacard1.setAttribute(new AttributeImpl(REGISTRY_ID, "registry1"));
         results = new ArrayList<>();
         results.add(new ResultImpl(metacard1));
 
-        filterBuilder = new GeotoolsFilterBuilder();
+        poller = new AdminPollerTest().new MockedAdminPoller(null);
+        poller.setOperationActionProviders(new ArrayList<>());
+        poller.setReportActionProviders(new ArrayList<>());
 
-        poller = new AdminPollerTest().new MockedAdminPoller(null,
-                catalogFramework,
-                filterBuilder,
-                catalogStoreMap);
     }
 
     @Test
     public void testAllSourceInfo() {
+        Action operatorActionOne = getTestAction("operationIdOne",
+                "operationTitle1",
+                "operationDescription1",
+                "https://localhost:8993/provider/someAction");
+        Action operatorActionTwo = getTestAction("operationIdTwo",
+                "operationTitleTwo",
+                "operationDescriptionTwo",
+                "https://localhost:8993/provider/someAction");
+        ImmutableList<ActionProvider> operationActions = ImmutableList.of(
+                getHandleableTestActionProvider(operatorActionOne),
+                getNotHandleableTestActionProvider(),
+                getHandleableTestActionProvider(operatorActionTwo));
+        poller.setOperationActionProviders(operationActions);
+
+        Action reportActionOne = getTestAction("reportId",
+                "reportTitle",
+                "reportDescription",
+                "https://localhost:8993/provider/someAction");
+        ImmutableList<ActionProvider> reportActions = ImmutableList.of(
+                getHandleableTestActionProvider(reportActionOne),
+                getNotHandleableTestActionProvider(),
+                getNotHandleableTestActionProvider());
+        poller.setReportActionProviders(reportActions);
+
         List<Map<String, Object>> sources = poller.allSourceInfo();
         assertThat(sources, notNullValue());
         assertThat(sources.size(), is(2));
 
         assertThat(sources.get(0), not(hasKey("configurations")));
         assertThat(sources.get(1), hasKey("configurations"));
+        List<Map<String, Object>> configurations = (List) sources.get(1)
+                .get("configurations");
+
+        assertThat(configurations, hasSize(1));
+        Map<String, Object> configurationMap = configurations.get(0);
+        assertThat(configurationMap, hasKey("operation_actions"));
+        assertThat(configurationMap, hasKey("report_actions"));
+
+        List<Map<String, Object>> operationActionsList = (List) configurationMap.get(
+                "operation_actions");
+        Map<String, String> operatorActionOneMap = getMapFromAction(operatorActionOne);
+        Map<String, String> operatorActionTwoMap = getMapFromAction(operatorActionTwo);
+        assertThat(operationActionsList, contains(operatorActionOneMap, operatorActionTwoMap));
+
+        List<Map<String, Object>> reportActionsList = (List) configurationMap.get("report_actions");
+        Map<String, String> reportActionMap = getMapFromAction(reportActionOne);
+        assertThat(reportActionsList, contains(reportActionMap));
     }
 
     @Test
@@ -155,80 +146,9 @@ public class AdminPollerTest {
         assertThat(poller.sourceStatus("FAKE SOURCE"), is(false));
     }
 
-    @Test
-    public void testSuccessfulPublish()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-            IngestException {
-        when(catalogFramework.query(any())).thenReturn(new QueryResponseImpl(new QueryRequestImpl(
-                null), results, 1));
-        when(catalogStore1.create(any())).thenReturn(new CreateResponseImpl(new CreateRequestImpl(
-                new MetacardImpl()),
-                new HashMap<String, Serializable>(),
-                Arrays.asList(metacard1)));
-        when(catalogStore2.create(any())).thenReturn(new CreateResponseImpl(new CreateRequestImpl(
-                new MetacardImpl()),
-                new HashMap<String, Serializable>(),
-                Arrays.asList(metacard1)));
-        when(catalogStore3.delete(any())).thenReturn(new DeleteResponseImpl(new DeleteRequestImpl(""),
-                new HashMap<String, Serializable>(),
-                Arrays.asList(metacard1)));
-
-        List<Serializable> newPublishedPlaces = poller.updatePublications("mySource", destinations);
-        assertThat(newPublishedPlaces, hasItems("destination1", "destination2"));
-        newPublishedPlaces.remove("destination1");
-        newPublishedPlaces.remove("destination2");
-        assertThat(newPublishedPlaces, empty());
-    }
-
-    @Test
-    public void testUnsuccessfulCreatePublish()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-            IngestException {
-        when(catalogFramework.query(any())).thenReturn(new QueryResponseImpl(new QueryRequestImpl(
-                null), results, 1));
-        when(catalogStore1.create(any())).thenReturn(new CreateResponseImpl(new CreateRequestImpl(
-                new MetacardImpl()),
-                new HashMap<String, Serializable>(),
-                Arrays.asList(metacard1)));
-        when(catalogStore2.create(any())).thenThrow(new IngestException());
-        when(catalogStore2.query(any())).thenReturn(new SourceResponseImpl(new QueryRequestImpl(null),
-                new ArrayList<Result>()));
-        when(catalogStore3.delete(any())).thenReturn(new DeleteResponseImpl(new DeleteRequestImpl(""),
-                new HashMap<String, Serializable>(),
-                Arrays.asList(metacard1)));
-
-        List<Serializable> newPublishedPlaces = poller.updatePublications("mySource", destinations);
-        assertThat(newPublishedPlaces, hasItems("destination1"));
-        newPublishedPlaces.remove("destination1");
-        assertThat(newPublishedPlaces, empty());
-    }
-
-    @Test
-    public void testUnsuccessfulDeletePublish()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-            IngestException {
-        when(catalogFramework.query(any())).thenReturn(new QueryResponseImpl(new QueryRequestImpl(
-                null), results, 1));
-        when(catalogStore1.create(any())).thenReturn(new CreateResponseImpl(new CreateRequestImpl(
-                new MetacardImpl()),
-                new HashMap<String, Serializable>(),
-                Arrays.asList(metacard1)));
-        when(catalogStore2.create(any())).thenReturn(new CreateResponseImpl(new CreateRequestImpl(
-                new MetacardImpl()),
-                new HashMap<String, Serializable>(),
-                Arrays.asList(metacard1)));
-        when(catalogStore3.delete(any())).thenThrow(new IngestException());
-        when(catalogStore3.query(any())).thenReturn(new SourceResponseImpl(new QueryRequestImpl(null),
-                Arrays.asList(new ResultImpl(metacard1))));
-
-        List<Serializable> newPublishedPlaces = poller.updatePublications("mySource", destinations);
-        assertThat(newPublishedPlaces, hasItems("destination1", "destination2", "destination3"));
-    }
-
     private class MockedAdminPoller extends AdminPollerServiceBean {
-        public MockedAdminPoller(ConfigurationAdmin configAdmin, CatalogFramework catalogFramework,
-                FilterBuilder filterBuilder, Map<String, CatalogStore> catalogStoreMap) {
-            super(configAdmin, catalogFramework, filterBuilder, catalogStoreMap);
+        public MockedAdminPoller(ConfigurationAdmin configAdmin) {
+            super(configAdmin);
         }
 
         @Override
@@ -278,4 +198,52 @@ public class AdminPollerTest {
             return helper;
         }
     }
+
+    private ActionProvider getHandleableTestActionProvider(Action action) {
+        ActionProvider actionProvider = mock(ActionProvider.class);
+        when(actionProvider.canHandle(any(Configuration.class))).thenReturn(true);
+        when(actionProvider.getActions(any(Class.class))).thenReturn(CollectionUtils.asList(action));
+
+        return actionProvider;
+    }
+
+    private Action getTestAction(String id, String title, String description, String urlString) {
+        Action action = mock(Action.class);
+        when(action.getId()).thenReturn(id);
+        when(action.getTitle()).thenReturn(title);
+        when(action.getDescription()).thenReturn(description);
+        try {
+            URL url = new URL(urlString);
+            when(action.getUrl()).thenReturn(url);
+        } catch (MalformedURLException e) {
+            // do nothing
+        }
+
+        return action;
+    }
+
+    private ActionProvider getNotHandleableTestActionProvider() {
+        ActionProvider actionProvider = mock(ActionProvider.class);
+
+        when(actionProvider.canHandle(any(Configuration.class))).thenReturn(false);
+
+        return actionProvider;
+    }
+
+    private Map<String, String> getMapFromAction(Action action) {
+        Map<String, String> map = new HashMap<>();
+        if (action == null) {
+            return map;
+        }
+
+        map.put(MAP_ENTRY_ACTION_ID, action.getId());
+        map.put(MAP_ENTRY_ACTION_TITLE, action.getTitle());
+        map.put(MAP_ENTRY_ACTION_DESCRIPTION, action.getDescription());
+        map.put(MAP_ENTRY_ACTION_URL,
+                action.getUrl()
+                        .toString());
+
+        return map;
+    }
+
 }

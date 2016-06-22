@@ -311,6 +311,12 @@ public class BasicTypes {
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_CACHE_STATUS,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BOOLEAN_TYPE));
         return descriptors;
     }
 

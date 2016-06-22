@@ -20,9 +20,7 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <reference id="branding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
-
-    <reference id="provider" interface="org.codice.ddf.branding.BrandingResourceProvider"/>
+    <reference id="branding" interface="org.codice.ddf.branding.BrandingPlugin"/>
 
     <!--
     The list of managedServices that are interested in updates to the DDF System Settings.
@@ -33,7 +31,8 @@
     DDF started up.
     -->
     <reference-list id="managedServiceList"
-                    interface="org.codice.ddf.configuration.ConfigurationWatcher" availability="optional">
+                    interface="org.codice.ddf.configuration.ConfigurationWatcher"
+                    availability="optional">
         <reference-listener bind-method="bind" unbind-method="bind" ref="ConfigurationManager"/>
     </reference-list>
 
@@ -51,8 +50,7 @@
     <bean id="PlatformUiConfiguration" class="org.codice.ddf.configuration.PlatformUiConfiguration">
         <cm:managed-properties persistent-id="ddf.platform.ui.config"
                                update-strategy="container-managed"/>
-        <property name="branding" ref="branding" />
-        <property name="provider" ref="provider" />
+        <property name="branding" ref="branding"/>
     </bean>
 
     <jaxrs:server id="platformConfigurationService" address="/platform">

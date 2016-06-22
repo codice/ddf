@@ -16,7 +16,6 @@ package ddf.ldap.ldaplogin;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.karaf.jaas.config.impl.Config;
@@ -54,10 +53,8 @@ public class LdapService {
      * @param newModule that will replace a module or be added to the list of modules.
      */
     public synchronized void update(Module newModule) {
-        modules = modules.stream()
-                .filter(m -> !m.getName()
-                        .equals(newModule.getName()))
-                .collect(Collectors.toList());
+        modules.removeIf(m -> m.getName()
+                .equals(newModule.getName()));
         modules.add(newModule);
         config.setModules(modules.toArray(new Module[modules.size()]));
     }
@@ -70,10 +67,8 @@ public class LdapService {
      */
     public synchronized boolean delete(String id) {
         int initSize = modules.size();
-        modules = modules.stream()
-                .filter(m -> !m.getName()
-                        .equals(id))
-                .collect(Collectors.toList());
+        modules.removeIf(m -> m.getName()
+                .equals(id));
         config.setModules(modules.toArray(new Module[modules.size()]));
         return initSize > modules.size();
     }

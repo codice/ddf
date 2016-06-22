@@ -229,7 +229,7 @@ Using the REST Endpoint, for example, request a metacard with the transform opti
 
 [source,http]
 ----
-https://localhost:8993/services/catalog/0123456789abcdef0123456789abcdef?transform=html
+${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=html
 ----
 
 *Installing and Uninstalling*
@@ -278,7 +278,7 @@ Using the REST Endpoint for example, request a Metacard with the transform optio
 
 [source,http]
 ----
-https://localhost:8993/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml
+${secure_url}/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml
 ----
 
 *Installation and Uninstallation*
@@ -355,7 +355,7 @@ It can also be used within the REST Endpoint by providing the transform option a
 .REST GET method with the GeoJSON MetacardTransformer
 [source,http]
 ----
-https://localhost:8993/services/catalog/0123456789abcdef0123456789abcdef?transform=geojson
+${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=geojson
 ----
 
 *Installation and Uninstallation*
@@ -456,7 +456,7 @@ It can also be used within the REST Endpoint by providing the transform option a
 .REST GET method with the Metadata MetacardTransformer
 [source,http]
 ----
-https://localhost:8993/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
+${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
 ----
 
 *Installation and Uninstallation*
@@ -778,10 +778,6 @@ Can be a fully-qualified directory or a relative path (which is relative to the 
 |id
 |catalog.data.metacard.view
 
-|ddf.catalog.util.DdfConfigurationWatcher
-|
-|
-
 |===
 
 ===== Known
@@ -1090,18 +1086,80 @@ The OpenSearch Description Document is an XML file is found inside of the OpenSe
 
 |===
 ====== Exported Services
-[cols="3*"]
+
+None.
+
+====== Known Issues
+
+None
+
+==== FTP Endpoint
+
+The FTP Endpoint provides a method for ingesting files directly into the ${branding} Catalog using the FTP protocol. The files sent over FTP are not first written to the file system, like the Directory Monitor, but instead the FTP stream of the file is ingested directly into the ${branding} catalog, thus avoiding extra I/O overhead.
+
+===== Installing and Uninstalling
+
+Use the Admin Menu to install the FTP feature in the ${branding} Catalog. The FTP Endpoint is not installed by default.
+
+===== Configuring
+
+The configurable properties for the FTP Endpoint are accessed from the *FTP Endpoint* Configuration in the Admin Console under the DDF Catalog application.
+
+===== Using the FTP Endpoint
+
+====== Using the endpoint
+
+The FTP endpoint supports the PUT and MPUT operations. Any other operation, such as DELETE, will return a 550 action not taken response.
+
+====== From Code:
+
+Custom Ftplets can be implemented by extending the `DefaultFtplet` class provided by Apache FTP Server. Doing this will allow custom handling of various FTP commands by overriding the methods of the `DefaultFtplet`. Refer to `https://mina.apache.org/ftpserver-project/ftplet.html` for available methods that can be overridden.
+After creating a custom Ftplet, it needs to be added to the FTP server’s Ftplets before the server is started. Any Ftplets that are registered to the FTP server will execute the FTP command in the order that they were registered.
+
+====== From an FTP client:
+
+The FTP endpoint can be accessed from any FTP client of choice. Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal. The default port number is *8021*. Valid usernames and password are stored in the `<INSTALL_DIR>/etc/users.properties` file.
+
+===== Implementation Details
+
+The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apache Mina provides an API for transport protocols such as TCP and UDP. The FTP server is built on top of Apache Mina to transport its messages. ${branding} implements a custom Ftplet by overriding the `DefaultFtplet` class provided by Apache FTP Server.
+
+====== Known Issues
+
+None
+
+==== Resource Download Endpoint
+
+The Resource Download Endpoint provides a REST API to trigger downloading resources to the ${branding} cache only. The resource is not returned to the client.
+
+===== Configuring
+
+The Resource Download Endpoint has no configurable properties.
+
+===== Using the Resource Download Endpoint
+
+====== Using the endpoint
+
+The Resource Download Endpoint WADL is accessible from `http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/downloads?_wadl`.
+
+[NOTE]
+====
+If resource caching is not enabled in ${ddf-branding}, the endpoint will return a `400 BAD REQUEST` response.
+====
+
+[cols="2,1,3,4", options="header"]
 |===
-|Registered Interface
-|Service Property
-|Value
+|Operation
+|HTTP Request
+|Details
+|Example URL
 
-|`ddf.catalog.util.DdfConfigurationWatcher`
-|
-|
+|`cache only`
+|HTTP GET
+|Resource caching must be enabled
+|\http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/downloads/<sourceId>/<metacardId>
 
 |===
-
 ====== Known Issues
 
 None
@@ -1409,15 +1467,16 @@ This section concerns capabilities that are considered experimental. The feature
 
 ==== Definition File Format
 
-Metacard Types, Attribute Types, and global Attribute Validators can be defined within a definition file. A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed. There are three main types that can be defined in a definition file.
+Metacard types, attribute types, global attribute validators, and default attribute values can be defined within a definition file. A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed. There are four main types that can be defined in a definition file.
 
 - Metacard Types
 - Attribute Types
 - Global Attribute Validators
+- Default Attribute Values
 
-Within a definition file you may define as many of the three types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
+Within a definition file you may define as many of the four types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
 
-==== Deploying 
+==== Deploying
 The file must have a `.json` extension in order to be picked up by the deployer. Once the definition file is ready to be deployed, put the definition file `<filename>.json` into the `etc/definitions` folder.
 
 * * *
@@ -1501,7 +1560,7 @@ To define Metacard Types, your definition file must have a `metacardTypes` key i
 }
 ----
 
-The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` and `attributes` keys. 
+The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` and `attributes` keys.
 
 [source,json]
 ----
@@ -1519,6 +1578,7 @@ The value of the `type` key is the name of the metacard type being defined.
 
 The value of the `attributes` key is a map where each key is the name of an attribute type to include in this metacard type and each value is a map with a single key named `required` and a boolean value. Required attributes are used for metacard validation - metacards that lack required attributes will be flagged with validation errors.
 
+
 [source,json]
 ----
 {
@@ -1530,6 +1590,9 @@ The value of the `attributes` key is a map where each key is the name of an attr
                     "required": true
                 },
                 "target-areas": {
+                    "required": false
+                },
+                "expiration": {
                     "required": false
                 },
                 "point-of-contact": {
@@ -1683,5 +1746,74 @@ Examples:
             }
         ]
     }
+}
+----
+
+==== Default Attribute Values
+
+To define default attribute values, your definition file must have a `defaults` key in the root object.
+
+[source,json]
+----
+{
+    "defaults": [...]
+}
+----
+
+The value of `defaults` is a list of objects where each object contains the keys `attribute`, `value`, and optionally `metacardTypes`.
+
+[source,json]
+----
+{
+    "defaults": [
+        {
+            "attribute": ...,
+            "value": ...,
+            "metacardTypes": [...]
+        }
+    ]
+}
+----
+
+The value corresponding to the `attribute` key is the name of the attribute to which the default value will be applied. The value corresponding to the `value` key is the default value of the attribute.
+
+[NOTE]
+====
+The attribute's default value must be of the same type as the attribute, but it has to be written as a string (i.e., enclosed in quotation marks) in the JSON file.
+
+Dates must be UTC datetimes in the ISO 8601 format, i.e., `yyyy-MM-ddTHH:mm:ssZ`
+====
+
+The `metacardTypes` key is optional. If it is left out, then the default attribute value will be applied to every metacard that has that attribute. It can be thought of as a 'global' default value. If the `metacardTypes` key is included, then its value must be a list of strings where each string is the name of a metacard type. In this case, the default attribute value will be applied only to metacards that match one of the types given in the list.
+
+[NOTE]
+====
+In the event that an attribute has a 'global' default value as well as a default value for a specific metacard type, the default value for the specific metacard type will be applied (i.e., the more specific default value wins).
+====
+
+Example:
+[source,json]
+----
+{
+    "defaults": [
+        {
+            "attribute": "title",
+            "value": "Default Title"
+        },
+        {
+            "attribute": "description",
+            "value": "Default video description",
+            "metacardTypes": ["video"]
+        },
+        {
+            "attribute": "expiration",
+            "value": "2020-05-06T12:00:00Z",
+            "metacardTypes": ["video", "nitf"]
+        },
+        {
+            "attribute": "frame-rate",
+            "value": "30"
+        }
+    ]
 }
 ----

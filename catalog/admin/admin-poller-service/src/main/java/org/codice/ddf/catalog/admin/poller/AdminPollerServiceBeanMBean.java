@@ -14,30 +14,11 @@
 
 package org.codice.ddf.catalog.admin.poller;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 
 public interface AdminPollerServiceBeanMBean {
     boolean sourceStatus(String servicePID);
 
     List<Map<String, Object>> allSourceInfo();
-
-    /**
-     * @param source - The id of the source that will be published to or unpublished
-     *               from the following destinations
-     *
-     * @param destinations - List of ids of catalog stores that the source will be
-     *                     published to or unpublished from
-     *
-     * @return the list of currently published locations after attempting to perform
-     * the publish/unpublishes
-     */
-    List<Serializable> updatePublications(String source, List<String> destinations)
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException;
-
 }

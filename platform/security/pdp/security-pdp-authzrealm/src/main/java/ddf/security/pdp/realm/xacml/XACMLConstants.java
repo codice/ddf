@@ -20,6 +20,12 @@ public class XACMLConstants {
 
     public static final String STRING_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#string";
 
+    public static final String BOOLEAN_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#boolean";
+
+    public static final String INTEGER_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#integer";
+
+    public static final String DOUBLE_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#double";
+
     public static final String TIME_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#time";
 
     public static final String DATE_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#date";
@@ -27,6 +33,15 @@ public class XACMLConstants {
     public static final String DATE_TIME_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#dateTime";
 
     public static final String URI_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#anyURI";
+
+    public static final String RFC822_NAME_DATA_TYPE =
+            "urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name";
+
+    public static final String IP_ADDRESS_DATA_TYPE =
+            "urn:oasis:names:tc:xacml:2.0:data-type:ipAddress";
+
+    public static final String X500_NAME_DATA_TYPE =
+            "urn:oasis:names:tc:xacml:1.0:data-type:x500Name";
 
     public static final String ACTION_CATEGORY =
             "urn:oasis:names:tc:xacml:3.0:attribute-category:action";

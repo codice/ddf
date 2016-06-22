@@ -71,7 +71,7 @@
                         </goals>
                         <phase>install</phase>
                         <configuration>
-                            <arguments>test -- -d ${project.parent.parent.basedir}</arguments>
+                            <arguments>test -- "-d" "${project.parent.parent.basedir}"</arguments>
                         </configuration>
                     </execution>
                     <execution>

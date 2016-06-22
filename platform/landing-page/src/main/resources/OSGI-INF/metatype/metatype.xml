@@ -18,7 +18,7 @@
         <AD
                 description="Specifies the description to display on the landing page."
                 name="Description" id="description" required="true" type="String"
-                default="As a common data layer, DDF provides secure enterprise-wide data access for both users and systems."
+                default="As a common data layer\, DDF provides secure enterprise-wide data access for both users and systems."
                 />
         <AD
                 description="Specifies the phone number to display on the landing page."

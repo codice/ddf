@@ -14,17 +14,18 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import java.security.Principal;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.shiro.SecurityUtils;
+import javax.inject.Inject;
+
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.activities.ActivityEvent;
@@ -32,6 +33,7 @@ import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.annotation.Session;
+import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
@@ -42,6 +44,8 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
+import ddf.security.SubjectUtils;
 import ddf.security.assertion.SecurityAssertion;
 
 /**
@@ -55,22 +59,18 @@ public abstract class AbstractEventController implements EventHandler {
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
+    @Inject
+    private BayeuxServer bayeux;
+
     @Session
-    protected ServerSession controllerServerSession;
+    ServerSession controllerServerSession;
 
-    // Synchronize the map to protect against multiple clients triggering
-    // multiple Map operations at the same time
-    // Set the HashMap's initial capacity to allow for 30 users without
-    // resizing/rehashing the map
-    // ((30 users / .75 loadFactor) + 1) = 41 = initialCapacity.
-    // TODO: Should the initial size be larger? How many clients are we
-    // anticipating per DDF instance.
-    protected Map<String, ServerSession> userSessionMap =
-            Collections.synchronizedMap(new HashMap<String, ServerSession>(41));
+    PersistentStore persistentStore;
 
-    protected PersistentStore persistentStore;
+    EventAdmin eventAdmin;
 
-    protected EventAdmin eventAdmin;
+    ConcurrentHashMap<String, ServerSession> userSessionMap = new ConcurrentHashMap<>();
+
 
     /**
      * Establishes {@code AbstractEventController} as a listener to events published by the OSGi
@@ -101,6 +101,42 @@ public abstract class AbstractEventController implements EventHandler {
     }
 
     /**
+     * Obtains the {@link ServerSession} associated with a given sessionId. Retrieval using
+     * {@link #getSessionByUserId(String)} is the preferred method. This method is used when
+     * a userId is not available.
+     *
+     * @param sessionId The sessionId associated with the {@code ServerSession} to be retrieved.
+     * @return The {@code ServerSession} associated with the received sessionId or null if the session
+     * does not have an established {@code ServerSession}
+     */
+    public ServerSession getSessionBySessionId(String sessionId) {
+        return userSessionMap.searchValues(1, value -> {
+            if (value.getId().equals(sessionId)) {
+                return value;
+            }
+            return null;
+        });
+    }
+
+    /**
+     * Obtains the {@link ServerSession} associated with a given userId or sessionId. It
+     *
+     * @param sessionId The sessionId associated with the {@code ServerSession} to be retrieved.
+     * @return The {@code ServerSession} associated with the received sessionId or null if the session
+     * does not have an established {@code ServerSession}
+     */
+    public ServerSession getSessionById(String userId, String sessionId) {
+        ServerSession session = null;
+        if (userId != null){
+            session = getSessionByUserId(userId);
+        }
+        if (session == null && sessionId != null) {
+            session = getSessionBySessionId(sessionId);
+        }
+        return session;
+    }
+
+    /**
      * Listens to the /meta/disconnect {@link org.cometd.bayeux.Channel} for clients disconnecting
      * and deregisters the user. This should be invoked in order to remove
      * {@code AbstractEventController} references to invalid {@link ServerSession}s.
@@ -117,9 +153,10 @@ public abstract class AbstractEventController implements EventHandler {
             throw new IllegalArgumentException("ServerSession is null");
         }
 
-        Subject subject = null;
+        ddf.security.Subject subject = null;
         try {
-            subject = SecurityUtils.getSubject();
+            subject = (ddf.security.Subject) bayeux.getContext()
+                    .getRequestAttribute(SecurityConstants.SECURITY_SUBJECT);
         } catch (Exception e) {
             LOGGER.debug("Couldn't grab user subject from Shiro.", e);
         }
@@ -130,11 +167,7 @@ public abstract class AbstractEventController implements EventHandler {
             throw new IllegalArgumentException("User ID is null");
         }
 
-        if (null != getSessionByUserId(userId)) {
-            userSessionMap.remove(userId);
-        } else {
-            LOGGER.debug("userSessionMap does not contain a user with the id \"{}\"", userId);
-        }
+        userSessionMap.remove(userId);
     }
 
     /**
@@ -176,9 +209,10 @@ public abstract class AbstractEventController implements EventHandler {
             throw new IllegalArgumentException("ServerSession is null");
         }
 
-        Subject subject = null;
+        ddf.security.Subject subject = null;
         try {
-            subject = SecurityUtils.getSubject();
+            subject = (ddf.security.Subject) bayeux.getContext()
+                    .getRequestAttribute(SecurityConstants.SECURITY_SUBJECT);
         } catch (Exception e) {
             LOGGER.debug("Couldn't grab user subject from Shiro.", e);
         }
@@ -187,6 +221,11 @@ public abstract class AbstractEventController implements EventHandler {
 
         if (null == userId) {
             throw new IllegalArgumentException("User ID is null");
+        }
+
+        // check if user is a guest. Register with sessionId to avoid cross-notifications
+        if (userId.startsWith(SubjectUtils.GUEST_DISPLAY_NAME + "@")) {
+            userId = serverSession.getId();
         }
 
         userSessionMap.put(userId, serverSession);

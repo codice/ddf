@@ -48,7 +48,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.Subject;
 
 /**
- * The SearchController class handles all of the query threads for asynchronous queries.
+ * The {@link SearchController} class handles all of the query threads for asynchronous queries.
  */
 public class SearchController {
 
@@ -71,8 +71,7 @@ public class SearchController {
     /**
      * Create a new SearchController
      *
-     * @param framework
-     *            - CatalogFramework that will be handling the actual queries
+     * @param framework     {@link CatalogFramework} that will be handling the actual queries
      * @param filterAdapter
      */
     public SearchController(CatalogFramework framework, ActionRegistry actionRegistry,
@@ -91,22 +90,21 @@ public class SearchController {
     }
 
     /**
-     * Push results out to clients
-     * @param id - request id
+     * Immediately publish results out to clients
+     *
+     * @param id            request id
      * @param jsonData
      * @param serverSession
      */
-    public synchronized void pushResults(String id, Map<String, Object> jsonData,
+    public synchronized void publishResults(String id, Map<String, Object> jsonData,
             ServerSession serverSession) {
         String channel = "/" + id;
 
         LOGGER.debug("Creating channel if it doesn't exist: {}", channel);
 
-        bayeuxServer.createChannelIfAbsent(channel, new ConfigurableServerChannel.Initializer() {
-            public void configureChannel(ConfigurableServerChannel serverChannel) {
-                serverChannel.setPersistent(true);
-            }
-        });
+        bayeuxServer.createChannelIfAbsent(channel,
+                (ConfigurableServerChannel.Initializer) serverChannel -> serverChannel.setPersistent(
+                        true));
 
         jsonData.put(Search.SUCCESSFUL, true);
 
@@ -120,12 +118,10 @@ public class SearchController {
     }
 
     /**
-     * Execute all of the queries contained within the SearchRequest
+     * Execute all of the queries contained within the {@link SearchRequest}.
      *
-     * @param request
-     *            - SearchRequest containing a query for 1 or more sources
-     * @param session
-     *            - Cometd ServerSession
+     * @param request {@link SearchRequest} containing a query for 1 or more sources
+     * @param session Cometd {@link ServerSession}
      */
     public void executeQuery(final SearchRequest request, final ServerSession session,
             final Subject subject) {
@@ -181,26 +177,25 @@ public class SearchController {
             Future future = entry.getValue();
             try {
                 long timeRemaining = Math.max(0, deadline - System.currentTimeMillis());
-
                 future.get(timeRemaining, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                LOGGER.info("Query interrupted for source " + sourceId, e);
-                failSource(request, session, search, sourceId);
+                LOGGER.info("Query interrupted for source {}", sourceId, e);
+                failSource(request, session, search, sourceId, e);
             } catch (TimeoutException e) {
-                LOGGER.info("Query timed out for source " + sourceId, e);
-                failSource(request, session, search, sourceId);
+                LOGGER.info("Query timed out for source {}", sourceId, e);
+                failSource(request, session, search, sourceId, e);
             } catch (ExecutionException e) {
-                LOGGER.warn("Query failed for source " + sourceId, e.getCause());
-                failSource(request, session, search, sourceId);
+                LOGGER.warn("Query failed for source {}", sourceId, e.getCause());
+                failSource(request, session, search, sourceId, e);
             }
         }
     }
 
     private void failSource(SearchRequest request, ServerSession session, Search search,
-            String sourceId) {
-        search.failSource(sourceId);
+            String sourceId, Exception cause) {
+        search.failSource(sourceId, cause);
         try {
-            pushResults(request.getId(), search.transform(request.getId()), session);
+            publishResults(request.getId(), search.transform(request.getId()), session);
         } catch (CatalogTransformerException e) {
             LOGGER.error("Failed to transform failed search results.", e);
         }
@@ -254,5 +249,4 @@ public class SearchController {
     public void setNormalizationDisabled(Boolean normalizationDisabled) {
         this.normalizationDisabled = normalizationDisabled;
     }
-
 }

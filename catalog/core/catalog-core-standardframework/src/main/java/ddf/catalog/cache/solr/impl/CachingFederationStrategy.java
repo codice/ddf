@@ -152,6 +152,12 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private FilterBuilder builder;
 
+    private ValidationQueryFactory validationQueryFactory;
+
+    private boolean showErrors = false;
+
+    private boolean showWarnings = true;
+
     /**
      * Instantiates an {@code AbstractFederationStrategy} with the provided {@link ExecutorService}.
      *
@@ -160,7 +166,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     public CachingFederationStrategy(ExecutorService queryExecutorService,
             List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
             SolrCache cache, ExecutorService cacheExecutorService, FilterAdapter adapter,
-            FilterBuilder builder) {
+            FilterBuilder builder, ValidationQueryFactory validationQueryFactory) {
         this.queryExecutorService = queryExecutorService;
         this.preQuery = preQuery;
         this.postQuery = postQuery;
@@ -170,6 +176,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         cacheBulkProcessor = new CacheBulkProcessor(cache);
         this.adapter = adapter;
         this.builder = builder;
+        this.validationQueryFactory = validationQueryFactory;
     }
 
     @Override
@@ -193,7 +200,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     QueryResponse queryCache(QueryRequest queryRequest) {
-        QueryRequest updatedRequest = getRequestWithTagsFilter(queryRequest);
+        QueryRequest updatedRequest = getQueryRequestWithAdditionalFilters(queryRequest);
         final QueryResponseImpl queryResponse = new QueryResponseImpl(updatedRequest);
         try {
             SourceResponse result = cache.query(updatedRequest);
@@ -263,7 +270,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     finalQueryRequest = modifiedQueryRequest;
                     if (source instanceof CatalogProvider && SystemInfo.getSiteName()
                             .equals(source.getId())) {
-                        finalQueryRequest = getRequestWithTagsFilter(modifiedQueryRequest);
+                        finalQueryRequest = getQueryRequestWithAdditionalFilters(
+                                modifiedQueryRequest);
                     }
 
                     futures.put(queryCompletion.submit(new CallableSourceResponse(source,
@@ -393,6 +401,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         }
 
         return query;
+    }
+
+    private QueryRequest getQueryRequestWithAdditionalFilters(QueryRequest originalRequest) {
+        return validationQueryFactory.getQueryRequestWithValidationFilter(getRequestWithTagsFilter(
+                originalRequest), showErrors, showWarnings);
     }
 
     /**
@@ -645,6 +658,22 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             this.forceTermination();
             phaseScheduler.shutdown();
         }
+    }
+
+    public void setShowErrors(boolean showErrors) {
+        this.showErrors = showErrors;
+    }
+
+    public boolean getShowErrors() {
+        return showErrors;
+    }
+
+    public void setShowWarnings(boolean showWarnings) {
+        this.showWarnings = showWarnings;
+    }
+
+    public boolean getShowWarnings() {
+        return showWarnings;
     }
 
 }

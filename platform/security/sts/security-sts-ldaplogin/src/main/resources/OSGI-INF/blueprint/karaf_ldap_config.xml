@@ -18,7 +18,6 @@
         <bean class="ddf.security.sts.PropertiesConverter"/>
     </type-converters>
 
-
     <cm:managed-service-factory
             id="ddf.ldap.ldaplogin.LdapLoginConfig.id"
             factory-pid="Ldap_Login_Config"
@@ -33,6 +32,7 @@
             <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
             <property name="startTls" value="false"/>
             <property name="ldapService" ref="ldapService"/>
+            <property name="userNameAttribute" value="uid"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed" update-method="update"/>
         </cm:managed-component>
@@ -41,7 +41,5 @@
     <bean id="ldapService" class="ddf.ldap.ldaplogin.LdapService">
         <argument ref="blueprintBundleContext"/>
     </bean>
-
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
 </blueprint>

@@ -82,7 +82,7 @@ ${branding-lowercase}${at-symbol}local>
 ----
 ==== Configuring
 
-.. Go to https://localhost:8993/admin.
+.. Go to ${secure_url}/admin.
 .. Enter the default username of `admin` and the password of `admin`.
 .. Follow the prompts installer prompts for a standard installation.
 ... Click start to begin the setup process.
@@ -95,7 +95,7 @@ ${branding-lowercase}${at-symbol}local>
 ==== Catalog Capabilities
 
 . Download a sample valid https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[GeoJson file here].
-. Navigate in the browser to the Search UI at http://localhost:8993/search.
+. Navigate in the browser to the Search UI at ${secure_url}/search.
 . Click the *upload* icon icon:upload[role="blue"] in the upper right corner.
 . Select the file to upload.
 
@@ -124,4 +124,4 @@ The Catalog Framework will:
 XML metadata for text searching is not automatically generated from GeoJson fields.
 ====
 
-Querying from the Search UI (https://localhost:8993/search) will return the record for the file ingested.
+Querying from the Search UI (${secure_url}/search) will return the record for the file ingested.

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -58,6 +58,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,9 +114,9 @@ public class RESTEndpoint implements RESTService {
 
     static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 
-    static final String DEFAULT_FILE_EXTENSION = "bin";
+    private static final String DEFAULT_FILE_EXTENSION = "bin";
 
-    static final String BYTES_TO_SKIP = "BytesToSkip";
+    private static final String BYTES_TO_SKIP = "BytesToSkip";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
 
@@ -140,20 +141,18 @@ public class RESTEndpoint implements RESTService {
 
     private static final String JSON_MIME_TYPE_STRING = "application/json";
 
-    static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+    private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
-    static final String DEFAULT_FILE_NAME = "file";
+    private static final String DEFAULT_FILE_NAME = "file";
 
     /**
      * Basic mime types that will be attempted to refine to a more accurate mime type
      * based on the file extension of the filename specified in the create request.
      */
-    static final List<String> REFINEABLE_MIME_TYPES = Arrays.asList(DEFAULT_MIME_TYPE,
+    private static final List<String> REFINEABLE_MIME_TYPES = Arrays.asList(DEFAULT_MIME_TYPE,
             "text/plain");
 
     private static MimeType jsonMimeType = null;
-
-    private MimeTypeMapper mimeTypeMapper;
 
     static {
         MimeType mime = null;
@@ -165,6 +164,8 @@ public class RESTEndpoint implements RESTService {
         jsonMimeType = mime;
 
     }
+
+    private MimeTypeMapper mimeTypeMapper;
 
     private FilterBuilder filterBuilder;
 
@@ -362,7 +363,7 @@ public class RESTEndpoint implements RESTService {
      * @return
      */
     @GET
-    @Path("/sources")
+    @Path(SOURCES_PATH)
     public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
         BinaryContent content;
         ResponseBuilder responseBuilder;
@@ -982,7 +983,7 @@ public class RESTEndpoint implements RESTService {
 
         Metacard generatedMetacard = null;
 
-        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
+        try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {
 
             try {
                 if (null != message) {

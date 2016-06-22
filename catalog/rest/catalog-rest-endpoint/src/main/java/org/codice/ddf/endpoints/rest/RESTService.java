@@ -36,6 +36,9 @@ import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 @Path("/")
 public interface RESTService {
 
+    String CONTEXT_ROOT = "catalog";
+    String SOURCES_PATH = "/sources";
+
     /**
      * REST Get. Retrieves the metadata entry specified by the id. Transformer argument is optional,
      * but is used to specify what format the data should be returned.
@@ -48,7 +51,7 @@ public interface RESTService {
      */
     @GET
     @Path("/{id}")
-    public Response getDocument(@PathParam("id") String id,
+    Response getDocument(@PathParam("id") String id,
             @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo,
             @Context HttpServletRequest httpRequest);
 
@@ -60,8 +63,8 @@ public interface RESTService {
      * @return
      */
     @GET
-    @Path("/sources")
-    public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest);
+    @Path(SOURCES_PATH)
+    Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest);
 
     /**
      * REST Get. Retrieves the metadata entry specified by the id from the federated source
@@ -75,8 +78,8 @@ public interface RESTService {
      * @return
      */
     @GET
-    @Path("/sources/{sourceid}/{id}")
-    public Response getDocument(@PathParam("sourceid") String sourceid, @PathParam("id") String id,
+    @Path(SOURCES_PATH + "/{sourceid}/{id}")
+    Response getDocument(@PathParam("sourceid") String sourceid, @PathParam("id") String id,
             @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo,
             @Context HttpServletRequest httpRequest);
 
@@ -89,7 +92,7 @@ public interface RESTService {
      */
     @PUT
     @Path("/{id}")
-    public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
+    Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
             @Context HttpServletRequest httpRequest, InputStream message);
 
     /**
@@ -101,7 +104,7 @@ public interface RESTService {
      */
     @PUT
     @Path("/{id}")
-    public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
+    Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
             @Context HttpServletRequest httpRequest, MultipartBody multipartBody,
             InputStream message);
 
@@ -112,7 +115,7 @@ public interface RESTService {
      * @return
      */
     @POST
-    public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
+    Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
             @Context HttpServletRequest httpRequest, InputStream message);
 
     /**
@@ -122,7 +125,7 @@ public interface RESTService {
      * @return
      */
     @POST
-    public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
+    Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
             @Context HttpServletRequest httpRequest, MultipartBody multipartBody,
             InputStream message);
 
@@ -134,7 +137,6 @@ public interface RESTService {
      */
     @DELETE
     @Path("/{id}")
-    public Response deleteDocument(@PathParam("id") String id,
-            @Context HttpServletRequest httpRequest);
+    Response deleteDocument(@PathParam("id") String id, @Context HttpServletRequest httpRequest);
 
 }

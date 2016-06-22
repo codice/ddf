@@ -10,18 +10,75 @@ This includes adding, removing, starting, stopping, and showing status.
 
 The ${ddf-admin} application is installed by default with a standard installation.
 
-=== Configuring ${ddf-admin}
+==== Configurable Properties ${ddf-admin}
 
-[cols="1,1,3" options="header"]
+The following configuration properties can be changed under the Configuration tab under Admin UI
+
+[cols="6" options="header"]
 |===
 
-|Configuration
-|ID
+|Title
+|Property
+|Type
 |Description
+|Default Value
+|Required
 
-|${admin-console} Configuration
-|`org.codice.admin.ui.configuration`
-|Customization options for ${admin-console} elements.
+|Enable System Usage Message
+|`systemUsageEnabled`
+|Boolean
+|Turns on a system usage message, which is shown when the Admin Application is opened
+|
+|yes
+
+|System Usage Message Title
+|`systemUsageTitle`
+|String
+|A title for the system usage Message when the application is opened
+|
+|yes
+
+|System Usage Message
+|`systemUsageMessage`
+|String
+|A system usage message to be displayed to the user each time the user opens the application
+|
+|yes
+
+|Show System Usage Message once per session
+|`systemUsageOncePerSession`
+|Boolean
+|With this selected, the system usage message will be shown once for each browser session. Uncheck this to have the usage message appear every time the admin page is opened or refreshed.
+|true
+|yes
+
+|Header
+|`header`
+|String
+|Specifies the header text to be rendered on all pages.
+|
+|yes
+
+|Footer
+|`footer`
+|String
+|Specifies the footer text to be rendered on all pages.
+|
+|yes
+
+|Style
+|`color`
+|String
+|Specifies the Style of the Header and Footer. Use html css colors or `#rrggbb`.
+|
+|yes
+
+|Text Color
+|`color`
+|String
+|Specifies the Text Color of the Header and Footer. Use html css colors or `#rrggbb`.
+|
+|yes
 
 |===
 
@@ -53,7 +110,7 @@ None.
 
 The ${admin-console} is the centralized location for administering the system.
 The ${admin-console} allows an administrator to install and remove selected applications and their dependencies and access configuration pages to configure and tailor system services and properties.
-The default address for the ${admin-console} is \https://localhost:8993/admin.
+The default address for the ${admin-console} is \${secure_url}/admin.
 
 ==== Modules
 
@@ -192,8 +249,7 @@ If you have integrated ${branding} with your existing security infrastructure, t
 
 . See the documentation for your specific security infrastructure to configure users, roles, and groups.
 
-. On the `/system/console/configMgr`, select the Web Context Policy Manager.
-(IMG)
+. Select the Web Context Policy Manager.
 
 .. A dialogue will pop up that allows you to edit ${branding} access restrictions.
 
@@ -216,8 +272,8 @@ Change the value of 'system-admin' to the new admin role for any users needing t
 .Example `user.properties` entries:
 [source]
 ----
-admin=admin,group,admin,manager,viewer,webconsole,system-admin
-localhost=localhost,group,admin,manager,viewer,webconsole,system-admin
+admin=admin,group,admin,manager,viewer,system-admin
+localhost=localhost,group,admin,manager,viewer,system-admin
 ----
 
 [NOTE]

@@ -76,24 +76,11 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
 
     private static final int MAX_FFMPEG_PROCESSES = 4;
 
+    private static final PumpStreamHandler DEV_NULL = new PumpStreamHandler(null);
+
     private final Semaphore limitFFmpegProcessesSemaphore;
 
     private final String ffmpegPath;
-
-    private String getBundledFFmpegBinaryPath() {
-        if (SystemUtils.IS_OS_LINUX) {
-            return "linux/ffmpeg";
-        } else if (SystemUtils.IS_OS_MAC) {
-            return "osx/ffmpeg";
-        } else if (SystemUtils.IS_OS_SOLARIS) {
-            return "solaris/ffmpeg";
-        } else if (SystemUtils.IS_OS_WINDOWS) {
-            return "windows/ffmpeg.exe";
-        } else {
-            throw new RuntimeException("OS is not Linux, Mac, Solaris, or Windows."
-                    + " No FFmpeg binary is available for this OS, so the plugin will not work.");
-        }
-    }
 
     public VideoThumbnailPlugin(final BundleContext bundleContext) throws IOException {
         final String bundledFFmpegBinaryPath = getBundledFFmpegBinaryPath();
@@ -110,6 +97,21 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         }
 
         limitFFmpegProcessesSemaphore = new Semaphore(MAX_FFMPEG_PROCESSES, true);
+    }
+
+    private String getBundledFFmpegBinaryPath() {
+        if (SystemUtils.IS_OS_LINUX) {
+            return "linux/ffmpeg";
+        } else if (SystemUtils.IS_OS_MAC) {
+            return "osx/ffmpeg";
+        } else if (SystemUtils.IS_OS_SOLARIS) {
+            return "solaris/ffmpeg";
+        } else if (SystemUtils.IS_OS_WINDOWS) {
+            return "windows/ffmpeg.exe";
+        } else {
+            throw new RuntimeException("OS is not Linux, Mac, Solaris, or Windows."
+                    + " No FFmpeg binary is available for this OS, so the plugin will not work.");
+        }
     }
 
     /**
@@ -292,7 +294,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
                     seek,
                     1);
 
-            final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, 15, null);
+            final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, 15, DEV_NULL);
             resultHandler.waitFor();
         }
 
@@ -308,7 +310,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         final DefaultExecuteResultHandler resultHandler = executeFFmpeg(
                 getFFmpegCreateAnimatedGifCommand(),
                 3,
-                null);
+                DEV_NULL);
 
         resultHandler.waitFor();
 
@@ -408,7 +410,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
                 getThumbnailFilePath(),
                 null,
                 THUMBNAIL_COUNT);
-        final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, 15, null);
+        final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, 15, DEV_NULL);
 
         resultHandler.waitFor();
 

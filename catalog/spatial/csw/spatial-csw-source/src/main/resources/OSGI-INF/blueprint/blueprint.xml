@@ -28,6 +28,7 @@
                filter="(shortname=URLResourceReader)"/>
     <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="metacardTypes" class="ddf.catalog.util.impl.SortedServiceList"/>
     <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
@@ -72,23 +73,29 @@
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 
     <cm:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswConnectedSource.id"
-            factory-pid="Csw_Connected_Source"
-            interface="ddf.catalog.source.ConnectedSource">
+            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederationProfileSource.id"
+            factory-pid="Csw_Federation_Profile_Source"
+            interface="ddf.catalog.source.FederatedSource">
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
                               init-method="init" destroy-method="destroy">
-            <property name="context" ref="blueprintBundleContext"/>
-            <property name="filterBuilder" ref="filterBuilder"/>
-            <property name="filterAdapter" ref="filterAdapter"/>
+            <!-- These are the only configurable properties -->
             <property name="cswUrl" value=""/>
             <property name="id" value=""/>
             <property name="password" value=""/>
+            <property name="eventServiceAddress" value=""/>
+            <property name="registerForEvents" value="false"/>
+
+            <!-- These are defaulted for convenience -->
+            <property name="context" ref="blueprintBundleContext"/>
+            <property name="filterBuilder" ref="filterBuilder"/>
+            <property name="filterAdapter" ref="filterAdapter"/>
             <property name="disableCnCheck" value="false"/>
             <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>
@@ -97,22 +104,21 @@
             </property>
             <property name="pollInterval" value="5"/>
             <property name="resourceReader" ref="resourceReader"/>
-            <property name="outputSchema" value=""/>
-            <property name="queryTypeName" value=""/>
-            <property name="queryTypeNamespace" value=""/>
+            <property name="outputSchema" value="urn:catalog:metacard"/>
+            <property name="queryTypeName" value="csw:Record"/>
+            <property name="queryTypeNamespace" value="http://www.opengis.net/cat/csw/2.0.2"/>
             <property name="cswTransformConverter">
                 <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
                     <argument ref="cswTransformProvider"/>
                 </bean>
             </property>
             <property name="isCqlForced" value="false"/>
-            <property name="forceSpatialFilter" value=""/>
+            <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
             <property name="securityManager" ref="securityManager"/>
-            <property name="eventServiceAddress" value=""/>
-            <property name="registerForEvents" value="false"/>
             <property name="metacardTypes" ref="metacardTypes"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -155,6 +161,7 @@
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

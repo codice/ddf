@@ -160,3 +160,9 @@ to lookup all implementations of `org.codice.${ddf-branding-lowercase}.migration
 
 The abstract base class `org.codice.${ddf-branding-lowercase}.migration.AbstractMigratable` in the `platform-migratable-api` implements common boilerplate code required
 when implementing `org.codice.${ddf-branding-lowercase}.migration.Migratable` and should be extended when creating a `org.codice.${ddf-branding-lowercase}.migration.Migratable`.
+
+=== Do Not Use FileBackedOutputStream
+
+It is recommended to avoid using `com.google.common.io.FileBackedOutputStream` (FBOS). FBOS can create temporary files that are not automatically
+removed when FBOS is closed. Use `org.codice.ddf.platform.util.TemporaryFileBackedOutputStream` (TFBOS). TFBOS provides the same method calls as FBOS, but
+will remove temporary files when it is closed.

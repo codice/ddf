@@ -26,6 +26,7 @@
     <modules>
         <module>sample-plugins</module>
         <module>sample-transformers</module>
+        <module>ddf-sso-widget</module>
         <module>ddf-sso-query-widget</module>
         <module>sample-metrics</module>
         <module>sample-soap-endpoint</module>
@@ -37,13 +38,6 @@
         <module>sample-twitter-source</module>
         <module>sdk-app</module>
     </modules>
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
     <build>
         <pluginManagement>
             <plugins>

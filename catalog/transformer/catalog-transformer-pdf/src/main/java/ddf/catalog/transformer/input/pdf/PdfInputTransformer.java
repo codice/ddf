@@ -119,15 +119,15 @@ public class PdfInputTransformer implements InputTransformer {
         if (creationDate != null) {
             metacard.setCreatedDate(creationDate.getTime());
             addXmlElement("creationDate", DATE_FORMAT.format(creationDate), metadataField);
+            LOGGER.debug("PDF Creation date was: {}", DATE_FORMAT.format(creationDate));
         }
-        LOGGER.info("PDF Creation date was: {}", DATE_FORMAT.format(creationDate));
 
         Calendar modificationDate = documentInformation.getModificationDate();
         if (modificationDate != null) {
             metacard.setModifiedDate(modificationDate.getTime());
             addXmlElement("modificationDate", DATE_FORMAT.format(modificationDate), metadataField);
+            LOGGER.debug("PDF Modification date was: {}", DATE_FORMAT.format(modificationDate));
         }
-        LOGGER.info("PDF Modification date was: {}", DATE_FORMAT.format(modificationDate));
 
         String title = documentInformation.getTitle();
         if (StringUtils.isNotBlank(title)) {

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -44,6 +44,7 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.endpoints.OpenSearch;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.geotools.filter.FilterTransformer;
 import org.jdom2.Element;
 import org.osgi.framework.Bundle;
@@ -54,7 +55,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.FileBackedOutputStream;
 import com.rometools.rome.feed.synd.SyndCategory;
 import com.rometools.rome.feed.synd.SyndContent;
 import com.rometools.rome.feed.synd.SyndEntry;
@@ -87,6 +87,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.encryption.EncryptionService;
 
 /**
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
@@ -117,6 +118,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
+    private final EncryptionService encryptionService;
+
+    protected SecureCxfClientFactory<OpenSearch> factory;
+
     private boolean isInitialized = false;
 
     // service properties
@@ -146,8 +151,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private XMLInputFactory xmlInputFactory;
 
-    protected SecureCxfClientFactory<OpenSearch> factory;
-
     private ResourceReader resourceReader;
 
     /**
@@ -156,8 +159,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      *
      * @throws ddf.catalog.source.UnsupportedQueryException
      */
-    public OpenSearchSource(FilterAdapter filterAdapter) {
+    public OpenSearchSource(FilterAdapter filterAdapter, EncryptionService encryptionService) {
         this.filterAdapter = filterAdapter;
+        this.encryptionService = encryptionService;
     }
 
     /**
@@ -279,8 +283,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
                 Metacard metacard = null;
                 List<Result> resultQueue = new ArrayList<Result>();
-                try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(
-                        1000000)) {
+                try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {
                     if (responseStream != null) {
                         IOUtils.copyLarge(responseStream, fileBackedOutputStream);
                         InputTransformer inputTransformer = null;
@@ -753,7 +756,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = encryptionService.decryptValue(password);
     }
 
     private WebClient newRestClient(Query query, String metacardId, boolean retrieveResource,

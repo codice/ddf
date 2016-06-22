@@ -21,12 +21,13 @@ import java.util.concurrent.ExecutorService;
 
 import org.osgi.framework.BundleContext;
 
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
+import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
@@ -90,8 +91,6 @@ public class FrameworkProperties {
 
     private SourcePoller sourcePoller;
 
-    private ResourceCache resourceCache;
-
     private DownloadsStatusEventPublisher downloadsStatusEventPublisher;
 
     private ReliableResourceDownloadManager reliableResourceDownloadManager;
@@ -111,6 +110,10 @@ public class FrameworkProperties {
     private List<PreUpdateStoragePlugin> preUpdateStoragePlugins = new ArrayList<>();
 
     private List<PostUpdateStoragePlugin> postUpdateStoragePlugins = new ArrayList<>();
+
+    private ValidationQueryFactory validationQueryFactory;
+
+    private DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
     public List<CatalogProvider> getCatalogProviders() {
         return catalogProviders;
@@ -249,14 +252,6 @@ public class FrameworkProperties {
         this.sourcePoller = sourcePoller;
     }
 
-    public ResourceCache getResourceCache() {
-        return resourceCache;
-    }
-
-    public void setResourceCache(ResourceCache resourceCache) {
-        this.resourceCache = resourceCache;
-    }
-
     public DownloadsStatusEventPublisher getDownloadsStatusEventPublisher() {
         return downloadsStatusEventPublisher;
     }
@@ -348,5 +343,22 @@ public class FrameworkProperties {
     public void setPostUpdateStoragePlugins(
             List<PostUpdateStoragePlugin> postUpdateStoragePlugins) {
         this.postUpdateStoragePlugins = postUpdateStoragePlugins;
+    }
+
+    public void setValidationQueryFactory(ValidationQueryFactory validationQueryFactory) {
+        this.validationQueryFactory = validationQueryFactory;
+    }
+
+    public ValidationQueryFactory getValidationQueryFactory() {
+        return this.validationQueryFactory;
+    }
+
+    public void setDefaultAttributeValueRegistry(
+            DefaultAttributeValueRegistry defaultAttributeValueRegistry) {
+        this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
+    }
+
+    public DefaultAttributeValueRegistry getDefaultAttributeValueRegistry() {
+        return defaultAttributeValueRegistry;
     }
 }

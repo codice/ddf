@@ -1,4 +1,3 @@
-
 This section discusses the several extension points and components permitted by the ${branding} APIs.
 Using code examples, diagrams, and references to specific instances of each API, this guide provides details on how to develop and extend various ${branding} components.
 
@@ -766,7 +765,7 @@ Sub-directories under `src/main/resources` can be used, e.g., `etc/security`.
 When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded.
 To install manually, the KAR file can be placed in the `<${branding}_INSTALL_DIR>/deploy` directory of the running ${branding} instance. ${branding} then detects that a file with a `.kar` file extension has been placed in this monitored directory, unzips the KAR file into the `<${branding}_INSTALL_DIR>/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file.
 To install via the ${admin-console}:
-. Navigate to https://localhost:8993/admin
+. Navigate to ${secure_url}/admin
 . Click the *Manage* button in the upper right
 . Click the *Add an Application* tile
 . Upload the KAR file via the popup window
@@ -899,7 +898,7 @@ CometD offers both Dojo and jQuery bindings that allow CometD to be easily used 
 For more information on the individual bindings, refer to the http://docs.cometd.org/2/reference/javascript.html[JavaScript Library page] in the CometD reference manual.
 The UI application uses the jQuery library.
 To initialize the CometD connection, an instance of CometD must be created and configured to point to the server and call the handshake, which creates the network connection.
-The CometD endpoint is exposed at `/cometd`, and it is recommended to not use websockets when connecting.
+The CometD endpoint is exposed at `/search/cometd`, and it is recommended to not use websockets when connecting.
 
 .Example Initialization with JQuery
 [source,javascript,linenums]
@@ -912,7 +911,7 @@ Cometd.Comet.websocketEnabled = false;
 
 // configure the location of the cometd endpoint on the server
 Cometd.Comet.configure({
-	url: 'http://server:8181/cometd'
+	url: 'http://server:8181/search/cometd'
 });
 
 // create network connection to server
@@ -1194,7 +1193,7 @@ This means that it is still possible to federate and pass a machine's identity, 
 |                       /----------\          /----------------\                                               /-------------------------------------------\ |
 | /-------=--\          |          |          |          cDEF  |                                               |                 STS Server                | |
 | | External | Request  |Delegating| Request  |    Web SSO     |                                   /-------\   |  /----------\  /----------\  /----------\ | |
-| |   ${ddf-branding}    |--------->| Servlet  |--------->|     Filter     |                             /---->|       |-->|->|Validators|->|  Claims  |->|  Token   | | |
+| |   DDF    |--------->| Servlet  |--------->|     Filter     |                             /---->|       |-->|->|Validators|->|  Claims  |->|  Token   | | |
 | |  Client  |          | Filter   |          |                |                             |     |  STS  |   |  |          |  | Handlers |  | Issuers  | | |
 | \----------/          |     cEEE |          | /------------\ |                             |     | Realm |   |  \----------/  \----------/  \----------/ | |
 |       ^               \----------/          | |Whitelisted?| |<-------\                    |     |       |   |                                    |      | |
@@ -1680,7 +1679,7 @@ This XML file is found inside of the STS bundle and is named `ws-trust-1.4-servi
     </wsp:Policy>
     <wsdl:service name="SecurityTokenService">
         <wsdl:port name="STS_Port" binding="tns:STS_Binding">
-            <soap:address location="http://localhost:8181/services/SecurityTokenService"/>
+            <soap:address location="${public_url}/services/SecurityTokenService"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

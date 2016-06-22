@@ -63,6 +63,13 @@ include::${project.build.directory}/doc-contents/_contents/_platform-contents/ma
 
 <<<
 
+== Managing ${ddf-registry}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_registry-contents/managing-registry-contents.adoc[]
+
+<<<
+
 == Managing ${ddf-security}
 [small]#Version: ${project.version}#
 
@@ -118,7 +125,15 @@ include::${project.build.directory}/doc-contents/_contents/_catalog-contents/int
 include::${project.build.directory}/doc-contents/_contents/_platform-contents/integrating-platform-contents.adoc[]
 
 <<<
+////
+Uncomment & remove this comment upon completing DDF
+== Integrating ${ddf-registry}
+[small]#Version: ${project.version}#
 
+include::${project.build.directory}/doc-contents/_contents/_registry-contents/managing-registry-contents.adoc[]
+
+<<<
+////
 == Integrating ${ddf-security}
 [small]#Version: ${project.version}#
 
@@ -179,7 +194,15 @@ include::${project.build.directory}/doc-contents/_contents/_catalog-contents/ext
 include::${project.build.directory}/doc-contents/_contents/_platform-contents/extending-platform-contents.adoc[]
 
 <<<
+////
+Uncomment & remove this comment upon completing DDF-2156
+== Extending ${ddf-registry}
+[small]#Version: ${project.version}#
 
+include::${project.build.directory}/doc-contents/_contents/_registry-contents/extending-registry-contents.adoc[]
+
+<<<
+////
 == Extending ${ddf-security}
 [small]#Version: ${project.version}#
 

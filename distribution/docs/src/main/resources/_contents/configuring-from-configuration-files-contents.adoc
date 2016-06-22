@@ -179,6 +179,15 @@ TLS_RSA_WITH_AES_128_CBC_SHA`
 |`false`
 |Yes
 
+|Restrict the Security Token Service to allow connections only from DNs matching these patterns
+|`ws-security.subject.cert.constraints`
+|String
+|Set to a comma separated list of regex patterns to define which hosts are allowed to connect to the STS
+|`.*`
+|Yes
+
+6+^|XML Settings
+
 |Parse XML documents into DOM object trees
 |`javax.xml.parsers.DocumentBuilderFactory`
 |String
@@ -186,10 +195,33 @@ TLS_RSA_WITH_AES_128_CBC_SHA`
 |`org.apache.xerces.jaxp.DocumentBuilderFactoryImpl`
 |Yes
 
+6+^|File Upload Settings
+
+|File extensions flagged as potentially dangerous to the host system or external clients
+|`bad.file.extensions`
+|String
+|Files uploaded with these bad file extensions will have their file names sanitized before being saved
+|`.exe,.jsp,.html,.js,.php,.phtml,.php3,.php4,.php5,.phps,.shtml,.jhtml,.pl,.py,.cgi,.msi,.com,.scr,.gadget,.application,.pif,.hta,.cpl,.msc,.jar,.kar,.bat,.cmd,.vb,.vbs,.vbe,.jse,.ws,.wsf,.wsc,.wsh,.ps1,.ps1xml,.ps2,.ps2xml,.psc1,.psc2,.msh,.msh1,.msh2,.mshxml,.msh1xml,.msh2xml,.scf,.lnk,.inf,.reg,.dll,.vxd,.cpl,.cfg,.config,.crt,.cert,.pem,.jks,.p12,.p7b,.key,.der,.csr,.jsb,.mhtml,.mht,.xhtml,.xht`
+|Yes
+
+|File names flagged as potentially dangerous to the host system or external clients
+|`bad.files`
+|String
+|Files uploaded with these bad file names will have their file names sanitized before being saved
+|`crossdomain.xml,clientaccesspolicy.xml,.htaccess,.htpasswd,hosts,passwd,group,resolv.conf,nfs.conf,ftpd.conf,ntp.conf,web.config,robots.txt`
+|Yes
+
+|Mime types flagged as potentially dangerous to external clients
+|`bad.mime.types`
+|String
+|Files uploaded with these mime types will be rejected from the upload
+|`text/html,text/javascript,text/x-javascript,application/x-shellscript,text/scriptlet,application/x-msdownload,application/x-msmetafile`
+|Yes
+
 |===
 
 These properties are available to be used as variable parameters in input url fields within the ${admin-console}.
-For example, the url for the local csw service (\https://localhost:8993/services/csw) could be defined as:
+For example, the url for the local csw service (\${secure_url}/services/csw) could be defined as:
 
 [source]
 ----
@@ -302,7 +334,7 @@ The following table shows the format to use for each property type supported.
 
 |Lists of Strings
 |`name = [ "value1", "value2", ... ]`
-|`authenticationTypes = [ "/\=SAML\|GUEST", "/admin\=SAML\|basic", "/jolokia\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic" ]`
+|`authenticationTypes = [ "/\=SAML\|GUEST", "/admin\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic" ]`
 
 |Lists of Integers
 |`name = I[ "value1", "value1", ... ]`
@@ -322,11 +354,11 @@ The following table shows the format to use for each property type supported.
 ----
 service.pid="org.codice.${ddf-branding-lowercase}.security.policy.context.impl.PolicyManager"
 
-authenticationTypes=["/\=SAML|GUEST","/admin\=SAML|basic","/jolokia\=SAML|basic","/system\=basic","/solr\=SAML|PKI|basic","/sources\=SAML|basic","/security-config\=SAML|basic","/search\=basic"]
+authenticationTypes=["/\=SAML|GUEST","/admin\=SAML|basic","/system\=basic","/solr\=SAML|PKI|basic","/sources\=SAML|basic","/security-config\=SAML|basic","/search\=basic"]
 
 realms=["/\=karaf"]
 
-requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/jolokia\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}"]
+requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}"]
 
 whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
 ----
@@ -390,11 +422,11 @@ Changing these values without also changing the passwords of the JKS causes unde
 ====
 * In `<${branding}_HOME>/etc/users.properties`, modify the line:
 ----
-localhost=localhost,group,admin,manager,viewer,webconsole,system-admin
+localhost=localhost,group,admin,manager,viewer,system-admin
 ----
 To be:
 ----
-<FQDN>=<PASSWORD>,group,admin,manager,viewer,webconsole,system-admin
+<FQDN>=<PASSWORD>,group,admin,manager,viewer,system-admin
 ----
 
 * Next ,configure `<${branding}_HOME>/etc/system.properties`

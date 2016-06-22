@@ -13,6 +13,17 @@
  */
 package ddf.ldap.ldaplogin;
 
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_PASSWORD;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_URL;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_BASE_DN;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_NAME_ATTRIBUTE;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_SEARCH_SUBTREE;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.SSL_STARTTLS;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_SEARCH_SUBTREE;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -38,11 +49,11 @@ public class LdapLoginConfig {
 
     public static final String GROUP_BASE_DN = "groupBaseDn";
 
-    public static final String KEY_ALIAS = "keyAlias";
-
     public static final String START_TLS = "startTls";
 
     private static final String SUFFICIENT_FLAG = "sufficient";
+
+    private static final String USER_NAME_ATTRIBUTE = "userNameAttribute";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapLoginConfig.class);
 
@@ -81,21 +92,25 @@ public class LdapLoginConfig {
         ldapModule.setFlags(SUFFICIENT_FLAG);
         ldapModule.setName(id);
         Properties props = new Properties();
-        props.put("connection.username", properties.get(LDAP_BIND_USER_DN));
-        props.put("connection.password", properties.get(LDAP_BIND_USER_PASS));
-        props.put("connection.url", properties.get(LDAP_URL)
-                        .toString());
-        props.put("user.base.dn", properties.get(USER_BASE_DN));
-        props.put("user.filter", "(uid=%u)");
-        props.put("user.search.subtree", "true");
-        props.put("role.base.dn", properties.get(GROUP_BASE_DN));
-        props.put("role.filter", "(member=uid=%u," + properties.get(USER_BASE_DN) + ")");
-        props.put("role.name.attribute", "cn");
-        props.put("role.search.subtree", "true");
+        props.put(CONNECTION_USERNAME, properties.get(LDAP_BIND_USER_DN));
+        props.put(CONNECTION_PASSWORD, properties.get(LDAP_BIND_USER_PASS));
+        props.put(CONNECTION_URL,
+                new PropertyResolver((String) properties.get(LDAP_URL)).toString());
+
+        final Object userBaseDn = properties.get(USER_BASE_DN);
+        props.put(SslLdapLoginModule.USER_BASE_DN, userBaseDn);
+
+        final Object userNameAttribute = properties.get(USER_NAME_ATTRIBUTE);
+        props.put(USER_FILTER, String.format("(%s=%%u)", userNameAttribute));
+        props.put(USER_SEARCH_SUBTREE, "true");
+        props.put(ROLE_BASE_DN, properties.get(GROUP_BASE_DN));
+        props.put(ROLE_FILTER, String.format("(member=%s=%%u,%s)", userNameAttribute, userBaseDn));
+        props.put(ROLE_NAME_ATTRIBUTE, "cn");
+        props.put(ROLE_SEARCH_SUBTREE, "true");
         props.put("authentication", "simple");
         props.put("ssl.protocol", "TLS");
         props.put("ssl.algorithm", "SunX509");
-        props.put("ssl.starttls", properties.get(START_TLS));
+        props.put(SSL_STARTTLS, properties.get(START_TLS));
         ldapModule.setOptions(props);
 
         return ldapModule;
@@ -117,7 +132,7 @@ public class LdapLoginConfig {
 
     public void setLdapUrl(String ldapUrl) {
         LOGGER.trace("setLdapUrl called: {}", ldapUrl);
-        ldapProperties.put(LDAP_URL, new PropertyResolver(ldapUrl));
+        ldapProperties.put(LDAP_URL, ldapUrl);
     }
 
     public void setUserBaseDn(String userBaseDn) {
@@ -138,6 +153,11 @@ public class LdapLoginConfig {
     public void setStartTls(String startTls) {
         LOGGER.trace("Setting startTls: {}", startTls);
         ldapProperties.put(START_TLS, startTls);
+    }
+
+    public void setUserNameAttribute(String userNameAttribute) {
+        LOGGER.trace("setUserNameAttribute called: {}", userNameAttribute);
+        ldapProperties.put(USER_NAME_ATTRIBUTE, userNameAttribute);
     }
 
     public void configure() {

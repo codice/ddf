@@ -1,6 +1,6 @@
 ===== Accessing the ${admin-console}
 
-* Open the admin portal. (Default: \https://localhost:8993/admin)
+* Navigate to the ${admin-console}. (Default: \${secure_url}/admin)
 * Enter Username and Password. (Default: `admin/admin`)
 
 ===== Initial Configuration
@@ -112,7 +112,7 @@ While the Admin Console's Pax Web Runtime offers this configuration option, it h
 
 The `platform-http-proxy` feature proxies https to http for clients that cannot use HTTPS and should not have HTTP enabled for the entire container via the `etc/org.ops4j.pax.web.cfg` file.
 
-. Click the *DDF Platform* application tile.
+. Click the *${ddf-platform}* application tile.
 . Choose the *Features* tab.
 . Select `platform-http-proxy`.
 . Click on the *Play* button to the right of the word “Uninstalled”

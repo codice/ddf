@@ -44,10 +44,6 @@
             <artifactId>jolokia-osgi</artifactId>
             <version>1.2.3</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.webconsole</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

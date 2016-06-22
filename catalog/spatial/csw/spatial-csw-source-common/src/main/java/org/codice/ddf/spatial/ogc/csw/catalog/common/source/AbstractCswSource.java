@@ -114,8 +114,8 @@ import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.common.util.Security;
+import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
-
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
@@ -219,6 +219,8 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Error retrieving resource for ID: %s";
 
+    private EncryptionService encryptionService;
+
     protected String configurationPid;
 
     static {
@@ -295,7 +297,9 @@ public abstract class AbstractCswSource extends MaskableImpl
      * @param factory                client factory already configured for this source
      */
     public AbstractCswSource(BundleContext context, CswSourceConfiguration cswSourceConfiguration,
-            Converter provider, SecureCxfClientFactory factory) {
+            Converter provider, SecureCxfClientFactory factory,
+            EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
         this.context = context;
         this.cswSourceConfiguration = cswSourceConfiguration;
         this.cswTransformConverter = provider;
@@ -304,12 +308,24 @@ public abstract class AbstractCswSource extends MaskableImpl
         setConsumerMap();
     }
 
+    @Deprecated
+    public AbstractCswSource(BundleContext context, CswSourceConfiguration cswSourceConfiguration,
+            Converter provider, SecureCxfClientFactory factory) {
+        this(context, cswSourceConfiguration, provider, factory, null);
+    }
+
     /**
      * Instantiates a CswSource.
      */
-    public AbstractCswSource() {
-        cswSourceConfiguration = new CswSourceConfiguration();
+    public AbstractCswSource(EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
+        cswSourceConfiguration = new CswSourceConfiguration(encryptionService);
         scheduler = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    @Deprecated
+    public AbstractCswSource() {
+        this(null);
     }
 
     private static JAXBContext initJaxbContext() {
@@ -501,10 +517,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                     cswSourceConfiguration.getId());
             cswSourceConfiguration.setPollIntervalMinutes(newPollInterval);
 
-            if (availabilityPollFuture != null) {
-                availabilityPollFuture.cancel(true);
-            }
-            setupAvailabilityPoll();
+            forcePoll();
         }
     }
 
@@ -516,6 +529,13 @@ public abstract class AbstractCswSource extends MaskableImpl
             cswSourceConfiguration.setCswUrl(newCswUrlProp);
             LOGGER.debug("Setting url : {}.", newCswUrlProp);
         }
+    }
+
+    private void forcePoll() {
+        if (availabilityPollFuture != null) {
+            availabilityPollFuture.cancel(true);
+        }
+        setupAvailabilityPoll();
     }
 
     /**
@@ -629,6 +649,8 @@ public abstract class AbstractCswSource extends MaskableImpl
 
         initClientFactory();
         configureEventService();
+
+        forcePoll();
     }
 
     private Map<String, Object> filter(Map<String, Object> configuration) {
@@ -638,7 +660,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         filteredConfiguration.putAll(configuration.entrySet()
                 .stream()
                 .filter(entry -> (entry.getValue() != null))
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
         return filteredConfiguration;
     }
@@ -647,14 +669,15 @@ public abstract class AbstractCswSource extends MaskableImpl
         LOGGER.debug("Setting Availability poll task for {} minute(s) on Source {}",
                 cswSourceConfiguration.getPollIntervalMinutes(),
                 cswSourceConfiguration.getId());
-        CswSourceAvailabilityCommand command = new CswSourceAvailabilityCommand();
         long interval = TimeUnit.MINUTES.toMillis(cswSourceConfiguration.getPollIntervalMinutes());
         if (availabilityPollFuture == null || availabilityPollFuture.isCancelled()) {
             if (availabilityTask == null) {
                 availabilityTask = new AvailabilityTask(interval,
-                        command,
+                        new CswSourceAvailabilityCommand(),
                         cswSourceConfiguration.getId());
             } else {
+                // Any run of the polling operation should trigger the task to run
+                availabilityTask.updateLastAvailableTimestamp(0L);
                 availabilityTask.setInterval(interval);
             }
 
@@ -935,7 +958,11 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
 
     public void setPassword(String password) {
-        cswSourceConfiguration.setPassword(password);
+        String updatedPassword = password;
+        if (encryptionService != null) {
+            updatedPassword = encryptionService.decryptValue(password);
+        }
+        cswSourceConfiguration.setPassword(updatedPassword);
     }
 
     public void setDisableCnCheck(Boolean disableCnCheck) {
@@ -1671,11 +1698,11 @@ public abstract class AbstractCswSource extends MaskableImpl
             // Simple "ping" to ensure the source is responding
             newAvailability = (getCapabilities() != null);
             if (oldAvailability != newAvailability) {
-                availabilityChanged(newAvailability);
                 // If the source becomes available, configure it.
                 if (newAvailability) {
                     configureCswSource();
                 }
+                availabilityChanged(newAvailability);
             }
             return newAvailability;
         }
@@ -1739,7 +1766,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
 
     protected Subject getSystemSubject() {
-        return Security.getSystemSubject();
+        return org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
     }
 
     private GetRecordsType createSubscriptionGetRecordsRequest() {
@@ -1785,5 +1812,9 @@ public abstract class AbstractCswSource extends MaskableImpl
     public void setEventServiceAddress(String eventServiceAddress) {
         this.cswSourceConfiguration.setEventServiceAddress(eventServiceAddress);
 
+    }
+
+    protected void addSourceMonitor(SourceMonitor sourceMonitor) {
+        sourceMonitors.add(sourceMonitor);
     }
 }

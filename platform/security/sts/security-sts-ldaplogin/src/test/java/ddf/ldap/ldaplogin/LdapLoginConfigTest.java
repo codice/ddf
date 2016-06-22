@@ -23,11 +23,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER;
 
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.karaf.jaas.config.impl.Module;
@@ -88,7 +92,7 @@ public class LdapLoginConfigTest {
         for (Module module : ldapModules) {
             String moduleName = module.getName();
             String username = module.getOptions()
-                    .getProperty("connection.username");
+                    .getProperty(CONNECTION_USERNAME);
             // Assert the ldap modules were updated.
             if (moduleName.equals(configIdOne)) {
                 assertThat(username, is(equalTo("cn=user1")));
@@ -122,6 +126,7 @@ public class LdapLoginConfigTest {
         ldapConfig.setUserBaseDn("ou=users,dc=example,dc=com");
         ldapConfig.setGroupBaseDn("ou=groups,dc=example,dc=com");
         ldapConfig.setStartTls(false);
+        ldapConfig.setUserNameAttribute("uid");
         return ldapConfig;
     }
 
@@ -132,9 +137,24 @@ public class LdapLoginConfigTest {
         ldapProps.put(LdapLoginConfig.LDAP_URL, "ldaps://test-ldap:1636");
         ldapProps.put(LdapLoginConfig.USER_BASE_DN, "ou=users,dc=example,dc=com");
         ldapProps.put(LdapLoginConfig.GROUP_BASE_DN, "ou=groups,dc=example,dc=com");
-        ldapProps.put(LdapLoginConfig.KEY_ALIAS, "server");
         ldapProps.put(LdapLoginConfig.START_TLS, "false");
         return ldapProps;
+    }
+
+    @Test
+    public void testSetUserNameAttribute() {
+        LdapService ldapService = new LdapService(context);
+        LdapLoginConfig config = createLdapConfig(ldapService);
+        config.setUserNameAttribute("cn");
+
+        config.configure();
+
+        Properties properties = ldapService.getModules()
+                .get(0)
+                .getOptions();
+        assertThat(properties.getProperty(USER_FILTER), is("(cn=%u)"));
+        assertThat(properties.getProperty(ROLE_FILTER),
+                is("(member=cn=%u,ou=users,dc=example,dc=com)"));
     }
 }
 

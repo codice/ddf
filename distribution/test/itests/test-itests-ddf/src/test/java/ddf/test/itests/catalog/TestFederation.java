@@ -13,6 +13,8 @@
  */
 package ddf.test.itests.catalog;
 
+import static java.lang.Thread.sleep;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
@@ -28,10 +30,18 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.path.json.JsonPath.with;
 import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
+import static com.xebialabs.restito.semantics.Action.composite;
+import static com.xebialabs.restito.semantics.Action.header;
 import static com.xebialabs.restito.semantics.Action.success;
+import static ddf.common.test.restito.ChunkedContent.chunkedContentWithHeaders;
+import static ddf.test.itests.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -65,6 +75,7 @@ import org.slf4j.ext.XLogger;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.path.xml.XmlPath;
+import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
 import com.xebialabs.restito.server.StubServer;
@@ -74,6 +85,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
 import ddf.common.test.BeforeExam;
+import ddf.common.test.mock.csw.FederatedCswMockServer;
 import ddf.test.itests.AbstractIntegrationTest;
 import ddf.test.itests.common.CswQueryBuilder;
 import ddf.test.itests.common.Library;
@@ -109,6 +121,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String CONNECTED_SOURCE_ID = "cswConnectedSource";
 
+    private static final String CSW_STUB_SOURCE_ID = "cswStubServer";
+
     private static final String CSW_SOURCE_WITH_METACARD_XML_ID = "cswSource2";
 
     private static final String GMD_SOURCE_ID = "gmdSource";
@@ -117,7 +131,19 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String DEFAULT_SAMPLE_PRODUCT_FILE_NAME = "sample.txt";
 
+    private static final String CSW_STUB_RESOURCE_ID = "4cdb5d6bc8c1428f874f28a944d18b84";
+
+    private static final String STUB_SERVER_TEST_STRING = "testData";
+
     private static final DynamicPort RESTITO_STUB_SERVER_PORT = new DynamicPort(6);
+
+    private static final Path PRODUCT_CACHE = Paths.get("data", "Product_Cache");
+
+    private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(7);
+
+    public static final DynamicUrl CSW_STUB_SERVER_PATH = new DynamicUrl(INSECURE_ROOT,
+            CSW_STUB_SERVER_PORT,
+            "/services/csw");
 
     private static String[] metacardIds = new String[2];
 
@@ -128,10 +154,11 @@ public class TestFederation extends AbstractIntegrationTest {
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
 
     public static final DynamicUrl RESTITO_STUB_SERVER = new DynamicUrl("https://localhost:",
-            RESTITO_STUB_SERVER_PORT,
-            SUBSCRIBER);
+            RESTITO_STUB_SERVER_PORT, SUBSCRIBER);
 
     private static StubServer server;
+
+    private static FederatedCswMockServer cswServer;
 
     @Rule
     public TestName testName = new TestName();
@@ -151,9 +178,21 @@ public class TestFederation extends AbstractIntegrationTest {
             getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
                     openSearchProperties);
 
+            cswServer = new FederatedCswMockServer(CSW_STUB_SOURCE_ID,
+                    INSECURE_ROOT,
+                    Integer.parseInt(CSW_STUB_SERVER_PORT.getPort()));
+            cswServer.start();
+
+            CswSourceProperties cswStubServerProperties =
+                    new CswSourceProperties(CSW_STUB_SOURCE_ID);
+            cswStubServerProperties.put("cswUrl", CSW_STUB_SERVER_PATH.getUrl());
+            getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
+                    cswStubServerProperties);
+
             getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
             get(CSW_PATH + "?_wadl").prettyPrint();
             CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
+
             getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
                     cswProperties);
 
@@ -169,12 +208,14 @@ public class TestFederation extends AbstractIntegrationTest {
                     gmdProperties);
 
             getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+            getCatalogBundle().waitForFederatedSource(CSW_STUB_SOURCE_ID);
             getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
             getCatalogBundle().waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
             getCatalogBundle().waitForFederatedSource(GMD_SOURCE_ID);
 
             getServiceManager().waitForSourcesToBeAvailable(REST_PATH.getUrl(),
                     OPENSEARCH_SOURCE_ID,
+                    CSW_STUB_SOURCE_ID,
                     CSW_SOURCE_ID,
                     CSW_SOURCE_WITH_METACARD_XML_ID,
                     GMD_SOURCE_ID);
@@ -193,7 +234,9 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
+        cleanProductCache();
+        getCatalogBundle().setupCaching(true);
         urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
 
         if (fatalError) {
@@ -204,6 +247,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         server = new SecureStubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
         server.start();
+
+        cswServer.reset();
     }
 
     @After
@@ -224,6 +269,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
             resourcesToDelete.clear();
         }
+
+        cswServer.stop();
 
         if (server != null) {
             server.stop();
@@ -852,11 +899,11 @@ public class TestFederation extends AbstractIntegrationTest {
         Bundle bundle = bundleService.getBundle("spatial-csw-endpoint");
         bundle.stop();
         while (bundle.getState() != Bundle.RESOLVED) {
-            Thread.sleep(1000);
+            sleep(1000);
         }
         bundle.start();
         while (bundle.getState() != Bundle.ACTIVE) {
-            Thread.sleep(1000);
+            sleep(1000);
         }
         getServiceManager().waitForHttpEndpoint(CSW_SUBSCRIPTION_PATH + "?_wadl");
         //get subscription
@@ -951,6 +998,221 @@ public class TestFederation extends AbstractIntegrationTest {
 
     }
 
+    /**
+     * Tests basic download from the live federated csw source
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDownloadFromFederatedCswSource() throws Exception {
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"))
+                .then(getCswRetrievalHeaders(),
+                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
+                                Duration.ofMillis(0),
+                                0));
+
+        String restUrl =
+                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
+                        + "?transform=resource";
+
+        // Verify that the testData from the csw stub server is returned.
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(STUB_SERVER_TEST_STRING));
+        // @formatter:on
+    }
+
+    /**
+     * Tests that if the endpoint disconnects twice, the retrieval retries both times
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRetrievalReliablility() throws Exception {
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"))
+                .then(getCswRetrievalHeaders(),
+                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
+                                Duration.ofMillis(200),
+                                2));
+
+        String restUrl =
+                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
+                        + "?transform=resource";
+
+        // Verify that the testData from the csw stub server is returned.
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(STUB_SERVER_TEST_STRING));
+        // @formatter:on
+        cswServer.verifyHttp()
+                .times(3,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"));
+    }
+
+    /**
+     * Tests that if the endpoint disconnects 3 times, the retrieval fails after 3 attempts
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRetrievalReliabilityFails() throws Exception {
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"))
+                .then(getCswRetrievalHeaders(),
+                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
+                                Duration.ofMillis(200),
+                                3));
+
+        String restUrl =
+                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
+                        + "?transform=resource";
+
+        // Verify that product retrieval fails from the csw stub server.
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().statusCode(500).contentType("text/plain")
+                .body(containsString("cannot retrieve product"));
+        // @formatter:on
+    }
+
+    /**
+     * Tests that ddf will return the cached copy if there are no changes to the remote metacard
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDownloadFromCacheIfAvailable() throws Exception {
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"))
+                .then(getCswRetrievalHeaders(),
+                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
+                                Duration.ofMillis(0),
+                                0));
+
+        String restUrl =
+                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
+                        + "?transform=resource";
+
+        // Download product twice, should only call the stub server to download once
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(STUB_SERVER_TEST_STRING));
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(STUB_SERVER_TEST_STRING));
+        // @formatter:on
+        cswServer.verifyHttp()
+                .times(1,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"));
+    }
+
+    /**
+     * Tests that ddf will redownload a product if the remote metacard has changed
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testCacheIsUpdatedIfRemoteProductChanges() throws Exception {
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"))
+                .then(getCswRetrievalHeaders(),
+                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
+                                Duration.ofMillis(0),
+                                0));
+
+        String restUrl =
+                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
+                        + "?transform=resource";
+
+        // Download product twice, and change metacard on stub server between calls.
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(STUB_SERVER_TEST_STRING));
+        cswServer.setQueryResponse("csw-query-response-modified.xml");
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(STUB_SERVER_TEST_STRING));
+        // @formatter:on
+        cswServer.verifyHttp()
+                .times(2,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"));
+    }
+
+    @Ignore
+    public void testFederatedDownloadProductToCacheOnlyCacheEnabled() throws Exception {
+        /**
+         * Setup Add productDirectory to the URLResourceReader's set of valid root resource
+         * directories.
+         */
+        String fileName = testName.getMethodName() + ".txt";
+        String metacardId = ingestXmlWithProduct(fileName);
+        metacardsToDelete.add(metacardId);
+        String productDirectory = new File(fileName).getAbsoluteFile()
+                .getParent();
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS,
+                productDirectory);
+
+        getCatalogBundle().setupCaching(true);
+
+        String resourceDownloadEndpoint =
+                RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID + "/" + metacardId;
+
+        // Perform Test and Verify
+        // @formatter:off
+        when().get(resourceDownloadEndpoint).then().log().all().assertThat().contentType("text/plain")
+                .body(is(String.format("The product associated with metacard [%s] from source [%s] is being downloaded to the product cache.", metacardId, CSW_SOURCE_ID)));
+        // @formatter:on
+
+        assertThat(Files.exists(Paths.get(ddfHome)
+                .resolve(PRODUCT_CACHE)
+                .resolve(CSW_SOURCE_ID + "-" + metacardId)), is(true));
+        assertThat(Files.exists(Paths.get(ddfHome)
+                .resolve(PRODUCT_CACHE)
+                .resolve(CSW_SOURCE_ID + "-" + metacardId + ".ser")), is(true));
+    }
+
+    @Test
+    public void testFederatedDownloadProductToCacheOnlyCacheDisabled() throws Exception {
+        /**
+         * Setup Add productDirectory to the URLResourceReader's set of valid root resource
+         * directories.
+         */
+        String fileName = testName.getMethodName() + ".txt";
+        String metacardId = ingestXmlWithProduct(fileName);
+        metacardsToDelete.add(metacardId);
+        String productDirectory = new File(fileName).getAbsoluteFile()
+                .getParent();
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS,
+                productDirectory);
+
+        getCatalogBundle().setupCaching(false);
+
+        String resourceDownloadEndpoint =
+                RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID + "/" + metacardId;
+
+        // Perform Test and Verify
+        // @formatter:off
+        when().get(resourceDownloadEndpoint).then().log().all().assertThat().contentType("text/plain")
+                .body(is("Caching of products is not enabled."));
+        // @formatter:on
+
+        assertThat(Files.exists(Paths.get(ddfHome)
+                .resolve(PRODUCT_CACHE)
+                .resolve(CSW_SOURCE_ID + "-" + metacardId)), is(false));
+        assertThat(Files.exists(Paths.get(ddfHome)
+                .resolve(PRODUCT_CACHE)
+                .resolve(CSW_SOURCE_ID + "-" + metacardId + ".ser")), is(false));
+    }
+
     private void verifyEvents(Set<String> metacardIdsExpected, Set<String> metacardIdsNotExpected,
             Set<String> subscriptionIds) {
         long millis = 0;
@@ -964,7 +1226,7 @@ public class TestFederation extends AbstractIntegrationTest {
             Set<String> foundIds = null;
 
             try {
-                Thread.sleep(EVENT_UPDATE_WAIT_INTERVAL);
+                sleep(EVENT_UPDATE_WAIT_INTERVAL);
                 millis += EVENT_UPDATE_WAIT_INTERVAL;
             } catch (InterruptedException e) {
                 LOGGER.info("Interrupted exception while trying to sleep for events", e);
@@ -1048,10 +1310,16 @@ public class TestFederation extends AbstractIntegrationTest {
         return metacardId;
     }
 
-    @Override
-    protected Option[] configureCustom() {
-
-        return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
+    private void cleanProductCache() throws IOException {
+        FileUtils.cleanDirectory(Paths.get(ddfHome).resolve(PRODUCT_CACHE).toFile());
     }
 
+    private Action getCswRetrievalHeaders() {
+        return composite(header("X-Csw-Product", "true"));
+    }
+
+    @Override
+    protected Option[] configureCustom() {
+        return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
+    }
 }

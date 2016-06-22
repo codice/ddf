@@ -27,6 +27,8 @@
                     interface="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory"
                     availability="optional"/>
 
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsFederatedSource.id"
             factory-pid="Wfs_v1_0_0_Federated_Source"
@@ -48,34 +50,10 @@
             <property name="forceSpatialFilter" value=""/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 
-    <cm:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsConnectedSource.id"
-            factory-pid="Wfs_v1_0_0_Connected_Source"
-            interface="ddf.catalog.source.ConnectedSource">
-        <cm:managed-component class="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsSource"
-                              init-method="init" destroy-method="destroy">
-            <property name="context" ref="blueprintBundleContext"/>
-            <property name="filterAdapter" ref="filterAdapter"/>
-            <property name="wfsUrl" value="http://demo.mapserver.org/cgi-bin/wfs"/>
-            <property name="id" value=""/>
-            <property name="username" value=""/>
-            <property name="password" value=""/>
-            <property name="disableCnCheck" value="false"/>
-            <property name="nonQueryableProperties">
-                <list></list>
-            </property>
-            <property name="featureConverterFactoryList" ref="converterList"/>
-            <property name="pollInterval" value="5"/>
-            <property name="forceSpatialFilter" value=""/>
-            <property name="connectionTimeout" value="30000"/>
-            <property name="receiveTimeout" value="60000"/>
-            <cm:managed-properties persistent-id="" update-strategy="component-managed"
-                                   update-method="refresh"/>
-        </cm:managed-component>
-    </cm:managed-service-factory>
 </blueprint>

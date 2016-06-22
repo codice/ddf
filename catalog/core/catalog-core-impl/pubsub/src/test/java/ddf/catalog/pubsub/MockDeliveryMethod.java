@@ -27,13 +27,11 @@ public class MockDeliveryMethod implements DeliveryMethod {
 
     @Override
     public void updatedHit(Metacard newMetacard, Metacard oldMetacard) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void updatedMiss(Metacard newMetacard, Metacard oldMetacard) {
-        // TODO Auto-generated method stub
 
     }
 

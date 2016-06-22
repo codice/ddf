@@ -13,17 +13,20 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import static org.codice.ddf.endpoints.rest.RESTService.CONTEXT_ROOT;
+import static org.codice.ddf.endpoints.rest.RESTService.SOURCES_PATH;
 
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import org.apache.commons.lang.CharEncoding;
+import org.codice.ddf.catalog.actions.AbstractMetacardActionProvider;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.impl.ActionImpl;
+import ddf.catalog.data.Metacard;
 
 public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
 
@@ -31,33 +34,27 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
 
     public static final String DESCRIPTION = "Provides a URL to the metacard";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ViewMetacardActionProvider.class);
-
     public ViewMetacardActionProvider(String id) {
-        super();
-        this.actionProviderId = id;
+        super(id, TITLE, DESCRIPTION);
     }
 
     @Override
-    protected Action getAction(String metacardId, String metacardSource) {
-
-        URL url = null;
-        try {
-
-            URI uri = new URI(SystemBaseUrl.constructUrl(
-                    PATH + "/" + metacardSource + "/" + metacardId, true));
-            url = uri.toURL();
-
-        } catch (MalformedURLException e) {
-            LOGGER.info("Malformed URL exception", e);
-            return null;
-        } catch (URISyntaxException e) {
-            LOGGER.info("URI Syntax exception", e);
-            return null;
-        }
-
-        return new ActionImpl(getId(), TITLE, DESCRIPTION, url);
-
+    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard) throws Exception {
+        String encodedMetacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
+        String encodedMetacardSource = URLEncoder.encode(metacardSource, CharEncoding.UTF_8);
+        return getActionUrl(encodedMetacardSource, encodedMetacardId);
     }
 
+    protected Action createMetacardAction(String actionProviderId, String title, String description,
+            URL url) {
+        return new ActionImpl(actionProviderId, title, description, url);
+    }
+
+    private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
+        return new URI(SystemBaseUrl.constructUrl(String.format("%s%s/%s/%s",
+                CONTEXT_ROOT,
+                SOURCES_PATH,
+                metacardSource,
+                metacardId), true)).toURL();
+    }
 }

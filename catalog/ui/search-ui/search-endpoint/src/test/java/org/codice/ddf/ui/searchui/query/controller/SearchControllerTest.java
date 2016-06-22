@@ -21,6 +21,8 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -29,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -43,6 +46,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.Nullable;
+
 import org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
@@ -55,8 +60,12 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +91,21 @@ import ddf.catalog.source.UnsupportedQueryException;
 /**
  * Test cases for {@link org.codice.ddf.ui.searchui.query.controller.SearchController}
  */
+@RunWith(MockitoJUnitRunner.class)
 public class SearchControllerTest {
+    private static final String REASON_UNSUPPORTED_QUERY = "Query was invalid";
+
+    private static final String REASON_SOURCE_UNAVAILABLE =
+            "Query hit a source that was unavailable";
+
+    private static final String REASON_INTERRUPTED = "Query was interrupted";
+
+    private static final String REASON_TIMEOUT = "Query timed out";
+
+    private static final String REASON_INTERNAL = "Internal error";
+
+    private static final int MAX_EXCEPTION_SCAN_DEPTH = 10;
+
     // NOTE: The ServerSession ID == The ClientSession ID
     private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
 
@@ -90,11 +113,31 @@ public class SearchControllerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchControllerTest.class);
 
+    private static final String[] SOURCE_ID_LIST = {"any_source_id"};
+
     private SearchController searchController;
 
     private CatalogFramework framework;
 
     private ServerSession mockServerSession;
+
+    @Mock
+    private ExecutorService mockExecutor;
+
+    @Mock
+    private BayeuxServer mockBayeuxServer;
+
+    @Mock
+    private ServerChannel mockServerChannel;
+
+    @Mock
+    private Future mockFuture;
+
+    @Mock
+    private SearchRequest mockSearchRequest;
+
+    @Mock
+    private Query mockQuery;
 
     @Before
     public void setUp() throws Exception {
@@ -108,6 +151,52 @@ public class SearchControllerTest {
         mockServerSession = mock(ServerSession.class);
 
         when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
+        when(mockSearchRequest.getId()).thenReturn("any_id");
+        when(mockSearchRequest.getSourceIds()).thenReturn(new HashSet<>(Arrays.asList(SOURCE_ID_LIST)));
+        when(mockSearchRequest.getQuery()).thenReturn(mockQuery);
+        when(mockQuery.getSortBy()).thenReturn(SortBy.NATURAL_ORDER);
+
+        when(mockBayeuxServer.getChannel(anyString())).thenReturn(mockServerChannel);
+        when(mockExecutor.submit(any(Runnable.class))).thenReturn(mockFuture);
+    }
+
+    @Test
+    public void testExceptionPassedOnBadQuery() throws Exception {
+        runTestForReasonMessages(new ExecutionException(new UnsupportedQueryException()),
+                REASON_UNSUPPORTED_QUERY);
+    }
+
+    @Test
+    public void testExceptionPassedOnSourceError() throws Exception {
+        runTestForReasonMessages(new ExecutionException(new SourceUnavailableException()),
+                REASON_SOURCE_UNAVAILABLE);
+    }
+
+    @Test
+    public void testExceptionPassedOnInterrupt() throws Exception {
+        runTestForReasonMessages(new InterruptedException(), REASON_INTERRUPTED);
+    }
+
+    @Test
+    public void testExceptionPassedOnTimeout() throws Exception {
+        runTestForReasonMessages(new TimeoutException(), REASON_TIMEOUT);
+    }
+
+    @Test
+    public void testExceptionPassedOnExecutionException() throws Exception {
+        ExecutionException executionException =
+                new ExecutionException(new ExecutionException(new Exception()));
+        runTestForReasonMessages(executionException, REASON_INTERNAL);
+    }
+
+    @Test
+    public void testExceptionScanDepthValid() throws Exception {
+        runTestForExceptionScanDepth(2, REASON_TIMEOUT);
+    }
+
+    @Test
+    public void testExceptionScanDepthTooDeep() throws Exception {
+        runTestForExceptionScanDepth(1, REASON_INTERNAL);
     }
 
     @Test
@@ -266,7 +355,7 @@ public class SearchControllerTest {
     }
 
     /**
-     * Verify that the CatalogFramework does not use the cache (i.e. the CatalogFramework 
+     * Verify that the CatalogFramework does not use the cache (i.e. the CatalogFramework
      * is called WITHOUT the query request property mode=cache).
      */
     @Test
@@ -397,9 +486,81 @@ public class SearchControllerTest {
     }
 
     /**
-     * The SearchController spawns off threads to complete tasks. We cannot reliably test multi-threaded code, so
-     * we use this Mock ExecutorService to ensure that all operations for a test happen in the same thread as
-     * each JUnit test case.
+     * Helper methods for generating exception stacks
+     */
+    private Exception generateExceptionStack(int targetSize) {
+        return generateExceptionStack(targetSize, 0, null);
+    }
+
+    private Exception generateExceptionStack(int targetSize, int currentSize,
+            @Nullable Exception cause) {
+        Exception e;
+        if (cause == null) {
+            e = new Exception();
+        } else {
+            e = new Exception(cause);
+        }
+        if (currentSize < targetSize) {
+            return generateExceptionStack(targetSize, currentSize + 1, e);
+        } else {
+            return e;
+        }
+    }
+
+    /**
+     * Template method for testing exception depth and cause calculations
+     */
+    private void runTestForExceptionScanDepth(int offset, String expectedReason) throws Exception {
+        Exception e = generateExceptionStack(MAX_EXCEPTION_SCAN_DEPTH - offset,
+                0,
+                new TimeoutException());
+        runTestForReasonMessages(new ExecutionException(e), expectedReason);
+    }
+
+    /**
+     * Template method for testing the JSON responses for reasons
+     */
+    private void runTestForReasonMessages(Exception exception, String expectedReasonMessage)
+            throws Exception {
+        searchController = new SearchController(framework,
+                new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
+                new GeotoolsFilterAdapterImpl(),
+                mockExecutor);
+        searchController.setBayeuxServer(mockBayeuxServer);
+        ArgumentCaptor<ServerMessage.Mutable> serverMessageCaptor = ArgumentCaptor.forClass(
+                ServerMessage.Mutable.class);
+        when(mockFuture.get(anyLong(), any(TimeUnit.class))).thenThrow(exception);
+        searchController.executeQuery(mockSearchRequest, mockServerSession, null);
+        verify(mockServerChannel, times(1)).publish(any(ServerSession.class),
+                serverMessageCaptor.capture());
+        validateReasonMessageInJson(serverMessageCaptor.getValue(), expectedReasonMessage);
+    }
+
+    private void validateReasonMessageInJson(ServerMessage.Mutable response,
+            String expectedReasonMessage) {
+        Map<String, Object> jsonDocument = response.getDataAsMap();
+        List<Map<String, Object>> statuses = (List<Map<String, Object>>) jsonDocument.get("status");
+
+        if (statuses.isEmpty()) {
+            fail("Status list was empty");
+        }
+
+        List<String> reasons = (List<String>) statuses.get(0)
+                .get("reasons");
+
+        if (reasons.isEmpty()) {
+            fail("Reasons list was empty");
+        }
+        assertThat(String.format("Unexpected reason: %s", reasons.get(0)),
+                reasons.get(0)
+                        .equals(expectedReasonMessage));
+
+    }
+
+    /**
+     * The SearchController spawns off threads to complete tasks. We cannot reliably test
+     * multi-threaded code, so we use this Mock ExecutorService to ensure that all operations
+     * for a test happen in the same thread as each JUnit test case.
      */
     private class SequentialExecutorService implements ExecutorService {
 

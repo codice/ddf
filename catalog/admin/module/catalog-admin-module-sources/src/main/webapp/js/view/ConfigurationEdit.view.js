@@ -25,44 +25,44 @@ define([
     'text!templates/configuration/textTypeListHeader.handlebars',
     'text!templates/configuration/textTypeList.handlebars',
     'text!templates/configuration/checkboxType.handlebars'
-    ], function (Marionette, ich, _, Backbone, wreqr, configurationEdit, configurationItem, textTypeListHeader, textTypeList, checkboxTemplate ) {
+], function (Marionette, ich, _, Backbone, wreqr, configurationEdit, configurationItem, textTypeListHeader, textTypeList, checkboxTypeTemplate) {
 
     var ConfigurationEditView = {};
 
 
-    if(!ich['configuration.configurationItem']) {
+    if (!ich['configuration.configurationItem']) {
         ich.addTemplate('configuration.configurationItem', configurationItem);
     }
-    if(!ich['configuration.configurationEdit']) {
+    if (!ich['configuration.configurationEdit']) {
         ich.addTemplate('configuration.configurationEdit', configurationEdit);
     }
-    if(!ich['configuration.textTypeListHeader']) {
+    if (!ich['configuration.textTypeListHeader']) {
         ich.addTemplate('configuration.textTypeListHeader', textTypeListHeader);
     }
-    if(!ich['configuration.textTypeList']) {
+    if (!ich['configuration.textTypeList']) {
         ich.addTemplate('configuration.textTypeList', textTypeList);
     }
-    if(!ich['configuration.checkboxTypeTemplate']) {
-        ich.addPartial('configuration.checkboxTypeTemplate', checkboxTemplate);
+    if (!ich['configuration.checkboxTypeTemplate']) {
+        ich.addPartial('configuration.checkboxTypeTemplate', checkboxTypeTemplate);
     }
 
     ConfigurationEditView.ConfigurationMultiValuedEntry = Marionette.ItemView.extend({
         template: 'configuration.textTypeList',
         tagName: 'tr',
-        initialize: function() {
+        initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
         },
         events: {
             "click .minus-button": "minusButton"
         },
-        minusButton: function() {
+        minusButton: function () {
             this.model.collection.remove(this.model);
         },
-        onRender: function() {
+        onRender: function () {
             var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
             this.modelBinder.bind(this.model, this.$el, bindings);
         },
-        onClose: function() {
+        onClose: function () {
             this.modelBinder.unbind();
         }
     });
@@ -89,23 +89,23 @@ define([
         modelEvents: {
             "change": "updateValues"
         },
-        initialize: function(options) {
+        initialize: function (options) {
             _.bindAll(this);
             this.configuration = options.configuration;
             this.collectionArray = new Backbone.Collection();
             this.listenTo(wreqr.vent, 'refresh', this.updateValues);
             this.listenTo(wreqr.vent, 'beforesave', this.saveValues);
         },
-        updateValues: function() {
+        updateValues: function () {
             var csvVal, view = this;
-            if(this.configuration.get('properties') && this.configuration.get('properties').get(this.model.get('id'))) {
+            if (this.configuration.get('properties') && this.configuration.get('properties').get(this.model.get('id'))) {
                 csvVal = this.configuration.get('properties').get(this.model.get('id'));
             } else {
                 csvVal = this.model.get('defaultValue');
             }
             this.collectionArray.reset();
-            if(csvVal && csvVal !== '') {
-                if(_.isArray(csvVal)) {
+            if (csvVal && csvVal !== '') {
+                if (_.isArray(csvVal)) {
                     _.each(csvVal, function (item) {
                         view.addItem(item);
                     });
@@ -116,61 +116,91 @@ define([
                 }
             }
         },
-        saveValues: function() {
+        saveValues: function () {
             var values = [];
-            _.each(this.collectionArray.models, function(model) {
+            this.collectionArray.models.forEach(function(model){
                 values.push(model.get('value'));
             });
-            this.configuration.get('properties').set(this.model.get('id'), values);
+            if (this.configuration.get('configurations')) {
+                this.configuration.get('configurations').models[0].get('properties').set(this.model.get('id'), values);
+            } else {
+                this.configuration.get('properties').set(this.model.get('id'), values);
+            }
+
         },
-        onRender: function() {
+        onRender: function () {
             this.listItems.show(new ConfigurationEditView.ConfigurationMultiValueCollection({
                 collection: this.collectionArray
             }));
 
             this.updateValues();
         },
-        addItem: function(value) {
-            this.collectionArray.add(new Backbone.Model({value: value}));
+        addItem: function (value) {
+            this.collectionArray.add(new Backbone.Model({
+                value: value
+            }));
         },
         /**
          * Creates a new text field for the properties collection.
          */
-        plusButton: function() {
+        plusButton: function () {
             this.addItem('');
         }
     });
 
     ConfigurationEditView.ConfigurationItem = Marionette.ItemView.extend({
-        template: 'configuration.configurationItem'
+        template: 'configuration.configurationItem',
+        events: {
+            'change input': 'updateModel'
+        },
+        /**
+         * Save all values properties into the sourceModal
+         */
+        serializeData: function () {
+            var value = this.options.configuration.get('properties').get(this.model.get('id'));
+            return _.extend(this.model.toJSON(), {
+                defaultValue: value || this.model.get('defaultValue')
+            });
+        },
+        updateModel: function (e) {
+            var config = this.options.configuration;
+            config.get('properties').set(this.model.get('id'), e.target.value);
+        }
     });
 
     ConfigurationEditView.ConfigurationCollection = Marionette.CollectionView.extend({
         itemView: ConfigurationEditView.ConfigurationItem,
-        initialize: function(options) {
+        initialize: function (options) {
             this.service = options.service;
             this.listenTo(wreqr.vent, 'poller:start', this.render);
         },
-        onRender: function() {
+        onRender: function () {
             this.setupPopOvers();
         },
-        buildItemView: function(item, ItemViewType, itemViewOptions){
+        buildItemView: function (item, ItemViewType, itemViewOptions) {
             var view;
             var configuration = this.options.configuration;
-            this.collection.forEach(function(property) {
-                if(item.get('id') === property.id) {
-                    if(property.description) {
-                        item.set({ 'description': property.description });
+            this.collection.forEach(function (property) {
+                if (item.get('id') === property.id) {
+                    if (property.description) {
+                        item.set({
+                            'description': property.description
+                        });
                     }
-                    if(property.note) {
-                        item.set({ 'note': property.note});
+                    if (property.note) {
+                        item.set({
+                            'note': property.note
+                        });
                     }
-                    var options = _.extend({model: item, configuration: configuration}, itemViewOptions);
+                    var options = _.extend({
+                        model: item,
+                        configuration: configuration
+                    }, itemViewOptions);
 
                     view = new ItemViewType(options);
                 }
             });
-            if(view) {
+            if (view) {
                 return view;
             }
             return new Marionette.ItemView();
@@ -178,11 +208,11 @@ define([
         /**
          * Set up the popovers based on if the selector has a description.
          */
-        setupPopOvers: function() {
+        setupPopOvers: function () {
             var view = this;
-            this.service.get('metatype').forEach(function(each) {
-                if(!_.isUndefined(each.get("description"))) {
-                   var options,
+            this.service.get('metatype').forEach(function (each) {
+                if (!_.isUndefined(each.get("description"))) {
+                    var options,
                         selector = ".description[data-title='" + each.id + "']";
                     options = {
                         title: each.get("name"),
@@ -193,8 +223,8 @@ define([
                 }
             });
         },
-        getItemView: function( item ) {
-            if(item.get('cardinality') > 0 || item.get('cardinality') < 0) {
+        getItemView: function (item) {
+            if (item.get('cardinality') > 0 || item.get('cardinality') < 0) {
                 return ConfigurationEditView.ConfigurationMultiValuedItem;
             } else {
                 return ConfigurationEditView.ConfigurationItem;

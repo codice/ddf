@@ -14,9 +14,10 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xsi:schemaLocation="
 	    http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-        ">
+	    http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
     <!-- According to the schema the type-converters element must be above all other elements except 'description' -->
     <type-converters>
@@ -24,11 +25,11 @@
         <bean id="mapConverter" class="ddf.catalog.util.impl.MapConverter"/>
     </type-converters>
 
-    <ext:property-placeholder/>
+    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]" />
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
-    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper" />
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
     <bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>
 
@@ -95,29 +96,33 @@
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="ddf"/>
     </reference-list>
-	<!-- CATALOG STORE REFERENCE -->
-	<reference-list id="catalogStore" interface="ddf.catalog.source.CatalogStore"
-					availability="optional">
-		<reference-listener bind-method="bind"
-							unbind-method="unbind" ref="catalogStoreMap"/>
-	</reference-list>
+    <!-- CATALOG STORE REFERENCE -->
+    <reference-list id="catalogStore" interface="ddf.catalog.source.CatalogStore"
+                    availability="optional">
+        <reference-listener bind-method="bind"
+                            unbind-method="unbind" ref="catalogStoreMap"/>
+    </reference-list>
     <!-- CONTENT -->
-    <reference-list id="preCreateStorage" interface="ddf.catalog.content.plugin.PreCreateStoragePlugin"
+    <reference-list id="preCreateStorage"
+                    interface="ddf.catalog.content.plugin.PreCreateStoragePlugin"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preCreateStorageSortedList"/>
     </reference-list>
-    <reference-list id="postCreateStorage" interface="ddf.catalog.content.plugin.PostCreateStoragePlugin"
+    <reference-list id="postCreateStorage"
+                    interface="ddf.catalog.content.plugin.PostCreateStoragePlugin"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postCreateStorageSortedList"/>
     </reference-list>
-    <reference-list id="preUpdateStorage" interface="ddf.catalog.content.plugin.PreUpdateStoragePlugin"
+    <reference-list id="preUpdateStorage"
+                    interface="ddf.catalog.content.plugin.PreUpdateStoragePlugin"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preUpdateStorageSortedList"/>
     </reference-list>
-    <reference-list id="postUpdateStorage" interface="ddf.catalog.content.plugin.PostUpdateStoragePlugin"
+    <reference-list id="postUpdateStorage"
+                    interface="ddf.catalog.content.plugin.PostUpdateStoragePlugin"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postUpdateStorageSortedList"/>
@@ -125,21 +130,21 @@
     <!-- PREINGEST REFERENCE -->
     <reference-list id="preIngest" interface="ddf.catalog.plugin.PreIngestPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preIngestSortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- POSTINGEST REFERENCE -->
     <reference-list id="postIngest" interface="ddf.catalog.plugin.PostIngestPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postIngestSortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- PREQUERY REFERENCE -->
     <reference-list id="preQuery" interface="ddf.catalog.plugin.PreQueryPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preQuerySortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- POSTQUERY REFERENCE -->
     <reference-list id="postQuery" interface="ddf.catalog.plugin.PostQueryPlugin"
                     availability="optional">
@@ -210,12 +215,12 @@
 
     <bean id="cacheThreadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
-        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
     </bean>
 
     <bean id="downloadThreadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
-        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
     </bean>
 
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider"
@@ -241,6 +246,11 @@
         </argument>
     </bean>
 
+    <bean id="validationQueryFactory" class="ddf.catalog.cache.solr.impl.ValidationQueryFactory">
+        <argument ref="filterAdapter"/>
+        <argument ref="filterBuilder"/>
+    </bean>
+
     <bean id="federationStrategy" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
           destroy-method="shutdown">
         <cm:managed-properties
@@ -253,6 +263,7 @@
         <argument ref="cacheThreadPool"/>
         <argument ref="filterAdapter"/>
         <argument ref="filterBuilder"/>
+        <argument ref="validationQueryFactory"/>
         <property name="maxStartIndex" value="50000"/>
     </bean>
 
@@ -292,28 +303,59 @@
     <service ref="downloadStatusInfo"
              interface="ddf.catalog.event.retrievestatus.DownloadStatusInfo"/>
 
-    <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache"
+    <bean id="deprecatedProductCache" class="ddf.catalog.cache.impl.ResourceCacheImpl"
+          init-method="setupCache"
           destroy-method="teardownCache">
         <property name="productCacheDirectory" value=""/>
-        <property name="cacheDirMaxSizeMegabytes" value="10240"/>
-        <!-- 10 GB -->
         <property name="context" ref="blueprintBundleContext"/>
         <property name="xmlConfigFilename" value="reliableResource-hazelcast.xml"/>
     </bean>
 
-    <service ref="productCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
+    <bean id="productCache" class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl">
+        <argument ref="deprecatedProductCache"/>
+    </bean>
+
+    <service ref="deprecatedProductCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
 
     <bean id="reliableResourceDownloadManager"
           class="ddf.catalog.resource.download.ReliableResourceDownloadManager"
           init-method="init" destroy-method="cleanUp">
-        <argument ref="productCache"/>
-        <argument ref="retrieveStatusEventPublisher"/>
-        <argument ref="retrieveStatusEventListener"/>
+        <cm:managed-properties persistent-id="ddf.catalog.resource.download.ReliableResourceDownloadManager"
+                               update-strategy="container-managed"/>
+        <argument>
+            <bean xml:id="downloaderConfig"
+                  class="ddf.catalog.resource.download.ReliableResourceDownloaderConfig">
+                <property name="cacheEnabled" value="true"/>
+                <property name="delayBetweenAttemptsMS" value="10000"/>
+                <property name="maxRetryAttempts" value="3"/>
+                <property name="monitorPeriodMS" value="5000"/>
+                <property name="cacheWhenCanceled" value="false"/>
+                <property name="resourceCache" ref="deprecatedProductCache"/>
+                <property name="eventPublisher" ref="retrieveStatusEventPublisher"/>
+                <property name="eventListener" ref="retrieveStatusEventListener"/>
+            </bean>
+        </argument>
         <argument ref="downloadStatusInfo"/>
         <argument ref="downloadThreadPool"/>
     </bean>
 
+    <bean id="downloadResourceActionProvider"
+          class="ddf.catalog.resource.actions.DownloadResourceActionProvider">
+        <argument value="catalog.data.metacard.resource.download"/>
+        <argument ref="deprecatedProductCache"/>
+        <argument ref="reliableResourceDownloadManager"/>
+    </bean>
+
+    <service ref="downloadResourceActionProvider" interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="catalog.data.metacard.resource.download"/>
+        </service-properties>
+    </service>
+
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
+    <reference id="defaultAttributeValueRegistry"
+               interface="ddf.catalog.data.DefaultAttributeValueRegistry"/>
 
     <!-- create the ddf bean -->
     <bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">
@@ -342,7 +384,6 @@
                 <property name="pool" ref="queryThreadPool"/>
                 <property name="queryResponsePostProcessor" ref="queryResponsePostProcessor"/>
                 <property name="sourcePoller" ref="sourcePoller"/>
-                <property name="resourceCache" ref="productCache"/>
                 <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
                 <property name="reliableResourceDownloadManager"
                           ref="reliableResourceDownloadManager"/>
@@ -351,14 +392,11 @@
                 <property name="filterBuilder" ref="filterBuilder"/>
                 <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
                 <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+                <property name="validationQueryFactory" ref="validationQueryFactory"/>
+                <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
             </bean>
         </argument>
         <property name="masker" ref="sourceListener"/>
-        <property name="cacheEnabled" value="true"/>
-        <property name="delayBetweenRetryAttempts" value="10"/>
-        <property name="maxRetryAttempts" value="3"/>
-        <property name="retrievalMonitorPeriod" value="5"/>
-        <property name="cacheWhenCanceled" value="false"/>
         <property name="notificationEnabled" value="true"/>
     </bean>
 
@@ -409,5 +447,19 @@
             </entry>
         </service-properties>
     </service>
+
+    <bean id="resourceDownloadBean" class="ddf.catalog.resource.download.ResourceDownloadEndpoint">
+        <argument ref="ddf"/>
+        <argument ref="reliableResourceDownloadManager"/>
+    </bean>
+
+    <jaxrs:server id="resourceDownloadEnpoint" address="/catalog/downloads">
+        <jaxrs:serviceBeans>
+            <ref component-id="resourceDownloadBean" />
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="ddf.catalog.resource.download.DownloadToCacheOnlyExceptionMapper" />
+        </jaxrs:providers>
+    </jaxrs:server>
 
 </blueprint>

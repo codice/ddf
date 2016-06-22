@@ -1,4 +1,3 @@
-
 This section supports integrating ${branding} with existing applications or frameworks.
 
 === Understanding Metadata and Metacards
@@ -306,9 +305,9 @@ If caching is enabled, a progress bar is displayed in the Activity (Product Retr
 
 The following section shows examples of integration.
 The channels are used for clients to subscribe, followed by examples of request and responses.
-There is only one endpoint hosted at `<${branding}_IP>:<${branding}_PORT_NUMBER>/cometd`
+There is only one endpoint hosted at `<${branding}_IP>:<${branding}_PORT_NUMBER>/search/cometd`
 
-===== Subscribing to Notifications
+===== [[asynchronous_search_subscribing]]Subscribing to Notifications
 
 ====== Notifications Overview
 
@@ -329,7 +328,7 @@ Any client interested in receiving these progress notifications must subscribe t
 ${branding} starts downloading the resource to the client that requested it, a notification with a status of "Started" will be broadcast.
 If the resource download fails, a notification with a status of "Failed" will be broadcast.
 Or, if the resource download is being attempted again after a failure, "Retry" will be broadcast.
-When a notification is received, ${branding} Search UI displays a popup containing the contents of the notiafication, so a user is made aware of how their downloads are proceeding.
+When a notification is received, ${branding} Search UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.
 Behind the scenes, the ${branding} Search UI invokes the REST endpoint to retrieve a resource.
 In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.
 This allows the CometD server to know which subscriber is interested in the notification.
@@ -506,7 +505,7 @@ A notification operation is performed by publishing a list of commands to the Co
 
 ===== Activity Events Channel
 
-To receive all activity updates, follow the instructions on the Asynchronous Search and Retrieval page and subscribe to `/ddf/activities/\*\*`
+To receive all activity updates, follow the instructions at <<asynchronous_search_subscribing, Subscribing to Notifications>> and subscribe to `/ddf/activities/\*\*`
 
 ===== Activity Format
 
@@ -523,16 +522,9 @@ These messages contain a data map that encapsulates the activity information.
 
 |category
 |Category of the activity
-|Any
 |String
 |Any String
 |"Product Retrieval"
-
-|event.topics
-|
-|String
-|
-|
 
 |id
 |ID that uniquely identifies the activity that sent out the update. Not required
@@ -588,7 +580,7 @@ a|
 * `STOPPED`,
 * `PAUSED`, or
 * `FAILED`
-* `RUNNING`
+|`RUNNING`
 
 |timestamp
 |Time that the activity update was sent
@@ -603,17 +595,29 @@ since unix epoch)
 |Any String
 |"Download Complete"
 
-|user
+|subject
 |User who started the activity
 |String
 |Any String
 |"admin"
 
+|bytes
+|Number of bytes the activity consumed (upload or download)
+|Integer
+|Any Integer
+|11
+
+|session
+|The session ID of the user/subject
+|String
+|Any String
+|"6q2lfmmwh9dwv1c4gevboyp297"
+
 |Custom Value
 |Additional keys can be inserted by the component sending the activity notification
 |Any JSON Type
-|
-|
+|Any JSON
+|"{}"
 
 |===
 
@@ -643,8 +647,6 @@ data: {
 ===== Channel
 
 An activity operation is published to the channel `/service/action`
-
-Refer to <<Asynchronous Search and Retrieval>> for instructions on how to publish to a CometD channel.
 
 .Activity Format
 [cols="1m,2,1,1,2,2" options="header"]
@@ -797,7 +799,7 @@ When performing a CometD publish command, the data being published must be valid
 
 The query responses are returned on the `/<id>` channel, which should be subscribed to in order to retrieve the results.
 Replace `<id>` with the id that was used in the request.
-The <<Asynchronous Search and Retrieval>> section details how to subscribe to a CometD channel.
+The <<<<asynchronous_search_subscribing, Subscribing to Notifications>>>> section details how to subscribe to a CometD channel.
 
 ===== Query Response Message Format
 
@@ -829,6 +831,12 @@ The response is returned as a data map that contains an internal map with the fo
 |GeoJson-formatted value
 |This format is defined by the GeoJSON Metacard Transformer.
 
+|results/metacard/properties/resource.cached
+|A property indicating whether a metacard's associated resource is cached
+|Boolean
+|true, false
+|true, false
+
 |results/metacard/actions
 |An array of actions that applies to each metacard, injected into each metacard
 |Array of Maps
@@ -845,6 +853,7 @@ The response is returned as a data map that contains an internal map with the fo
 |Specifies the state of the query
 |String
 |SUCCEEDED, FAILED, ACTIVE
+|
 
 |status.elapsed
 |Time in milliseconds that it took for the source to complete the request
@@ -882,76 +891,62 @@ The response is returned as a data map that contains an internal map with the fo
 .Example Query Response
 [source,json,xml]
 ----
-"data": {
-	"id": "4303ba5d-21af-4878-9a4c-808e80052e6c",
-	"hits": 20,
- 	"results": [
- 	{
-		"metacard": {
- 			"geometry": {
- 				"coordinates": [ 174.77557, -41.28664 ],
-		 		"type": "Point"
- 			},
-			"properties": {
-				"created": "2014-07-02T18:53:59.496 +0000",
- 				"id": "126e16d340dd47b7ad823b70662ed8ca",
-				"metacard-type": "${ddf-branding-lowercase}.metacard",
-				"metadata": "...xml...",
-				"modified": "2014-07-02T18:53:59.496+0000",
-				"source-id": "${ddf-branding-lowercase}.distribution",
-				"title": "NORMAL WORK RESUMES AT NEW ZEALAND PORTS"
- 			},
- 			"type": "Feature",
-			"actions": [
- 				{
- 					"id": "catalog.data.metacard.resource",
- 					"title": "Get resource",
-					"description": "Gets the Metacard resource",
- 					"url": "http://${ddf-branding-lowercase}.codice.org:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/85227c45d9c34fe1ad3e725a72d6b44a?transform=resource"
- 				},
- 				{
- 					"id": "catalog.data.metacard.html",
-					"title": "Get html",
-					"description": "Gets the Metacard html",
-					"url": "http://${ddf-branding-lowercase}.codice.org:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/85227c45d9c34fe1ad3e725a72d6b44a?transform=html"
- 				} ]
- 		},
- 		...other metacards...
- 	],
- 	"status": [
- 	{
- 		"elapsed": 539,
-		"hits": 10,
-		"id": "${ddf-branding}-OS",
-		"results": 10,
-		"state": "SUCCEEDED"
- 	},
- 	{
- 		"elapsed": 11,
-		"hits": 10,
-		"id": "${ddf-branding-lowercase}.distribution",
-		"results": 10,
-		"state": "SUCCEEDED"
- 	}],
-	"types": {
- 		"${ddf-branding-lowercase}.metacard" : {
- 			"resource-uri" : "STRING",
-			"location" : "GEOMETRY",
-			"expiration" : "DATE",
-			"metadata-target-namespace" : "STRING",
-			"metadata-content-type" : "STRING",
-			"effective" : "DATE",
-			"modified" : "DATE",
-			"id" : "STRING",
-			"title" : "STRING",
-			"thumbnail" : "BINARY",
-			"created" : "DATE",
-			"metadata-content-type-version" : "STRING",
-			"resource-size" : "STRING",
-			"metadata" : "XML"
- 		},
- 		...other metacard types...
- 	}
- 	}
- }
+{
+    "data": {
+        "hits": 1,
+        "metacard-types": {
+            "ddf.metacard": {...}
+        },
+        "id": "857f76c0-da8c-72f5-09cd-536b69e427af",
+        "results": [
+           {
+                "metacard": {
+                    "cached": "2016-06-09T22:46:57.258+0000",
+                    "geometry": {
+                        "coordinates": [
+                            -97.03125,
+                            35.173808
+                        ],
+                        "type": "Point"
+                    },
+                    "type": "Feature",
+                    "actions": [ ... ],
+                    "properties": {
+                        "thumbnail": "..."
+                        "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><metadata> ... </metadata>",
+                        "resource-size": "92314",
+                        "created": "2016-06-09T22:46:37.707+0000",
+                        "metacard-tags": [
+                            "resource"
+                        ],
+                        "resource-uri": "content:1a83781dd56a4050afc420016d078e22",
+                        "checksum-algorithm": "Adler32",
+                        "metadata-content-type": "image/jpeg",
+                        "metacard-type": "ddf.metacard",
+                        "title": "fixTheBugs_geotagged.jpg",
+                        "resource-download-url": "${secure_url}services/catalog/sources/ddf.distribution/1a83781dd56a4050afc420016d078e22?transform=resource",
+                        "source-id": "ddf.distribution",
+                        "effective": "2016-06-09T22:46:37.707+0000",
+                        "point-of-contact": "",
+                        "checksum": "edfa1836",
+                        "modified": "2016-06-09T22:46:37.707+0000",
+                        "id": "1a83781dd56a4050afc420016d078e22"
+                    }
+                }
+            }
+        ],
+        "status": [
+           {
+                "hits": 1,
+                "elapsed": 432,
+                "reasons": [],
+                "id": "ddf.distribution",
+                "state": "SUCCEEDED",
+                "results": 1
+            }
+        ],
+        "successful": true
+    },
+    "channel": "/857f76c0-da8c-72f5-09cd-536b69e427af"
+}
 ----

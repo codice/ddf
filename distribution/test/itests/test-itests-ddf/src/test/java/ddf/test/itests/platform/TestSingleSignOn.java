@@ -71,7 +71,7 @@ import ddf.test.itests.AbstractIntegrationTest;
 public class TestSingleSignOn extends AbstractIntegrationTest {
 
     private static final String IDP_AUTH_TYPES =
-            "/=SAML|GUEST,/search=IDP,/cometd=IDP,/solr=SAML|PKI|basic,/services/whoami=IDP|GUEST";
+            "/=SAML|GUEST,/search=IDP,/solr=SAML|PKI|basic,/services/whoami=IDP|GUEST";
 
     private static final String KEY_STORE_PATH = System.getProperty("javax.net.ssl.keyStore");
 
@@ -123,7 +123,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
             // Start the services needed for testing.
             // We need to start the Search UI to test that it redirects properly
-            getServiceManager().startFeature(true, "security-idp", "search-ui-app");
+            getServiceManager().startFeature(true, "security-idp", "search-ui");
+            getServiceManager().waitForAllBundles();
 
             // Get all of the metadata
             String metadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();

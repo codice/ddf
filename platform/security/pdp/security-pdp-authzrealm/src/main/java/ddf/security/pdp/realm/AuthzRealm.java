@@ -65,11 +65,13 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
 
     private HashMap<String, String> matchOneMap = new HashMap<>();
 
+    private List<String> environmentAttributes = new ArrayList<>();
+
     private XacmlPdp xacmlPdp;
 
     public AuthzRealm(String dirPath, Parser parser) throws PdpException {
         super();
-        xacmlPdp = new XacmlPdp(dirPath, parser);
+        xacmlPdp = new XacmlPdp(dirPath, parser, environmentAttributes);
     }
 
     // this realm is for authorization only
@@ -84,17 +86,17 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
      * or {@code null} if no account could be found. The resulting {@code AuthorizationInfo} object
      * is used by the other method implementations in this class to automatically perform access
      * control checks for the corresponding {@code Subject}.
-     * <p>
+     * <p/>
      * This implementation obtains the actual {@code AuthorizationInfo} object from the subclass's
      * implementation of
      * {@link #doGetAuthorizationInfo(org.apache.shiro.subject.PrincipalCollection)
      * doGetAuthorizationInfo}, and then caches it for efficient reuse if caching is enabled (see
      * below).
-     * <p>
+     * <p/>
      * Invocations of this method should be thought of as completely orthogonal to acquiring
      * {@link #getAuthenticationInfo(org.apache.shiro.authc.AuthenticationToken) authenticationInfo}
      * , since either could occur in any order.
-     * <p>
+     * <p/>
      * For example, in &quot;Remember Me&quot; scenarios, the user identity is remembered (and
      * assumed) for their current session and an authentication attempt during that session might
      * never occur. But because their identity would be remembered, that is sufficient enough
@@ -107,7 +109,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
      * {@link #setAuthorizationCache authorizationCache} instance has been explicitly configured, or
      * if a {@link #setCacheManager cacheManager} has been configured, which will be used to lazily
      * create the {@code authorizationCache} as needed.
-     * <p>
+     * <p/>
      * If caching is enabled, the authorization cache will be checked first and if found, will
      * return the cached {@code AuthorizationInfo} immediately. If caching is disabled, or there is
      * a cache miss, the authorization info will be looked up from the underlying data store via the
@@ -136,8 +138,8 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Returns <tt>true</tt> if the corresponding subject/user is permitted to perform an action or
      * access a resource summarized by the specified permission.
-     * <p>
-     * <p>
+     * <p/>
+     * <p/>
      * More specifically, this method determines if any <tt>Permission</tt>s associated with the
      * subject {@link Permission#implies(Permission) imply} the specified permission.
      *
@@ -153,13 +155,13 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Checks if the corresponding Subject/user implies the given Permissions and returns a boolean
      * array indicating which permissions are implied.
-     * <p>
-     * <p>
+     * <p/>
+     * <p/>
      * More specifically, this method should determine if each <tt>Permission</tt> in the array is
      * {@link Permission#implies(Permission) implied} by permissions already associated with the
      * subject.
-     * <p>
-     * <p>
+     * <p/>
+     * <p/>
      * This is primarily a performance-enhancing method to help reduce the number of
      * {@link #isPermitted} invocations over the wire in client/server systems.
      *
@@ -220,13 +222,15 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                     String metacardKey = keyValuePermission.getKey();
                     // user specified this key in the match all list - remap key
                     if (matchAllMap.containsKey(metacardKey)) {
-                        KeyValuePermission kvp = new KeyValuePermission(
-                                matchAllMap.get(metacardKey), keyValuePermission.getValues());
+                        KeyValuePermission kvp =
+                                new KeyValuePermission(matchAllMap.get(metacardKey),
+                                        keyValuePermission.getValues());
                         matchAllPermissions.add(kvp);
                         // user specified this key in the match one list - remap key
                     } else if (matchOneMap.containsKey(metacardKey)) {
-                        KeyValuePermission kvp = new KeyValuePermission(
-                                matchOneMap.get(metacardKey), keyValuePermission.getValues());
+                        KeyValuePermission kvp =
+                                new KeyValuePermission(matchOneMap.get(metacardKey),
+                                        keyValuePermission.getValues());
                         matchOnePermissions.add(kvp);
                         // this key was not specified in either - default to match all with the
                         // same key value
@@ -240,13 +244,17 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                 }
 
                 CollectionPermission subjectAllCollection = new CollectionPermission(
-                        CollectionPermission.UNKNOWN_ACTION, perms);
+                        CollectionPermission.UNKNOWN_ACTION,
+                        perms);
                 KeyValueCollectionPermission matchAllCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(), matchAllPermissions);
-                KeyValueCollectionPermission matchAllPreXacmlCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(), matchAllPreXacmlPermissions);
+                        kvcp.getAction(),
+                        matchAllPermissions);
+                KeyValueCollectionPermission matchAllPreXacmlCollection =
+                        new KeyValueCollectionPermission(kvcp.getAction(),
+                                matchAllPreXacmlPermissions);
                 KeyValueCollectionPermission matchOneCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(), matchOnePermissions);
+                        kvcp.getAction(),
+                        matchOnePermissions);
 
                 matchAllCollection = isPermittedByExtensionAll(subjectAllCollection,
                         matchAllCollection);
@@ -254,17 +262,13 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                         matchAllPreXacmlCollection);
                 matchOneCollection = isPermittedByExtensionOne(subjectAllCollection,
                         matchOneCollection);
-                MatchOneCollectionPermission subjectOneCollection = new MatchOneCollectionPermission(
-                        perms);
+                MatchOneCollectionPermission subjectOneCollection =
+                        new MatchOneCollectionPermission(perms);
 
                 boolean matchAll = subjectAllCollection.implies(matchAllCollection);
                 boolean matchAllXacml = subjectAllCollection.implies(matchAllPreXacmlCollection);
                 boolean matchOne = subjectOneCollection.implies(matchOneCollection);
-                if (matchAll && matchOne) {
-                    SecurityLogger.audit(
-                            PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
-                                    + "] is implied.");
-                } else {
+                if (!matchAll || !matchOne) {
                     SecurityLogger.audit(
                             PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
                                     + "] is not implied.");
@@ -272,15 +276,13 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
 
                 //if we weren't able to automatically imply these permissions, call out to XACML
                 if (!matchAllXacml) {
-                    KeyValueCollectionPermission xacmlPermissions = new KeyValueCollectionPermission(
-                            kvcp.getAction(), matchAllPreXacmlPermissions);
-                    matchAllXacml = xacmlPdp.isPermitted(curUser, authorizationInfo,
+                    KeyValueCollectionPermission xacmlPermissions =
+                            new KeyValueCollectionPermission(kvcp.getAction(),
+                                    matchAllPreXacmlPermissions);
+                    matchAllXacml = xacmlPdp.isPermitted(curUser,
+                            authorizationInfo,
                             xacmlPermissions);
-                    if (matchAllXacml) {
-                        SecurityLogger.audit(
-                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                                        + permission + "] is implied via XACML.");
-                    } else {
+                    if (!matchAllXacml) {
                         SecurityLogger.audit(
                                 PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
                                         + permission + "] is not implied via XACML.");
@@ -291,9 +293,6 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
 
             for (Permission perm : perms) {
                 if (permission != null && perm.implies(permission)) {
-                    SecurityLogger.audit(
-                            PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
-                                    + "] is implied.");
                     return true;
                 }
             }
@@ -442,7 +441,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Sets the mappings used by the "match all" evaluation to determine if this user should be
      * authorized to access requested data.
-     * <p>
+     * <p/>
      * Each string is of the format: <code>subjectAttrName=metacardAttrName</code><br/>
      * where <code>metacardAttrName</code> is the name of an attribute in the metacard and
      * <code>subjectAttrName</code> is the name of the corresponding attribute in the user
@@ -460,7 +459,8 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchAllMap.", values[1].trim(),
+                    SecurityLogger.audit("Adding mapping: {} = {} to matchAllMap.",
+                            values[1].trim(),
                             values[0].trim());
                     matchAllMap.put(values[1].trim(), values[0].trim());
                 } else {
@@ -475,7 +475,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
     /**
      * Sets the mappings used by the "match one" evaluation to determine if this user should be
      * authorized to access requested data.
-     * <p>
+     * <p/>
      * Each string is of the format: <code>subjectAttrName=metacardAttrName</code><br/>
      * where <code>metacardAttrName</code> is the name of an attribute in the metacard and
      * <code>subjectAttrName</code> is the name of the corresponding attribute in the user
@@ -493,7 +493,8 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchOneMap.", values[1].trim(),
+                    SecurityLogger.audit("Adding mapping: {} = {} to matchOneMap.",
+                            values[1].trim(),
                             values[0].trim());
                     matchOneMap.put(values[1].trim(), values[0].trim());
                 } else {
@@ -503,5 +504,10 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                 }
             }
         }
+    }
+
+    public void setEnvironmentAttributes(List<String> environmentAttributes) {
+        this.environmentAttributes.clear();
+        this.environmentAttributes.addAll(environmentAttributes);
     }
 }

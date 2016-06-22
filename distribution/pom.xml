@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf</groupId>
@@ -28,8 +30,8 @@
     <modules>
         <module>sdk</module>
         <module>console-branding</module>
-        <module>webconsole-branding</module>
-        <module>webconsole-branding-plugin</module>
+        <module>branding-api</module>
+        <module>ddf-branding-plugin</module>
         <module>ddf-common</module>
         <module>kernel</module>
         <module>install-profiles</module>
@@ -37,13 +39,6 @@
         <module>ddf</module>
         <module>test</module>
     </modules>
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
     <build>
         <plugins>
             <!-- Need to have JaCoCo plugin otherwise surefire fails because ${argLine} is undefined -->

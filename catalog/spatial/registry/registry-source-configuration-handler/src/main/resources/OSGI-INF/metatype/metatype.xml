@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD description="Configurable values for the registry source configuration handler"
+         name="Registry Source Configuration Handler"
+         id="Registry_Configuration_Event_Handler">
+
+        <AD name="Url Binding Name" id="urlBindingName" required="true"
+            type="String" default="urlBindingName"
+            description="The url name for communicating with the specific instance."/>
+
+        <AD name="BindingType to Factory PID" id="bindingTypeFactoryPid" required="true"
+            type="String" cardinality="100"
+            default="CSW_2.0.2=Csw_Federated_Source,WFS_1.0.0=Wfs_v1_0_0_Federated_Source,OpenSearch_1.0.0=OpenSearchSource"
+            description="Key/Value mappings of binding type to factory PID"/>
+
+        <AD name="Remove Configurations on Metacard Delete" id="cleanUpOnDelete" required="true"
+            type="Boolean" default="false"
+            description="Flag used to determine if configurations should be deleted when the metacard is deleted."/>
+
+        <AD name="Activate Configurations" id="activateConfigurations" required="true"
+            type="Boolean" default="false"
+            description="Flag used to determine if a configuration should be activated on creation"/>
+
+        <AD name="Preserve Active Configuration" id="preserveActiveConfigurations" required="true"
+            type="Boolean" default="true"
+            description="Flag used to determine if configurations should be preserved. If true will only allow auto activation on creation. If false auto activation will happen on updates as well. Only applicable if activateConfigurations is true."/>
+
+        <AD name="Source Activation Priority Order" id="sourceActivationPriorityOrder" required="true" type="String" cardinality="100"
+            default="CSW_2.0.2,WFS_1.0.0,OpenSearch_1.0.0" description="This is the priority list used to determine which source should be activated on creation"/>
+
+    </OCD>
+    <Designate pid="Registry_Configuration_Event_Handler">
+        <Object ocdref="Registry_Configuration_Event_Handler"/>
+    </Designate>
+</metatype:MetaData>

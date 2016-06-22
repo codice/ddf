@@ -13,6 +13,7 @@
  */
 package ddf.catalog.event.impl;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.opengis.filter.Filter;
@@ -22,19 +23,20 @@ import ddf.catalog.event.DeliveryMethod;
 import ddf.catalog.event.Subscription;
 
 public class SubscriptionImpl implements Subscription {
-    private Filter filter;
+    private final Filter filter;
 
-    private DeliveryMethod dm;
+    private final DeliveryMethod dm;
 
-    private Set<String> sourceIds;
+    private final Set<String> sourceIds;
 
-    private boolean enterprise;
+    private final boolean enterprise;
 
     public SubscriptionImpl(Filter filter, DeliveryMethod dm, Set<String> sourceIds,
             boolean enterprise) {
         this.filter = filter;
         this.dm = dm;
-        this.sourceIds = sourceIds;
+        this.sourceIds = Collections.unmodifiableSet(
+                sourceIds == null ? Collections.EMPTY_SET : sourceIds);
         this.enterprise = enterprise;
     }
 

@@ -71,8 +71,8 @@ The following is an example of an `application/xml` response to the `GetCapabili
         <ows:Operation name="GetCapabilities">
             <ows:DCP>
                 <ows:HTTP>
-                    <ows:Get ns2:href="https://localhost:8993/services/csw"/>
-                    <ows:Post ns2:href="https://localhost:8993/services/csw">
+                    <ows:Get ns2:href="${secure_url}/services/csw"/>
+                    <ows:Post ns2:href="${secure_url}/services/csw">
                         <ows:Constraint name="PostEncoding">
                             <ows:Value>XML</ows:Value>
                         </ows:Constraint>
@@ -89,8 +89,8 @@ The following is an example of an `application/xml` response to the `GetCapabili
         <ows:Operation name="DescribeRecord">
             <ows:DCP>
                 <ows:HTTP>
-                    <ows:Get ns2:href="https://localhost:8993/services/csw"/>
-                    <ows:Post ns2:href="https://localhost:8993/services/csw">
+                    <ows:Get ns2:href="${secure_url}/services/csw"/>
+                    <ows:Post ns2:href="${secure_url}/services/csw">
                         <ows:Constraint name="PostEncoding">
                             <ows:Value>XML</ows:Value>
                         </ows:Constraint>
@@ -117,8 +117,8 @@ The following is an example of an `application/xml` response to the `GetCapabili
         <ows:Operation name="GetRecords">
             <ows:DCP>
                 <ows:HTTP>
-                    <ows:Get ns2:href="https://localhost:8993/services/csw"/>
-                    <ows:Post ns2:href="https://localhost:8993/services/csw">
+                    <ows:Get ns2:href="${secure_url}/services/csw"/>
+                    <ows:Post ns2:href="${secure_url}/services/csw">
                         <ows:Constraint name="PostEncoding">
                             <ows:Value>XML</ows:Value>
                         </ows:Constraint>
@@ -157,8 +157,8 @@ The following is an example of an `application/xml` response to the `GetCapabili
         <ows:Operation name="GetRecordById">
             <ows:DCP>
                 <ows:HTTP>
-                    <ows:Get ns2:href="https://localhost:8993/services/csw"/>
-                    <ows:Post ns2:href="https://localhost:8993/services/csw">
+                    <ows:Get ns2:href="${secure_url}/services/csw"/>
+                    <ows:Post ns2:href="${secure_url}/services/csw">
                         <ows:Constraint name="PostEncoding">
                             <ows:Value>XML</ows:Value>
                         </ows:Constraint>
@@ -192,7 +192,7 @@ The following is an example of an `application/xml` response to the `GetCapabili
         <ows:Operation name="Transaction">
             <ows:DCP>
                 <ows:HTTP>
-                    <ows:Post ns2:href="https://localhost:8993/services/csw">
+                    <ows:Post ns2:href="${secure_url}/services/csw">
                         <ows:Constraint name="PostEncoding">
                             <ows:Value>XML</ows:Value>
                         </ows:Constraint>
@@ -2207,7 +2207,7 @@ The CSW source can be installed and uninstalled using the normal processes descr
 
 ==== Configuring
 
-The configurable properties for the CSW source are accessed from the CSW Federated Source Configuration in the Web Console or Admin Console.
+The configurable properties for the CSW source are accessed from the CSW Federated Source Configuration in the Admin Console.
 
 ===== Configure the CSW Source
 
@@ -2370,7 +2370,7 @@ The GMD CSW source can be installed and uninstalled using the normal processes d
 
 ==== Configuring
 
-The configurable properties for the GMD CSW source are accessed from the GMD CSW ISO Federated Source Configuration in the Web Console or Admin Console.
+The configurable properties for the GMD CSW source are accessed from the GMD CSW ISO Federated Source Configuration in the Admin Console.
 
 ===== Configure the CSW Source
 
@@ -2636,7 +2636,7 @@ The HTML contains links to the full metadata view as well as the product.
 Using the OpenSearch Endpoint, for example, query with the format option set to the KML shortname: `kml`.
 
 ----
-http://localhost:8181/services/catalog/query?q=schematypesearch&format=kml
+${public_url}/services/catalog/query?q=schematypesearch&format=kml
 ----
 
 .Example Output
@@ -2712,7 +2712,7 @@ width: 100% }
   &lt;/head&gt;
   &lt;body&gt;
         &lt;div class="thumbnailDiv"&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
+href="${public_url}/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
 48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail"
 src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table&gt;
@@ -2732,10 +2732,10 @@ src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table class="linkTable"&gt;
       &lt;tr&gt;
         &lt;td&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
+href="${public_url}/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
 48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
         &lt;td&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
+href="${public_url}/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
 48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
@@ -2780,7 +2780,7 @@ href="http://localhost:8181/services/catalog/sources/${branding-lowercase}.distr
 The `spatial-kml-transformer` feature is installed by default with the Spatial App.
 
 ----
-http://localhost:8181/services/catalog/0103c77e66d9428d8f48fab939da528e?transform=kml
+${public_url}/services/catalog/0103c77e66d9428d8f48fab939da528e?transform=kml
 ----
 
 ==== Configuring
@@ -2841,7 +2841,7 @@ width: 100% }
     &lt;/style&gt;
   &lt;/head&gt;
   &lt;body&gt;
-        &lt;div class="thumbnailDiv"&gt;&lt;a href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail" src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
+        &lt;div class="thumbnailDiv"&gt;&lt;a href="${public_url}/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail" src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table&gt;
       &lt;tr&gt;
         &lt;td class="label"&gt;Source:&lt;/td&gt;
@@ -2858,8 +2858,8 @@ width: 100% }
     &lt;/table&gt;
     &lt;table class="linkTable"&gt;
       &lt;tr&gt;
-        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
-        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="${public_url}/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="${public_url}/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
   &lt;/body&gt;
@@ -3042,7 +3042,7 @@ width: 100% }
   &lt;/head&gt;
   &lt;body&gt;
         &lt;div class="thumbnailDiv"&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail"
+href="${public_url}/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail"
 src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table&gt;
       &lt;tr&gt;
@@ -3061,8 +3061,8 @@ src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table class="linkTable"&gt;
       &lt;tr&gt;
         &lt;td&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
-        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
+href="${public_url}/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="${public_url}/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
   &lt;/body&gt;

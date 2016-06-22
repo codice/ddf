@@ -100,5 +100,6 @@
         <module>catalog-transformer-streaming-lib</module>
         <module>catalog-transformer-pdf</module>
         <module>catalog-transformer-pptx</module>
+        <module>catalog-transformer-zip</module>
     </modules>
 </project>

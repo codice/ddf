@@ -47,7 +47,7 @@ import org.junit.Test;
 import com.google.common.io.CountingOutputStream;
 
 import ddf.catalog.cache.MockInputStream;
-import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl;
@@ -130,7 +130,7 @@ public class ReliableResourceDownloaderTest {
 
         downloaderConfig.setCacheEnabled(true);
 
-        ResourceCache mockCache = mock(ResourceCache.class);
+        ResourceCacheImpl mockCache = mock(ResourceCacheImpl.class);
         when(mockCache.isPending(anyString())).thenReturn(false);
         when(mockCache.getProductCacheDirectory()).thenReturn(productCacheDirectory);
         downloaderConfig.setResourceCache(mockCache);
@@ -170,7 +170,7 @@ public class ReliableResourceDownloaderTest {
 
         downloaderConfig.setCacheEnabled(true);
 
-        ResourceCache mockCache = mock(ResourceCache.class);
+        ResourceCacheImpl mockCache = mock(ResourceCacheImpl.class);
         when(mockCache.isPending(anyString())).thenReturn(false);
         when(mockCache.getProductCacheDirectory()).thenReturn(productCacheDirectory);
         downloaderConfig.setResourceCache(mockCache);

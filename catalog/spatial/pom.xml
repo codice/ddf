@@ -56,6 +56,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>ddf.security.encryption</groupId>
+                <artifactId>security-encryption-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-wfs-common</artifactId>
                 <version>${project.version}</version>
@@ -173,6 +178,7 @@
         <module>wfs</module>
         <module>wcs</module>
         <module>csw</module>
+        <module>registry</module>
         <module>geocoding</module>
         <module>geowebcache</module>
         <module>spatial-commands</module>

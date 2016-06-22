@@ -27,8 +27,8 @@ define([
             defaults: {
                 isKey: true
             },
-            deleteUrl: '/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/deletePrivateKey/',
-            postUrl: '/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
+            deleteUrl: '/admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/deletePrivateKey/',
+            postUrl: '/admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
             postOperation: 'addPrivateKey',
             validate: function () {
                 var alias = this.get('alias');
@@ -39,7 +39,7 @@ define([
         });
 
         PrivateKey.Response = Backbone.AssociatedModel.extend({
-            url: "/jolokia/read/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/Keystore",
+            url: "/admin/jolokia/read/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/Keystore",
             relations: [
                 {
                     type: Backbone.Many,

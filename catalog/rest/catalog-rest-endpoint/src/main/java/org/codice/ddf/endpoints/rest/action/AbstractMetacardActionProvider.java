@@ -30,11 +30,17 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 
+/**
+ * @deprecated As of 2.10.0, replaced by {@link org.codice.ddf.catalog.actions.AbstractMetacardActionProvider}
+ */
+@Deprecated
 public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     static final String UNKNOWN_TARGET = "0.0.0.0";
 
     static final String PATH = "/catalog/sources";
+
+    protected String attributeName;
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(AbstractMetacardActionProvider.class);
@@ -107,5 +113,4 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
     public <T> boolean canHandle(T subject) {
         return subject instanceof Metacard;
     }
-
 }

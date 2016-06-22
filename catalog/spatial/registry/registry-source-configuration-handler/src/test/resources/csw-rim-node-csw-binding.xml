@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<rim:RegistryPackage id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" home="https://somehost:someport" objectType="urn:registry:federation:node"
+                     xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+                     xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
+                     xmlns:gml="http://www.opengis.net/gml">
+
+    <rim:ExternalIdentifier id="urn:mcard:local-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="2014ca7f59ac46f495e32b4a67a51276"/>
+    <rim:ExternalIdentifier id="urn:mcard:origin-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="2014ca7f59ac46f495e32b4a67a51276"/>
+
+    <rim:RegistryObjectList>
+        <rim:ExtrinsicObject id="urn:registry:node" objectType="urn:registry:federation:node">
+            <rim:Slot name="liveDate" slotType="xs:dateTime">
+                <rim:ValueList>
+                    <rim:Value>2015-06-01T13:15:30Z</rim:Value>
+                </rim:ValueList>
+            </rim:Slot>
+            <rim:Slot name="lastUpdated" slotType="xs:dateTime">
+                <rim:ValueList>
+                    <rim:Value>2016-01-26T17:16:34.996Z</rim:Value>
+                </rim:ValueList>
+            </rim:Slot>
+
+            <rim:Name>
+                <rim:LocalizedString value="Node Name"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString value="A little something describing this node in less than 1024 characters"/>
+            </rim:Description>
+            <rim:VersionInfo versionName="2.9.x"/>
+        </rim:ExtrinsicObject>
+
+        <rim:Service id="urn:service:id0" objectType="urn:registry:federation:service">
+            <rim:ServiceBinding id="urn:registry:federation:method:csw"
+                                service="urn:uuid:service:2014ca7f59ac46f495e32b4a67a51276"
+                                accessURI="https://localhost:1234/mycsw/endpoint">
+                <rim:Slot name="urlBindingName" slotType="xs:string">
+                    <rim:ValueList>
+                        <rim:Value>cswUrl</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <rim:Slot name="bindingType" slotType="xs:string">
+                    <rim:ValueList>
+                        <rim:Value>CSW_2.0.2</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <rim:Slot name="customSlot" slotType="xs:string">
+                    <rim:ValueList>
+                        <rim:Value>customValue</rim:Value>
+                    </rim:ValueList>
+                </rim:Slot>
+                <rim:Name>
+                    <rim:LocalizedString value="CSW Federation Method"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString value="This is the CSW federation method."/>
+                </rim:Description>
+                <rim:VersionInfo versionName="2.0.2"/>
+            </rim:ServiceBinding>
+        </rim:Service>
+    </rim:RegistryObjectList>
+</rim:RegistryPackage>

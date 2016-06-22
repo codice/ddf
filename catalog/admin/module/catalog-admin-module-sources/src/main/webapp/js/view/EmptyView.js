@@ -14,19 +14,23 @@
  **/
 /*global define*/
 define([
-        'text!templates/emptyView.handlebars',
-        'marionette',
-        'icanhaz'
-        ],function (emptyViewTemplate, Marionette, ich) {
+    'text!templates/emptyView.handlebars',
+    'marionette',
+    'icanhaz'
+], function (emptyViewTemplate, Marionette, ich) {
 
-    ich.addTemplate('emptyViewTemplate', emptyViewTemplate);
+    if (!ich.emptyViewTemplate) {
+        ich.addTemplate('emptyViewTemplate', emptyViewTemplate);
+    }
 
     var EmptyView = {};
-    
+
     EmptyView.sources = Marionette.ItemView.extend({
         template: 'emptyViewTemplate',
-        serializeData: function() {
-            return  {message: "There are no sources configured."};
+        serializeData: function () {
+            return {
+                message: "There are no sources configured."
+            };
         }
     });
 

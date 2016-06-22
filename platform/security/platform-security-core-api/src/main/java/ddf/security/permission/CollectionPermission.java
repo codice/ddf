@@ -20,8 +20,6 @@ import java.util.List;
 
 import org.apache.shiro.authz.Permission;
 
-import ddf.security.common.audit.SecurityLogger;
-
 /**
  * Permission class handling a collection of permissions and handling the logic to determine if one
  * collection of permissions can imply another collection of permissions. Assumes the underlying
@@ -72,9 +70,7 @@ public class CollectionPermission implements Permission {
      */
     public CollectionPermission(String action, Permission... permissions) {
         this.action = action;
-        for (Permission permission : permissions) {
-            permissionList.add(permission);
-        }
+        Collections.addAll(permissionList, permissions);
     }
 
     /**
@@ -112,9 +108,6 @@ public class CollectionPermission implements Permission {
     @Override
     public boolean implies(Permission p) {
         if (permissionList.isEmpty()) {
-            SecurityLogger.audit(
-                    PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
-                            + PERMISSION_END_MSG);
             return false;
         }
 
@@ -128,29 +121,17 @@ public class CollectionPermission implements Permission {
                     }
                 }
                 if (!result) {
-                    SecurityLogger.audit(
-                            PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-                                    + p.toString() + PERMISSION_END_MSG);
                     return false;
                 }
             }
-            SecurityLogger.audit(
-                    PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
-                            + PERMISSION_END_MSG);
             return true;
         }
 
         for (Permission permission : permissionList) {
             if (permission.implies(p)) {
-                SecurityLogger.audit(
-                        PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
-                                + PERMISSION_END_MSG);
                 return true;
             }
         }
-        SecurityLogger.audit(
-                PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
-                        + PERMISSION_END_MSG);
         return false;
     }
 

@@ -108,26 +108,15 @@ public class NotificationController extends AbstractEventController {
         }
 
         String sessionId = (String) event.getProperty(Notification.NOTIFICATION_KEY_SESSION_ID);
-        if (StringUtils.isBlank(sessionId)) {
-            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_SESSION_ID
-                    + "\" property is null or empty");
-        }
-
         String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
-        // Blank user ID is allowed as this indicates the guest user
-        if (null == userId) {
-            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_USER_ID
-                    + "\" property is null or empty");
+
+        if (StringUtils.isBlank(userId) && StringUtils.isBlank(sessionId)) {
+            throw new IllegalArgumentException("No user information was provided in the event object. userId and sessionId properties were null");
         }
 
         ServerSession recipient = null;
-        if (StringUtils.isNotBlank(userId)) {
-            LOGGER.debug("Getting ServerSession for userId {}", userId);
-            recipient = getSessionByUserId(userId);
-        } else {
-            LOGGER.debug("Getting ServerSession for sessionId {}", sessionId);
-            recipient = getSessionByUserId(sessionId);
-        }
+        LOGGER.debug("Getting ServerSession for userId/sessionId {}", userId);
+        recipient = getSessionById(userId, sessionId);
 
         if (null != recipient) {
             Map<String, Object> propMap = new HashMap<>();

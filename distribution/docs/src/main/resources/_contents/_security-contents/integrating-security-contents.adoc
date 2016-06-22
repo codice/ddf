@@ -181,8 +181,7 @@ This bundle is not installed by default but can be added by installing the `sec
 |Implementation Class
 |Properties Set
 
-|`ddf.catalog.util.DdfConfigurationWatcher`
-`org.apache.cxf.sts.token.validator.TokenValidator`
+|`org.apache.cxf.sts.token.validator.TokenValidator`
 |`ddf.security.cas.WebSSOTokenValidator`
 |CAS Server URL and Encryption Service reference
 
@@ -466,7 +465,7 @@ The embedded OpenDJ LDAP server can be installed for testing purposes.
 ==== Run the Embedded LDAP Instance
 
 . Unzip and install ${branding}
-. Run the installer at https://localhost:8993/admin
+. Run the installer at ${secure_url}/admin
 . After the install is complete, click the *Manage* button in the upper right hand corner
 . Click the *Play* icon on the Opendj Embedded application tile
 . The embedded LDAP is now installed.
@@ -961,7 +960,7 @@ Settings can be found in the ${admin-console} under *${ddf-security} -> Configur
 |Signals whether or not the STS Client should supply a public key to embed as the proof key. Changing this value from the default could cause services to stop responding.
 
 |STS WSDL Address
-|\https://localhost:8993/services/SecurityTokenService?wsdl
+|\${secure_url}/services/SecurityTokenService?wsdl
 |The hostname of the remote server should match the certificate that the server is using.
 
 |STS Endpoint Name
@@ -1000,10 +999,6 @@ Settings can be found in the ${admin-console} under *${ddf-security} -> Configur
 |Registered Interface
 |Availability
 |Multiple
-
-|`ddf.catalog.DdfConfigurationWatcher`
-|required
-|true
 
 |`org.osgi.service.cm.ConfigurationAdmin`
 |required
@@ -1058,12 +1053,16 @@ Settings can be found in the ${admin-console} under *${ddf-security} -> Configur
 |Additional Information
 
 |LDAP URL
-`|ldap://localhost:1389`
+|`ldaps://${org.codice.ddf.system.hostname}:1636`
 |
+
+|StartTLS
+|`false`
+|Ignored if the URL uses ldaps.
  
 |LDAP Bind User DN
 |`cn=admin`
-|
+|This user should have the ability to verify passwords and read attributes for any user.
  
 |LDAP Bind User Password
 |`secret`
@@ -1151,12 +1150,16 @@ Configuration settings can be found in the ${admin-console} under *${ddf-securit
 |Additional Information
 
 |LDAP URL
-|`ldaps://localhost:1636`
+|`ldaps://${org.codice.ddf.system.hostname}:1636`
 |
+
+|StartTLS
+|`false`
+|Ignored if the URL uses ldaps.
  
 |LDAP Bind User DN
 |`cn=admin`
-|
+|This user should have the ability to verify passwords and read attributes for any user.
  
 |LDAP Bind User Password
 |`secret`
@@ -1173,10 +1176,6 @@ Configuration settings can be found in the ${admin-console} under *${ddf-securit
 |LDAP Base Group DN
 |`ou=groups,dc=example,dc=com`
 |
- 
-|SSL Keystore Alias
-|`localhost`
-|This alias is used when connecting to the LDAP using SSL/TLS (LDAPS) or startTLS.
 
 |===
 
@@ -1227,8 +1226,7 @@ None
 |Implementation Class
 |Properties Set
 
-|`ddf.catalog.util.DdfConfigurationWatcher`
-`org.apache.shiro.realm.Realm`
+|`org.apache.shiro.realm.Realm`
 |`ddf.security.realm.sts.StsRealm`
 |None
 
@@ -1345,7 +1343,7 @@ This bundle is installed by default and can be added by installing the `security
 
 ==== Configuring
 
-Settings can be found in the ${admin-console} (https://localhost:8993/admin) under *${ddf-security} -> Configuration -> Security AuthZ Realm*.
+Settings can be found in the ${admin-console} (${secure_url}/admin) under *${ddf-security} -> Configuration -> Security AuthZ Realm*.
 
 [cols="1,1,6" options="header"]
 |===
@@ -1403,7 +1401,7 @@ The `GuestInterceptor` is installed by default with ${ddf-security} Application.
 
 ==== Configuring via the ${admin-console}
 
-. Navigate to the ${admin-console} at https://localhost:8993/admin
+. Navigate to the ${admin-console} at ${secure_url}/admin
 . Click the ${ddf-security} application tile
 . Click the *Configuration* tab
 . Click the *Security STS Guest Claims Handler* configuration

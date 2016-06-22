@@ -48,6 +48,18 @@
 
         <AD description="Cache remote ingest results" name="Cache Remote Ingests"
             id="cacheRemoteIngests" required="true" type="Boolean" default="false"/>
+
+        <AD
+            description="Show metacards with validation errors in search results"
+            name="Show Validation Errors" id="showErrors" required="true"
+            type="Boolean"
+            default="false"/>
+
+        <AD
+            description="Show metacards with validation warnings in search results"
+            name="Show Validation Warnings" id="showWarnings" required="true"
+            type="Boolean"
+            default="true"/>
     </OCD>
 
     <Designate pid="ddf.catalog.federation.impl.CachingFederationStrategy">

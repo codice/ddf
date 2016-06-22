@@ -105,8 +105,7 @@ public class ClaimsHandlerManager {
             return;
         }
         LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
-        String url = props.get(ClaimsHandlerManager.URL)
-                .toString();
+        String url = new PropertyResolver((String) props.get(ClaimsHandlerManager.URL)).toString();
         Boolean startTls;
         if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
             startTls = Boolean.valueOf((String) props.get(ClaimsHandlerManager.START_TLS));
@@ -167,16 +166,17 @@ public class ClaimsHandlerManager {
         String truststorePass = System.getProperty("javax.net.ssl.trustStorePassword");
         String keystoreLoc = System.getProperty("javax.net.ssl.keyStore");
         String keystorePass = System.getProperty("javax.net.ssl.keyStorePassword");
-        if (encryptService != null) {
-            keystorePass = encryptService.decryptValue(keystorePass);
-            truststorePass = encryptService.decryptValue(truststorePass);
-        }
 
         try {
             if (useSsl || useTls) {
                 SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
                 if (keystoreLoc != null && truststoreLoc != null) {
 
+                    if (encryptService != null) {
+                        keystorePass = encryptService.decryptValue(keystorePass);
+                        truststorePass = encryptService.decryptValue(truststorePass);
+                    }
+                    
                     sslContext.init(createKeyManagerFactory(keystoreLoc,
                             keystorePass).getKeyManagers(),
                             createTrustManagerFactory(truststoreLoc,
@@ -292,7 +292,7 @@ public class ClaimsHandlerManager {
 
     public void setUrl(String url) {
         LOGGER.trace("Setting url: {}", url);
-        ldapProperties.put(URL, new PropertyResolver(url));
+        ldapProperties.put(URL, url);
     }
 
     public void setStartTls(boolean startTls) {

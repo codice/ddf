@@ -31,13 +31,4 @@
     <service ref="attributeValidatorRegistry"
              interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
 
-    <bean id="validationDeployer" class="ddf.catalog.validation.impl.ValidationParser">
-        <property name="attributeRegistry">
-            <reference interface="ddf.catalog.data.AttributeRegistry"/>
-        </property>
-        <property name="attributeValidatorRegistry" ref="attributeValidatorRegistry"/>
-    </bean>
-
-    <service ref="validationDeployer" interface="org.apache.felix.fileinstall.ArtifactInstaller"/>
-
 </blueprint>

@@ -26,9 +26,14 @@ import java.security.AccessController;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivilegedAction;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +42,8 @@ import javax.validation.constraints.NotNull;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
@@ -62,7 +69,8 @@ public class Security {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Security.class);
 
-    private static final String INSUFFICIENT_PERMISSIONS_ERROR = "Current user doesn't have sufficient privileges to run this command";
+    private static final String INSUFFICIENT_PERMISSIONS_ERROR =
+            "Current user doesn't have sufficient privileges to run this command";
 
     private static final RolePrincipal ADMIN_ROLE = new RolePrincipal("admin");
 
@@ -136,16 +144,12 @@ public class Security {
 
         try {
             try {
-                org.apache.shiro.subject.Subject subject = org.apache.shiro.SecurityUtils.getSubject();
+                org.apache.shiro.subject.Subject subject =
+                        org.apache.shiro.SecurityUtils.getSubject();
                 return subject.execute(codeToRun);
             } catch (IllegalStateException | UnavailableSecurityManagerException e) {
                 LOGGER.debug(
                         "No shiro subject available for running command, trying with Java Subject");
-            }
-
-            if (!javaSubjectHasAdminRole()) {
-                SecurityLogger.audit(INSUFFICIENT_PERMISSIONS_ERROR);
-                throw new SecurityServiceException(INSUFFICIENT_PERMISSIONS_ERROR);
             }
 
             Subject subject = getSystemSubject();
@@ -169,6 +173,11 @@ public class Security {
      * @return system's {@link Subject}
      */
     public synchronized Subject getSystemSubject() {
+
+        if (!javaSubjectHasAdminRole()) {
+            SecurityLogger.audit("Unable to retrieve system subject.");
+            return null;
+        }
 
         if (!tokenAboutToExpire(cachedSystemSubject)) {
             return cachedSystemSubject;
@@ -198,9 +207,8 @@ public class Security {
         }
 
         PKIAuthenticationTokenFactory pkiTokenFactory = createPKITokenFactory();
-        PKIAuthenticationToken pkiToken = pkiTokenFactory.getTokenFromCerts(
-                new X509Certificate[] {(X509Certificate) cert},
-                PKIAuthenticationToken.DEFAULT_REALM);
+        PKIAuthenticationToken pkiToken = pkiTokenFactory.getTokenFromCerts(new X509Certificate[] {
+                (X509Certificate) cert}, PKIAuthenticationToken.DEFAULT_REALM);
         if (pkiToken != null) {
             SecurityManager securityManager = getSecurityManager();
             if (securityManager != null) {
@@ -212,6 +220,26 @@ public class Security {
             }
         }
         return cachedSystemSubject;
+    }
+
+    /**
+     * Gets the guest {@link Subject} associated with the specified IP. Uses a cached subject when possible since the subject
+     * will not change between calls.
+     *
+     * @return system's {@link Subject}
+     */
+    public Subject getGuestSubject(String ipAddress) {
+        Subject subject = null;
+        GuestAuthenticationToken token =
+                new GuestAuthenticationToken(BaseAuthenticationToken.DEFAULT_REALM, ipAddress);
+        LOGGER.debug("Getting new Guest user token for {}", ipAddress);
+        try {
+            subject = getSecurityManager().getSubject(token);
+        } catch (SecurityServiceException sse) {
+            LOGGER.warn("Unable to request subject for guest user.", sse);
+        }
+
+        return subject;
     }
 
     /**
@@ -230,6 +258,23 @@ public class Security {
     }
 
     /**
+     * Get the expires time from the {@link Subject}'s token.
+     *
+     * @param subject subject whose token needs to be checked
+     * @return {@code Date} or null if subject doesn't have an expire time.
+     */
+    public Date getExpires(Subject subject) {
+        return ((null != subject) && (null != subject.getPrincipals()) && (null
+                != subject.getPrincipals()
+                .oneByType(SecurityAssertion.class))) ?
+                subject.getPrincipals()
+                        .oneByType(SecurityAssertion.class)
+                        .getSecurityToken()
+                        .getExpires() :
+                null;
+    }
+
+    /**
      * Gets a reference to the {@link SecurityManager}.
      *
      * @return reference to the {@link SecurityManager}
@@ -237,12 +282,23 @@ public class Security {
     public SecurityManager getSecurityManager() {
         BundleContext context = getBundleContext();
         if (context != null) {
-            ServiceReference securityManagerRef = context.getServiceReference(
-                    SecurityManager.class);
+            ServiceReference securityManagerRef =
+                    context.getServiceReference(SecurityManager.class);
             return (SecurityManager) context.getService(securityManagerRef);
         }
         LOGGER.warn("Unable to get Security Manager");
         return null;
+    }
+
+    public static <T> T runAsAdmin(PrivilegedAction<T> action) {
+        Set<Principal> principals = new HashSet<>();
+        principals.add(new RolePrincipal("admin"));
+        javax.security.auth.Subject subject = new javax.security.auth.Subject(true,
+                principals,
+                new HashSet(),
+                new HashSet());
+
+        return javax.security.auth.Subject.doAs(subject, action);
     }
 
     private BundleContext getBundleContext() {
@@ -271,7 +327,8 @@ public class Security {
 
         } catch (KeyStoreException e) {
             LOGGER.error("Unable to create keystore instance of type {}",
-                    System.getProperty("javax.net.ssl.keyStoreType"), e);
+                    System.getProperty("javax.net.ssl.keyStoreType"),
+                    e);
             return null;
         }
 

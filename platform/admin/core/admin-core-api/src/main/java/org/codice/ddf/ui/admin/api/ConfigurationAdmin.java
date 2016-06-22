@@ -81,7 +81,6 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private MBeanServer mBeanServer;
 
-
     private List<ConfigurationAdminPlugin> configurationAdminPluginList;
 
     private List<AdminModule> moduleList;
@@ -400,11 +399,31 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         // now we have to filter each property based on its cardinality
         CollectionUtils.transform(configEntries, new CardinalityTransformer(metatype, pid));
 
-        Dictionary<String, Object> configurationProperties = new Hashtable<>();
+        Dictionary<String, Object> newConfigProperties = new Hashtable<>();
+
+        // If the configuration entry is a password, and its updated configuration value is
+        // "password", do not update the password.
         for (Map.Entry<String, Object> configEntry : configEntries) {
-            configurationProperties.put(configEntry.getKey(), configEntry.getValue());
+            String configEntryKey = configEntry.getKey();
+            Object configEntryValue = configEntry.getValue();
+            if (configEntryValue.equals("password")) {
+                for (Map<String, Object> metatypeProperties : metatype) {
+                    if (metatypeProperties.get("id")
+                            .equals(configEntry.getKey())
+                            && AttributeDefinition.PASSWORD == (Integer) metatypeProperties.get(
+                            "type")) {
+                        Dictionary<String, Object> configProperties = config.getProperties();
+                        if (configProperties != null) {
+                            configEntryValue = configProperties.get(configEntryKey);
+                        }
+                        break;
+                    }
+                }
+            }
+            newConfigProperties.put(configEntryKey, configEntryValue);
         }
-        config.update(configurationProperties);
+
+        config.update(newConfigProperties);
     }
 
     // unfortunately listServices returns a bunch of nested untyped objects
@@ -425,7 +444,6 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
         return tempMetatype;
     }
-
 
     public Map<String, Object> disableConfiguration(String servicePid) throws IOException {
         if (StringUtils.isEmpty(servicePid)) {

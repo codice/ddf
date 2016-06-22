@@ -1,0 +1,45 @@
+{
+  "General": {
+    "liveDate": {
+      "displayName": "Live Date",
+      "description": "Date indicating when this node went live or operational",
+      "values": [],
+      "type": "date"
+    },
+    "lastUpdated": {
+      "displayName": "Last Updated",
+      "description": "Date this entry's data was last updated",
+      "values": [],
+      "type": "date",
+      "editable": false
+    },
+    "securityLevel": {
+      "displayName": "Security Attributes",
+      "description": "Security attributes associated with this node. Format \"attribute=val1,val2\"",
+      "values": [],
+      "type": "string",
+      "multiValued": true,
+      "regex": "/^(\\w|\\d|_|-|\\/|:|\\.)+[=](\\w|\\d|_|-|\\/|:|\\.|,)+$/",
+      "regexMessage": "Security attributes must be in the format of attribute=value1,value2"
+    }
+  },
+  "Organization": {},
+  "Person": {},
+  "Service": {},
+  "ServiceBinding": {
+    "urlBindingName": {
+      "displayName": "Url Property Key",
+      "description": "Property that the accessURI value should be put in for source creation",
+      "values": [],
+      "type": "string"
+    },
+    "bindingType": {
+      "displayName": "Service Binding Type",
+      "description": "The binding type for the service.",
+      "values": [],
+      "type": "string"
+    }
+  },
+  "Content": {
+  }
+}

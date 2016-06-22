@@ -1,11 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
  * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version.
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
  * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
 package org.codice.ddf.ui;
@@ -106,19 +109,19 @@ public class ExampleSSOWidget extends HttpServlet {
             attributes = principal.getAttributes();
 
             if (attributes != null && attributes.size() > 0) {
-                Iterator iterator = attributes.keySet()
+                Iterator iterator = attributes.entrySet()
                         .iterator();
                 while (iterator.hasNext()) {
-                    String key = (String) iterator.next();
-                    Object value = attributes.get(key);
+                    Map.Entry entry = (Map.Entry) iterator.next();
+                    Object value = entry.getValue();
                     if (value instanceof String) {
-                        sb.append(key)
+                        sb.append(entry.getKey())
                                 .append(": ")
                                 .append(value)
                                 .append("<br/>")
                                 .append(endl);
                     } else if (value instanceof List) {
-                        sb.append(key)
+                        sb.append(entry.getKey())
                                 .append(" is a List:<br/>")
                                 .append(endl);
                         for (Object o : ((List) value)) {

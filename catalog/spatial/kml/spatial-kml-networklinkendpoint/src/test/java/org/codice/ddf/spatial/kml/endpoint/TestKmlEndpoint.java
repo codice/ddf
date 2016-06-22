@@ -38,7 +38,7 @@ import javax.ws.rs.core.UriBuilderException;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.junit.BeforeClass;

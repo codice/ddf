@@ -30,7 +30,7 @@ define([
         defaults: _.extend({}, AlertsModel.AlertsDefaults.prototype.defaults, {
             'banner': 'The system is insecure because default configuration values are in use.'
         }),
-        url: "/jolokia/exec/org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean:service=insecure-defaults-service/validate",
+        url: "/admin/jolokia/exec/org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean:service=insecure-defaults-service/validate",
         parse: function (resp) {
             return {'items': resp.value};
         }

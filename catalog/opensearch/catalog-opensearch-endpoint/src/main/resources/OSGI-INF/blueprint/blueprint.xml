@@ -50,7 +50,7 @@
         <property name="name" value="Open Search Endpoint"/>
         <property name="version" value="1.0.0"/>
         <property name="description" value="The endpoint used for open search."/>
-        <property name="bindingType" value="OpenSearchSource"/>
+        <property name="bindingType" value="OpenSearch_1.0.0"/>
     </bean>
     <service ref="ddf.catalog.endpoint.opensearch"
              interface="ddf.catalog.endpoint.CatalogEndpoint"/>

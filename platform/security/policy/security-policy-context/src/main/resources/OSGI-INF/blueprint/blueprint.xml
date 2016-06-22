@@ -25,7 +25,6 @@
             <array value-type="java.lang.String">
                 <value>/=SAML|GUEST</value>
                 <value>/admin=SAML|basic</value>
-                <value>/jolokia=SAML|basic</value>
                 <value>/system=basic</value>
                 <value>/solr=SAML|PKI|basic</value>
                 <value>/security-config=SAML|basic</value>
@@ -41,7 +40,6 @@
                 <value>/=</value>
                 <value>/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
                 <value>/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
-                <value>/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
                 <value>/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
                 <value>/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
             </array>
@@ -49,7 +47,7 @@
         <property name="whiteListContexts">
             <array value-type="java.lang.String">
                 <value>${org.codice.ddf.system.rootContext}/SecurityTokenService</value>
-                <value>${org.codice.ddf.system.rootContext}/internal</value>
+                <value>${org.codice.ddf.system.rootContext}/internal/metrics</value>
                 <value>/proxy</value>
                 <value>${org.codice.ddf.system.rootContext}/saml</value>
                 <value>${org.codice.ddf.system.rootContext}/idp</value>

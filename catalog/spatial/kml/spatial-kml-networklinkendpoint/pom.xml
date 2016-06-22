@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>spatial-kml-pom</artifactId>
         <groupId>ddf.spatial.kml</groupId>
@@ -36,8 +38,8 @@
             <artifactId>JavaAPIforKml</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.webconsole</artifactId>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>branding-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.jknack</groupId>
@@ -81,7 +83,10 @@
                         <Embed-Dependency>JavaAPIforKml, catalog-core-api-impl, handlebars,
                             antlr4-runtime, commons-lang3, common-system, platform-util
                         </Embed-Dependency>
-                        <Import-Package>!org.abego.treelayout.*, org.apache.felix.webconsole; version="[3.1.0,4.0.0)", *</Import-Package>
+                        <Import-Package>
+                            !org.abego.treelayout.*,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

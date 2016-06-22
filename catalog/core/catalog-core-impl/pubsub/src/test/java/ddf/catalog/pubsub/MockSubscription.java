@@ -38,8 +38,7 @@ public class MockSubscription extends MockQuery implements Subscription {
      * @param user
      * @param compoundCriteria
      * @param dm
-     * @param siteNames
-     *            , null if you want to query the whole Enteprise
+     * @param siteNames        , null if you want to query the whole Enteprise
      */
     public MockSubscription(Subject user, DeliveryMethod dm, Set<String> siteNames) {
         super();

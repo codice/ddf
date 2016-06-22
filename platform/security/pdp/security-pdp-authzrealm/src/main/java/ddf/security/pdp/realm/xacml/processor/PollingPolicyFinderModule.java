@@ -16,6 +16,9 @@ package ddf.security.pdp.realm.xacml.processor;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Set;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
@@ -23,17 +26,14 @@ import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.balana.finder.impl.FileBasedPolicyFinderModule;
+
+import com.connexta.arbitro.finder.impl.FileBasedPolicyFinderModule;
+
+import ddf.security.common.audit.SecurityLogger;
 
 /**
- *
- * @author Dan Figliola
- * @author Shaun Morris
- * @author ddf.isgs@lmco.com
- *
  *         This class Polls Directories for policies. It is used with the PDP to poll directories
  *         for changes to polices or the policy set in the directories.
- *
  */
 public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         implements FileAlterationListener {
@@ -49,11 +49,8 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     private Set<String> xacmlPolicyDirectories;
 
     /**
-     *
-     * @param xacmlPolicyDirectories
-     *            - to search for policies
-     * @param pollingInterval
-     *            - in seconds
+     * @param xacmlPolicyDirectories - to search for policies
+     * @param pollingInterval        - in seconds
      */
     public PollingPolicyFinderModule(Set<String> xacmlPolicyDirectories, long pollingInterval) {
         super(xacmlPolicyDirectories);
@@ -85,7 +82,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onDirectoryChange(File changedDir) {
         try {
-            LOGGER.debug("Directory " + changedDir.getCanonicalPath() + " changed.");
+            SecurityLogger.audit("Directory {} changed.", changedDir.getCanonicalPath());
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -95,7 +92,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onDirectoryCreate(File createdDir) {
         try {
-            LOGGER.debug("Directory " + createdDir.getCanonicalPath() + " was created.");
+            SecurityLogger.audit("Directory {} was created.", createdDir.getCanonicalPath());
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -103,7 +100,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onDirectoryDelete(File deletedDir) {
         try {
-            LOGGER.debug("Directory " + deletedDir.getCanonicalPath() + " was deleted.");
+            SecurityLogger.audit("Directory {} was deleted.", deletedDir.getCanonicalPath());
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -111,7 +108,10 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onFileChange(File changedFile) {
         try {
-            LOGGER.debug("File " + changedFile.getCanonicalPath() + " changed.");
+            SecurityLogger.audit("File {} changed to:\n{}",
+                    changedFile.getCanonicalPath(),
+                    new String(Files.readAllBytes(Paths.get(changedFile.getCanonicalPath())),
+                            StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -121,7 +121,10 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onFileCreate(File createdFile) {
         try {
-            LOGGER.debug("File " + createdFile.getCanonicalPath() + " was created.");
+            SecurityLogger.audit("File {} was created with content:\n{}",
+                    createdFile.getCanonicalPath(),
+                    new String(Files.readAllBytes(Paths.get(createdFile.getCanonicalPath())),
+                            StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -131,7 +134,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onFileDelete(File deleteFile) {
         try {
-            LOGGER.debug("File " + deleteFile.getCanonicalPath() + " was deleted.");
+            SecurityLogger.audit("File {} was deleted.", deleteFile.getCanonicalPath());
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -167,8 +170,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     /**
      * Checks if the XACML policy directory is empty.
      *
-     * @param xacmlPoliciesDirectory
-     *            The directory containing the XACML policy.
+     * @param xacmlPoliciesDirectory The directory containing the XACML policy.
      * @return true if the directory is empty and false otherwise.
      */
     private boolean isXacmlPoliciesDirectoryEmpty(File xacmlPoliciesDirectory) {
@@ -184,8 +186,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     /**
      * Checks if the XACML policy directory is empty.
      *
-     * @param xacmlPoliciesDirectory
-     *            The directory containing the XACML policy.
+     * @param xacmlPoliciesDirectory The directory containing the XACML policy.
      * @return true if the directory is empty and false otherwise.
      */
     private boolean isXacmlPoliciesDirectoryEmpty(String xacmlPoliciesDirectory) {

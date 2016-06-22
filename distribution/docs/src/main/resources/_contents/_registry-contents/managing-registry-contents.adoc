@@ -1,0 +1,537 @@
+
+${ddf-registry} contains the base registry components, plugins, sources and interfaces needed for ${branding} to function as a registry connecting multiple nodes.
+
+=== ${ddf-registry} Prerequisites
+
+To use the ${ddf-registry}, the following apps/features must be installed:
+
+* <<Managing ${ddf-spatial},${ddf-spatial}>>
+
+=== Installing ${ddf-registry}
+
+* Navigate to the ${admin-console}.
+* Click the *Manage* applications button.
+* Click the *Install* icon.
+* ${ddf-registry} will move to *Active Applications* upon startup.
+
+=== Configuring ${ddf-registry}
+
+.Registry Configuration Tab
+[cols="1,1m,1" options="header"]
+|===
+|Name
+|Configuration ID
+|Description
+
+|<<Registry_Federation_Admin_Service,Registry Federation Admin Service>>
+|Registry_Federation_Admin_Service
+|Registry Federation Admin Service Settings
+
+|<<org.codice.ddf.registry.policy.RegistryPolicyPlugin,Registry Policy Plugin>>
+|org.codice.ddf.registry.policy.RegistryPolicyPlugin
+|Registry Policy Plugin Settings
+
+|<<Registry_Configuration_Event_Handler,Registry Source Configuration Handler>>
+|Registry_Configuration_Event_Handler
+|Configurable values for the registry source configuration handler
+
+|<<Csw_Registry_Store,Registry Store>>
+|Csw_Registry_Store
+|Registry CSW Store Settings
+
+|===
+
+.[[Registry_Federation_Admin_Service]]Registry Federation Admin Service
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Registry Sub Poller Interval
+|registrySubPollerInterval
+|String
+|The polling interval for the registry subscriptions. In seconds.
+|30
+|yes
+
+|===
+
+.[[org.codice.ddf.registry.policy.RegistryPolicyPlugin]]Registry Policy Plugin
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Registry CUD Attributes
+|writeAccessPolicyStrings
+|String
+|Roles/attributes required for CUD (create/update/delete) operations on registry entries. Example: {role=role1;type=type1}
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
+|yes
+
+|Registry Read Attributes
+|readAccessPolicyStrings
+|String
+|Roles/attributes required for reading registry entries. Example: {role=role1;type=type1}
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
+|yes
+
+|Registry Admin Attributes
+|registryBypassPolicyStrings
+|String
+|Roles/attributes required for an admin to bypass all filtering/access controls. Example: {role=role1;type=type1}
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin
+|yes
+
+|Disable Registry Write Access
+|registryDisabled
+|Boolean
+|Disables all write access to registry entries in the catalog. Only users with Registry Admin Attributes will be able to write registry entries
+|
+|no
+
+|Entries are White List
+|whiteList
+|Boolean
+|A flag indicating whether or not the Registry Entry Ids represent a 'white list' (allowed - checked) or a 'black list' (blocked - unchecked) ids
+|
+|no
+
+|Registry Entries Ids
+|registryEntryIds
+|String
+|List of registry entry ids to be used in the white/black list.
+|
+|no
+
+|===
+
+.[[Registry_Configuration_Event_Handler]]Registry Source Configuration Handler
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Url Binding Name
+|urlBindingName
+|String
+|The url name for communicating with the specific instance.
+|urlBindingName
+|yes
+
+|BindingType to Factory PID
+|bindingTypeFactoryPid
+|String
+|Key/Value mappings of binding type to factory PID
+|CSW_2.0.2=Csw_Federated_Source,WFS_1.0.0=Wfs_v1_0_0_Federated_Source,OpenSearch_1.0.0=OpenSearchSource
+|yes
+
+|Remove Configurations on Metacard Delete
+|cleanUpOnDelete
+|Boolean
+|Flag used to determine if configurations should be deleted when the metacard is deleted.
+|false
+|yes
+
+|Activate Configurations
+|activateConfigurations
+|Boolean
+|Flag used to determine if a configuration should be activated on creation
+|false
+|yes
+
+|Preserve Active Configuration
+|preserveActiveConfigurations
+|Boolean
+|Flag used to determine if configurations should be preserved. If true will only allow auto activation on creation. If false auto activation will happen on updates as well. Only applicable if activateConfigurations is true.
+|true
+|yes
+
+|Source Activation Priority Order
+|sourceActivationPriorityOrder
+|String
+|This is the priority list used to determine which source should be activated on creation
+|CSW_2.0.2,WFS_1.0.0,OpenSearch_1.0.0
+|yes
+
+|===
+
+.[[Csw_Registry_Store]]Registry Store
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Registry ID
+|id
+|String
+|The unique name of the store
+|
+|yes
+
+|CSW URL
+|cswUrl
+|String
+|URL to the endpoint implementing CSW spec capable of returning ebrim formatted records
+|
+|yes
+
+|Username
+|username
+|String
+|Username for CSW Service (optional)
+|
+|no
+
+|Password
+|password
+|Password for CSW Service (optional)
+|Password
+|
+|no
+
+|Allow Push
+|pushAllowed
+|Boolean
+|Enable push (write) to this registry store
+|true
+|yes
+
+|Allow Pull
+|pullAllowed
+|Boolean
+|Enable pull (read) from this registry store
+|true
+|yes
+
+|===
+
+=== Using ${ddf-registry}
+
+The *Local Registry Nodes* and *Remote Registries* tabs appear in both the ${ddf-registry} application and the ${ddf-catalog} application.
+
+==== Configuring Identity Node
+
+* Navigate to *${ddf-registry}* (or *${ddf-catalog}*) application.
+* Navigate to *Local Registry Nodes* tab.
+* Click the name of the identity node.
+* Complete all _required_ and any desired _optional_ fields.
+** Add any desired <<adding_a_service_binding,service bindings>> under the <<service_bindings, Services>> tab.
+* Click *Save*.
+** If service bindings were added, confirm setup by locating the identity node in the *Sources* tab of the *${ddf-catalog}* app.
+
+.General Information Tab
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Node Name
+|This node's name as it should appear to external systems
+|string
+|yes
+
+|Node Description
+|Short description for this node
+|string
+|yes
+
+|Node Version
+|This node's Version
+|string
+|yes
+
+|Security Attributes
+|Security attributes associated with this node.
+|String
+|
+
+|Last Updated
+|Date this entry's data was last updated
+|Date
+|
+
+|Live Date
+|Date indicating when this node went live or operational
+|Date
+|
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|===
+
+.[[service_bindings]]Services
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Service Name
+|This service name
+|string
+|
+
+|Service Description
+|Short description for this service
+|string
+|
+
+|Service Version
+|This service version
+|string
+|
+
+|Service Type
+|Identifies the type of service this is by a URN.
+|string
+|
+
+4+^|Bindings (Click *Add* to add a service binding)
+
+|Binding Name
+|This binding name
+|String
+|yes
+
+|Binding Description
+|Short description for this binding
+|String
+|
+
+|Binding Version
+|This binding version
+|
+|
+
+|Access URL
+|The url used to access this binding
+|
+|
+
+|Service Binding Type
+|The binding type for the service
+|
+|
+
+|URL Property Key
+|Property that the accessURI value should be put into for source creation
+|
+|
+
+4+|
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|===
+
+.Organizations Tab (click *Add* to add an organization)
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Organization Name
+|This organization's name
+|string
+|yes
+
+|Address
+|This organization's primary address
+|Expand to enter address information
+|yes
+
+|TelephoneNumber
+|Primary contact number for this organization
+|
+|no
+
+|Email
+|Primary contact email for this organization
+|
+|no
+
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|===
+
+.Contacts (click *Add* button to add contact info)
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Contact Title
+|Contact Title
+|String
+|yes
+
+|Contact First Name
+|Contact First Name
+|String
+|yes
+
+|Contact Last Name
+|Contact Last Name
+|String
+|yes
+
+|Address
+|Address for listed contact
+|String
+|minimum one
+
+|Phone number
+|Contact phone number
+|
+|minimum one
+
+|Email
+|Contact email
+|String
+|minimum one
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|===
+
+.Collections (Click *Add* to add Content Collection(s))
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Content Name
+|Name for this metadata content
+|string
+|yes
+
+|Content Description
+|Short description for this metadata content
+|string
+|no
+
+|Content Object Type
+|The kind of content object this will be. Default value should be used in most cases.
+|string
+|yes
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|===
+
+===== [[adding_a_service_binding]]Adding a Service Binding
+
+* Navigate to ${admin-console}.
+* Select ${ddf-registry} or ${ddf-catalog}.
+** (*Local Registry Nodes* tab is editable from either application.)
+* Click the name of the desired node.
+* Enter (at minimum) a *Node Name* under *General Information* tab).
+* Click the *Services* tab.
+* Click *Add* to add a service.
+* Expand new Service.
+* Enter Service name and details.
+* Click *Add* to add binding.
+* Select Service Binding type.
+** Select one of the defaults or _empty_ for a custom service binding.
+** If selecting _empty_, fill in all required fields.
+* Click Save.
+
+==== Publishing to Others
+
+* Navigate to the *Remote Registries* tab in either ${ddf-registry} or ${ddf-catalog} application.
+* Click *Add* to add a remote registry.
+* Give node a unique local name.
+* Enter Registry Service (CSW) Url.
+* Confirm *Allow Push* is checked.
+* Click *Add* to save the changes.
+* Navigate to the *Sources* Tab in ${ddf-catalog} App
+* Click desired node to be published.
+* Under *Operations*, click *Publish to ... * link.
+
+==== Subscribing to Another Node
+
+* Navigate to the *Remote Registries* tab in either ${ddf-registry} or ${ddf-catalog} application.
+* Click *Add* to add a remote registry.
+* Give new node a unique Local name.
+* Add the URL to access node.
+* Enter any needed credentials in the Username/password fields.
+* Click *Save*/*Add*.
+
+===== Editing a Subscription
+
+* Navigate to the *Remote Registries* tab in either ${ddf-registry} or ${ddf-catalog} application.
+* Click the name of the desired subscription.
+* Make changes.
+* Click *Save*.
+
+===== Deleting a Subscription
+
+* Click the *Delete* icon corresponding to the desired node to delete.
+

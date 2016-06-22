@@ -63,8 +63,8 @@ public class FilterPlugin implements AccessPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilterPlugin.class);
 
-    private Map<ServiceReference, FilterStrategy> filterStrategies = Collections.synchronizedMap(
-            new TreeMap<>(new ServiceComparator()));
+    private Map<ServiceReference, FilterStrategy> filterStrategies =
+            Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
 
     public void addStrategy(ServiceReference<FilterStrategy> filterStrategyRef) {
         Bundle bundle = FrameworkUtil.getBundle(FilterPlugin.class);
@@ -80,7 +80,7 @@ public class FilterPlugin implements AccessPlugin {
     }
 
     protected Subject getSystemSubject() {
-        return Security.getSystemSubject();
+        return org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
     }
 
     @Override
@@ -94,11 +94,15 @@ public class FilterPlugin implements AccessPlugin {
         List<String> systemNotPermittedIds = new ArrayList<>();
         for (Metacard metacard : metacards) {
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-            if (!checkPermissions(attr, securityPermission, subject,
+            if (!checkPermissions(attr,
+                    securityPermission,
+                    subject,
                     CollectionPermission.CREATE_ACTION)) {
                 userNotPermittedIds.add(metacard.getId());
             }
-            if (!checkPermissions(attr, securityPermission, systemSubject,
+            if (!checkPermissions(attr,
+                    securityPermission,
+                    systemSubject,
                     CollectionPermission.CREATE_ACTION)) {
                 systemNotPermittedIds.add(metacard.getId());
             }
@@ -144,12 +148,18 @@ public class FilterPlugin implements AccessPlugin {
                 unknownIds.add(id);
             } else {
                 Attribute oldAttr = oldMetacard.getAttribute(Metacard.SECURITY);
-                if (!checkPermissions(attr, securityPermission, subject,
+                if (!checkPermissions(attr,
+                        securityPermission,
+                        subject,
                         CollectionPermission.UPDATE_ACTION) || !checkPermissions(oldAttr,
-                        securityPermission, subject, CollectionPermission.UPDATE_ACTION)) {
+                        securityPermission,
+                        subject,
+                        CollectionPermission.UPDATE_ACTION)) {
                     userNotPermittedIds.add(newMetacard.getId());
                 }
-                if (!checkPermissions(attr, securityPermission, systemSubject,
+                if (!checkPermissions(attr,
+                        securityPermission,
+                        systemSubject,
                         CollectionPermission.UPDATE_ACTION)) {
                     systemNotPermittedIds.add(newMetacard.getId());
                 }
@@ -190,7 +200,9 @@ public class FilterPlugin implements AccessPlugin {
         int filteredMetacards = 0;
         for (Metacard metacard : results) {
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-            if (!checkPermissions(attr, securityPermission, subject,
+            if (!checkPermissions(attr,
+                    securityPermission,
+                    subject,
                     CollectionPermission.READ_ACTION)) {
                 for (FilterStrategy filterStrategy : filterStrategies.values()) {
                     FilterResult filterResult = filterStrategy.process(input, metacard);
@@ -210,7 +222,8 @@ public class FilterPlugin implements AccessPlugin {
 
         if (filteredMetacards > 0) {
             SecurityLogger.audit(
-                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size(), subject);
+                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size(),
+                    subject);
         }
 
         input.getDeletedMetacards()
@@ -244,7 +257,9 @@ public class FilterPlugin implements AccessPlugin {
         for (Result result : results) {
             metacard = result.getMetacard();
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-            if (!checkPermissions(attr, securityPermission, subject,
+            if (!checkPermissions(attr,
+                    securityPermission,
+                    subject,
                     CollectionPermission.READ_ACTION)) {
                 for (FilterStrategy filterStrategy : filterStrategies.values()) {
                     FilterResult filterResult = filterStrategy.process(input, metacard);
@@ -264,7 +279,8 @@ public class FilterPlugin implements AccessPlugin {
 
         if (filteredMetacards > 0) {
             SecurityLogger.audit(
-                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size(), subject);
+                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size(),
+                    subject);
         }
 
         input.getResults()
@@ -293,7 +309,9 @@ public class FilterPlugin implements AccessPlugin {
                 CollectionPermission.READ_ACTION);
         Subject subject = getSubject(input);
         Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-        if (!checkPermissions(attr, securityPermission, subject,
+        if (!checkPermissions(attr,
+                securityPermission,
+                subject,
                 CollectionPermission.READ_ACTION)) {
             for (FilterStrategy filterStrategy : filterStrategies.values()) {
                 FilterResult filterResult = filterStrategy.process(input, metacard);

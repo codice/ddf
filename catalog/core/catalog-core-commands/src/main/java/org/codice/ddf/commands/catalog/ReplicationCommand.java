@@ -25,6 +25,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Argument;
@@ -145,12 +146,10 @@ public class ReplicationCommand extends DuplicateCommands {
             do {
                 LOGGER.debug("In loop at iteration {}", queryIndex.get());
                 final int startIndex = queryIndex.get();
-                executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        int count = queryAndIngest(framework, catalog, startIndex, filter);
-                        printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
-                    }
+                executorService.submit(() -> {
+                    int count = queryAndIngest(framework, catalog, startIndex, filter);
+                    printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
+
                 });
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
             executorService.shutdown();
@@ -221,11 +220,10 @@ public class ReplicationCommand extends DuplicateCommands {
             }
             return null;
         }
-        List<Metacard> metacards = new ArrayList<>();
-        for (Result result : response.getResults()) {
-            metacards.add(result.getMetacard());
-        }
-        return metacards;
-    }
 
+        return response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toList());
+    }
 }

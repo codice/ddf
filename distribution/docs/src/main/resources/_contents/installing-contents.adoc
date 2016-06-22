@@ -288,20 +288,14 @@ ${branding-lowercase}${at-symbol}local>list  grep -i ${branding-lowercase}
 [WARNING]
 ====
 // This sentence is formatted unusually because of the double colons.
-If displayed, the
-`${ddf-branding} :: Distribution :: Web Console`
-entry should be in the *Resolved* state.
-This is expected.
-The ${ddf-branding} Distribution Web Console is an OSGi bundle fragment.
-Bundle fragments are distinguished from other bundles in the command line console list by a new line under the its bundle status that states `Hosts`, followed by a bundle number.
+Entries in the *Resolved* state are expected, they are OSGi bundle fragments.
+Bundle fragments are distinguished from other bundles in the command line console list by a field named `Hosts`, followed by a bundle number.
 Bundle fragments remain in the *Resolved* state and can never move to the *Active* state.
 ====
 
 .Example: Bundle Fragment in the Command Line Console
 ----
-[ 261] [Resolved   ] [            ] [       ] [   80] ${ddf-branding} :: Distribution :: Web Console (2.2.0)
-
-Hosts: 76
+215 | Resolved |  80 | ${project.version}     | DDF :: Platform :: Security :: Session, Hosts: 90
 ----
 
 ===== ${branding} Directory Contents after Installation and Initial Startup

@@ -41,7 +41,7 @@ define([
     var serviceModelResponse = new Service.Response();
 
     serviceModelResponse.fetch({
-        url: '/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)'
+        url: '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)'
     });
 
     var GuestClaimsView = Marionette.Layout.extend({

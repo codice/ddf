@@ -105,6 +105,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>ddf.distribution</groupId>
+                <artifactId>branding-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>ddf.mime.core</groupId>
                 <artifactId>mime-core-impl</artifactId>
                 <version>${project.version}</version>
@@ -365,15 +370,7 @@
         <module>error</module>
         <module>platform-http-proxy</module>
         <module>admin</module>
-        <module>branding-resources</module>
         <module>landing-page</module>
         <module>platform-app</module>
     </modules>
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
 </project>

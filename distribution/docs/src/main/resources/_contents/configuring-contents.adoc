@@ -8,37 +8,37 @@ ${branding} can be configured in several ways, depending on need:
 While there are multiple ways to configure ${branding} for use, the recommended method is to use the ${admin-console}.
 ====
 
-* RECOMMENDED: Using the browser and the ${admin-console}. <<_configuring_${branding-lowercase}_from_the_admin_console>>
-* Using a terminal and the ${command-console}. <<_configuring_${branding-lowercase}_from_the_command_console>>
-* Editing configuration files. <<_configuring_${branding-lowercase}_from_configuration_files>>
-* Importing the configurations from an existing ${branding} instance. <<_importing_configurations>>
+* RECOMMENDED: Using the browser and the ${admin-console}. <<configuring_${branding-lowercase}_from_the_admin_console, Configuring ${branding} From the ${admin-console}>>
+* Using a terminal and the ${command-console}. <<configuring_${branding-lowercase}_from_the_command_console, Configuring ${branding} From the ${command-console}>>
+* Editing configuration files. <<configuring_${branding-lowercase}_from_configuration_files, Configuring ${branding} From Configuration Files>>
+* Importing the configurations from an existing ${branding} instance. <<importing_configurations, Importing Configurations>>
 
 ////
 ADMIN CONSOLE
 ////
 
-==== Configuring ${branding} From the ${admin-console}
+==== [[configuring_${branding-lowercase}_from_the_admin_console]]Configuring ${branding} From the ${admin-console}
 include::configuring-from-the-admin-console-contents.adoc[]
 
 ////
 COMMAND CONSOLE SECTION
 ////
 
-==== Configuring ${branding} From the ${command-console}
+==== [[configuring_${branding-lowercase}_from_the_command_console]]Configuring ${branding} From the ${command-console}
 include::configuring-from-the-command-console-contents.adoc[]
 
 ////
 CONFIGURATION FILES
 ////
 
-==== Configuring ${branding} From Configuration Files
+==== [[configuring_${branding-lowercase}_from_configuration_files]]Configuring ${branding} From Configuration Files
 include::configuring-from-configuration-files-contents.adoc[]
 
 ////
 IMPORTING / EXPORTING
 ////
 
-==== Importing Configurations
+==== [[importing_configurations]]Importing Configurations
 include::configuring-from-import-contents.adoc[]
 
 ==== Managing Features
@@ -169,19 +169,28 @@ See https://tools.ietf.org/html/rfc5246[IETF RFC 5246] for more information.
 By default Solr, STS server, STS client and the rest of the services use the system property `org.codice.${ddf-branding}.system.hostname` which is defaulted to 'localhost' and not to the fully qualified domain name of the ${branding} instance.
 Assuming the ${branding} instance is providing these servcies, the configuration must be updated to use the *fully qualified domain name* as the service provider.
 
-This can be changed during <<Initial Configuration>> or later by editing the `<INSTALL_DIRECTORY>/etc/system.properties` file. See <<Editing ${branding} Web Service Providers Configuration Files>>
+This can be changed during <<Initial Configuration>> or later by editing the `<INSTALL_HOME>/etc/system.properties` file. See <<Editing ${branding} Web Service Providers Configuration Files>>
 
 ===== Creating and Installing Keys and Certificates
 
 To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
-To use the scripts, run them out of the <${branding}_HOME>/etc/certs directory. For *NIX, use the CertNew.sh script.
+To use the scripts, run them out of the <INSTALL_HOME>/etc/certs directory. For *NIX, use the CertNew.sh script.
 
 `sh CertNew.sh <FQDN>`
 
 The above command creates a new entry in the keystore for a server named `my.server.com`.
+
+Alternatively, a FQDN can be provided to the script with a comma-delimited string.
+
+`sh CertNew.sh -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+
 To create and install the certificates on Windows, use the `CertNew.cmd` file in the same directory.
 
 `CertNew <FQDN>`
+
+Alternatively, a FQDN can be provided to the script with a comma-delimited string.
+
+`CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
 
 To install a certificate signed by a different Certificate Authority, see <<Import into a Java Keystore (JKS)>>.
 
@@ -221,7 +230,7 @@ To enable, the Enable Backup Plugin configuration item must be checked in the Ba
 ====
 The Embedded LDAP has hard-coded values for the keystore path, truststore path, keystore password, and truststore password (https://github.com/codice/opendj-osgi/blob/d5021cbac4db831467ceb109ffd7ffd2c734dcd4/embedded/opendj-embedded-server/src/main/resources/config/config.ldif).
 So if using a non-default keystore and non-default truststore, the Embedded LDAP will not work.
-You will see errors in `<${branding-lowercase}-home>/etc/org.codice.opendj/ldap/logs/errors` similar to the one below:
+You will see errors in `<INSTALL_HOME>/etc/org.codice.opendj/ldap/logs/errors` similar to the one below:
 
 [source]
 ----
@@ -241,7 +250,7 @@ A workaround is to modify `config.ldif` as seen in the steps below and hot deplo
 *** `ds-cfg-trust-store-pin: password`
 *** `cn: JKS`
 
-==== Configuring ${branding} to use an LDAP server
+==== Configuring ${branding} to Use an LDAP Server
 
 [WARNING]
 ====
@@ -250,6 +259,159 @@ The configurations for Security STS LDAP and Roles Claims Handler and Security S
 
 Use the encryption service, described in <<Encryption Service>>, on the command line to set passwords for your LDAP server.
 Then change the LDAP Bind User Password in the configurations to use the encrypted password.
+
+.STS Ldap Login Configuration
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|LDAP URL
+|ldapUrl
+|String
+|LDAP or LDAPS server and port
+|ldaps://${org.codice.ddf.system.hostname}:1636
+|yes
+
+|StartTLS
+|startTls
+|Boolean
+|Determines whether or not to use StartTLS when connecting via the ldap protocol. This setting is ignored if the URL uses ldaps.
+|false
+|yes
+
+|LDAP Bind User DN
+|ldapBindUserDn
+|String
+|DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.
+|cn=admin
+|yes
+
+|LDAP Bind User Password
+|ldapBindUserPass
+|Password
+|Password used to bind user with LDAP.
+|secret
+|yes
+
+|LDAP Username Attribute
+|userNameAttribute
+|String
+|Attribute used to designate the user's name in LDAP. Usually this is uid, cn, or something similar.
+|uid
+|yes
+
+|LDAP Base User DN
+|userBaseDn
+|String
+|Full LDAP path to where users can be found.
+|ou=users\,dc=example\,dc=com
+|yes
+
+|LDAP Base Group DN
+|groupBaseDn
+|String
+|ou=groups\,dc=example\,dc=com
+|Full LDAP path to where groups can be found.
+|yes
+
+|===
+
+===== Configuring STS Claims Handlers
+
+A claim is an additional piece of data about a principal that can be included in a token along with basic token data.
+A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
+
+Claims handlers convert incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
+For example, the `LDAPClaimsHandler` takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
+These attributes are then mapped and added to the SAML assertion being created.
+Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
+
+.Security STS LDAP and Roles Claims Handler
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|LDAP URL
+|url
+|String
+|true
+|ldaps://${org.codice.ddf.system.hostname}:1636
+|LDAP or LDAPS server and port
+
+|StartTLS
+|startTls
+|Boolean
+|Determines whether or not to use StartTLS when connecting via the ldap protocol. This setting is ignored if the URL uses ldaps.
+|false
+|true
+
+|LDAP Bind User DN
+|ldapBindUserDn
+|String
+|DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.
+|cn=admin
+|true
+
+|LDAP Bind User Password
+|password
+|Password
+|Password used to bind user with LDAP.
+|secret
+|true
+
+|LDAP Username Attribute
+|userNameAttribute
+|String
+|Attribute used to designate the user's name in LDAP. Usually this is uid, cn, or something similar.
+|uid
+|true
+
+|LDAP Base User DN
+|userBaseDn
+|String
+|Full LDAP path to where users can be found.
+|ou=users\,dc=example\,dc=com
+|true
+
+|LDAP Group ObjectClass
+|objectClass
+|String
+|ObjectClass that defines structure for group membership in LDAP. Usually this is groupOfNames or groupOfUniqueNames.
+|groupOfNames
+|true
+
+|LDAP Membership Attribute
+|memberNameAttribute
+|String
+|Attribute used to designate the user's name as a member of the group in LDAP. Usually this is member or uniqueMember.
+|member
+|true
+
+|LDAP Base Group DN
+|groupBaseDn
+|String
+|Full LDAP path to where groups can be found.
+|ou=groups\,dc=example\,dc=com
+|true
+
+|Attribute Map File
+|propertyFileLocation
+|String
+|Location of the file which contains user attribute maps to use.
+|<INSTALL_HOME>/etc/ws-security/attributeMap.properties
+|true
+
+|===
 
 ==== Standalone Security Token Service (STS) Installation
 
@@ -263,19 +425,6 @@ This list is not a comprehensive list of every feature that can be uninstalled; 
 * `catalog-opensearch-endpoint`
 * `catalog-opensearch-souce`
 * `catalog-rest-endpoint`
-
-===== STS Claims Handlers
-
-Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
-An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
-These attributes are then mapped and added to the SAML assertion being created.
-Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
-
-====== Description
-
-A claim is an additional piece of data about a principal that can be included in a token along with basic token data.
-A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
-
 
 ==== Configuring ${branding} Logging Service
 

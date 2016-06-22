@@ -14,7 +14,7 @@
 package ddf.catalog.pubsub.command;
 
 import java.io.PrintStream;
-import java.util.List;
+import java.util.Map;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.event.Subscriber;
+import ddf.catalog.event.Subscription;
 
 @Command(scope = SubscriptionsCommand.NAMESPACE, name = "delete", description = "Allows users to delete registered subscriptions.")
 public class DeleteCommand extends SubscriptionsCommand {
@@ -70,7 +71,7 @@ public class DeleteCommand extends SubscriptionsCommand {
 
         PrintStream console = System.out;
 
-        List<String> subscriptionIds = getSubscriptions(id, ldapFilter);
+        Map<String, ServiceReference<Subscription>> subscriptionIds = getSubscriptions(id, ldapFilter);
         if (subscriptionIds.size() == 0) {
             console.println(RED_CONSOLE_COLOR + NO_SUBSCRIPTIONS_FOUND_MSG + DEFAULT_CONSOLE_COLOR);
         } else {
@@ -87,7 +88,7 @@ public class DeleteCommand extends SubscriptionsCommand {
                         SUBSCRIBER_SERVICE_PID);
 
                 int deletedSubscriptionsCount = 0;
-                for (String subscriptionId : subscriptionIds) {
+                for (String subscriptionId : subscriptionIds.keySet()) {
                     for (ServiceReference ref : serviceReferences) {
                         Subscriber subscriber = (Subscriber) bundleContext.getService(ref);
 
@@ -112,7 +113,7 @@ public class DeleteCommand extends SubscriptionsCommand {
                     }
 
                     // Verify the subscription was deleted and print appropriate message to console
-                    List<String> ids = getSubscriptions(subscriptionId, false);
+                    Map<String, ServiceReference<Subscription>> ids = getSubscriptions(subscriptionId, false);
                     if (ids.size() == 0) {
                         console.println(DELETE_MSG + subscriptionId);
                         deletedSubscriptionsCount++;

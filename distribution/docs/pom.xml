@@ -21,13 +21,16 @@
     </parent>
     <artifactId>docs</artifactId>
     <name>DDF DOCS</name>
+    <properties>
+        <skipTests>true</skipTests>
+    </properties>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>${skipTests}</skip>
                 </configuration>
             </plugin>
 
@@ -56,12 +59,13 @@
                     <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                     <packaging>pom</packaging>
                     <module>docs</module>
+                    <skipTests>false</skipTests>
                 </properties>
                 <repositories>
                     <repository>
                         <id>rubygems-proxy-releases</id>
                         <name>RubyGems.org Proxy (Releases)</name>
-                        <url>http://rubygems-proxy.torquebox.org/releases</url>
+                        <url>https://rubygems-proxy.torquebox.org/releases</url>
                         <releases>
                             <enabled>true</enabled>
                         </releases>
@@ -405,13 +409,6 @@
                 </build>
             </profile>
         </profiles>
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
     <dependencies>
         <dependency>
             <groupId>ddf.ui.search</groupId>

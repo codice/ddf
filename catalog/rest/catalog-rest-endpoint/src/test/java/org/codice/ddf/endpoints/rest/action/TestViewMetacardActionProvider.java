@@ -13,322 +13,109 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.codice.ddf.endpoints.rest.RESTService.CONTEXT_ROOT;
+import static org.codice.ddf.endpoints.rest.RESTService.SOURCES_PATH;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
-import java.util.Date;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.List;
 
+import org.apache.commons.lang.CharEncoding;
+import org.codice.ddf.configuration.SystemBaseUrl;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import ddf.action.Action;
-import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.Metacard;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
-    @Test
-    public void testMetacardNull() {
-        assertThat(new ViewMetacardActionProvider(ACTION_PROVIDER_ID).getActions(null), hasSize(0));
+    private static final String ACTION_PROVIDER_ID = "actionID";
+
+    private static final String METACARD_ID = "metacardID";
+
+    private static final String REMOTE_SOURCE_ID = "remote";
+
+    @Mock
+    private Metacard metacard;
+
+    private URL actionUrl;
+
+    private ViewMetacardActionProvider actionProvider;
+
+    @Before
+    public void setup() throws Exception {
+        System.setProperty(SystemBaseUrl.HOST, "localhost");
+
+        when(metacard.getId()).thenReturn(METACARD_ID);
+        when(metacard.getSourceId()).thenReturn(REMOTE_SOURCE_ID);
+
+        actionUrl = getUrl(METACARD_ID);
+
+        actionProvider = new ViewMetacardActionProvider(ACTION_PROVIDER_ID);
     }
 
     @Test
-    public void testUriSyntaxException() {
-
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-        this.configureActionProvider(SAMPLE_PROTOCOL,
-                "23^&*#",
-                SAMPLE_PORT,
-                SAMPLE_SERVICES_ROOT,
-                SAMPLE_SOURCE_NAME);
-
-        assertThat("A bad url should have been caught and an empty list returned.",
-                actionProvider.getActions(metacard),
-                hasSize(0));
-
+    public void canHandle() {
+        assertThat(actionProvider.canHandle(metacard), is(true));
     }
 
     @Test
-    public void testMetacardIdUrlEncodedSpace() {
+    public void createMetacardAction() throws MalformedURLException {
+        List<Action> actions = actionProvider.getActions(metacard);
 
-        // given
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId("abd ef");
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-        this.configureActionProvider();
-
-        // when
-        String url = actionProvider.getActions(metacard)
-                .get(0)
-                .getUrl()
-                .toString();
-
-        // then
-        assertThat(url, is(expectedDefaultAddressWith("abd+ef")));
-
+        assertThat(actions, hasSize(1));
+        Action action = actions.get(0);
+        assertThat(action.getId(), is(ACTION_PROVIDER_ID));
+        assertThat(action.getTitle(), is("Export Metacard XML"));
+        assertThat(action.getDescription(), is("Provides a URL to the metacard"));
+        assertThat(action.getUrl(), is(actionUrl));
     }
 
     @Test
-    public void testMetacardIdUrlEncodedAmpersand() {
+    public void getMetacardActionUrl() throws Exception {
+        URL url = actionProvider.getMetacardActionUrl(REMOTE_SOURCE_ID, metacard);
 
-        // given
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId("abd&ef");
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-        this.configureActionProvider();
-
-        // when
-        String url = actionProvider.getActions(metacard)
-                .get(0)
-                .getUrl()
-                .toString();
-
-        // then
-        assertThat(url, is(expectedDefaultAddressWith("abd%26ef")));
-
+        assertThat(url, is(actionUrl));
     }
 
     @Test
-    public void testMetacardIdNull() {
+    public void getMetacardActionUrlEncodedAmpersand() throws Exception {
+        String metacardId = "abc&def";
+        when(metacard.getId()).thenReturn(metacardId);
 
-        MetacardImpl metacard = new MetacardImpl();
+        URL url = actionProvider.getMetacardActionUrl(REMOTE_SOURCE_ID, metacard);
 
-        metacard.setId(null);
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-        this.configureActionProvider();
-
-        assertThat("An action should not have been created when no id is provided.",
-                actionProvider.getActions(metacard),
-                hasSize(0));
-
+        assertThat(url, is(getUrl(metacardId)));
     }
 
-    @Test
-    public void testIpNull() {
+    @Test(expected = URISyntaxException.class)
+    public void getMetacardActionUrlWhenUrlIsMalformed() throws Exception {
+        String invalidHost = "23^&*#";
+        System.setProperty(SystemBaseUrl.HOST, invalidHost);
 
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-
-        this.configureActionProvider(SAMPLE_PROTOCOL,
-                null,
-                SAMPLE_PORT,
-                SAMPLE_SERVICES_ROOT,
-                SAMPLE_SOURCE_NAME);
-
-        assertThat(actionProvider.getActions(metacard)
-                .get(0)
-                .getUrl()
-                .toString(), containsString("localhost"));
-
+        actionProvider.getMetacardActionUrl(REMOTE_SOURCE_ID, metacard);
     }
 
-    @Test
-    public void testIpUnknown() {
-
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-
-        this.configureActionProvider(SAMPLE_PROTOCOL,
-                "0.0.0.0",
-                SAMPLE_PORT,
-                SAMPLE_SERVICES_ROOT,
-                SAMPLE_SOURCE_NAME);
-
-        assertThat("An action should not have been created when ip is unknown (0.0.0.0).",
-                actionProvider.getActions(metacard),
-                hasSize(0));
+    private URL getUrl(String metacardId)
+            throws MalformedURLException, UnsupportedEncodingException {
+        String encodedMetacardId = URLEncoder.encode(metacardId, CharEncoding.UTF_8);
+        String urlString = String.format("%s%s/%s/%s",
+                CONTEXT_ROOT,
+                SOURCES_PATH,
+                REMOTE_SOURCE_ID,
+                encodedMetacardId);
+        return new URL(SystemBaseUrl.constructUrl(urlString, true));
     }
-
-    @Test
-    public void testPortNull() {
-
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-
-        this.configureActionProvider(SAMPLE_PROTOCOL,
-                SAMPLE_IP,
-                null,
-                SAMPLE_SERVICES_ROOT,
-                SAMPLE_SOURCE_NAME);
-
-        assertThat(actionProvider.getActions(metacard)
-                .get(0)
-                .getUrl()
-                .toString(), containsString("8181"));
-    }
-
-    @Test
-    public void testContextRootNull() {
-
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-
-        this.configureActionProvider(SAMPLE_PROTOCOL,
-                SAMPLE_IP,
-                SAMPLE_PORT,
-                null,
-                SAMPLE_SOURCE_NAME);
-
-        assertThat(actionProvider.getActions(metacard)
-                .get(0)
-                .getUrl()
-                .toString(), not(containsString("/services")));
-    }
-
-    @Test
-    public void testNonMetacard() {
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-        this.configureActionProvider();
-
-        assertThat("An action when metacard was not provided.",
-                actionProvider.getActions(new Date()),
-                hasSize(0));
-
-    }
-
-    @Test
-    public void testMetacard() {
-
-        // given
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-        this.configureActionProvider();
-
-        // when
-        Action action = actionProvider.getActions(metacard)
-                .get(0);
-
-        // then
-        assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
-        assertEquals(ViewMetacardActionProvider.DESCRIPTION, action.getDescription());
-        assertThat(action.getUrl()
-                .toString(), is(expectedDefaultAddressWith(metacard.getId())));
-        assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
-
-    }
-
-    @Test
-    public void testFederatedMetacard() {
-
-        // given
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-
-        String newSourceName = "newSource";
-        metacard.setSourceId(newSourceName);
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-        this.configureActionProvider();
-
-        // when
-        Action action = actionProvider.getActions(metacard)
-                .get(0);
-
-        // then
-        assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
-        assertEquals(ViewMetacardActionProvider.DESCRIPTION, action.getDescription());
-        assertThat(action.getUrl()
-                .toString(), is(expectedDefaultAddressWith(metacard.getId(), newSourceName)));
-        assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
-
-    }
-
-    @Test
-    public void testSecureMetacard() {
-
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-        this.configureSecureActionProvider();
-
-        Action action = actionProvider.getActions(metacard)
-                .get(0);
-
-        assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
-        assertEquals(ViewMetacardActionProvider.DESCRIPTION, action.getDescription());
-        assertEquals(
-                SAMPLE_SECURE_PROTOCOL + SAMPLE_IP + ":" + SAMPLE_SECURE_PORT + SAMPLE_SERVICES_ROOT
-                        + SAMPLE_PATH + SAMPLE_SOURCE_NAME + "/" + metacard.getId(),
-                action.getUrl()
-                        .toString());
-        assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
-
-    }
-
-    @Test
-    public void testNullProtocol() {
-
-        MetacardImpl metacard = new MetacardImpl();
-
-        metacard.setId(SAMPLE_ID);
-
-        AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID);
-
-        this.configureActionProvider(null,
-                SAMPLE_IP,
-                SAMPLE_SECURE_PORT,
-                SAMPLE_SERVICES_ROOT,
-                SAMPLE_SOURCE_NAME);
-
-        Action action = actionProvider.getActions(metacard)
-                .get(0);
-
-        //when null protocal should default to https
-        assertThat(action.getUrl()
-                .toString(), containsString("https"));
-
-    }
-
-    private String expectedDefaultAddressWith(String id, String sourceName) {
-        return SAMPLE_PROTOCOL + SAMPLE_IP + ":" + SAMPLE_PORT + SAMPLE_SERVICES_ROOT + SAMPLE_PATH
-                + sourceName + "/" + id;
-    }
-
-    private String expectedDefaultAddressWith(String id) {
-
-        return expectedDefaultAddressWith(id, SAMPLE_SOURCE_NAME);
-    }
-
 }

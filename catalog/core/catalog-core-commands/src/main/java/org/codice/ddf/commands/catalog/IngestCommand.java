@@ -18,11 +18,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -51,7 +58,14 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.ByteSource;
+
 import ddf.catalog.Constants;
+import ddf.catalog.content.StorageException;
+import ddf.catalog.content.StorageProvider;
+import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.content.data.impl.ContentItemImpl;
+import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.CreateRequest;
@@ -60,7 +74,9 @@ import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputCollectionTransformer;
 import ddf.catalog.transform.InputTransformer;
+import ddf.security.common.audit.SecurityLogger;
 
 /**
  * Custom Karaf command for ingesting records into the Catalog.
@@ -74,6 +90,14 @@ public class IngestCommand extends CatalogCommands {
             LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static final int DEFAULT_BATCH_SIZE = 500;
+
+    private static final String CONTENT = "content";
+
+    private static final String FILE_NAME = "fileName";
+
+    private static final String ZIP_DECOMPRESSION = "zipDecompression";
+
+    private static final String METACARD_PATH = "metacards" + File.separator;
 
     private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder().printZeroRarelyLast()
             .appendDays()
@@ -98,6 +122,14 @@ public class IngestCommand extends CatalogCommands {
     private final AtomicInteger processingThreads = new AtomicInteger();
 
     private final AtomicInteger fileCount = new AtomicInteger(Integer.MAX_VALUE);
+
+    private Map<String, List<File>> metacardFileMapping;
+
+    private File failedIngestDirectory = null;
+
+    private InputTransformer transformer = null;
+
+    private InputCollectionTransformer zipDecompression;
 
     @Argument(name = "File path or Directory path", description =
             "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."
@@ -131,19 +163,26 @@ public class IngestCommand extends CatalogCommands {
             "-i"}, multiValued = true, description = "File extension(s) or file name(s) to ignore during ingestion (-i '.txt' -i 'image.jpg' -i 'file' )")
     List<String> ignoreList;
 
-    File failedIngestDirectory = null;
-
-    InputTransformer transformer = null;
+    @Option(name = "--include-content", required = false, aliases = {}, multiValued = false, description = "Ingest a zip file that contains metacards and content using the default transformer.  The specified zip must be signed externally using DDF certificates.")
+    boolean includeContent = false;
 
     @Override
     protected Object executeWithSubject() throws Exception {
 
         final CatalogFacade catalog = getCatalog();
+
         final File inputFile = new File(filePath);
+
+        SecurityLogger.audit("Called catalog:ingest command with path : {}", filePath);
 
         if (!inputFile.exists()) {
             printErrorMessage("File or directory [" + filePath + "] must exist.");
             console.println("If the file does indeed exist, try putting the path in quotes.");
+            return null;
+        }
+
+        if (includeContent && !FilenameUtils.isExtension(filePath, "zip")) {
+            console.print("File " + filePath + " must be a zip file.");
             return null;
         }
 
@@ -167,7 +206,7 @@ public class IngestCommand extends CatalogCommands {
             }
 
             /**
-             * Batch size is always set to 1, when using an Ingest Failure Directory.  If a batch size is specified by the user, issue 
+             * Batch size is always set to 1, when using an Ingest Failure Directory.  If a batch size is specified by the user, issue
              * a warning stating that a batch size of 1 will be used.
              */
             if (batchSize != DEFAULT_BATCH_SIZE) {
@@ -182,7 +221,7 @@ public class IngestCommand extends CatalogCommands {
 
         BundleContext bundleContext = getBundleContext();
         if (!DEFAULT_TRANSFORMER_ID.equals(transformerId)) {
-            ServiceReference[] refs = null;
+            ServiceReference[] refs;
 
             try {
                 refs = bundleContext.getServiceReferences(InputTransformer.class.getName(),
@@ -280,7 +319,7 @@ public class IngestCommand extends CatalogCommands {
             }
         }
         console.println();
-
+        SecurityLogger.audit("Ingested {} files from {}", ingestCount.get(), filePath);
         return null;
     }
 
@@ -326,6 +365,9 @@ public class IngestCommand extends CatalogCommands {
     private CreateResponse createMetacards(CatalogFacade catalog, List<Metacard> listOfMetaCards)
             throws IngestException, SourceUnavailableException {
         CreateRequest createRequest = new CreateRequestImpl(listOfMetaCards);
+        if (metacardFileMapping != null) {
+            submitToStorageProvider(listOfMetaCards);
+        }
         return catalog.create(createRequest);
     }
 
@@ -368,7 +410,6 @@ public class IngestCommand extends CatalogCommands {
                 }
             }
         }
-
         return result;
     }
 
@@ -377,7 +418,7 @@ public class IngestCommand extends CatalogCommands {
             if (message != null) {
                 return transformer.transform(message);
             } else {
-                throw new IllegalArgumentException("data file is null.");
+                throw new IllegalArgumentException("Data file is null.");
             }
 
         } catch (CatalogTransformerException e) {
@@ -402,8 +443,7 @@ public class IngestCommand extends CatalogCommands {
 
     private void makeFailedIngestDirectory() {
         if (!failedIngestDirectory.mkdirs()) {
-            printErrorMessage(
-                    "Unable to create directory [" + failedIngestDirectory.getAbsolutePath()
+            printErrorMessage("Unable to create directory [" + failedIngestDirectory.getAbsolutePath()
                             + "].");
         }
     }
@@ -416,26 +456,19 @@ public class IngestCommand extends CatalogCommands {
             createResponse = createMetacards(catalog, metacards);
         } catch (IngestException e) {
             printErrorMessage("Error executing command: " + e.getMessage());
-            if (INGEST_LOGGER.isWarnEnabled()) {
-                INGEST_LOGGER.warn("Error ingesting metacard batch {}",
-                        buildIngestLog(metacards),
-                        e);
-            }
+            INGEST_LOGGER.warn("Error ingesting metacard batch {}", buildIngestLog(metacards), e);
         } catch (SourceUnavailableException e) {
-            if (INGEST_LOGGER.isWarnEnabled()) {
-                INGEST_LOGGER.warn("Error on process batch, local provider not available. {}"
-                                + " metacards failed to ingest. {}",
-                        metacards.size(),
-                        buildIngestLog(metacards),
-                        e);
-            }
+            INGEST_LOGGER.warn("Error on process batch, local provider not available. {}"
+                    + " metacards failed to ingest. {}",
+                    metacards.size(),
+                    buildIngestLog(metacards),
+                    e);
         } finally {
             processingThreads.decrementAndGet();
         }
 
         if (createResponse != null) {
-            ingestCount.getAndAdd(createResponse.getCreatedMetacards()
-                    .size());
+            ingestCount.getAndAdd(metacards.size());
         }
         return createResponse != null;
     }
@@ -452,58 +485,142 @@ public class IngestCommand extends CatalogCommands {
 
     private void buildQueue(Stream<Path> ingestStream, ArrayBlockingQueue<Metacard> metacardQueue,
             long start) {
-        ingestStream.filter(a -> !a.toFile()
-                .isDirectory())
-                .forEach(a -> {
-                    File file = a.toFile();
 
-                    if (file.isHidden()) {
-                        ignoreCount.incrementAndGet();
-                    } else {
-                        String extension = file.getName();
+        if (includeContent) {
+            File inputFile = new File(filePath);
+            Map<String, Serializable> arguments = new HashMap<>();
+            arguments.put(DumpCommand.FILE_PATH, inputFile.getParent() + File.separator);
+            arguments.put(FILE_NAME, inputFile.getName());
 
-                        if (extension.contains(".")) {
-                            int x = extension.indexOf('.');
-                            extension = extension.substring(x);
-                        }
+            ByteSource byteSource = com.google.common.io.Files.asByteSource(inputFile);
 
-                        if (ignoreList != null && (ignoreList.contains(extension)
-                                || ignoreList.contains(file.getName()))) {
+            zipDecompression = getZipDecompression();
+            if (zipDecompression != null) {
+
+                try (InputStream inputStream = byteSource.openBufferedStream()) {
+                    List<Metacard> metacardList = zipDecompression.transform(inputStream,
+                            arguments);
+                    if (metacardList.size() != 0) {
+                        metacardFileMapping = generateFileMap(new File(inputFile.getParent(), METACARD_PATH));
+                        fileCount.set(metacardList.size());
+                        metacardQueue.addAll(metacardList);
+                    }
+                } catch (IOException | CatalogTransformerException e) {
+                    LOGGER.error("Unable to transform zip file into metacard list.", e);
+                    INGEST_LOGGER.error("Unable to transform zip file into metacard list.", e);
+                }
+            } else {
+                LOGGER.error(
+                        "No Zip Transformer found.  Unable to transform zip file into metacard list.");
+                INGEST_LOGGER.error(
+                        "No Zip Transformer found.  Unable to transform zip file into metacard list.");
+            }
+
+        } else {
+
+            ingestStream.map(Path::toFile)
+                    .filter(file -> !file.isDirectory())
+                    .forEach(file -> {
+
+                        if (file.isHidden()) {
                             ignoreCount.incrementAndGet();
-                            printProgressAndFlush(start,
-                                    fileCount.get(),
-                                    ingestCount.get() + ignoreCount.get());
                         } else {
-                            Metacard result;
-                            try {
-                                result = readMetacard(file);
-                            } catch (IngestException e) {
-                                result = null;
-                                logIngestException(e, file);
-                                if (failedIngestDirectory != null) {
-                                    moveToFailedIngestDirectory(file);
-                                }
-                                printErrorMessage(
-                                        "Failed to ingest file [" + file.getAbsolutePath() + "].");
-                                if (INGEST_LOGGER.isWarnEnabled()) {
+                            String extension = "." + FilenameUtils.getExtension(file.getName());
+
+                            if (ignoreList != null && (ignoreList.contains(extension)
+                                    || ignoreList.contains(file.getName()))) {
+                                ignoreCount.incrementAndGet();
+                                printProgressAndFlush(start,
+                                        fileCount.get(),
+                                        ingestCount.get() + ignoreCount.get());
+                            } else {
+                                Metacard result;
+                                try {
+                                    result = readMetacard(file);
+                                } catch (IngestException e) {
+                                    result = null;
+                                    logIngestException(e, file);
+                                    if (failedIngestDirectory != null) {
+                                        moveToFailedIngestDirectory(file);
+                                    }
+                                    printErrorMessage(
+                                            "Failed to ingest file [" + file.getAbsolutePath()
+                                                    + "].");
                                     INGEST_LOGGER.warn("Failed to ingest file [{}].",
                                             file.getAbsolutePath());
                                 }
-                            }
 
-                            if (result != null) {
-                                try {
-                                    metacardQueue.put(result);
-                                } catch (InterruptedException e) {
-                                    INGEST_LOGGER.error(
-                                            "Thread interrupted while waiting to 'put' metacard: {}",
-                                            e);
+                                if (result != null) {
+                                    try {
+                                        metacardQueue.put(result);
+                                    } catch (InterruptedException e) {
+                                        INGEST_LOGGER.error(
+                                                "Thread interrupted while waiting to 'put' metacard: {}",
+                                                result.getId(),
+                                                e);
+                                    }
                                 }
                             }
                         }
+                    });
+        }
+        doneBuildingQueue.set(true);
+    }
+
+    private void submitToStorageProvider(List<Metacard> metacardList) {
+        StorageProvider storageProvider = getAllServices(StorageProvider.class).get(0);
+
+        metacardList.stream()
+                .filter(metacard -> metacardFileMapping.containsKey(metacard.getId()))
+                .map(metacard -> {
+
+                    List<File> fileList = metacardFileMapping.get(metacard.getId());
+                    List<ContentItem> contentItemList = new ArrayList<>();
+                    ContentItem contentItem;
+
+                    for (File file : fileList) {
+                        ByteSource byteSource = com.google.common.io.Files.asByteSource(file);
+                        String fileName = file.getName()
+                                .split("-")[1];
+
+                        String fragment = null;
+                        if (!file.getPath()
+                                .contains(CONTENT + File.separator + metacard.getId())) {
+                            fragment = StringUtils.substringBetween(file.getPath(),
+                                    CONTENT + File.separator,
+                                    File.separator + metacard.getId());
+                        }
+                        contentItem = new ContentItemImpl(metacard.getId(),
+                                fragment,
+                                byteSource,
+                                metacard.getContentTypeName(),
+                                fileName,
+                                file.length(),
+                                metacard);
+                        contentItemList.add(contentItem);
+                    }
+
+                    return new CreateStorageRequestImpl(contentItemList,
+                            metacard.getId(),
+                            new HashMap<>());
+                })
+                .forEach(createStorageRequest -> {
+                    try {
+                        storageProvider.create(createStorageRequest);
+                        storageProvider.commit(createStorageRequest);
+                    } catch (StorageException e) {
+                        LOGGER.debug("Unable to create content for {}",
+                                createStorageRequest.getId(),
+                                e);
+                        try {
+                            storageProvider.rollback(createStorageRequest);
+                        } catch (StorageException e1) {
+                            LOGGER.debug("Unable to perform rollback on temporary content for {} ",
+                                    createStorageRequest.getId(),
+                                    e1);
+                        }
                     }
                 });
-        doneBuildingQueue.set(true);
     }
 
     private void submitToCatalog(ScheduledExecutorService batchScheduler,
@@ -526,16 +643,70 @@ public class IngestCommand extends CatalogCommands {
                         try {
                             processBatch(catalog, metacardBatch);
                         } catch (SourceUnavailableException e) {
-                            if (INGEST_LOGGER.isWarnEnabled()) {
-                                INGEST_LOGGER.warn("Error on process batch: {}", e);
-                            }
+                            INGEST_LOGGER.warn("Error on process batch.", e);
                         }
                     });
+
                     printProgressAndFlush(start,
                             fileCount.get(),
                             ingestCount.get() + ignoreCount.get());
                 }
             }
         }, 100, 100, TimeUnit.MILLISECONDS);
+    }
+
+    private Map<String, List<File>> generateFileMap(File inputFile) throws IOException {
+
+        if (!inputFile.exists()) {
+            return null;
+        }
+
+        Map<String, List<File>> fileMap = new HashMap<>();
+        Files.walkFileTree(inputFile.toPath(), new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs)
+                    throws IOException {
+
+                File file = filePath.toFile();
+
+                if (file.getParent()
+                        .contains(CONTENT) && !file.isDirectory() && !file.isHidden()) {
+                    addFileToMap(fileMap, file);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+        return fileMap;
+    }
+
+    private void addFileToMap(Map<String, List<File>> fileMap, File file) {
+        String[] fileName = file.getName()
+                .split("-");
+        if (fileName.length == 2) {
+            fileMap.putIfAbsent(fileName[0], new ArrayList<>());
+            fileMap.get(fileName[0])
+                    .add(file);
+        } else if (!file.isHidden()) {
+            LOGGER.warn(
+                    "Filename {} does not follow expected convention : ID-Filename, and will be skipped.",
+                    file.getName());
+        }
+    }
+
+    private InputCollectionTransformer getZipDecompression() {
+        List<InputCollectionTransformer> inputCollectionTransformerList = null;
+        try {
+            inputCollectionTransformerList = getAllServices(InputCollectionTransformer.class,
+                    "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_DECOMPRESSION + ")" + ")");
+        } catch (InvalidSyntaxException e) {
+            LOGGER.error("Unable to get transformer id={}", ZIP_DECOMPRESSION, e);
+        }
+
+        if (inputCollectionTransformerList != null && inputCollectionTransformerList.size() > 0) {
+            return inputCollectionTransformerList.get(0);
+        }
+
+        return null;
     }
 }
