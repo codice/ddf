@@ -216,15 +216,16 @@ public class MetacardApplication implements SparkApplication {
             String revertId = req.params(":revertid");
 
             Metacard versionMetacard = util.getMetacard(revertId);
+
+            Metacard revertMetacard = HistoryMetacardImpl.toBasicMetacard(versionMetacard);
             if (versionMetacard.getAttribute(HistoryMetacardImpl.ACTION)
                     .getValue()
                     .equals(HistoryMetacardImpl.Action.DELETED.getKey())) {
-            /* can't revert to a deleted.. right now */
-                res.status(400);
-                return "";
+                catalogFramework.create(new CreateRequestImpl(revertMetacard));
+            } else {
+                catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
             }
-            Metacard revertMetacard = HistoryMetacardImpl.toBasicMetacard(versionMetacard);
-            catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
+
             return util.metacardToJson(revertMetacard);
         });
 

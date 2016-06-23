@@ -21,8 +21,9 @@ define([
     'wreqr',
     'component/loading/loading.view',
     'component/lightbox/lightbox.view.instance',
-    'component/workspace-sharing/workspace-sharing.view'
-], function (_, Backbone, Vertical, store, wreqr, LoadingView, lightboxInstance, WorkspaceSharing) {
+    'component/workspace-sharing/workspace-sharing.view',
+    'component/metacard-restore/metacard-restore.view'
+], function (_, Backbone, Vertical, store, wreqr, LoadingView, lightboxInstance, WorkspaceSharing, MetacardRestore) {
 
     var definition = [
         [
@@ -115,8 +116,13 @@ define([
         [
             {
                 type: 'action',
-                name: 'See Revision History',
-                icon: 'history'
+                name: 'Restore Archived Items',
+                icon: 'history',
+                action: function () {
+                    lightboxInstance.model.updateTitle('Restore Archived Items');
+                    lightboxInstance.model.open();
+                    lightboxInstance.lightboxContent.show(new MetacardRestore());
+                }
             }
         ],
         [
