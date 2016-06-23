@@ -162,5 +162,10 @@
             <artifactId>admin-core-logviewer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-configpolicy</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
