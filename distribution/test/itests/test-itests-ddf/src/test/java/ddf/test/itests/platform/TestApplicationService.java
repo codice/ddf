@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.shiro.subject.Subject;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.common.test.BeforeExam;
 import ddf.common.test.KarafConsole;
+import ddf.security.common.util.Security;
 import ddf.test.itests.AbstractIntegrationTest;
 
 /**
@@ -89,12 +91,16 @@ public class TestApplicationService extends AbstractIntegrationTest {
     private static final String APP_LIST_PROPERTIES_FILE =
             "/org.codice.ddf.admin.applicationlist.properties";
 
+    private static Subject systemSubject;
+
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
             getServiceManager().waitForAllBundles();
+            systemSubject =
+                    org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
             console = new KarafConsole(getServiceManager().getBundleContext(),
                     features,
                     sessionFactory);
@@ -106,124 +112,168 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     @Test
     public void bTestAppStatus() throws ApplicationServiceException, InterruptedException {
-        // Test AppService
-        ApplicationService applicationService =
-                getServiceManager().getService(ApplicationService.class);
-        Set<Application> apps = applicationService.getApplications();
-        List<Application> catalogList = apps.stream()
-                .filter(a -> CATALOG_APP.equals(a.getName()))
-                .collect(Collectors.toList());
-        if (catalogList.size() != 1) {
-            fail("Expected to find 1 " + CATALOG_APP + " in Application list.");
-        }
-        Application catalog = catalogList.get(0);
-        applicationService.startApplication(catalog);
-        getServiceManager().waitForAllBundles();
-        assertNotNull("Application [" + CATALOG_APP + "] must not be null", catalog);
-        ApplicationStatus status = applicationService.getApplicationStatus(catalog);
-        assertThat("Application [" + CATALOG_APP + "] should be ACTIVE",
-                status.getState(),
-                is(ACTIVE));
 
-        List<Application> solrList = apps.stream()
-                .filter(a -> SOLR_APP.equals(a.getName()))
-                .collect(Collectors.toList());
-        if (catalogList.size() != 1) {
-            fail("Expected to find 1 " + SOLR_APP + " in Application list.");
-        }
-        Application solr = solrList.get(0);
-        assertNotNull("Application [" + SOLR_APP + "] must not be null", solr);
-        status = applicationService.getApplicationStatus(solr);
-        assertThat("Application [" + SOLR_APP + "] should be INACTIVE",
-                status.getState(),
-                is(INACTIVE));
+        systemSubject.execute(() -> {
+            // Test AppService
+            ApplicationService applicationService = getServiceManager().getService(
+                    ApplicationService.class);
+            Set<Application> apps = applicationService.getApplications();
+            List<Application> catalogList = apps.stream()
+                    .filter(a -> CATALOG_APP.equals(a.getName()))
+                    .collect(Collectors.toList());
+            if (catalogList.size() != 1) {
+                fail("Expected to find 1 " + CATALOG_APP + " in Application list.");
+            }
+            Application catalog = catalogList.get(0);
+            try {
+                applicationService.startApplication(catalog);
+                getServiceManager().waitForAllBundles();
 
-        // Test Commands
-        String response = console.runCommand(STATUS_COMMAND + CATALOG_APP);
-        assertThat(CATALOG_APP + " should be ACTIVE", response, containsString(ACTIVE_APP));
-        response = console.runCommand(STATUS_COMMAND + SOLR_APP);
-        assertThat(SOLR_APP + " should be INACTIVE", response, containsString(INACTIVE_APP));
+            } catch (ApplicationServiceException e) {
+                LOGGER.error("Failed to start the {}: {}", CATALOG_APP, e.getMessage());
+                fail();
+            } catch (InterruptedException e) {
+                LOGGER.error("Failed to start start all bundles {}", e.getMessage());
+                fail();
+            }
+
+            assertNotNull("Application [" + CATALOG_APP + "] must not be null", catalog);
+            ApplicationStatus status = applicationService.getApplicationStatus(catalog);
+            assertThat("Application [" + CATALOG_APP + "] should be ACTIVE",
+                    status.getState(),
+                    is(ACTIVE));
+
+            List<Application> solrList = apps.stream()
+                    .filter(a -> SOLR_APP.equals(a.getName()))
+                    .collect(Collectors.toList());
+            if (catalogList.size() != 1) {
+                fail("Expected to find 1 " + SOLR_APP + " in Application list.");
+            }
+            Application solr = solrList.get(0);
+            assertNotNull("Application [" + SOLR_APP + "] must not be null", solr);
+            status = applicationService.getApplicationStatus(solr);
+            assertThat("Application [" + SOLR_APP + "] should be INACTIVE",
+                    status.getState(),
+                    is(INACTIVE));
+
+            // Test Commands
+            String response = console.runCommand(STATUS_COMMAND + CATALOG_APP);
+            assertThat(CATALOG_APP + " should be ACTIVE", response, containsString(ACTIVE_APP));
+            response = console.runCommand(STATUS_COMMAND + SOLR_APP);
+            assertThat(SOLR_APP + " should be INACTIVE", response, containsString(INACTIVE_APP));
+        });
     }
 
     @Test
     public void cTestAppStartStop() throws ApplicationServiceException {
-        // Test AppService
-        ApplicationService applicationService =
-                getServiceManager().getService(ApplicationService.class);
-        Application solr = applicationService.getApplication(SOLR_APP);
-        assertNotNull("Application [" + SOLR_APP + "] must not be null", solr);
-        ApplicationStatus status = applicationService.getApplicationStatus(solr);
-        assertThat(SOLR_APP + " should be INACTIVE", status.getState(), is(INACTIVE));
 
-        applicationService.startApplication(solr);
-        status = applicationService.getApplicationStatus(solr);
-        assertThat(SOLR_APP + " should be ACTIVE after start, but was [" + status.getState() + "]",
-                status.getState(),
-                is(ACTIVE));
+        systemSubject.execute(() -> {
+            // Test AppService
+            ApplicationService applicationService = getServiceManager().getService(
+                    ApplicationService.class);
+            Application solr = applicationService.getApplication(SOLR_APP);
+            assertNotNull("Application [" + SOLR_APP + "] must not be null", solr);
+            ApplicationStatus status = applicationService.getApplicationStatus(solr);
+            assertThat(SOLR_APP + " should be INACTIVE", status.getState(), is(INACTIVE));
 
-        applicationService.stopApplication(solr);
-        status = applicationService.getApplicationStatus(solr);
-        assertThat(SOLR_APP + " should be INACTIVE after stop", status.getState(), is(INACTIVE));
+            try {
+                applicationService.startApplication(solr);
+            } catch (ApplicationServiceException e) {
+                LOGGER.error("Failed to start the {}: {}", SOLR_APP, e.getMessage());
+                fail();
+            }
+            status = applicationService.getApplicationStatus(solr);
+            assertThat(
+                    SOLR_APP + " should be ACTIVE after start, but was [" + status.getState() + "]",
+                    status.getState(),
+                    is(ACTIVE));
+            try {
+                applicationService.stopApplication(solr);
+            } catch (ApplicationServiceException e) {
+                LOGGER.error("Failed to stop the {}: {}", SOLR_APP, e.getMessage());
+                fail();
+            }
+            status = applicationService.getApplicationStatus(solr);
+            assertThat(SOLR_APP + " should be INACTIVE after stop",
+                    status.getState(),
+                    is(INACTIVE));
 
-        // Test Commands
-        String response = console.runCommand(STATUS_COMMAND + SOLR_APP);
-        assertThat(SOLR_APP + " should be INACTIVE", response, containsString(INACTIVE_APP));
-        response = console.runCommand(START_COMMAND + SOLR_APP);
-        assertThat(SOLR_APP + " should be empty response after " + START_COMMAND,
-                response,
-                isEmptyString());
-        response = console.runCommand(STATUS_COMMAND + SOLR_APP);
-        assertThat(SOLR_APP + " should be ACTIVE after " + START_COMMAND,
-                response,
-                containsString(ACTIVE_APP));
-        response = console.runCommand(STOP_COMMAND + SOLR_APP);
-        assertThat(SOLR_APP + " should be empty response after " + START_COMMAND,
-                response,
-                isEmptyString());
-        response = console.runCommand(STATUS_COMMAND + SOLR_APP);
-        assertThat(SOLR_APP + " should be INACTIVE after " + STOP_COMMAND,
-                response,
-                containsString(INACTIVE_APP));
+            // Test Commands
+            String response = console.runCommand(STATUS_COMMAND + SOLR_APP);
+            assertThat(SOLR_APP + " should be INACTIVE", response, containsString(INACTIVE_APP));
+            response = console.runCommand(START_COMMAND + SOLR_APP);
+            assertThat(SOLR_APP + " should be empty response after " + START_COMMAND,
+                    response,
+                    isEmptyString());
+            response = console.runCommand(STATUS_COMMAND + SOLR_APP);
+            assertThat(SOLR_APP + " should be ACTIVE after " + START_COMMAND,
+                    response,
+                    containsString(ACTIVE_APP));
+            response = console.runCommand(STOP_COMMAND + SOLR_APP);
+            assertThat(SOLR_APP + " should be empty response after " + START_COMMAND,
+                    response,
+                    isEmptyString());
+            response = console.runCommand(STATUS_COMMAND + SOLR_APP);
+            assertThat(SOLR_APP + " should be INACTIVE after " + STOP_COMMAND,
+                    response,
+                    containsString(INACTIVE_APP));
+        });
     }
 
     @Test
     public void dTestAppAddRemove() throws ApplicationServiceException {
-        ApplicationService applicationService =
-                getServiceManager().getService(ApplicationService.class);
-        Application sdkApp = applicationService.getApplication(SDK_APP);
-        URI sdkUri = sdkApp.getURI();
 
-        // Remove
-        applicationService.removeApplication(sdkApp);
-        Set<Application> apps = applicationService.getApplications();
-        assertThat(apps, not(hasItem(sdkApp)));
+        systemSubject.execute(() -> {
+            ApplicationService applicationService = getServiceManager().getService(
+                    ApplicationService.class);
+            Application sdkApp = applicationService.getApplication(SDK_APP);
+            URI sdkUri = sdkApp.getURI();
 
-        // Add
-        applicationService.addApplication(sdkUri);
-        sdkApp = applicationService.getApplication(SDK_APP);
-        assertThat(sdkApp.getName(), is(SDK_APP));
-        assertThat(sdkApp.getURI(), is(sdkUri));
-        ApplicationStatus status = applicationService.getApplicationStatus(sdkApp);
-        assertThat(status.getState(), is(INACTIVE));
-        apps = applicationService.getApplications();
-        assertThat(apps, hasItem(sdkApp));
+            // Remove
+            try {
+                applicationService.removeApplication(sdkApp);
+            } catch (ApplicationServiceException e) {
+                LOGGER.error("Failed to remove {}: {}", sdkApp.getName(), e.getMessage());
+                fail();
+            }
 
-        // Test Commands
-        // Remove
-        String response = console.runCommand(REMOVE_COMMAND + SDK_APP);
-        assertThat("Should be empty response after " + REMOVE_COMMAND, response, isEmptyString());
-        response = console.runCommand(STATUS_COMMAND + SDK_APP);
-        assertThat(SDK_APP + " should be not be found after " + REMOVE_COMMAND,
-                response,
-                containsString("No application found with name " + SDK_APP));
-        // Add
-        response = console.runCommand(ADD_COMMAND + sdkUri.toString());
-        assertThat("Should be empty response after " + ADD_COMMAND, response, isEmptyString());
-        response = console.runCommand(STATUS_COMMAND + SDK_APP);
-        assertThat(SDK_APP + " should be INACTIVE after " + STATUS_COMMAND,
-                response,
-                containsString(INACTIVE_APP));
+            Set<Application> apps = applicationService.getApplications();
+            assertThat(apps, not(hasItem(sdkApp)));
 
+            // Add
+            try {
+                applicationService.addApplication(sdkUri);
+            } catch (ApplicationServiceException e) {
+                LOGGER.error("Failed to add {}: {}", sdkUri, e.getMessage());
+                fail();
+            }
+
+            sdkApp = applicationService.getApplication(SDK_APP);
+            assertThat(sdkApp.getName(), is(SDK_APP));
+            assertThat(sdkApp.getURI(), is(sdkUri));
+            ApplicationStatus status = applicationService.getApplicationStatus(sdkApp);
+            assertThat(status.getState(), is(INACTIVE));
+            apps = applicationService.getApplications();
+            assertThat(apps, hasItem(sdkApp));
+
+            // Test Commands
+            // Remove
+            String response = console.runCommand(REMOVE_COMMAND + SDK_APP);
+            assertThat("Should be empty response after " + REMOVE_COMMAND,
+                    response,
+                    isEmptyString());
+            response = console.runCommand(STATUS_COMMAND + SDK_APP);
+            assertThat(SDK_APP + " should be not be found after " + REMOVE_COMMAND,
+                    response,
+                    containsString("No application found with name " + SDK_APP));
+            // Add
+            response = console.runCommand(ADD_COMMAND + sdkUri.toString());
+            assertThat("Should be empty response after " + ADD_COMMAND, response, isEmptyString());
+            response = console.runCommand(STATUS_COMMAND + SDK_APP);
+            assertThat(SDK_APP + " should be INACTIVE after " + STATUS_COMMAND,
+                    response,
+                    containsString(INACTIVE_APP));
+        });
     }
 }
 

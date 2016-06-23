@@ -46,7 +46,12 @@ public class AdminConfig {
     }
 
     public org.codice.ddf.ui.admin.api.ConfigurationAdmin getDdfConfigAdmin() {
-        return new org.codice.ddf.ui.admin.api.ConfigurationAdmin(configAdmin);
+        return new org.codice.ddf.ui.admin.api.ConfigurationAdmin(configAdmin) {
+            @Override
+            public boolean isPermittedToViewService(String servicePid) {
+                return true;
+            }
+        };
     }
 
     public Configuration createFactoryConfiguration(String s) throws IOException {

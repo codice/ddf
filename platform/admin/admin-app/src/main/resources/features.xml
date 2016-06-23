@@ -20,6 +20,7 @@
              description="DDF Administration Tools">
         <feature prerequisite="true">security-services-app</feature>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+        <bundle>mvn:ddf.admin.core/admin-core-configpolicy/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-jolokia/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-configplugin/${project.version}</bundle>
