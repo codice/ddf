@@ -20,7 +20,7 @@ define([
     ],function(Application, require) {
 
 
-    Application.App.module('Applications', function(ApplicationModule, App, Backbone, Marionette, $, _) {
+    Application.App.module('Applications', function(ApplicationModule, App) {
 
         require([
                 'js/controllers/App.controller',

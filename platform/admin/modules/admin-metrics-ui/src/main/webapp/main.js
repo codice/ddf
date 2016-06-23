@@ -21,12 +21,12 @@
 
             moment: '../../admin/metrics/lib/moment/moment',
 
-            bootstrap: '../../admin/metrics/lib/components-bootstrap/js/bootstrap.min',
+            bootstrap: '../../admin/metrics/lib/bootstrap/dist/js/bootstrap.min',
             spin: '../../admin/metrics/lib/spin.js/spin',
             q: '../../admin/metrics/lib/q/q',
 
             // backbone
-            backbone: '../../admin/metrics/lib/components-backbone/backbone-min',
+            backbone: '../../admin/metrics/lib/backbone/backbone',
             backboneassociation: '../../admin/metrics/lib/backbone-associations/backbone-associations-min',
             underscore: '../../admin/metrics/lib/lodash/dist/lodash.underscore.min',
             marionette: '../../admin/metrics/lib/marionette/lib/backbone.marionette.min',
@@ -40,7 +40,7 @@
             spinnerConfig: 'js/spinnerConfig',
 
             // jquery
-            jquery: '../../admin/metrics/lib/jquery/jquery.min',
+            jquery: '../../admin/metrics/lib/jquery/dist/jquery.min',
             jqueryui: '../../admin/metrics/lib/jquery-ui/ui/minified/jquery-ui.min',
             'jquery.ui.widget': '../../admin/metrics/lib/jquery-ui/ui/minified/jquery.ui.widget.min',
             multiselect: '../../admin/metrics/lib/bootstrap-multiselect/js/bootstrap-multiselect',
@@ -50,7 +50,7 @@
 
             // handlebars
             handlebars: '../../admin/metrics/lib/handlebars/handlebars.min',
-            icanhaz: '../../admin/metrics/lib/icanhandlebarz/ICanHandlebarz',
+            icanhaz: 'js/ich',
 
             // require plugins
             text: '../../admin/metrics/lib/requirejs-plugins/lib/text',
