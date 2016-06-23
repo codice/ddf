@@ -146,12 +146,23 @@
         </jaxrs:providers>
     </jaxrs:server>
 
+    <bean id="enumerationExtractor" class="org.codice.ddf.catalog.ui.metacard.enumerations.ExperimentalEnumerationExtractor">
+        <argument>
+            <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
+        </argument>
+        <argument>
+            <reference-list interface="ddf.catalog.data.MetacardType" />
+        </argument>
+    </bean>
+
     <bean id="metacardApplication" class="org.codice.ddf.catalog.ui.metacard.MetacardApplication">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
         <argument ref="endpointUtil"/>
         <argument ref="validator"/>
         <argument ref="workspaceTransformer"/>
+        <argument ref="enumerationExtractor" />
+        <!--todo (RCZ) - Add the enumeration extractor to here and make the endpoint-->
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">

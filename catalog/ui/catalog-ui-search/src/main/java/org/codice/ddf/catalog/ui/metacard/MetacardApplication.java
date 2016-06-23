@@ -43,6 +43,7 @@ import org.codice.ddf.catalog.ui.metacard.associations.Associated;
 import org.codice.ddf.catalog.ui.metacard.associations.AssociatedItem;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
 import org.codice.ddf.catalog.ui.metacard.edit.MetacardChanges;
+import org.codice.ddf.catalog.ui.metacard.enumerations.ExperimentalEnumerationExtractor;
 import org.codice.ddf.catalog.ui.metacard.history.HistoryResponse;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
@@ -92,13 +93,17 @@ public class MetacardApplication implements SparkApplication {
 
     private final WorkspaceTransformer transformer;
 
+    private final ExperimentalEnumerationExtractor enumExtractor;
+
     public MetacardApplication(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
-            EndpointUtil endpointUtil, Validator validator, WorkspaceTransformer transformer) {
+            EndpointUtil endpointUtil, Validator validator, WorkspaceTransformer transformer,
+            ExperimentalEnumerationExtractor enumExtractor) {
         this.catalogFramework = catalogFramework;
         this.filterBuilder = filterBuilder;
         this.util = endpointUtil;
         this.validator = validator;
         this.transformer = transformer;
+        this.enumExtractor = enumExtractor;
     }
 
     @Override
@@ -322,6 +327,10 @@ public class MetacardApplication implements SparkApplication {
             String id = req.params(":id");
             catalogFramework.delete(new DeleteRequestImpl(id));
             return "";
+        });
+
+        get("/enumerations/:type", APPLICATION_JSON, (req, res) -> {
+            return util.getJson(enumExtractor.getEnumerations(req.params(":type")));
         });
 
         exception(IngestException.class, (ex, req, res) -> {
