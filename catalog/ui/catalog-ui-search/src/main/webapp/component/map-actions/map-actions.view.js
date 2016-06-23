@@ -14,9 +14,10 @@
 define([
     'underscore',
     'marionette',
+    'backbone',
     'wreqr',
     'text!./map-actions.hbs'
-], function (_, Marionette, wreqr, template) {
+], function (_, Marionette, Backbone, wreqr, template) {
     "use strict";
 
     var mapActionsView = Marionette.ItemView.extend({
