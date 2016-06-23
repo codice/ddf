@@ -389,7 +389,7 @@ define([
             },
 
             buildSearchData: function(){
-                var data = _.clone(this.attributes);
+                var data = this.toJSON();
                 if(this.filters.length === 0){
                     this.clearFilters(); // init filters from search parameters.
                 }
