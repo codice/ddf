@@ -14,6 +14,7 @@
 package ddf.test.itests.catalog;
 
 import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -33,6 +34,7 @@ import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
 import static com.xebialabs.restito.semantics.Action.composite;
 import static com.xebialabs.restito.semantics.Action.header;
 import static com.xebialabs.restito.semantics.Action.success;
+import static ddf.common.test.WaitCondition.expect;
 import static ddf.common.test.restito.ChunkedContent.chunkedContentWithHeaders;
 import static ddf.test.itests.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 
@@ -78,6 +80,7 @@ import org.slf4j.ext.XLogger;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.http.Method;
+import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Call;
@@ -89,6 +92,8 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
 import ddf.common.test.BeforeExam;
+import ddf.common.test.cometd.CometDClient;
+import ddf.common.test.cometd.CometDMessageValidator;
 import ddf.common.test.mock.csw.FederatedCswMockServer;
 import ddf.test.itests.AbstractIntegrationTest;
 import ddf.test.itests.common.CswQueryBuilder;
@@ -164,6 +169,12 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static FederatedCswMockServer cswServer;
 
+    private static final String NOTIFICATIONS_CHANNEL = "/ddf/notifications/**";
+
+    private static final String ACTIVITIES_CHANNEL = "/ddf/activities/**";
+
+    private CometDClient cometDClient;
+
     @Rule
     public TestName testName = new TestName();
 
@@ -231,6 +242,9 @@ public class TestFederation extends AbstractIntegrationTest {
 
             LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body()
                     .prettyPrint());
+
+            getServiceManager().startFeature(true, "search-ui");
+
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
@@ -278,6 +292,10 @@ public class TestFederation extends AbstractIntegrationTest {
 
         if (server != null) {
             server.stop();
+        }
+
+        if (cometDClient != null) {
+            cometDClient.shutdown();
         }
     }
 
@@ -1044,104 +1062,164 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests basic download from the live federated csw source
-     *
      * @throws Exception
      */
     @Test
     public void testDownloadFromFederatedCswSource() throws Exception {
+        cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
+        String filename = "product1.txt";
+
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
-                .then(getCswRetrievalHeaders(),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(0),
-                                0));
+                .then(getCswRetrievalHeaders(filename), chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
+                        Duration.ofMillis(0), 0));
 
         String restUrl =
                 REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
-                        + "?transform=resource";
+                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that the testData from the csw stub server is returned.
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(STUB_SERVER_TEST_STRING));
         // @formatter:on
+
+        expect("Waiting for notifications")
+                .within(10, SECONDS)
+                .until(() -> cometDClient.getMessages(NOTIFICATIONS_CHANNEL).size() == 1);
+        expect("Waiting for activities")
+                .within(10, SECONDS)
+                .until(() -> cometDClient.getMessages(ACTIVITIES_CHANNEL).size() == 2);
+        
+        assertThat(cometDClient.getAllMessages().size(), is(3));
+        
+        List<String> notifications = cometDClient.getMessagesInAscOrder(NOTIFICATIONS_CHANNEL);
+        assertThat(notifications.size(), is(1));
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)), filename, "Resource retrieval completed, 8 bytes retrieved. ", "complete");
+       
+        List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL); 
+        assertThat(activities.size(), is(2));
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(0)), filename, "Resource retrieval started. ", "STARTED");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)), filename, "Resource retrieval completed, 8 bytes retrieved. ", "COMPLETE");
     }
 
     /**
      * Tests that if the endpoint disconnects twice, the retrieval retries both times
-     *
      * @throws Exception
      */
     @Test
     public void testRetrievalReliablility() throws Exception {
+        cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
+        String filename = "product2.txt";
+
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
-                .then(getCswRetrievalHeaders(),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(200),
-                                2));
+                .then(getCswRetrievalHeaders(filename), chunkedContentWithHeaders(STUB_SERVER_TEST_STRING, Duration.ofMillis(200), 2));
 
         String restUrl =
                 REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
-                        + "?transform=resource";
+                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that the testData from the csw stub server is returned.
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(STUB_SERVER_TEST_STRING));
         // @formatter:on
-        cswServer.verifyHttp()
-                .times(3,
-                        Condition.uri("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"));
+        cswServer.verifyHttp().times(3, Condition.uri("/services/csw"), Condition.parameter("request", "GetRecordById"));
+
+        expect("Waiting for notifications")
+                .within(10, SECONDS)
+                .until(() -> cometDClient.getMessages(NOTIFICATIONS_CHANNEL).size() == 3);
+        expect("Waiting for activities")
+                .within(10, SECONDS)
+                .until(() -> cometDClient.getMessages(ACTIVITIES_CHANNEL).size() == 7);
+        
+        List<String> notifications = cometDClient.getMessagesInAscOrder(NOTIFICATIONS_CHANNEL);
+        assertThat(notifications.size(), is(3));
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)), filename, "Resource retrieval retrying after 1 bytes. Attempt 1 of 3.", "retrying");
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(1)), filename, "Resource retrieval retrying after 1 bytes. Attempt 2 of 3.", "retrying");
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(2)), filename, "Resource retrieval completed, 8 bytes retrieved. ", "complete");
+
+        List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL); 
+        assertThat(activities.size(), is(7));
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(0)), filename, "Resource retrieval started. ", "STARTED");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)), filename, "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(2)), filename, "Resource retrieval retrying after 1 bytes. Attempt 1 of 3.", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(3)), filename, "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(4)), filename, "Resource retrieval retrying after 1 bytes. Attempt 2 of 3.", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(5)), filename, "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(6)), filename, "Resource retrieval completed, 8 bytes retrieved. ", "COMPLETE");
     }
 
     /**
      * Tests that if the endpoint disconnects 3 times, the retrieval fails after 3 attempts
-     *
      * @throws Exception
      */
     @Test
     public void testRetrievalReliabilityFails() throws Exception {
+        cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
+        String filename = "product3.txt";
+        
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
-                .then(getCswRetrievalHeaders(),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(200),
-                                3));
+                .then(getCswRetrievalHeaders(filename), chunkedContentWithHeaders(STUB_SERVER_TEST_STRING, Duration.ofMillis(200), 3));
 
         String restUrl =
                 REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
-                        + "?transform=resource";
+                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that product retrieval fails from the csw stub server.
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().statusCode(500).contentType("text/plain")
                 .body(containsString("cannot retrieve product"));
         // @formatter:on
+
+        expect("Waiting for notifications")
+                .within(10, SECONDS)
+                .until(() -> cometDClient.getMessages(NOTIFICATIONS_CHANNEL).size() == 4);
+        expect("Waiting for activities")
+                .within(10, SECONDS)
+                .until(() -> cometDClient.getMessages(ACTIVITIES_CHANNEL).size() == 8);
+
+        List<String> notifications = cometDClient.getMessagesInAscOrder(NOTIFICATIONS_CHANNEL);
+        assertThat(notifications.size(), is(4));
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)), filename, "Resource retrieval retrying after 1 bytes. Attempt 1 of 3.", "retrying");
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(1)), filename, "Resource retrieval retrying after 1 bytes. Attempt 2 of 3.", "retrying");
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(2)), filename, "Resource retrieval retrying after 1 bytes. Attempt 3 of 3.", "retrying");
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(3)), filename, "Resource retrieval failed. Unable to retrieve product file.", "failed");
+
+        List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
+        assertThat(activities.size(), is(8));
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(0)), filename, "Resource retrieval started. ", "STARTED");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)), filename, "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(2)), filename, "Resource retrieval retrying after 1 bytes. Attempt 1 of 3.", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(3)), filename, "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(4)), filename, "Resource retrieval retrying after 1 bytes. Attempt 2 of 3.", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(5)), filename, "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(6)), filename, "Resource retrieval retrying after 1 bytes. Attempt 3 of 3.", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(7)), filename, "Resource retrieval failed. Unable to retrieve product file.", "FAILED");
     }
 
     /**
      * Tests that ddf will return the cached copy if there are no changes to the remote metacard
-     *
      * @throws Exception
      */
     @Test
     public void testDownloadFromCacheIfAvailable() throws Exception {
+        cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
+        String filename = "product4.txt";
+
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
-                .then(getCswRetrievalHeaders(),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(0),
-                                0));
+                .then(getCswRetrievalHeaders(filename), chunkedContentWithHeaders(STUB_SERVER_TEST_STRING, Duration.ofMillis(0), 0));
 
         String restUrl =
                 REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
-                        + "?transform=resource";
+                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Download product twice, should only call the stub server to download once
         // @formatter:off
@@ -1150,26 +1228,37 @@ public class TestFederation extends AbstractIntegrationTest {
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(STUB_SERVER_TEST_STRING));
         // @formatter:on
-        cswServer.verifyHttp()
-                .times(1,
-                        Condition.uri("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"));
+        cswServer.verifyHttp().times(1, Condition.uri("/services/csw"), Condition.parameter("request", "GetRecordById"));
+
+        expect("Waiting for notifications. Received " + cometDClient.getMessages(NOTIFICATIONS_CHANNEL).size()+ " of 1")
+                .within(10, SECONDS)
+                .until(() -> cometDClient.getMessages(NOTIFICATIONS_CHANNEL).size() == 1);
+        expect("Waiting for activities. Received " + cometDClient.getMessages(ACTIVITIES_CHANNEL).size() + " of 2")
+                .within(10, SECONDS)
+                .until(() -> cometDClient.getMessages(ACTIVITIES_CHANNEL).size() == 2);
+
+        List<String> notifications = cometDClient.getMessagesInAscOrder(NOTIFICATIONS_CHANNEL);
+        assertThat(notifications.size(), is(1));
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)), filename, "Resource retrieval completed, 8 bytes retrieved. ", "complete");
+
+        List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
+        assertThat(activities.size(), is(2));
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(0)), filename, "Resource retrieval started. ", "STARTED");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)), filename, "Resource retrieval completed, 8 bytes retrieved. ", "COMPLETE");
     }
 
     /**
      * Tests that ddf will redownload a product if the remote metacard has changed
-     *
      * @throws Exception
      */
     @Test
     public void testCacheIsUpdatedIfRemoteProductChanges() throws Exception {
+        String filename = "product5.txt";
+        
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
-                .then(getCswRetrievalHeaders(),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(0),
-                                0));
+                .then(getCswRetrievalHeaders(filename), chunkedContentWithHeaders(STUB_SERVER_TEST_STRING, Duration.ofMillis(0), 0));
 
         String restUrl =
                 REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID
@@ -1183,10 +1272,7 @@ public class TestFederation extends AbstractIntegrationTest {
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(STUB_SERVER_TEST_STRING));
         // @formatter:on
-        cswServer.verifyHttp()
-                .times(2,
-                        Condition.uri("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"));
+        cswServer.verifyHttp().times(2, Condition.uri("/services/csw"), Condition.parameter("request", "GetRecordById"));
     }
 
     @Ignore
@@ -1354,12 +1440,21 @@ public class TestFederation extends AbstractIntegrationTest {
         return metacardId;
     }
 
-    private void cleanProductCache() throws IOException {
-        FileUtils.cleanDirectory(Paths.get(ddfHome).resolve(PRODUCT_CACHE).toFile());
+
+    private Action getCswRetrievalHeaders(String filename) {
+        return composite(header("X-Csw-Product", "true"), header("Content-Disposition", "filename=" + filename));
     }
 
-    private Action getCswRetrievalHeaders() {
-        return composite(header("X-Csw-Product", "true"));
+    private CometDClient setupCometDClient(List<String> channels) throws Exception {
+        String cometDEndpointUrl = COMETD_ENDPOINT.getUrl();
+        CometDClient cometDClient = new CometDClient(cometDEndpointUrl);
+        cometDClient.start();
+        channels.stream().forEach((c) -> cometDClient.subscribe(c));
+        return cometDClient;
+    }
+
+    private void cleanProductCache() throws IOException {
+        FileUtils.cleanDirectory(Paths.get(ddfHome).resolve(PRODUCT_CACHE).toFile());
     }
 
     @Override

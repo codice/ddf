@@ -263,6 +263,9 @@ public abstract class AbstractIntegrationTest {
     public static final DynamicUrl RESOURCE_DOWNLOAD_ENDPOINT_ROOT = new DynamicUrl(SERVICE_ROOT,
             "/catalog/downloads/");
 
+    public static final DynamicUrl COMETD_ENDPOINT = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
+            "/search/cometd/");
+
     static {
         // Make Pax URL use the maven.repo.local setting if present
         if (System.getProperty("maven.repo.local") != null) {
@@ -433,7 +436,10 @@ public abstract class AbstractIntegrationTest {
                         "test-security-common"),
                 mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
                 wrappedBundle(mavenBundle("com.google.guava",
-                        "guava").versionAsInProject()).exports("*;version=18.0"));
+                        "guava").versionAsInProject()).exports("*;version=18.0"),
+                wrappedBundle(mavenBundle().groupId("org.cometd.java").artifactId("cometd-java-client").versionAsInProject()).exports("*;version=3.0.9"),
+                wrappedBundle(mavenBundle().groupId("org.cometd.java").artifactId("bayeux-api").versionAsInProject()).exports("*;version=3.0.9"),
+                wrappedBundle(mavenBundle().groupId("org.cometd.java").artifactId("cometd-java-common").versionAsInProject()).exports("*;version=3.0.9"));
     }
 
     protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {
@@ -553,7 +559,8 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
                         "featuresBoot",
                         "catalog-core"),
-                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
+                editConfigurationFileExtend(
+                        "etc/org.apache.karaf.features.cfg",
                         "featuresRepositories",
                         featuresUrl));
     }
