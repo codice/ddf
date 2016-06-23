@@ -27,7 +27,11 @@ define(['application',
                     regions: {
                         mapDrawingPopup: '#mapDrawingPopup'
                     },
+                    events: {
+                        'click .cluster-results': 'toggleClustering'
+                    },
                     onShow: function() {
+                        var that = this;
                         require(['js/controllers/cesium.controller',
                             'js/widgets/cesium.bbox',
                             'js/widgets/cesium.circle',
@@ -57,7 +61,13 @@ define(['application',
                                 drawHelper: geoController.drawHelper,
                                 geoController: geoController
                             });
+
+                            this.$('.cesium-viewer-toolbar').append("<button class='cesium-button cesium-toolbar-button cesium-home-button'><span class='cluster-results'></span></button>");
+                            that.geoController = geoController;
                         });
+                    },
+                    toggleClustering: function () {
+                        this.geoController.toggleClustering();
                     }
                 });
 

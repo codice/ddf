@@ -1266,6 +1266,12 @@ a.pause:hover, a.pause:focus {
     opacity: .25;
 }
 
+.cluster-results {
+    display:block;
+    height:100%;
+    background-image: url('../images/clustering.png');
+}
+
 .help-link {
     margin-top: 10px;
     display: block;
