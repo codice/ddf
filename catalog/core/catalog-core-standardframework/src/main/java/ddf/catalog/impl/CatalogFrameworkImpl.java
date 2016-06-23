@@ -1651,6 +1651,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 deleteResponse = catalog.delete(deleteRequest);
             }
 
+            historian.versionDelete(deleteResponse);
+
             if (catalogStoreRequest) {
                 DeleteResponse remoteDeleteResponse = doRemoteDelete(deleteRequest);
                 if (deleteResponse == null) {

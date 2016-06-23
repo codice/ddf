@@ -60,6 +60,7 @@ import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
@@ -174,15 +175,15 @@ public class Historian {
         Map<String, Path> tmpContentPaths = (Map<String, Path>) createStorageRequest.getProperties()
                 .getOrDefault(CONTENT_PATHS, new HashMap<>());
 
-        List<ContentItem> newContentItems =
+        List<ContentItem> versionedContentItems =
                 versionContentItems(createStorageRequest.getContentItems(),
                         tmpContentPaths,
                         MetacardVersion.Action.CREATED_CONTENT);
 
-        setResourceUriIfMissing(newContentItems);
+        setResourceUriIfMissing(versionedContentItems);
 
         CreateStorageRequestImpl versionStorageRequest = new CreateStorageRequestImpl(
-                newContentItems,
+                versionedContentItems,
                 createStorageRequest.getId(),
                 createStorageRequest.getProperties());
 
@@ -198,7 +199,7 @@ public class Historian {
         });
         preStaged.add(() -> {
             getSystemSubject().execute(() -> {
-                catalogProvider().create(new CreateRequestImpl(newContentItems.stream()
+                catalogProvider().create(new CreateRequestImpl(versionedContentItems.stream()
                         .map(ContentItem::getMetacard)
                         .distinct()
                         .collect(Collectors.toList())));
@@ -241,7 +242,7 @@ public class Historian {
                         tmpContentPaths,
                         MetacardVersion.Action.UPDATED_CONTENT);
 
-        List<Metacard> historyMetacards = versionedContentItems.stream()
+        List<Metacard> versionedMetacards = versionedContentItems.stream()
                 .map(ContentItem::getMetacard)
                 .distinct()
                 .collect(Collectors.toList());
@@ -272,7 +273,7 @@ public class Historian {
             props.put(SKIP_VERSIONING, true);
             CreateResponse createResponse =
                     getSystemSubject().execute(() -> catalogProvider().create(new CreateRequestImpl(
-                            historyMetacards,
+                            versionedMetacards,
                             props)));
             return Optional.ofNullable(createResponse)
                     .map(CreateResponse::getProcessingErrors)
@@ -281,6 +282,27 @@ public class Historian {
         });
 
         return Optional.of(transactionKey);
+    }
+
+    /**
+     * Versions deleted {@link Metacard}s.
+     * @param deleteResponse Versions this responses deleted metacards
+     */
+    public void versionDelete(DeleteResponse deleteResponse) {
+        if (doSkip(deleteResponse)) {
+            return;
+        }
+        setSkipFlag(deleteResponse);
+
+        List<MetacardVersion> versionedMetacards = deleteResponse.getDeletedMetacards()
+                .stream()
+                .map(mc -> new MetacardVersion(mc,
+                        MetacardVersion.Action.DELETED,
+                        getSubject.get()))
+                .collect(Collectors.toList());
+
+        CreateResponse createResponse = getSystemSubject().execute(() -> catalogProvider().create(
+                new CreateRequestImpl(new ArrayList<>(versionedMetacards))));
     }
 
     /**
