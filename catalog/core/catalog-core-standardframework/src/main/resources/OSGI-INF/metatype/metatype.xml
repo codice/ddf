@@ -29,7 +29,7 @@
 
     <OCD name="Historian" id="ddf.catalog.history.Historian">
         <AD name="Enable Versioning" id="historyEnabled" required="true" type="Boolean"
-            default="false"
+            default="true"
             description="Enables versioning of both metacards and content."/>
     </OCD>
 
