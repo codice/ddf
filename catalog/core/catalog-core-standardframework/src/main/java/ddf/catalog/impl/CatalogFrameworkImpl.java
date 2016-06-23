@@ -908,7 +908,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
                 }
 
-                historianTransactionKey = historian.versionStorageCreate(createStorageRequest);
+                historianTransactionKey = historian.version(createStorageRequest);
 
                 CreateStorageResponse createStorageResponse;
                 try {
@@ -1080,7 +1080,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 createResponse = catalog.create(createRequest);
             }
 
-            createResponse = historian.versionCreate(createResponse);
+            createResponse = historian.version(createResponse);
 
             if (catalogStoreRequest) {
                 CreateResponse remoteCreateResponse = doRemoteCreate(createRequest);
@@ -1319,7 +1319,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             e);
                 }
 
-                historianTransactionKey = historian.versionUpdateStorage(streamUpdateRequest,
+                historianTransactionKey = historian.version(streamUpdateRequest,
                         updateStorageResponse,
                         tmpContentPaths);
 
@@ -1497,7 +1497,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 updateResponse = catalog.update(updateReq);
             }
 
-            updateResponse = historian.versionUpdate(updateResponse);
+            updateResponse = historian.version(updateResponse);
 
             if (catalogStoreRequest) {
                 UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateReq);
@@ -1651,7 +1651,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 deleteResponse = catalog.delete(deleteRequest);
             }
 
-            historian.versionDelete(deleteResponse);
+            historian.version(deleteResponse);
 
             if (catalogStoreRequest) {
                 DeleteResponse remoteDeleteResponse = doRemoteDelete(deleteRequest);

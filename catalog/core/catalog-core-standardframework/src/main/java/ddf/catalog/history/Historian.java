@@ -94,7 +94,7 @@ public class Historian {
      * @return The original {@link CreateResponse}
      * @throws IngestException
      */
-    public CreateResponse versionCreate(CreateResponse createResponse) throws IngestException {
+    public CreateResponse version(CreateResponse createResponse) throws IngestException {
         if (doSkip(createResponse)) {
             return createResponse;
         }
@@ -107,8 +107,7 @@ public class Historian {
                 .collect(Collectors.toList());
 
         if (!versionedMetacards.isEmpty()) {
-            getSystemSubject().execute(() -> catalogProvider().create(new CreateRequestImpl(
-                    versionedMetacards)));
+            executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(versionedMetacards)));
         }
 
         return createResponse;
@@ -123,7 +122,7 @@ public class Historian {
      * @throws SourceUnavailableException
      * @throws IngestException
      */
-    public UpdateResponse versionUpdate(UpdateResponse updateResponse)
+    public UpdateResponse version(UpdateResponse updateResponse)
             throws SourceUnavailableException, IngestException {
         if (doSkip(updateResponse)) {
             return updateResponse;
@@ -159,7 +158,7 @@ public class Historian {
      * @throws IngestException
      * @throws StorageException
      */
-    public Optional<String> versionStorageCreate(CreateStorageRequest createStorageRequest)
+    public Optional<String> version(CreateStorageRequest createStorageRequest)
             throws IngestException, StorageException {
         if (doSkip(createStorageRequest)) {
             return Optional.empty();
@@ -190,7 +189,7 @@ public class Historian {
         // These are being staged for delayed execution, to be ran after the storage/catalog has
         // successfully committed/updated
         preStaged.add(() -> {
-            getSystemSubject().execute(() -> {
+            executeAsSystem(() -> {
                 storageProvider().create(versionStorageRequest);
                 storageProvider().commit(versionStorageRequest);
                 return true;
@@ -198,7 +197,7 @@ public class Historian {
             return true;
         });
         preStaged.add(() -> {
-            getSystemSubject().execute(() -> {
+            executeAsSystem(() -> {
                 catalogProvider().create(new CreateRequestImpl(versionedContentItems.stream()
                         .map(ContentItem::getMetacard)
                         .distinct()
@@ -223,7 +222,7 @@ public class Historian {
      * {@link Historian#rollback(String)}
      * @throws IOException
      */
-    public Optional<String> versionUpdateStorage(UpdateStorageRequest streamUpdateRequest,
+    public Optional<String> version(UpdateStorageRequest streamUpdateRequest,
             UpdateStorageResponse updateStorageResponse, HashMap<String, Path> tmpContentPaths)
             throws IOException {
         if (doSkip(updateStorageResponse)) {
@@ -254,7 +253,7 @@ public class Historian {
                     versionedContentItems,
                     new HashMap<>());
             setSkipFlag(createStorageRequest);
-            CreateStorageResponse createStorageResponseResult = getSystemSubject().execute(() -> {
+            CreateStorageResponse createStorageResponseResult = executeAsSystem(() -> {
                 CreateStorageResponse createStorageResponse = storageProvider().create(
                         createStorageRequest);
                 storageProvider().commit(createStorageRequest);
@@ -272,7 +271,7 @@ public class Historian {
             Map<String, Serializable> props = new HashMap<>();
             props.put(SKIP_VERSIONING, true);
             CreateResponse createResponse =
-                    getSystemSubject().execute(() -> catalogProvider().create(new CreateRequestImpl(
+                    executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(
                             versionedMetacards,
                             props)));
             return Optional.ofNullable(createResponse)
@@ -286,23 +285,25 @@ public class Historian {
 
     /**
      * Versions deleted {@link Metacard}s.
+     *
      * @param deleteResponse Versions this responses deleted metacards
      */
-    public void versionDelete(DeleteResponse deleteResponse) {
+    public void version(DeleteResponse deleteResponse) {
         if (doSkip(deleteResponse)) {
             return;
         }
         setSkipFlag(deleteResponse);
 
-        List<MetacardVersion> versionedMetacards = deleteResponse.getDeletedMetacards()
+        List<Metacard> versionedMetacards = deleteResponse.getDeletedMetacards()
                 .stream()
                 .map(mc -> new MetacardVersion(mc,
                         MetacardVersion.Action.DELETED,
                         getSubject.get()))
                 .collect(Collectors.toList());
 
-        CreateResponse createResponse = getSystemSubject().execute(() -> catalogProvider().create(
-                new CreateRequestImpl(new ArrayList<>(versionedMetacards))));
+        CreateResponse createResponse =
+                executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(
+                        versionedMetacards)));
     }
 
     /**
@@ -436,7 +437,7 @@ public class Historian {
             return null;
         }
 
-        return getSystemSubject().execute(() -> catalogProvider().create(new CreateRequestImpl(
+        return executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(
                 versionedMetacards)));
     }
 
@@ -497,13 +498,20 @@ public class Historian {
         return resultItems;
     }
 
-    private Subject getSystemSubject() {
+    /**
+     * Caution should be used with this, as it elevates the permissions to the System user.
+     *
+     * @param func What to execute as the System
+     * @param <T>  Generic return type of func
+     * @return result of the callable func
+     */
+    private <T> T executeAsSystem(Callable<T> func) {
         Subject systemSubject = Security.runAsAdmin(() -> Security.getInstance()
                 .getSystemSubject());
         if (systemSubject == null) {
             throw new RuntimeException("Could not get systemSubject to version metacards.");
         }
-        return systemSubject;
+        return systemSubject.execute(func);
     }
 
     private boolean doSkip(@Nullable Operation op) {
@@ -516,7 +524,7 @@ public class Historian {
     private void setSkipFlag(@Nullable Operation op) {
         Optional.ofNullable(op)
                 .map(Operation::getProperties)
-                .map(p -> p.put(SKIP_VERSIONING, true));
+                .ifPresent(p -> p.put(SKIP_VERSIONING, true));
     }
 
     private static class WrappedByteSource extends ByteSource {

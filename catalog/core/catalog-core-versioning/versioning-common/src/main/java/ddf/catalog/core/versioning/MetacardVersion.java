@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -80,8 +81,9 @@ public class MetacardVersion extends MetacardImpl {
                 throw new IllegalArgumentException(
                         "Cannot get action of a non version metacard [" + metacard.getId() + "]");
             }
-            Serializable svalue = metacard.getAttribute(ACTION)
-                    .getValue();
+            Serializable svalue = Optional.ofNullable(metacard.getAttribute(ACTION))
+                    .map(Attribute::getValue)
+                    .orElse(null);
             if (!(svalue instanceof String)) {
                 throw new IllegalArgumentException("The action attribute must be a string");
             }
