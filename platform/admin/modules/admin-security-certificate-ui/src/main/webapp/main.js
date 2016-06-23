@@ -14,7 +14,7 @@
 require.config({
     paths: {
 
-        bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
+        bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
         bootstrapselect: 'lib/bootstrap-select/dist/js/bootstrap-select.min',
 
         moment: 'lib/moment/min/moment.min',
@@ -22,7 +22,7 @@ require.config({
         q: 'lib/q/q',
 
         // backbone
-        backbone: 'lib/components-backbone/backbone-min',
+        backbone: 'lib/backbone/backbone',
         backboneassociations: 'lib/backbone-associations/backbone-associations-min',
         underscore: 'lib/lodash/lodash.min',
         marionette: 'lib/marionette/lib/backbone.marionette.min',
@@ -35,15 +35,15 @@ require.config({
         properties: 'properties',
 
         // jquery
-        jquery: 'lib/jquery/jquery.min',
-        multiselect: 'lib/multiselect/src/jquery.multiselect',
+        jquery: 'lib/jquery/dist/jquery.min',
+        multiselect: 'lib/jquery-ui-multiselect-widget/src/jquery.multiselect',
         multiselectfilter: 'lib/multiselect/src/jquery.multiselect.filter',
         "jquery.ui.widget": 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
         fileupload: 'lib/jquery-file-upload/js/jquery.fileupload',
 
         // handlebars
         handlebars: 'lib/handlebars/handlebars.min',
-        icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+        icanhaz: 'js/ich',
 
         // require plugins
         text: 'lib/requirejs-plugins/lib/text',

@@ -21,7 +21,7 @@ define([
     ],
     function (Marionette, ich, finishTemplate) {
 
-    ich.addTemplate('finishTemplate', finishTemplate);
+        ich.addTemplate('finishTemplate', finishTemplate);
 
     var ConfigurationView = Marionette.ItemView.extend({
         template: 'finishTemplate',

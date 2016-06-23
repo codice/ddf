@@ -32,7 +32,7 @@ define(['jquery',
         'backboneassociations',
         'backbonecometd',
         'jquerycometd',
-        'modelbinder',
+        'Backbone.ModelBinder',
         'collectionbinder'
     ], function ($, _, Marionette, Backbone, ich, properties, maptype, map, header, footer,
                  ApplicationController, ModalController, SystemUsageController, User) {

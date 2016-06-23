@@ -19,47 +19,41 @@
 
         paths: {
 
-            bootstrap: '../../admin/lib/components-bootstrap/js/bootstrap.min',
-            spin: '../../admin/lib/spin.js/spin',
-            q: '../../admin/lib/q/q',
+            bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
+            spin: 'lib/spin.js/spin',
+            q: 'lib/q/q',
 
             // backbone
-            backbone: '../../admin/lib/components-backbone/backbone-min',
-            backbonerelational: '../../admin/lib/backbone-relational/backbone-relational',
-            backboneassociation: '../../admin/lib/backbone-associations/backbone-associations-min',
-            underscore: '../../admin/lib/lodash/dist/lodash.underscore.min',
-            marionette: '../../admin/lib/marionette/lib/backbone.marionette.min',
+            backbone: 'lib/backbone/backbone',
+            backbonerelational: 'lib/backbone-relational/backbone-relational',
+            backboneassociation: 'lib/backbone-associations/backbone-associations-min',
+            underscore: 'lib/lodash/dist/lodash.underscore.min',
+            marionette: 'lib/marionette/lib/backbone.marionette.min',
             // TODO test combining
-            modelbinder: '../../admin/lib/backbone.modelbinder/Backbone.ModelBinder.min',
-            collectionbinder: '../../admin/lib/backbone.modelbinder/Backbone.CollectionBinder.min',
-            poller: '../../admin/lib/backbone-poller/backbone.poller',
-            iframeresizer: '../../admin/lib/iframe-resizer/js/iframeResizer.min',
-
-            // ddf
-            spinnerConfig: 'js/spinnerConfig',
+            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
+            collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+            poller: 'lib/backbone-poller/backbone.poller',
+            iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min',
 
             // jquery
-            jquery: '../../admin/lib/jquery/jquery.min',
-            jqueryui: '../../admin/lib/jquery-ui/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': '../../admin/lib/jquery-ui/ui/minified/jquery.ui.widget.min',
-            multiselect: '../../admin/lib/bootstrap-multiselect/js/bootstrap-multiselect',
-            perfectscrollbar: '../../admin/lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
-            fileupload: '../../admin/lib/jquery-file-upload/js/jquery.fileupload',
-            fileuploadiframe: '../../admin/lib/jquery-file-upload/js/jquery.iframe-transport',
+            jquery: 'lib/jquery/dist/jquery.min',
+            jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
+            'jquery.ui.widget': 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
+            multiselect: 'lib/bootstrap-multiselect/js/bootstrap-multiselect',
+            perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            fileupload: 'lib/jquery-file-upload/js/jquery.fileupload',
+            fileuploadiframe: 'lib/jquery-file-upload/js/jquery.iframe-transport',
 
             // handlebars
-            handlebars: '../../admin/lib/handlebars/handlebars.min',
-            icanhaz: '../../admin/lib/icanhandlebarz/ICanHandlebarz',
+            handlebars: 'lib/handlebars/handlebars.min',
+            icanhaz: 'js/ich',
 
             // require plugins
-            text: '../../admin/lib/requirejs-plugins/lib/text',
-            css: '../../admin/lib/require-css/css',
-
-            // default admin ui
-            app: '../../admin/js/application',
+            text: 'lib/requirejs-plugins/lib/text',
+            css: 'lib/require-css/css',
 
             // datatables
-            datatables: '../../admin/lib/datatables/media/js/jquery.dataTables'
+            datatables: 'lib/datatables/media/js/jquery.dataTables'
         },
 
 

@@ -19,12 +19,12 @@
 
         paths: {
 
-            bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
+            bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
             spin: 'lib/spin.js/spin',
             q: 'lib/q/q',
 
             // backbone
-            backbone: 'lib/components-backbone/backbone-min',
+            backbone: 'lib/backbone/backbone',
             backbonerelational: 'lib/backbone-relational/backbone-relational',
             underscore: 'lib/lodash/dist/lodash.underscore.min',
             marionette: 'lib/marionette/lib/backbone.marionette.min',
@@ -37,7 +37,7 @@
             spinnerConfig: 'js/spinnerConfig',
 
             // jquery
-            jquery: 'lib/jquery/jquery.min',
+            jquery: 'lib/jquery/dist/jquery.min',
             jsCookie: 'lib/js-cookie/src/js.cookie',
             jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
             'jquery.ui.widget': 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
@@ -48,7 +48,7 @@
 
             // handlebars
             handlebars: 'lib/handlebars/handlebars.min',
-            icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+            icanhaz: 'js/ich',
 
             // require plugins
             text: 'lib/requirejs-plugins/lib/text',
@@ -123,17 +123,17 @@
         'jquery',
         'backbone',
         'marionette',
-        'icanhaz',
         'js/application',
         'js/views/Module.view',
         'js/models/Alerts.js',
         'js/views/Alerts.view',
         'properties',
+        'icanhaz',
         'js/HandlebarsHelpers',
         'modelbinder',
         'bootstrap',
         'templateConfig'
-    ], function ($, Backbone, Marionette, ich, Application, ModuleView, AlertsModel, AlertsView, Properties) {
+    ], function ($, Backbone, Marionette, Application, ModuleView, AlertsModel, AlertsView, Properties) {
 
         var app = Application.App;
 

@@ -19,28 +19,28 @@
 
         paths: {
 
-            bootstrap: '../../../admin/lib/components-bootstrap/js/bootstrap.min',
-            q: '../../../admin/lib/q/q',
+            bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
+            q: 'lib/q/q',
 
             // backbone
-            backbone: '../../../admin/lib/components-backbone/backbone-min',
-            backboneassociation: '../../../admin/lib/backbone-associations/backbone-associations-min',
-            underscore: '../../../admin/lib/lodash/dist/lodash.underscore.min',
-            marionette: '../../../admin/lib/marionette/lib/backbone.marionette.min',
-            modelbinder: '../../../admin/lib/backbone.modelbinder/Backbone.ModelBinder.min',
-            poller: '../../../admin/lib/backbone-poller/backbone.poller',
-            iframeresizer: '../../../admin/lib/iframe-resizer/js/iframeResizer.min',
+            backbone: 'lib/backbone/backbone',
+            backboneassociation: 'lib/backbone-associations/backbone-associations-min',
+            underscore: 'lib/lodash/dist/lodash.underscore.min',
+            marionette: 'lib/marionette/lib/backbone.marionette.min',
+            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
+            poller: 'lib/backbone-poller/backbone.poller',
+            iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min',
 
             // jquery
-            jquery: '../../../admin/lib/jquery/jquery.min',
-            jqueryui: '../../../admin/lib/jquery-ui/ui/minified/jquery-ui.min',
+            jquery: 'lib/jquery/dist/jquery.min',
+            jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
 
             // handlebars
-            handlebars: '../../../admin/lib/handlebars/handlebars.min',
-            icanhaz: '../../../admin/lib/icanhandlebarz/ICanHandlebarz',
+            handlebars: 'lib/handlebars/handlebars.min',
+            icanhaz: 'js/ich',
 
             // require plugins
-            text: '../../../admin/lib/requirejs-plugins/lib/text'
+            text: 'lib/requirejs-plugins/lib/text'
         },
 
 

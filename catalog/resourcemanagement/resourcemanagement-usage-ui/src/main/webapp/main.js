@@ -14,11 +14,11 @@
 require.config({
     paths: {
 
-        bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
+        bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
         moment: 'lib/moment/min/moment.min',
 
         // backbone
-        backbone: 'lib/components-backbone/backbone-min',
+        backbone: 'lib/backbone/backbone',
 
         underscore: 'lib/lodash/dist/lodash.underscore.min',
 
@@ -30,13 +30,13 @@ require.config({
         application: 'js/application',
 
         // jquery
-        jquery: 'lib/jquery/jquery.min',
+        jquery: 'lib/jquery/dist/jquery.min',
         jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
         "jquery.ui.widget": 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
 
         // handlebars
         handlebars: 'lib/handlebars/handlebars.min',
-        icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+        icanhaz: 'js/ich',
 
         // require plugins
         text: 'lib/requirejs-plugins/lib/text',
