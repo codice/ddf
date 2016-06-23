@@ -114,7 +114,7 @@ Using the Catalog framework's directory monitor, ingest a file so that it is sto
 The Catalog Framework will:
 +
 .. ingest the file,
-.. store it in the content repository at `<DISTRIBUTION_INSTALL_DIR>/content/store/<GUID>/geojson_valid.json`,
+.. store it in the content repository at `<DISTRIBUTION_INSTALL_DIR>/data/content/store/<GUID>/geojson_valid.json`,
 .. look up the GeoJson Input Transformer based on the mime type of the ingested file,
 .. create a metacard based on the metadata parsed from the ingested GeoJson file, and
 .. insert the metacard into the Catalog using the `CatalogFramework`.

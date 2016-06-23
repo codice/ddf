@@ -1281,6 +1281,19 @@ A report is generated in _xls_ format.
 
 The ${branding} contains many tools to monitor system functionality, usage, and overall system health.
 
+===== Using the Log Viewer
+
+Monitor system logs with the `LogViewer`.
+
+* Navigate to the `LogViewer` at \${secure_url}/admin/logviewer
+
+Log events can be filtered by:
+
+* Log level (`ERROR`, `WARNING`, etc).
+** Logging may need to be configured to capture `DEBUG` OR `TRACE` messages.
+* Log message text.
+* Bundle generating the message.
+
 ===== Managing Logging
 
 The ${branding} supports a dynamic and customizable logging system including log level, log format, log output destinations, roll over, etc.
