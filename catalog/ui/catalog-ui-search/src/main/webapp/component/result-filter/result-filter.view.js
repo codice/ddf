@@ -55,10 +55,12 @@ define([
         },
         removeFilter: function(){
             store.get('user').get('user').get('preferences').set('resultFilter', undefined);
+            store.get('user').get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         saveFilter: function(){
             store.get('user').get('user').get('preferences').set('resultFilter', this.editorProperties.currentView.transformToCql());
+            store.get('user').get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         }
     });

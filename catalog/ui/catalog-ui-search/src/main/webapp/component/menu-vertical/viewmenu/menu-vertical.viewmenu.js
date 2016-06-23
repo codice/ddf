@@ -18,8 +18,9 @@ define([
     'backbone',
     '../menu-vertical',
     'component/lightbox/lightbox.view.instance',
-    'js/view/preferences/PreferencesModal.view'
-], function (_, Backbone, Vertical, lightboxInstance, PreferencesModalView) {
+    'js/view/preferences/PreferencesModal.view',
+    'component/alert-settings/alert-settings.view'
+], function (_, Backbone, Vertical, lightboxInstance, PreferencesModalView, AlertSettingsView) {
 
     var definition = [
         [
@@ -36,9 +37,19 @@ define([
                     ]
                 },
                 action: function () {
-                    lightboxInstance.model.updateTitle('Preferences');
+                    lightboxInstance.model.updateTitle('Map Preferences');
                     lightboxInstance.model.open();
                     lightboxInstance.lightboxContent.show(new PreferencesModalView());
+                }
+            },
+            {
+                type: 'action',
+                name: 'Alert Preferences',
+                icon: 'bell',
+                action: function () {
+                    lightboxInstance.model.updateTitle('Alert Preferences');
+                    lightboxInstance.model.open();
+                    lightboxInstance.lightboxContent.show(new AlertSettingsView());
                 }
             }
         ]

@@ -18,9 +18,11 @@ define([
         'js/Common',
         'js/ColorGenerator',
         'js/Common',
+        'js/QueryPolling',
         'backboneassociations'
     ],
-    function (wreqr, Backbone, Query, Common, ColorGenerator, Common) {
+    function (wreqr, Backbone, Query, Common, ColorGenerator, Common, QueryPolling) {
+
         var Workspace = {};
 
         Workspace.QueryCollection = Backbone.Collection.extend({
@@ -30,9 +32,11 @@ define([
                 this._colorGenerator = ColorGenerator.getNewGenerator();
                 this.listenTo(this, 'add', function(query){
                     query.setColor(searchList._colorGenerator.getColor(query.getId()));
+                    QueryPolling.handleAddingQuery(query);
                 });
                 this.listenTo(this, 'remove', function(query){
                     searchList._colorGenerator.removeColor(query.getId());
+                    QueryPolling.handleRemovingQuery(query);
                 });
             },
             canAddQuery: function(){
@@ -76,6 +80,9 @@ define([
                 }
             },
             destroy: function (options) {
+                this.get('queries').forEach(function(query){
+                    QueryPolling.handleRemovingQuery(query);
+                });
                 if (this.get('localStorage')) {
                     var collection = this.collection;
                     this.collection.remove(this);

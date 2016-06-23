@@ -25,14 +25,17 @@ define([
     'component/metacard/metacard',
     'js/model/Query',
     'js/cql',
+    'component/alert/alert',
+    'component/alert/alert.view',
     'js/jquery.whenAll'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
-             HomeView, MetacardView, metacardInstance, Query, cql) {
+             HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView) {
 
     function hideViews() {
         Application.App.workspaceRegion.$el.addClass("is-hidden");
         Application.App.workspacesRegion.$el.addClass("is-hidden");
         Application.App.metacardRegion.$el.addClass("is-hidden");
+        Application.App.alertRegion.$el.addClass("is-hidden");
     }
 
     var Router = Marionette.AppRouter.extend({
@@ -48,13 +51,17 @@ define([
             },
             openMetacard: function(){
                 //console.log('route to specific metacard:'+metacardId);
+            },
+            openAlert: function(){
+                //console.log('route to specific alert:'+alertId);
             }
         },
         appRoutes: {
             'workspaces/:id': 'openWorkspace',
             '(?*)': 'home',
             'workspaces(/)': 'workspaces',
-            'metacards/:id': 'openMetacard'
+            'metacards/:id': 'openMetacard',
+            'alerts/:id': 'openAlert'
         },
         initialize: function(){
             this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
@@ -74,6 +81,7 @@ define([
         },
         onRoute: function(name, path, args){
             hideViews();
+            var self = this;
             switch(name){
                 case 'openWorkspace':
                     var workspaceId = args[0];
@@ -101,7 +109,6 @@ define([
                     }
                     break;
                 case 'openMetacard':
-                    var self = this;
                     var metacardId = args[0];
                     var queryForMetacard = new Query.Model({
                         cql: cql.write({
@@ -135,6 +142,56 @@ define([
                             self.updateRoute(name, path, args);
                         }
                     });
+                    break;
+                case 'openAlert':
+                    var alertId = args[0];
+                    var alert = store.get('user').get('user').get('preferences').get('alerts').get(alertId);
+                    if (!alert) {
+                        self.listenTo(ConfirmationView.generateConfirmation({
+                                prompt: 'Alert unable to be found.  ',
+                                yes: 'Go to Workspaces home screen'
+                            }),
+                            'change:choice',
+                            function () {
+                                wreqr.vent.trigger('router:navigate', {
+                                    fragment: 'workspaces',
+                                    options: {
+                                        trigger: true
+                                    }
+                                });
+                            });
+                    } else {
+                        var queryForMetacards = new Query.Model({
+                            cql: cql.write({
+                                type: 'OR',
+                                filters: alert.get('metacardIds').map(function(metacardId){
+                                    return {
+                                        type: '=',
+                                        value: metacardId,
+                                        property: '"id"'
+                                    };
+                                })
+                            })
+                        });
+                        $.whenAll.apply(this, queryForMetacards.startSearch()).always(function(){
+                                alertInstance.set({
+                                    currentResult: queryForMetacards.get('result'),
+                                    currentAlert: alert,
+                                    currentQuery: queryForMetacards
+                                });
+                                if (Application.App.alertRegion.currentView === undefined) {
+                                    Application.App.alertRegion.show(new AlertView());
+                                }
+                                Application.App.alertRegion.$el.removeClass('is-hidden');
+                                var workspace = store.get('workspaces').filter(function(workspace){
+                                    return workspace.get('queries').get(alert.get('queryId'));
+                                })[0];
+                                if (workspace){
+                                    store.setCurrentWorkspaceById(workspace.id);
+                                }
+                                self.updateRoute(name, path, args);
+                        });
+                    }
                     break;
                 case 'home':
                     if (Application.App.workspacesRegion.currentView===undefined) {

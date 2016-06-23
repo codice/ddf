@@ -54,11 +54,13 @@ define([
         },
         removeSort: function () {
             store.get('user').get('user').get('preferences').set('resultSort', undefined);
+            store.get('user').get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         },
         saveSort: function () {
             var sorting = this.editorProperties.currentView.collection.toJSON();
             store.get('user').get('user').get('preferences').set('resultSort', sorting.length === 0 ? undefined : sorting);
+            store.get('user').get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         }
     });

@@ -23,8 +23,9 @@ define([
     'component/dropdown/dropdown',
     'component/dropdown/login-form/dropdown.login-form.view',
     'component/dropdown/notifications/dropdown.notifications.view',
-    'component/tasks/tasks.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, LoginForm, Notifications, Tasks) {
+    'component/tasks/tasks.view',
+    'component/dropdown/alerts/dropdown.alerts.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, LoginForm, Notifications, Tasks, Alerts) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -32,6 +33,7 @@ define([
         regions: {
             'tasks': '.tasks-region',
             'notifications': '.notifications-region',
+            'alerts': '.alerts-region',
             'userInfo': '.user-info-region'
         },
         modelEvents: {
@@ -44,6 +46,10 @@ define([
         },
         onRender: function(){
             this.notifications.show(new Notifications({
+                model: new DropdownModel()
+            }));
+
+            this.alerts.show(new Alerts({
                 model: new DropdownModel()
             }));
 

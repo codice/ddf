@@ -25,7 +25,7 @@ define([
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
-            this.model = store.getSelectedResults().first();
+            this.model = this.selectionInterface.getSelectedResults().first();
         },
         className: 'is-list',
         template: template,
@@ -40,7 +40,9 @@ define([
         },
         ui: {
         },
+        selectionInterface: store,
         initialize: function(options){
+            this.selectionInterface = options.selectionInterface || this.selectionInterface;
             if (!options.model){
                 this.setDefaultModel();
             }

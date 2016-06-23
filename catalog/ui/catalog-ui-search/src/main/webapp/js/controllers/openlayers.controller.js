@@ -40,7 +40,9 @@ define(['application',
         });
 
         var Controller = Marionette.Controller.extend({
-            initialize: function () {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 this.overlays = {};
                 this.listenTo(wreqr.vent, 'metacard:overlay', this.overlayImage);
                 this.listenTo(wreqr.vent, 'metacard:overlay:remove', this.removeOverlay);
@@ -317,8 +319,8 @@ define(['application',
                 this.removeAllOverlays();
             },
             zoomToSelected: function(){
-                if (store.getSelectedResults().length === 1){
-                    this.flyToCenterPoint(store.getSelectedResults());
+                if (this.selectionInterface.getSelectedResults().length === 1){
+                    this.flyToCenterPoint(this.selectionInterface.getSelectedResults());
                 }
             },
 
@@ -332,7 +334,8 @@ define(['application',
                 }
                 this.mapViews = new OpenlayersMetacard.ResultsView({
                     collection: results,
-                    geoController: this
+                    geoController: this,
+                    selectionInterface: this.selectionInterface
                 });
                 this.mapViews.render();
             },
@@ -343,7 +346,8 @@ define(['application',
                 }
                 this.mapViews = new OpenlayersMetacard.ResultsView({
                     collection: new Backbone.Collection([result]),
-                    geoController: this
+                    geoController: this,
+                    selectionInterface: this.selectionInterface
                 });
                 this.mapViews.render();
             },

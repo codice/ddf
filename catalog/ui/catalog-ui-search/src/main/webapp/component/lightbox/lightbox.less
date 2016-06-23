@@ -55,7 +55,8 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: ~"calc(100% - 2*@{paddingHorizontal} - @{lightboxTitleBarFontSize})";
+    max-width: ~"calc(100% - 2*@{paddingHorizontal} - @{lightboxTitleBarFontSize} - 2*@{paddingHorizontal} - @{lightboxTitleBarFontSize})";
+    margin-left: ~"calc(2*@{paddingHorizontal} + @{lightboxTitleBarFontSize})";
   }
 
   .lightbox-content {

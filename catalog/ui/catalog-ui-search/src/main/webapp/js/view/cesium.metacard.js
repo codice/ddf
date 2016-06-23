@@ -25,16 +25,16 @@ define([
             pointScale = 0.02,
             selectedPointScale = 0.035;
 
-        function selectResult(model, isSelection) {
+        function selectResult(selectionInterface, model, isSelection) {
             //if (model.get('color')) {
                 if (!isSelection) {
-                    store.clearSelectedResults();
+                    selectionInterface.clearSelectedResults();
                 }
                 if (model.get('color')){
-                    store.addSelectedResult(store.getQueryById(model.get('queryId'))
+                    selectionInterface.addSelectedResult(store.getQueryById(model.get('queryId'))
                         .get('result>results').get(model.id + model.get('properties>source-id')));
                 } else {
-                    store.addSelectedResult(model.parents[0]);
+                    selectionInterface.addSelectedResult(model.parents[0]);
                 }
            // }
         }
@@ -48,15 +48,17 @@ define([
                 'images/default-selected.png'
                 // add extra here if you want to switch
             ],
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 this.geoController = options.geoController;
                 if(! options.ignoreEvents) {
                     this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
                     this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
                 }
-                this.listenTo(store.getSelectedResults(), 'update', this.updateSelection);
-                this.listenTo(store.getSelectedResults(), 'add', this.updateSelection);
-                this.listenTo(store.getSelectedResults(), 'remove', this.updateSelection);
+                this.listenTo(this.selectionInterface.getSelectedResults(), 'update', this.updateSelection);
+                this.listenTo(this.selectionInterface.getSelectedResults(), 'add', this.updateSelection);
+                this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', this.updateSelection);
                 this.color = !_.isUndefined(this.model.get('color')) ?
                     Cesium.Color.fromCssColorString(this.model.get('color')) : options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>pointColor'));
                 this.buildBillboard();
@@ -131,7 +133,7 @@ define([
                         this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
                     }
 
-                    var selected = store.getSelectedResults().some(function (result) {
+                    var selected = this.selectionInterface.getSelectedResults().some(function (result) {
                         return result.get('metacard').id === this.model.id;
                     }, this);
                     if (selected) {
@@ -146,7 +148,7 @@ define([
             onMapLeftClick: function (event, isSelection) {
                 // find out if this click is on us
                 if (this.isThisPrimitive(event)) {
-                    selectResult(this.model, isSelection);
+                    selectResult(this.selectionInterface, this.model, isSelection);
                 }
             },
             onMapDoubleClick: function (event) {
@@ -169,7 +171,9 @@ define([
         });
 
         Views.MultiPointView = Views.PointView.extend({
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>multiPointColor'));
                 Views.PointView.prototype.initialize.call(this, options);
             },
@@ -224,7 +228,7 @@ define([
             onMapLeftClick: function (event, isSelection) {
                 // find out if this click is on us
                 if (_.has(event, 'object') && _.contains(this.points, event.object)) {
-                    selectResult(this.model, isSelection);
+                    selectResult(this.selectionInterface, this.model, isSelection);
                 }
             },
             onMapDoubleClick: function (event) {
@@ -248,7 +252,9 @@ define([
         });
 
         Views.LineView = Views.PointView.extend({
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>lineColor'));
                 this.color = options.color;
                 this.lineMap = {};
@@ -258,7 +264,7 @@ define([
             onMapLeftClick: function (event, isSelection) {
                 // find out if this click is on us
                 if (this.isThisPrimitive(event)) {
-                    selectResult(this.model, isSelection);
+                    selectResult(this.selectionInterface, this.model, isSelection);
                 }
             },
             onMapDoubleClick: function (event) {
@@ -329,7 +335,9 @@ define([
         });
 
         Views.MultiLineView = Views.LineView.extend({
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>multiLineColor'));
                 this.lineMap = {};
                 Views.PointView.prototype.initialize.call(this, options);
@@ -348,7 +356,9 @@ define([
         });
 
         Views.RegionView = Views.PointView.extend({
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 this.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>polygonColor'));
                 options.color = this.color;
 
@@ -381,7 +391,7 @@ define([
             onMapLeftClick: function (event, isSelection) {
                 // find out if this click is on us
                 if (this.isThisPrimitive(event)) {
-                    selectResult(this.model, isSelection);
+                    selectResult(this.selectionInterface, this.model, isSelection);
                 }
             },
             onMapDoubleClick: function (event) {
@@ -556,7 +566,9 @@ define([
         });
 
         Views.MultiRegionView = Views.RegionView.extend({
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 this.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>multiPolygonColor'));
                 options.color = this.color;
 
@@ -614,7 +626,9 @@ define([
         });
 
         Views.GeometryCollectionView = Views.PointView.extend({
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>geometryCollectionColor'));
                 options.polygonColor = options.polygonColor || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>geometryCollectionColor'));
                 options.polygonColor = Cesium.Color.fromRgba(options.polygonColor.toRgba());
@@ -667,7 +681,7 @@ define([
 
                 if(this.isThisPrimitive(event)) {
                     if (this.model) {
-                        selectResult(this.model, isSelection);
+                        selectResult(this.selectionInterface, this.model, isSelection);
                     }
                     _.each(view.geometries, function (geometry) {
                         geometry.onMapLeftClick(event, isSelection);
@@ -680,7 +694,7 @@ define([
                 var view = this;
                 if(this.isThisPrimitive(event)) {
                     if (this.model) {
-                        selectResult(this.model, isSelection);
+                        selectResult(this.selectionInterface, this.model, isSelection);
                     }
                     _.each(view.geometries, function (geometry) {
                         geometry.onMapDoubleClick(event);
@@ -702,7 +716,9 @@ define([
 
         Views.ResultsView = Marionette.CollectionView.extend({
             childView: Backbone.View,
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 this.geoController = options.geoController;
                 // disable add and remove events
                 this.off('render', this._initialEvents);
@@ -729,7 +745,8 @@ define([
                 var options = _.extend({
                     model: metacard,
                     geoController: this.geoController,
-                    template: false
+                    template: false,
+                    selectionInterface: this.selectionInterface
                 }, childViewOptions);
 
                 if (geometry.isPoint()) {

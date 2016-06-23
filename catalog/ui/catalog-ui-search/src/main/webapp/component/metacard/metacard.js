@@ -13,9 +13,8 @@
 define([
     'underscore',
     'backbone',
-    'js/model/Metacard',
-    'js/store'
-], function (_, Backbone, Metacard, store) {
+    'js/model/Metacard'
+], function (_, Backbone, Metacard) {
 
     return new (Backbone.AssociatedModel.extend({
         relations: [

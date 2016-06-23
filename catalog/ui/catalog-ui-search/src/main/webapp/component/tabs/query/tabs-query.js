@@ -17,8 +17,10 @@ define([
     'component/query-old-basic/query-old-basic.view',
     'component/query-settings/query-settings.view',
     'component/query-status/query-status.view',
+    'component/query-schedule/query-schedule.view',
     'component/query-advanced/query-advanced.view'
-], function (_, Tabs, store, QueryOldBasicView, QuerySettingsView, QueryStatusView, QueryAdvancedView) {
+], function (_, Tabs, store, QueryOldBasicView, QuerySettingsView, QueryStatusView,
+             QueryScheduleView, QueryAdvancedView) {
 
     var WorkspaceContentTabs = Tabs.extend({
         defaults: {
@@ -26,6 +28,7 @@ define([
                 'Basic': QueryOldBasicView,
                 'Advanced': QueryAdvancedView,
                 'Settings': QuerySettingsView,
+                'Schedule': QueryScheduleView,
                 'Status': QueryStatusView
             }
         },

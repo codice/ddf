@@ -1,0 +1,74 @@
+@{customElementNamespace}alert-settings {
+  .customElement;
+
+  overflow: auto;
+  padding: 10px 10px;
+  font-size: 2rem;
+
+  .editor-properties {
+    overflow: auto;
+    max-height: ~"calc(100% - 88px)";
+    text-align: center;
+
+    .property-label {
+      text-align: center;
+    }
+  }
+
+  .property-expiration {
+    display: none;
+  }
+
+  .editor-properties {
+    .property-label {
+      height: @minimumButtonSize;
+      line-height: @minimumButtonSize;
+      color: grey;
+      font-weight: 700;
+    }
+  }
+
+  .editor-footer {
+    margin-top: 20px;
+    height: 44px;
+    white-space: nowrap;
+    .inlineFix;
+
+    > button {
+      height: 100%;
+      display: inline-block;
+    }
+    > .editor-edit {
+      width: 100%;
+    }
+    > .editor-cancel {
+      width: 50%;
+      display: none;
+    }
+    > .editor-save {
+      width: 50%;
+      display: none;
+    }
+  }
+
+  &.is-editing {
+    .editor-footer {
+
+      > .editor-edit {
+        display: none;
+      }
+      > .editor-cancel {
+        display: inline-block;
+      }
+      > .editor-save {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+@{customElementNamespace}alert-settings.is-persisted {
+  .property-expiration {
+    display: block;
+  }
+}

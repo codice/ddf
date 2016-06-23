@@ -26,9 +26,11 @@ define([
     return EditorView.extend({
         className: 'is-metacard-advanced',
         setDefaultModel: function(){
-            this.model = store.getSelectedResults().first();
+            this.model = this.selectionInterface.getSelectedResults().first();
         },
+        selectionInterface: store,
         initialize: function(options){
+            this.selectionInterface = options.selectionInterface || this.selectionInterface;
             EditorView.prototype.initialize.call(this, options);
             this.listenTo(this.model.get('metacard').get('properties'), 'change', this.onBeforeShow);
         },
@@ -95,6 +97,11 @@ define([
                                     });
                                 }
                             });
+                        });
+                        alertInstance.get('currentResult').get('results').forEach(function(result){
+                            if (result.get('metacard').get('properties').get('id') ===  self.model.get('metacard').get('properties').get('id')){
+                                result.get('metacard').get('properties').set(attributeMap);
+                            }
                         });
                         setTimeout(function(){  //let solr flush
                             LoadingCompanionView.endLoading(self);

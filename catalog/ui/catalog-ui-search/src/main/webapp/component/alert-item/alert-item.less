@@ -1,0 +1,36 @@
+@{customElementNamespace}alert-item {
+  display: block;
+  white-space: nowrap;
+  padding: 0px 40px;
+  position: relative;
+  cursor: pointer;
+
+  .alert-details,
+  .alert-delete {
+    display: inline-block;
+  }
+
+  .alert-details {
+    padding-right: @minimumButtonSize;
+  }
+
+  .alert-delete {
+    width: @minimumButtonSize;
+    height: 100%;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+  }
+
+  .details-detail {
+    line-height: 30px;
+    height: 30px;
+  }
+}
+
+@{customElementNamespace}alert-item-collection {
+
+  @{customElementNamespace}alert-item + @{customElementNamespace}alert-item {
+    margin-top: 10px;
+  }
+}

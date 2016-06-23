@@ -176,6 +176,9 @@ define([
         removeSelectedResult: function(metacard){
             this.getSelectedResults().remove(metacard);
         },
+        setActiveSearchResults: function(results){
+            this.get('content').setActiveSearchResults(results);
+        },
         addMetacardTypes: function(metacardTypes){
             this.get('content').addMetacardTypes(metacardTypes);
         },

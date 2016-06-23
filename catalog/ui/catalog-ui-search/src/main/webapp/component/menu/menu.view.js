@@ -27,9 +27,10 @@ define([
     'component/details-buttons/details-buttons.view',
     'component/dropdown/dropdown',
     'component/dropdown/notifications/dropdown.notifications.view',
+    'component/dropdown/alerts/dropdown.alerts.view',
     'wreqr'
 ], function (Marionette, _, $, template, CustomElements, LogoView, TitleView, ToolbarView,
-UserView, Tasks, ButtonsView, DropdownModel, Notifications, wreqr) {
+UserView, Tasks, ButtonsView, DropdownModel, Notifications, Alerts, wreqr) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -44,6 +45,7 @@ UserView, Tasks, ButtonsView, DropdownModel, Notifications, wreqr) {
             logo: '.menu-logo',
             title: '.content-title',
             toolbar: '.content-toolbar',
+            alerts: '.details-alerts',
             user: '.details-user',
             notifications: '.details-notifications',
             tasks: '.details-tasks'
@@ -58,6 +60,9 @@ UserView, Tasks, ButtonsView, DropdownModel, Notifications, wreqr) {
             this.title.show(new TitleView());
             this.toolbar.show(new ToolbarView());
             this.notifications.show(new Notifications({
+                model: new DropdownModel()
+            }));
+            this.alerts.show(new Alerts({
                 model: new DropdownModel()
             }));
             this.user.show(new UserView());

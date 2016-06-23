@@ -27,7 +27,7 @@ define([
 
     return Marionette.ItemView.extend({
         setDefaultModel: function(){
-            this.model = store.getSelectedResults().first();
+            this.model = this.selectionInterface.getSelectedResults().first();
         },
         template: template,
         tagName: CustomElements.register('metacard-associations'),
@@ -42,7 +42,9 @@ define([
         },
         ui: {
         },
+        selectionInterface: store,
         initialize: function(options){
+            this.selectionInterface = options.selectionInterface || this.selectionInterface;
             if (!options.model){
                 this.setDefaultModel();
             }

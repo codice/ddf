@@ -182,8 +182,12 @@ define([
                 this.panelThree.show(this._mapView);
             }
         },
-        updatePanelOne: function(){
-            if (arguments.length === 3){
+        updatePanelOne: function(workspace){
+            if (workspace){
+                if (Object.keys(workspace.changedAttributes())[0] === 'currentWorkspace'){
+                    this.updatePanelOne();
+                }
+            } else {
                 this.panelOne.show(new WorkspaceContentTabsView({
                     model: new WorkspaceContentTabs()
                 }));
@@ -227,14 +231,6 @@ define([
             var queryRef = store.getQuery();
             var title = queryRef._cloneOf === undefined ? 'New Query' : queryRef.get('title');
             this.$el.find('.content-panelTwo-title').html(title);
-        },
-        updatePanelTwoSelectedResultsTitle: function(){
-            var queryRef = store.getSelectedResults();
-            var title = queryRef.length + ' Items';
-            this.$el.find('.content-panelTwo-title').html(title);
-        },
-        updatePanelTwoSelectedResultTitle: function(){
-            this.$el.find('.content-panelTwo-title').html(store.getSelectedResults().first().get('metacard').get('properties').get('title'));
         },
         hidePanelTwo: function(){
             this.$el.addClass('hide-panelTwo');

@@ -1,0 +1,53 @@
+@{customElementNamespace}alert {
+  .customElement;
+  overflow: hidden;
+
+  > .alert-menu {
+    margin: auto;
+    //max-width: 1200px;
+    //padding: 0 100px 0 44px;
+  }
+
+  > .alert-menu {
+    height: 60px;
+  }
+
+  > .alert-details {
+    height: ~'calc(100% - 60px)';
+    white-space: nowrap;
+  }
+
+  > .alert-details > .details-tabular,
+  > .alert-details > .details-visual {
+    white-space: normal;
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    background: @niceBlack;
+  }
+
+  > .alert-details > .details-tabular {
+    width: 50%;
+    min-width: 400px;
+  }
+
+  > .alert-details > .details-visual {
+    width: 50%;
+  }
+
+}
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}alert {
+    > .metacard-menu,
+    > .metacard-details {
+      max-width: 100%;
+    }
+    > .metacard-menu {
+      padding: 0px 20px;
+    }
+    > .metacard-details {
+      padding: 0px 0px;
+    }
+  }
+}

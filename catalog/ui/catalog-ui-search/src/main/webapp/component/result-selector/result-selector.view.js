@@ -55,14 +55,16 @@ define([
             resultFilter: '.menu-resultFilter',
             resultSort: '.menu-resultSort'
         },
+        selectionInterface: store,
         initialize: function(options){
+            this.selectionInterface = options.selectionInterface || store;
             if (!this.model.get('result')) {
                 this.model.startSearch();
             }
 
-            this.listenTo(store.getSelectedResults(), 'update', this.handleSelectionChange);
-            this.listenTo(store.getSelectedResults(), 'add', this.handleSelectionChange);
-            this.listenTo(store.getSelectedResults(), 'remove', this.handleSelectionChange);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'update', this.handleSelectionChange);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'add', this.handleSelectionChange);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', this.handleSelectionChange);
             this.startListeningToFilter();
             this.startListeningToSort();
             this.startListeningToResult();
@@ -79,7 +81,7 @@ define([
             this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultSort', this.onBeforeShow);
         },
         updateActiveRecords: function(results){
-            store.get('content').setActiveSearchResults(results);
+            this.selectionInterface.setActiveSearchResults(results);
         },
         stopTextSelection: function(event){
             event.preventDefault();
@@ -111,26 +113,26 @@ define([
             }
         },
         selectBetween: function(startIndex, endIndex){
-            store.addSelectedResult(this.resultList.currentView.collection.slice(startIndex, endIndex));
+            this.selectionInterface.addSelectedResult(this.resultList.currentView.collection.slice(startIndex, endIndex));
         },
         handleControlClick: function(resultid, alreadySelected){
             if (alreadySelected){
-                store.removeSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
+                this.selectionInterface.removeSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
             } else {
-                store.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
+                this.selectionInterface.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
             }
         },
         handleNormalClick: function(resultid){
-            store.clearSelectedResults();
-            store.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
+            this.selectionInterface.clearSelectedResults();
+            this.selectionInterface.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
         },
         handleSelectionChange: function(){
             var self = this;
             self.$el.find('.resultSelector-list '+resultItemSelector+'[data-resultid]').removeClass('is-selected');
-            store.getSelectedResults().forEach(function(metacard){
+            this.selectionInterface.getSelectedResults().forEach(function(metacard){
                 self.$el.find('.resultSelector-list '+resultItemSelector+'[data-resultid="'+metacard.id+'"]').addClass('is-selected');
             });
-            if (store.getSelectedResults().length === 1) {
+            if (this.selectionInterface.getSelectedResults().length === 1) {
                // this.scrollIntoView(store.getSelectedResults().at(0).get('metacard'));
             }
         },

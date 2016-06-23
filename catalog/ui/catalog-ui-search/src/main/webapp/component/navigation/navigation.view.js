@@ -22,14 +22,16 @@ define([
     'js/CustomElements',
     'component/dropdown/dropdown',
     'component/dropdown/login-form/dropdown.login-form.view',
-    'component/dropdown/notifications/dropdown.notifications.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, LoginForm, Notifications) {
+    'component/dropdown/notifications/dropdown.notifications.view',
+    'component/dropdown/alerts/dropdown.alerts.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, LoginForm, Notifications, Alerts) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('navigation'),
         regions: {
             notifications: '.notifications-region',
+            alerts: '.alerts-region',
             userInfo: '.user-info-region',
             navigationMiddle: '.navigation-middle'
         },
@@ -46,6 +48,11 @@ define([
             this.notifications.show(new Notifications({
                 model: new DropdownModel()
             }));
+
+            this.alerts.show(new Alerts({
+                model: new DropdownModel()
+            }));
+
             this.userInfo.show(new LoginForm({
                 model: new DropdownModel()
             }));

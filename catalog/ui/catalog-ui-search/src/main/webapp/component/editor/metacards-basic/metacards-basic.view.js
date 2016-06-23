@@ -26,13 +26,15 @@ define([
     return EditorView.extend({
         className: 'is-metacards-basic',
         setDefaultModel: function(){
-            this.model = store.getSelectedResults();
+            this.model = this.selectionInterface.getSelectedResults();
         },
+        selectionInterface: store,
         initialize: function(options){
+            this.selectionInterface = options.selectionInterface || this.selectionInterface;
             EditorView.prototype.initialize.call(this, options);
         },
         onBeforeShow: function() {
-            var results = store.getSelectedResults();
+            var results = this.selectionInterface.getSelectedResults();
             var types = results.map(function (result) {
                 return result.get('propertyTypes');
             });

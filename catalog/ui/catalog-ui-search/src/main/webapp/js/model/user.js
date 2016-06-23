@@ -13,10 +13,12 @@
 
 define([
     'underscore',
+    'wreqr',
     'backbone',
     'properties',
+    './Alert',
     'backboneassociations'
-], function (_, Backbone, properties) {
+], function (_, wreqr, Backbone, properties, Alert) {
     'use strict';
 
     var User = {};
@@ -115,7 +117,10 @@ define([
                 resultSort: undefined,
                 homeFilter: 'Owned by anyone',
                 homeSort: 'Last modified',
-                homeDisplay: 'Grid'
+                homeDisplay: 'Grid',
+                alerts: [],
+                alertPersistance: false, // don't persist across sessions by default
+                alertExpiration: 7 // days
             };
         },
         relations: [
@@ -129,8 +134,33 @@ define([
                 key: 'mapLayers',
                 relatedModel: User.MapLayer,
                 collectionType: User.MapLayers
+            },
+            {
+                type: Backbone.Many,
+                key: 'alerts',
+                relatedModel: Alert
             }
         ],
+        initialize: function(){
+            if (!this.get('alertPersistance')) {
+                this.get('alerts').reset();
+            } else {
+                var expiredAlerts = this.get('alerts').filter(function(alert){
+                        var recievedAt = (new Date(alert.get('when'))).getTime();
+                        return ((Date.now() - recievedAt) > this.get('alertExpiration'));
+                }.bind(this));
+                this.get('alerts').remove(expiredAlerts);
+            }
+            this.listenTo(wreqr.vent, 'alerts:add', this.addAlert);
+            this.listenTo(this.get('alerts'), 'remove', this.handleRemove);
+        },
+        handleRemove: function(){
+            this.savePreferences();
+        },
+        addAlert: function(alertDetails){
+            this.get('alerts').add(alertDetails);
+            this.savePreferences();
+        },
         savePreferences: function (options) {
             if (this.parents[0].isGuestUser()) {
                 window.localStorage.setItem('preferences', JSON.stringify(this.toJSON()));
@@ -143,7 +173,7 @@ define([
     User.Model = Backbone.AssociatedModel.extend({
         defaults: function () {
             return {
-                preferences: new User.Preferences(),
+                preferences: undefined,
                 isGuest: true,
                 username: 'guest',
                 roles: ['guest']

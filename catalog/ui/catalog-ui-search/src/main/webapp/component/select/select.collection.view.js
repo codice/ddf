@@ -38,7 +38,7 @@ define([
         },
         onAddChild: function(childView){
             childView.$el.addClass('choice');
-            childView.$el.attr('data-value', childView.model.get('value'));
+            childView.$el.attr('data-value', JSON.stringify(childView.model.get('value')));
         },
         onRender: function(){
             this.handleValue();
@@ -47,7 +47,7 @@ define([
             var values = this.model.get('value');
             this.$el.children('[data-value]').removeClass('is-selected');
             values.forEach(function(value){
-                this.$el.children('[data-value="'+value+'"]').addClass('is-selected');
+                this.$el.children('[data-value="'+JSON.stringify(value)+'"]').addClass('is-selected');
             }.bind(this));
         },
         handleChoice: function(e){
@@ -62,7 +62,7 @@ define([
         },
         updateValue: function(){
             var values = _.map(this.$el.children('.is-selected'), function(choice){
-                return $(choice).attr('data-value');
+                return JSON.parse($(choice).attr('data-value'));
             });
             this.model.set({
                 value: values

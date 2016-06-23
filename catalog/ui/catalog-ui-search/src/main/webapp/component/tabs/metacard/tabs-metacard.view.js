@@ -30,21 +30,25 @@ define([
         setDefaultModel: function(){
             this.model = new MetacardTabsModel();
         },
+        selectionInterface: store,
         initialize: function(options){
+            this.selectionInterface = options.selectionInterface || store;
             if (options.model === undefined){
                 this.setDefaultModel();
             }
             TabsView.prototype.initialize.call(this);
             var debounceDetermineContent = _.debounce(this.determineContent, 200);
-            this.listenTo(store.getSelectedResults(), 'update',debounceDetermineContent);
-            this.listenTo(store.getSelectedResults(), 'add', debounceDetermineContent);
-            this.listenTo(store.getSelectedResults(), 'remove', debounceDetermineContent);
-            this.listenTo(store.getSelectedResults(), 'reset', debounceDetermineContent);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'update',debounceDetermineContent);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'add', debounceDetermineContent);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', debounceDetermineContent);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'reset', debounceDetermineContent);
         },
         determineContent: function(){
-            if (store.getSelectedResults().length === 1) {
+            if (this.selectionInterface.getSelectedResults().length === 1) {
                 var activeTab = this.model.getActiveView();
-                this.tabsContent.show(new activeTab());
+                this.tabsContent.show(new activeTab({
+                    selectionInterface: this.selectionInterface
+                }));
             }
         }
     });

@@ -127,8 +127,9 @@ define([
             getGeometry: getPoint,
             pointStrokeColor: 'rgba(0,0,0,1)',
             lineStrokeColor: 'rgba(255,255,255,1)',
-
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 this.pointFillColor = this.model.get('color') || options.pointFillColor || Application.UserModel.get('user>preferences>mapColors>pointColor');
                 this.geoController = options.geoController;
                 if (!options.ignoreEvents) {
@@ -137,9 +138,9 @@ define([
                 }
                 this.buildBillboard();
 
-                this.listenTo(store.getSelectedResults(), 'update', this.toggleSelection);
-                this.listenTo(store.getSelectedResults(), 'add', this.toggleSelection);
-                this.listenTo(store.getSelectedResults(), 'remove', this.toggleSelection);
+                this.listenTo(this.selectionInterface.getSelectedResults(), 'update', this.toggleSelection);
+                this.listenTo(this.selectionInterface.getSelectedResults(), 'add', this.toggleSelection);
+                this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', this.toggleSelection);
             },
 
             isThisPrimitive : function(event){
@@ -187,7 +188,7 @@ define([
             toggleSelection: function () {
                 var radius, strokeColor;
 
-                var selected = store.getSelectedResults().some(function (result) {
+                var selected = this.selectionInterface.getSelectedResults().some(function (result) {
                     return result.get('metacard').id === this.model.id;
                 }, this);
                 if (selected) {
@@ -207,16 +208,20 @@ define([
                 }));
             },
             onMapLeftClick: function (feature, isSelection) {
-                if (this.model.get('color')) {
+               // if (this.model.get('color')) {
                     // find out if this click is on us
                     if (feature === this.billboard) {
                         if (!isSelection) {
-                            store.clearSelectedResults();
+                            this.selectionInterface.clearSelectedResults();
                         }
-                        store.addSelectedResult(store.getQueryById(this.model.get('queryId'))
-                            .get('result>results').get(this.model.id + this.model.get('properties>source-id')));
+                        if (this.model.get('color')){
+                            this.selectionInterface.addSelectedResult(store.getQueryById(this.model.get('queryId'))
+                                .get('result>results').get(this.model.id + this.model.get('properties>source-id')));
+                        } else {
+                            this.selectionInterface.addSelectedResult(this.model.parents[0]);
+                        }
                     }
-                }
+               // }
             },
             onMapDoubleClick: function (event) {
                 // find out if this click is on us
@@ -261,7 +266,9 @@ define([
 
         Views.ResultsView = Marionette.CollectionView.extend({
             childView: Backbone.View,
-            initialize: function (options) {
+            selectionInterface: store,
+            initialize: function(options){
+                this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 this.geoController = options.geoController;
                 // disable add and remove events
                 this.off('render', this._initialEvents);
@@ -288,7 +295,8 @@ define([
                 var options = _.extend({
                     model: metacard,
                     geoController: this.geoController,
-                    template: false
+                    template: false,
+                    selectionInterface: this.selectionInterface
                 }, childViewOptions);
 
                 if (geometry.isPoint()) {
