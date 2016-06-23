@@ -26,7 +26,7 @@ exports.load = function (key) {
 // find all the feature/pom xml files
 exports.find = function (dir, filter) {
   return readdirp({
-    root: dir || process.cwd(),
+    root: dir,
     fileFilter: ['pom.xml', 'features.xml'],
     directoryFilter: ['!target', '!node_modules']
       .concat(filter || [])
