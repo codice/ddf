@@ -23,9 +23,15 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
@@ -46,28 +52,59 @@ import org.apache.tika.mime.MediaTypeRegistry;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.TeeContentHandler;
+import org.apache.tika.sax.ToTextContentHandler;
 import org.apache.tika.sax.ToXMLContentHandler;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.imgscalr.Scalr;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.ContentHandler;
 
 import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
 import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
 
+import ddf.catalog.content.operation.ContentMetadataExtractor;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
+import ddf.catalog.util.impl.ServiceComparator;
 
 public class TikaInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformer.class);
 
     private Templates templates = null;
+
+    private Map<ServiceReference, ContentMetadataExtractor> contentMetadataExtractors =
+            Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
+
+    public void addContentMetadataExtractors(
+            ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
+        Bundle bundle = getBundle();
+        if (bundle != null) {
+            ContentMetadataExtractor cme = bundle.getBundleContext()
+                    .getService(contentMetadataExtractorRef);
+            contentMetadataExtractors.put(contentMetadataExtractorRef, cme);
+        }
+    }
+
+    Bundle getBundle() {
+        return FrameworkUtil.getBundle(TikaInputTransformer.class);
+    }
+
+    public void removeContentMetadataExtractor(
+            ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
+        contentMetadataExtractors.remove(contentMetadataExtractorRef);
+    }
 
     public TikaInputTransformer(BundleContext bundleContext) {
         ClassLoader tccl = Thread.currentThread()
@@ -75,11 +112,11 @@ public class TikaInputTransformer implements InputTransformer {
         try {
             Thread.currentThread()
                     .setContextClassLoader(getClass().getClassLoader());
-            templates =
-                    TransformerFactory.newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
-                            net.sf.saxon.TransformerFactoryImpl.class.getClassLoader())
-                            .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
-                                    "/metadata.xslt")));
+            templates = TransformerFactory.newInstance(
+                    net.sf.saxon.TransformerFactoryImpl.class.getName(),
+                    net.sf.saxon.TransformerFactoryImpl.class.getClassLoader())
+                    .newTemplates(new StreamSource(
+                            TikaMetadataExtractor.class.getResourceAsStream("/metadata.xslt")));
         } catch (TransformerConfigurationException e) {
             LOGGER.warn("Couldn't create XML transformer", e);
         } finally {
@@ -123,9 +160,18 @@ public class TikaInputTransformer implements InputTransformer {
             }
 
             Parser parser = new AutoDetectParser();
-            ToXMLContentHandler handler = new ToXMLContentHandler();
+            ToXMLContentHandler xmlContentHandler = new ToXMLContentHandler();
+            ToTextContentHandler textContentHandler = null;
+            ContentHandler contentHandler;
+            if (!contentMetadataExtractors.isEmpty()) {
+                textContentHandler = new ToTextContentHandler();
+                contentHandler = new TeeContentHandler(xmlContentHandler, textContentHandler);
+            } else {
+                contentHandler = xmlContentHandler;
+            }
+
             TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser,
-                    handler);
+                    contentHandler);
 
             Metadata metadata;
             try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource()
@@ -133,12 +179,38 @@ public class TikaInputTransformer implements InputTransformer {
                 metadata = tikaMetadataExtractor.parseMetadata(inputStreamCopy, new ParseContext());
             }
 
-            String metadataText = handler.toString();
+            String metadataText = xmlContentHandler.toString();
             if (templates != null) {
                 metadataText = transformToXml(metadataText);
             }
 
-            Metacard metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataText);
+            Metacard metacard;
+            if (textContentHandler != null) {
+                String plainText = textContentHandler.toString();
+
+                Set<AttributeDescriptor> attributes = contentMetadataExtractors.values()
+                        .stream()
+                        .map(ContentMetadataExtractor::getMetacardAttributes)
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toSet());
+
+                // TODO RAP 14 Jun 16: Might need to add service method to extract
+                // name/id type info from the extractor. Those would then be
+                // concatted together to form a name for the metacardtype.
+                String typeName = contentMetadataExtractors.values()
+                        .stream()
+                        .map(v -> v.getClass()
+                                .getName())
+                        .collect(Collectors.joining("_"));
+
+                metacard = MetacardCreator.createEnhancedMetacard(metadata, id, metadataText,
+                        typeName, attributes);
+                for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
+                    contentMetadataExtractor.process(plainText, metacard);
+                }
+            } else {
+                metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataText);
+            }
 
             String metacardContentType = metacard.getContentTypeName();
             if (StringUtils.startsWith(metacardContentType, "image")) {
@@ -160,8 +232,7 @@ public class TikaInputTransformer implements InputTransformer {
     private void registerService(BundleContext bundleContext) {
         LOGGER.debug("Registering {} as an osgi service.",
                 TikaInputTransformer.class.getSimpleName());
-        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class,
-                this,
+        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class, this,
                 getServiceProperties());
     }
 
@@ -200,8 +271,7 @@ public class TikaInputTransformer implements InputTransformer {
 
             if (null != image) {
                 BufferedImage bufferedImage = new BufferedImage(image.getWidth(null),
-                        image.getHeight(null),
-                        BufferedImage.TYPE_INT_RGB);
+                        image.getHeight(null), BufferedImage.TYPE_INT_RGB);
                 Graphics2D graphics = bufferedImage.createGraphics();
                 graphics.drawImage(image, null, null);
                 graphics.dispose();

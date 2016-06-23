@@ -20,6 +20,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -36,24 +40,42 @@ import ddf.catalog.plugin.impl.PolicyResponseImpl;
  * Plugin that parses Metacard attributes for security policy information
  */
 public class MetacardAttributeSecurityPolicyPlugin implements PolicyPlugin {
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            MetacardAttributeSecurityPolicyPlugin.class);
 
-    List<String> metacardAttributes = new ArrayList<>();
+    private List<String> metacardAttributes = new ArrayList<>();
 
-    public List<String> getMetacardAttributes() {
+    private Map<String, String> mcAttribsLookup = new HashMap<>();
+
+    public synchronized List<String> getMetacardAttributes() {
         return metacardAttributes;
     }
 
-    public void setMetacardAttributes(List<String> metacardAttributes) {
+    public synchronized void setMetacardAttributes(List<String> metacardAttributes) {
+        List<String> badAttributes = metacardAttributes.stream()
+                .filter(s -> !s.contains("="))
+                .collect(Collectors.toList());
+
+        if (!badAttributes.isEmpty()) {
+            LOGGER.debug(
+                    "These metacard attributes not formatted as key=val and will be added as val=val: [{}]",
+                    badAttributes);
+        }
+
+        mcAttribsLookup = metacardAttributes.stream()
+                .map(s -> s.split("="))
+                .collect(Collectors.toMap(sArr -> sArr[0],
+                        sArr -> sArr.length == 1 ? sArr[0] : sArr[1]));
         this.metacardAttributes = metacardAttributes;
     }
 
-    private Map<String, Set<String>> buildSecurityMap(Metacard metacard) {
+    private synchronized Map<String, Set<String>> buildSecurityMap(Metacard metacard) {
         Map<String, Set<String>> securityMap = new HashMap<>();
         if (metacard != null) {
-            for (String metacardAttribute : metacardAttributes) {
-                Attribute attribute = metacard.getAttribute(metacardAttribute);
+            for (Map.Entry<String, String> row : mcAttribsLookup.entrySet()) {
+                Attribute attribute = metacard.getAttribute(row.getKey());
                 if (attribute != null) {
-                    securityMap.put(metacardAttribute,
+                    securityMap.put(row.getValue(),
                             new HashSet<>(listAsStrings(attribute.getValues())));
                 }
             }
