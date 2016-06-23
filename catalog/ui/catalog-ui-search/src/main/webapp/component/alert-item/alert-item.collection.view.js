@@ -23,6 +23,7 @@ define([
 ], function (Marionette, _, $, childView, CustomElements, store) {
 
     return Marionette.CollectionView.extend({
+        emptyView: Marionette.ItemView.extend({className: 'alert-empty', template: 'No Recent Alerts'}),
         className: 'is-list',
         setDefaultCollection: function(){
             this.collection = store.get('user').get('user').get('preferences').get('alerts');
