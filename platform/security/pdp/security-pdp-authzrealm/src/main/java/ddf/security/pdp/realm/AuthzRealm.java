@@ -310,6 +310,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
         if (!CollectionUtils.isEmpty(policyExtensions)) {
             KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermission();
             resultCollection.addAll(matchAllCollection.getPermissionList());
+            resultCollection.setAction(matchAllCollection.getAction());
             for (PolicyExtension policyExtension : policyExtensions) {
                 try {
                     resultCollection = policyExtension.isPermittedMatchAll(subjectAllCollection,
@@ -331,6 +332,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
         if (!CollectionUtils.isEmpty(policyExtensions)) {
             KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermission();
             resultCollection.addAll(matchOneCollection.getPermissionList());
+            resultCollection.setAction(matchOneCollection.getAction());
             for (PolicyExtension policyExtension : policyExtensions) {
                 try {
                     resultCollection = policyExtension.isPermittedMatchOne(subjectAllCollection,

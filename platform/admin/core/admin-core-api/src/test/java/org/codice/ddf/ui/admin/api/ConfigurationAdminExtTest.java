@@ -112,6 +112,11 @@ public class ConfigurationAdminExtTest {
             MetaTypeService getMetaTypeService() {
                 return testMTS;
             }
+
+            @Override
+            public boolean isPermittedToViewService(String servicePid) {
+                return true;
+            }
         };
     }
 

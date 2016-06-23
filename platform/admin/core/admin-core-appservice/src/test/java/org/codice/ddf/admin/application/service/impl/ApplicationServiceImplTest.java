@@ -225,12 +225,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Set<Application> applications = appService.getApplications();
         assertNotNull(applications);
@@ -260,12 +255,7 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo, null, null);
 
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         assertEquals(ApplicationService.class.getName()
                         + " does not contain the expected number of Applications",
@@ -332,12 +322,7 @@ public class ApplicationServiceImplTest {
                 null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         assertEquals("More than one application was returned from mainFeatureRepo",
                 1,
@@ -390,12 +375,7 @@ public class ApplicationServiceImplTest {
                         + TEST_MAIN_FEATURES_1_FEATURE_1_NAME + "\"",
                 featuresService.getFeature(TEST_MAIN_FEATURES_1_FEATURE_1_NAME));
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         assertEquals(ApplicationService.class.getName()
                         + " does not contain the expected number of Applications",
@@ -632,12 +612,7 @@ public class ApplicationServiceImplTest {
                 inactiveBundleNames);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         assertEquals(ApplicationService.class.getName()
                         + " does not contain the expected number of Applications",
@@ -697,12 +672,7 @@ public class ApplicationServiceImplTest {
                 inactiveBundles);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         assertEquals(ApplicationService.class.getName()
                         + " does not contain the expected number of Applications",
@@ -904,12 +874,7 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         assertTrue(appService.isApplicationStarted(appService.getApplication(
                 TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME)));
@@ -935,12 +900,7 @@ public class ApplicationServiceImplTest {
                 null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         assertFalse(appService.isApplicationStarted(appService.getApplication(
                 TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME)));
@@ -967,12 +927,7 @@ public class ApplicationServiceImplTest {
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
         when(featuresService.isInstalled(mainFeatureRepo2.getFeatures()[0])).thenReturn(false);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         assertFalse(appService.isApplicationStarted(appService.getApplication(
                 TEST_MAIN_FEATURES_2_MAIN_FEATURE_NAME)));
@@ -989,12 +944,7 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Set<Application> applications = appService.getApplications();
         assertEquals(1, applications.size());
@@ -1019,12 +969,7 @@ public class ApplicationServiceImplTest {
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
         when(featuresService.isInstalled(any())).thenReturn(false);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Set<Application> applications = appService.getApplications();
         assertEquals(1, applications.size());
@@ -1054,12 +999,7 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationServiceImpl appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationServiceImpl appService = createPermittedApplicationServiceImpl();
 
         // just ignore the first application
         List<String> ignoredApps1 = new ArrayList<>(1);
@@ -1103,12 +1043,7 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Set<ApplicationNode> rootApps = appService.getApplicationTree();
 
@@ -1154,12 +1089,7 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Set<ApplicationNode> rootApps = appService.getApplicationTree();
 
@@ -1183,12 +1113,7 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         List<Feature> profiles = appService.getInstallationProfiles();
 
@@ -1333,12 +1258,7 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
         when(featuresService.isInstalled(any(Feature.class))).thenReturn(false);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         appService.startApplication(TEST_APP);
 
@@ -1361,12 +1281,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         appService.startApplication("");    //Shouldn't find this
     }
@@ -1425,12 +1340,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         appService.stopApplication("");
     }
@@ -1479,12 +1389,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Feature[] featureList = mainFeatureRepo.getFeatures();
 
@@ -1508,12 +1413,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Application testApp = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
@@ -1555,12 +1455,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Feature[] featureList = noMainFeatureRepo1.getFeatures();
 
@@ -1614,12 +1509,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Application testApp = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
@@ -1688,12 +1578,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         List<FeatureDetails> result = appService.getAllFeatures();
 
@@ -1727,12 +1612,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         doThrow(new NullPointerException()).when(featuresService)
                 .listRepositories();
@@ -1767,12 +1647,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         doThrow(new NullPointerException()).when(featuresService)
                 .listFeatures();
@@ -1807,12 +1682,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Application testApp = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
@@ -1856,12 +1726,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Application testApp = mock(ApplicationImpl.class);
 
@@ -1891,12 +1756,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Feature testFeature1 = mock(Feature.class);
         Feature[] featureList = {testFeature1};
@@ -2064,12 +1924,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Repository[] repoList = {mainFeatureRepo};
         URI testURL = mainFeatureRepo.getURI();
@@ -2127,12 +1982,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo1));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Feature[] featureList = mainFeatureRepo.getFeatures();
 
@@ -2157,12 +2007,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo1));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Feature testFeature = mainFeatureRepo.getFeatures()[0];
 
@@ -2203,6 +2048,11 @@ public class ApplicationServiceImplTest {
             @Override
             public Set<Application> getApplications() {
                 return applicationSet;
+            }
+
+            @Override
+            public boolean isPermittedToViewFeature(String featureName) {
+                return true;
             }
         };
 
@@ -2394,12 +2244,7 @@ public class ApplicationServiceImplTest {
 
         if (null != bundle) {
             when(bundle.getState()).thenReturn(bundleState);
-            appService = new ApplicationServiceImpl(bundleStateServices) {
-                @Override
-                protected BundleContext getContext() {
-                    return bundleContext;
-                }
-            };
+            appService = createPermittedApplicationServiceImpl();
         }
 
         return appService;
@@ -2432,12 +2277,7 @@ public class ApplicationServiceImplTest {
             when(bundleStateServices.get(0)
                     .getState(bundle)).thenReturn(bundleState);
 
-            appService = new ApplicationServiceImpl(bundleStateServices) {
-                @Override
-                protected BundleContext getContext() {
-                    return bundleContext;
-                }
-            };
+            appService = createPermittedApplicationServiceImpl();
         }
 
         return appService;
@@ -2680,5 +2520,19 @@ public class ApplicationServiceImplTest {
         when(featuresService.listFeatures()).thenReturn(featuresSet.toArray(new Feature[] {}));
 
         return featuresService;
+    }
+
+    public ApplicationServiceImpl createPermittedApplicationServiceImpl() {
+        return new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+
+            @Override
+            public boolean isPermittedToViewFeature(String featureName) {
+                return true;
+            }
+        };
     }
 }

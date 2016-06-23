@@ -18,8 +18,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
@@ -29,8 +34,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -42,7 +52,9 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.osgi.service.cm.Configuration;
 
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
@@ -62,6 +74,21 @@ public class TestSecurity extends AbstractIntegrationTest {
     protected static final String KEY_STORE_PATH = System.getProperty("javax.net.ssl.keyStore");
 
     protected static final String PASSWORD = System.getProperty("javax.net.ssl.trustStorePassword");
+
+    protected static final List<String> SERVICES_TO_FILTER = Arrays.asList(
+            "org.codice.ddf.catalog.security.CatalogPolicy",
+            "org.codice.ddf.security.policy.context.impl.PolicyManager",
+            "ddf.security.pdp.realm.AuthzRealm",
+            "testCreateFactoryPid",
+            "org.codice.ddf.admin.config.policy.AdminConfigPolicy");
+
+    protected static final List<String> FEATURES_TO_FILTER =
+            Arrays.asList("catalog-security-plugin",
+                    "security-sts-propertyclaimshandler",
+                    "security-all");
+
+    protected static final String ADD_SDK_APP_JOLOKIA_REQ =
+            "{\"type\":\"EXEC\",\"mbean\":\"org.codice.ddf.admin.application.service.ApplicationService:service=application-service\",\"operation\":\"addApplications\",\"arguments\":[[{\"value\":\"mvn:ddf.distribution/sdk-app/2.10.0-SNAPSHOT/xml/features\"}]]}";
 
     protected static final String SOAP_ENV =
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
@@ -279,8 +306,33 @@ public class TestSecurity extends AbstractIntegrationTest {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
+
             getServiceManager().waitForAllBundles();
             configurePDP();
+            Configuration config = getAdminConfig().getConfiguration(
+                    "org.codice.ddf.admin.config.policy.AdminConfigPolicy");
+            config.setBundleLocation("mvn:ddf.admin.core/admin-core-configpolicy/" + System.getProperty("ddf.version"));
+            Dictionary properties = new Hashtable<>();
+
+            List<String> featurePolicies = new ArrayList<>();
+            featurePolicies.addAll(Arrays.asList(getDefaultRequiredApps()));
+            featurePolicies.addAll(FEATURES_TO_FILTER);
+            featurePolicies.replaceAll(featureName -> featureName
+                    + "=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin\"");
+
+            List<String> servicePolicies = new ArrayList<>();
+            servicePolicies.addAll(SERVICES_TO_FILTER);
+            servicePolicies.replaceAll(serviceName -> serviceName
+                    + "=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin\"");
+
+            properties.put("featurePolicies",
+                    featurePolicies.stream()
+                            .toArray(String[]::new));
+            properties.put("servicePolicies",
+                    servicePolicies.stream()
+                            .toArray(String[]::new));
+            config.update(properties);
+
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
@@ -1054,4 +1106,163 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     }
 
+    //ConfigurationAdmin tests
+    @Test
+    public void testAdminConfigPolicyGetServices() {
+
+        String getAllServicesResponsePermitted = sendPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices");
+
+        for (String service : SERVICES_TO_FILTER) {
+            assertTrue(getAllServicesResponsePermitted.contains(service));
+        }
+
+        String getAllServicesResponseNotPermitted = sendNotPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices");
+
+        //Verify there are configurations the user can see other than the restricted ones
+        assertTrue(getAllServicesResponseNotPermitted.contains(
+                "org.codice.ddf.ui.admin.api.ConfigurationAdmin"));
+
+        for (String filteredService : SERVICES_TO_FILTER) {
+            assertFalse(getAllServicesResponseNotPermitted.contains(filteredService));
+        }
+    }
+
+    @Test
+    public void testAdminConfigPolicyCreateAndModifyConfiguration() {
+
+        //create config CreateFactoryConfiguration
+
+        String createFactoryConfigPermittedResponse = sendPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/createFactoryConfiguration/testCreateFactoryPid");
+        assertThat(JsonPath.given(createFactoryConfigPermittedResponse)
+                .getString("value"), containsString("testCreateFactoryPid"));
+
+        String createFactoryConfigNotPermittedResponse = sendNotPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/createFactoryConfiguration/testCreateFactoryPid");
+        assertNull(JsonPath.given(createFactoryConfigNotPermittedResponse)
+                .get("value"));
+
+        //get config GetConfigurations
+
+        String getConfigurationsPermitted = sendPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getConfigurations/(service.pid=ddf.security.pdp.realm.AuthzRealm)");
+        assertThat(JsonPath.given(getConfigurationsPermitted)
+                .getString("value"), containsString("ddf.security.pdp.realm.AuthzRealm"));
+
+        String getConfigurationsNotPermitted = sendNotPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getConfigurations/(service.pid=ddf.security.pdp.realm.AuthzRealm)");
+        assertEquals(JsonPath.given(getConfigurationsNotPermitted)
+                .getString("value"), "[]");
+    }
+
+    // ApplicationService tests
+    @Test
+    public void testAdminConfigPolicyGetAllFeaturesAndApps() {
+
+        String getAllFeaturesResponseNotPermitted = sendNotPermittedRequest(
+                "/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service");
+
+        String filteredApplications = JsonPath.given(getAllFeaturesResponseNotPermitted)
+                .getString("value.Applications.name");
+
+        String filteredFeatures = JsonPath.given(getAllFeaturesResponseNotPermitted)
+                .getString("value.AllFeatures.name");
+
+        for (String app : getDefaultRequiredApps()) {
+            assertThat(filteredApplications, not(containsString(app)));
+        }
+
+        for (String feature : FEATURES_TO_FILTER) {
+            assertThat(filteredFeatures, not(containsString(feature)));
+        }
+
+        String getAllFeaturesResponsePermitted = sendPermittedRequest(
+                "/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service");
+
+        filteredApplications = JsonPath.given(getAllFeaturesResponsePermitted)
+                .getString("value.Applications.name");
+        filteredFeatures = JsonPath.given(getAllFeaturesResponsePermitted)
+                .getString("value.AllFeatures.name");
+
+        for (String app : getDefaultRequiredApps()) {
+            assertThat(filteredApplications, containsString(app));
+        }
+
+        for (String feature : FEATURES_TO_FILTER) {
+            assertThat(filteredFeatures, containsString(feature));
+        }
+    }
+
+    @Test
+    public void testAdminConfigPolicyConfigureApplication() {
+
+        //stop sdk-app
+        String stopApplicationNotPermitted = sendNotPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/sdk-app");
+        assertFalse(JsonPath.given(stopApplicationNotPermitted)
+                .get("value"));
+
+        String stopApplicationPermitted = sendPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/sdk-app");
+        assertTrue(JsonPath.given(stopApplicationPermitted)
+                .get("value"));
+
+        //remove sdk-app
+        sendNotPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/sdk-app");
+
+        String checkApplicationRemovedResponse = sendPermittedRequest(
+                "/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications");
+        checkApplicationRemovedResponse = JsonPath.given(checkApplicationRemovedResponse)
+                .getString("value.name");
+        assertThat(checkApplicationRemovedResponse, containsString("sdk-app"));
+
+        sendPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/sdk-app");
+
+        checkApplicationRemovedResponse = sendPermittedRequest(
+                "/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications");
+        checkApplicationRemovedResponse = JsonPath.given(checkApplicationRemovedResponse)
+                .getString("value.name");
+        assertThat(checkApplicationRemovedResponse, not(containsString("sdk-app")));
+
+        //add the sdk-app back
+        given().auth()
+                .basic("admin", "admin")
+                .contentType(ContentType.JSON)
+                .body(ADD_SDK_APP_JOLOKIA_REQ)
+                .post(SECURE_ROOT_AND_PORT
+                        + "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/addApplications")
+                .body()
+                .print();
+
+        //start sdk-app
+        String startApplicationNotPermitted = sendNotPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/sdk-app");
+        assertFalse(JsonPath.given(startApplicationNotPermitted)
+                .get("value"));
+
+        String startApplicationPermitted = sendPermittedRequest(
+                "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/sdk-app");
+        assertTrue(JsonPath.given(startApplicationPermitted)
+                .get("value"));
+    }
+
+    public String sendPermittedRequest(String jolokiaEndpoint) {
+        return given().auth()
+                .basic("admin", "admin")
+                .get(SECURE_ROOT_AND_PORT + jolokiaEndpoint)
+                .body()
+                .print();
+    }
+
+    public String sendNotPermittedRequest(String jolokiaEndpoint) {
+        return given().auth()
+                .basic(SYSTEM_ADMIN_USER, SYSTEM_ADMIN_USER_PASSWORD)
+                .get(SECURE_ROOT_AND_PORT + jolokiaEndpoint)
+                .body()
+                .print();
+    }
 }

@@ -118,9 +118,20 @@ public class ConfigurationAdminTest {
 
     public static Configuration testConfig;
 
+    public static ConfigurationAdminExt configurationAdminExt;
+
     @Before
     public void setupMethod() {
         testConfig = mock(Configuration.class);
+        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
+                mock(org.osgi.service.cm.ConfigurationAdmin.class);
+
+        configurationAdminExt = new ConfigurationAdminExt(testConfigAdmin) {
+            @Override
+            public boolean isPermittedToViewService(String servicePid) {
+                return true;
+            }
+        };
     }
 
     /**
@@ -288,6 +299,7 @@ public class ConfigurationAdminTest {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
         ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
+        when(testConfigAdminExt.isPermittedToViewService(anyString())).thenReturn(true);
         ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
                 testConfigAdminExt);
 
@@ -404,7 +416,8 @@ public class ConfigurationAdminTest {
     public void testCreateFactoryConfiguration() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                configurationAdminExt);
 
         Configuration testConfig = mock(Configuration.class);
         when(testConfig.getPid()).thenReturn(TEST_PID);
@@ -442,7 +455,8 @@ public class ConfigurationAdminTest {
     public void testDelete() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                configurationAdminExt);
 
         Configuration testConfig = mock(Configuration.class);
         when(testConfig.getPid()).thenReturn(TEST_PID);
@@ -587,8 +601,15 @@ public class ConfigurationAdminTest {
     public void testGetConfigurations() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
 
+        ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(testConfigAdmin) {
+            @Override
+            public boolean isPermittedToViewService(String servicePid) {
+                return true;
+            }
+        };
+
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, configAdminExt);
         Configuration testConfig = mock(Configuration.class);
         Configuration[] configs = {testConfig};
 
@@ -601,7 +622,7 @@ public class ConfigurationAdminTest {
 
         assertThat("Should return the given configurations.", result[0][0], is(TEST_PID));
         assertThat("Should return the given configurations.", result[0][1], is(TEST_LOCATION));
-        verify(testConfig).getPid();
+        verify(testConfig, times(2)).getPid();
         verify(testConfig).getBundleLocation();
     }
 
@@ -682,7 +703,8 @@ public class ConfigurationAdminTest {
     public void testGetProperties() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                configurationAdminExt);
 
         Configuration testConfig = mock(Configuration.class);
         Dictionary<String, Object> testProp = mock(Dictionary.class);
@@ -967,7 +989,15 @@ public class ConfigurationAdminTest {
     public void testDisableConfiguration() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+
+        ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(testConfigAdmin) {
+            @Override
+            public boolean isPermittedToViewService(String servicePid) {
+                return true;
+            }
+        };
+
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, configAdminExt);
 
         Configuration testConfig = mock(Configuration.class);
         Configuration testFactoryConfig = mock(Configuration.class);
@@ -1006,7 +1036,8 @@ public class ConfigurationAdminTest {
     public void testDisableConfigurationsNoConfig() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                configurationAdminExt);
 
         configAdmin.disableConfiguration(TEST_PID);
     }
@@ -1021,7 +1052,8 @@ public class ConfigurationAdminTest {
     public void testDisableConfigurationsNullParam() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                configurationAdminExt);
 
         configAdmin.disableConfiguration(null);
     }
@@ -1036,7 +1068,8 @@ public class ConfigurationAdminTest {
     public void testDisableConfigurationsAlreadyDisabled() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                configurationAdminExt);
 
         Configuration testConfig = mock(Configuration.class);
         Configuration testFactoryConfig = mock(Configuration.class);
@@ -1062,7 +1095,15 @@ public class ConfigurationAdminTest {
     public void testEnableConfigurations() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+
+        ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(testConfigAdmin) {
+            @Override
+            public boolean isPermittedToViewService(String servicePid) {
+                return true;
+            }
+        };
+
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin, configAdminExt);
 
         Configuration testConfig = mock(Configuration.class);
         Configuration testFactoryConfig = mock(Configuration.class);
@@ -1112,7 +1153,8 @@ public class ConfigurationAdminTest {
     public void testEnableConfigurationsAlreadyEnabled() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                configurationAdminExt);
 
         Configuration testConfig = mock(Configuration.class);
         Configuration testFactoryConfig = mock(Configuration.class);
@@ -1142,7 +1184,8 @@ public class ConfigurationAdminTest {
     public void testEnableConfigurationsNullDisabledConfig() throws Exception {
         org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
                 mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
+        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
+                configurationAdminExt);
 
         when(testConfigAdmin.listConfigurations(anyString())).thenReturn(null);
         configAdmin.enableConfiguration(TEST_PID);
@@ -1192,6 +1235,11 @@ public class ConfigurationAdminTest {
                     @Override
                     MetaTypeService getMetaTypeService() {
                         return testMTS;
+                    }
+
+                    @Override
+                    public boolean isPermittedToViewService(String servicePid) {
+                        return true;
                     }
                 };
 
