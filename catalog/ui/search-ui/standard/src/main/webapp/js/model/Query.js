@@ -325,99 +325,6 @@ define([
                 return filters;
             },
 
-            getCql: function () {
-                var filters = [];
-
-                // contextual
-                var q = this.get('q');
-                if (q) {
-                    var likeOp = this.get('matchcase') ? ' LIKE ' : ' ILIKE ';
-                    filters.push('anyText' + likeOp + this.getValue(q));
-                }
-
-                // temporal
-                var start = this.get('dtstart'),
-                    end = this.get('dtend'),
-                    offset = this.get('dtoffset'),
-                    timeType = this.get('timeType');
-                if (start && end) {
-                    filters.push(timeType + ' DURING ' + this.getValue(new Date(start)) + '/' +
-                        this.getValue(new Date(end)));
-                } else if (start) {
-                    filters.push(timeType + ' AFTER ' + this.getValue(new Date(start)));
-                } else if (end) {
-                    filters.push(timeType + ' BEFORE ' + this.getValue(new Date(end)));
-                } else if (offset) {
-                    filters.push(timeType + ' AFTER ' +
-                        moment.utc().subtract(offset, 'milliseconds').format(properties.CQL_DATE_FORMAT));
-                }
-
-                // spatial
-                var north = this.get('north'),
-                    south = this.get('south'),
-                    west = this.get('west'),
-                    east = this.get('east'),
-                    lat = this.get('lat'),
-                    lon = this.get('lon'),
-                    radius = this.get('radius'),
-                    polygon = this.get('polygon');
-                if (north && south && east && west) {
-                    var bbox = 'POLYGON ((' +
-                        west + ' ' + south +
-                        ', ' + west + ' ' + north +
-                        ', ' + east + ' ' + north +
-                        ', ' + east + ' ' + south +
-                        ', ' + west + ' ' + south +
-                        '))';
-                    filters.push('INTERSECTS(anyGeo, ' + bbox + ')');
-                } else if (polygon) {
-                    var poly = 'POLYGON ((';
-                    var polyPoint;
-                    for (var i = 0;i<polygon.length;i++) {
-                        polyPoint = polygon[i];
-                        poly += polyPoint[0] + ' ' + polyPoint[1];
-                        if (i < polygon.length - 1) {
-                            poly += ', ';
-                        }
-                    }
-                    poly += '))';
-                    filters.push('INTERSECTS(anyGeo, ' + poly + ')');
-                } else if (lat && lon && radius) {
-                    var point = 'POINT(' + lon + ' ' + lat + ')';
-                    filters.push('DWITHIN(anyGeo, ' + point + ', ' + radius + ', meters)');
-                }
-
-                // type
-                var types = this.get('type');
-                if (types) {
-                    var typeFilters = [];
-                    _.each(types.split(','), function (type) {
-                        typeFilters.push('"' + properties.filters.METADATA_CONTENT_TYPE + '" = ' + this.getValue(type));
-                    }, this);
-
-                    filters.push(this.logicalCql(typeFilters, 'OR'));
-                }
-
-                var cql = this.logicalCql(filters, 'AND');
-                if (!cql) {
-                    cql = "anyText LIKE '%'";
-                }
-
-                return cql;
-            },
-
-            logicalCql: function (filters, operator) {
-                var cql = '';
-                if (filters.length === 1) {
-                    cql = filters[0];
-                } else if (filters.length > 1) {
-                    cql = _.map(filters, function (filter) {
-                        return '(' + filter + ')';
-                    }).join(' ' + operator + ' ');
-                }
-                return cql;
-            },
-
             getValue: function(value) {
                 switch (typeof value) {
                     case 'string':
@@ -434,14 +341,6 @@ define([
                     default:
                         throw new Error("Can't write value to CQL: " + value);
                 }
-            },
-
-            toJSON: function() {
-                var json = _.clone(this.attributes);
-
-                json.cql = this.getCql();
-
-                return json;
             },
 
             startScheduledSearch: function() {
@@ -495,7 +394,19 @@ define([
                     this.clearFilters(); // init filters from search parameters.
                 }
                 // this overrides the cql generation with the filters cql.
-                data.cql = this.filters.toCQL();
+                // The toCQL method requires the metadata-content-type to be in a comma seperated array
+                var types = this.filters.where({fieldName: 'metadata-content-type'}).map(function(e){return e.get('stringValue1');}).join(',');
+                var tempFilters = this.filters.filter(function(filter) {return filter.get('fieldName') !== 'metadata-content-type';});
+                if (types) {
+                    tempFilters.push(new Filter.Model({
+                        fieldName: 'metadata-content-type',
+                        fieldType: 'string',
+                        fieldOperator: 'contains',
+                        stringValue1: types
+                    }));
+                }
+                tempFilters = new Filter.Collection(tempFilters);
+                data.cql = tempFilters.toCQL();
 
                 // lets handle the source-id filters since they are not included in the cql.
                 var sourceFilters = this.filters.where({fieldName: properties.filters.SOURCE_ID});

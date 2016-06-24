@@ -57,7 +57,7 @@ define([
             },
             addChild: function(item){
                 var fieldName = item.get('fieldName');
-                if (fieldName !== Properties.filters.SOURCE_ID && fieldName !== Properties.filters.METADATA_CONTENT_TYPE) {
+                if (fieldName !== Properties.filters.SOURCE_ID) {
                     Backbone.Marionette.CollectionView.prototype.addChild.apply(this, arguments);
                 }
             }
