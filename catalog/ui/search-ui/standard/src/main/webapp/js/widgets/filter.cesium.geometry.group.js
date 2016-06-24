@@ -80,7 +80,7 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
                         depthTest: {
                             enabled: true
                         },
-                        lineWidth: Math.min(4.0, this.options.geoController.scene.context.maximumAliasedLineWidth)
+                        lineWidth: Math.min(4.0, this.options.geoController.scene.maximumAliasedLineWidth)
                     }
                 })
             });
@@ -128,7 +128,7 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
                         depthTest: {
                             enabled: true
                         },
-                        lineWidth: Math.min(4.0, this.options.geoController.scene.context.maximumAliasedLineWidth)
+                        lineWidth: Math.min(4.0, this.options.geoController.scene.maximumAliasedLineWidth)
                     }
                 })
             });
@@ -160,7 +160,7 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
                         depthTest: {
                             enabled: true
                         },
-                        lineWidth: Math.min(4.0, this.options.geoController.scene.context.maximumAliasedLineWidth)
+                        lineWidth: Math.min(4.0, this.options.geoController.scene.maximumAliasedLineWidth)
                     }
                 })
             });

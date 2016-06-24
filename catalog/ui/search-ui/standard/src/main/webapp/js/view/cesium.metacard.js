@@ -377,7 +377,7 @@ define([
                         depthTest: {
                             enabled: true
                         },
-                        lineWidth: Math.min(2.0, this.geoController.scene.context.maximumAliasedLineWidth)
+                        lineWidth: Math.min(2.0, this.geoController.scene.maximumAliasedLineWidth)
                     }
                 });
 
