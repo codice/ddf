@@ -41,10 +41,6 @@ define([
                 'change:geoType' : 'render',
                 'EndExtent': 'drawingStopped'
             },
-            collectionEvents: {
-                'remove': 'render',
-                'add': 'render'
-            },
             initialize: function(){
                 this.modelbinder = new Backbone.ModelBinder();
             },
@@ -129,9 +125,6 @@ define([
                     hasValue = true;
                 }
                 elem.parent().toggleClass('has-value', hasValue);
-            },
-            toggleRemoveButton: function(removeButtonFlag){
-                this.$('.btn.remove').toggle(removeButtonFlag);
             },
             drawClicked: function(){
                 this.$('.draw').attr('disabled', 'disabled');
