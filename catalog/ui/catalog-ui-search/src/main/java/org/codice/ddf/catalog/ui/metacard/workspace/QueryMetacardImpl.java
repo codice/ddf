@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,7 +16,10 @@ package org.codice.ddf.catalog.ui.metacard.workspace;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
 public class QueryMetacardImpl extends MetacardImpl {
@@ -27,12 +30,41 @@ public class QueryMetacardImpl extends MetacardImpl {
         setTags(Collections.singleton(QueryMetacardTypeImpl.QUERY_TAG));
     }
 
+    public QueryMetacardImpl(Metacard wrappedMetacard) {
+        super(wrappedMetacard, TYPE);
+        setTags(Collections.singleton(QueryMetacardTypeImpl.QUERY_TAG));
+    }
+
+    public static QueryMetacardImpl from(Metacard metacard) {
+        return new QueryMetacardImpl(metacard);
+    }
+
+    public String getCql() {
+        return (String) getAttribute(QueryMetacardTypeImpl.QUERY_CQL).getValue();
+    }
+
     public void setCql(String cql) {
         setAttribute(QueryMetacardTypeImpl.QUERY_CQL, cql);
     }
 
     public void setEnterprise(Boolean b) {
         setAttribute(QueryMetacardTypeImpl.QUERY_ENTERPRISE, b);
+    }
+
+    /**
+     * Get a list of the query sources.
+     * @return list of source (always non-null)
+     */
+    public List<String> getSources() {
+        Attribute attribute = getAttribute(QueryMetacardTypeImpl.QUERY_SOURCES);
+        if (attribute == null) {
+            return Collections.emptyList();
+        }
+        return attribute.getValues()
+                .stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .collect(Collectors.toList());
     }
 
     public void setSources(List<String> sources) {

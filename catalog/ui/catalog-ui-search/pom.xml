@@ -12,7 +12,9 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.ui</groupId>
@@ -114,10 +116,6 @@
             <version>13.0</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>gt-main</artifactId>
-                    <groupId>org.geotools</groupId>
-                </exclusion>
-                <exclusion>
                     <artifactId>jai_core</artifactId>
                     <groupId>javax.media</groupId>
                 </exclusion>
@@ -155,7 +153,43 @@
             <artifactId>persistence-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz-jobs</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.terracotta</groupId>
+            <artifactId>terracotta-toolkit-runtime-ee</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-terracotta</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>c3p0</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>0.9.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>2.10.2.2.21</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.persistence.core</groupId>
+            <artifactId>persistence-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -205,7 +239,13 @@
                             spark-core,
                             gt-cql,
                             spatial4j,
-                            commons-lang3
+                            commons-lang3,
+                            quartz,
+                            quartz-jobs,
+                            c3p0,
+                            terracotta-toolkit-runtime-ee,
+                            ehcache-terracotta,
+                            ehcache
                         </Embed-Dependency>
                         <Web-ContextPath>/search/catalog</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
@@ -221,6 +261,16 @@
                             !com.sun.management,
                             !org.eclipse.jetty.websocket.*,
                             !org.noggit,
+                            !commonj.work.*,
+                            !oracle.sql.*,
+                            !org.jboss.*,
+                            !javax.ejb.*,
+                            !com.tc.*,
+                            !com.terracottatech.*,
+                            !org.terracotta.*,
+                            !org.apache.commons.cli.*,
+                            !org.hibernate.*,
+                            !weblogic.jdbc.*,
                             *
                         </Import-Package>
                         <Export-Package/>
@@ -314,12 +364,16 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>src/main/resources/etc/ddf.security.pdp.realm.AuthzRealm.config</file>
+                                    <file>
+                                        src/main/resources/etc/ddf.security.pdp.realm.AuthzRealm.config
+                                    </file>
                                     <type>config</type>
                                     <classifier>workspace-roles</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin.config</file>
+                                    <file>
+                                        src/main/resources/etc/org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin.config
+                                    </file>
                                     <type>config</type>
                                     <classifier>workspace-metacard-security-attributes</classifier>
                                 </artifact>

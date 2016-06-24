@@ -200,5 +200,87 @@
         </service-properties>
     </service>
 
+    <bean id="securityService"
+          class="org.codice.ddf.catalog.ui.query.monitor.impl.SecurityServiceImpl"/>
+
+    <bean id="queryWorkspaceService"
+          class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl">
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="workspaceTransformer"/>
+        <argument>
+            <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.FilterServiceImpl">
+                <argument ref="filterBuilder"/>
+            </bean>
+        </argument>
+        <argument ref="securityService"/>
+    </bean>
+
+    <service interface="org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore">
+        <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
+            <argument ref="persistentStore"/>
+        </bean>
+    </service>
+
+    <reference id="workspacePersistentStore" availability="optional" interface="org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore"/>
+
+    <bean id="emailNotifierService"
+          class="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">
+
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"
+                update-strategy="container-managed"/>
+
+        <argument
+                value="The workspace '%[attribute=title]' (id: %[attribute=id]) contains up to %[hitCount] query hits."/>
+        <argument value="%[attribute=title] (id: %[attribute=id]): workspace query notice"/>
+        <argument value="donotreply@test.com"/>
+        <argument value="connexta-com.mail.protection.outlook.com"/>
+        <argument>
+            <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.ListMetacardFormatter">
+                <argument>
+                    <list>
+                        <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.AttributeMetacardFormatter">
+                            <argument value="N/A"/>
+                        </bean>
+                        <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.HitCountFormatter"/>
+                    </list>
+                </argument>
+            </bean>
+        </argument>
+        <argument ref="workspacePersistentStore"/>
+    </bean>
+
+    <bean id="workspaceQueryService"
+          class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService">
+
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"
+                update-strategy="container-managed"/>
+
+        <argument>
+            <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.QueryUpdateSubscriberList">
+                <argument>
+                    <list>
+                        <ref component-id="emailNotifierService"/>
+                    </list>
+                </argument>
+            </bean>
+        </argument>
+        <argument ref="queryWorkspaceService"/>
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument>
+            <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.quartz.DefaultScheduler"/>
+        </argument>
+        <argument ref="securityService"/>
+        <argument>
+            <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.FilterServiceImpl">
+                <argument ref="filterBuilder"/>
+            </bean>
+        </argument>
+    </bean>
+
+    <service ref="workspaceQueryService" interface="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"/>
 
 </blueprint>
