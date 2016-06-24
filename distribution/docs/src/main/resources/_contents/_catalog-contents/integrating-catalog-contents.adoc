@@ -1484,7 +1484,7 @@ Schematron validation services are configured with a namespace and one or more s
 Additionally, warnings may be suppressed so that only errors are reported.
 To create a new service, ensure that catalog-schematron-plugin is started and then click Schematron Validation Services.
 
-=== Adding New Attribute Types, Metacard Types, and Validators Using JSON Files
+=== Adding New Attribute Types, Metacard Types, Validators, and More Using JSON Files
 
 [WARNING]
 ====
@@ -1507,6 +1507,10 @@ Within a definition file you may define as many of the types as you wish. This m
 
 ==== Deploying
 The file must have a `.json` extension in order to be picked up by the deployer. Once the definition file is ready to be deployed, put the definition file `<filename>.json` into the `etc/definitions` folder.
+
+Definition files can be updated while they are in the `etc/definitions` folder. Once the file is updated (e.g., by editing and saving it), the changes will be applied to ${branding}.
+
+If a definition file is removed from the `etc/definitions` folder, the changes that were applied by that file will be undone.
 
 * * *
 ==== Attribute Type Definition
