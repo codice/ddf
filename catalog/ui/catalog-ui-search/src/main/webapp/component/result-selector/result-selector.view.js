@@ -80,9 +80,6 @@ define([
         startListeningToSort: function(){
             this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultSort', this.onBeforeShow);
         },
-        updateActiveRecords: function(results){
-            this.selectionInterface.setActiveSearchResults(results);
-        },
         stopTextSelection: function(event){
             event.preventDefault();
         },
@@ -155,7 +152,6 @@ define([
             this.showResultFilterDropdown();
             this.showResultSortDropdown();
             this.handleSelectionChange();
-            this.updateActiveRecords(filteredResults);
         },
         showResultPaging: function(resultCollection){
             this.resultPaging.show(new PagingView({
@@ -164,7 +160,8 @@ define([
         },
         showResultList: function(resultCollection){
             this.resultList.show(new ResultItemCollectionView({
-                collection: resultCollection
+                collection: resultCollection,
+                selectionInterface: this.selectionInterface
             }));
         },
         showResultFilterDropdown: function(){

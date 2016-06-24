@@ -26,12 +26,17 @@ define([
         tagName: CustomElements.register('result-item-collection'),
         childView: childView,
         className: 'is-list',
-        initialize: function () {
+        selectionInterface: store,
+        initialize: function(options){
+            this.selectionInterface = options.selectionInterface || store;
             this.render = _.throttle(this.render, 250);
         },
         onAddChild: function (childView) {
             childView.$el.attr('data-index', this.children.length - 1);
         },
+        onRender: function(){
+            this.selectionInterface.setActiveSearchResults(this.collection);
+        }
        /* handleFiltering: function () {
             var resultFilter = store.get('user').get('user').get('preferences').get('resultFilter');
             if (resultFilter) {
