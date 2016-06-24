@@ -41,6 +41,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
+import ddf.action.MultiActionProvider;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -62,7 +63,7 @@ public class QueryResponsePostProcessorImplTest {
     private ActionProvider resourceActionProvider;
 
     @Mock
-    private ActionProvider derivedActionProvider;
+    private MultiActionProvider derivedActionProvider;
 
     @Mock
     private QueryResponse queryResponse;
@@ -169,7 +170,7 @@ public class QueryResponsePostProcessorImplTest {
         when(results.get(0)
                 .getMetacard()).thenReturn(metacards[0]);
         when(metacards[0].getResourceURI()).thenReturn(uris[0]);
-        when(resourceActionProvider.getActions(metacards[0])).thenReturn(null);
+        when(resourceActionProvider.getAction(metacards[0])).thenReturn(null);
 
         setUpExpectationsForResult(1);
 
@@ -186,8 +187,8 @@ public class QueryResponsePostProcessorImplTest {
         when(results.get(0)
                 .getMetacard()).thenReturn(metacards[0]);
         when(metacards[0].getResourceURI()).thenReturn(uris[0]);
-        when(resourceActionProvider.getActions(metacards[0])).thenReturn(Arrays.asList(
-                resourceActions));
+        when(resourceActionProvider.getAction(metacards[0])).thenReturn(
+                resourceActions[0]);
         when(resourceActions[0].getUrl()).thenReturn(null);
 
         setUpExpectationsForResult(1);
@@ -202,8 +203,8 @@ public class QueryResponsePostProcessorImplTest {
         when(results.get(resultNumber)
                 .getMetacard()).thenReturn(metacards[resultNumber]);
         when(metacards[resultNumber].getResourceURI()).thenReturn(uris[resultNumber]);
-        when(resourceActionProvider.getActions(metacards[resultNumber])).thenReturn(Arrays.asList(
-                resourceActions[resultNumber]));
+        when(resourceActionProvider.getAction(metacards[resultNumber])).thenReturn(
+                resourceActions[resultNumber]);
         when(resourceActions[resultNumber].getUrl()).thenReturn(urls[resultNumber]);
 
         when(metacards[resultNumber].getAttribute(Metacard.DERIVED_RESOURCE_URI)).thenReturn(attrs[resultNumber]);

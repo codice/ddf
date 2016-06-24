@@ -41,8 +41,6 @@ import org.osgi.framework.ServiceRegistration;
 
 import ddf.action.ActionProvider;
 import ddf.catalog.Constants;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transformer.attribute.AttributeMetacardTransformer;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -159,9 +157,6 @@ public class TestActionProviderRegistryProxy {
         Object value = captor.getValue();
         assertThat(value, notNullValue());
         assertThat(value instanceof ActionProvider, is(true));
-        ActionProvider provider = (ActionProvider) value;
-        Metacard metacard = new MetacardImpl();
-        assertThat(provider.canHandle(metacard), is(false));
     }
 
     @Test

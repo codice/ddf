@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -90,7 +89,7 @@ public class TestKMLTransformerImpl {
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         ActionProvider mockActionProvider = mock(ActionProvider.class);
         Action mockAction = mock(Action.class);
-        when(mockActionProvider.getActions(any(Metacard.class))).thenReturn(Arrays.asList(mockAction));
+        when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
         when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
         kmlTransformer = new KMLTransformerImpl(mockContext,
                 DEFAULT_STYLE_LOCATION,

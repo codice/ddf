@@ -23,7 +23,7 @@
         <property name="description" value="Provides a URL to the metacard report"/>
     </bean>
 
-    <service ref="registryMetacardActionProvider" interface="ddf.action.ActionProvider">
+    <service ref="registryMetacardActionProvider" interface="ddf.action.MultiActionProvider">
         <service-properties>
             <entry key="id" value="catalog.data.metacard.registry"/>
         </service-properties>
@@ -37,7 +37,7 @@
         <property name="description" value="Provides a URL to the source report"/>
     </bean>
 
-    <service ref="registrySourceActionProvider" interface="ddf.action.ActionProvider">
+    <service ref="registrySourceActionProvider" interface="ddf.action.MultiActionProvider">
         <service-properties>
             <entry key="id" value="catalog.source.report.registry"/>
         </service-properties>

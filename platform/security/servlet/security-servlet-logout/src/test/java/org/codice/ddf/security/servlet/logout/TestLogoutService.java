@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
@@ -70,8 +69,8 @@ public class TestLogoutService {
     public void testLogout() throws IOException, ParseException, SecurityServiceException {
         KarafLogoutAction karafLogoutActionProvider = new KarafLogoutAction();
         LdapLogoutAction ldapLogoutActionProvider = new LdapLogoutAction();
-        List<Action> karafLogoutActions = karafLogoutActionProvider.getActions(null);
-        List<Action> ldapLogoutActions = ldapLogoutActionProvider.getActions(null);
+        Action karafLogoutAction = karafLogoutActionProvider.getAction(null);
+        Action ldapLogoutAction = ldapLogoutActionProvider.getAction(null);
 
         LogoutService logoutService = new LogoutService();
         logoutService.setHttpSessionFactory(sessionFactory);
@@ -88,38 +87,38 @@ public class TestLogoutService {
         JSONObject karafActionProperty = ((JSONObject) actionProperties.get(0));
 
         assertEquals(karafActionProperty.get("description"),
-                karafLogoutActions.get(0)
+                karafLogoutAction
                         .getDescription());
         assertEquals(karafActionProperty.get("realm"),
-                karafLogoutActions.get(0)
+                karafLogoutAction
                         .getId()
-                        .substring(karafLogoutActions.get(0)
+                        .substring(karafLogoutAction
                                 .getId()
                                 .lastIndexOf(".") + 1));
         assertEquals(karafActionProperty.get("title"),
-                karafLogoutActions.get(0)
+                karafLogoutAction
                         .getTitle());
         assertEquals(karafActionProperty.get("url"),
-                karafLogoutActions.get(0)
+                karafLogoutAction
                         .getUrl()
                         .toString());
 
         JSONObject ldapActionProperty = ((JSONObject) actionProperties.get(1));
 
         assertEquals(ldapActionProperty.get("description"),
-                ldapLogoutActions.get(0)
+                ldapLogoutAction
                         .getDescription());
         assertEquals(ldapActionProperty.get("realm"),
-                ldapLogoutActions.get(0)
+                ldapLogoutAction
                         .getId()
-                        .substring(ldapLogoutActions.get(0)
+                        .substring(ldapLogoutAction
                                 .getId()
                                 .lastIndexOf(".") + 1));
         assertEquals(ldapActionProperty.get("title"),
-                ldapLogoutActions.get(0)
+                ldapLogoutAction
                         .getTitle());
         assertEquals(ldapActionProperty.get("url"),
-                ldapLogoutActions.get(0)
+                ldapLogoutAction
                         .getUrl()
                         .toString());
     }

@@ -29,11 +29,12 @@ import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
+import ddf.action.MultiActionProvider;
 import ddf.action.impl.ActionImpl;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
 
-public class DerivedContentActionProvider implements ActionProvider {
+public class DerivedContentActionProvider implements MultiActionProvider {
 
     private static final String ID = "catalog.data.metacard.derived-content";
 
@@ -53,9 +54,8 @@ public class DerivedContentActionProvider implements ActionProvider {
         if (!canHandle(input)) {
             return Collections.emptyList();
         }
-        // Expect only 1
-        List<Action> resourceActions = resourceActionProvider.getActions(input);
-        if (resourceActions.isEmpty()) {
+        Action resourceAction = resourceActionProvider.getAction(input);
+        if (resourceAction == null) {
             return Collections.emptyList();
         }
 
@@ -65,7 +65,7 @@ public class DerivedContentActionProvider implements ActionProvider {
                 .map(value -> {
                     try {
                         URI uri = new URI(value.toString());
-                        URIBuilder builder = new URIBuilder(resourceActions.get(0)
+                        URIBuilder builder = new URIBuilder(resourceAction
                                 .getUrl()
                                 .toURI());
                         if (StringUtils.equals(uri.getScheme(), ContentItem.CONTENT_SCHEME)) {

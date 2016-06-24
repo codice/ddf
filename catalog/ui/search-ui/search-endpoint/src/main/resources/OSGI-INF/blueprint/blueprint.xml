@@ -39,8 +39,11 @@
 
     <reference-list id="actionProviders" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.*)"/>
 
+    <reference-list id="actionsProviders" interface="ddf.action.MultiActionProvider" filter="(id=catalog.data.metacard.*)"/>
+
     <bean id="actionRegistry" class="org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl">
         <argument ref="actionProviders"/>
+        <argument ref="actionsProviders"/>
     </bean>
 
     <bean class="org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint" init-method="init"

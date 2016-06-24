@@ -17,9 +17,6 @@ import java.util.List;
 
 /**
  * This class is used to find all {@link Action} objects that correspond to a certain input object.
- *
- * <b> This code is experimental. While this interface is functional and tested, it may change or be
- * removed in a future version of the library. </b>
  */
 public interface ActionRegistry {
 

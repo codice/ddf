@@ -19,10 +19,6 @@ import java.net.URL;
  * An {@link Action} has a {@link URL} meant to be used in a browser or be able to be invoked to
  * provide some resource or business logic. An example would be providing a link to a product or a
  * link to calculate information about a specific resource.
- *
- * <b> This code is experimental. While this interface is functional and tested, it may change or be
- * removed in a future version of the library. </b>
- *
  */
 public interface Action {
 
