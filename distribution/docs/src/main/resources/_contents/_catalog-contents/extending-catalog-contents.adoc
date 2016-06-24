@@ -3920,11 +3920,11 @@ Does not handle multiple geometries yet.
 
 If the transformer will transform XML, (as opposed to JSON or a Word document, for example) there is a simpler solution than fully implementing a MetacardValidator.
 DDF includes an extensible, configurable `XmlInputTransformer`. This transformer can be instantiated via blueprint as a managed service factory and configured via metatype.
-The `XmlInputTransformer` takes a configuration of `SaxEventHandler`s.
+The `XmlInputTransformer` takes a configuration of `SaxEventHandlers`.
 A `SaxEventHandler` is a class that handles SAX Events (a very fast XML parser) to parse metadata and create metacards.
-As many `SaxEventHandler`s as needed can be implemented and included in the `XmlInputTransformer` configuration. See the `catalog-transformer-streaming-impl` bundle for examples (`XmlSaxEventHandlerImpl` which parses the DDF Metacard XML Metadata and the `GmlHandler` which parses GML 2.0)
+As many `SaxEventHandlers` as needed can be implemented and included in the `XmlInputTransformer` configuration. See the `catalog-transformer-streaming-impl` bundle for examples (`XmlSaxEventHandlerImpl` which parses the DDF Metacard XML Metadata and the `GmlHandler` which parses GML 2.0)
 Each `SaxEventHandler` implementation has a `SaxEventHandlerFactory` associated with it.
-The `SaxEventHandlerFactory` is responsible for instantiating new `SaxEventHandlers` - each transform request gets a new instance of `XmlInputTransformer` and set of `SaxEventHandler`s to be thread- and state-safe.
+The `SaxEventHandlerFactory` is responsible for instantiating new `SaxEventHandlers` - each transform request gets a new instance of `XmlInputTransformer` and set of `SaxEventHandlers` to be thread- and state-safe.
 
 The following diagrams intend to clarify implementation details:
 
