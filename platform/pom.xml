@@ -350,6 +350,7 @@
     </build>
     <modules>
         <module>platform-api</module>
+        <module>branding-api</module>
         <module>util</module>
         <module>platform-logging</module>
         <module>platform-configuration</module>
