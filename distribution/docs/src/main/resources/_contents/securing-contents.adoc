@@ -1629,17 +1629,17 @@ In the examples below, the policy has specified targets for the above type of ca
 For the Filtering code, the target was set for "filter", and the Service validation code targets were geared toward two services: `query` and `LocalSiteName`.
 In a production environment, these actions for service authorization will generally be full URNs that are described within the SOAP WSDL.
 
-====== Attributes
+====== XACML Policy Attributes
 
 Attributes for the XACML request are populated with the information in the calling subject and the resource being checked.
 
-====== Subject
+====== XACML Policy Subject
 
 The attributes for the subject are obtained from the SAML claims and populated within the XACML policy as individual attributes under the `urn:oasis:names:tc:xacml:1.0:subject-category:access-subject` category.
 The name of the claim is used for the `AttributeId` value.
 Examples of the items being populated are available at the end of this page.
 
-====== Resource
+====== XACML Policy Resource
 
 The attributes for resources are obtained through the permissions process.
 When checking permissions, the XACML processing engine retrieves a list of permissions that should be checked against the subject.
@@ -1856,6 +1856,12 @@ The resource had an additional `RESOURCE_ACCESS` attribute 'C' that the subject 
     </Result>
 </Response>
 ----
+
+===== Using a XACML Policy
+
+To use a XACML policy, do the following:
+
+* Copy the XACML policy into the `<INSTALL_DIRECTORY>/etc/pdp/policies` directory.
 
 ==== Expansion Service
 
