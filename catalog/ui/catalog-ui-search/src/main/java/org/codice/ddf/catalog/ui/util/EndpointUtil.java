@@ -16,6 +16,8 @@ package org.codice.ddf.catalog.ui.util;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -259,7 +261,8 @@ public class EndpointUtil {
                 .findFirst();
     }
 
-    public List<Metacard> getRecentMetacards(int pageSize, int pageNumber, String emailAddress)
+    public List<Metacard> getRecentMetacards(int pageSize, int pageNumber, String emailAddress,
+            long daysBack)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         pageSize = pageSize == 0 ? DEFAULT_PAGE_SIZE : pageSize;
         pageNumber = pageNumber == 0 ? 1 : pageNumber;
@@ -269,15 +272,38 @@ public class EndpointUtil {
                             + " )");
         }
 
-        // TODO (RCZ) - use real attribute once here
-        Filter userFilter = filterBuilder.attribute("Metacard.OWNER")
+        // TODO (RCZ) - Replace these with the actual constants once DDF-PR-868 is in
+        Filter tags = filterBuilder.attribute(Metacard.TAGS)
+                .is()
+                .like()
+                .text("history"); // history -> revision
+
+        Filter user = filterBuilder.attribute("metacard.history.edited-by") // -> metacard.version.edited-by
                 .is()
                 .equalTo()
                 .text(emailAddress);
 
+        Filter time = filterBuilder.attribute("metacard.history.versioned") // -> metacard.version.versioned-on
+                .is()
+                .after()
+                .date(Date.from(Instant.now()
+                        .minus(daysBack, ChronoUnit.DAYS)));
+
+        Filter createdAction = filterBuilder.attribute("metacard.history.action") // -> metacard.version.action
+                .is()
+                .equalTo()
+                .text("Created");
+        Filter createdContentAction = filterBuilder.attribute("metacard.history.action")// -> metacard.version.action
+                .is()
+                .equalTo()
+                .text("Created-Content");
+        Filter created = filterBuilder.anyOf(createdAction, createdContentAction);
+
+        Filter filter = filterBuilder.allOf(tags, user, time, created);
+
         int startIndex = 1 + ((pageNumber - 1) * pageSize);
         QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
-                userFilter,
+                filter,
                 startIndex,
                 pageSize,
                 SortBy.NATURAL_ORDER,
@@ -345,7 +371,8 @@ public class EndpointUtil {
 
     public Serializable parseDate(Serializable value) {
         if (value instanceof Date) {
-            return ((Date)value).toInstant().toString();
+            return ((Date) value).toInstant()
+                    .toString();
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);

@@ -175,14 +175,34 @@ public class MetacardApplication implements SparkApplication {
             return req.body();
         });
 
+        /**
+         * query parameter: pageNumber  - Which page of results to get      - default 1
+         * query parameter: pageSize    - How many results to get per page  - default 250
+         * query parameter: daysBack    - How many days back to search      - default 7
+         */
         get("/metacards/recent", (req, res) -> {
-            int pageSize = Integer.parseInt(req.queryParams("pageSize"));
-            int pageNumber = Integer.parseInt(req.queryParams("pageNumber"));
+            int pageSize = 250;
+            int pageNumber = 1;
+            int daysBack = 7;
+            if (req.queryParams("pageSize") != null) {
+                pageSize = Integer.parseInt(req.queryParams("pageSize"));
+            }
+            if (req.queryParams("pageNumber") != null) {
+                pageNumber = Integer.parseInt(req.queryParams("pageNumber"));
+            }
+            if (req.queryParams("pageNumber") != null) {
+                daysBack = Integer.parseInt(req.queryParams("daysBack"));
+            }
 
             List<Metacard> results = util.getRecentMetacards(pageSize,
                     pageNumber,
-                    SubjectUtils.getEmailAddress(SecurityUtils.getSubject()));
-            return util.getJson(results);
+                    SubjectUtils.getEmailAddress(SecurityUtils.getSubject()),
+                    daysBack);
+
+            return util.getJson(results.stream()
+                    .map(mc -> mc.getAttribute("metacard.history.id")// -> metacard.version.id
+                            .getValue())
+                    .collect(Collectors.toList()));
         });
 
         put("/validate/attribute/:attribute", TEXT_PLAIN, (req, res) -> {
@@ -339,6 +359,10 @@ public class MetacardApplication implements SparkApplication {
             res.body(util.getJson(ImmutableMap.of("message", UPDATE_ERROR_MESSAGE)));
         });
 
+        exception(NumberFormatException.class, (ex, req, res) -> {
+            res.status(400);
+            res.body(util.getJson(ImmutableMap.of("message", "Invalid values for numbers")));
+        });
     }
 
     private AttributeDescriptor getDescriptor(Metacard target, String attribute) {
