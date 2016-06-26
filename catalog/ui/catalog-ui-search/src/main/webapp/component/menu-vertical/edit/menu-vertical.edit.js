@@ -18,8 +18,9 @@ define([
     'backbone',
     '../menu-vertical',
     'component/lightbox/lightbox.view.instance',
-    'component/ingest/ingest.view'
-], function (_, Backbone, Vertical, lightboxInstance, IngestView) {
+    'component/ingest/ingest.view',
+    'js/store'
+], function (_, Backbone, Vertical, lightboxInstance, IngestView, store) {
 
     var definition = [
         [
@@ -39,6 +40,16 @@ define([
                     lightboxInstance.model.updateTitle('Recent Uploads');
                     lightboxInstance.model.open();
                     lightboxInstance.lightboxContent.show(new IngestView());
+                }
+            },
+            {
+                type: 'action',
+                name: 'Reset Blacklist',
+                icon: 'eye',
+                action: function () {
+                    var preferences = store.get('user').get('user').get('preferences');
+                    preferences.resetBlacklist();
+                    preferences.savePreferences();
                 }
             }
         ]

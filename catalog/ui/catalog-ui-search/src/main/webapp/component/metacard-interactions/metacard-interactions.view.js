@@ -33,6 +33,7 @@ define([
             'click .interaction-save': 'handleSave',
             'click .interaction-unsave': 'handleUnsave',
             'click .interaction-hide': 'handleHide',
+            'click .interaction-show': 'handleShow',
             'click .interaction-expand': 'handleExpand',
             'click .interaction-share': 'handleShare',
             'click .interaction-download': 'handleDownload',
@@ -45,12 +46,14 @@ define([
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
             }
+            this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultBlacklist', this.checkIfBlacklisted);
         },
         onRender: function(){
             this.checkIfSaved();
             this.checkIsInWorkspace();
             this.checkIfMultiple();
             this.checkIfRouted();
+            this.checkIfBlacklisted();
         },
         handleSave: function(){
             var currentWorkspace = store.getCurrentWorkspace();
@@ -75,7 +78,19 @@ define([
             this.checkIfSaved();
         },
         handleHide: function(){
-
+            var preferences = store.get('user').get('user').get('preferences');
+            var ids = this.model.map(function(result){
+                return result.get('metacard').get('properties').get('id');
+            });
+            preferences.set('resultBlacklist', _.union(preferences.get('resultBlacklist'), ids));
+            preferences.savePreferences();
+        },
+        handleShow: function(){
+            var preferences = store.get('user').get('user').get('preferences');
+            var ids = this.model.map(function(result){
+                return result.get('metacard').get('properties').get('id');
+            });
+            preferences.set('resultBlacklist', _.difference(preferences.get('resultBlacklist'), ids));
         },
         handleExpand: function(){
             var id = this.model.first().get('metacard').get('properties').get('id');
@@ -122,6 +137,20 @@ define([
         checkIfRouted: function(){
             var router = store.get('router').toJSON();
             this.$el.toggleClass('is-routed', Boolean(router.name === 'openMetacard'));
+        },
+        checkIfBlacklisted: function(){
+            var pref = store.get('user').get('user').get('preferences');
+            var blacklist = pref.get('resultBlacklist');
+            var ids = this.model.map(function(result){
+                return result.get('metacard').get('properties').get('id');
+            });
+            var isBlacklisted = false;
+            ids.forEach(function(id){
+                if (blacklist.indexOf(id) !== -1){
+                    isBlacklisted = true;
+                }
+            });
+            this.$el.toggleClass('is-blacklisted', isBlacklisted);
         },
         serializeData: function(){
             var currentWorkspace = store.getCurrentWorkspace();

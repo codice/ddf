@@ -55,6 +55,14 @@ define([
             return false;
         }
 
+        function matchesNOTEQUALS(value, filter) {
+            var valueToCheckFor = filter.value;
+            if (value !== valueToCheckFor) {
+                return true;
+            }
+            return false;
+        }
+
         function matchesPOLYGON(value, filter){
             var polygonToCheck = Terraformer.WKT.parse(filter.value.value);
             if (polygonToCheck.contains(value)){
@@ -92,81 +100,90 @@ define([
         }
 
         function matchesFilter(metacard, filter, metacardTypes) {
-            var valuesToCheck = [];
-            switch(filter.property){
-                case '"anyText"':
-                    valuesToCheck = Object.keys(metacard.properties).filter(function(property){
-                        return blacklist.indexOf(property) === -1;
-                    }).filter(function(property){
-                        return (metacardTypes[property].type === 'STRING');
-                    }).map(function(property){
-                        return metacard.properties[property];
-                    });
-                    break;
-                case 'anyGeo':
-                    valuesToCheck = Object.keys(metacard.properties).filter(function(property){
-                        return blacklist.indexOf(property) === -1;
-                    }).filter(function(property){
-                        return (metacardTypes[property].type === 'GEOMETRY');
-                    }).map(function(property){
-                        return new Terraformer.Primitive(metacard.properties[property]);
-                    });
-                    if (metacard.geometry){
-                        valuesToCheck.push(new Terraformer.Primitive(metacard.geometry));
-                    }
-                    break;
-                default:
-                    var valueToCheck = metacard.properties[filter.property.replace(/['"]+/g, '')];
-                    if (valueToCheck) {
-                        valuesToCheck.push(valueToCheck);
-                    }
-                    break;
-            }
-
-            if (valuesToCheck.length === 0){
-                return false;
-            }
-
-            for (var i = 0; i <= valuesToCheck.length - 1 ; i++) {
-                switch (filter.type) {
-                    case 'ILIKE':
-                        if (matchesILIKE(valuesToCheck[i], filter)) {
-                            return true;
+            if (!filter.filters) {
+                var valuesToCheck = [];
+                switch (filter.property) {
+                    case '"anyText"':
+                        valuesToCheck = Object.keys(metacard.properties).filter(function (property) {
+                            return blacklist.indexOf(property) === -1;
+                        }).filter(function (property) {
+                            return (metacardTypes[property].type === 'STRING');
+                        }).map(function (property) {
+                            return metacard.properties[property];
+                        });
+                        break;
+                    case 'anyGeo':
+                        valuesToCheck = Object.keys(metacard.properties).filter(function (property) {
+                            return blacklist.indexOf(property) === -1;
+                        }).filter(function (property) {
+                            return (metacardTypes[property].type === 'GEOMETRY');
+                        }).map(function (property) {
+                            return new Terraformer.Primitive(metacard.properties[property]);
+                        });
+                        if (metacard.geometry) {
+                            valuesToCheck.push(new Terraformer.Primitive(metacard.geometry));
                         }
                         break;
-                    case 'LIKE':
-                        if (matchesLIKE(valuesToCheck[i], filter)){
-                            return true;
-                        }
-                        break;
-                    case '=':
-                        if (matchesEQUALS(valuesToCheck[i], filter)){
-                            return true;
-                        }
-                        break;
-                    case 'INTERSECTS':
-                        if(matchesPOLYGON(valuesToCheck[i], filter)){
-                            return true;
-                        }
-                        break;
-                    case 'DWITHIN':
-                        if (matchesCIRCLE(valuesToCheck[i], filter)){
-                            return true;
-                        }
-                        break;
-                    case 'AFTER':
-                        if (matchesAFTER(valuesToCheck[i], filter)){
-                            return true;
-                        }
-                        break;
-                    case 'BEFORE':
-                        if (matchesBEFORE(valuesToCheck[i], filter)){
-                            return true;
+                    default:
+                        var valueToCheck = metacard.properties[filter.property.replace(/['"]+/g, '')];
+                        if (valueToCheck) {
+                            valuesToCheck.push(valueToCheck);
                         }
                         break;
                 }
+
+                if (valuesToCheck.length === 0) {
+                    return false;
+                }
+
+                for (var i = 0; i <= valuesToCheck.length - 1; i++) {
+                    switch (filter.type) {
+                        case 'ILIKE':
+                            if (matchesILIKE(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case 'LIKE':
+                            if (matchesLIKE(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case '=':
+                            if (matchesEQUALS(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case '!=':
+                            if (matchesNOTEQUALS(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case 'INTERSECTS':
+                            if (matchesPOLYGON(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case 'DWITHIN':
+                            if (matchesCIRCLE(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case 'AFTER':
+                            if (matchesAFTER(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case 'BEFORE':
+                            if (matchesBEFORE(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                    }
+                }
+                return false;
+            } else {
+                return matchesFilters(metacard, filter, metacardTypes);
             }
-            return false;
         }
 
         function matchesFilters(metacard, resultFilter, metacardTypes) {

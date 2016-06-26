@@ -28,16 +28,15 @@
   }
 
   .interaction-save,
-  .interaction-hide,
-  .interaction-unsave {
+  .interaction-unsave,
+  .interaction-show {
     display: none;
   }
 
 }
 
 @{customElementNamespace}metacard-interactions.in-workspace {
-  .interaction-save,
-  .interaction-hide {
+  .interaction-save {
     display: block;
   }
 }
@@ -60,6 +59,17 @@
 
 @{customElementNamespace}metacard-interactions.is-routed {
   .interaction-expand {
+    display: none;
+  }
+}
+
+@{customElementNamespace}metacard-interactions.is-blacklisted {
+
+  .interaction-show {
+    display: block;
+  }
+
+  .interaction-hide {
     display: none;
   }
 }

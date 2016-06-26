@@ -120,7 +120,8 @@ define([
                 homeDisplay: 'Grid',
                 alerts: [],
                 alertPersistance: false, // don't persist across sessions by default
-                alertExpiration: 86400000 // 1 day
+                alertExpiration: 86400000, // 1 day
+                resultBlacklist: []
             };
         },
         relations: [
@@ -167,6 +168,9 @@ define([
             } else {
                 this.sync('update', this, options || {});
             }
+        },
+        resetBlacklist: function(){
+            this.set('resultBlacklist', []);
         }
     });
 
