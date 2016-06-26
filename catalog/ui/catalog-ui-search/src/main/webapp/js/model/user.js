@@ -120,7 +120,7 @@ define([
                 homeDisplay: 'Grid',
                 alerts: [],
                 alertPersistance: false, // don't persist across sessions by default
-                alertExpiration: 7 // days
+                alertExpiration: 86400000 // 1 day
             };
         },
         relations: [
