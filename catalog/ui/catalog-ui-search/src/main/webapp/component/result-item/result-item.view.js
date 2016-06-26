@@ -74,8 +74,22 @@ define([
         },
         addConfiguredResultProperties: function(result){
             result.customDetail = [];
-            properties.summaryShow.forEach(function(additionProperty){
-                result.customDetail.push(result.metacard.properties[additionProperty]);
+            properties.resultShow.forEach(function(additionProperty){
+                var value = result.metacard.properties[additionProperty];
+                if (value && store.metacardTypes[additionProperty]){
+                    switch(store.metacardTypes[additionProperty].type){
+                        case 'DATE':
+                            if (value.constructor === Array){
+                                value = value.map(function(val){
+                                   return Common.getMomentDate(val);
+                                });
+                            } else {
+                                value = Common.getMomentDate(value);
+                            }
+                            break;
+                    }
+                }
+                result.customDetail.push(value ? value : 'NA');
             });
             return result;
         },

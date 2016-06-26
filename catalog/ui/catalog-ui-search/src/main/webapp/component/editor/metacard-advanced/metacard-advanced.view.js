@@ -20,8 +20,9 @@ define([
     '../editor.view',
     'js/store',
     'component/property/property.collection.view',
-    'component/loading-companion/loading-companion.view'
-], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView) {
+    'component/loading-companion/loading-companion.view',
+    'component/alert/alert'
+], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView, alertInstance) {
 
     return EditorView.extend({
         className: 'is-metacard-advanced',

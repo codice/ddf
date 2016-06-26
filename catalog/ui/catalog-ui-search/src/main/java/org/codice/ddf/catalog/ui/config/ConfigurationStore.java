@@ -111,6 +111,10 @@ public class ConfigurationStore {
         return summaryShow;
     }
 
+    public List<String> getResultShow() {
+        return resultShow;
+    }
+
     public List<String> getReadOnly() {
         return readOnly;
     }
@@ -134,6 +138,8 @@ public class ConfigurationStore {
         this.summaryShow = summaryShow;
     }
 
+    public void setResultShow(List<String> resultShow) { this.resultShow = resultShow; }
+
     public void setAttributeAliases(List<String> attributeAliases) {
         this.attributeAliases = attributeAliases.stream()
                 .map(str -> str.split("="))
@@ -147,6 +153,8 @@ public class ConfigurationStore {
     private List<String> readOnly = Collections.emptyList();
 
     private List<String> summaryShow = Collections.emptyList();
+
+    private List<String> resultShow = Collections.emptyList();
 
     private Map<String, String> attributeAliases = Collections.emptyMap();
 
@@ -222,6 +230,7 @@ public class ConfigurationStore {
         config.put("externalAuthentication", isExternalAuthentication);
         config.put("readOnly", readOnly);
         config.put("summaryShow", summaryShow);
+        config.put("resultShow", resultShow);
         config.put("hiddenAttributes", hiddenAttributes);
         config.put("attributeAliases", attributeAliases);
         config.put("sourcePollInterval", sourcePollInterval);

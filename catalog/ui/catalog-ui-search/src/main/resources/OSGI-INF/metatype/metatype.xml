@@ -91,6 +91,13 @@
             cardinality="10000"
             required="false" />
 
+        <AD id="resultShow"
+            name="Result Preview Metacard Attributes"
+            description="List of metacard attributes to display in the result preview."
+            type="String"
+            cardinality="10000"
+            required="false" />
+
         <AD id="attributeAliases"
             name="Attribute Aliases"
             description="List of attribute aliases. Example 'title=Title'"
