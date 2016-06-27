@@ -112,8 +112,9 @@ public class WaitCondition {
 
         try {
             latestRetrieverResult = currentValueRetriever.call();
+            boolean done = matchCondition.matches(latestRetrieverResult);
 
-            while (!matchCondition.matches(latestRetrieverResult)) {
+            while (!done) {
                 Thread.sleep(pollingIntervalMs);
 
                 if (System.currentTimeMillis() > timeoutLimit) {
@@ -121,6 +122,9 @@ public class WaitCondition {
                             description,
                             TimeUnit.MILLISECONDS.toSeconds(timeoutMs)));
                 }
+
+                latestRetrieverResult = currentValueRetriever.call();
+                done = matchCondition.matches(latestRetrieverResult);
             }
         } catch (Exception e) {
             String message = String.format(
