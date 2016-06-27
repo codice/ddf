@@ -23,7 +23,7 @@ import spock.lang.Specification
 
 import java.time.Instant
 
-import static ddf.catalog.core.versioning.HistoryMetacardImpl.Action
+import static MetacardVersion.Action
 
 class HistoryMetacardImplSpecTest extends Specification {
 
@@ -43,7 +43,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         Instant start = Instant.now()
 
         when:
-        HistoryMetacardImpl history = new HistoryMetacardImpl(
+        MetacardVersion history = new MetacardVersion(
                 meta.metacard,
                 action,
                 SecurityUtils.subject)
@@ -53,16 +53,16 @@ class HistoryMetacardImplSpecTest extends Specification {
                     - new tag should be `history`
                     - Old id should be in `idHistory` /$
         !history.id.equals(meta.id)
-        history.idHistory.equals(meta.id)
-        history.tags.containsAll([HistoryMetacardImpl.HISTORY_TAG])
+        history.versionOfId.equals(meta.id)
+        history.tags.containsAll([MetacardVersion.VERSION_TAG])
         !history.tags.any { meta.tags.contains(it) }
         history.metadata.equals(meta.metadata)
         history.title.equals(meta.title)
         history.action.equals(action)
-        history.tagsHistory.containsAll(meta.tags)
+        history.versionTags.containsAll(meta.tags)
 
         Instant finish = Instant.now()
-        Instant versionMoment = history.versioned.toInstant()
+        Instant versionMoment = history.versionedOn.toInstant()
         versionMoment.isAfter(start)
         versionMoment.isBefore(finish)
     }
@@ -71,7 +71,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         setup:
         def meta = defaultMetacard()
         Action action = Action.CREATED
-        HistoryMetacardImpl history = new HistoryMetacardImpl(
+        MetacardVersion history = new MetacardVersion(
                 meta.metacard,
                 action,
                 SecurityUtils.subject)
@@ -81,9 +81,9 @@ class HistoryMetacardImplSpecTest extends Specification {
 
         then:
         metacard != null
-        history.idHistory.equals(metacard.id)
+        history.versionOfId.equals(metacard.id)
         metacard.tags.containsAll(meta.tags)
-        !metacard.tags.contains(HistoryMetacardImpl.HISTORY_TAG)
+        !metacard.tags.contains(MetacardVersion.VERSION_TAG)
     }
 
     def defaultMetacard() {

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import ddf.catalog.core.versioning.HistoryMetacardImpl;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
@@ -31,15 +31,20 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
-public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
+/**
+ * HistorianPolicyPlugin prevents anyone without the {@link HistorianPolicyPlugin#HISTORY_ROLE}
+ * from modifying a {@link MetacardVersion} in any way.
+ */
+public class HistorianPolicyPlugin implements PolicyPlugin {
 
     public static final String HISTORY_ROLE = "system-history";
 
     public static final String ROLE_CLAIM =
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
-    private final Predicate<Metacard> isMetacardHistory = (tags) -> tags.getTags()
-            .contains(HistoryMetacardImpl.HISTORY_TAG);
+    private final Predicate<Metacard> isMetacardHistory =
+            (tags) -> tags != null && tags.getTags() != null && tags.getTags()
+                    .contains(MetacardVersion.VERSION_TAG);
 
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)

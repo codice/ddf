@@ -59,6 +59,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.history.Historian;
 import ddf.catalog.impl.CatalogFrameworkImpl;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.impl.MockDelayProvider;
@@ -145,6 +146,7 @@ public class FederationStrategyTest {
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
+        framework.setHistorian(new Historian());
 
         List<Metacard> metacards = new ArrayList<Metacard>();
 
