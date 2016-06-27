@@ -18,13 +18,15 @@
          name="Metacard Attribute Security Policy Plugin"
          id="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin">
 
-        <AD name="Metacard Attributes:" id="metacardAttributes" description="Attributes within the metacard that will be collected for security information."
+        <AD name="Metacard Attributes:" id="metacardAttributes"
+            description="Metacard attributes that will be collected and mapped to security information. Example: security.classification=classification"
             required="true" type="String" cardinality="1000"
             default=""/>
 
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin">
+    <Designate
+            pid="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin">
         <Object ocdref="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin"/>
     </Designate>
 
