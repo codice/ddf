@@ -95,9 +95,20 @@ define([
         serializeData: function(){
             if (this.options.list){
                 var values = this.model.get('value');
-                return this.options.list.filter(function(item){
-                     return values.indexOf(item.value) !== -1;
-                });
+                var selections = values.map(function(value){
+                     var selection = this.options.list.filter(function(item){
+                         return item.value === value;
+                     });
+                    if (selection.length > 0){
+                        return selection[0];
+                    } else {
+                        return {
+                            invalid: true,
+                            label: value
+                        };
+                    }
+                }.bind(this));
+                return selections;
             } else {
                 return this.model.toJSON();
             }

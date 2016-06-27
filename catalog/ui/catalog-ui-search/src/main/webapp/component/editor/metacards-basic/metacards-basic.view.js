@@ -20,8 +20,9 @@ define([
     '../editor.view',
     'js/store',
     'component/property/property.collection.view',
-    'component/loading-companion/loading-companion.view'
-], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView) {
+    'component/loading-companion/loading-companion.view',
+    'component/alert/alert'
+], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView, alertInstance) {
 
     return EditorView.extend({
         className: 'is-metacards-basic',
@@ -82,12 +83,28 @@ define([
                     }).always(function(response){
                         var attributeMap = response.reduce(function(attributeMap, changes){
                             return changes.attributes.reduce(function(attrMap, chnges){
-                                attrMap[chnges.attribute] = chnges.values[0];
+                                attrMap[chnges.attribute] = store.metacardTypes[chnges.attribute].multivalued ? chnges.values : chnges.values[0];
                                 return attrMap;
                             }, attributeMap);
                         }, {});
                         self.model.forEach(function(metacard){
                            metacard.get('metacard').get('properties').set(attributeMap);
+                        });
+                        store.get('workspaces').forEach(function(workspace){
+                            workspace.get('queries').forEach(function(query){
+                                if (query.get('result')) {
+                                    query.get('result').get('results').forEach(function(result){
+                                        if (payload[0].ids.indexOf(result.get('metacard').get('properties').get('id')) !== -1){
+                                            result.get('metacard').get('properties').set(attributeMap);
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                        alertInstance.get('currentResult').get('results').forEach(function(result){
+                            if (payload[0].ids.indexOf(result.get('metacard').get('properties').get('id')) !== -1){
+                                result.get('metacard').get('properties').set(attributeMap);
+                            }
                         });
                         setTimeout(function(){  //let solr flush
                             LoadingCompanionView.endLoading(self);

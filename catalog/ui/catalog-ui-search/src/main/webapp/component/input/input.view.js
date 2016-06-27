@@ -23,7 +23,11 @@ define([
 
     var InputView = Marionette.LayoutView.extend({
         className: function(){
-            return 'is-'+this.model.getCalculatedType();
+            if (!this.model.get('property').get('enum')){
+                return 'is-'+this.model.getCalculatedType();
+            } else {
+                return 'is-enum';
+            }
         },
         template: InputTemplate,
         tagName: CustomElements.register('input'),

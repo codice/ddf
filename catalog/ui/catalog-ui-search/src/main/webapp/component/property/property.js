@@ -19,6 +19,7 @@ define([
         defaults: {
             value: [],
             values: {},
+            enum: undefined,
             label: undefined,
             description: '',
             _initialValue: '',

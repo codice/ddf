@@ -26,9 +26,16 @@
 
   .result-container > .result-validation {
     position: absolute;
-    right: 44px;
-    top: ~'calc(50% - 20px)';
-    width: 20px;
+    right: 2*@minimumButtonSize;
+    top: 0px;
+    width: @minimumButtonSize;
+    text-align: center;
+    height: 100%;
+
+    span {
+      position: relative;
+      top: ~'calc(50% - 10px)';
+    }
   }
 
   .result-container > .result-actions {
@@ -61,7 +68,7 @@
   .result-container > .result-unsave:before,
   .result-container > .result-save:before {
     position: relative;
-    top: ~'calc(50% - 10px)';
+    top: ~'calc(50% - 6px)';
   }
 
   span {

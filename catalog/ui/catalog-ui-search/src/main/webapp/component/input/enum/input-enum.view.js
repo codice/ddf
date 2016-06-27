@@ -1,0 +1,113 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+/*global define, alert*/
+define([
+    'marionette',
+    'underscore',
+    'jquery',
+    'text!./input-enum.hbs',
+    'js/CustomElements',
+    'moment',
+    '../input.view',
+    'component/dropdown/dropdown.view'
+], function (Marionette, _, $, template, CustomElements, moment, InputView, DropdownView) {
+
+    var format = 'DD MMM YYYY HH:mm:ss.SSS';
+    function getHumanReadableDate(date) {
+        return moment(date).format(format);
+    }
+
+    return InputView.extend({
+        template: template,
+        events: {
+            'click .input-revert': 'revert'
+        },
+        regions: {
+            enumRegion: '.enum-region'
+        },
+        serializeData: function () {
+            var label = this.model.get('value');
+            switch(this.model.getCalculatedType()){
+                case 'date':
+                    label = getHumanReadableDate(label);
+                    break;
+                default:
+                    break;
+            }
+            return {
+                label: label
+            };
+        },
+        onRender: function () {
+            this.initializeEnum()
+            InputView.prototype.onRender.call(this);
+        },
+        initializeEnum: function(){
+            this.enumRegion.show(DropdownView.createSimpleDropdown(
+                this.model.get('property').get('enum').map(function(value){
+                    return {
+                        label: value,
+                        value: value
+                    };
+                }),
+                false,
+                [this.model.get('value')]
+            ));
+            this.listenTo(this.enumRegion.currentView.model, 'change:value', this.triggerChange);
+        },
+        handleReadOnly: function () {
+            this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
+        },
+        handleValue: function(){
+            this.enumRegion.currentView.model.set('value', [this.model.get('value')]);
+        },
+        save: function(){
+            /*var value = this.$el.find('input').val();
+            this.model.save(moment(value).toJSON());*/
+        },
+        focus: function(){
+           // this.$el.find('input').select();
+        },
+        hasChanged: function(){
+            var value = this.enumRegion.currentView.model.get('value')[0];
+            switch(this.model.getCalculatedType()){
+                case 'date':
+                    return value !== getHumanReadableDate(this.model.getInitialValue());
+                    break;
+                default:
+                    return value !== this.model.getInitialValue();
+                    break;
+            }
+        },
+        getCurrentValue: function(){
+            var currentValue = this.enumRegion.currentView.model.get('value')[0];
+            switch(this.model.getCalculatedType()){
+                case 'date':
+                    if (currentValue){
+                        return (new Date(this.$el.find('input').val())).toISOString();
+                    } else {
+                        return null;
+                    }
+                    break;
+                default:
+                    return currentValue;
+                    break;
+            }
+        },
+        triggerChange: function(){
+            this.$el.trigger('change');
+        }
+    });
+});

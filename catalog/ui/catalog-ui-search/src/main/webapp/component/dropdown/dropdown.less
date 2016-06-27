@@ -30,6 +30,14 @@
   .text-src {
     display: block;
   }
+
+  .is-invalid {
+    color: lighten(@warning-color, 20%);
+  }
+
+  .is-invalid::after {
+    content: ' (Invalid Selection)';
+  }
 }
 
 @{customElementNamespace}dropdown.is-simpleDropdown.is-editing {

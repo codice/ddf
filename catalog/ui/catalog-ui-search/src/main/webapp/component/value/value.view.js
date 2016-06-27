@@ -22,8 +22,10 @@ define([
     'component/input/input.view',
     'component/input/thumbnail/input-thumbnail.view',
     'component/input/date/input-date.view',
-    'component/location-old/location-old.view'
-], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView, LocationOldView) {
+    'component/location-old/location-old.view',
+    'component/input/enum/input-enum.view'
+], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView,
+             LocationOldView, InputEnumView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -42,32 +44,38 @@ define([
             this.handleMultivalue();
         },
         onBeforeShow: function(){
-            switch (this.model.get('property').get('calculatedType')) {
-                case 'date':
-                    this.input.show(new InputDateView({
-                        model: this.model
-                    }));
-                    break;
-                case 'thumbnail':
-                    this.input.show(new InputThumbnailView({
-                        model: this.model
-                    }));
-                    break;
-                case 'location':
-                    this.input.show(new LocationOldView({
-                        model: this.model
-                    }));
-                    break;
-                case 'text':
-                    this.input.show(new InputView({
-                        model: this.model
-                    }));
-                    break;
-                default:
-                    this.input.show(new InputView({
-                        model: this.model
-                    }));
-                    break;
+            if (this.model.get('property').get('enum')){
+                this.input.show(new InputEnumView({
+                    model: this.model
+                }));
+            } else {
+                switch (this.model.get('property').get('calculatedType')) {
+                    case 'date':
+                        this.input.show(new InputDateView({
+                            model: this.model
+                        }));
+                        break;
+                    case 'thumbnail':
+                        this.input.show(new InputThumbnailView({
+                            model: this.model
+                        }));
+                        break;
+                    case 'location':
+                        this.input.show(new LocationOldView({
+                            model: this.model
+                        }));
+                        break;
+                    case 'text':
+                        this.input.show(new InputView({
+                            model: this.model
+                        }));
+                        break;
+                    default:
+                        this.input.show(new InputView({
+                            model: this.model
+                        }));
+                        break;
+                }
             }
         },
         hasChanged: function(){

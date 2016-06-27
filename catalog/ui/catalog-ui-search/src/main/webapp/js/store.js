@@ -197,10 +197,20 @@ define([
         deleteCurrentWorkspace: function(){
             this.getCurrentWorkspace().destroy();
         },
+        getEnums: function(){
+            $.when.apply(this, this.metacardDefinitions.map(function(metacardDefinition){
+                return $.get( '/search/catalog/internal/enumerations/'+metacardDefinition);
+            })).always(function(){
+                _.forEach(arguments, function(response){
+                    _.extend(this.enums, response[0]);
+                }.bind(this));
+            }.bind(this));
+        },
         getMetacardTypes: function(){
             $.get('/search/catalog/internal/metacardtype').then(function(metacardTypes){
                 for (var metacardType in metacardTypes){
                     if (metacardTypes.hasOwnProperty(metacardType)) {
+                        this.metacardDefinitions.push(metacardType);
                         for (var type in metacardTypes[metacardType]) {
                             if (metacardTypes[metacardType].hasOwnProperty(type)) {
                                 this.metacardTypes[type] = metacardTypes[metacardType][type];
@@ -223,8 +233,10 @@ define([
                     }
                     return 0;
                 });
+                this.getEnums();
             }.bind(this));
         },
+        metacardDefinitions: [],
         sortedMetacardTypes: [],
         metacardTypes: {
             anyText: {
@@ -237,6 +249,8 @@ define([
                 type: 'LOCATION',
                 multivalued: false
             }
+        },
+        enums: {
         }
     }))();
 });

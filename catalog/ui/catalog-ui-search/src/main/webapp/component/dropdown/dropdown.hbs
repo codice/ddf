@@ -14,7 +14,7 @@
 <div>
     <div class="dropdown-text">
         {{#each this}}
-            <span class="text-src">
+            <span class="text-src {{#if invalid}}is-invalid{{/if}}">
                 {{label}}
             </span>
         {{/each}}

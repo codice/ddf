@@ -20,8 +20,9 @@ define([
     'js/CustomElements',
     './property.view',
     './property.collection',
-    'properties'
-], function (Marionette, _, $, CustomElements, PropertyView, PropertyCollection, properties) {
+    'properties',
+    'js/store'
+], function (Marionette, _, $, CustomElements, PropertyView, PropertyCollection, properties, store) {
 
      return Marionette.CollectionView.extend({
         tagName: CustomElements.register('property-collection'),
@@ -93,6 +94,7 @@ define([
              var propertyArray = [];
              this.summaryWhiteList.forEach(function(property){
                  propertyArray.push({
+                     enum: store.enums[property],
                      label: properties.attributeAliases[property],
                      id: property,
                      type: types[0][property].format,
@@ -104,6 +106,7 @@ define([
                  return types[0][property] !== undefined;
              }).forEach(function(property){
                  propertyArray.push({
+                     enum: store.enums[property],
                      label: properties.attributeAliases[property],
                      id: property,
                      type: types[0][property].format,
@@ -143,6 +146,7 @@ define([
              var propertyArray = [];
              propertyIntersection.forEach(function(property){
                  propertyArray.push({
+                     enum: store.enums[property],
                      label: properties.attributeAliases[property],
                      id: property,
                      type: types[0][property].format,
