@@ -477,5 +477,10 @@
             <artifactId>catalog-transformer-attribute</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-resourcestatusplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
