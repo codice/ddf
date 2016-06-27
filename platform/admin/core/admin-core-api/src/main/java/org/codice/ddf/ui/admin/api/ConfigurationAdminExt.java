@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -45,6 +47,11 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
+
+import com.google.common.collect.Sets;
+
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 
 public class ConfigurationAdminExt {
 
@@ -158,7 +165,7 @@ public class ConfigurationAdminExt {
                 // configuration
                 String filter = '(' + Constants.SERVICE_PID + '=' + pid + ')';
                 Configuration[] configs = this.configurationAdmin.listConfigurations(filter);
-                if (configs != null && configs.length > 0) {
+                if (configs != null && configs.length > 0 && isPermittedToViewService(pid)) {
                     return configs[0];
                 }
             } catch (InvalidSyntaxException ise) {
@@ -265,7 +272,9 @@ public class ConfigurationAdminExt {
             logger.error("Provided LDAP filter is incorrect: " + serviceFilter, e);
         }
 
-        return serviceList;
+        return serviceList.stream()
+                .filter(service -> isPermittedToViewService((String) service.get("id")))
+                .collect(Collectors.toList());
     }
 
     private void addConfigurationData(Map<String, Object> service, Configuration[] configs) {
@@ -604,7 +613,9 @@ public class ConfigurationAdminExt {
             }
         }
 
-        return serviceList;
+        return serviceList.stream()
+                .filter(service -> isPermittedToViewService((String) service.get("id")))
+                .collect(Collectors.toList());
     }
 
     public List<Map<String, Object>> addMetaTypeNamesToMap(final Map ocdCollection,
@@ -668,6 +679,13 @@ public class ConfigurationAdminExt {
         }
 
         return metatypeList;
+    }
+
+    public boolean isPermittedToViewService(String servicePid) {
+        KeyValueCollectionPermission serviceToCheck = new KeyValueCollectionPermission(
+                "view-service.pid",
+                new KeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
+        return SecurityUtils.getSubject().isPermitted(serviceToCheck);
     }
 
     /**
