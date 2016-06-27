@@ -31,6 +31,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 import static ddf.common.test.WaitCondition.expect;
+import static ddf.test.itests.common.CswQueryBuilder.AND;
 import static ddf.test.itests.common.CswQueryBuilder.NOT;
 import static ddf.test.itests.common.CswQueryBuilder.OR;
 import static ddf.test.itests.common.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
@@ -111,6 +112,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     private static final String SAMPLE_DATA = "sample data";
 
     private static final String SAMPLE_IMAGE = "/9466484_b06f26d579_o.jpg";
+
+    private static final String SAMPLE_MP4 = "/sample.mp4";
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
@@ -1962,6 +1965,82 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE)
                             .size(), equalTo(0));
         }
+    }
+
+    @Test
+    public void testContentVersioning() throws Exception {
+
+        Configuration config = getAdminConfig().getConfiguration("ddf.catalog.history.Historian");
+        config.setBundleLocation(
+                "mvn:ddf.catalog.core/catalog-core-standardframework/2.10.0-SNAPSHOT");
+        Dictionary properties = new Hashtable<>();
+        properties.put("historyEnabled", true);
+        config.update(properties);
+
+        String fileName1 = "testcontent" + ".jpg";
+        File tmpFile1 = createTemporaryFile(fileName1,
+                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+        String fileName2 = "testcontent2" + ".mp4";
+        File tmpFile2 = createTemporaryFile(fileName2,
+                TestCatalog.class.getResourceAsStream(SAMPLE_MP4));
+
+        String id = given().multiPart(tmpFile1)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(201)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        final String url =
+                REST_PATH.getUrl() + "sources/ddf.distribution/" + id + "?transform=resource";
+
+        byte[] content1 = get(url).thenReturn()
+                .body()
+                .asByteArray();
+
+        String metacardHistoryQuery = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
+                "metacard.version.id",
+                id)
+                .addAttributeFilter(PROPERTY_IS_LIKE, Metacard.TAGS, "revision")
+                .addLogicalOperator(AND)
+                .getQuery("application/xml", "urn:catalog:metacard");
+
+        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                .body(metacardHistoryQuery)
+                .post(CSW_PATH.getUrl())
+                .then()
+                .body(hasXPath("count(/GetRecordsResponse/SearchResults/metacard)", is("1")),
+                        hasXPath(
+                                "/GetRecordsResponse/SearchResults/metacard/string[@name='metacard.version.action']/value[text()=\"Created-Content\"]"));
+
+        given().multiPart(tmpFile2)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(200)
+                .when()
+                .put(REST_PATH.getUrl() + id);
+
+        byte[] content2 = get(url).thenReturn()
+                .body()
+                .asByteArray();
+
+        assertThat("The two content items should be different",
+                Arrays.equals(content1, content2),
+                is(false));
+        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                .body(metacardHistoryQuery)
+                .post(CSW_PATH.getUrl())
+                .then()
+                .body(hasXPath("count(/GetRecordsResponse/SearchResults/metacard)", is("2")),
+                        hasXPath(
+                                "/GetRecordsResponse/SearchResults/metacard/string[@name='metacard.version.action']/value[text()=\"Updated-Content\"]"));
+
+        properties.put("historyEnabled", false);
+        config.update(properties);
+        deleteMetacard(id);
     }
 
     private ValidatableResponse executeOpenSearch(String format, String... query) {
