@@ -15,12 +15,13 @@
 /*global define*/
 define([
     'underscore',
+    'wreqr',
     'backbone',
     '../menu-vertical',
     'component/lightbox/lightbox.view.instance',
     'component/ingest/ingest.view',
     'js/store'
-], function (_, Backbone, Vertical, lightboxInstance, IngestView, store) {
+], function (_, wreqr, Backbone, Vertical, lightboxInstance, IngestView, store) {
 
     var definition = [
         [
@@ -37,9 +38,12 @@ define([
                     ]
                 },
                 action: function () {
-                    lightboxInstance.model.updateTitle('Recent Uploads');
-                    lightboxInstance.model.open();
-                    lightboxInstance.lightboxContent.show(new IngestView());
+                    wreqr.vent.trigger('router:navigate', {
+                        fragment: 'recent',
+                        options: {
+                            trigger: true
+                        }
+                    });
                 }
             },
             {

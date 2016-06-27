@@ -51,6 +51,7 @@ define([
         workspaceRegion: '#workspace',
         metacardRegion: '#metacard',
         alertRegion: '#alert',
+        recentRegion: '#recent',
         controlPanelRegion: '#controlPanel',
         modalRegion: '#modalRegion'
     });

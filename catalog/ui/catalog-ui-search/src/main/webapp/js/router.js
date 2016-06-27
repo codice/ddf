@@ -27,15 +27,19 @@ define([
     'js/cql',
     'component/alert/alert',
     'component/alert/alert.view',
+    'component/recent/recent',
+    'component/recent/recent.view',
     'js/jquery.whenAll'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
-             HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView) {
+             HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
+            recentInstance, RecentView) {
 
     function hideViews() {
         Application.App.workspaceRegion.$el.addClass("is-hidden");
         Application.App.workspacesRegion.$el.addClass("is-hidden");
         Application.App.metacardRegion.$el.addClass("is-hidden");
         Application.App.alertRegion.$el.addClass("is-hidden");
+        Application.App.recentRegion.$el.addClass("is-hidden");
     }
 
     var Router = Marionette.AppRouter.extend({
@@ -54,6 +58,9 @@ define([
             },
             openAlert: function(){
                 //console.log('route to specific alert:'+alertId);
+            },
+            openRecent: function(){
+                //console.log('route to recent uploads');
             }
         },
         appRoutes: {
@@ -61,7 +68,8 @@ define([
             '(?*)': 'home',
             'workspaces(/)': 'workspaces',
             'metacards/:id': 'openMetacard',
-            'alerts/:id': 'openAlert'
+            'alerts/:id': 'openAlert',
+            'recent(/)': 'openRecent'
         },
         initialize: function(){
             this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
@@ -192,6 +200,33 @@ define([
                                 self.updateRoute(name, path, args);
                         });
                     }
+                    break;
+                case 'openRecent':
+                    $.get('/search/catalog/internal/metacards/recent').then(function(response){
+                        var queryForMetacards = new Query.Model({
+                            cql: cql.write({
+                                type: 'OR',
+                                filters: response.map(function(metacardId){
+                                    return {
+                                        type: '=',
+                                        value: metacardId,
+                                        property: '"id"'
+                                    };
+                                })
+                            })
+                        });
+                        $.whenAll.apply(this, queryForMetacards.startSearch()).always(function(){
+                            recentInstance.set({
+                                currentResult: queryForMetacards.get('result'),
+                                currentQuery: queryForMetacards
+                            });
+                            if (Application.App.recentRegion.currentView === undefined) {
+                                Application.App.recentRegion.show(new RecentView());
+                            }
+                            Application.App.recentRegion.$el.removeClass('is-hidden');
+                            self.updateRoute(name, path, args);
+                        });
+                    });
                     break;
                 case 'home':
                     if (Application.App.workspacesRegion.currentView===undefined) {
