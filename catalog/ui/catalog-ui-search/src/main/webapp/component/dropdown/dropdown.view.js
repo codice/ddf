@@ -97,7 +97,7 @@ define([
                 var values = this.model.get('value');
                 var selections = values.map(function(value){
                      var selection = this.options.list.filter(function(item){
-                         return item.value === value;
+                         return item.value.toString() === value.toString();
                      });
                     if (selection.length > 0){
                         return selection[0];

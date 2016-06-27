@@ -45,9 +45,14 @@ define([
         },
         handleValue: function(){
             var values = this.model.get('value');
-            this.$el.children('[data-value]').removeClass('is-selected');
+            var choices = this.$el.children('[data-value]');
+            choices.removeClass('is-selected');
             values.forEach(function(value){
-                this.$el.children('[data-value="'+JSON.stringify(value)+'"]').addClass('is-selected');
+                _.forEach(choices, function(choice){
+                   if ($(choice).attr('data-value') === JSON.stringify(value)) {
+                       $(choice).addClass('is-selected');
+                   }
+                });
             }.bind(this));
         },
         handleChoice: function(e){

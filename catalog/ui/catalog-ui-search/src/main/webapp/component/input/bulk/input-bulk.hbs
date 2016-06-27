@@ -12,19 +12,9 @@
  **/
  --}}
 <div class="if-editing">
-    <select>
-        <option value="" selected data-bulkDefault>
-            Multiple Values
-        </option>
-        {{#each values}}
-            <option value="{{this.value}}">
-                {{this.value}} <span>({{this.hits}})</span>
-            </option>
-        {{/each}}
-        <option value="" data-bulkCustom>
-            Other
-        </option>
-    </select>
+    <div class="enum-region">
+
+    </div>
 </div>
 <div class="if-viewing">
     <label class="value-list-header">
