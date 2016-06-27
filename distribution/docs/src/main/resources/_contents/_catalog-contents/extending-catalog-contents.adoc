@@ -3882,6 +3882,62 @@ Does not handle multiple geometries yet.
 
 |===
 
+===== Create an XML Input Transformer using SaxEventHandlers [[saxEventHandlers]]
+
+If the transformer will transform XML, (as opposed to JSON or a Word document, for example) there is a simpler solution than fully implementing a MetacardValidator.
+DDF includes an extensible, configurable `XmlInputTransformer`. This transformer can be instantiated via blueprint as a managed service factory and configured via metatype.
+The `XmlInputTransformer` takes a configuration of `SaxEventHandler`s.
+A `SaxEventHandler` is a class that handles SAX Events (a very fast XML parser) to parse metadata and create metacards.
+As many `SaxEventHandler`s as needed can be implemented and included in the `XmlInputTransformer` configuration. See the `catalog-transformer-streaming-impl` bundle for examples (`XmlSaxEventHandlerImpl` which parses the DDF Metacard XML Metadata and the `GmlHandler` which parses GML 2.0)
+Each `SaxEventHandler` implementation has a `SaxEventHandlerFactory` associated with it.
+The `SaxEventHandlerFactory` is responsible for instantiating new `SaxEventHandlers` - each transform request gets a new instance of `XmlInputTransformer` and set of `SaxEventHandler`s to be thread- and state-safe.
+
+The following diagrams intend to clarify implementation details:
+
+Figure 1 shows the XmlInputTransformer configuration, which is configured using the metatype and has the `SaxEventHandlerFactory` ids.
+Then, when a transform request is received, the `ManagedServiceFactory` instantiates a new `XmlInputTransformer`.
+This `XmlInputTransformer` then instantiates a new `SaxEventHandlerDelegate` with the configured `SaxEventHandlersFactory` ids.
+The factories all in turn instantiate a `SaxEventHandler`.
+Then, the `SaxEventHandlerDelegate` begins parsing the XML input document, handing the SAX Events off to each `SaxEventHandler`, which handle them if they can.
+After parsing is finished, each `SaxEventHandler` returns a list of `Attributes` to the `SaxEventHandlerDelegate` and `XmlInputTransformer` which add the attributes to the metacard and then return the fully constructed metacard.
+
+[ditaa, XmlInputTransformer_diagram1, png]
+....
+Fig. 1
+XmlInputTransformer Configuration
+|
+|
+--- String value of SaxEventHandlerFactory1 id
+|
+|
+--- String value of SaxEventHandlerFactory2 id
+....
+
+[ditaa, XmlInputTransformer_diagram2, png]
+....
+Fig. 2
+XmlInputTransformer
+|
+--- SaxEventHandlerDelegate
+    |
+    |
+    --- SaxEventHandlerFactory1 -> SaxEventHandler1
+    |
+    |
+    --- SaxEventHandlerFactory2 -> SaxEventHandler2
+....
+
+For more specific details, see the Javadoc for the `org.codice.ddf.transformer.xml.streaming.*` package.
+Additionally, see the source code for the `org.codice.ddf.transformer.xml.streaming.impl.GmlHandler.java`, `org.codice.ddf.transformer.xml.streaming.impl.GmlHandlerFactory`, `org.codice.ddf.transformer.xml.streaming.impl.XmlInputTransformerImpl`, and `org.codice.ddf.transformer.xml.streaming.impl.XmlInputTransformerImplFactory`.
+
+[NOTE]
+====
+1. The `XmlInputTransformer` & `SaxEventHandlerDelegate` create and configure themselves based on String matches of the configuration ids with the `SaxEventHandlerFactory` ids, so ensure these match.
+2. The `XmlInputTransformer` uses a `DynamicMetacardType`.
+This is pertinent because a metacards attributes are only stored in Solr if they are declared on the `MetacardType`.
+Since the `DynamicMetacardType` is constructed dynamically, attributes are declared by the `SaxEventHandlerFactory` that parses them, as opposed to the `MetacardType`. See `org.codice.ddf.transformer.xml.streaming.impl.XmlSaxEventHandlerFactoryImpl.java` vs `ddf.catalog.data.impl.BasicTypes.java`
+====
+
 ===== Create an Input Transformer Using Apache Camel
 Alternatively, make an Apache Camel route in a blueprint file and deploy it using a feature file or via hot deploy.
 
