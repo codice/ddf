@@ -61,7 +61,8 @@
     height: 100%;
   }
 
-  .result-container > .result-unsave {
+  .result-container > .result-unsave,
+  .result-container > .result-save {
     display: none;
   }
 
@@ -98,6 +99,12 @@
 
   .result-container > .result-details .detail-thumbnail {
     display: none;
+  }
+}
+
+@{customElementNamespace}result-item.in-workspace {
+  .result-container > .result-save {
+    display: inline-block;
   }
 }
 

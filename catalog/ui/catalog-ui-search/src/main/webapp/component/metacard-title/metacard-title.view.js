@@ -55,13 +55,20 @@ define([
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.handleModelUpdates);
             }
+            this.listenTo(store.get('router'), 'change', this.handleModelUpdates);
             this.checkIfSaved();
             this.checkIsInWorkspace();
         },
         handleModelUpdates: function(){
+            var currentWorkspace = store.getCurrentWorkspace();
+            if (currentWorkspace) {
+                this.stopListening(currentWorkspace);
+                this.listenTo(currentWorkspace, 'change:metacards', this.handleModelUpdates);
+            }
             this.render();
             this.onBeforeShow();
             this.checkIfSaved();
+            this.checkIsInWorkspace();
         },
         serializeData: function(){
             var title;
@@ -101,6 +108,7 @@ define([
                 });
                 currentWorkspace.set('metacards', _.union(currentWorkspace.get('metacards'), ids));
             }
+            this.checkIfSaved();
         },
         handleUnsave: function(){
             var currentWorkspace = store.getCurrentWorkspace();
@@ -110,6 +118,7 @@ define([
                 });
                 currentWorkspace.set('metacards', _.difference(currentWorkspace.get('metacards'), ids));
             }
+            this.checkIfSaved();
         }
     });
 });

@@ -49,18 +49,26 @@ define([
         initialize: function(){
             this.checkDisplayType();
             this.checkIfSaved();
+            this.checkIsInWorkspace();
             var currentWorkspace = store.getCurrentWorkspace();
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
             }
             this.listenTo(this.model.get('metacard').get('properties'), 'change', this.handleMetacardUpdate);
             this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
+            this.listenTo(store.get('router'), 'change', this.handleMetacardUpdate);
         },
         handleMetacardUpdate: function(){
+            var currentWorkspace = store.getCurrentWorkspace();
+            if (currentWorkspace) {
+                this.stopListening(currentWorkspace);
+                this.listenTo(currentWorkspace, 'change:metacards', this.handleMetacardUpdate);
+            }
             this.render();
             this.onBeforeShow();
             this.checkDisplayType();
             this.checkIfSaved();
+            this.checkIsInWorkspace();
         },
         onBeforeShow: function(){
             this._resultActions = new DropdownModel();
@@ -114,6 +122,10 @@ define([
         },
         serializeData: function(){
             return this.addConfiguredResultProperties(this.massageResult(this.model.toJSON()));
+        },
+        checkIsInWorkspace: function(){
+            var currentWorkspace = store.getCurrentWorkspace();
+            this.$el.toggleClass('in-workspace', Boolean(currentWorkspace));
         },
         checkIfSaved: function(){
             var currentWorkspace = store.getCurrentWorkspace();
