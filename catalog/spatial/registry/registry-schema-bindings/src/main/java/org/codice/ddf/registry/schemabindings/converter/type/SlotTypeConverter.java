@@ -16,18 +16,23 @@ package org.codice.ddf.registry.schemabindings.converter.type;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.GML_FACTORY;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.WRS_FACTORY;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.ENVELOPE_KEY;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.LOWER_CORNER;
 import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.NAME;
 import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.POINT_KEY;
 import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.POSITION;
 import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.SLOT_TYPE;
 import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.SRS_DIMENSION;
 import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.SRS_NAME;
+import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.UPPER_CORNER;
 import static org.codice.ddf.registry.schemabindings.converter.web.SlotWebConverter.VALUE;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -38,6 +43,7 @@ import org.codice.ddf.registry.schemabindings.helper.WebMapHelper;
 
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.gml.v_3_1_1.DirectPositionType;
+import net.opengis.gml.v_3_1_1.EnvelopeType;
 import net.opengis.gml.v_3_1_1.PointType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ValueListType;
@@ -70,7 +76,8 @@ public class SlotTypeConverter {
         String slotType = MapUtils.getString(map, SLOT_TYPE);
         if (StringUtils.isNotBlank(slotType)) {
 
-            if (slotType.contains(RegistryConstants.XML_GEO_TYPE)) {
+            if (slotType.contains(RegistryConstants.XML_GEO_TYPE) || slotType.contains(
+                    RegistryConstants.XML_BOUNDS_TYPE)) {
                 Optional<net.opengis.cat.wrs.v_1_0_2.ValueListType> optionalValueList =
                         getWrsValueList(map);
                 if (optionalValueList.isPresent()) {
@@ -158,9 +165,65 @@ public class SlotTypeConverter {
                         .getAnyValue()
                         .add(anyValue);
             }
+        } else if (valueMap.containsKey(ENVELOPE_KEY)) {
+            Optional<EnvelopeType> optionalEnvelope =
+                    getEnvelope((Map<String, Object>) valueMap.get(ENVELOPE_KEY));
+            if (optionalEnvelope.isPresent()) {
+                AnyValueType anyValue = WRS_FACTORY.createAnyValueType();
+                anyValue.getContent()
+                        .add(GML_FACTORY.createEnvelope(optionalEnvelope.get()));
+
+                net.opengis.cat.wrs.v_1_0_2.ValueListType valueList =
+                        WRS_FACTORY.createValueListType();
+                valueList.getAnyValue()
+                        .add(anyValue);
+                if (!optionalValueList.isPresent()) {
+                    optionalValueList = Optional.of(WRS_FACTORY.createValueListType());
+                }
+
+                optionalValueList.get()
+                        .getAnyValue()
+                        .add(anyValue);
+            }
         }
 
         return optionalValueList;
+    }
+
+    private Optional<EnvelopeType> getEnvelope(Map<String, Object> envelopeMap) {
+        Optional<EnvelopeType> optionalEnvelope = Optional.empty();
+        if (MapUtils.isEmpty(envelopeMap)) {
+            return optionalEnvelope;
+        }
+        optionalEnvelope = Optional.of(GML_FACTORY.createEnvelopeType());
+        String valueToPopulate = MapUtils.getString(envelopeMap, SRS_NAME);
+        if (StringUtils.isNotBlank(valueToPopulate)) {
+            optionalEnvelope.get()
+                    .setSrsName(valueToPopulate);
+        }
+
+        String upperCorner = MapUtils.getString(envelopeMap, UPPER_CORNER);
+        String lowerCorner = MapUtils.getString(envelopeMap, LOWER_CORNER);
+        if (StringUtils.isNotBlank(upperCorner)) {
+            List<Double> values = Arrays.stream(StringUtils.split(upperCorner))
+                    .map(e -> new Double(e))
+                    .collect(Collectors.toList());
+            DirectPositionType directPosition = GML_FACTORY.createDirectPositionType();
+            directPosition.setValue(values);
+            optionalEnvelope.get()
+                    .setUpperCorner(directPosition);
+        }
+
+        if (StringUtils.isNotBlank(lowerCorner)) {
+            List<Double> values = Arrays.stream(StringUtils.split(lowerCorner))
+                    .map(e -> new Double(e))
+                    .collect(Collectors.toList());
+            DirectPositionType directPosition = GML_FACTORY.createDirectPositionType();
+            directPosition.setValue(values);
+            optionalEnvelope.get()
+                    .setLowerCorner(directPosition);
+        }
+        return optionalEnvelope;
     }
 
     private Optional<PointType> getPoint(Map<String, Object> pointMap) {

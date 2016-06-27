@@ -46,44 +46,72 @@ define([
                 "click .add-segment": 'addSegment'
             },
             initialize: function () {
-                this.listenTo(wreqr.vent, 'fieldChanged:' + this.model.get('segmentId'), this.updateTitle);
+                this.listenTo(wreqr.vent, 'fieldChange:' + this.model.get('segmentId'), this.updateTitle);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.get('segmentId'), this.updateTitleError);
                 this.listenTo(wreqr.vent, 'valueAdded:' + this.model.get('segmentId'), this.setupPopOvers);
                 this.listenTo(wreqr.vent, 'valueRemoved:' + this.model.get('segmentId'), this.setupPopOvers);
                 this.addRegions({
                     associations: '#associations-' + this.model.get('simpleId'),
-                    customizable: '#customizable-' + this.model.get('simpleId')
+                    customizable: '#customizable-' + this.model.get('simpleId'),
+                    formAdvancedFields: '.form-fields-advanced-' + this.model.get('simpleId')
                 });
                 this.events['click .'+this.model.get('simpleId')] = this.toggleCheveron;
+                this.events['click .advanced-button-'+this.model.get('simpleId')] = this.toggleAdvanced;
                 this.delegateEvents();
-            },
-            onRender: function () {
-                var knownFields = [];
-                var allFields = this.model.get('fields').models;
-                _.each(allFields, function (field) {
-                    if (!field.get('custom')) {
-                        knownFields.push(field);
+
+                var standardFields = [];
+                var advancedFields = [];
+                this.model.get('fields').forEach( function (field) {
+                    if (!field.get('custom') && !field.get('advanced')) {
+                        standardFields.push(field);
+                    }
+                    if(field.get('advanced')){
+                        advancedFields.push(field);
+                        this.addvancedFields = true;
                     }
                 });
-                this.formFields.show(new Field.FieldCollectionView({collection: new Backbone.Collection(knownFields)}));
-                this.formSegments.show(new Segment.SegmentCollectionView({
+                this.formFieldsView = new Field.FieldCollectionView({collection: new Backbone.Collection(standardFields)});
+                this.formSegmentsView = new Segment.SegmentCollectionView({
                     model: this.model,
                     collection: this.model.get('segments'),
-                    showHeader: knownFields.length > 0 ? false : true
-                }));
+                    showHeader: standardFields.length > 0 ? false : true
+                });
+                this.formAdvancedFieldsView = new Field.FieldCollectionView({collection: new Backbone.Collection(advancedFields)});
+
                 if (FieldDescriptors.isCustomizableSegment(this.model.get('segmentType'))) {
-                    this.customizable.show(new Customizable.CustomizableCollectionView({
+                    this.customizableView = new Customizable.CustomizableCollectionView({
                         model: this.model
-                    }));
+                    });
                     if (this.model.get('fields').models.length > 0) {
                         var associationModel = this.model.get('associationModel');
-                        this.associations.show(new Association.AssociationCollectionView({
+                        this.associationsView = new Association.AssociationCollectionView({
                             parentId: this.model.get("segmentId"),
                             model: associationModel,
                             collection: new Backbone.Collection(associationModel.getAssociationsForId(this.model.get('segmentId')))
-                        }));
+                        });
                     }
                 }
+            },
+            onRender: function () {
+                this.formFields.show(this.formFieldsView);
+                this.formSegments.show(this.formSegmentsView);
+                this.formAdvancedFields.show(this.formAdvancedFieldsView);
+                
+                if (FieldDescriptors.isCustomizableSegment(this.model.get('segmentType'))) {
+                    this.customizable.show(this.customizableView);
+                    if (this.model.get('fields').models.length > 0) {
+
+                        this.associations.show(this.associationsView);
+                    }
+                }
+
+                var errors = this.model.get('fields').find(function (field){
+                    return field.get('error');
+                });
+                if(errors){
+                    this.updateTitleError();
+                }
+
                 this.setupPopOvers();
             },
             removeSegment: function () {
@@ -107,6 +135,21 @@ define([
                     title.hide();
                 }
                 wreqr.vent.trigger('fieldErrorChange:' + this.model.get('parentId'));
+                this.setupPopOvers();
+            },
+            toggleAdvanced: function (evt) {
+                evt.stopPropagation();
+                var advancedSections = this.$('.advanced-section-' + this.model.get('simpleId'));
+                var advancedButton = this.$('.advanced-button-' + this.model.get('simpleId'));
+                if (this.advancedVisible) {
+                    this.advancedVisible = false;
+                    advancedSections.hide();
+                    advancedButton[0].innerHTML = "Show Advanced";
+                } else {
+                    this.advancedVisible = true;
+                    advancedSections.show();
+                    advancedButton[0].innerHTML = "Hide Advanced";
+                }
             },
             serializeData: function () {
                 var data = this.model.toJSON();
@@ -115,10 +158,14 @@ define([
                 } else {
                     data.title = this.model.get('segmentName');
                 }
+                data.associationsAreAdvanced = FieldDescriptors.configurations.associationsAreAdvanced;
+                data.customFieldsAreAdvanced = FieldDescriptors.configurations.customFieldsAreAdvanced;
+                data.advancedFields = this.advancedFields;
                 data.errors = this.model.validationError;
                 data.customizable = FieldDescriptors.isCustomizableSegment(this.model.get('segmentType')) && !this.model.get('multiValued');
                 data.showFields = this.model.get('fields').models.length > 0;
                 data.showAssociations = FieldDescriptors.isCustomizableSegment(this.model.get('segmentType')) && this.model.get('fields').models.length > 0;
+                data.showAdvanced = (data.associationsAreAdvanced || data.customFieldsAreAdvanced || this.addvancedFields)&&(data.customizable);
                 return data;
             },
             toggleCheveron: function() {

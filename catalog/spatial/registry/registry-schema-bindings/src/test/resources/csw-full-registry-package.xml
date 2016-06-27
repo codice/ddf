@@ -116,6 +116,17 @@
         <rim:ExtrinsicObject id="urn:content:collection:id0"
                              objectType="urn:registry:content:collection">
 
+            <rim:Slot name="bounds" slotType="urn:ogc:def:dataType:ISO-19107:2003:GM_Envelope">
+                <wrs:ValueList>
+                    <wrs:AnyValue>
+                        <gml:Envelope srsName="urn:ogc:def:crs:EPSG:4326">
+                            <gml:lowerCorner>60.042 13.754</gml:lowerCorner>
+                            <gml:upperCorner>68.410 17.920</gml:upperCorner>
+                        </gml:Envelope>
+                    </wrs:AnyValue>
+                </wrs:ValueList>
+            </rim:Slot>
+
             <rim:Slot name="types" slotType="xs:string">
                 <rim:ValueList>
                     <rim:Value>sensor</rim:Value>
