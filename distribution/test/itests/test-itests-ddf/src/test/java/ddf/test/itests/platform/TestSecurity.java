@@ -88,7 +88,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                     "security-all");
 
     protected static final String ADD_SDK_APP_JOLOKIA_REQ =
-            "{\"type\":\"EXEC\",\"mbean\":\"org.codice.ddf.admin.application.service.ApplicationService:service=application-service\",\"operation\":\"addApplications\",\"arguments\":[[{\"value\":\"mvn:ddf.distribution/sdk-app/2.10.0-SNAPSHOT/xml/features\"}]]}";
+            "{\"type\":\"EXEC\",\"mbean\":\"org.codice.ddf.admin.application.service.ApplicationService:service=application-service\",\"operation\":\"addApplications\",\"arguments\":[[{\"value\":\"mvn:ddf.distribution/sdk-app/"+System.getProperty("ddf.version")+"/xml/features\"}]]}";
 
     protected static final String SOAP_ENV =
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
