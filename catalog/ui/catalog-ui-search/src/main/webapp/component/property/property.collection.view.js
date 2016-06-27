@@ -69,6 +69,11 @@ define([
             });
             return attributeArray;
         },
+         clearValidation: function(){
+             this.children.forEach(function(childView){
+                    childView.clearValidation();
+             });
+         },
         updateValidation: function(validationReport){
             var self = this;
             validationReport.forEach(function(attributeValidationReport){

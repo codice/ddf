@@ -125,7 +125,7 @@ define([
         },
         updateValidation: function(validationReport){
             this._validationReport = validationReport;
-            var $validationElement = this.$el.find('.property-label .property-validation');
+            var $validationElement = this.$el.find('> .property-label .property-validation');
             if (validationReport.errors.length > 0){
                 this.$el.removeClass('has-warning').addClass('has-error');
                 $validationElement.removeClass('is-hidden').removeClass('is-warning').addClass('is-error');
@@ -144,6 +144,11 @@ define([
                 this.$el.removeClass('has-warning').removeClass('has-error');
                 $validationElement.addClass('is-hidden');
             }
+        },
+        clearValidation: function(){
+            var $validationElement = this.$el.find('> .property-label .property-validation');
+            this.$el.removeClass('has-warning').removeClass('has-error');
+            $validationElement.addClass('is-hidden');
         },
         handleValidation: function(){
             if (this._validationReport){

@@ -42,15 +42,11 @@ define([
             this.editorProperties.currentView.turnOnLimitedWidth();
             this.editorProperties.currentView.$el.addClass("is-list");
 
-            var self = this;
-            $.when( $.get('/search/catalog/internal/metacard/'+this.model.get('metacard').id +'/validation')).done(function(validationResponse){
-                if (validationResponse && !_.isEmpty(validationResponse.length)) {
-                    self.editorProperties.currentView.updateValidation(validationResponse[0]);
-                }
-            });
+            this.getValidation();
         },
         getValidation: function(){
             var self = this;
+            self.editorProperties.currentView.clearValidation();
             $.get('/search/catalog/internal/metacard/'+this.model.get('metacard').id+'/validation').then(function(response){
                 if (!self.isDestroyed && self.editorProperties.currentView){
                     self.editorProperties.currentView.updateValidation(response);
@@ -106,6 +102,7 @@ define([
                        });
                        setTimeout(function(){  //let solr flush
                           LoadingCompanionView.endLoading(self);
+                           self.getValidation();
                        }, 1000);
                    });
                }, 1000);
