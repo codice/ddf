@@ -46,8 +46,8 @@
     <bundle>mvn:org.codice.ddf.registry/registry-source-configuration-handler/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-publication-update-handler/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-report-action-provider/${project.version}</bundle>
+    <bundle>mvn:org.codice.ddf.registry/registry-rest-endpoint/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-publication-action-provider/${project.version}</bundle>
-    <bundle>mvn:org.codice.ddf.registry/registry-report-viewer/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-admin-local-ui/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-admin-remote-ui/${project.version}</bundle>
 </feature>
