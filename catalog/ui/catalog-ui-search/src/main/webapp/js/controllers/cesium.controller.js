@@ -127,7 +127,7 @@ define(['application',
                         scene: viewer.scene
                     });
                 }
-                $(".cesium-viewer-toolbar").append("<button class='cesium-button cesium-toolbar-button cesium-home-button'><span class='cluster-results'></span></button>");
+                $(this.options.element).find('.cesium-viewer-toolbar').append("<button class='cesium-button cesium-toolbar-button cesium-home-button'><span class='cluster-results'></span></button>");
 
                 return viewer;
             },
