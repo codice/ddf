@@ -9,11 +9,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define */
+/* global define, window */
 define(['marionette',
         'cesium',
-        'underscore'
-], function(Marionette, Cesium, _) {
+        'underscore',
+        'handlebars',
+        'text!templates/clusteringMarker.handlebars'
+], function(Marionette, Cesium, _, Handlebars, clusteringMarker) {
 
     var DEFAULT_PIXEL_DISTANCE = 100;
 
@@ -79,16 +81,11 @@ define(['marionette',
                     // Render new entities
                     if(_.isUndefined(cluster)) {
                         if(value.points.length > 1) {
+                            var imageLink = this.getSvgImage(value);
                             var newCluster = {
                                 position : value.position,
-                                point : {
-                                    pixelSize : 25,
-                                    color : value.color
-                                },
-                                label : {
-                                    text : "" + value.points.length,
-                                    font : '14px Helvetica',
-                                    style : Cesium.LabelStyle.FILL
+                                billboard : {
+                                    image : imageLink
                                 }
                             };
                             value.entity = this.viewer.entities.add(newCluster);
@@ -189,10 +186,10 @@ define(['marionette',
             var distanceInPixels = distancePerPixel * entity.radius;
             return distanceInPixels;
         },
-        getEllipsoidAt40PercentOfMapView: function(width, height) {
+        getEllipsoidAt40PercentOfMapView : function(width, height) {
             return this.viewer.camera.pickEllipsoid(new Cesium.Cartesian2(width * 40 / 100, height / 2));
         },
-        getEllipsoidAt60PercentOfMapView: function(width, height) {
+        getEllipsoidAt60PercentOfMapView : function(width, height) {
             return this.viewer.camera.pickEllipsoid(new Cesium.Cartesian2(width * 60 / 100, height / 2));
         },
         toggleClustering : function() {
@@ -202,6 +199,13 @@ define(['marionette',
             } else {
                 this.uncluster();
             }
+        },
+        getSvgImage : function(value) {
+            var svg = Handlebars.compile(clusteringMarker)({
+              fill: value.color.toCssColorString(),
+              count: value.points.length
+            });
+            return 'data:image/svg+xml;base64,' + window.btoa(svg);
         }
     });
     return MapClustering;
