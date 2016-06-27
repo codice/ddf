@@ -16,6 +16,7 @@ package ddf.catalog.core.ftp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ftpserver.ftplet.Authentication;
@@ -44,13 +45,15 @@ public class UserManagerImpl implements UserManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManagerImpl.class);
 
-    private static final String UPLOAD_DIRECTORY = "";
+    private static final int MAX_IDLE_TIME_SECONDS = 300;
 
     private static SecurityManager securityManager;
 
+    private String uploadDirectory;
+
     private String admin;
 
-    private HashMap<String, User> users;
+    private Map<String, User> users;
 
     public UserManagerImpl(SecurityManager securityManager) {
         notNull(securityManager, "securityManager");
@@ -137,7 +140,7 @@ public class UserManagerImpl implements UserManager {
         FtpUser user = new FtpUser();
         user.setName(userName);
         user.setEnabled(true);
-        user.setHomeDirectory(UPLOAD_DIRECTORY);
+        user.setHomeDirectory(uploadDirectory);
 
         List<Authority> authorities = new ArrayList<>();
 
@@ -146,7 +149,7 @@ public class UserManagerImpl implements UserManager {
         authorities.add(new TransferRatePermission(0, 0));
 
         user.setAuthorities(authorities);
-        user.setMaxIdleTime(0);
+        user.setMaxIdleTime(MAX_IDLE_TIME_SECONDS);
 
         user.setSubject(subject);
 
@@ -155,6 +158,10 @@ public class UserManagerImpl implements UserManager {
         save(user);
 
         return user;
+    }
+
+    public void setUploadDirectory(String directoryPath) {
+        uploadDirectory = directoryPath;
     }
 
     private String[] usersToStringArray(Object[] users) {
@@ -169,9 +176,15 @@ public class UserManagerImpl implements UserManager {
         return this.admin.equals(username);
     }
 
+    /**
+     * The {@code UserManager} interface expects only one admin. The first admin to login receives admin
+     * status for this {@code UserManager}
+     *
+     * @param user {@link User} eligible for admin
+     */
     private void setAdmin(User user) {
         Subject subject = ((FtpUser) user).getSubject();
-        if (subject.hasRole("admin") && StringUtils.isEmpty(this.admin)) {
+        if (StringUtils.isEmpty(this.admin) && subject.hasRole("admin")) {
             this.admin = user.getName();
         }
     }

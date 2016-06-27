@@ -13,16 +13,30 @@
  **/
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <ext:property-placeholder/>
 
     <bean id="server" class="ddf.catalog.core.ftp.FtpServerStarter" init-method="init"
           destroy-method="destroy">
-        <cm:managed-properties persistent-id="ddf.catalog.core.ftp.FtpServerStarter" update-strategy="container-managed"/>
+        <cm:managed-properties persistent-id="ddf.catalog.core.ftp.FtpServerStarter"
+                               update-strategy="component-managed"
+                               update-method="updateConfiguration"/>
         <property name="port" value="8021"/>
+        <property name="clientAuth" value="want"/>
+        <property name="keyStoreFile" value="${javax.net.ssl.keyStore}"/>
+        <property name="keyStorePassword" value="${javax.net.ssl.keyStorePassword}"/>
+        <property name="keyStoreType" value="${javax.net.ssl.keyStoreType}"/>
+        <property name="trustStoreFile" value="${javax.net.ssl.trustStore}"/>
+        <property name="trustStorePassword" value="${javax.net.ssl.trustStorePassword}"/>
+        <property name="trustStoreType" value="${javax.net.ssl.trustStoreType}"/>
+
         <argument ref="ftplet"/>
         <argument ref="serverFactory"/>
         <argument ref="listenerFactory"/>
         <argument ref="userManager"/>
+        <argument ref="sslConfigurationFactory"/>
     </bean>
 
     <bean id="ftplet" class="ddf.catalog.core.ftp.ftplets.FtpRequestHandler">
@@ -30,9 +44,11 @@
         <argument ref="mimeTypeMapper"/>
     </bean>
     <bean id="userManager" class="ddf.catalog.core.ftp.UserManagerImpl">
+        <property name="uploadDirectory" value="${ddf.home}/data/products"/>
         <argument ref="securityManager"/>
     </bean>
 
+    <bean id="sslConfigurationFactory" class="org.apache.ftpserver.ssl.SslConfigurationFactory"/>
     <bean id="serverFactory" class="org.apache.ftpserver.FtpServerFactory"/>
     <bean id="listenerFactory" class="org.apache.ftpserver.listener.ListenerFactory"/>
 
