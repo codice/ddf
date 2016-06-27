@@ -34,6 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 /**
  * A library class used to turn SAX events back into their corresponding XML snippets
  * <p>
@@ -53,7 +56,7 @@ public class SaxEventToXmlElementConverter {
     /*
      * Stack of scoped namespace URI to prefix mappings
      */
-    private Deque<Map<String, String>> scopeOfNamespacesAdded = new ArrayDeque<>();
+    private Deque<Multimap<String, String>> scopeOfNamespacesAdded = new ArrayDeque<>();
 
     private Deque<NamespaceMapping> namespaceStack = new ArrayDeque<>();
 
@@ -82,8 +85,10 @@ public class SaxEventToXmlElementConverter {
 
     private SaxEventToXmlElementConverter startConstructingElement(String uri, String localName,
             Attributes atts) throws XMLStreamException {
-
-        Map<String, String> addedNamespaces = new HashMap<>();
+        Multimap<String, String> addedNamespaces = ArrayListMultimap.create();
+        if (scopeOfNamespacesAdded.peek() != null) {
+            addedNamespaces.putAll(scopeOfNamespacesAdded.peek());
+        }
         scopeOfNamespacesAdded.push(addedNamespaces);
         // URI to prefix
         Map<String, String> scopedNamespaces = new HashMap<>();
@@ -99,7 +104,7 @@ public class SaxEventToXmlElementConverter {
          * Use the uri to look up the namespace prefix and append it and the localName to the start tag
          */
         out.writeStartElement(scopedNamespaces.get(uri), localName, uri);
-        if (!checkNamespaceAdded(uri)) {
+        if (!checkNamespaceAdded(uri, scopedNamespaces)) {
             out.writeNamespace(scopedNamespaces.get(uri), uri);
             addedNamespaces.put(uri, scopedNamespaces.get(uri));
         }
@@ -115,14 +120,34 @@ public class SaxEventToXmlElementConverter {
             } else {
                 String attUri = atts.getURI(i);
 
-                if (!checkNamespaceAdded(attUri)) {
+                if (!checkNamespaceAdded(attUri, scopedNamespaces)) {
                     out.writeNamespace(scopedNamespaces.get(attUri), attUri);
                     addedNamespaces.put(attUri, scopedNamespaces.get(attUri));
                 }
-                out.writeAttribute(scopedNamespaces.get(attUri),
-                        attUri,
-                        atts.getLocalName(i),
-                        atts.getValue(i));
+                try {
+                    out.writeAttribute(scopedNamespaces.get(attUri),
+                            attUri,
+                            atts.getLocalName(i),
+                            atts.getValue(i));
+
+                    /*
+                     * XML doesn't allow for duplicate attributes in an element, e.g.
+                     * no <element attribute=1 attribute=2>
+                     * no <element ns1:attribute=1 ns2:attribute=2 xlmns:ns1=foobar xlmns:ns2=foobar>
+                     * however - if one of the namespaces is the default namespace, this duplication is okay,
+                     * yes <element attribute=1 ns1:attribute=2 xlmns=foobar xmlns:ns1=foobar>
+                     *
+                     * This catch block handles this edge case
+                     */
+                } catch (XMLStreamException e) {
+                    /*
+                     * Get the first non-empty prefix that is associated with the URI (the other, non-default prefix)
+                     */
+                    String altNS = namespaceStack.stream().filter(p -> attUri.equals(p.getUri()) && !(p.getPrefix().isEmpty())).findFirst().get().getPrefix();
+                    out.writeNamespace(altNS, attUri);
+                    addedNamespaces.put(attUri, altNS);
+                    out.writeAttribute(altNS, attUri, atts.getLocalName(i), atts.getValue(i));
+                }
             }
         }
 
@@ -229,11 +254,10 @@ public class SaxEventToXmlElementConverter {
 
     }
 
-    private boolean checkNamespaceAdded(String uri) {
+    private boolean checkNamespaceAdded(String uri, Map<String, String> scopedNamespaces) {
 
-        return scopeOfNamespacesAdded.stream()
-                .anyMatch(p -> p.containsKey(uri));
-
+        return scopeOfNamespacesAdded.peek()
+                .containsKey(uri) && scopeOfNamespacesAdded.peek().get(uri).contains(scopedNamespaces.get(uri));
     }
 
     private static class NamespaceMapping {
