@@ -22,10 +22,10 @@
     </label>
     <div class="value-list is-list">
         {{#each values}}
-            <div class="list-value">
+            <div class="list-value" data-ids="{{this.ids}}">
                 <span class="cell-value">{{this.value}}</span>
                 <span class="cell-hits">({{this.hits}})</span>
-                <span class="value-validation"></span>
+                <span class="cell-validation fa fa-exclamation-triangle is-hidden"></span>
             </div>
         {{/each}}
     </div>

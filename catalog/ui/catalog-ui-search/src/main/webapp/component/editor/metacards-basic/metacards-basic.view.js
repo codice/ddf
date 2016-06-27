@@ -45,18 +45,25 @@ define([
             this.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(types, metacards));
             this.editorProperties.currentView.turnOnLimitedWidth();
             this.editorProperties.currentView.$el.addClass("is-list");
-            //this.getValidation();
+            this.getValidation();
         },
         getValidation: function(){
+            var results = this.selectionInterface.getSelectedResults();
             var self = this;
-            $.get('/search/catalog/internal/metacard/'+this.model.get('metacard').id+'/validation').then(function(response){
-                if (validationResponse && !_.isEmpty(validationResponse.length) && !self.isDestroyed){
-                    self.editorProperties.currentView.updateValidation(response);
-                }
-            }).always(function(){
-                if (!self.isDestroyed){
-
-                }
+            self.editorProperties.currentView.clearValidation();
+            results.forEach(function(result){
+                (function(id) {
+                    $.get( '/search/catalog/internal/metacard/'+
+                    id+
+                    '/validation').then(function(response){
+                        if (!self.isDestroyed && self.editorProperties.currentView){
+                            response.forEach(function(issue){
+                                issue.id = id;
+                            });
+                            self.editorProperties.currentView.updateValidation(response);
+                        }
+                    });
+                })(result.get('metacard').get('properties').get('id'));
             });
         },
         afterCancel: function(){

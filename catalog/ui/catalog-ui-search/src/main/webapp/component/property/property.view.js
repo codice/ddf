@@ -140,15 +140,41 @@ define([
                     return totalMessage + currentMessage;
                 }, '');
                 $validationElement.attr('title', validationMessage);
-            } else {
-                this.$el.removeClass('has-warning').removeClass('has-error');
-                $validationElement.addClass('is-hidden');
             }
+            this.handleBulkValidation(validationReport);
+        },
+        handleBulkValidation: function(validationReport){
+            var elementsToCheck = this.$el.find('.is-bulk > .if-viewing .list-value');
+            _.forEach(elementsToCheck, function(element){
+                 if ($(element).attr('data-ids').split(',').indexOf(validationReport.id) !== -1){
+                     var $validationElement = $(element).find('.cell-validation');
+                     if (validationReport.errors.length > 0){
+                         $validationElement.removeClass('is-hidden').removeClass('is-warning').addClass('is-error');
+                         var validationMessage = validationReport.errors.reduce(function(totalMessage, currentMessage){
+                             return totalMessage + currentMessage;
+                         }, '');
+                         $validationElement.attr('title', validationMessage);
+                     } else if (validationReport.warnings.length > 0){
+                         $validationElement.removeClass('is-hidden').removeClass('is-error').addClass('is-warning');
+                         var validationMessage = validationReport.warnings.reduce(function(totalMessage, currentMessage){
+                             return totalMessage + currentMessage;
+                         }, '');
+                         $validationElement.attr('title', validationMessage);
+                     }
+                 }
+            });
         },
         clearValidation: function(){
             var $validationElement = this.$el.find('> .property-label .property-validation');
             this.$el.removeClass('has-warning').removeClass('has-error');
             $validationElement.addClass('is-hidden');
+
+            var elementsToCheck = this.$el.find('.is-bulk > .if-viewing .list-value');
+            _.forEach(elementsToCheck, function(element) {
+                $validationElement = $(element).find('.cell-validation');
+                $validationElement.removeClass('has-warning').removeClass('has-error');
+                $validationElement.addClass('is-hidden');
+            });
         },
         handleValidation: function(){
             if (this._validationReport){

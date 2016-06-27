@@ -46,14 +46,21 @@
   }
 
   .cell-value {
-    max-width: ~'calc(100% - 50px)';
+    max-width: ~'calc(100% - 100px)';
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .cell-hits {
     position: absolute;
+    right: 60px;
+  }
+
+  .cell-validation {
+    position: absolute;
     right: 20px;
+    line-height: @minimumButtonSize;
+    height: @minimumButtonSize;
   }
 
   .if-homogeneous,

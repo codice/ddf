@@ -129,8 +129,10 @@ define([
                      property.value = value;
                      property.values[value] = property.values[value] || {
                              value: value,
-                             hits: 0
-                         };
+                             hits: 0,
+                            ids: []
+                     };
+                     property.values[value].ids.push(metacard.id);
                      property.values[value].hits++;
                  });
                  if (metacards.length > 1){
@@ -169,8 +171,10 @@ define([
                      property.value = value;
                      property.values[value] = property.values[value] || {
                              value: value,
-                             hits: 0
+                             hits: 0,
+                             ids: []
                          };
+                     property.values[value].ids.push(metacard.id);
                      property.values[value].hits++;
                  });
                  if (metacards.length > 1){
