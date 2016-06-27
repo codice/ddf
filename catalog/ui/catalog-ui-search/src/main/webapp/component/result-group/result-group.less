@@ -1,0 +1,28 @@
+@{customElementNamespace}result-group {
+  //padding-bottom: 30px;
+  display: block;
+  box-shadow: none !important;
+  background: inherit !important;
+
+  > .group-representation {
+    text-align: left;
+    padding: 10px 0px;
+  }
+
+  @{customElementNamespace}result-item-collection {
+    padding: 0px;
+    padding-left: 25px;
+  }
+}
+
+@{customElementNamespace}result-group + @{customElementNamespace}result-item {
+  margin-top: 40px;
+}
+
+@{customElementNamespace}result-item + @{customElementNamespace}result-group,
+@{customElementNamespace}result-item + @{customElementNamespace}result-item,
+@{customElementNamespace}result-group + @{customElementNamespace}result-group
+{
+  margin-top: 10px;
+}
+

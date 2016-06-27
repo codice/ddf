@@ -109,7 +109,8 @@ define([
             event.preventDefault();
         },
         handleClick: function(event){
-            var indexClicked = parseInt(event.currentTarget.getAttribute('data-index'));
+            var resultItems = this.$el.find('.resultSelector-list '+resultItemSelector);
+            var indexClicked = resultItems.index(event.currentTarget);
             var resultid = event.currentTarget.getAttribute('data-resultid');
             var alreadySelected = $(event.currentTarget).hasClass('is-selected');
             //shift key wins over all else
@@ -122,9 +123,10 @@ define([
             }
         },
         handleShiftClick: function(resultid, indexClicked){
-            var firstIndex = parseInt(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').first().attr('data-index'));
-            var lastIndex = parseInt(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').last().attr('data-index'));
-            if (_.isNaN(firstIndex) && _.isNaN(lastIndex)){
+            var resultItems = this.$el.find('.resultSelector-list '+resultItemSelector);
+            var firstIndex = resultItems.index(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').first());
+            var lastIndex = resultItems.index(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').last());
+            if (firstIndex === -1 && lastIndex === -1){
                 this.handleNormalClick(resultid);
             } else if (indexClicked <= firstIndex) {
                 this.selectBetween(indexClicked, firstIndex);
@@ -135,7 +137,7 @@ define([
             }
         },
         selectBetween: function(startIndex, endIndex){
-            this.selectionInterface.addSelectedResult(this.resultList.currentView.collection.slice(startIndex, endIndex));
+            this.selectionInterface.addSelectedResult(this.resultList.currentView.collection.selectBetween(startIndex, endIndex));
         },
         handleControlClick: function(resultid, alreadySelected){
             if (alreadySelected){
@@ -172,8 +174,9 @@ define([
             resultFilter = mixinBlackListCQL(resultFilter);
             var filteredResults = this.model.get('result').get('results').generateFilteredVersion(resultFilter, store.metacardTypes);
             filteredResults.updateSorting(store.get('user').get('user').get('preferences').get('resultSort'));
-            this.showResultPaging(filteredResults);
-            this.showResultList(filteredResults);
+            var collapsedResults = filteredResults.collapseDuplicates();
+            this.showResultPaging(collapsedResults);
+            this.showResultList(collapsedResults);
             this.showResultDisplayDropdown();
             this.showResultFilterDropdown();
             this.showResultSortDropdown();

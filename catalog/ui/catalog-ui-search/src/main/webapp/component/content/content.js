@@ -44,7 +44,6 @@ define([
             {
                 type: Backbone.Many,
                 key: 'activeSearchResults',
-                collectionType: Metacard.Results,
                 relatedModel: Metacard.MetacardResult
             },
         ],
@@ -95,6 +94,9 @@ define([
         },
         setActiveSearchResults: function(results){
             this.get('activeSearchResults').reset(results.models);
+        },
+        addToActiveSearchResults: function(results){
+            this.get('activeSearchResults').add(results.models);
         },
         filterQuery: function(queryRef) {
             var filteredQueries = this.get('filteredQueries');

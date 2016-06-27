@@ -179,6 +179,9 @@ define([
         setActiveSearchResults: function(results){
             this.get('content').setActiveSearchResults(results);
         },
+        addToActiveSearchResults: function(results){
+            this.get('content').addToActiveSearchResults(results);
+        },
         addMetacardTypes: function(metacardTypes){
             this.get('content').addMetacardTypes(metacardTypes);
         },

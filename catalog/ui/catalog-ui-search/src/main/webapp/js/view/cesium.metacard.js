@@ -30,12 +30,7 @@ define([
                 if (!isSelection) {
                     selectionInterface.clearSelectedResults();
                 }
-                if (model.get('color')){
-                    selectionInterface.addSelectedResult(store.getQueryById(model.get('queryId'))
-                        .get('result>results').get(model.id + model.get('properties>source-id')));
-                } else {
-                    selectionInterface.addSelectedResult(model.parents[0]);
-                }
+                selectionInterface.addSelectedResult(model.parents[0]);
            // }
         }
 
@@ -721,9 +716,11 @@ define([
                 this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 this.geoController = options.geoController;
                 // disable add and remove events
-                this.off('render', this._initialEvents);
+                /*this.off('render', this._initialEvents);
                 this.listenTo(this.collection, 'sync', this.render);
+                this.listenTo(this.collection, 'add', this.render);
                 this.listenTo(this.collection, 'reset', this.render);
+                this.render = _.throttle(this.render, 250);*/
             },
 
              // get the child view by item it holds, and remove it

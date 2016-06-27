@@ -169,14 +169,41 @@ define([
                 this.map = options.map;
                 this.notificationEl = options.notificationEl;
 
-                this.listenTo(wreqr.vent, 'search:polydisplay', this.showBox);
-                this.listenTo(wreqr.vent, 'search:drawpoly', this.draw);
-                this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
-                this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', this.destroyAll);
-                this.listenTo(store.get('content'), 'change:query', this.destroyAll);
+                this.listenTo(wreqr.vent, 'search:polydisplay', function(model){
+                    if (this.isVisible()){
+                        this.showBox(model);
+                    }
+                });
+                this.listenTo(wreqr.vent, 'search:drawpoly', function(model){
+                    if (this.isVisible()){
+                        this.draw(model);
+                    }
+                });
+                this.listenTo(wreqr.vent, 'search:drawstop', function(model){
+                    if (this.isVisible()){
+                        this.stop(model);
+                    }
+                });
+                this.listenTo(wreqr.vent, 'search:drawend', function(model){
+                    if (this.isVisible()){
+                        this.destroy(model);
+                    }
+                });
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model){
+                    if (this.isVisible()){
+                        this.destroyAll(model);
+                    }
+                });
+                this.listenTo(store.get('content'), 'change:query', function(model){
+                    if (this.isVisible()){
+                        this.destroyAll(model);
+                    }
+                });
             },
             views: [],
+            isVisible: function(){
+                return this.map.getTarget().offsetParent !== null;
+            },
             destroyAll: function(){
                 for (var i = this.views.length - 1; i>=0 ; i-=1){
                     this.destroyView(this.views[i]);

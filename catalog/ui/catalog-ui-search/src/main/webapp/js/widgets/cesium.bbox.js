@@ -315,14 +315,41 @@ define([
                 this.scene = options.scene;
                 this.notificationEl = options.notificationEl;
 
-                this.listenTo(wreqr.vent, 'search:bboxdisplay', this.showBox);
-                this.listenTo(wreqr.vent, 'search:drawbbox', this.draw);
-                this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
-                this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', this.destroyAll);
-                this.listenTo(store.get('content'), 'change:query', this.destroyAll);
+                this.listenTo(wreqr.vent, 'search:bboxdisplay', function(model){
+                    if (this.isVisible()){
+                        this.showBox(model);
+                    }
+                });
+                this.listenTo(wreqr.vent, 'search:drawbbox', function(model){
+                    if (this.isVisible()){
+                        this.draw(model);
+                    }
+                });
+                this.listenTo(wreqr.vent, 'search:drawstop', function(model){
+                    if (this.isVisible()){
+                        this.stop(model);
+                    }
+                });
+                this.listenTo(wreqr.vent, 'search:drawend', function(model){
+                    if (this.isVisible()){
+                        this.destroy(model);
+                    }
+                });
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model){
+                    if (this.isVisible()){
+                        this.destroyAll(model);
+                    }
+                });
+                this.listenTo(store.get('content'), 'change:query', function(model){
+                    if (this.isVisible()){
+                        this.destroyAll(model);
+                    }
+                });
             },
             views: [],
+            isVisible: function(){
+                return this.scene.canvas.width !== 0;
+            },
             destroyAll: function(){
                 for (var i = this.views.length - 1; i>=0 ; i-=1){
                     this.destroyView(this.views[i]);

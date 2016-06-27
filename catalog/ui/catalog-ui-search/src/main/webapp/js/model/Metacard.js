@@ -10,7 +10,7 @@
  *
  **/
 /*global define, Terraformer*/
-
+/*jshint loopfunc: true */
 define([
         'backbone',
         'underscore',
@@ -482,6 +482,39 @@ define([
                     };
                     this.fullCollection.sort();
                 }
+            },
+            collapseDuplicates: function () {
+                var collapsedCollection = new this.constructor();
+                collapsedCollection.set(this.fullCollection.models);
+                var endIndex = collapsedCollection.fullCollection.length;
+                for (var i = 0; i < endIndex; i++) {
+                    var currentResult = collapsedCollection.fullCollection.models[i];
+                    var duplicates = collapsedCollection.fullCollection.filter(function (result) {
+                        return ((result.get('metacard').get('properties').get('id') ===
+                            currentResult.get('metacard').get('properties').get('id')) ||
+                            (result.get('metacard').get('properties').get('checksum') ===
+                            currentResult.get('metacard').get('properties').get('checksum'))) &&
+                            (result.id !== currentResult.id);
+                    });
+                    if (duplicates.length > 0) {
+                        currentResult.duplicates = duplicates;
+                        collapsedCollection.fullCollection.remove(duplicates);
+                        endIndex = collapsedCollection.fullCollection.length;
+                    }
+                }
+                return collapsedCollection;
+            },
+            selectBetween: function(startIndex, endIndex) {
+                var allModels = [];
+                this.forEach(function(model){
+                    allModels.push(model);
+                    if (model.duplicates){
+                        model.duplicates.forEach(function(duplicate){
+                            allModels.push(duplicate);
+                        });
+                    }
+                });
+                return allModels.slice(startIndex, endIndex);
             }
         });
 

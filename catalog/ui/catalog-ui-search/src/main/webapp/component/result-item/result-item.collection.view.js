@@ -19,12 +19,19 @@ define([
     'jquery',
     'js/CustomElements',
     './result-item.view',
+    'component/result-group/result-group.view',
     'js/store'
-], function (Marionette, _, $, CustomElements, childView, store) {
+], function (Marionette, _, $, CustomElements, childView, groupView, store) {
 
     return Marionette.CollectionView.extend({
         tagName: CustomElements.register('result-item-collection'),
-        childView: childView,
+        getChildView: function(childModel){
+            if (childModel.duplicates && !this.options.group){
+                return groupView;
+            } else {
+                return childView;
+            }
+        },
         className: 'is-list',
         selectionInterface: store,
         initialize: function(options){
@@ -35,7 +42,11 @@ define([
             childView.$el.attr('data-index', this.children.length - 1);
         },
         onRender: function(){
-            this.selectionInterface.setActiveSearchResults(this.collection);
+            if (!this.options.group){
+                this.selectionInterface.setActiveSearchResults(this.collection);
+            } else {
+                this.selectionInterface.addToActiveSearchResults(this.collection);
+            }
         }
        /* handleFiltering: function () {
             var resultFilter = store.get('user').get('user').get('preferences').get('resultFilter');
