@@ -25,7 +25,7 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <pdfbox.version>2.0.0</pdfbox.version>
+        <pdfbox.version>2.0.2</pdfbox.version>
     </properties>
 
     <dependencies>
