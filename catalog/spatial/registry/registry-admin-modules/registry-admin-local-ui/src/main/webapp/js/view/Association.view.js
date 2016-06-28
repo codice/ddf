@@ -53,14 +53,10 @@ define([
                 this.parentId = options.parentId;
                 this.simpleId = this.parentId.split(':').join('-');
                 this.listenTo(wreqr.vent, 'removeAssociation:' + this.parentId, this.removeAssociation);
-                this.listenTo(this.model.get('associationSegments'),'add',this.updateAssociations);
-                this.listenTo(this.model.get('associationSegments'),'remove',this.updateAssociations);
-                this.listenTo(this.model.get('associations'),'add',this.render);
-                this.listenTo(this.model.get('associations'),'remove',this.render);
-                this.$('.description').popover();
-            },
-            onRender: function(){
-                this.setupPopOvers();
+                this.listenTo(wreqr.vent, 'associationSegmentRemoved', this.updateAssociations);
+                this.listenTo(wreqr.vent, 'associationSegmentAdded', this.updateAssociations);
+                this.listenTo(this.collection, 'add', this.render);
+                this.listenTo(this.collection, 'remove', this.render);
             },
             serializeData: function () {
                 var data = {};
@@ -76,31 +72,17 @@ define([
                 if (selectedOption.length === 1) {
                     var addedItem = this.model.addAssociation(this.parentId, selectedOption.attr('name'), 'AssociatedWith');
                     this.collection.add(addedItem);
+                    this.render();
                 }
             },
-            updateAssociations: function (association) {
+            updateAssociations: function (id) {
                 var seg = _.find(this.collection.models, function (model) {
-                    return model.get('sourceId') ===  association.get('segmentId') || model.get('targetId') === association.get('segmentId');
+                    return model.get('sourceId') === id || model.get('targetId') === id;
                 });
                 if (seg) {
                     this.collection.remove(seg);
                 }
-                this.render();
-            },
-            /**
-             * Set up the popovers based on if the selector has a description.
-             */
-            setupPopOvers: function () {
-                var view = this;
-                var options,
-                    selector = ".description";
-                options = {
-                    trigger: 'hover'
-                };
-                view.$(selector).popover(options);
             }
-
-
         });
 
         return Association;

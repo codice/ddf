@@ -41,10 +41,6 @@ define([
                 'click .add-node-link' : 'showAddNode',
                 'click .refresh-button' : 'addDeleteNode'
             },
-            modelEvents: {
-                "add": "render",
-                "remove": "render"
-            },
             initialize: function () {
                 this.listenTo(wreqr.vent, 'editNode', this.showEditNode);
                 this.listenTo(wreqr.vent, "deleteNodes", this.deleteNodes);
@@ -55,6 +51,8 @@ define([
                 new RegistryView.ModalController({
                     application: this
                 });
+                this.listenTo(this.model, 'add', this.render);
+                this.listenTo(this.model, 'remove', this.render);
             },
             regions: {
                 identityRegion: '#localIdentityNodeRegion',

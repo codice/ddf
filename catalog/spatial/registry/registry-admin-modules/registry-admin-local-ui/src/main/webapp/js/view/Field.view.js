@@ -31,23 +31,14 @@ define([
 
         Field.FieldView = Marionette.ItemView.extend({
             template: 'field',
-            tagName: 'div',
-            className: 'node-field',
             events: {
                 "click .remove-field": 'removeField',
                 "click .add-value": 'addValue',
                 "click .remove-value": 'removeValue'
             },
-            modelEvents: {
-                "change:error": "showHideError",
-                "change": "fieldChanged"
-            },
             initialize: function () {
                 this.modelBinder = new Backbone.ModelBinder();
-                if(this.model.get('inlineGroup')){
-                    this.$el.css('display','inline-block');
-                    this.$el.addClass(this.model.get('inlineGroup'));
-                }
+                this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.get('key'), this.showHideError);
             },
             onRender: function () {
                 var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
@@ -69,23 +60,16 @@ define([
             showHideError: function () {
                 wreqr.vent.trigger('fieldErrorChange:' + this.model.get('parentId'));
                 this.render();
-
-            },
-            fieldChanged: function () {
-                wreqr.vent.trigger('fieldChange:' + this.model.get('parentId'));
             },
             serializeData: function () {
                 var data = {};
 
                 if (this.model) {
                     data = this.model.toJSON();
-                    data.validationError = this.model.get('error');
+                    data.validationError = this.model.hadError;
                     data.errorIndices = this.model.errorIndices;
                 }
                 return data;
-            },
-            onClose: function () {
-                this.modelBinder.unbind();
             }
         });
 

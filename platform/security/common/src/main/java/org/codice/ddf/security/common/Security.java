@@ -28,8 +28,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -76,11 +74,7 @@ public class Security {
 
     private static final RolePrincipal ADMIN_ROLE = new RolePrincipal("admin");
 
-    private static final String KARAF_LOCAL_ROLE = "karaf.local.roles";
-
     private Subject cachedSystemSubject;
-
-    private static final javax.security.auth.Subject JAVA_ADMIN_SUBJECT = getAdminJavaSubject();
 
     private Security() {
         // Singleton
@@ -297,21 +291,14 @@ public class Security {
     }
 
     public static <T> T runAsAdmin(PrivilegedAction<T> action) {
-        return javax.security.auth.Subject.doAs(JAVA_ADMIN_SUBJECT, action);
-    }
-
-    public static <T> T runAsAdminWithException(PrivilegedExceptionAction<T> action)
-            throws PrivilegedActionException {
-        return javax.security.auth.Subject.doAs(JAVA_ADMIN_SUBJECT, action);
-    }
-
-    private static javax.security.auth.Subject getAdminJavaSubject() {
         Set<Principal> principals = new HashSet<>();
-        String localRoles = System.getProperty(KARAF_LOCAL_ROLE, "");
-        for (String role : localRoles.split(",")) {
-            principals.add(new RolePrincipal(role));
-        }
-        return new javax.security.auth.Subject(true, principals, new HashSet(), new HashSet());
+        principals.add(new RolePrincipal("admin"));
+        javax.security.auth.Subject subject = new javax.security.auth.Subject(true,
+                principals,
+                new HashSet(),
+                new HashSet());
+
+        return javax.security.auth.Subject.doAs(subject, action);
     }
 
     private BundleContext getBundleContext() {
