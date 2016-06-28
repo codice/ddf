@@ -1972,7 +1972,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         Configuration config = getAdminConfig().getConfiguration("ddf.catalog.history.Historian");
         config.setBundleLocation(
-                "mvn:ddf.catalog.core/catalog-core-standardframework/2.10.0-SNAPSHOT");
+                "mvn:ddf.catalog.core/catalog-core-standardframework/" + System.getProperty(
+                        "ddf.version"));
         Dictionary properties = new Hashtable<>();
         properties.put("historyEnabled", true);
         config.update(properties);
