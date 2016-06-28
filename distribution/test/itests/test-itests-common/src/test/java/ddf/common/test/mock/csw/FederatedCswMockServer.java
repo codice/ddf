@@ -45,6 +45,8 @@ public class FederatedCswMockServer {
     private final String httpRoot;
 
     private final int port;
+    
+    private String metacardId;
 
     private StubServer cswStubServer;
 
@@ -178,6 +180,10 @@ public class FederatedCswMockServer {
                     .then(ok(), contentType("text/xml"), bytesContent(document.getBytes()));
         }
     }
+    
+    public void setMetacardId(String metacardId) {
+        this.metacardId = metacardId;
+    }
 
     private void setDefaultCapabilityResponse() throws IOException {
         setCapabilityResponse("csw-get-capabilities-response.xml");
@@ -190,6 +196,7 @@ public class FederatedCswMockServer {
     private String substituteTags(String document) {
         String resultDocument = substituteSourceId(document);
         resultDocument = substitutePortNumber(resultDocument);
+        resultDocument = substituteMetacardId(resultDocument);
         return substituteHttpRoot(resultDocument);
     }
 
@@ -203,5 +210,9 @@ public class FederatedCswMockServer {
 
     private String substituteHttpRoot(String document) {
         return document.replaceAll("\\$httpRoot\\$", httpRoot);
+    }
+    
+    private String substituteMetacardId(String document) {
+        return document.replaceAll("\\$metacardId\\$", metacardId);
     }
 }
