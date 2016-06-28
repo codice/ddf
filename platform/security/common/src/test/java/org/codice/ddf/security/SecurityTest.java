@@ -79,8 +79,6 @@ public class SecurityTest {
 
     @Before
     public void setup() throws URISyntaxException {
-        System.setProperty("karaf.local.roles", "admin,local");
-
         initMocks(this);
         mockStatic(SecurityUtils.class);
         mockStatic(FrameworkUtil.class);
@@ -199,9 +197,16 @@ public class SecurityTest {
         when(systemSubject.execute(callable)).thenReturn("Success!");
         configureMocksForBundleContext("server");
 
-        String result =
-                Security.runAsAdminWithException(() -> security.runWithSubjectOrElevate(
-                        callable));
+        String result = Security.runAsAdmin(() -> {
+
+            try {
+                return security.runWithSubjectOrElevate(callable);
+            } catch (Exception e) {
+                fail("Unexpected exception thrown: " + e.getMessage());
+            }
+
+            return null;
+        });
 
         assertThat(result, is("Success!"));
         verifyStatic();

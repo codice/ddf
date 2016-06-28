@@ -19,10 +19,11 @@ define([
     'underscore',
     'js/model/FieldDescriptors.js',
     'js/model/Segment.js',
+    'wreqr',
     'backboneassociation'
 
 
-], function (Backbone, _, FieldDescriptors, Segment) {
+], function (Backbone, _, FieldDescriptors, Segment, wreqr) {
 
     var counter = 0;
 
@@ -105,12 +106,10 @@ define([
                 }
             }
         ],
-        defaults: function(){
-            return {
-                associations: [],
-                associationSegments: [],
-                topSegment: null
-            };
+        defaults: {
+            associations: [],
+            associationSegments: [],
+            topSegment: null
         },
         populateFromModel: function (associations) {
             var model = this;
@@ -143,20 +142,26 @@ define([
         },
         removeSegment: function (segment) {
             var model = this;
+            var updatedAssociations = [];
+            var associations = this.get('associations').models;
             var segId = segment.get('segmentId');
-            this.get('associations').remove(this.get('associations').filter(function(association) {
-                return association.get('sourceId') === segId || association.get('targetId') === segId;
-            }));
+            _.each(associations, function (association) {
+                if (association.get('sourceId') !== segId && association.get('targetId') !== segId) {
+                    updatedAssociations.push(association);
+                }
+            });
+            this.set('associations', updatedAssociations);
 
-            var seg = this.get('associationSegments').find(function (seg) {
+            var seg = _.find(this.get('associationSegments').models, function (seg) {
                 return seg.get('segmentId') === segId;
             });
             this.get('associationSegments').remove(seg);
-            segment.get('segments').forEach( function(curSeg){
+            _.each(segment.get('segments').models, function(curSeg){
                if(FieldDescriptors.isCustomizableSegment(curSeg.get('segmentType'))){
                    model.removeSegment(curSeg);
                }
             });
+            wreqr.vent.trigger('associationSegmentRemoved',segId);
         },
         getAssociationsForId: function (id) {
             var associations = this.get('associations').models;
@@ -172,7 +177,8 @@ define([
             var segs = [];
             var curAssociations = this.getAssociationsForId(id);
             var model = this;
-            this.get('associationSegments').forEach(function (seg) {
+            var allSegs = this.get('associationSegments').models;
+            _.each(allSegs, function (seg) {
                 if (seg.get('segmentId') !== id && !model.existingAssociation(curAssociations, seg.get('segmentId'))) {
                     segs.push(seg.attributes);
                 }
@@ -209,6 +215,7 @@ define([
                     segmentType: type,
                     segmentName: name
                 }));
+                wreqr.vent.trigger('associationSegmentAdded', id);
             }
         },
         saveData: function () {

@@ -17,11 +17,13 @@
 define([
     'backbone',
     'underscore',
+    'js/model/FieldDescriptors.js',
+    'wreqr',
     'jquery',
     'backboneassociation'
 
 
-], function (Backbone, _) {
+], function (Backbone, _, FieldDescriptors, wreqr) {
 
     function getSlot(slots, key) {
         for (var index = 0; index < slots.length; index++) {
@@ -48,19 +50,6 @@ define([
             required: false
 
         },
-        setupChangeListener: function () {
-            var model = this;
-            this.listenTo(this, 'change', function (event) {
-                if (Object.keys(event.changed).some(function (prop) {
-                        return prop.indexOf('value') === 0;
-                    })) {
-                    model.validate();
-                }
-            });
-        },
-        isEmpty: function() {
-            return !this.get('value') || (_.isArray(this.get('value')) && this.get('value').length === 0);
-        },
         addValue: function (val) {
             if (!this.get('value')) {
                 this.set('value', [val]);
@@ -86,13 +75,11 @@ define([
         validate: function() {
             var error;
             var indices = [];
-            var type = this.get('type');
-            if(!this.get('value') && (type === 'point' || type === 'bounds')) {
-                this.set('value',[]);
-            }
-
             if(!this.get('value') && !this.get('regex') && !this.get('required')){
-                this.set('error',error);
+                if(this.hadError){
+                    this.hadError = undefined;
+                    wreqr.vent.trigger('fieldErrorChange:'+this.get('key'));
+                }
                 return;
             }
 
@@ -104,39 +91,25 @@ define([
             }
 
             if(!this.get('multiValued')) {
-                if(type === 'number'){
+                if(this.get('type') === 'number'){
                     if(this.get('min') && this.get('value') < this.get('min')){
                         error = 'Value is less than minimum of ' + this.get('min');
                     } else if (this.get('max') && this.get('value') > this.get('max')) {
                         error =  'Value is greater than maximum of ' + this.get('max');
                     }
-                } else if(type === 'string' && regex){
+                } else if(this.get('type') === 'string' && regex){
                     if(!regex.test(this.get('value'))){
                         error =  this.get('regexMessage') ? this.get('regexMessage') : 'Invalid input value. Must match ' + this.get('regex');
                     }
-                } else if(type === 'point'){
+                } else if(this.get('type') === 'point'){
                     if(this.get('valueLat') && (this.get('valueLat') > 90 || this.get('valueLat') < -90)){
                         error = 'Invalid decimal latitude value. Must be -90 < lat < 90';
-                    }
-                    if(this.get('valueLon') && (this.get('valueLon') > 180 || this.get('valueLon')< -180)){
-                        error = 'Invalid decimal longitude value. Must be -180 < lat < 180';
-                    }
-                } else if(type === 'bounds'){
-                    if(this.get('valueLowerLat') && (this.get('valueLowerLat') > 90 || this.get('valueLowerLat') < -90)){
-                        error = 'Invalid decimal latitude value. Must be -90 < lat < 90';
-                    }
-                    if(this.get('valueUpperLat') && (this.get('valueUpperLat') > 90 || this.get('valueUpperLat') < -90)){
-                        error = 'Invalid decimal latitude value. Must be -90 < lat < 90';
-                    }
-                    if(this.get('valueLowerLon') && (this.get('valueLowerLon') > 180 || this.get('valueLowerLon')< -180)){
-                        error = 'Invalid decimal longitude value. Must be -180 < lat < 180';
-                    }
-                    if(this.get('valueUpperLon') && (this.get('valueUpperLon') > 180 || this.get('valueUpperLon')< -180)){
+                    } else if(this.get('valueLon') && (this.get('valueLon') > 180 || this.get('valueLon')< -180)){
                         error = 'Invalid decimal longitude value. Must be -180 < lat < 180';
                     }
                 }
             } else {
-                if(type === 'string' && regex && this.get('value')) {
+                if(this.get('type') === 'string' && regex) {
                     for (var index = 0; index < this.get('value').length; index++) {
                         if(this.get('value' + index)) {
                             if (!regex.test(this.get('value' + index))) {
@@ -148,12 +121,16 @@ define([
                 }
             }
 
-            if (!error && (this.isEmpty()) && this.get('required')) {
+            if (!error && (!this.get('value') || (_.isArray(this.get('value')) && this.get('value').length === 0) ) && this.get('required')) {
                 error = 'Required Field';
             }
 
             this.errorIndices = indices;
-            this.set('error',error);
+            if((!this.hadError && error) || (!error && this.hadError)){
+                this.hadError = error;
+                wreqr.vent.trigger('fieldErrorChange:'+this.get('key'));
+            }
+            wreqr.vent.trigger('fieldChanged:'+this.get('parentId'));
             return error;
         },
         saveData: function(backingData, ebrimTypes) {
@@ -197,19 +174,9 @@ define([
                             }
                         };
                     }
-                } else if (this.get('type') === 'bounds') {
-                    if (this.get('valueLowerLat') && this.get('valueLowerLon') && this.get('valueUpperLon') && this.get('valueUpperLat')) {
-                        slot.value = {
-                            Envelope: {
-                                srsName: 'urn:ogc:def:crs:EPSG:4326',
-                                lowerCorner: this.get('valueLowerLon') + ' ' + this.get('valueLowerLat'),
-                                upperCorner: this.get('valueUpperLon') + ' ' + this.get('valueUpperLat')
-                            }
-                        };
-                    }
                 } else if (this.get('type') === 'boolean') {
                     slot.value = this.get('value') ? 'true' : 'false';
-                } else if (this.get('multiValued') && this.get('value')) {
+                } else if (this.get('multiValued')) {
                     var values = [];
                     for (var index = 0; index < this.get('value').length; index++) {
                         if(this.get('value' + index)) {

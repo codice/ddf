@@ -22,8 +22,6 @@ public class RegistryConstants {
 
     public static final String XML_GEO_TYPE = "GM_Point";
 
-    public static final String XML_BOUNDS_TYPE = "GM_Envelope";
-
     //ebrim constants
     //Object types
     public static final String REGISTRY_NODE_OBJECT_TYPE = "urn:registry:federation:node";
