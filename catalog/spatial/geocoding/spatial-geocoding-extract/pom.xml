@@ -76,7 +76,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            zip4j
+                            zip4j,
+                            platform-util
                         </Embed-Dependency>
                         <Export-Package/>
                     </instructions>
