@@ -15,8 +15,10 @@
 package org.codice.ddf.registry.rest.endpoint;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -28,6 +30,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
@@ -119,8 +122,12 @@ public class RegistryRestEndpoint {
 
         RegistryPackageType registryPackage;
         try {
+            Set<String> sourceIdsSet = new HashSet<>();
+            if (CollectionUtils.isNotEmpty(sourceIds)) {
+                sourceIdsSet.addAll(sourceIds);
+            }
             registryPackage = federationAdminService.getRegistryObjectByRegistryId(registryId,
-                    sourceIds);
+                    sourceIdsSet);
         } catch (FederationAdminException e) {
             String message = "Error getting registry package.";
             LOGGER.error("{} For registry id: '{}', optional sources: {}",

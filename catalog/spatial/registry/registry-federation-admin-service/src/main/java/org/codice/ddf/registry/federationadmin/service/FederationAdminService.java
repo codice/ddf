@@ -180,6 +180,15 @@ public interface FederationAdminService {
     List<Metacard> getRegistryMetacards() throws FederationAdminException;
 
     /**
+     * Get a list of registry metacards
+     *
+     * @param destinations Set of destinations to query from
+     * @return List<Metacard>
+     * @throws FederationAdminException If any exception was thrown by the call to CatalogFramework.query()
+     */
+    List<Metacard> getRegistryMetacards(Set<String> destinations) throws FederationAdminException;
+
+    /**
      * Get a list of local registry metacards
      *
      * @return List<Metacard>
@@ -244,7 +253,7 @@ public interface FederationAdminService {
      * @return List<RegistryPackageType>
      * @throws FederationAdminException If an exception is thrown trying to unmarshal the xml
      */
-    RegistryPackageType getRegistryObjectByRegistryId(String registryId, List<String> sourceIds)
+    RegistryPackageType getRegistryObjectByRegistryId(String registryId, Set<String> sourceIds)
             throws FederationAdminException;
 
     /**

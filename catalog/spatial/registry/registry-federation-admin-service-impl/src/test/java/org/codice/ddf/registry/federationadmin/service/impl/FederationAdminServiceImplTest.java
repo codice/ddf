@@ -746,6 +746,24 @@ public class FederationAdminServiceImplTest {
         assertThat(metacards, hasSize(2));
     }
 
+    @Test
+    public void testGetRegistryMetacardsWithDestinations() throws Exception {
+        String destination = TEST_DESTINATION;
+        Set<String> destinations = new HashSet<>();
+        destinations.add(destination);
+        Metacard findThisMetacard = testMetacard;
+        findThisMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE,
+                true));
+        QueryRequest request = getTestQueryRequest();
+        QueryResponse response = getPopulatedTestQueryResponse(request,
+                findThisMetacard,
+                getTestMetacard());
+        when(security.getSystemSubject()).thenReturn(subject);
+        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
+        List<Metacard> metacards = federationAdminServiceImpl.getRegistryMetacards(destinations);
+        assertThat(metacards, hasSize(2));
+    }
+
     @Test(expected = FederationAdminException.class)
     public void testGetRegistryMetacardsWithUnsupportedQueryException() throws Exception {
         when(security.getSystemSubject()).thenReturn(subject);
