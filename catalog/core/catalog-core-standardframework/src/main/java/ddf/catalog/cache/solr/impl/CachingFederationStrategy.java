@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -45,6 +46,7 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -338,8 +340,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         QueryRequest newRequest = request;
         try {
             Query query = request.getQuery();
-
-            if (!adapter.adapt(query, new TagsFilterDelegate())) {
+            if (!noDefaultTags(request) && !adapter.adapt(query, new TagsFilterDelegate())) {
                 List<Filter> filters = new ArrayList<>();
                 //no tags filter given in props or in query. Add the default ones.
                 filters.add(builder.attribute(Metacard.TAGS)
@@ -365,6 +366,13 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             logger.error("Unable to update query with default tags filter");
         }
         return newRequest;
+    }
+
+    private boolean noDefaultTags(Operation op) {
+        return Optional.ofNullable(op)
+                    .map(Operation::getProperties)
+                    .map(p -> (Boolean) p.get("no-default-tags"))
+                    .orElse(false);
     }
 
     private Query getModifiedQuery(Query originalQuery, int numberOfSources, int offset,
