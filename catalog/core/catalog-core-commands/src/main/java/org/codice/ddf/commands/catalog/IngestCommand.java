@@ -97,7 +97,7 @@ public class IngestCommand extends CatalogCommands {
 
     private static final String ZIP_DECOMPRESSION = "zipDecompression";
 
-    private static final String METACARD_PATH = "metacards" + File.separator;
+    private static final String CONTENT_PATH = CONTENT + File.separator;
 
     private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder().printZeroRarelyLast()
             .appendDays()
@@ -491,7 +491,7 @@ public class IngestCommand extends CatalogCommands {
                     List<Metacard> metacardList = zipDecompression.transform(inputStream,
                             arguments);
                     if (metacardList.size() != 0) {
-                        metacardFileMapping = generateFileMap(new File(inputFile.getParent(), METACARD_PATH));
+                        metacardFileMapping = generateFileMap(new File(inputFile.getParent(), CONTENT_PATH));
                         fileCount.set(metacardList.size());
                         metacardQueue.addAll(metacardList);
                     }
@@ -646,7 +646,6 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private Map<String, List<File>> generateFileMap(File inputFile) throws IOException {
-
         if (!inputFile.exists()) {
             return null;
         }
@@ -666,7 +665,6 @@ public class IngestCommand extends CatalogCommands {
                 return FileVisitResult.CONTINUE;
             }
         });
-
         return fileMap;
     }
 
