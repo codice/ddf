@@ -33,6 +33,8 @@ import java.security.PrivilegedExceptionAction;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -73,8 +75,6 @@ public class Security {
 
     private static final String INSUFFICIENT_PERMISSIONS_ERROR =
             "Current user doesn't have sufficient privileges to run this command";
-
-    private static final RolePrincipal ADMIN_ROLE = new RolePrincipal("admin");
 
     private static final String KARAF_LOCAL_ROLE = "karaf.local.roles";
 
@@ -123,8 +123,13 @@ public class Security {
         javax.security.auth.Subject subject = javax.security.auth.Subject.getSubject(
                 AccessController.getContext());
         if (subject != null) {
+            String localRoles = System.getProperty(KARAF_LOCAL_ROLE, "");
+            Collection<RolePrincipal> principals = new ArrayList<>();
+            for (String role : localRoles.split(",")) {
+                principals.add(new RolePrincipal(role));
+            }
             return subject.getPrincipals()
-                    .contains(ADMIN_ROLE);
+                    .containsAll(principals);
         }
         return false;
     }
