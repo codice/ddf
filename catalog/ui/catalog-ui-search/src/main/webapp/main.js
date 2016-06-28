@@ -191,10 +191,9 @@ require([
     'application',
     'properties',
     'handlebars',
-    'js/store',
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers'
-], function (_, $, Backbone, Marionette, app, properties, hbs, store) {
+], function (_, $, Backbone, Marionette, app, properties, hbs) {
     // Make lodash compatible with Backbone
     var lodash = _.noConflict();
     _.mixin({
@@ -239,11 +238,5 @@ require([
         document.title = properties.branding;
     });
     // Actually start up the application.
-    if (store.get('initialized')){
-        app.App.start({});
-    } else {
-        store.get('workspaces').once('sync', function(){
-            app.App.start({});
-        });
-    }
+    app.App.start({});
 });

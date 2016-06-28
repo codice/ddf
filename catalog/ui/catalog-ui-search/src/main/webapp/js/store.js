@@ -27,9 +27,6 @@ define([
 ], function ($, Backbone, poller, _, Workspace, Source, User, Selected, Content, Router, Application, properties) {
 
     return new (Backbone.Model.extend({
-        defaults: {
-            initialized: false
-        },
         setupListeners: function(model, listeners){
             if (listeners !== undefined){
                 this.listenTo(model, listeners);
@@ -56,18 +53,9 @@ define([
         initialize: function () {
             this.set('user', Application.UserModel);
             this.set('content', this.initModel(Content, {
-                persisted: false,
-                listeners: {
-                    'change:currentWorkspace': this.handleCurrentWorkspace
-                }
+                persisted: false
             }));
-            this.set('workspaces', this.initModel(Workspace.Collection, {
-                listeners: {
-                    'all': this.handleWorkspacesChange,
-                    'update': this.handleWorkspacesChange,
-                    'remove': this.handleWorkspacesChange
-                }
-            }));
+            this.set('workspaces', this.initModel(Workspace.Collection));
             this.set('sources', Source);
             this.set('selected', this.initModel(Selected, {
                 persisted: false
@@ -76,28 +64,6 @@ define([
                 persisted: false
             }));
             this.getMetacardTypes();
-        },
-        handleWorkspaceDestruction: function(model, workspaceCollection){
-            if (workspaceCollection.length === 0){
-                console.log('creating a workspace for you');
-                this.get('content').set('currentWorkspace', this.get('workspaces').createWorkspace('My First Workspace'));
-            }
-            if (this.get('content').attributes.currentWorkspace === model) {
-                this.get('content').set('currentWorkspace', workspaceCollection.first());
-            }
-        },
-        handleWorkspacesChange: function(){
-            this.set('initialized', true);
-            var currentWorkspace = this.getCurrentWorkspace();
-            var workspaceCollection = this.get('workspaces');
-            if (currentWorkspace && !workspaceCollection.get(currentWorkspace)){
-                this.get('content').set('currentWorkspace', undefined);
-            }
-        },
-        handleCurrentWorkspace: function(){
-            this.clearResults();
-            var currentWorkspace = this.getCurrentWorkspace();
-            $('body').toggleClass('in-workspace', Boolean(currentWorkspace));
         },
         getWorkspaceById: function(workspaceId){
             return this.get('workspaces').get(workspaceId);
@@ -151,15 +117,6 @@ define([
             delete newAttributes.id;
             this.getCurrentQueries().get(query._cloneOf).set(newAttributes);
         },
-        clearResults: function(){
-            this.get('content').get('results').reset();
-        },
-        getFilteredQueries: function(){
-            return this.get('content').get('filteredQueries');
-        },
-        filterQuery: function(queryId){
-            this.get('content').filterQuery(this.getQueryById(queryId));
-        },
         getSelectedResults: function(){
             return this.get('content').get('selectedResults');
         },
@@ -181,20 +138,8 @@ define([
         addMetacardTypes: function(metacardTypes){
             this.get('content').addMetacardTypes(metacardTypes);
         },
-        saveCurrentSelection: function(){
-            var selectedResults = this.getSelectedResults().pluck('id');
-            var savedMetacards = _.union(this.getCurrentWorkspace().get('metacards'), selectedResults);
-            this.getCurrentWorkspace().set('metacards', savedMetacards);
-        },
-        saveMetacardToWorkspace: function(metacardId){
-            var savedMetacards = _.union(this.getCurrentWorkspace().get('metacards'), [metacardId]);
-            this.getCurrentWorkspace().set('metacards', savedMetacards);
-        },
         saveCurrentWorkspace: function(){
             this.getCurrentWorkspace().save();
-        },
-        deleteCurrentWorkspace: function(){
-            this.getCurrentWorkspace().destroy();
         },
         getEnums: function(){
             $.when.apply(this, this.metacardDefinitions.map(function(metacardDefinition){
