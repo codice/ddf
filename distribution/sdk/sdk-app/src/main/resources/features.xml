@@ -21,8 +21,9 @@
         <bundle>mvn:ddf.distribution/sample-metrics/${project.version}</bundle>
     </feature>
 
-    <feature name="sdk-soap" version="${project.version}" install="manual"
+    <feature name="sdk-soap" version="${project.version}" install="auto"
              description="SDK sample soap endpoint.">
+        <feature prerequisite="true">sdk-app</feature>
         <bundle>mvn:ddf.distribution/sample-soap-endpoint/${project.version}</bundle>
     </feature>
 
@@ -31,20 +32,23 @@
         <bundle>mvn:ddf.distribution/sample-metacard-filter/${project.version}</bundle>
     </feature>
 
-    <feature name="sdk-rest" version="${project.version}" install="manual"
+    <feature name="sdk-rest" version="${project.version}" install="auto"
              description="SDK Sample rest service whoami">
+        <feature prerequisite="true">sdk-app</feature>
         <bundle>mvn:ddf.distribution/sample-rest-endpoint/${project.version}</bundle>
     </feature>
 
-    <feature name="sample-validator" version="${project.version}" install="manual"
+    <feature name="sample-validator" version="${project.version}" install="auto"
              description="SDK sample metacard validator">
+        <feature prerequisite="true">sdk-app</feature>
         <bundle>
             mvn:org.codice.ddf.sdk.validation.metacard/sdk-sample-metacard-validator/${project.version}
         </bundle>
     </feature>
 
-    <feature name="sample-storageplugins" version="${project.version}" install="manual"
+    <feature name="sample-storageplugins" version="${project.version}" install="auto"
              description="SDK sample storage plugin">
+        <feature prerequisite="true">sdk-app</feature>
         <bundle>mvn:ddf.distribution.sdk/sample-storageplugins/${project.version}
         </bundle>
     </feature>
@@ -56,9 +60,6 @@
         <feature>security-pep-serviceauthz</feature>
         <feature>security-expansion-user-attributes</feature>
         <feature>security-expansion-metacard-attributes</feature>
-        <feature>sdk-soap</feature>
-        <feature>sdk-rest</feature>
-        <feature>sample-storageplugins</feature>
     </feature>
 
 </features>
