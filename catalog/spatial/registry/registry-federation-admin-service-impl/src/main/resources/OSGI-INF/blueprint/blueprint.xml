@@ -12,13 +12,12 @@
  **/
 -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <bean id="federationAdminService"
-          class="org.codice.ddf.registry.federationadmin.service.impl.FederationAdminServiceImpl"
-          init-method="init">
+          class="org.codice.ddf.registry.federationadmin.service.impl.FederationAdminServiceImpl">
         <property name="catalogFramework" ref="catalogFramework"/>
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="metacardMarshaller" ref="metacardMarshaller"/>
@@ -30,7 +29,16 @@
         <property name="federationAdminService" ref="federationAdminService"/>
     </bean>
 
-    <bean id="metacardMarshaller" class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
+    <bean id="identityNodeInitialization"
+          class="org.codice.ddf.registry.federationadmin.service.impl.IdentityNodeInitialization"
+          init-method="init">
+        <property name="metacardMarshaller" ref="metacardMarshaller"/>
+        <property name="registryTransformer" ref="inputTransformer"/>
+        <property name="federationAdminService" ref="federationAdminService"/>
+    </bean>
+
+    <bean id="metacardMarshaller"
+          class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
         <argument ref="xmlParser"/>
     </bean>
 
@@ -55,7 +63,8 @@
         <property name="federationAdminService" ref="federationAdminService"/>
     </bean>
 
-    <reference-list id="registryPublicationServiceRegistryStore" interface="org.codice.ddf.registry.api.RegistryStore"
+    <reference-list id="registryPublicationServiceRegistryStore"
+                    interface="org.codice.ddf.registry.api.RegistryStore"
                     availability="optional">
         <reference-listener bind-method="bindRegistryStore" unbind-method="unbindRegistryStore"
                             ref="registryPublicationService"/>

@@ -17,6 +17,7 @@
 /*global define*/
 define(['underscore'], function (_) {
     var FieldDescriptors = {
+        configurations: {},
         isCustomizableSegment: function (name) {
             return _.contains(['General', 'Person', 'Service', 'ServiceBinding', 'Content', 'Organization'], name);
         },
@@ -30,7 +31,8 @@ define(['underscore'], function (_) {
                 date: 'xs:dateTime',
                 number: 'xs:decimal',
                 boolean: 'xs:boolean',
-                point: 'urn:ogc:def:dataType:ISO-19107:2003:GM_Point'
+                point: 'urn:ogc:def:dataType:ISO-19107:2003:GM_Point',
+                bounds: 'urn:ogc:def:dataType:ISO-19107:2003:GM_Envelope'
             };
         },
         getFieldType: function (name) {
@@ -44,280 +46,35 @@ define(['underscore'], function (_) {
             return fieldType;
         },
         retrieveFieldDescriptors: function () {
-            var descriptors = {
-                General: {
-                    Name: {
-                        displayName: 'Node Name',
-                        description: 'This node\'s name as it should appear to external systems',
-                        values: [],
-                        type: 'string',
-                        regex: '/^(\\w|\\d)/',
-                        regexMessage: "Must supply a name starting with a letter or digit",
-                        required: true
-                    },
-                    Description: {
-                        displayName: 'Node Description',
-                        description: 'Short description for this node',
-                        values: [],
-                        type: 'string'
-                    },
-                    VersionInfo: {
-                        displayName: 'Node Version',
-                        description: 'This node\'s Version',
-                        values: [],
-                        type: 'string'
-                    }
-                },
-                Organization: {
-                    Name: {
-                        displayName: 'Organization Name',
-                        description: 'This organization\'s name',
-                        values: [],
-                        type: 'string',
-                        required: true
-                    },
-                    Address: {
-                        isGroup: true,
-                        displayName: "Address",
-                        multiValued: true,
-                        constructTitle: this.constructAddressTitle
-                    },
-                    TelephoneNumber: {
-                        isGroup: true,
-                        displayName: "Phone Number",
-                        multiValued: true,
-                        constructTitle: this.constructPhoneTitle
-                    },
-                    EmailAddress: {
-                        isGroup: true,
-                        displayName: "Email",
-                        multiValued: true,
-                        constructTitle: this.constructEmailTitle
-                    }
-                },
-                Person: {
-                    Name: {
-                        displayName: 'Contact Title',
-                        description: 'Contact Title',
-                        values: [],
-                        type: 'string'
-                    },
-                    PersonName: {
-                        isGroup: true,
-                        multiValued: false
-                    },
-                    Address: {
-                        isGroup: true,
-                        displayName: "Address",
-                        multiValued: true,
-                        constructTitle: this.constructAddressTitle
-                    },
-                    TelephoneNumber: {
-                        isGroup: true,
-                        displayName: "Phone Number",
-                        multiValued: true,
-                        constructTitle: this.constructPhoneTitle
-                    },
-                    EmailAddress: {
-                        isGroup: true,
-                        displayName: "Email",
-                        multiValued: true,
-                        constructTitle: this.constructEmailTitle
-                    }
-                },
-                Service: {
-                    Name: {
-                        displayName: 'Service Name',
-                        description: 'This service name',
-                        values: [],
-                        type: 'string'
-                    },
-                    Description: {
-                        displayName: 'Service Description',
-                        description: 'Short description for this service',
-                        values: [],
-                        type: 'string'
-                    },
-                    VersionInfo: {
-                        displayName: 'Service Version',
-                        description: 'This service version',
-                        values: [],
-                        type: 'string'
-                    },
-                    objectType: {
-                        displayName: 'Service Type',
-                        description: 'Identifies the type of service this is by a urn',
-                        values: 'urn:registry:federation:service',
-                        type: 'string',
-                        multiValued: false
-                    },
-                    ServiceBinding: {
-                        isGroup: true,
-                        displayName: 'Bindings',
-                        multiValued: true,
-                        constructTitle: this.constructNameVersionTitle,
-                        autoPopulateFunction: this.populateFromEndpointProps,
-                        autoPopulateId: 'id',
-                        autoPopulateName: 'name'
-                    }
-                },
-                ServiceBinding: {
-                    Name: {
-                        displayName: 'Binding Name',
-                        description: 'This binding name',
-                        values: [],
-                        type: 'string'
-                    },
-                    Description: {
-                        displayName: 'Binding Description',
-                        description: 'Short description for this binding',
-                        values: [],
-                        type: 'string'
-                    },
-                    VersionInfo: {
-                        displayName: 'Binding Version',
-                        description: 'This binding version',
-                        values: [],
-                        type: 'string'
-                    },
-                    accessUri: {
-                        displayName: 'Access URL',
-                        description: 'The url used to access this binding',
-                        values: [],
-                        type: 'string',
-                        required: true
-                    }
-                },
-                Content: {
-                    Name: {
-                        displayName: 'Content Name',
-                        description: 'Name for this metadata content',
-                        values: [],
-                        type: 'string',
-                        required: true
-                    },
-                    Description: {
-                        displayName: 'Content Description',
-                        description: 'Short description for this metadata content',
-                        values: [],
-                        type: 'string'
-                    },
-                    objectType: {
-                        displayName: 'Content Object Type',
-                        description: 'The kind of content object this will be. Default value should be used in most cases.',
-                        type: 'string',
-                        values: 'urn:registry:content:collection',
-                        multiValued: false
-                    }
-                },
-                PersonName: {
-                    firstName: {
-                        displayName: 'First Name',
-                        description: 'First name',
-                        values: [],
-                        type: 'string'
-                    },
-                    lastName: {
-                        displayName: 'Last Name',
-                        description: 'Last name',
-                        values: [],
-                        type: 'string',
-                        required: true
-                    }
-                },
-                TelephoneNumber: {
-                    phoneType: {
-                        displayName: 'Phone Type',
-                        description: 'Phone type could be work, home, mobile etc.',
-                        type: 'string'
-                    },
-                    countryCode: {
-                        displayName: 'Country Code',
-                        description: 'Country code, i.e. USA=1',
-                        type: 'number',
-                        value: 1
-                    },
-                    areaCode: {
-                        displayName: 'Area Code',
-                        description: 'Area Code',
-                        type: 'number'
-                    },
-                    number: {
-                        displayName: 'Number',
-                        description: 'Number',
-                        type: 'string',
-                        required: true
-                    },
-                    extension: {
-                        displayName: 'Extension',
-                        description: 'Extension',
-                        type: 'number'
-                    }
-                },
-                EmailAddress: {
-                    type: {
-                        displayName: 'Email Type',
-                        description: 'Email Type could be work, personal, primary etc.',
-                        values: [],
-                        type: 'string'
-                    },
-                    address: {
-                        displayName: 'Address',
-                        description: 'Email Address',
-                        values: [],
-                        type: 'string',
-                        required: true
-                    }
-                },
-                Address: {
-                    street: {
-                        displayName: 'Street',
-                        description: 'Street',
-                        values: [],
-                        type: 'string'
-                    },
-                    city: {
-                        displayName: 'City',
-                        description: 'City',
-                        values: [],
-                        type: 'string'
-                    },
-                    country: {
-                        displayName: 'Country',
-                        description: 'Country',
-                        values: [],
-                        type: 'string'
-                    },
-                    stateOrProvince: {
-                        displayName: 'State or Province',
-                        description: 'State or Province',
-                        values: [],
-                        type: 'string'
-                    },
-                    postalCode: {
-                        displayName: 'Postal Code',
-                        description: 'Postal Code',
-                        values: [],
-                        type: 'string'
-                    }
-                }
-            };
-            if (this.customSlots) {
-                for (var prop in this.customSlots) {
-                    if (this.customSlots.hasOwnProperty(prop)) {
-                        this.mixInCustomSlots(descriptors[prop], this.customSlots[prop]);
+            var descriptors = {};
+            if (this.customFields) {
+                for (var prop in this.customFields) {
+                    if (this.customFields.hasOwnProperty(prop)) {
+                        if(prop === 'Configuration') {
+                            this.configurations = this.customFields[prop];
+                        } else {
+                            descriptors[prop] = {};
+                            this.addSegment(descriptors[prop], this.customFields[prop]);
+                        }
                     }
                 }
             }
             return descriptors;
         },
-        mixInCustomSlots: function (base, custom) {
-            for (var prop in custom) {
-                if (custom.hasOwnProperty(prop)) {
-                    base[prop] = custom[prop];
-                    base[prop].isSlot = true;
-                }
-            }
+        addSegment: function (base, custom) {
+            var that = this;
+            _.each(custom, function(field){
+                    base[field.key] = field;
+                    base[field.key].isSlot = _.isUndefined(field.isSlot)? true : field.isSlot;
+                    if(field.constructTitle){
+                        base[field.key].constructTitle = that[field.constructTitle];
+                    }
+                    if(field.autoPopulateFunction){
+                        base[field.key].autoPopulateFunction = that[field.autoPopulateFunction];
+                    }
+
+                });
+
         },
         constructEmailTitle: function () {
             var title = [];
