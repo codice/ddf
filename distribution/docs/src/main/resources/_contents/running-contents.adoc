@@ -1295,7 +1295,7 @@ The name and location of the log file can be changed with the following setting:
 
 `log4j.appender.out.file=<KARAF.DATA>/log/${branding-lowercase}.log`
 
-====== Controlling log level
+====== [[controlling_log_level]]Controlling log level
 
 A useful way to debug and detect issues is to change the log level:
 
@@ -1376,3 +1376,33 @@ This is the most popular format for access logs and can be parsed by many web se
 http://team.ops4j.org/wiki/display/paxweb/Advanced+Jetty+Configuration[Advanced Jetty Configuration]
 http://wiki.eclipse.org/Jetty/Tutorial/RequestLog[Jetty Request Log Tutorial]
 
+===== Using the LogViewer
+
+Monitor system logs with the *LogViewer*, a convenient "viewing portal" for incoming logs.
+
+
+* Navigate to the LogViewer at \${secure_url}/admin/logviewer
+
+The LogViewer displays the most recent 500 log messages by default, but will grow to a maximum of 5000 messages.
+
+Log events can be filtered by:
+
+* Log level (`ERROR`, `WARNING`, etc).
+** The LogViewer will display at the currently configured log level for the System logs.
+*** See <<controlling_log_level, Controlling Log Level>> to change log level.
+* Log message text.
+* Bundle generating the message.
+
+[WARNING]
+====
+It is not recommended to use the LogViewer if the system logger is set to a low reporting level such as `TRACE`.
+The volume of messages logged will exceed the polling rate, and incoming logs may be missed.
+
+The actual logs being polled by the LogViewer can still be accessed at `<INSTALL_HOME>/data/log`
+====
+
+[NOTE]
+====
+The LogViewer settings don't change any of the underlying logging settings, only which messages are displayed.
+It does not affect the logs generated or events captured by the system logger.
+====
