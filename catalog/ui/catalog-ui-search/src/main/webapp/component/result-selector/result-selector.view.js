@@ -173,8 +173,8 @@ define([
             }
             resultFilter = mixinBlackListCQL(resultFilter);
             var filteredResults = this.model.get('result').get('results').generateFilteredVersion(resultFilter, store.metacardTypes);
-            filteredResults.updateSorting(store.get('user').get('user').get('preferences').get('resultSort'));
             var collapsedResults = filteredResults.collapseDuplicates();
+            collapsedResults.updateSorting(store.get('user').get('user').get('preferences').get('resultSort'));
             this.showResultPaging(collapsedResults);
             this.showResultList(collapsedResults);
             this.showResultDisplayDropdown();
