@@ -489,13 +489,15 @@ define([
                 var endIndex = collapsedCollection.fullCollection.length;
                 for (var i = 0; i < endIndex; i++) {
                     var currentResult = collapsedCollection.fullCollection.models[i];
+                    var currentChecksum = currentResult.get('metacard').get('properties').get('checksum');
+                    var currentId =  currentResult.get('metacard').get('properties').get('id');
                     var duplicates = collapsedCollection.fullCollection.filter(function (result) {
-                        return ((result.get('metacard').get('properties').get('id') ===
-                            currentResult.get('metacard').get('properties').get('id')) ||
-                            (result.get('metacard').get('properties').get('checksum') ===
-                            currentResult.get('metacard').get('properties').get('checksum'))) &&
-                            (result.id !== currentResult.id);
+                        var comparedChecksum = result.get('metacard').get('properties').get('checksum');
+                        var comparedId = result.get('metacard').get('properties').get('id');
+                        return (result.id !== currentResult.id) && ((comparedId === currentId) ||
+                            (Boolean(comparedChecksum) && Boolean(currentChecksum) && (comparedChecksum === currentChecksum)));
                     });
+                    currentResult.duplicates = undefined;
                     if (duplicates.length > 0) {
                         currentResult.duplicates = duplicates;
                         collapsedCollection.fullCollection.remove(duplicates);
