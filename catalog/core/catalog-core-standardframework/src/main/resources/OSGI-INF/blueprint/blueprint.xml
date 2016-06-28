@@ -309,8 +309,6 @@
         <property name="productCacheDirectory" value=""/>
         <property name="context" ref="blueprintBundleContext"/>
         <property name="xmlConfigFilename" value="reliableResource-hazelcast.xml"/>
-        <!--            TODO: Temporary injection until removal            -->
-        <property name="manager" value="reliableResourceDownloadManager"/>
     </bean>
 
     <bean id="productCache" class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl">

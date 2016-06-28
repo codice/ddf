@@ -20,6 +20,7 @@ import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -42,6 +43,10 @@ import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 
 public class ResourceCacheImpl implements ResourceCacheInterface {
+
+    private static final String DEPRECATE_MESSAGE =
+            "%s was part of the deprecated ResourceCacheInterface. Use instead the methods from"
+                    + "ReliableResourceDownloadManager";
 
     private static final String KARAF_HOME = "karaf.home";
 
@@ -74,12 +79,6 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
     private BundleContext context;
 
     private String xmlConfigFilename;
-
-    private ReliableResourceDownloadManager manager;
-
-    public void setManager(ReliableResourceDownloadManager manager) {
-        this.manager = manager;
-    }
 
     /**
      * Called after all parameters are set
@@ -241,17 +240,10 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
         this.xmlConfigFilename = xmlConfigFilename;
     }
 
-    /**
-     * Returns true if resource with specified cache key is already in the process of
-     * being cached. This check helps clients prevent attempting to cache the same resource
-     * multiple times.
-     *
-     * @param key
-     * @return
-     */
     @Override
     public boolean isPending(String key) {
-        return manager.isPending(key);
+        throw new NotImplementedException(String.format(DEPRECATE_MESSAGE,
+                "ResourceCacheImpl.isPending"));
     }
 
     /**
@@ -272,12 +264,14 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
 
     @Override
     public void removePendingCacheEntry(String cacheKey) {
-        manager.removePendingCacheEntry(cacheKey);
+        throw new NotImplementedException(String.format(DEPRECATE_MESSAGE,
+                "ResourceCacheImpl.removePendingCacheEntry"));
     }
 
     @Override
     public void addPendingCacheEntry(ReliableResource reliableResource) {
-        manager.addPendingCacheEntry(reliableResource);
+        throw new NotImplementedException(String.format(DEPRECATE_MESSAGE,
+                "ResourceCacheImpl.addPendingCacheEntry"));
     }
 
     /**
