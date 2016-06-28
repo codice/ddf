@@ -9,16 +9,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define,window*/
 
 define([
         'jquery',
         'underscore',
         'webglcheck',
         'twodcheck',
-        'purl'
+        'querystring'
     ],
-    function ($, _, webgl, twoD) {
+    function ($, _, webgl, twoD, qs) {
         'use strict';
 
         var MapTypeEnum = {
@@ -27,9 +27,15 @@ define([
             NONE: 'none'
         };
 
+        var url = function () {
+            // replace removes leading ? in query string
+            var query = window.location.search.replace(/^\?/, '');
+            return qs.parse(query);
+        };
+
         return {
             type: function () {
-                var param = $.url().param('map');
+                var param = url().map;
                 if (!_.isUndefined(param)) {
                     if (_.contains(_.values(MapTypeEnum), param)) {
                         return param;

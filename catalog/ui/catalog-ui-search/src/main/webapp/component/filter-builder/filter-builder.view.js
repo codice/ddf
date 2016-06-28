@@ -15,6 +15,7 @@
 /*global define, alert*/
 define([
     'marionette',
+    'backbone',
     'underscore',
     'jquery',
     'text!./filter-builder.hbs',
@@ -26,7 +27,7 @@ define([
     'component/dropdown/dropdown',
     'component/filter/filter.view',
     'js/cql'
-], function (Marionette, _, $, template, CustomElements, FilterBuilderModel, FilterModel,
+], function (Marionette, Backbone, _, $, template, CustomElements, FilterBuilderModel, FilterModel,
              FilterCollectionView, FilterOperatorDropdownView, DropdownModel, FilterView,
             cql) {
 

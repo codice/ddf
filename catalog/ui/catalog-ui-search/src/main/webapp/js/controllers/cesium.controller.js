@@ -23,7 +23,7 @@ define(['application',
         'properties',
         'js/view/cesium.metacard',
         'jquery',
-        'drawHelper',
+        'imports?Cesium=cesium!exports?DrawHelper!drawHelper',
         'js/controllers/cesium.layerCollection.controller',
         'js/widgets/cesium.mapclustering',
         'component/singletons/user-instance'

@@ -181,6 +181,13 @@ require.config({
         console.error('RequireJS failed to load a module', err);
     }
 };*/
+
+window.jQuery = window.$ = require('jquery');
+window.CESIUM_BASE_URL = './lib/cesiumjs/Cesium/';
+require('jquery-ui');
+require('backbone').$ = window.$;
+require('cesium.css');
+
 require([
     'underscore',
     'jquery',

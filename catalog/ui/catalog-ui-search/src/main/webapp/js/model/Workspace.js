@@ -77,7 +77,7 @@ define([
                     this.collection.saveLocal();
                     this.trigger('sync', this, options);
                 } else {
-                    return Backbone.AssociatedModel.prototype.save.apply(this, arguments);
+                    Backbone.AssociatedModel.prototype.save.apply(this, arguments);
                 }
             },
             destroy: function (options) {
@@ -125,7 +125,7 @@ define([
                 return -(new Date(workspace.get('lastModifiedDate'))).getTime();
             },
             createWorkspace: function(title){
-               this.create({title: title || 'New Workspace'});
+                this.create({title: title || 'New Workspace'});
             },
             duplicateWorkspace: function(workspace){
                 var workspaceToDuplicate = workspace.toJSON();

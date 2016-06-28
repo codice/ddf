@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-(function ($) {
+define([
+    'jquery'
+],
+function ($) {
     function bind($, org_cometd) {
         // Remap cometd JSON functions to jquery JSON functions
         org_cometd.JSON.toJSON = JSON.stringify;
@@ -118,4 +121,4 @@
     else {
         bind($, org.cometd);
     }
-})(jQuery);
+});
