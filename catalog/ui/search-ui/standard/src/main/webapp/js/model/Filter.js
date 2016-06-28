@@ -123,66 +123,17 @@ define([
         },
 
         addValueToGroupFilter: function(fieldName, value){
-            var existingFilters = this.where({fieldName: fieldName});
-            var groupedFilterValues = [];
-            _.each(existingFilters, function(existingFilter){
-                var existingFilterString = existingFilter.get('stringValue1');  // we assume string group filters.
-                if(existingFilterString && existingFilterString !== ''){
-                    var parsedIds = existingFilterString.split(',');
-                    _.each(parsedIds, function(parsedId){
-                        if(parsedId !== value){
-                            groupedFilterValues.push(parsedId);
-                        }
-                    });
-                }
-            });
-            groupedFilterValues.push(value);
-            this.remove(existingFilters);
-            this.add(new Filter.Model({
-                fieldName: fieldName,
-                fieldType: 'string',
-                fieldOperator: 'contains',
-                stringValue1: groupedFilterValues.join(',')
-            }));
-        },
-
-        removeAllFromGroupFilter: function(fieldName){
-            var existingFilters = this.where({fieldName: fieldName});
-            this.remove(existingFilters);
-        },
-
-        removeValueFromGroupFilter: function(fieldName, value){
-            var existingFilters = this.where({fieldName: fieldName});
-            var groupedFilterValues = [];
-            _.each(existingFilters, function(existingFilter){
-                var existingFilterString = existingFilter.get('stringValue1'); // we assume string group filters.
-                if(existingFilterString && existingFilterString !== ''){
-                    var parsedIds = existingFilterString.split(',');
-                    _.each(parsedIds, function(parsedId){
-                        if(parsedId !== value){
-                            groupedFilterValues.push(parsedId);
-                        }
-                    });
-                }
-            });
-            this.remove(existingFilters);
-            this.add(new Filter.Model({
-                fieldName: fieldName,
-                fieldType: 'string',
-                fieldOperator: 'contains',
-                stringValue1: groupedFilterValues.join(',')
-            }));
-        },
-
-        replaceGroupFilter: function(fieldName, value){
-            var existingFilters = this.where({fieldName: fieldName});
-            this.remove(existingFilters);
             this.add(new Filter.Model({
                 fieldName: fieldName,
                 fieldType: 'string',
                 fieldOperator: 'contains',
                 stringValue1: value
             }));
+        },
+
+        removeValueFromGroupFilter: function(fieldName, value){
+            var existingFilters = this.where({fieldName: fieldName, stringValue1: value});
+            this.remove(existingFilters);
         }
     });
 
