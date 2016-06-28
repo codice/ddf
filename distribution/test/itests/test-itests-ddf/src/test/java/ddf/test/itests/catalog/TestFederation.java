@@ -18,14 +18,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -36,9 +36,14 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.path.json.JsonPath.with;
 import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
+import static com.xebialabs.restito.semantics.Action.bytesContent;
 import static com.xebialabs.restito.semantics.Action.composite;
+import static com.xebialabs.restito.semantics.Action.contentType;
 import static com.xebialabs.restito.semantics.Action.header;
+import static com.xebialabs.restito.semantics.Action.ok;
 import static com.xebialabs.restito.semantics.Action.success;
+import static com.xebialabs.restito.semantics.Condition.post;
+import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 import static ddf.common.test.WaitCondition.expect;
 import static ddf.common.test.restito.ChunkedContent.chunkedContentWithHeaders;
 import static ddf.test.itests.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
@@ -49,6 +54,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -57,6 +65,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -83,6 +92,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
+import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.path.json.JsonPath;
@@ -145,8 +155,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String DEFAULT_SAMPLE_PRODUCT_FILE_NAME = "sample.txt";
 
-    private static final String CSW_STUB_RESOURCE_ID = "4cdb5d6bc8c1428f874f28a944d18b84";
-
     private static final String STUB_SERVER_TEST_STRING = "testData";
 
     private static final DynamicPort RESTITO_STUB_SERVER_PORT = new DynamicPort(6);
@@ -202,7 +210,6 @@ public class TestFederation extends AbstractIntegrationTest {
             cswServer = new FederatedCswMockServer(CSW_STUB_SOURCE_ID,
                     INSECURE_ROOT,
                     Integer.parseInt(CSW_STUB_SERVER_PORT.getPort()));
-            cswServer.setMetacardId("TEST_ONLY_change_this");
             cswServer.start();
 
             CswSourceProperties cswStubServerProperties =
@@ -260,7 +267,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        cleanProductCache();
         getCatalogBundle().setupCaching(true);
         urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
 
@@ -274,8 +280,6 @@ public class TestFederation extends AbstractIntegrationTest {
         server.start();
 
         cswServer.reset();
-        
-//        sleep(5000);
     }
 
     @After
@@ -1078,9 +1082,18 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testDownloadFromFederatedCswSource() throws Exception {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
-        String filename = "product1.txt";
 
-        cswServer.setMetacardId(CSW_STUB_RESOURCE_ID + 1);
+        String filename = "product1.txt";
+        String metacardId = generateUniqueMetacardId();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
@@ -1089,9 +1102,8 @@ public class TestFederation extends AbstractIntegrationTest {
                                 Duration.ofMillis(0),
                                 0));
 
-        String restUrl =
-                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID + 1
-                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
+                + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that the testData from the csw stub server is returned.
         // @formatter:off
@@ -1136,9 +1148,18 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testRetrievalReliablility() throws Exception {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
-        String filename = "product2.txt";
 
-        cswServer.setMetacardId(CSW_STUB_RESOURCE_ID + 2);
+        String filename = "product2.txt";
+        String metacardId = generateUniqueMetacardId();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
@@ -1147,16 +1168,15 @@ public class TestFederation extends AbstractIntegrationTest {
                                 Duration.ofMillis(200),
                                 2));
 
-        String restUrl =
-                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID + 2
-                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
+                + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that the testData from the csw stub server is returned.
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(STUB_SERVER_TEST_STRING));
         // @formatter:on
-        cswServer.setMetacardId(CSW_STUB_RESOURCE_ID + 2);
+
         cswServer.verifyHttp()
                 .times(3,
                         Condition.uri("/services/csw"),
@@ -1226,7 +1246,8 @@ public class TestFederation extends AbstractIntegrationTest {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
         String filename = "product3.txt";
 
-        cswServer.setMetacardId(CSW_STUB_RESOURCE_ID + 3);
+        String metacardId = generateUniqueMetacardId();
+
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
@@ -1235,9 +1256,8 @@ public class TestFederation extends AbstractIntegrationTest {
                                 Duration.ofMillis(200),
                                 3));
 
-        String restUrl =
-                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID + 3
-                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
+                + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that product retrieval fails from the csw stub server.
         // @formatter:off
@@ -1317,7 +1337,15 @@ public class TestFederation extends AbstractIntegrationTest {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
         String filename = "product4.txt";
 
-        cswServer.setMetacardId(CSW_STUB_RESOURCE_ID + 4);
+        String metacardId = generateUniqueMetacardId();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
@@ -1326,18 +1354,18 @@ public class TestFederation extends AbstractIntegrationTest {
                                 Duration.ofMillis(0),
                                 0));
 
-        String restUrl =
-                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID + 4
-                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
+                + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Download product twice, should only call the stub server to download once
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(STUB_SERVER_TEST_STRING));
+        // TODO - Need to wait here
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(STUB_SERVER_TEST_STRING));
         // @formatter:on
-        cswServer.setMetacardId(CSW_STUB_RESOURCE_ID + 4);
+
         cswServer.verifyHttp()
                 .times(1,
                         Condition.uri("/services/csw"),
@@ -1381,7 +1409,15 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testCacheIsUpdatedIfRemoteProductChanges() throws Exception {
         String filename = "product5.txt";
 
-        cswServer.setMetacardId(CSW_STUB_RESOURCE_ID + 5);
+        String metacardId = generateUniqueMetacardId();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
@@ -1390,16 +1426,20 @@ public class TestFederation extends AbstractIntegrationTest {
                                 Duration.ofMillis(0),
                                 0));
 
-        String restUrl =
-                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + CSW_STUB_RESOURCE_ID + 5
-                        + "?transform=resource";
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
+                + "?transform=resource";
 
         // Download product twice, and change metacard on stub server between calls.
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(STUB_SERVER_TEST_STRING));
-        cswServer.setMetacardId(CSW_STUB_RESOURCE_ID + 5);
-        cswServer.setQueryResponse("csw-query-response-modified.xml");
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId, OffsetDateTime.now()).getBytes()));
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(STUB_SERVER_TEST_STRING));
         // @formatter:on
@@ -1411,9 +1451,30 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testProductDownloadListEmptyWhenNoDownloads() {
-        String filename = "product.txt";
+        String getAllDownloadsUrl = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl();
 
-        cswServer.setMetacardId(CSW_STUB_RESOURCE_ID + 6);
+        assertThat(when().get(getAllDownloadsUrl)
+                .then()
+                .log()
+                .all()
+                .extract()
+                .body()
+                .jsonPath()
+                .getList(""), is(empty()));
+    }
+
+    @Test
+    public void testProductDownloadListWithOneActiveDownload() {
+        String filename = "product.txt";
+        String metacardId = generateUniqueMetacardId();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
@@ -1424,36 +1485,32 @@ public class TestFederation extends AbstractIntegrationTest {
 
         String startDownloadUrl =
                 RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + "?source=" + CSW_STUB_SOURCE_ID
-                        + "&metacard=" + CSW_STUB_RESOURCE_ID + 6;
+                        + "&metacard=" + metacardId;
 
         // @formatter:off
-        when().get(startDownloadUrl).then().log().all();
+        String downloadId = when().get(startDownloadUrl).then().log().all()
+                .extract().jsonPath().getString("downloadId");
         // @formatter:on
 
         String getAllDownloadsUrl = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl();
 
         // @formatter:off
-        expect("List of active downloads is not empty").within(10, SECONDS)
+        List<Map<String, Object>> downloads = expect("List of active downloads is not empty").within(10, SECONDS)
                 .until(()-> when().get(getAllDownloadsUrl)
-                        .then().log().all().extract().body().jsonPath().get("[0]"), notNullValue());
-        String jsonResponse = when().get(getAllDownloadsUrl)
-                .then().log().all().extract().body().asString();
+                        .then().log().all().extract().body().jsonPath().getList(""), hasSize(1)).lastResult();
         // @formatter:on
 
-        JsonPath jsonPath = JsonPath.from(jsonResponse);
-//        assertThat(((Map) jsonPath.get("[0]")).size(), is(6));
-        Map jsonMap = jsonPath.get("[0]");
-        assertThat("List of active downloads shouldn't be empty", jsonMap, notNullValue());
-        assertThat(jsonMap.size(), is(6));
-        assertThat(jsonPath.get("[0].downloadId"), is(notNullValue()));
-        assertThat(jsonPath.getString("[0].fileName"), is(filename));
-        assertThat(jsonPath.getString("[0].status"), is("IN_PROGRESS"));
-        assertThat(jsonPath.getLong("[0].bytesDownloaded"), is(greaterThan(0L)));
-        assertThat(jsonPath.getLong("[0].bytesDownloaded"),
-                is(lessThan((long) STUB_SERVER_TEST_STRING.length() + 1)));
-        assertTrue(jsonPath.getString("[0].percentDownloaded")
-                .matches("UNKNOWN|[0-9]|[0-9]{2}|100"));
-        assertThat(jsonPath.getList("[0].users"), contains("Guest@Guest@127.0.0.1"));
+        Map download = downloads.get(0);
+        assertThat(download.size(), is(6));
+
+        assertThat(download.get("downloadId"), is(downloadId));
+        assertThat(download.get("fileName"), is(filename));
+        assertThat(download.get("status"), is("IN_PROGRESS"));
+        int bytesDownloaded = (int) download.get("bytesDownloaded");
+        assertThat(bytesDownloaded, is(greaterThan(0)));
+        assertThat(bytesDownloaded, is(lessThan(STUB_SERVER_TEST_STRING.length() + 1)));
+        assertTrue(((String) download.get("percentDownloaded")).matches("UNKNOWN|[0-9]|[0-9]{2}|100"));
+        assertThat((List<String>) download.get("users"), contains("Guest@Guest@127.0.0.1"));
     }
 
     @Ignore
@@ -1480,6 +1537,7 @@ public class TestFederation extends AbstractIntegrationTest {
         // @formatter:off
         when().get(resourceDownloadEndpoint).then().log().all().assertThat().contentType("text/plain")
                 .body(is(String.format("The product associated with metacard [%s] from source [%s] is being downloaded to the product cache.", metacardId, CSW_SOURCE_ID)));
+        // TODO - Need to update assertion when test is re-enabled
         // @formatter:on
 
         assertThat(Files.exists(Paths.get(ddfHome)
@@ -1522,6 +1580,33 @@ public class TestFederation extends AbstractIntegrationTest {
         assertThat(Files.exists(Paths.get(ddfHome)
                 .resolve(PRODUCT_CACHE)
                 .resolve(CSW_SOURCE_ID + "-" + metacardId + ".ser")), is(false));
+    }
+
+    private String generateUniqueMetacardId() {
+        return UUID.randomUUID()
+                .toString();
+    }
+
+    private String getCswQueryResponse(String metacardId) {
+        return getCswQueryResponse(metacardId,
+                OffsetDateTime.of(2016, 6, 15, 12, 30, 25, 100, ZoneOffset.ofHours(-7)));
+    }
+
+    private String getCswQueryResponse(String metacardId, OffsetDateTime modifiedTimestamp) {
+        String modifiedTime = modifiedTimestamp.format(DateTimeFormatter.ofPattern(
+                "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+
+        return Library.getFileContent("/csw-query-response.xml",
+                ImmutableMap.of("sourceId",
+                        CSW_STUB_SOURCE_ID,
+                        "httpRoot",
+                        INSECURE_ROOT,
+                        "port",
+                        CSW_STUB_SERVER_PORT.getPort(),
+                        "modifiedTime",
+                        modifiedTime,
+                        "metacardId",
+                        metacardId));
     }
 
     private void verifyEvents(Set<String> metacardIdsExpected, Set<String> metacardIdsNotExpected,
@@ -1600,7 +1685,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     }
 
-    public void setupConnectedSources() throws IOException {
+    private void setupConnectedSources() throws IOException {
         CswConnectedSourceProperties connectedSourceProperties = new CswConnectedSourceProperties(
                 CONNECTED_SOURCE_ID);
         getServiceManager().createManagedService(CswConnectedSourceProperties.FACTORY_PID,
@@ -1632,12 +1717,6 @@ public class TestFederation extends AbstractIntegrationTest {
         channels.stream()
                 .forEach(cometDClient::subscribe);
         return cometDClient;
-    }
-
-    private void cleanProductCache() throws IOException, InterruptedException {
-        FileUtils.cleanDirectory(Paths.get(ddfHome)
-                .resolve(PRODUCT_CACHE)
-                .toFile());
     }
 
     @Override

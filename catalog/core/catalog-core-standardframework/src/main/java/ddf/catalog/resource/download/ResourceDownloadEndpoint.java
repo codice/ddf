@@ -66,14 +66,14 @@ public class ResourceDownloadEndpoint {
     private final ObjectMapper objectMapper;
 
     static class ResourceDownloadResponse {
-        private String downloadIdentifier;
+        private String downloadId;
 
-        private ResourceDownloadResponse(String downloadIdentifier) {
-            this.downloadIdentifier = downloadIdentifier;
+        private ResourceDownloadResponse(String downloadId) {
+            this.downloadId = downloadId;
         }
 
-        public String getDownloadIdentifier() {
-            return downloadIdentifier;
+        public String getDownloadId() {
+            return downloadId;
         }
     }
 
@@ -158,7 +158,7 @@ public class ResourceDownloadEndpoint {
 
             ResourceDownloadResponse resourceDownloadResponse =
                     new ResourceDownloadResponse((String) resourceResponse.getPropertyValue(
-                            "downloadIdentifier"));
+                            ReliableResourceDownloadManager.DOWNLOAD_ID_PROPERTY_KEY));
 
             return Response.ok(objectMapper.toJson(resourceDownloadResponse))
                     .build();

@@ -46,6 +46,8 @@ import ddf.catalog.resourceretriever.ResourceRetriever;
  */
 public class ReliableResourceDownloadManager {
 
+    public static final String DOWNLOAD_ID_PROPERTY_KEY = "downloadId";
+
     private static final int ONE_SECOND_IN_MS = 1000;
 
     private static final Logger LOGGER =
@@ -208,7 +210,7 @@ public class ReliableResourceDownloadManager {
                 retriever);
 
         ResourceResponse response = downloader.setupDownload(metacard, downloadStatusInfo);
-        response.getProperties().put("downloadIdentifier", downloadIdentifier);
+        response.getProperties().put(DOWNLOAD_ID_PROPERTY_KEY, downloadIdentifier);
 
         // Start download in separate thread so can return ResourceResponse with
         // ReliableResourceInputStream available for client to start reading from

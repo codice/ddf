@@ -82,7 +82,7 @@ public class ResourceDownloadEndpointTest {
 
     @Before
     public void setup() {
-        when(mockResourceResponse.getPropertyValue("downloadIdentifier")).thenReturn(DOWNLOAD_ID);
+        when(mockResourceResponse.getPropertyValue("downloadId")).thenReturn(DOWNLOAD_ID);
     }
 
     @Test(expected = DownloadToCacheOnlyException.class)
@@ -157,7 +157,7 @@ public class ResourceDownloadEndpointTest {
                 objectMapper.fromJson((String) response.getEntity(),
                         ResourceDownloadEndpoint.ResourceDownloadResponse.class);
 
-        assertThat(resourceDownloadResponse.getDownloadIdentifier(), is(DOWNLOAD_ID));
+        assertThat(resourceDownloadResponse.getDownloadId(), is(DOWNLOAD_ID));
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
     }
 
@@ -175,7 +175,7 @@ public class ResourceDownloadEndpointTest {
                 objectMapper.fromJson((String) response.getEntity(),
                         ResourceDownloadEndpoint.ResourceDownloadResponse.class);
 
-        assertThat(resourceDownloadResponse.getDownloadIdentifier(), is(DOWNLOAD_ID));
+        assertThat(resourceDownloadResponse.getDownloadId(), is(DOWNLOAD_ID));
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
     }
 

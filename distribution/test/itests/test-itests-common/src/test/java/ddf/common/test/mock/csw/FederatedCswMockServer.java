@@ -18,6 +18,7 @@ import static com.xebialabs.restito.semantics.Action.bytesContent;
 import static com.xebialabs.restito.semantics.Action.contentType;
 import static com.xebialabs.restito.semantics.Action.ok;
 import static com.xebialabs.restito.semantics.Condition.get;
+import static com.xebialabs.restito.semantics.Condition.parameter;
 import static com.xebialabs.restito.semantics.Condition.post;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 
@@ -45,10 +46,12 @@ public class FederatedCswMockServer {
     private final String httpRoot;
 
     private final int port;
-    
-    private String metacardId;
 
     private StubServer cswStubServer;
+
+    private String defaultCapabilityResponseResourceName = "csw-get-capabilities-response.xml";
+
+    private String defaultQueryResponseResourceName = "csw-query-response.xml";
 
     /**
      * Constructor for the federated CSW Restito stub server.
@@ -69,16 +72,47 @@ public class FederatedCswMockServer {
     }
 
     /**
+     * Sets the default response for the {@code GetCapabilities} request. Will be used when this
+     * stub server is started and must be set before {@link #start()} is called.
+     * </p>
+     * If a different response is needed after startup, the normal {@link #whenHttp()} should be
+     * used instead of replacing this default response.
+     *
+     * @param resourceName relative path to the file that contains the response to use, e.g.,
+     *                     "csw-get-capabilities-response.xml"
+     */
+    public void setupDefaultCapabilityResponseExpectation(String resourceName) {
+        this.defaultCapabilityResponseResourceName = resourceName;
+    }
+
+    /**
+     * Sets the default response for the {@code GetRecords} request. Will be used when this stub
+     * server is started and must be set before {@link #start()} is called.
+     * </p>
+     * If a different response is needed after startup, the normal {@link #whenHttp()} should be
+     * used instead of replacing this default response.
+     *
+     * @param resourceName relative path to the file that contains the response to use, e.g.,
+     *                     "csw-get-capabilities-response.xml"
+     * @throws IOException thrown if the file can't be opened
+     */
+    public void setupDefaultQueryResponseExpectation(String resourceName) throws IOException {
+        defaultQueryResponseResourceName = resourceName;
+    }
+
+    /**
      * Starts the Restito stub server.
      */
     public void start() {
         try {
             cswStubServer = new StubServer(port).run();
 
-            setDefaultCapabilityResponse();
-            setDefaultQueryResponse();
+            setupDefaultCapabilityResponseExpectation();
+            setupDefaultQueryResponseExpectation();
         } catch (IOException | RuntimeException e) {
-            fail(String.format("Failed to setup %s: %s", getClass().getSimpleName(), e.getMessage()));
+            fail(String.format("Failed to setup %s: %s",
+                    getClass().getSimpleName(),
+                    e.getMessage()));
         }
     }
 
@@ -147,31 +181,21 @@ public class FederatedCswMockServer {
         return cswStubServer;
     }
 
-    /**
-     * Set a specific capability Response. Overwrites default/previous response condition.
-     *
-     * @param resourceName name of capability file
-     * @throws IOException
-     */
-    public void setCapabilityResponse(String resourceName) throws IOException {
-        try (InputStream inputStream = getClass().getResourceAsStream("/" + resourceName)) {
+    private void setupDefaultCapabilityResponseExpectation() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream(
+                "/" + defaultCapabilityResponseResourceName)) {
             String document = substituteTags(IOUtils.toString(inputStream));
 
             LOGGER.debug("Capability response: \n{}", document);
 
-            whenHttp().match(get("/services/csw"))
+            whenHttp().match(get("/services/csw"), parameter("request", "GetCapabilities"))
                     .then(ok(), contentType("text/xml"), bytesContent(document.getBytes()));
         }
     }
 
-    /**
-     * Set a specific query Response. Overwrites default/previous response condition.
-     *
-     * @param resourceName name of resource file
-     * @throws IOException
-     */
-    public void setQueryResponse(String resourceName) throws IOException {
-        try (InputStream inputStream = getClass().getResourceAsStream("/" + resourceName)) {
+    private void setupDefaultQueryResponseExpectation() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream(
+                "/" + defaultQueryResponseResourceName)) {
             String document = substituteTags(IOUtils.toString(inputStream));
 
             LOGGER.debug("Query response: \n{}", document);
@@ -180,23 +204,10 @@ public class FederatedCswMockServer {
                     .then(ok(), contentType("text/xml"), bytesContent(document.getBytes()));
         }
     }
-    
-    public void setMetacardId(String metacardId) {
-        this.metacardId = metacardId;
-    }
-
-    private void setDefaultCapabilityResponse() throws IOException {
-        setCapabilityResponse("csw-get-capabilities-response.xml");
-    }
-
-    private void setDefaultQueryResponse() throws IOException {
-        setQueryResponse("csw-query-response.xml");
-    }
 
     private String substituteTags(String document) {
         String resultDocument = substituteSourceId(document);
         resultDocument = substitutePortNumber(resultDocument);
-        resultDocument = substituteMetacardId(resultDocument);
         return substituteHttpRoot(resultDocument);
     }
 
@@ -210,9 +221,5 @@ public class FederatedCswMockServer {
 
     private String substituteHttpRoot(String document) {
         return document.replaceAll("\\$httpRoot\\$", httpRoot);
-    }
-    
-    private String substituteMetacardId(String document) {
-        return document.replaceAll("\\$metacardId\\$", metacardId);
     }
 }
