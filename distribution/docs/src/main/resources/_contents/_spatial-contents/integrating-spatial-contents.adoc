@@ -3272,6 +3272,13 @@ The configurable properties for the WFS Source are accessed from the WFS Federat
 |
 |No
 
+|Forced Feature Type
+|`forcedFeatureType`
+|String
+|Force only a specific FeatureType to be queried instead of all featureTypes
+|
+|No
+
 |Non Queryable Properties
 |`nonQueryableProperties`
 |List of Strings
@@ -3409,6 +3416,13 @@ This should only be used if the remote source is unable to handle sorting even w
 |`password`
 |String
 |Password for the WFS service.
+|
+|No
+
+|Forced Feature Type
+|`forcedFeatureType`
+|String
+|Force only a specific FeatureType to be queried instead of all featureTypes
 |
 |No
 
