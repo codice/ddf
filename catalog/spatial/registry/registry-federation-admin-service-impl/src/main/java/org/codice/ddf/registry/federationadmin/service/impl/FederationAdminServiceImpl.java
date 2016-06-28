@@ -219,42 +219,10 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             LOGGER.error("{}", message);
             throw new FederationAdminException(message);
         }
-        Metacard existingMetacard = existingMetacards.get(0);
-        boolean transientUpdate = false;
-        for (String transientAttributeKey : RegistryObjectMetacardType.TRANSIENT_ATTRIBUTES) {
-            Attribute transientAttribute = updateMetacard.getAttribute(transientAttributeKey);
-            if (transientAttribute == null) {
-                transientAttribute = existingMetacard.getAttribute(transientAttributeKey);
-                if (transientAttribute != null) {
-                    updateMetacard.setAttribute(transientAttribute);
-                }
-            } else {
-                Attribute existingAttribute = existingMetacard.getAttribute(transientAttributeKey);
-                if (existingAttribute == null) {
-                    transientUpdate = true;
-                    continue;
-                }
-                if (transientAttribute.getValues()
-                        .size() != existingAttribute.getValues()
-                        .size()) {
-                    transientUpdate = true;
-                    continue;
-                }
-                for (Serializable value : transientAttribute.getValues()) {
-                    if (!existingAttribute.getValues()
-                            .contains(value)) {
-                        transientUpdate = true;
-                        break;
-                    }
-                }
-            }
-        }
+
 
         Map<String, Serializable> properties = new HashMap<>();
 
-        if (transientUpdate) {
-            properties.put(RegistryConstants.TRANSIENT_ATTRIBUTE_UPDATE, true);
-        }
 
         List<Map.Entry<Serializable, Metacard>> updateList = new ArrayList<>();
         updateList.add(new AbstractMap.SimpleEntry<>(registryId, updateMetacard));
@@ -359,6 +327,13 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     }
 
     @Override
+    public List<Metacard> getRegistryMetacards(Set<String> destinations) throws FederationAdminException {
+        Filter filter = filterBuilder.allOf(getBasicFilter());
+
+        return getRegistryMetacardsByFilter(filter, destinations);
+    }
+
+    @Override
     public List<Metacard> getLocalRegistryMetacards() throws FederationAdminException {
 
         List<Filter> filters = getBasicFilter();
@@ -438,7 +413,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
 
     @Override
     public RegistryPackageType getRegistryObjectByRegistryId(String registryId,
-            List<String> sourceIds) throws FederationAdminException {
+            Set<String> sourceIds) throws FederationAdminException {
         if (StringUtils.isBlank(registryId)) {
             throw new FederationAdminException(
                     "Error getting registry object by metacard id. Empty id provided.");
@@ -539,7 +514,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         return getRegistryMetacardsByFilter(filter, null);
     }
 
-    private List<Metacard> getRegistryMetacardsByFilter(Filter filter, List<String> sourceIds)
+    private List<Metacard> getRegistryMetacardsByFilter(Filter filter, Set<String> sourceIds)
             throws FederationAdminException {
         if (filter == null) {
             throw new FederationAdminException(

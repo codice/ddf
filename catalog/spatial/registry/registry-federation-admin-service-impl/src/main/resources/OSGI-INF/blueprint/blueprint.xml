@@ -27,6 +27,7 @@
     <bean id="refreshRegistrySubscriptions"
           class="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistrySubscriptions">
         <property name="federationAdminService" ref="federationAdminService"/>
+        <property name="registryStores" ref="registryStore"/>
     </bean>
 
     <bean id="identityNodeInitialization"
@@ -51,11 +52,8 @@
     </cm:property-placeholder>
 
 
-    <reference-list id="fasRegistryStore" interface="org.codice.ddf.registry.api.RegistryStore"
-                    availability="optional">
-        <reference-listener bind-method="bindRegistryStore" unbind-method="unbindRegistryStore"
-                            ref="refreshRegistrySubscriptions"/>
-    </reference-list>
+    <reference-list id="registryStore" interface="org.codice.ddf.registry.api.RegistryStore"
+                    availability="optional"/>
 
 
     <bean id="registryPublicationService"

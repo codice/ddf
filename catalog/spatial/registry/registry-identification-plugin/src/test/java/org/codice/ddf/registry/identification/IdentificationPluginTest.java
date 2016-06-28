@@ -287,7 +287,7 @@ public class IdentificationPluginTest {
 
         Map<String, Serializable> properties = new HashMap<>();
         properties.put(Constants.OPERATION_TRANSACTION_KEY, operationTransaction);
-        properties.put(RegistryConstants.TRANSIENT_ATTRIBUTE_UPDATE, true);
+
         List<Map.Entry<Serializable, Metacard>> updatedEntries = new ArrayList<>();
 
         MetacardImpl updateMetacard = new MetacardImpl();

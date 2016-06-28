@@ -37,6 +37,7 @@ function (Q, Service, Backbone, _) {
         remoteId: 'remoteName',
         pullAttribute: 'pullAllowed',
         pushAttribute: 'pushAllowed',
+        autoPushAttribute: 'autoPush',
         pidAttribute: 'pid',
         initialize: function() {
             this.set('registryConfiguration', new Registry.ConfigurationList());
@@ -65,11 +66,12 @@ function (Q, Service, Backbone, _) {
             var remoteIdName = configuration.get("properties").get('remoteName');
             var allowPull = configuration.get("properties").get('pullAllowed');
             var allowPush = configuration.get("properties").get('pushAllowed');
+            var pushAuto = configuration.get("properties").get('autoPush');
             var id = configuration.get('id');
             if(this.get(registryId)) {
                 registry = this.get(registryId);
             } else {
-                registry = new Registry.Model({name: registryId, remoteName: remoteIdName, pullAllowed: allowPull, pushAllowed: allowPush, pid: id});
+                registry = new Registry.Model({name: registryId, remoteName: remoteIdName, pullAllowed: allowPull, pushAllowed: allowPush, autoPush: pushAuto, pid: id});
                 this.add(registry);
             }
 

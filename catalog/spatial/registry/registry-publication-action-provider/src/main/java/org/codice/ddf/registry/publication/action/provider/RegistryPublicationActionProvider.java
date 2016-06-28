@@ -92,8 +92,8 @@ public class RegistryPublicationActionProvider implements ActionProvider {
                 .filter((registryStore) -> shouldRegistryPublishToStore(registryIdToPublish,
                         registryStore))
                 .map(registryStore -> getAction(registryIdToPublish,
-                        registryStore.getId(),
-                        !currentPublications.contains(registryStore.getId())))
+                        registryStore.getRegistryId(), registryStore.getId(),
+                        !currentPublications.contains(registryStore.getRegistryId())))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -109,13 +109,13 @@ public class RegistryPublicationActionProvider implements ActionProvider {
         return StringUtils.isNotBlank(getRegistryId(subject));
     }
 
-    private Action getAction(String regId, String destinationId, boolean publish) {
+    private Action getAction(String regId, String destinationId, String destinationName, boolean publish) {
 
         URL url;
-        String title = publish ? PUBLISH_TITLE + destinationId : UNPUBLISH_TITLE + destinationId;
+        String title = publish ? PUBLISH_TITLE + destinationName : UNPUBLISH_TITLE + destinationName;
         String description = publish ?
-                PUBLISH_DESCRIPTION + destinationId :
-                UNPUBLISH_DESCRIPTION + destinationId;
+                PUBLISH_DESCRIPTION + destinationName :
+                UNPUBLISH_DESCRIPTION + destinationName;
         String operation = publish ? PUBLISH_OPERATION : UNPUBLISH_OPERATION;
         String httpOp = publish ? HTTP_POST : HTTP_DELETE;
         try {

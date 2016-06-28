@@ -34,7 +34,38 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <bean id="metacardMarshaller" class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
+    <reference id="federationAdminService"
+               interface="org.codice.ddf.registry.federationadmin.service.FederationAdminService"/>
+    <reference id="registryPublicationService"
+               interface="org.codice.ddf.registry.federationadmin.service.RegistryPublicationService"/>
+
+    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+
+    <bean id="registryPublisher"
+          class="org.codice.ddf.registry.api.impl.RegistryStorePublisher">
+        <property name="federationAdminService" ref="federationAdminService"/>
+        <property name="registryPublicationService" ref="registryPublicationService"/>
+        <property name="executor" ref="executor"/>
+    </bean>
+
+    <reference-list id="registryPubList" interface="org.codice.ddf.registry.api.RegistryStore"
+                    availability="optional">
+        <reference-listener ref="registryPublisher" bind-method="bindRegistryStore"
+                            unbind-method="unbindRegistryStore"/>
+    </reference-list>
+
+    <service ref="registryPublisher" interface="org.osgi.service.event.EventHandler">
+        <service-properties>
+            <entry key="event.topics">
+                <array value-type="java.lang.String">
+                    <value>org/osgi/framework/ServiceEvent/MODIFIED</value>
+                </array>
+            </entry>
+        </service-properties>
+    </service>
+
+    <bean id="metacardMarshaller"
+          class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
         <argument ref="xmlParser"/>
     </bean>
 
@@ -59,11 +90,13 @@
                             ref="metacardTransformers"/>
     </reference-list>
 
-    <bean id="cswTransactionWriter" class="org.codice.ddf.spatial.ogc.csw.catalog.common.source.writer.CswTransactionRequestWriter">
+    <bean id="cswTransactionWriter"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.source.writer.CswTransactionRequestWriter">
         <argument ref="cswTransformProvider"/>
     </bean>
 
     <cm:managed-service-factory
+
             id="ddf.catalog.registry.api.impl.RegistryStoreImpl.id"
             factory-pid="Csw_Registry_Store">
         <interfaces>

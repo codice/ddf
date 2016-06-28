@@ -41,6 +41,8 @@ import ddf.catalog.data.impl.AttributeImpl;
 
 public class RegistryPublicationServiceImpl implements RegistryPublicationService {
 
+    private static final String NO_PUBLICATIONS = "No_Publications";
+
     private FederationAdminService federationAdminService;
 
     private List<RegistryStore> registryStores = new ArrayList<>();
@@ -78,6 +80,8 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
         } else {
             locAttr = new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, locations);
         }
+
+        locAttr.getValues().remove(NO_PUBLICATIONS);
         metacard.setAttribute(locAttr);
         metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED,
                 Date.from(ZonedDateTime.now()
@@ -98,19 +102,24 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
             return;
         }
 
-        String sourceId = getSourceIdFromRegistryId(destinationRegistryId);
-
-        federationAdminService.deleteRegistryEntriesByRegistryIds(Collections.singletonList(
-                registryId), Collections.singleton(sourceId));
-
         locAttr.getValues()
                 .remove(destinationRegistryId);
+        if (CollectionUtils.isEmpty(locAttr.getValues())) {
+            locAttr.getValues()
+                    .add(NO_PUBLICATIONS);
+        }
         metacard.setAttribute(locAttr);
         metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED,
                 Date.from(ZonedDateTime.now()
                         .toInstant())));
 
         federationAdminService.updateRegistryEntry(metacard);
+
+        String sourceId = getSourceIdFromRegistryId(destinationRegistryId);
+
+        federationAdminService.deleteRegistryEntriesByRegistryIds(Collections.singletonList(
+                registryId), Collections.singleton(sourceId));
+
     }
 
     @Override
