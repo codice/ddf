@@ -38,7 +38,7 @@
         <bundle>mvn:ddf.distribution/sample-rest-endpoint/${project.version}</bundle>
     </feature>
 
-    <feature name="sample-validator" version="${project.version}" install="auto"
+    <feature name="sample-validator" version="${project.version}" install="manual"
              description="SDK sample metacard validator">
         <feature prerequisite="true">sdk-app</feature>
         <bundle>
