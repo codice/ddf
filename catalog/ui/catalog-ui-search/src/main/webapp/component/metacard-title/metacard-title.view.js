@@ -55,7 +55,6 @@ define([
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.handleModelUpdates);
             }
-            this.listenTo(store.get('router'), 'change', this.handleModelUpdates);
             this.checkIfSaved();
             this.checkIsInWorkspace();
         },
