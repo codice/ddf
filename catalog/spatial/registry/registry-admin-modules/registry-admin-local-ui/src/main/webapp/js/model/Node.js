@@ -227,7 +227,7 @@ define([
         deleteUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/deleteLocalEntry',
 
         parse: function (raw) {
-            FieldDescriptors.customSlots = raw.value.customSlots;
+            FieldDescriptors.customFields = raw.value.customSlots;
             FieldDescriptors.autoPopulateValues = raw.value.autoPopulateValues;
             return raw.value.nodes;
         },

@@ -44,7 +44,9 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,6 +71,8 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
@@ -404,6 +408,46 @@ public class TestFederation extends AbstractIntegrationTest {
                 "/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='" + RECORD_TITLE_1
                         + "']"), not(containsString(RECORD_TITLE_2)));
         // @formatter:on
+    }
+
+    /**
+     * Tests that a federated search by ID will return the right record after we change the id.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFederatedQueryByIdAfterIdChange() throws Exception {
+        Configuration openSourceConfig = null;
+        String newOpenSearchSourceId = OPENSEARCH_SOURCE_ID + "2";
+        try {
+            //change the opensearch source id
+            OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
+                    newOpenSearchSourceId);
+            Configuration [] configs =
+                    configAdmin.listConfigurations(String.format("(%s=%s)",
+                            ConfigurationAdmin.SERVICE_FACTORYPID, OpenSearchSourceProperties.FACTORY_PID));
+            openSourceConfig = configs[0];
+            Dictionary<String, ?> configProps = new Hashtable<>(openSearchProperties);
+            openSourceConfig.update(configProps);
+            getServiceManager().waitForAllBundles();
+
+            String restUrl = REST_PATH.getUrl() + "sources/" + newOpenSearchSourceId + "/"
+                    + metacardIds[GEOJSON_RECORD_INDEX];
+
+            // @formatter:off
+            when().get(restUrl).then().log().all().assertThat().body(hasXPath(
+                    "/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='" + RECORD_TITLE_1
+                        + "']"), not(containsString(RECORD_TITLE_2)));
+        // @formatter:on
+        } finally {
+            //reset the opensearch source id
+            OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
+                    OPENSEARCH_SOURCE_ID);
+            Dictionary<String, ?> configProps = new Hashtable<>(openSearchProperties);
+            openSourceConfig.update(configProps);
+            getServiceManager().waitForAllBundles();
+        }
+
     }
 
     /**

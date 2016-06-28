@@ -14,6 +14,7 @@
 package org.codice.ddf.registry.source.configuration;
 
 import java.io.IOException;
+import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -32,11 +33,11 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.schemabindings.helper.RegistryPackageTypeHelper;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
+import org.codice.ddf.security.common.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -214,11 +215,14 @@ public class SourceConfigurationHandler implements EventHandler {
 
         Map<String, Configuration> fpidToConfigurationMap = getCurrentConfigurations(registryId);
 
-        String bindingTypeToActivate = getBindingTypeToActivate(bindingTypes);
-        String fPidToActivate = bindingTypeToFactoryPidMap.get(bindingTypeToActivate);
+        String bindingTypeToActivate = "";
 
         if (autoActivateConfigurations) {
-            activateDeactivateExistingConfiguration(fPidToActivate, fpidToConfigurationMap);
+            bindingTypeToActivate = getBindingTypeToActivate(bindingTypes);
+            if (StringUtils.isNotEmpty(bindingTypeToActivate)) {
+                String fPidToActivate = bindingTypeToFactoryPidMap.get(bindingTypeToActivate);
+                activateDeactivateExistingConfiguration(fPidToActivate, fpidToConfigurationMap);
+            }
         }
 
         for (ServiceBindingType bindingType : bindingTypes) {
@@ -619,7 +623,8 @@ public class SourceConfigurationHandler implements EventHandler {
 
     private void updateRegistrySourceConfigurations() {
         try {
-            List<Metacard> metacards = federationAdminService.getRegistryMetacards();
+            List<Metacard> metacards =
+                    Security.runAsAdminWithException(() -> federationAdminService.getRegistryMetacards());
 
             for (Metacard metacard : metacards) {
                 try {
@@ -631,7 +636,7 @@ public class SourceConfigurationHandler implements EventHandler {
                 }
             }
 
-        } catch (FederationAdminException e) {
+        } catch (PrivilegedActionException e) {
             LOGGER.error(
                     "Error getting registry metacards. Registry source configurations won't be updated.");
         }

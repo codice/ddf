@@ -85,7 +85,11 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
-            <artifactId>registry-report-viewer</artifactId>
+            <artifactId>registry-publication-action-provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.registry</groupId>
+            <artifactId>registry-rest-endpoint</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>

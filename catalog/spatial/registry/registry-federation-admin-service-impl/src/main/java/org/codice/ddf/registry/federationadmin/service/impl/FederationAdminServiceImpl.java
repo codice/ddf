@@ -13,14 +13,9 @@
  **/
 package org.codice.ddf.registry.federationadmin.service.impl;
 
-import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,16 +25,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
@@ -64,7 +54,6 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.operation.CreateRequest;
@@ -83,10 +72,7 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.service.SecurityServiceException;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
-import oasis.names.tc.ebxml_regrep.xsd.rim._3.VersionInfoType;
 
 @SuppressWarnings("PackageAccessibility")
 public class FederationAdminServiceImpl implements FederationAdminService {
@@ -95,6 +81,8 @@ public class FederationAdminServiceImpl implements FederationAdminService {
 
     private static final int PAGE_SIZE = 1000;
 
+    private final Security security;
+
     private CatalogFramework catalogFramework;
 
     private InputTransformer registryTransformer;
@@ -102,8 +90,6 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     private MetacardMarshaller metacardMarshaller;
 
     private FilterBuilder filterBuilder;
-
-    private final Security security;
 
     private SlotTypeHelper slotTypeHelper = new SlotTypeHelper();
 
@@ -514,94 +500,12 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         return metacardOptional;
     }
 
-    public void init() {
-        org.codice.ddf.security.common.Security.runAsAdmin(() -> {
-            try {
-                if (!getLocalRegistryIdentityMetacard().isPresent()) {
-                    createIdentityNode();
-                }
-            } catch (FederationAdminException e) {
-                LOGGER.error("There was an error bringing up the Federation Admin Service.", e);
-            }
-            return null;
-        });
-    }
-
     private RegistryPackageType getRegistryPackageFromMetacard(Metacard metacard)
             throws FederationAdminException {
         try {
             return metacardMarshaller.getRegistryPackageFromMetacard(metacard);
         } catch (ParserException e) {
             throw new FederationAdminException("Error parsing ebrim xml from metacard", e);
-        }
-    }
-
-    private void createIdentityNode() throws FederationAdminException {
-
-        String registryPackageId = RegistryConstants.GUID_PREFIX + UUID.randomUUID()
-                .toString()
-                .replaceAll("-", "");
-        RegistryPackageType registryPackage = RIM_FACTORY.createRegistryPackageType();
-        registryPackage.setId(registryPackageId);
-        registryPackage.setObjectType(RegistryConstants.REGISTRY_NODE_OBJECT_TYPE);
-
-        ExtrinsicObjectType extrinsicObject = RIM_FACTORY.createExtrinsicObjectType();
-        extrinsicObject.setObjectType(RegistryConstants.REGISTRY_NODE_OBJECT_TYPE);
-
-        String extrinsicObjectId = RegistryConstants.GUID_PREFIX + UUID.randomUUID()
-                .toString()
-                .replaceAll("-", "");
-        extrinsicObject.setId(extrinsicObjectId);
-
-        String siteName = SystemInfo.getSiteName();
-        if (StringUtils.isNotBlank(siteName)) {
-            extrinsicObject.setName(internationalStringTypeHelper.create(siteName));
-        }
-
-        String home = SystemBaseUrl.getBaseUrl();
-        if (StringUtils.isNotBlank(home)) {
-            extrinsicObject.setHome(home);
-        }
-
-        String version = SystemInfo.getVersion();
-        if (StringUtils.isNotBlank(version)) {
-            VersionInfoType versionInfo = RIM_FACTORY.createVersionInfoType();
-            versionInfo.setVersionName(version);
-
-            extrinsicObject.setVersionInfo(versionInfo);
-        }
-
-        OffsetDateTime now = OffsetDateTime.now(ZoneId.of(ZoneOffset.UTC.toString()));
-        String rightNow = now.toString();
-
-        SlotType1 lastUpdated = slotTypeHelper.create(RegistryConstants.XML_LAST_UPDATED_NAME,
-                rightNow,
-                DatatypeConstants.DATETIME.toString());
-        extrinsicObject.getSlot()
-                .add(lastUpdated);
-
-        SlotType1 liveDate = slotTypeHelper.create(RegistryConstants.XML_LIVE_DATE_NAME,
-                rightNow,
-                DatatypeConstants.DATETIME.toString());
-        extrinsicObject.getSlot()
-                .add(liveDate);
-
-        if (registryPackage.getRegistryObjectList() == null) {
-            registryPackage.setRegistryObjectList(RIM_FACTORY.createRegistryObjectListType());
-        }
-
-        registryPackage.getRegistryObjectList()
-                .getIdentifiable()
-                .add(RIM_FACTORY.createIdentifiable(extrinsicObject));
-
-        Metacard identityMetacard = getRegistryMetacardFromRegistryPackage(registryPackage);
-        if (identityMetacard != null) {
-            identityMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE,
-                    true));
-            identityMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE,
-                    true));
-
-            addRegistryEntry(identityMetacard);
         }
     }
 
@@ -663,28 +567,6 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             throw new FederationAdminException(message, e);
         }
         return registryMetacards;
-    }
-
-    private Metacard getRegistryMetacardFromRegistryPackage(RegistryPackageType registryPackage)
-            throws FederationAdminException {
-        if (registryPackage == null) {
-            throw new FederationAdminException(
-                    "Error creating metacard from registry package. Null package was received.");
-        }
-        Metacard metacard;
-
-        try {
-            metacard =
-                    registryTransformer.transform(metacardMarshaller.getRegistryPackageAsInputStream(
-                            registryPackage));
-
-        } catch (IOException | CatalogTransformerException | ParserException e) {
-            String message = "Error creating metacard from registry package.";
-            LOGGER.error("{} Registry id: {}", message, registryPackage.getId());
-            throw new FederationAdminException(message, e);
-        }
-
-        return metacard;
     }
 
     private Metacard getRegistryMetacardFromString(String xml) throws FederationAdminException {
