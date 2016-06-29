@@ -5,6 +5,7 @@ This section supports developers creating extensions of the existing framework.
 
 The following packages have been exported by the ${ddf-platform} application and are approved for use by third parties:
 
+* `${ddf-branding-lowercase}.action`
 * `${ddf-branding-lowercase}.security`
 * `${ddf-branding-lowercase}.security.assertion`
 * `${ddf-branding-lowercase}.security.common.audit`

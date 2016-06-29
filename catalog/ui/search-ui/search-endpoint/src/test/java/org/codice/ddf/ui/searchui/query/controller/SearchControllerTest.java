@@ -72,7 +72,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.Futures;
 
-import ddf.action.ActionProvider;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BasicTypes;
@@ -144,7 +143,7 @@ public class SearchControllerTest {
         framework = createFramework();
 
         searchController = new SearchController(framework,
-                new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
+                new ActionRegistryImpl(Collections.emptyList(), Collections.emptyList()),
                 new GeotoolsFilterAdapterImpl(),
                 new SequentialExecutorService());
 
@@ -297,7 +296,7 @@ public class SearchControllerTest {
         when(framework.query(any(QueryRequest.class))).thenReturn(response);
 
         searchController = new SearchController(framework,
-                new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
+                new ActionRegistryImpl(Collections.emptyList(), Collections.emptyList()),
                 new GeotoolsFilterAdapterImpl(),
                 new SequentialExecutorService());
 
@@ -523,7 +522,7 @@ public class SearchControllerTest {
     private void runTestForReasonMessages(Exception exception, String expectedReasonMessage)
             throws Exception {
         searchController = new SearchController(framework,
-                new ActionRegistryImpl(Collections.<ActionProvider>emptyList()),
+                new ActionRegistryImpl(Collections.emptyList(), Collections.emptyList()),
                 new GeotoolsFilterAdapterImpl(),
                 mockExecutor);
         searchController.setBayeuxServer(mockBayeuxServer);

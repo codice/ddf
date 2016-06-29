@@ -15,8 +15,6 @@ package org.codice.ddf.security.servlet.logout;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
@@ -48,8 +46,8 @@ public class LdapLogoutAction implements ActionProvider {
     }
 
     @Override
-    public <T> List<Action> getActions(T subject) {
-        return Arrays.asList(new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl));
+    public <T> Action getAction(T subject) {
+        return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
     }
 
     @Override
@@ -57,8 +55,4 @@ public class LdapLogoutAction implements ActionProvider {
         return ID;
     }
 
-    @Override
-    public <T> boolean canHandle(T subject) {
-        return true;
-    }
 }

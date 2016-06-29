@@ -15,9 +15,6 @@ package org.codice.ddf.endpoints.rest.action;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
@@ -53,40 +50,35 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
     protected abstract Action getAction(String metacardId, String metacardSource);
 
     @Override
-    public <T> List<Action> getActions(T input) {
-
-        if (input instanceof Metacard) {
-
-            Metacard metacard = (Metacard) input;
-
-            if (StringUtils.isBlank(metacard.getId())) {
-                LOGGER.info("No id given. No action to provide.");
-                return Collections.emptyList();
-            }
-
-            if (isHostUnset(SystemBaseUrl.getHost())) {
-                LOGGER.info("Host name/ip not set. Cannot create link for metacard.");
-                return Collections.emptyList();
-            }
-
-            String metacardId = null;
-            String metacardSource = null;
-
-            try {
-                metacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
-                metacardSource = URLEncoder.encode(getSource(metacard), CharEncoding.UTF_8);
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.info("Unsupported Encoding exception", e);
-                return Collections.emptyList();
-            }
-
-            Action action = getAction(metacardId, metacardSource);
-            if (action == null) {
-                return Collections.emptyList();
-            }
-            return Arrays.asList(action);
+    public <T> Action getAction(T input) {
+        if (!canHandle(input)) {
+            return null;
         }
-        return Collections.emptyList();
+
+        Metacard metacard = (Metacard) input;
+
+        if (StringUtils.isBlank(metacard.getId())) {
+            LOGGER.info("No id given. No action to provide.");
+            return null;
+        }
+
+        if (isHostUnset(SystemBaseUrl.getHost())) {
+            LOGGER.info("Host name/ip not set. Cannot create link for metacard.");
+            return null;
+        }
+
+        String metacardId = null;
+        String metacardSource = null;
+
+        try {
+            metacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
+            metacardSource = URLEncoder.encode(getSource(metacard), CharEncoding.UTF_8);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.info("Unsupported Encoding exception", e);
+            return null;
+        }
+
+        return getAction(metacardId, metacardSource);
     }
 
     protected boolean isHostUnset(String host) {
@@ -109,8 +101,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
         return this.actionProviderId;
     }
 
-    @Override
-    public <T> boolean canHandle(T subject) {
+    private <T> boolean canHandle(T subject) {
         return subject instanceof Metacard;
     }
 }

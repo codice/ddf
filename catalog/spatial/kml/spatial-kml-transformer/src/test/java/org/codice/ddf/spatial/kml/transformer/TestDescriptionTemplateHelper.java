@@ -31,7 +31,6 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -70,7 +69,7 @@ public class TestDescriptionTemplateHelper {
     public static void setUp() throws MalformedURLException {
         mockActionProvider = mock(ActionProvider.class);
         mockAction = mock(Action.class);
-        when(mockActionProvider.getActions(any(Metacard.class))).thenReturn(Arrays.asList(mockAction));
+        when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
         when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
         helper = new DescriptionTemplateHelper(mockActionProvider);
     }

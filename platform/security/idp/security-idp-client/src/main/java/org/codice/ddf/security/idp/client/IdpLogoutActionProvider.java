@@ -15,8 +15,6 @@ package org.codice.ddf.security.idp.client;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.subject.Subject;
@@ -48,8 +46,10 @@ public class IdpLogoutActionProvider implements ActionProvider {
      * @param realmSubjectMap containing a realm of "idp" with the corresponding subject
      * @return IdpLogoutActionProvider containing the logout url
      */
-    @Override
-    public <T> List<Action> getActions(T realmSubjectMap) {
+    public <T> Action getAction(T realmSubjectMap) {
+        if (!canHandle(realmSubjectMap)) {
+            return null;
+        }
 
         URL logoutUrl = null;
         if (realmSubjectMap instanceof Map) {
@@ -73,7 +73,7 @@ public class IdpLogoutActionProvider implements ActionProvider {
                         e);
             }
         }
-        return Arrays.asList(new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl));
+        return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
     }
 
     @Override
@@ -85,8 +85,7 @@ public class IdpLogoutActionProvider implements ActionProvider {
         this.encryptionService = encryptionService;
     }
 
-    @Override
-    public <T> boolean canHandle(T subject) {
+    private <T> boolean canHandle(T subject) {
         return subject instanceof Map;
     }
 

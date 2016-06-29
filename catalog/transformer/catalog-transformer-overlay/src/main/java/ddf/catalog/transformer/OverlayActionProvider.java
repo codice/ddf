@@ -19,8 +19,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -71,7 +69,7 @@ public class OverlayActionProvider implements ActionProvider {
     }
 
     @Override
-    public <T> List<Action> getActions(T subject) {
+    public <T> Action getAction(T subject) {
         if (canHandle(subject)) {
             final Metacard metacard = (Metacard) subject;
 
@@ -86,10 +84,10 @@ public class OverlayActionProvider implements ActionProvider {
 
                 final String overlayName = transformerId.substring(OVERLAY_PREFIX.length());
 
-                return Collections.singletonList(new ActionImpl(ID + transformerId,
+                return new ActionImpl(ID + transformerId,
                         TITLE + overlayName + " overlay",
                         DESCRIPTION + overlayName + " overlay transformer",
-                        uri.toURL()));
+                        uri.toURL());
             } catch (URISyntaxException | MalformedURLException | UnsupportedEncodingException e) {
                 LOGGER.warn("Error constructing URL", e);
             }
@@ -97,7 +95,7 @@ public class OverlayActionProvider implements ActionProvider {
             LOGGER.debug("Cannot handle the input [{}]", subject);
         }
 
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
@@ -116,8 +114,7 @@ public class OverlayActionProvider implements ActionProvider {
         }
     }
 
-    @Override
-    public <T> boolean canHandle(T subject) {
+    <T> boolean canHandle(T subject) {
         return subject instanceof Metacard && canHandleMetacard((Metacard) subject);
     }
 }

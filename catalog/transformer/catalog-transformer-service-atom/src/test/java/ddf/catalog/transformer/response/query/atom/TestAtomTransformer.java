@@ -959,7 +959,7 @@ public class TestAtomTransformer {
         when(viewAction.getUrl()).thenReturn(new URL("http://host:80/" + SAMPLE_ID));
 
         ActionProvider viewActionProvider = mock(ActionProvider.class);
-        when(viewActionProvider.getActions(isA(Metacard.class))).thenReturn(Arrays.asList(viewAction));
+        when(viewActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
 
         AtomTransformer transformer = new AtomTransformer();
 
@@ -1061,15 +1061,13 @@ public class TestAtomTransformer {
         when(viewAction.getUrl()).thenReturn(new URL("http://host:80/" + SAMPLE_ID));
 
         ActionProvider viewActionProvider = mock(ActionProvider.class);
-        when(viewActionProvider.getActions(isA(Metacard.class))).thenReturn(Arrays.asList(viewAction));
+        when(viewActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
 
         ActionProvider resourceActionProvider = mock(ActionProvider.class);
-        when(resourceActionProvider.getActions(isA(Metacard.class))).thenReturn(Arrays.asList(
-                viewAction));
+        when(resourceActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
 
         ActionProvider thumbnailActionProvider = mock(ActionProvider.class);
-        when(thumbnailActionProvider.getActions(isA(Metacard.class))).thenReturn(Arrays.asList(
-                viewAction));
+        when(thumbnailActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
 
         AtomTransformer transformer = new AtomTransformer();
 

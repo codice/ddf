@@ -15,7 +15,6 @@ package org.codice.ddf.endpoints.rest.action;
 
 import static org.codice.ddf.endpoints.rest.RESTService.CONTEXT_ROOT;
 import static org.codice.ddf.endpoints.rest.RESTService.SOURCES_PATH;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -25,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.List;
 
 import org.apache.commons.lang.CharEncoding;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -73,10 +71,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
     @Test
     public void createMetacardAction() throws MalformedURLException {
-        List<Action> actions = actionProvider.getActions(metacard);
+        Action action = actionProvider.getAction(metacard);
 
-        assertThat(actions, hasSize(1));
-        Action action = actions.get(0);
         assertThat(action.getId(), is(ACTION_PROVIDER_ID));
         assertThat(action.getTitle(), is("Export Metacard XML"));
         assertThat(action.getDescription(), is("Provides a URL to the metacard"));
