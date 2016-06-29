@@ -66,14 +66,8 @@ define(['application',
             },
 
             toggleClustering: function() {
-                if(!this.clustering) {
-                    this.clustering = true;
-                    mapclustering.cluster();
-                } else {
-                    this.clustering = false;
-                    mapclustering.uncluster();
-                }
-             },
+                mapclustering.toggleClustering();
+            },
 
             createMap: function () {
                 var layerPrefs = user.get('user>preferences>mapLayers');
@@ -100,9 +94,8 @@ define(['application',
                     }
                 );
 
-                var that = this;
                 viewer.camera.moveEnd.addEventListener(function() {
-                    if(that.clustering) {
+                    if(mapclustering.clustering) {
                         var cartographic = new Cesium.Cartographic();
                         var metersToKm = 0.001;
                         viewer.scene.mapProjection.ellipsoid.cartesianToCartographic(viewer.camera.positionWC, cartographic);

@@ -26,6 +26,7 @@ define(['marionette',
     MapClustering = Marionette.Controller.extend({
         initialize : function() {
             this.clusters = [];
+            this.clustering = false;
         },
         setResultLists : function(entityList) {
             this.entities = entityList;
@@ -193,6 +194,14 @@ define(['marionette',
         },
         getEllipsoidAt60PercentOfMapView: function(width, height) {
             return this.viewer.camera.pickEllipsoid(new Cesium.Cartesian2(width * 60 / 100, height / 2));
+        },
+        toggleClustering : function() {
+            this.clustering = !this.clustering;
+            if(this.clustering) {
+                this.cluster();
+            } else {
+                this.uncluster();
+            }
         }
     });
     return MapClustering;
