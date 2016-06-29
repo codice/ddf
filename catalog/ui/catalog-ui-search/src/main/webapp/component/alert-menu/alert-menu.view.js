@@ -22,8 +22,9 @@ define([
     'js/CustomElements',
     'js/store',
     'component/alert/alert',
-    'js/Common'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, alertInstance, Common) {
+    'js/Common',
+    'component/router/router'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, alertInstance, Common, router) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -36,12 +37,11 @@ define([
         ui: {
         },
         initialize: function(){
-            this.listenTo(store.get('router'), 'change', this.handleRoute);
+            this.listenTo(router, 'change', this.handleRoute);
             this.handleRoute();
         },
         handleRoute: function(){
-            var router = store.get('router').toJSON();
-            if (router.name === 'openAlert'){
+            if (router.toJSON().name === 'openAlert'){
                 this.model = alertInstance.get('currentResult');
                 this.render();
             }

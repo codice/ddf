@@ -21,17 +21,11 @@ define([
     'js/model/user',
     'js/model/Selected',
     'component/content/content',
-    'component/router/router',
     'application',
     'properties'
-], function ($, Backbone, poller, _, Workspace, Source, User, Selected, Content, Router, Application, properties) {
+], function ($, Backbone, poller, _, Workspace, Source, User, Selected, Content, Application, properties) {
 
     return new (Backbone.Model.extend({
-        setupListeners: function(model, listeners){
-            if (listeners !== undefined){
-                this.listenTo(model, listeners);
-            }
-        },
         setupPolling: function(model, opts){
             if (opts.persisted){
                 model.fetch();
@@ -46,7 +40,6 @@ define([
                 poll: false
             }, opts);
             var model = new Model({ store: this });
-            this.setupListeners(model, opts.listeners);
             this.setupPolling(model, opts);
             return model;
         },
@@ -60,10 +53,13 @@ define([
             this.set('selected', this.initModel(Selected, {
                 persisted: false
             }));
-            this.set('router', this.initModel(Router, {
-                persisted: false
-            }));
             this.getMetacardTypes();
+            this.listenTo(this.get('workspaces'), 'remove', function(){
+                var currentWorkspace = this.getCurrentWorkspace();
+                if (currentWorkspace && !this.get("workspaces").get(currentWorkspace)){
+                    this.get('content').set('currentWorkspace', undefined);
+                }
+            });
         },
         getWorkspaceById: function(workspaceId){
             return this.get('workspaces').get(workspaceId);

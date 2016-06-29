@@ -20,11 +20,11 @@ define([
     'jquery',
     'text!./metacard.hbs',
     'js/CustomElements',
-    'js/store',
+    'component/router/router',
     'component/navigation/metacard/navigation.metacard.view',
     'component/tabs/expanded-metacard/tabs.expanded-metacard.view',
     'component/metacard-visual/metacard-visual.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, NavigationView,
+], function (wreqr, Marionette, _, $, template, CustomElements, router, NavigationView,
             MetacardTabularView, MetacardVisualView) {
 
     return Marionette.LayoutView.extend({
@@ -42,12 +42,11 @@ define([
             detailsVisual: '.details-visual'
         },
         initialize: function(){
-            this.listenTo(store.get('router'), 'change', this.handleRoute);
+            this.listenTo(router, 'change', this.handleRoute);
             this.handleRoute();
         },
         handleRoute: function(){
-            var router = store.get('router').toJSON();
-            if (router.name === 'openMetacard'){
+            if (router.toJSON().name === 'openMetacard'){
                 this.$el.removeClass('is-hidden');
             } else {
                 this.$el.addClass('is-hidden');

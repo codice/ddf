@@ -15,11 +15,11 @@ define([
     'backbone'
 ], function (_, Backbone) {
 
-    return Backbone.Model.extend({
+    return new (Backbone.Model.extend({
         defaults: {
             name: undefined,
             path: undefined,
             args: undefined
         }
-    });
+    }))();
 });

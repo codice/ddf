@@ -20,11 +20,11 @@ define([
     'jquery',
     'text!./workspaces.hbs',
     'js/CustomElements',
-    'js/store',
+    'component/router/router',
     'component/navigation/workspaces/navigation.workspaces.view',
     'component/workspaces-templates/workspaces-templates.view',
     'component/workspaces-items/workspaces-items.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, WorkspacesMenuView, WorkspacesTemplatesView, WorkspacesItemsView) {
+], function (wreqr, Marionette, _, $, template, CustomElements, router, WorkspacesMenuView, WorkspacesTemplatesView, WorkspacesItemsView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -45,12 +45,12 @@ define([
             items: '.home-items'
         },
         initialize: function(){
-            this.listenTo(store.get('router'), 'change', this.handleRoute);
+            this.listenTo(router, 'change', this.handleRoute);
             this.handleRoute();
         },
         handleRoute: function(){
-            var router = store.get('router').toJSON();
-            if (router.name === 'home' || router.name === 'workspaces'){
+            var routerName = router.toJSON().name;
+            if (routerName=== 'home' || routerName === 'workspaces'){
                 this.$el.removeClass('is-hidden');
             } else {
                 this.$el.addClass('is-hidden');

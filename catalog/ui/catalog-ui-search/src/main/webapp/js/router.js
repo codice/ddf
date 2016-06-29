@@ -29,10 +29,11 @@ define([
     'component/alert/alert.view',
     'component/recent/recent',
     'component/recent/recent.view',
+    'component/router/router',
     'js/jquery.whenAll'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
-            recentInstance, RecentView) {
+            recentInstance, RecentView, router) {
 
     function hideViews() {
         Application.App.workspaceRegion.$el.addClass("is-hidden");
@@ -245,7 +246,7 @@ define([
             }
         },
         updateRoute: function(name, path, args){
-            store.get('router').set({
+            router.set({
                 name: name,
                 path: path,
                 args: args

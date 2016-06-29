@@ -31,10 +31,11 @@ define([
     'component/tabs/metacard/tabs-metacard.view',
     'component/tabs/metacards/tabs-metacards.view',
     'js/Common',
-    'component/metacard-title/metacard-title.view'
+    'component/metacard-title/metacard-title.view',
+    'component/router/router'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, maptype, map, store,
-             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView) {
+             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, router) {
 
     var debounceTime = 25;
 
@@ -156,7 +157,7 @@ define([
                 });
                 this._mapView = new Map2d();
             }
-            this.listenTo(store.get('router'), 'change', this.handleRoute);
+            this.listenTo(router, 'change', this.handleRoute);
             this.listenTo(store.get('content'), 'change:currentWorkspace', this.updatePanelOne);
             var debouncedUpdatePanelTwo = _.debounce(this.updatePanelTwo, debounceTime);
             this.listenTo(store.get('content'), 'change:query', debouncedUpdatePanelTwo);
@@ -167,8 +168,7 @@ define([
             this.handleRoute();
         },
         handleRoute: function(){
-            var router = store.get('router').toJSON();
-            if (router.name==='openWorkspace'){
+            if (router.toJSON().name==='openWorkspace'){
                 this.$el.removeClass('is-hidden');
             } else {
                 this.$el.addClass('is-hidden');

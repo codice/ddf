@@ -60,7 +60,7 @@ define([
                 },
                 {
                     label: '1/2 Hour',
-                    value: halfHour
+                    value: 10000
                 },
                 {
                     label: '1 Hour',

@@ -20,10 +20,10 @@ define([
     'jquery',
     'text!./alert.hbs',
     'js/CustomElements',
-    'js/store',
+    'component/router/router',
     'component/navigation/alert/navigation.alert.view',
     'component/content/alert/content.alert.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, NavigationView,
+], function (wreqr, Marionette, _, $, template, CustomElements, router, NavigationView,
              AlertContentView) {
 
     return Marionette.LayoutView.extend({
@@ -40,12 +40,11 @@ define([
             alertDetails: '.alert-details'
         },
         initialize: function(){
-            this.listenTo(store.get('router'), 'change', this.handleRoute);
+            this.listenTo(router, 'change', this.handleRoute);
             this.handleRoute();
         },
         handleRoute: function(){
-            var router = store.get('router').toJSON();
-            if (router.name === 'openAlert'){
+            if (router.toJSON().name === 'openAlert'){
                 this.$el.removeClass('is-hidden');
             } else {
                 this.$el.addClass('is-hidden');

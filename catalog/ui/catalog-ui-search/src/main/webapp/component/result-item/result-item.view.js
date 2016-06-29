@@ -25,8 +25,10 @@ define([
     'component/dropdown/dropdown',
     'component/dropdown/metacard-interactions/dropdown.metacard-interactions.view',
     'component/result-indicator/result-indicator.view',
-    'properties'
-], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, DropdownModel, MetacardInteractionsDropdownView, ResultIndicatorView, properties) {
+    'properties',
+    'component/router/router'
+], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, DropdownModel,
+             MetacardInteractionsDropdownView, ResultIndicatorView, properties, router) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -56,7 +58,7 @@ define([
             }
             this.listenTo(this.model.get('metacard').get('properties'), 'change', this.handleMetacardUpdate);
             this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
-            this.listenTo(store.get('router'), 'change', this.handleMetacardUpdate);
+            this.listenTo(router, 'change', this.handleMetacardUpdate);
         },
         handleMetacardUpdate: function(){
             var currentWorkspace = store.getCurrentWorkspace();

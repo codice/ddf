@@ -22,8 +22,9 @@ define([
     'js/CustomElements',
     'js/store',
     'component/metacard/metacard',
-    'component/metacard-title/metacard-title.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, metacardInstance, MetacardTitleView) {
+    'component/metacard-title/metacard-title.view',
+    'component/router/router'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, metacardInstance, MetacardTitleView, router) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -39,12 +40,11 @@ define([
             metacardTitle: '.metacard-title'
         },
         initialize: function(){
-            this.listenTo(store.get('router'), 'change', this.handleRoute);
+            this.listenTo(router, 'change', this.handleRoute);
             this.handleRoute();
         },
         handleRoute: function(){
-            var router = store.get('router').toJSON();
-            if (router.name === 'openMetacard'){
+            if (router.toJSON().name === 'openMetacard'){
                 this.model = metacardInstance.get('currentMetacard');
                 this.render();
             }

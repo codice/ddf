@@ -20,11 +20,11 @@ define([
     'jquery',
     'text!./metacard-visual.hbs',
     'js/CustomElements',
-    'js/store',
+    'component/router/router',
     'maptype',
     'text!templates/map.handlebars',
     'component/metacard/metacard'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, maptype, map, metacardInstance) {
+], function (wreqr, Marionette, _, $, template, CustomElements, router, maptype, map, metacardInstance) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -39,7 +39,7 @@ define([
             metacardVisual: '.metacard-visual'
         },
         initialize: function(){
-            this.listenTo(store.get('router'), 'change', this.handleRoute);
+            this.listenTo(router, 'change', this.handleRoute);
             this.handleRoute();
             var contentView = this;
             if (maptype.is3d()) {
@@ -63,7 +63,7 @@ define([
                         });
                     },
                     setupListeners: function(geoController){
-                        geoController.listenTo(store.get('router'), 'change', this.handleMetacardChange)
+                        geoController.listenTo(router, 'change', this.handleMetacardChange)
                     },
                     handleMetacardChange: function(){
                         this.showResult(metacardInstance.get('currentMetacard'));
@@ -93,7 +93,7 @@ define([
                         });
                     },
                     setupListeners: function(geoController){
-                        geoController.listenTo(store.get('router'), 'change', this.handleMetacardChange)
+                        geoController.listenTo(router, 'change', this.handleMetacardChange)
                     },
                     handleMetacardChange: function(){
                         this.showResult(metacardInstance.get('currentMetacard'));
@@ -104,8 +104,7 @@ define([
             }
         },
         handleRoute: function(){
-            var router = store.get('router').toJSON();
-            if (router.name === 'openMetacard'){
+            if (router.toJSON().name === 'openMetacard'){
                 this.$el.removeClass('is-hidden');
             } else {
                 this.$el.addClass('is-hidden');

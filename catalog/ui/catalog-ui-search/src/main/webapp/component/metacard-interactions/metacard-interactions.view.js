@@ -20,8 +20,9 @@ define([
     'jquery',
     'text!./metacard-interactions.hbs',
     'js/CustomElements',
-    'js/store'
-], function (wreqr, Marionette, _, $, template, CustomElements, store) {
+    'js/store',
+    'component/router/router'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, router) {
 
     return Marionette.ItemView.extend({
         template: template,
@@ -135,8 +136,7 @@ define([
             this.$el.toggleClass('is-multiple', Boolean(this.model.length > 1));
         },
         checkIfRouted: function(){
-            var router = store.get('router').toJSON();
-            this.$el.toggleClass('is-routed', Boolean(router.name === 'openMetacard'));
+            this.$el.toggleClass('is-routed', Boolean(router.toJSON().name === 'openMetacard'));
         },
         checkIfBlacklisted: function(){
             var pref = store.get('user').get('user').get('preferences');

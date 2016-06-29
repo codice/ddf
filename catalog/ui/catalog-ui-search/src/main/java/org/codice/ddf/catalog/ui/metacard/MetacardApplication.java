@@ -347,8 +347,8 @@ public class MetacardApplication implements SparkApplication {
         delete("/workspaces/:id", APPLICATION_JSON, (req, res) -> {
             String id = req.params(":id");
             catalogFramework.delete(new DeleteRequestImpl(id));
-            return "";
-        });
+            return ImmutableMap.of("message", "Successfully deleted.");
+        }, util::getJson);
 
         get("/enumerations/:type", APPLICATION_JSON, (req, res) -> {
             return util.getJson(enumExtractor.getEnumerations(req.params(":type")));
