@@ -68,10 +68,10 @@ define(['application',
             toggleClustering: function() {
                 if(!this.clustering) {
                     this.clustering = true;
-                    mapclustering.clusteringAlgorithm();
+                    mapclustering.cluster();
                 } else {
                     this.clustering = false;
-                    mapclustering.resetBillboard();
+                    mapclustering.uncluster();
                 }
              },
 
@@ -107,7 +107,7 @@ define(['application',
                         var metersToKm = 0.001;
                         viewer.scene.mapProjection.ellipsoid.cartesianToCartographic(viewer.camera.positionWC, cartographic);
                         var cameraHeight = (cartographic.height * metersToKm).toFixed(1);
-                        mapclustering.clusteringAlgorithm(cameraHeight);
+                        mapclustering.cluster(cameraHeight);
                     }
                 });
 
@@ -403,11 +403,8 @@ define(['application',
                 mapclustering.setResultLists(this.mapViews);
 
                 if(this.clustering && typeof results !== "undefined") {
-                    mapclustering.clusteringAlgorithm();
+                    mapclustering.cluster();
                 }
-
-
-
             },
             
             showResult: function(result){
@@ -421,7 +418,7 @@ define(['application',
                 mapclustering.setResultLists(this.mapViews);
 
                 if(this.clustering && typeof results !== "undefined") {
-                    mapclustering.clusteringAlgorithm();
+                    mapclustering.cluster();
                 }
             },
 
@@ -435,7 +432,7 @@ define(['application',
                     this.mapViews.destroy();
                 }
                 if (this.clustering) {
-                    mapclustering.resetBillboard();
+                    mapclustering.uncluster();
                 }
             }
 

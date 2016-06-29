@@ -10,90 +10,112 @@
  *
  **/
 /* global define */
-define(['backbone',
+define(['marionette',
         'cesium',
-        'jquery'
-], function(Backbone, Cesium, $) {
+        'underscore'
+], function(Marionette, Cesium, _) {
 
     var DEFAULT_PIXEL_DISTANCE = 100;
 
-    var MAX_RADIUS_DISTANCE = 2500000;
+    var MAX_RADIUS_METER_DISTANCE = 2500000;
 
-    var MIN_CAMERA_HEIGHT = 5;
+    var MIN_CAMERA_METER_HEIGHT = 10;
 
     var MapClustering = {};
 
-    var clusters = [];
-
-    var entities, viewer;
-
-    MapClustering = Backbone.Model.extend({
+    MapClustering = Marionette.Controller.extend({
+        initialize : function() {
+            this.clusters = [];
+        },
         setResultLists : function(entityList) {
-            entities = entityList;
+            this.entities = entityList;
         },
         setViewer : function(mapView) {
-            viewer = mapView;
+            this.viewer = mapView;
         },
-        clusteringAlgorithm : function (cameraHeight) {
-            if(typeof entities === "undefined") {
+        cluster : function (cameraHeight) {
+            if(_.isUndefined(this.entities)) {
                 return;
-            } else if(cameraHeight < MIN_CAMERA_HEIGHT) {
-                this.resetBillboard();
+            } else if(cameraHeight < MIN_CAMERA_METER_HEIGHT) {
+                this.uncluster();
             } else {
-                this.removeClusters();
-                var models = entities.geoController.mapViews.collection;
-                var views = entities.geoController.mapViews.children;
-                var modelsLength = models.length;
+                var models = this.entities.geoController.mapViews.collection;
+                var views = this.entities.geoController.mapViews.children;
+                var clusters = [];
 
-                for(var c = 0; c < modelsLength; c++) {
-                    var model = models.at(c).get("metacard");
+                models.each(function(value) {
+                    var model = value.get("metacard");
                     var view = views.findByModel(model);
-                    if(typeof view !== "undefined") {
 
+                    if(!_.isUndefined(view)) {
                         var billboard = view.billboard;
-                        if(typeof billboard !== "undefined") {
-                            var cluster = this.fitsInExistingCluster(billboard);
+                        if(!_.isUndefined(billboard)) {
+                            var cluster = this.fitsInExistingCluster(billboard, clusters);
 
                             // If the current point fits in an existing cluster add it,
                             // otherwise create a new cluster
-                            if(cluster !== false) {
+                            if(cluster) {
                                 this.addPointToCluster(cluster, billboard, view);
                             } else {
-                                this.createNewCluster(billboard, view);
+                                this.createNewCluster(billboard, view, clusters);
                             }
-                            // hide entity at position i
+                            // hide entity
                             this.hideEntity(billboard, view);
                         }
                     }
-                }
+                }, this);
 
-                var that = this;
-                $.each(clusters, function(index, value) {
-                    if(value.points.length > 1) {
-                        var newCluster = {
-                            position : value.position,
-                            point : {
-                                pixelSize : 25,
-                                color : value.color
-                            },
-                            label : {
-                                text : "" + value.points.length,
-                                font : '14px Helvetica',
-                                style : Cesium.LabelStyle.FILL
-                            }
-                        };
-                        value.entity = viewer.entities.add(newCluster);
-                    } else {
-                        that.showEntity(value.ref, view);
+                // Remove old entities
+                _.each(this.clusters, function(value) {
+                    var cluster = this.getCluster(value, clusters);
+                    if(_.isUndefined(cluster)) {
+                        this.viewer.entities.remove(value.entity);
                     }
-                });
+                }, this);
+
+                _.each(clusters, function(value) {
+                    var cluster = this.getCluster(value, this.clusters);
+                    // Render new entities
+                    if(_.isUndefined(cluster)) {
+                        if(value.points.length > 1) {
+                            var newCluster = {
+                                position : value.position,
+                                point : {
+                                    pixelSize : 25,
+                                    color : value.color
+                                },
+                                label : {
+                                    text : "" + value.points.length,
+                                    font : '14px Helvetica',
+                                    style : Cesium.LabelStyle.FILL
+                                }
+                            };
+                            value.entity = this.viewer.entities.add(newCluster);
+                        } else {
+                            this.showEntity(value.ref, value.views[0]);
+                        }
+                    } else {
+                        // Set existing entities in the new cluster array and show non clustered points
+                        value.entity = cluster.entity;
+                        if(cluster.points.length === 1) {
+                            this.showEntity(cluster.ref, cluster.views[0]);
+                        }
+                    }
+                }, this);
+                this.clusters = clusters;
             }
+        },
+        getCluster : function(cluster, clusters) {
+            var result = _.find(clusters, function(value) {
+                return _.isEqual(value.views, cluster.views);
+            });
+            return result;
         },
         showEntity : function(billboard, view) {
             billboard.show = true;
-            if(typeof view.polygons !== "undefined" ) {
+            if(!_.isUndefined(view.polygons)) {
                 var polygons = view.polygons;
-                $.each(polygons, function(index, value) {
+                _.each(polygons, function(value) {
                     value.fill.show = true;
                     value.outline.show = true;
                 });
@@ -101,33 +123,32 @@ define(['backbone',
         },
         hideEntity : function(billboard, view) {
             billboard.show = false;
-            if(typeof view.polygons !== "undefined" ) {
+            if(!_.isUndefined(view.polygons)) {
                 var polygons = view.polygons;
-                $.each(polygons, function(index, value) {
+                _.each(polygons, function(value) {
                     value.fill.show = false;
                     value.outline.show = false;
                 });
             }
         },
-        fitsInExistingCluster: function(position) {
-            var that = this;
+        fitsInExistingCluster : function(position, clusters) {
             var cluster = false;
-            $.each(clusters, function(index, value) {
-                if(that.isInRadius(that.getRadius(value), position, value)) {
+            _.each(clusters, function(value) {
+                if(this.isInRadius(this.getRadius(value), position, value)) {
                     cluster = value;
                     return false;
                 }
-            });
+            }, this);
             return cluster;
         },
-        createNewCluster : function (billboard, view) {
+        createNewCluster : function (billboard, view, clusters) {
             var points = [];
             var views = [];
             points.push(billboard.position);
             views.push(view);
             clusters.push({color: view.color, ref : billboard, views : views, position : billboard.position, points: points, radius : DEFAULT_PIXEL_DISTANCE});
         },
-        addPointToCluster: function(cluster, billboard, view) {
+        addPointToCluster : function(cluster, billboard, view) {
             var points = cluster.points;
             var views = cluster.views;
             points.push(billboard.position);
@@ -136,38 +157,31 @@ define(['backbone',
             var center = boundingSphere.center;
             cluster.position = center;
         },
-        removeClusters : function () {
-            $.each(clusters, function(index, cluster) {
-                viewer.entities.remove(cluster.entity);
-            });
-            clusters = [];
+        uncluster : function()  {
+            _.each(this.clusters, function(cluster) {
+                this.viewer.entities.remove(cluster.entity);
+                _.each(cluster.views, function(view) {
+                    this.showEntity(view.billboard, view);
+                }, this);
+            }, this);
+            this.clusters = [];
         },
-        resetBillboard: function()  {
-            var that = this;
-            $.each(clusters, function(index, cluster) {
-                viewer.entities.remove(cluster.entity);
-                $.each(cluster.views, function(index, view) {
-                    that.showEntity(view.billboard, view);
-                });
-            });
-            clusters = [];
-        },
-        isInRadius: function isInRadius(radius, entity, centerEntity) {
-            if(typeof entity.position === "undefined" || typeof centerEntity === "undefined" ) {
+        isInRadius : function isInRadius(radius, entity, centerEntity) {
+            if(_.isUndefined(entity.position) || _.isUndefined(centerEntity)) {
                 return false;
             }
             var distance = Cesium.Cartesian3.distance(entity.position, centerEntity.position);
             return (distance < radius);
         },
         /* Get a 20% threshold radius from the current view at the center of the canvas.  */
-        getRadius: function getRadius(entity) {
-            var width = viewer.canvas.width;
-            var height = viewer.canvas.height;
+        getRadius : function getRadius(entity) {
+            var width = this.viewer.canvas.width;
+            var height = this.viewer.canvas.height;
             var left = this.getEllipsoidAt40PercentOfMapView(width, height);
             var right = this.getEllipsoidAt60PercentOfMapView(width, height);
             //  Left and Right are undefined at the maximum radius distance
-            if(typeof left === "undefined"  || typeof right === "undefined" ) {
-                return MAX_RADIUS_DISTANCE;
+            if(_.isUndefined(left) || _.isUndefined(right)) {
+                return MAX_RADIUS_METER_DISTANCE;
             }
             var distanceInKm = Cesium.Cartesian3.distance(left, right);
             var distancePerPixel = distanceInKm / (width * 20 / 100);
@@ -175,10 +189,10 @@ define(['backbone',
             return distanceInPixels;
         },
         getEllipsoidAt40PercentOfMapView: function(width, height) {
-            return viewer.camera.pickEllipsoid(new Cesium.Cartesian2(width * 40 / 100, height / 2));
+            return this.viewer.camera.pickEllipsoid(new Cesium.Cartesian2(width * 40 / 100, height / 2));
         },
         getEllipsoidAt60PercentOfMapView: function(width, height) {
-            return viewer.camera.pickEllipsoid(new Cesium.Cartesian2(width * 60 / 100, height / 2));
+            return this.viewer.camera.pickEllipsoid(new Cesium.Cartesian2(width * 60 / 100, height / 2));
         }
     });
     return MapClustering;
