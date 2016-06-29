@@ -14,11 +14,14 @@
 package org.codice.ddf.registry.federationadmin.service.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -47,6 +50,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+
+import com.google.common.collect.ImmutableList;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -250,17 +255,42 @@ public class RegistryPublicationServiceImplTest {
 
     @Test
     public void testUpdate() throws Exception {
-        String publishedLocation = "myLocation";
+        String registryId1 = "registryId1";
+        String registryId2 = "registryId2";
+        String registryId3 = "registryId3";
+        String storeId1 = "store1";
+        String storeId3 = "store3";
+
+        // Purposely leave out mock for registry store 2
+        // so a store id won't be found for registryId2
+        // Not a likely case but should be handled
+        RegistryStore store1 = mock(RegistryStore.class);
+        when(store1.getId()).thenReturn(storeId1);
+        when(store1.getRegistryId()).thenReturn(registryId1);
+        RegistryStore store3 = mock(RegistryStore.class);
+        when(store3.getId()).thenReturn(storeId3);
+        when(store3.getRegistryId()).thenReturn(registryId3);
+
+        when(bundleContext.getService(serviceReference)).thenReturn(store1);
+        registryPublicationService.bindRegistryStore(serviceReference);
+        when(bundleContext.getService(serviceReference)).thenReturn(store3);
+        registryPublicationService.bindRegistryStore(serviceReference);
+
+        List<Serializable> publishedLocations = ImmutableList.of(registryId1,
+                registryId2,
+                registryId3);
         Date now = new Date();
         Date before = new Date(now.getTime() - 100000);
 
         MetacardImpl metacard = new MetacardImpl();
-        metacard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, publishedLocation);
+        metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
+                publishedLocations));
         metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED, before));
 
         registryPublicationService.update(metacard);
-        verify(federationAdminService, times(1)).updateRegistryEntry(metacard,
-                Collections.singleton(publishedLocation));
+        // update will only be callled with storeIds 1 and 3, 2 didn't have a storeId match for registryId2
+        verify(federationAdminService, times(1)).updateRegistryEntry(eq(metacard),
+                (Set<String>) argThat(contains(storeId1, storeId3)));
         verify(federationAdminService, times(1)).updateRegistryEntry(metacard);
 
         Attribute lastPublished = metacard.getAttribute(RegistryObjectMetacardType.LAST_PUBLISHED);
@@ -275,7 +305,8 @@ public class RegistryPublicationServiceImplTest {
         doThrow(new FederationAdminException("Test Error")).when(federationAdminService)
                 .updateRegistryEntry(any(Metacard.class), any(Set.class));
         MetacardImpl mcard = new MetacardImpl();
-        mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, "mylocation");
+        mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
+                REGISTRY_STORE_REGISTRY_ID);
 
         registryPublicationService.update(mcard);
         verify(federationAdminService, never()).updateRegistryEntry(mcard);
