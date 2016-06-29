@@ -2627,7 +2627,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 if (value instanceof String) {
                     String metacardId = (String) value;
                     LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
-                    QueryRequest queryRequest = new QueryRequestImpl(createAnyTagMetacardIdQuery(
+                    QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(
                             metacardId),
                             isEnterprise,
                             Collections.singletonList(site == null ? this.getId() : site),
@@ -2687,22 +2687,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     protected Query createPropertyIsEqualToQuery(String propertyName, String literal) {
         return new QueryImpl(new PropertyIsEqualToLiteral(new PropertyNameImpl(propertyName),
                 new LiteralImpl(literal)));
-    }
-
-    protected Query createAnyTagMetacardIdQuery(String metacardId) {
-        Filter tagsFilter = frameworkProperties.getFilterBuilder()
-                .attribute(Metacard.TAGS)
-                .is()
-                .like()
-                .text(FilterDelegate.WILDCARD_CHAR);
-        Filter idFilter = frameworkProperties.getFilterBuilder()
-                .attribute(Metacard.ID)
-                .is()
-                .equalTo()
-                .text(metacardId);
-
-        return new QueryImpl(frameworkProperties.getFilterBuilder()
-                .allOf(idFilter, tagsFilter));
     }
 
     /**
