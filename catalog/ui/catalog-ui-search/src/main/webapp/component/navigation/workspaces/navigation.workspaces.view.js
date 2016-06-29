@@ -14,28 +14,13 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    'text!./workspace-associations.hbs',
-    'js/CustomElements',
-], function (Marionette, _, $, workspaceAssociationsTemplate, CustomElements) {
+    '../navigation.view',
+    'component/workspaces-menu/workspaces-menu.view'
+], function (NavigationView, RecentMenu) {
 
-    var WorkspaceAssociations = Marionette.LayoutView.extend({
-        template: workspaceAssociationsTemplate,
-        tagName: CustomElements.register('workspace-associations'),
-        modelEvents: {
-            'all': 'render'
-        },
-        events: {
-        },
-        ui: {
-        },
-        regions: {
-        },
-        initialize: function(){
+    return NavigationView.extend({
+        showNavigationMiddle: function(){
+            this.navigationMiddle.show(new RecentMenu());
         }
     });
-
-    return WorkspaceAssociations;
 });

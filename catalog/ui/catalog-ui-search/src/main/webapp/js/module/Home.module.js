@@ -11,7 +11,7 @@
  **/
 /* global define */
 define(['application',
-        'component/home/home.view',
+        'component/workspaces/home.view',
     ],
     function(Application, HomeView) {
 

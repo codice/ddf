@@ -12,22 +12,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, alert*/
+/*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../tabs.view'
-], function (Marionette, _, $, TabsView) {
+    '../navigation.view',
+    'component/workspace-menu/workspace-menu.view'
+], function (NavigationView, WorkspaceMenu) {
 
-    var WorkspaceTabsView = TabsView.extend({
-        determineContent: function(){
-            var activeTab = this.model.getActiveView();
-            this.tabsContent.show(new activeTab({
-                model: this.model.getAssociatedWorkspace()
-            }));
+    return NavigationView.extend({
+        showNavigationMiddle: function(){
+            this.navigationMiddle.show(new WorkspaceMenu());
         }
     });
-
-    return WorkspaceTabsView;
 });

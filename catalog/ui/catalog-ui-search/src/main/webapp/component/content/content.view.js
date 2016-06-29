@@ -20,7 +20,7 @@ define([
     'jquery',
     'text!./content.hbs',
     'js/CustomElements',
-    'component/menu/menu.view',
+    'component/navigation/workspace/navigation.workspace.view',
     'properties',
     'component/tabs/workspace-content/tabs-workspace-content',
     'component/tabs/workspace-content/tabs-workspace-content.view',

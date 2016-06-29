@@ -18,7 +18,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./home-items.hbs',
+    'text!./workspaces-items.hbs',
     'js/CustomElements',
     'js/store',
     'component/workspace-item/workspace-item.collection.view',
@@ -34,7 +34,7 @@ define([
             this.model = store.get('workspaces');
         },
         template: template,
-        tagName: CustomElements.register('home-items'),
+        tagName: CustomElements.register('workspaces-items'),
         modelEvents: {
         },
         regions: {

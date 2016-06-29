@@ -18,7 +18,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./home-templates.hbs',
+    'text!./workspaces-templates.hbs',
     'js/CustomElements',
     'js/store',
     'component/loading/loading.view',
@@ -34,7 +34,7 @@ define([
         setDefaultModel: function(){
         },
         template: template,
-        tagName: CustomElements.register('home-templates'),
+        tagName: CustomElements.register('workspaces-templates'),
         modelEvents: {
         },
         events: {

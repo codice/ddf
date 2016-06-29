@@ -17,38 +17,25 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./menu.hbs',
+    'text!./workspace-menu.hbs',
     'js/CustomElements',
-    'component/logo/logo.view',
     'component/content-title/content-title.view',
     'component/content-toolbar/content-toolbar.view',
-    'component/details-user/details-user.view',
-    'component/tasks/tasks.view',
-    'component/details-buttons/details-buttons.view',
-    'component/dropdown/dropdown',
-    'component/dropdown/notifications/dropdown.notifications.view',
-    'component/dropdown/alerts/dropdown.alerts.view',
     'wreqr'
-], function (Marionette, _, $, template, CustomElements, LogoView, TitleView, ToolbarView,
-UserView, Tasks, ButtonsView, DropdownModel, Notifications, Alerts, wreqr) {
+], function (Marionette, _, $, template, CustomElements, TitleView, ToolbarView, wreqr) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
             //override
         },
         template: template,
-        tagName: CustomElements.register('menu'),
+        tagName: CustomElements.register('workspace-menu'),
         events: {
             'click .menu-logo': 'navigateHome'
         },
         regions: {
-            logo: '.menu-logo',
             title: '.content-title',
-            toolbar: '.content-toolbar',
-            alerts: '.details-alerts',
-            user: '.details-user',
-            notifications: '.details-notifications',
-            tasks: '.details-tasks'
+            toolbar: '.content-toolbar'
         },
         initialize: function (options) {
             if (options.model === undefined){
@@ -56,17 +43,8 @@ UserView, Tasks, ButtonsView, DropdownModel, Notifications, Alerts, wreqr) {
             }
         },
         onBeforeShow: function(){
-            this.logo.show(new LogoView());
             this.title.show(new TitleView());
             this.toolbar.show(new ToolbarView());
-            this.notifications.show(new Notifications({
-                model: new DropdownModel()
-            }));
-            this.alerts.show(new Alerts({
-                model: new DropdownModel()
-            }));
-            this.user.show(new UserView());
-            this.tasks.show(new Tasks())
         },
         navigateHome: function(){
             wreqr.vent.trigger('router:navigate', {

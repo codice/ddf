@@ -14,34 +14,24 @@
  **/
 /*global define*/
 define([
+    'wreqr',
     'marionette',
     'underscore',
     'jquery',
-    'text!./workspace-advanced.hbs',
-    'js/CustomElements',
-], function (Marionette, _, $, workspaceAdvancedTemplate, CustomElements) {
+    'text!./workspaces-menu.hbs',
+    'js/CustomElements'
+], function (wreqr, Marionette, _, $, template, CustomElements) {
 
-    var WorkspaceAdvanced = Marionette.LayoutView.extend({
-        template: workspaceAdvancedTemplate,
-        tagName: CustomElements.register('workspace-advanced'),
+    return Marionette.LayoutView.extend({
+        template: template,
+        tagName: CustomElements.register('workspaces-menu'),
         modelEvents: {
-            'all': 'render'
         },
         events: {
         },
         ui: {
         },
-        regions: {
-        },
         initialize: function(){
-        },
-        serializeData: function () {
-            return _.extend(this.model.toJSON(), {
-                numSavedItems: this.model.get('metacards').length,
-                numSearches: this.model.get('searches').length
-            });
-        },
+        }
     });
-
-    return WorkspaceAdvanced;
 });

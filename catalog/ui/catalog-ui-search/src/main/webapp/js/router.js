@@ -20,7 +20,7 @@ define([
     'component/confirmation/confirmation.view',
     'application',
     'component/content/content.view',
-    'component/home/home.view',
+    'component/workspaces/workspaces.view',
     'component/metacard/metacard.view',
     'component/metacard/metacard',
     'js/model/Query',

@@ -1,4 +1,4 @@
-@{customElementNamespace}home-templates {
+@{customElementNamespace}workspaces-templates {
   .customElement;
 
   color: white;
@@ -124,7 +124,7 @@
   }
 }
 
-@{customElementNamespace}home-templates.is-expanded {
+@{customElementNamespace}workspaces-templates.is-expanded {
   .home-templates-expanded {
     transform: translateY(0%);
     opacity: 1;
@@ -138,24 +138,24 @@
   }
 }
 
-.has-header @{customElementNamespace}home-templates.is-expanded {
+.has-header @{customElementNamespace}workspaces-templates.is-expanded {
   top: 80px;
   .home-templates-expanded {
     top: 20px;
   }
 }
 
-.has-footer @{customElementNamespace}home-templates.is-expanded,
-.has-header @{customElementNamespace}home-templates.is-expanded {
+.has-footer @{customElementNamespace}workspaces-templates.is-expanded,
+.has-header @{customElementNamespace}workspaces-templates.is-expanded {
   height: ~'calc(100vh - 60px - 20px)';
 }
 
-.has-header.has-footer @{customElementNamespace}home-templates.is-expanded {
+.has-header.has-footer @{customElementNamespace}workspaces-templates.is-expanded {
   height: ~'calc(100vh - 60px - 40px)';
 }
 
 @media (max-width: @mediumScreenSize) {
-  @{customElementNamespace}home-templates {
+  @{customElementNamespace}workspaces-templates {
     .home-templates-center,
     .expanded-content{
       max-width: 100%;
@@ -170,7 +170,7 @@
 }
 
 @media (max-width: @smallScreenSize) {
-  @{customElementNamespace}home-templates {
+  @{customElementNamespace}workspaces-templates {
     .home-templates-choices {
       text-align: center;
     }

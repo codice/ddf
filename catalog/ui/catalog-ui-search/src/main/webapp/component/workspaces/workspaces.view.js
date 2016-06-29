@@ -18,17 +18,17 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./home.hbs',
+    'text!./workspaces.hbs',
     'js/CustomElements',
     'js/store',
-    'component/home-menu/home-menu.view',
-    'component/home-templates/home-templates.view',
-    'component/home-items/home-items.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, HomeMenuView, HomeTemplateView, HomeItemView) {
+    'component/navigation/workspaces/navigation.workspaces.view',
+    'component/workspaces-templates/workspaces-templates.view',
+    'component/workspaces-items/workspaces-items.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, WorkspacesMenuView, WorkspacesTemplatesView, WorkspacesItemsView) {
 
     return Marionette.LayoutView.extend({
         template: template,
-        tagName: CustomElements.register('home'),
+        tagName: CustomElements.register('workspaces'),
         modelEvents: {
         },
         events: {
@@ -57,9 +57,9 @@ define([
             }
         },
         onRender: function(){
-            this.menu.show(new HomeMenuView());
-            this.templates.show(new HomeTemplateView());
-            this.items.show(new HomeItemView());
+            this.menu.show(new WorkspacesMenuView());
+            this.templates.show(new WorkspacesTemplatesView());
+            this.items.show(new WorkspacesItemsView());
         },
         handleTemplatesExpand: function(){
             this.$el.addClass('has-templates-expanded');
