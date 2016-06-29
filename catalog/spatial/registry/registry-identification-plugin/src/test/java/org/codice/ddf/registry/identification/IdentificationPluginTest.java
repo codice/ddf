@@ -274,6 +274,7 @@ public class IdentificationPluginTest {
 
     @Test
     public void testSetTransientAttributesOnUpdateMetacard() throws Exception {
+        String xml = convert("/registry-no-extid.xml");
         MetacardImpl previousMetacard = new MetacardImpl();
         previousMetacard.setAttribute(Metacard.ID, "MetacardId");
         previousMetacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "MetacardId");
@@ -282,6 +283,7 @@ public class IdentificationPluginTest {
         previousMetacard.setAttribute(RegistryObjectMetacardType.LAST_PUBLISHED,
                 "Last Published Time");
         previousMetacard.setAttribute(Metacard.MODIFIED, new Date().from(Instant.now()));
+
         OperationTransaction operationTransaction = new OperationTransactionImpl(null,
                 Collections.singletonList(previousMetacard));
 
@@ -294,7 +296,7 @@ public class IdentificationPluginTest {
         updateMetacard.setAttribute(Metacard.ID, "MetacardId");
         updateMetacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "MetacardId");
         updateMetacard.setAttribute(Metacard.MODIFIED, new Date().from(Instant.now()));
-
+        updateMetacard.setAttribute(Metacard.METADATA, xml);
         updatedEntries.add(new AbstractMap.SimpleEntry<>(updateMetacard.getId(), updateMetacard));
 
         UpdateRequest updateRequest = new UpdateRequestImpl(updatedEntries,

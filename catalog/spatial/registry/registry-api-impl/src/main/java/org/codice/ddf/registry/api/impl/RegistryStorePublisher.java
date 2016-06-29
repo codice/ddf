@@ -191,17 +191,18 @@ public class RegistryStorePublisher implements EventHandler {
         String pid = event.getProperty(Constants.SERVICE_PID)
                 .toString();
 
-        BundleContext bundleContext = getBundleContext();
-
-        RegistryStore registryStore =
-                (RegistryStore) bundleContext.getService(((ServiceEvent) event.getProperty(
-                        EventConstants.EVENT)).getServiceReference());
 
         Boolean previousAutoPush = registryStoreMap.get(pid);
 
         if (previousAutoPush == null) {
             return;
         }
+
+        BundleContext bundleContext = getBundleContext();
+
+        RegistryStore registryStore =
+                (RegistryStore) bundleContext.getService(((ServiceEvent) event.getProperty(
+                        EventConstants.EVENT)).getServiceReference());
 
         if (!previousAutoPush && registryStore.isAutoPush()) {
             registryPublish(registryStore, PUBLISH);
