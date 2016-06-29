@@ -55,7 +55,7 @@ define([
                 (function(id) {
                     $.get( '/search/catalog/internal/metacard/'+
                     id+
-                    '/validation').then(function(response){
+                    '/attribute/validation').then(function(response){
                         if (!self.isDestroyed && self.editorProperties.currentView){
                             response.forEach(function(issue){
                                 issue.id = id;

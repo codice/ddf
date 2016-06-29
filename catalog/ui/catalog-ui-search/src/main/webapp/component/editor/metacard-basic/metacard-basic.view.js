@@ -47,7 +47,7 @@ define([
         getValidation: function(){
             var self = this;
             self.editorProperties.currentView.clearValidation();
-            $.get('/search/catalog/internal/metacard/'+this.model.get('metacard').id+'/validation').then(function(response){
+            $.get('/search/catalog/internal/metacard/'+this.model.get('metacard').id+'/attribute/validation').then(function(response){
                 if (!self.isDestroyed && self.editorProperties.currentView){
                     self.editorProperties.currentView.updateValidation(response);
                 }
