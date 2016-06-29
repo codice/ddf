@@ -28,8 +28,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.localserver.LocalTestServer;
+import org.apache.http.impl.bootstrap.HttpServer;
+import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.junit.After;
@@ -45,7 +47,7 @@ public class MetadataConfigurationParserTest {
 
     private Path descriptorPath;
 
-    private LocalTestServer server;
+    private HttpServer server;
 
     private String serverAddress;
 
@@ -61,13 +63,14 @@ public class MetadataConfigurationParserTest {
                 .toURI());
         System.setProperty("ddf.home", "");
 
-        server = new LocalTestServer(null, null);
-        server.register("/*", handler);
-        server.start();
-
-        serverAddress = server.getServiceAddress()
-                .getHostString() + ":" + server.getServiceAddress()
-                .getPort();
+        this.server = ServerBootstrap.bootstrap()
+                .setSocketConfig(SocketConfig.custom()
+                        .setSoTimeout(5000)
+                        .build())
+                .registerHandler("/*", handler)
+                .create();
+        this.server.start();
+        serverAddress = "localhost:" + server.getLocalPort();
     }
 
     @After

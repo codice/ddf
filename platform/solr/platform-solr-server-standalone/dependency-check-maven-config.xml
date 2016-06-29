@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://www.owasp.org/index.php/OWASP_Dependency_Check_Suppression">
+    <suppress>
+        <notes><![CDATA[
+   file name: solr-*.jar
+   OWASP is getting confused by our version number being on a jar with solr in the name we are on solr 6.0+ which is not affected by this issue.
+   ]]></notes>
+        <cve>CVE-2012-6612</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+        this CVE is generating a lot of false positives it should only include jackson-dataformat-xml jar
+         but it is catching all jackson dependencies unfortunately I can't fix it so if we start depending
+          on a vulnerable version of jackson-dataformat-xml this will sill suppress it.
+   ]]></notes>
+        <cve>CVE-2016-3720</cve>
+    </suppress>
+
     <!--
-        CVE-2011-2730 only applies when using JSP Expression Language (EL) which is not used in DDF.
-     -->
+    CVE-2008-0660 is a stack based buffer overflow vulnerability related to ActiveX and
+    several image uploaders. This is unrelated to presto-parser, so marking as a false positive.
+-->
+    <suppress>
+        <cve>CVE-2008-0660</cve>
+    </suppress>
+
+    <!--
+    CVE-2011-2730 is related to a vulnerability in the VMware SpringSource Spring
+    Framework, where OWASP flags jars that are unrelated or have no dependency on
+    Spring, so marking it as a false positive.
+-->
     <suppress>
         <cve>CVE-2011-2730</cve>
     </suppress>
 
-    <!--
-        CVE-2014-0050: Applies to commons-fileupload-1.2.1, suppressing due to replacing jar when packaging war
-    -->
-    <suppress>
-        <cve>CVE-2014-0050</cve>
-    </suppress>
 </suppressions>
