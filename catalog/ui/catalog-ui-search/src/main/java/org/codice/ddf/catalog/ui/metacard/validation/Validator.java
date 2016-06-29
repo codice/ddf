@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard.validation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +67,20 @@ public class Validator {
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
 
+    }
+
+    public List<ValidationViolation> getFullValidation(Metacard metacard) {
+        Set<ValidationViolation> attributeValidationViolations = validators.stream()
+                .map(v -> v.validateMetacard(metacard))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(MetacardValidationReport::getMetacardValidationViolations)
+                .reduce((left, right) -> {
+                    left.addAll(right);
+                    return left;
+                })
+                .orElse(new HashSet<>());
+        return new ArrayList<>(attributeValidationViolations);
     }
 
     public AttributeValidationResponse validateAttribute(String attribute, String value) {

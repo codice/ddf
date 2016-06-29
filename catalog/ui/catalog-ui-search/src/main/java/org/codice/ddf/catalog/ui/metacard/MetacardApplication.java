@@ -119,10 +119,16 @@ public class MetacardApplication implements SparkApplication {
             return util.metacardToJson(id);
         });
 
-        get("/metacard/:id/validation", (req, res) -> {
+        get("/metacard/:id/attribute/validation", (req, res) -> {
             String id = req.params(":id");
             res.type(APPLICATION_JSON);
             return util.getJson(validator.getValidation(util.getMetacard(id)));
+        });
+
+        get("/metacard/:id/validation", (req, res) -> {
+            String id = req.params(":id");
+            res.type(APPLICATION_JSON);
+            return util.getJson(validator.getFullValidation(util.getMetacard(id)));
         });
 
         post("/metacards", APPLICATION_JSON, (req, res) -> {
@@ -285,19 +291,6 @@ public class MetacardApplication implements SparkApplication {
                     .collect(Collectors.toList());
             associated.putAssociations(associations, emptyAssociations);
             return req.body();
-
-            /*List<AssociatedItem> associationsOutgoing = associated.getAssociations();
-            Map<String, AssociationResult> resultMap = new HashMap<>();
-
-            for (AssociatedItem association : associationsOutgoing) {
-                AssociationResult result = resultMap.getOrDefault(association.getType(),
-                        new AssociationResult(association.getType()));
-                result.metacards.add(new AssociationResultItem(association.getId(),
-                        association.getTitle()));
-                resultMap.put(association.getType(), result);
-            }
-
-            return util.getJson(resultMap.values());*/
         });
 
         get("/workspaces/:id", (req, res) -> {
