@@ -16,6 +16,7 @@ package ddf.security.expansion.impl;
 import static org.junit.Assert.fail;
 
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -225,13 +226,15 @@ public class AbstractExpansionTest {
     }
 
     @Test
-    public void testLoadConfiguration() {
-        Map<String, List<String[]>> map = new HashMap<String, List<String[]>>();
+    public void testLoadConfiguration() throws Exception {
+        Map<String, List<String[]>> map;
         StraightExpansionImpl exp = new StraightExpansionImpl();
 
         URL testConfigFile = ClassLoader.getSystemResource("testExpansionConfig.cfg");
         if (null != testConfigFile) {
-            String filename = testConfigFile.getFile();
+            String filename = Paths.get(testConfigFile.toURI())
+                    .toFile()
+                    .getAbsolutePath();
             exp.loadConfiguration(filename);
 
             map = exp.getExpansionMap();
