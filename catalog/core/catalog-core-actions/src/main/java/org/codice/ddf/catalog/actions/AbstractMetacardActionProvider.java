@@ -14,8 +14,6 @@
 package org.codice.ddf.catalog.actions;
 
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -74,30 +72,30 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public <T> List<Action> getActions(T subject) {
+    public <T> Action getAction(T subject) {
 
         if (!canHandle(subject)) {
-            return Collections.emptyList();
+            return null;
         }
 
         Metacard metacard = (Metacard) subject;
 
         if (StringUtils.isBlank(metacard.getId())) {
             LOGGER.warn("Cannot create Action: No metacard ID.");
-            return Collections.emptyList();
+            return null;
         }
 
         if (isHostUnset(SystemBaseUrl.getHost())) {
             LOGGER.warn("Cannot create Action URL for metacard {}: Host name/IP not set.",
                     metacard.getId());
-            return Collections.emptyList();
+            return null;
         }
 
         try {
-            return Collections.singletonList(getMetacardAction(getSource(metacard), metacard));
+            return getMetacardAction(getSource(metacard), metacard);
         } catch (Exception e) {
             LOGGER.warn("Cannot create Action URL for metacard {}.", metacard.getId(), e);
-            return Collections.emptyList();
+            return null;
         }
     }
 
@@ -112,7 +110,6 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
      * <p>
      * {@inheritDoc}
      */
-    @Override
     public <T> boolean canHandle(T subject) {
         return (subject instanceof Metacard) && (canHandleMetacard((Metacard) subject));
     }

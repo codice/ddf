@@ -18,10 +18,10 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <reference-list id="reportActionProviders" interface="ddf.action.ActionProvider"
+    <reference-list id="reportActionProviders" interface="ddf.action.MultiActionProvider"
                     filter="(id=catalog.source.report.*)" availability="optional"/>
 
-    <reference-list id="operationActionProviders" interface="ddf.action.ActionProvider"
+    <reference-list id="operationActionProviders" interface="ddf.action.MultiActionProvider"
                     filter="(id=catalog.source.operation.*)" availability="optional"/>
 
     <bean id="adminPoller"

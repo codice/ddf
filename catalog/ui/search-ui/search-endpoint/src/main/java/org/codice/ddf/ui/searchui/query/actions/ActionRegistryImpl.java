@@ -21,22 +21,34 @@ import org.apache.commons.collections.CollectionUtils;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.ActionRegistry;
+import ddf.action.MultiActionProvider;
 
 /**
  * The {@code ActionRegistryImpl} provides an ActionRegistry for {@code Metacard}s.
  */
 public class ActionRegistryImpl implements ActionRegistry {
 
-    public List<ActionProvider> providers;
+    public List<ActionProvider> actionProviders;
 
-    public ActionRegistryImpl(List<ActionProvider> actionProviders) {
-        this.providers = actionProviders;
+    public List<MultiActionProvider> multiActionProviders;
+
+    public ActionRegistryImpl(List<ActionProvider> actionProviders,
+            List<MultiActionProvider> multiActionProviders) {
+        this.actionProviders = actionProviders;
+        this.multiActionProviders = multiActionProviders;
     }
 
     public <Metacard> List<Action> list(Metacard metacard) {
         List<Action> availableActions = new ArrayList<>();
 
-        for (ActionProvider provider : providers) {
+        for (ActionProvider provider : actionProviders) {
+            Action action = provider.getAction(metacard);
+            if (action != null) {
+                availableActions.add(action);
+            }
+        }
+
+        for (MultiActionProvider provider : multiActionProviders) {
             if (provider.canHandle(metacard)) {
                 List<Action> actions = provider.getActions(metacard);
                 if (!CollectionUtils.isEmpty(actions)) {
@@ -44,6 +56,7 @@ public class ActionRegistryImpl implements ActionRegistry {
                 }
             }
         }
+
         return availableActions;
     }
 }

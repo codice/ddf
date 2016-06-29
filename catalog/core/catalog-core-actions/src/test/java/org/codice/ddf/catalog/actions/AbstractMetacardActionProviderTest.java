@@ -13,9 +13,8 @@
  */
 package org.codice.ddf.catalog.actions;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -27,7 +26,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
@@ -144,9 +142,9 @@ public class AbstractMetacardActionProviderTest {
     public void getActionsWithNull() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
 
-        List<Action> actions = actionProvider.getActions(null);
+        Action action = actionProvider.getAction(null);
 
-        assertThat(actions, is(empty()));
+        assertThat(action, is(nullValue()));
         verify(actionProvider, never()).getMetacardAction(any(), any());
     }
 
@@ -154,9 +152,9 @@ public class AbstractMetacardActionProviderTest {
     public void getActionsWithNonMetacard() throws Exception {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
 
-        List<Action> actions = actionProvider.getActions("blah");
+        Action action = actionProvider.getAction("blah");
 
-        assertThat(actions, is(empty()));
+        assertThat(action, is(nullValue()));
         verify(actionProvider, never()).getMetacardAction(any(), any());
     }
 
@@ -165,9 +163,9 @@ public class AbstractMetacardActionProviderTest {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(metacard.getId()).thenReturn(null);
 
-        List<Action> actions = actionProvider.getActions(metacard);
+        Action action = actionProvider.getAction(metacard);
 
-        assertThat(actions, is(empty()));
+        assertThat(action, is(nullValue()));
         verify(actionProvider, never()).getMetacardAction(any(), any());
     }
 
@@ -176,9 +174,9 @@ public class AbstractMetacardActionProviderTest {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(metacard.getId()).thenReturn(" ");
 
-        List<Action> actions = actionProvider.getActions(metacard);
+        Action action = actionProvider.getAction(metacard);
 
-        assertThat(actions, is(empty()));
+        assertThat(action, is(nullValue()));
         verify(actionProvider, never()).getMetacardAction(any(), any());
     }
 
@@ -193,9 +191,9 @@ public class AbstractMetacardActionProviderTest {
         when(actionProvider.getMetacardActionUrl(SOURCE_ID, metacard)).thenReturn(url);
         System.clearProperty(SystemBaseUrl.HOST);
 
-        List<Action> actions = actionProvider.getActions(metacard);
+        Action action = actionProvider.getAction(metacard);
 
-        assertThat(actions, hasItem(action));
+        assertThat(action, is(this.action));
         verify(actionProvider).createMetacardAction(ACTION_ID, TITLE, DESCRIPTION, url);
     }
 
@@ -210,9 +208,9 @@ public class AbstractMetacardActionProviderTest {
         when(actionProvider.getMetacardActionUrl(SOURCE_ID, metacard)).thenReturn(url);
         System.setProperty(SystemBaseUrl.HOST, "0.0.0.0");
 
-        List<Action> actions = actionProvider.getActions(metacard);
+        Action action = actionProvider.getAction(metacard);
 
-        assertThat(actions, is(empty()));
+        assertThat(action, is(nullValue()));
         verify(actionProvider, never()).getMetacardAction(any(), any());
     }
 
@@ -221,9 +219,9 @@ public class AbstractMetacardActionProviderTest {
         MetacardActionProvider actionProvider = createMetacardActionProvider();
         when(actionProvider.canHandleMetacard(metacard)).thenReturn(false);
 
-        List<Action> actions = actionProvider.getActions(metacard);
+        Action action = actionProvider.getAction(metacard);
 
-        assertThat(actions, is(empty()));
+        assertThat(action, is(nullValue()));
         verify(actionProvider, never()).getMetacardAction(any(), any());
     }
 
@@ -236,9 +234,9 @@ public class AbstractMetacardActionProviderTest {
                 any())).thenReturn(action);
         System.setProperty(SystemBaseUrl.HOST, "codice.org");
 
-        List<Action> actions = actionProvider.getActions(metacard);
+        Action action = actionProvider.getAction(metacard);
 
-        assertThat(actions, hasItem(action));
+        assertThat(action, is(this.action));
     }
 
     @Test
@@ -255,8 +253,8 @@ public class AbstractMetacardActionProviderTest {
         };
 
         System.setProperty(SystemBaseUrl.HOST, "codice.org");
-        List<Action> actions = actionProvider.getActions(metacard);
-        assertThat(actions, is(empty()));
+        Action action = actionProvider.getAction(metacard);
+        assertThat(action, is(nullValue()));
     }
 
     @Test
@@ -270,9 +268,9 @@ public class AbstractMetacardActionProviderTest {
                 eq(DESCRIPTION),
                 any())).thenReturn(action);
 
-        List<Action> actions = actionProvider.getActions(metacard);
+        Action action = actionProvider.getAction(metacard);
 
-        assertThat(actions, hasItem(action));
+        assertThat(action, is(this.action));
         verify(actionProvider).getMetacardAction("ddf", metacard);
     }
 

@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
+import ddf.action.MultiActionProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -38,14 +39,14 @@ import ddf.catalog.operation.QueryResponse;
 public class QueryResponsePostProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryResponsePostProcessor.class);
 
-    private ActionProvider derivedActionProvider;
+    private MultiActionProvider derivedMultiActionProvider;
 
     private ActionProvider resourceActionProvider;
 
     public QueryResponsePostProcessor(ActionProvider resourceActionProvider,
-            ActionProvider derivedActionProvider) {
+            MultiActionProvider derivedActionProvider) {
         this.resourceActionProvider = resourceActionProvider;
-        this.derivedActionProvider = derivedActionProvider;
+        this.derivedMultiActionProvider = derivedActionProvider;
     }
 
     /**
@@ -58,7 +59,7 @@ public class QueryResponsePostProcessor {
      */
     public void processResponse(QueryResponse queryResponse) {
 
-        if (resourceActionProvider == null && derivedActionProvider == null) {
+        if (resourceActionProvider == null && derivedMultiActionProvider == null) {
             LOGGER.debug("No ActionProvider, skipping addition of {} attribute in Metacards",
                     Metacard.RESOURCE_DOWNLOAD_URL);
             return;
@@ -68,11 +69,10 @@ public class QueryResponsePostProcessor {
             final Metacard metacard = result.getMetacard();
 
             if (metacard.getResourceURI() != null && resourceActionProvider != null) {
-                List<Action> actions = resourceActionProvider.getActions(metacard);
+                Action action = resourceActionProvider.getAction(metacard);
 
-                if (!CollectionUtils.isEmpty(actions)) {
-                    final URL resourceUrl = actions.get(0)
-                            .getUrl();
+                if (action != null) {
+                    final URL resourceUrl = action.getUrl();
 
                     if (resourceUrl != null) {
                         metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_DOWNLOAD_URL,
@@ -84,8 +84,8 @@ public class QueryResponsePostProcessor {
                     && !metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI)
                     .getValues()
                     .isEmpty() &&
-                    derivedActionProvider != null) {
-                List<Action> actions = derivedActionProvider.getActions(metacard);
+                    derivedMultiActionProvider != null) {
+                List<Action> actions = derivedMultiActionProvider.getActions(metacard);
 
                 if (!CollectionUtils.isEmpty(actions)) {
                     metacard.setAttribute(new AttributeImpl(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL,

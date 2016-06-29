@@ -30,7 +30,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.Subject;
 
@@ -70,29 +69,27 @@ public class LogoutService {
         List<Map<String, String>> realmToPropMaps = new ArrayList<>();
 
         for (ActionProvider actionProvider : logoutActionProviders) {
-            List<Action> actions = actionProvider.getActions(realmSubjectMap);
-            if (!CollectionUtils.isEmpty(actions)) {
-                for (Action action : actions) {
-                    String realm = StringUtils.substringAfterLast(action.getId(), ".");
+            Action action = actionProvider.getAction(realmSubjectMap);
+            if (action != null) {
+                String realm = StringUtils.substringAfterLast(action.getId(), ".");
 
-                    //if the user is logged in and isn't a guest, add them
-                    if (realmTokenMap.get(realm) != null) {
-                        Map<String, String> actionProperties = new HashMap<>();
-                        String displayName = SubjectUtils.getName(realmSubjectMap.get(realm),
-                                "",
-                                true);
+                //if the user is logged in and isn't a guest, add them
+                if (realmTokenMap.get(realm) != null) {
+                    Map<String, String> actionProperties = new HashMap<>();
+                    String displayName = SubjectUtils.getName(realmSubjectMap.get(realm),
+                            "",
+                            true);
 
-                        if (displayName != null
-                                && !displayName.equals(SubjectUtils.GUEST_DISPLAY_NAME)) {
-                            actionProperties.put("title", action.getTitle());
-                            actionProperties.put("realm", realm);
-                            actionProperties.put("auth", displayName);
-                            actionProperties.put("description", action.getDescription());
-                            actionProperties.put("url",
-                                    action.getUrl()
-                                            .toString());
-                            realmToPropMaps.add(actionProperties);
-                        }
+                    if (displayName != null
+                            && !displayName.equals(SubjectUtils.GUEST_DISPLAY_NAME)) {
+                        actionProperties.put("title", action.getTitle());
+                        actionProperties.put("realm", realm);
+                        actionProperties.put("auth", displayName);
+                        actionProperties.put("description", action.getDescription());
+                        actionProperties.put("url",
+                                action.getUrl()
+                                        .toString());
+                        realmToPropMaps.add(actionProperties);
                     }
                 }
             }

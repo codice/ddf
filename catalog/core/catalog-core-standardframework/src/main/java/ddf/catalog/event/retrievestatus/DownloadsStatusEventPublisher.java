@@ -174,11 +174,8 @@ public class DownloadsStatusEventPublisher {
             Action downloadAction = null;
             if (null != actionProviders && !actionProviders.isEmpty()) {
                 // take the first one
-                List<Action> downloadActions = actionProviders.get(0)
-                        .getActions(metacard);
-                if (!downloadActions.isEmpty()){
-                    downloadAction = downloadActions.get(0);
-                }
+                downloadAction = actionProviders.get(0)
+                        .getAction(metacard);
             }
 
             // send activity event

@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
-import ddf.action.ActionProvider;
+import ddf.action.MultiActionProvider;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
@@ -94,9 +94,9 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
     private final AdminSourceHelper helper;
 
-    private List<ActionProvider> reportActionProviders;
+    private List<MultiActionProvider> reportActionProviders;
 
-    private List<ActionProvider> operationActionProviders;
+    private List<MultiActionProvider> operationActionProviders;
 
     public AdminPollerServiceBean(ConfigurationAdmin configurationAdmin) {
         helper = getHelper();
@@ -236,9 +236,9 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     }
 
     private List<Map<String, String>> getActions(Configuration config,
-            List<ActionProvider> providers) {
+            List<MultiActionProvider> providers) {
         List<Map<String, String>> actions = new ArrayList<>();
-        for (ActionProvider provider : providers) {
+        for (MultiActionProvider provider : providers) {
             if (!provider.canHandle(config)) {
                 continue;
             }
@@ -324,11 +324,11 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         }
     }
 
-    public void setReportActionProviders(List<ActionProvider> reportActionProviders) {
+    public void setReportActionProviders(List<MultiActionProvider> reportActionProviders) {
         this.reportActionProviders = reportActionProviders;
     }
 
-    public void setOperationActionProviders(List<ActionProvider> operationActionProviders) {
+    public void setOperationActionProviders(List<MultiActionProvider> operationActionProviders) {
         this.operationActionProviders = operationActionProviders;
     }
 }
