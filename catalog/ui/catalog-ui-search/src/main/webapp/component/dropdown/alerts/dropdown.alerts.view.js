@@ -19,8 +19,8 @@ define([
     '../dropdown.view',
     'text!./dropdown.alerts.hbs',
     'component/alerts/alerts.view',
-    'js/store'
-], function (_, $, DropdownView, template, ComponentView, store) {
+    'js/model/user'
+], function (_, $, DropdownView, template, ComponentView, user) {
 
     return DropdownView.extend({
         template: template,
@@ -28,7 +28,7 @@ define([
         componentToShow: ComponentView,
         initializeComponentModel: function(){
             //override if you need more functionality
-            this.modelForComponent = store.get('user').get('user').get('preferences').get('alerts');
+            this.modelForComponent = user.get('user').get('preferences').get('alerts');
         },
         listenToComponent: function () {
             this.listenTo(this.modelForComponent, 'add', this.render);

@@ -21,8 +21,9 @@ define([
     'text!./metacard-interactions.hbs',
     'js/CustomElements',
     'js/store',
-    'component/router/router'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, router) {
+    'component/router/router',
+    'js/model/user'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user) {
 
     return Marionette.ItemView.extend({
         template: template,
@@ -47,7 +48,7 @@ define([
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
             }
-            this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultBlacklist', this.checkIfBlacklisted);
+            this.listenTo(user.get('user').get('preferences'), 'change:resultBlacklist', this.checkIfBlacklisted);
         },
         onRender: function(){
             this.checkIfSaved();
@@ -79,7 +80,7 @@ define([
             this.checkIfSaved();
         },
         handleHide: function(){
-            var preferences = store.get('user').get('user').get('preferences');
+            var preferences = user.get('user').get('preferences');
             var ids = this.model.map(function(result){
                 return result.get('metacard').get('properties').get('id');
             });
@@ -87,7 +88,7 @@ define([
             preferences.savePreferences();
         },
         handleShow: function(){
-            var preferences = store.get('user').get('user').get('preferences');
+            var preferences = user.get('user').get('preferences');
             var ids = this.model.map(function(result){
                 return result.get('metacard').get('properties').get('id');
             });
@@ -139,7 +140,7 @@ define([
             this.$el.toggleClass('is-routed', Boolean(router.toJSON().name === 'openMetacard'));
         },
         checkIfBlacklisted: function(){
-            var pref = store.get('user').get('user').get('preferences');
+            var pref = user.get('user').get('preferences');
             var blacklist = pref.get('resultBlacklist');
             var ids = this.model.map(function(result){
                 return result.get('metacard').get('properties').get('id');

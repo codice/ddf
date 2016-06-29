@@ -19,9 +19,10 @@ define([
         'js/ColorGenerator',
         'js/Common',
         'js/QueryPolling',
+        'js/model/user',
         'backboneassociations'
     ],
-    function (wreqr, Backbone, Query, Common, ColorGenerator, Common, QueryPolling) {
+    function (wreqr, Backbone, Query, Common, ColorGenerator, Common, QueryPolling, user) {
 
         var Workspace = {};
 
@@ -98,9 +99,8 @@ define([
             model: Workspace.Model,
             url: '/search/catalog/internal/workspaces',
             useAjaxSync: true,
-            initialize: function(options){
-                this.store = options.store;
-                this.listenTo(this.store.get('user'), 'change', this.fetch);
+            initialize: function(){
+                this.listenTo(user, 'change', this.fetch);
                 var collection = this;
                 collection.on('add',function(workspace){
                     workspace.on('change:lastModifiedDate',function(){
@@ -118,7 +118,7 @@ define([
                 }
             },
             isGuestUser: function () {
-                return this.store.get('user').get('user').isGuestUser();
+                return user.get('user').isGuestUser();
             },
             comparator: function(workspace){
                 return -(new Date(workspace.get('lastModifiedDate'))).getTime();

@@ -21,8 +21,9 @@ define([
     'text!./alert-item.hbs',
     'js/CustomElements',
     'js/store',
-    'js/Common'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, Common) {
+    'js/Common',
+    'js/model/user'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, Common, user) {
 
     return Marionette.ItemView.extend({
         template: template,
@@ -50,7 +51,7 @@ define([
         },
         removeModel: function(){
             this.model.collection.remove(this.model);
-            store.get('user').get('user').get('preferences').savePreferences();
+            user.get('user').get('preferences').savePreferences();
         },
         expandAlert: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());

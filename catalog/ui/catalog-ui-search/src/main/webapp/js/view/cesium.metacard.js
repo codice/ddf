@@ -17,9 +17,10 @@ define([
         'underscore',
         'cesium',
         'application',
-        'js/store'
+        'js/store',
+        'js/model/user'
     ],
-    function (Backbone, Marionette, _, Cesium, Application, store) {
+    function (Backbone, Marionette, _, Cesium, Application, store, user) {
         "use strict";
         var Views = {},
             pointScale = 0.02,
@@ -55,7 +56,7 @@ define([
                 this.listenTo(this.selectionInterface.getSelectedResults(), 'add', this.updateSelection);
                 this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', this.updateSelection);
                 this.color = !_.isUndefined(this.model.get('color')) ?
-                    Cesium.Color.fromCssColorString(this.model.get('color')) : options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>pointColor'));
+                    Cesium.Color.fromCssColorString(this.model.get('color')) : options.color || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>pointColor'));
                 this.buildBillboard();
                 this.updateSelection();
             },
@@ -169,7 +170,7 @@ define([
             selectionInterface: store,
             initialize: function(options){
                 this.selectionInterface = options.selectionInterface || this.selectionInterface;
-                options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>multiPointColor'));
+                options.color = options.color || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>multiPointColor'));
                 Views.PointView.prototype.initialize.call(this, options);
             },
 
@@ -250,7 +251,7 @@ define([
             selectionInterface: store,
             initialize: function(options){
                 this.selectionInterface = options.selectionInterface || this.selectionInterface;
-                options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>lineColor'));
+                options.color = options.color || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>lineColor'));
                 this.color = options.color;
                 this.lineMap = {};
                 Views.PointView.prototype.initialize.call(this, options);
@@ -333,7 +334,7 @@ define([
             selectionInterface: store,
             initialize: function(options){
                 this.selectionInterface = options.selectionInterface || this.selectionInterface;
-                options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>multiLineColor'));
+                options.color = options.color || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>multiLineColor'));
                 this.lineMap = {};
                 Views.PointView.prototype.initialize.call(this, options);
             },
@@ -354,10 +355,10 @@ define([
             selectionInterface: store,
             initialize: function(options){
                 this.selectionInterface = options.selectionInterface || this.selectionInterface;
-                this.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>polygonColor'));
+                this.color = options.color || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>polygonColor'));
                 options.color = this.color;
 
-                this.polygonColor = options.polygonColor || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>polygonColor'));
+                this.polygonColor = options.polygonColor || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>polygonColor'));
 
                 this.polygonColor = Cesium.Color.fromRgba(this.polygonColor.toRgba());
                 if (this.polygonColor.withAlpha) {
@@ -564,10 +565,10 @@ define([
             selectionInterface: store,
             initialize: function(options){
                 this.selectionInterface = options.selectionInterface || this.selectionInterface;
-                this.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>multiPolygonColor'));
+                this.color = options.color || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>multiPolygonColor'));
                 options.color = this.color;
 
-                this.polygonColor = options.polygonColor || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>multiPolygonColor'));
+                this.polygonColor = options.polygonColor || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>multiPolygonColor'));
                 this.polygonColor = Cesium.Color.fromRgba(this.polygonColor.toRgba());
                 if (this.polygonColor.withAlpha) {
                     this.polygonColor = this.polygonColor.withAlpha(0.2);
@@ -624,8 +625,8 @@ define([
             selectionInterface: store,
             initialize: function(options){
                 this.selectionInterface = options.selectionInterface || this.selectionInterface;
-                options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>geometryCollectionColor'));
-                options.polygonColor = options.polygonColor || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>geometryCollectionColor'));
+                options.color = options.color || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>geometryCollectionColor'));
+                options.polygonColor = options.polygonColor || Cesium.Color.fromCssColorString(user.get('user>preferences>mapColors>geometryCollectionColor'));
                 options.polygonColor = Cesium.Color.fromRgba(options.polygonColor.toRgba());
                 if (options.polygonColor.withAlpha) {
                     options.polygonColor = options.polygonColor.withAlpha(0.2);

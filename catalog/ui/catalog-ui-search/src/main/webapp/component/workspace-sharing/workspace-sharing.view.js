@@ -21,11 +21,11 @@ define([
     'text!./workspace-sharing.hbs',
     'text!./workspace-sharing.item.hbs',
     'js/CustomElements',
-    'js/store',
+    'js/model/user',
     './editable-rows.view',
     'component/dropdown/dropdown.view',
     'component/loading-companion/loading-companion.view',
-], function (Backbone, Marionette, _, $, template, itemTemplate, CustomElements, store, EditableRows, DropdownView, Loading) {
+], function (Backbone, Marionette, _, $, template, itemTemplate, CustomElements, user, EditableRows, DropdownView, Loading) {
 
     var Input = Marionette.ItemView.extend({
         template: '<input class="form-control" type="text"/>',
@@ -183,7 +183,7 @@ define([
         },
         getSharingByRole: function () {
             var view = this;
-            var user = store.get('user').get('user');
+            var user = user.get('user');
 
             return user.get('roles').map(function (role) {
                 return _.findWhere(view.getSharing(), { value: role }) || {

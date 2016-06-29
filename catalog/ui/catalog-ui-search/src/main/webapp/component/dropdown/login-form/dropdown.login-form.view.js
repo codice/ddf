@@ -15,13 +15,13 @@
 /*global define*/
 define([
     'underscore',
-    'js/store',
+    'js/model/user',
     '../dropdown',
     '../dropdown.view',
     'text!./dropdown.login-form.hbs',
     'js/CustomElements',
     'component/login-form/login-form.view'
-], function (_, store, Dropdown, DropdownView, template, CustomElements, ComponentView) {
+], function (_, user, Dropdown, DropdownView, template, CustomElements, ComponentView) {
 
     var getName = function (user) {
         if (user.isGuestUser()) {
@@ -36,7 +36,7 @@ define([
         tagName: CustomElements.register('login-dropdown'),
         componentToShow: ComponentView,
         initializeComponentModel: function () {
-            this.modelForComponent = store.get('user');
+            this.modelForComponent = user;
             this.model.set('value', getName(this.modelForComponent.get('user')));
         },
         listenToComponent: function () {

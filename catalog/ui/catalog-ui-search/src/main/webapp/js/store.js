@@ -18,12 +18,11 @@ define([
     'underscore',
     'js/model/Workspace',
     'js/model/source',
-    'js/model/user',
     'js/model/Selected',
     'component/content/content',
     'application',
     'properties'
-], function ($, Backbone, poller, _, Workspace, Source, User, Selected, Content, Application, properties) {
+], function ($, Backbone, poller, _, Workspace, Source, Selected, Content, Application, properties) {
 
     return new (Backbone.Model.extend({
         setupPolling: function(model, opts){
@@ -44,7 +43,6 @@ define([
             return model;
         },
         initialize: function () {
-            this.set('user', Application.UserModel);
             this.set('content', this.initModel(Content, {
                 persisted: false
             }));

@@ -28,16 +28,17 @@ define([
     'component/dropdown/result-filter/dropdown.result-filter.view',
     'component/dropdown/dropdown',
     'js/cql',
-    'component/dropdown/result-sort/dropdown.result-sort.view'
+    'component/dropdown/result-sort/dropdown.result-sort.view',
+    'js/model/user'
 ], function (Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common,
              ResultItemCollectionView, PagingView, DropdownView, ResultFilterDropdownView,
-             DropdownModel, cql, ResultSortDropdownView) {
+             DropdownModel, cql, ResultSortDropdownView, user) {
 
     function mixinBlackListCQL(originalCQL){
         var blackListCQL = {
             filters: [
                 {
-                    filters: store.get('user').get('user').get('preferences').get('resultBlacklist').map(function(id){
+                    filters: user.get('user').get('preferences').get('resultBlacklist').map(function(id){
                         return {
                             property: '"id"',
                             type: '!=',
@@ -94,16 +95,16 @@ define([
             store.addMetacardTypes(this.model.get('result').get('metacard-types'));
         },
         startListeningToBlacklist: function(){
-            this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultBlacklist', this.onBeforeShow);
+            this.listenTo(user.get('user').get('preferences'), 'change:resultBlacklist', this.onBeforeShow);
         },
         startListeningToResult: function(){
             this.listenTo(this.model.get('result'), 'sync', this.onBeforeShow);
         },
         startListeningToFilter: function(){
-            this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultFilter', this.onBeforeShow);
+            this.listenTo(user.get('user').get('preferences'), 'change:resultFilter', this.onBeforeShow);
         },
         startListeningToSort: function(){
-            this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultSort', this.onBeforeShow);
+            this.listenTo(user.get('user').get('preferences'), 'change:resultSort', this.onBeforeShow);
         },
         stopTextSelection: function(event){
             event.preventDefault();
@@ -167,14 +168,14 @@ define([
             }
         },
         onBeforeShow: function(){
-            var resultFilter = store.get('user').get('user').get('preferences').get('resultFilter');
+            var resultFilter = user.get('user').get('preferences').get('resultFilter');
             if (resultFilter) {
                 resultFilter = cql.simplify(cql.read(resultFilter));
             }
             resultFilter = mixinBlackListCQL(resultFilter);
             var filteredResults = this.model.get('result').get('results').generateFilteredVersion(resultFilter, store.metacardTypes);
             var collapsedResults = filteredResults.collapseDuplicates();
-            collapsedResults.updateSorting(store.get('user').get('user').get('preferences').get('resultSort'));
+            collapsedResults.updateSorting(user.get('user').get('preferences').get('resultSort'));
             this.showResultPaging(collapsedResults);
             this.showResultList(collapsedResults);
             this.showResultDisplayDropdown();
@@ -210,10 +211,10 @@ define([
             }, {
                 label: 'Grid',
                 value: 'Grid'
-            }], false, [store.get('user').get('user').get('preferences').get('resultDisplay')]));
+            }], false, [user.get('user').get('preferences').get('resultDisplay')]));
             this.stopListening(this.resultDisplay.currentView.model);
             this.listenTo(this.resultDisplay.currentView.model, 'change:value', function(){
-                var prefs = store.get('user').get('user').get('preferences');
+                var prefs = user.get('user').get('preferences');
                 var value = this.resultDisplay.currentView.model.get('value')[0];
                 prefs.set('resultDisplay', value);
                 prefs.savePreferences();

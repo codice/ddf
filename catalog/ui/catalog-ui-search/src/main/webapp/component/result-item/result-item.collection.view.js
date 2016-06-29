@@ -48,21 +48,5 @@ define([
                 this.selectionInterface.addToActiveSearchResults(this.collection);
             }
         }
-       /* handleFiltering: function () {
-            var resultFilter = store.get('user').get('user').get('preferences').get('resultFilter');
-            if (resultFilter) {
-                this._resultFilter = cql.read(resultFilter);
-            } else {
-                this._resultFilter = undefined;
-            }
-            this.render();
-        },
-        filter: function (child) {
-            if (this._resultFilter) {
-                return matchesFilters(child.get('metacard').toJSON(), this._resultFilter);
-            } else {
-                return true;
-            }
-        }*/
     });
 });

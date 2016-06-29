@@ -18,9 +18,10 @@ define([
         'openlayers',
         'js/store',
         'properties',
-        'application'
+        'application',
+        'js/model/user'
     ],
-    function (Backbone, Marionette, _, ol, store, properties, Application) {
+    function (Backbone, Marionette, _, ol, store, properties, Application, user) {
         "use strict";
         var Views = {};
 
@@ -130,7 +131,7 @@ define([
             selectionInterface: store,
             initialize: function(options){
                 this.selectionInterface = options.selectionInterface || this.selectionInterface;
-                this.pointFillColor = this.model.get('color') || options.pointFillColor || Application.UserModel.get('user>preferences>mapColors>pointColor');
+                this.pointFillColor = this.model.get('color') || options.pointFillColor || user.get('user>preferences>mapColors>pointColor');
                 this.geoController = options.geoController;
                 if (!options.ignoreEvents) {
                     this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
@@ -297,22 +298,22 @@ define([
                 if (geometry.isPoint()) {
                     ItemView = Views.PointView;
                 } else if (geometry.isMultiPoint()) {
-                    options.pointFillColor = Application.UserModel.get('user>preferences>mapColors>multiPointColor');
+                    options.pointFillColor = user.get('user>preferences>mapColors>multiPointColor');
                     ItemView = Views.MultiPointView;
                 } else if (geometry.isPolygon()) {
-                    options.pointFillColor = Application.UserModel.get('user>preferences>mapColors>polygonColor');
+                    options.pointFillColor = user.get('user>preferences>mapColors>polygonColor');
                     ItemView = Views.RegionView;
                 } else if (geometry.isMultiPolygon()) {
-                    options.pointFillColor = Application.UserModel.get('user>preferences>mapColors>multiPolygonColor');
+                    options.pointFillColor = user.get('user>preferences>mapColors>multiPolygonColor');
                     ItemView = Views.MultiRegionView;
                 }  else if (geometry.isLineString()) {
-                    options.pointFillColor = Application.UserModel.get('user>preferences>mapColors>lineColor');
+                    options.pointFillColor = user.get('user>preferences>mapColors>lineColor');
                     ItemView = Views.LineView;
                 } else if (geometry.isMultiLineString()) {
-                    options.pointFillColor = Application.UserModel.get('user>preferences>mapColors>multiLineColor');
+                    options.pointFillColor = user.get('user>preferences>mapColors>multiLineColor');
                     ItemView = Views.MultiLineView;
                 } else if (geometry.isGeometryCollection()) {
-                    options.pointFillColor = Application.UserModel.get('user>preferences>mapColors>geometryCollectionColor');
+                    options.pointFillColor = user.get('user>preferences>mapColors>geometryCollectionColor');
                     ItemView = Views.GeometryCollectionView;
                 } else {
                     throw new Error("No view for this geometry");

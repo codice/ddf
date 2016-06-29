@@ -25,9 +25,10 @@ define(['application',
         'jquery',
         'drawHelper',
         'js/controllers/cesium.layerCollection.controller',
-        'js/widgets/cesium.mapclustering'
+        'js/widgets/cesium.mapclustering',
+        'js/model/user'
     ], function (Application, _, Backbone, Marionette, Cesium, Q, wreqr, store, properties, CesiumMetacard,
-                 $, DrawHelper, LayerCollectionController, MapClustering) {
+                 $, DrawHelper, LayerCollectionController, MapClustering, user) {
         "use strict";
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
@@ -75,7 +76,7 @@ define(['application',
              },
 
             createMap: function () {
-                var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
+                var layerPrefs = user.get('user>preferences>mapLayers');
                 var layerCollectionController = new CesiumLayerCollectionController({
                     collection: layerPrefs
                 });

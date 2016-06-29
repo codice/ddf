@@ -25,9 +25,10 @@ define([
     'component/dropdown/dropdown',
     'component/dropdown/workspaces-filter/dropdown.workspaces-filter.view',
     'component/dropdown/workspaces-sort/dropdown.workspaces-sort.view',
-    'component/dropdown/workspaces-display/dropdown.workspaces-display.view'
+    'component/dropdown/workspaces-display/dropdown.workspaces-display.view',
+    'js/model/user'
 ], function (wreqr, Marionette, _, $, template, CustomElements, store, WorkspaceItemCollection, DropdownModel, FilterDropdownView,
-        SortDropdownView, DisplayDropdownView) {
+        SortDropdownView, DisplayDropdownView, user) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -49,7 +50,7 @@ define([
             }
         },
         onBeforeShow: function(){
-            var preferences = store.get('user').get('user').get('preferences');
+            var preferences = user.get('user').get('preferences');
 
             var workspaceItemCollection = new WorkspaceItemCollection({
                 collection: this.model
@@ -77,7 +78,7 @@ define([
         },
         save: function (key) {
             return function (model, value) {
-                var prefs = store.get('user').get('user').get('preferences');
+                var prefs = user.get('user').get('preferences');
                 prefs.set(key, value);
                 prefs.savePreferences();
             }.bind(this);

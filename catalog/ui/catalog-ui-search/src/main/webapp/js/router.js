@@ -30,10 +30,11 @@ define([
     'component/recent/recent',
     'component/recent/recent.view',
     'component/router/router',
+    'js/model/user',
     'js/jquery.whenAll'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
-            recentInstance, RecentView, router) {
+            recentInstance, RecentView, router, user) {
 
     function hideViews() {
         Application.App.workspaceRegion.$el.addClass("is-hidden");
@@ -154,7 +155,7 @@ define([
                     break;
                 case 'openAlert':
                     var alertId = args[0];
-                    var alert = store.get('user').get('user').get('preferences').get('alerts').get(alertId);
+                    var alert = user.get('user').get('preferences').get('alerts').get(alertId);
                     if (!alert) {
                         self.listenTo(ConfirmationView.generateConfirmation({
                                 prompt: 'Alert unable to be found.  ',

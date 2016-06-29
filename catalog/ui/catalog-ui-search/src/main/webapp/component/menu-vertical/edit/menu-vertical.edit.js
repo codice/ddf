@@ -20,8 +20,8 @@ define([
     '../menu-vertical',
     'component/lightbox/lightbox.view.instance',
     'component/ingest/ingest.view',
-    'js/store'
-], function (_, wreqr, Backbone, Vertical, lightboxInstance, IngestView, store) {
+    'js/model/user'
+], function (_, wreqr, Backbone, Vertical, lightboxInstance, IngestView, user) {
 
     var definition = [
         [
@@ -51,7 +51,7 @@ define([
                 name: 'Reset Blacklist',
                 icon: 'eye',
                 action: function () {
-                    var preferences = store.get('user').get('user').get('preferences');
+                    var preferences = user.get('user').get('preferences');
                     preferences.resetBlacklist();
                     preferences.savePreferences();
                 }

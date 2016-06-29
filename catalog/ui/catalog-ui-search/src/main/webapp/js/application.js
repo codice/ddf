@@ -23,7 +23,6 @@ define([
     'text!templates/footer.layout.handlebars',
     'js/controllers/Modal.controller',
     'js/controllers/SystemUsage.controller',
-    'js/model/user',
     // Load non attached libs and plugins
     'bootstrap',
     'backboneassociations',
@@ -35,12 +34,10 @@ define([
     'datepickerOverride',
     'multiselect',
     'multiselectfilter'
-], function ($, _, Marionette, Backbone, properties, maptype, header, footer, ModalController, SystemUsageController, User) {
+], function ($, _, Marionette, Backbone, properties, maptype, header, footer, ModalController, SystemUsageController) {
     var Application = {};
     Application.App = new Marionette.Application();
     Application.AppModel = new Backbone.Model(properties);
-    Application.UserModel = new User.Response();
-    Application.UserModel.fetch();
     Application.Controllers = { modalController: new ModalController({ application: Application.App }) };
     // Set up the main regions that will be available at the Application level.
     Application.App.addRegions({

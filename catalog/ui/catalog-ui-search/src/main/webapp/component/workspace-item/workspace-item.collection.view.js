@@ -19,11 +19,11 @@ define([
     'jquery',
     'js/CustomElements',
     './workspace-item.view',
-    'js/store'
-], function (Marionette, _, $, CustomElements, WorkspaceItemView, store) {
+    'js/model/user'
+], function (Marionette, _, $, CustomElements, WorkspaceItemView, user) {
 
     var getUser = function () {
-         return store.get('user').get('user');
+         return user.get('user');
     };
 
     var getPrefs = function () {

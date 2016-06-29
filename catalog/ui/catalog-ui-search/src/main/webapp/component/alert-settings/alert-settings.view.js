@@ -19,12 +19,12 @@ define([
     'jquery',
     'text!./alert-settings.hbs',
     'js/CustomElements',
-    'js/store',
+    'js/model/user',
     'component/property/property.view',
     'component/property/property',
     'component/dropdown/dropdown.view',
     'component/radio/radio.view'
-], function (Marionette, _, $, template, CustomElements, store, PropertyView, Property,
+], function (Marionette, _, $, template, CustomElements, user, PropertyView, Property,
              DropdownView, RadioView) {
 
     return Marionette.LayoutView.extend({
@@ -59,7 +59,7 @@ define([
             this.$el.toggleClass('is-persisted', persistance);
         },
         setupPersistance: function () {
-            var persistance = store.get('user').get('user').get('preferences').get('alertPersistance');
+            var persistance = user.get('user').get('preferences').get('alertPersistance');
             this.propertyPersistance.show(RadioView.createRadio([{
                 label: 'Yes',
                 value: 'true'
@@ -69,7 +69,7 @@ define([
             }], persistance));
         },
         setupExpiration: function () {
-            var expiration = store.get('user').get('user').get('preferences').get('alertExpiration');
+            var expiration = user.get('user').get('preferences').get('alertExpiration');
             var millisecondsInDay = 24 * 60 * 60 * 1000;
             this.propertyExpiration.show(DropdownView.createSimpleDropdown([
                 {
@@ -127,7 +127,7 @@ define([
         },
         save: function () {
             this.$el.removeClass('is-editing');
-            var preferences = store.get('user').get('user').get('preferences');
+            var preferences = user.get('user').get('preferences');
             preferences.set({
                 alertPersistance: this.propertyPersistance.currentView.model.get('value'),
                 alertExpiration: this.propertyExpiration.currentView.model.get('value')[0]

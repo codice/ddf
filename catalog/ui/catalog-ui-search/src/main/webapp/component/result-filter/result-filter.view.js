@@ -19,11 +19,11 @@ define([
     'jquery',
     'text!./result-filter.hbs',
     'js/CustomElements',
-    'js/store',
+    'js/model/user',
     'component/filter-builder/filter-builder.view',
     'component/filter-builder/filter-builder',
     'js/cql'
-], function (Marionette, _, $, template, CustomElements, store, FilterBuilderView, FilterBuilderModel, cql) {
+], function (Marionette, _, $, template, CustomElements, user, FilterBuilderView, FilterBuilderModel, cql) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -48,19 +48,19 @@ define([
             }));
             this.editorProperties.currentView.turnOnEditing();
             this.editorProperties.currentView.turnOffNesting();
-            var resultFilter = store.get('user').get('user').get('preferences').get('resultFilter');
+            var resultFilter = user.get('user').get('preferences').get('resultFilter');
             if (resultFilter){
                 this.editorProperties.currentView.deserialize(cql.simplify(cql.read(resultFilter)));
             }
         },
         removeFilter: function(){
-            store.get('user').get('user').get('preferences').set('resultFilter', undefined);
-            store.get('user').get('user').get('preferences').savePreferences();
+            user.get('user').get('preferences').set('resultFilter', undefined);
+            user.get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         saveFilter: function(){
-            store.get('user').get('user').get('preferences').set('resultFilter', this.editorProperties.currentView.transformToCql());
-            store.get('user').get('user').get('preferences').savePreferences();
+            user.get('user').get('preferences').set('resultFilter', this.editorProperties.currentView.transformToCql());
+            user.get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         }
     });

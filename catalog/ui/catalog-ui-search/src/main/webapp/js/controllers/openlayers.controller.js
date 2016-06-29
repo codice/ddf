@@ -25,9 +25,10 @@ define(['application',
         'js/model/Metacard',
         'jquery',
         'js/controllers/ol.layerCollection.controller',
-        'js/view/openlayers.geocoder'
+        'js/view/openlayers.geocoder',
+        'js/model/user'
     ], function (Application, _, Backbone, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, store,
-                 Metacard, $, LayerCollectionController, geocoder) {
+                 Metacard, $, LayerCollectionController, geocoder, user) {
         "use strict";
 
         var OpenLayerCollectionController = LayerCollectionController.extend({
@@ -52,7 +53,7 @@ define(['application',
                     this.geoCoder.render();
                 }
 
-                var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
+                var layerPrefs = user.get('user>preferences>mapLayers');
                 var layerCollectionController = new OpenLayerCollectionController({collection: layerPrefs});
                 this.mapViewer = layerCollectionController.makeMap({
                     zoom: 3,

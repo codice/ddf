@@ -26,9 +26,10 @@ define([
     'component/dropdown/metacard-interactions/dropdown.metacard-interactions.view',
     'component/result-indicator/result-indicator.view',
     'properties',
-    'component/router/router'
+    'component/router/router',
+    'js/model/user'
 ], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, DropdownModel,
-             MetacardInteractionsDropdownView, ResultIndicatorView, properties, router) {
+             MetacardInteractionsDropdownView, ResultIndicatorView, properties, router, user) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -57,7 +58,7 @@ define([
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
             }
             this.listenTo(this.model.get('metacard').get('properties'), 'change', this.handleMetacardUpdate);
-            this.listenTo(store.get('user').get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
+            this.listenTo(user.get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
             this.listenTo(router, 'change', this.handleMetacardUpdate);
         },
         handleMetacardUpdate: function(){
@@ -142,7 +143,7 @@ define([
             }
         },
         checkDisplayType: function() {
-            var displayType = store.get('user').get('user').get('preferences').get('resultDisplay');
+            var displayType = user.get('user').get('preferences').get('resultDisplay');
             switch(displayType){
                 case 'List':
                     this.$el.removeClass('is-grid').addClass('is-list');

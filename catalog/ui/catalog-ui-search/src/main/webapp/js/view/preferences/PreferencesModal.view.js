@@ -38,10 +38,10 @@ define([
 ], function (Application, _, Marionette, Backbone, $, properties, OpenLayersController,
              CesiumLayersController, maptype, Modal, preferencesModalTemplate,
              layerPrefsTabTemplate, layerListTemplate,
-             layerPickerTemplate, preferenceButtonsTemplate, User, Cesium, wreqr) {
+             layerPickerTemplate, preferenceButtonsTemplate, user, Cesium, wreqr) {
     var PrefsModalView = Marionette.LayoutView.extend({
         setDefaultModel: function(){
-            this.model = Application.UserModel.get('user>preferences');
+            this.model = user.get('user>preferences');
         },
         template: preferencesModalTemplate,
         className: 'prefsModal',
@@ -94,7 +94,8 @@ define([
                 clonedLayerModel.set('modelCid', layerModel.cid);
                 viewLayerModels.push(clonedLayerModel);
             });
-            this.viewMapLayers = new User.MapLayers(viewLayerModels);
+            var mapLayerConstructor = user.get('user>preferences>mapLayers').constructor;
+            this.viewMapLayers = new mapLayerConstructor(viewLayerModels);
             // listen to any change on all models in collection.
             this.viewMapLayers.on('change', this.onEdit, this);
             if (maptype.is3d()) {

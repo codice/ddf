@@ -207,6 +207,7 @@ define([
         ],
         initialize: function () {
             this.set('user', new User.Model());
+            this.fetch();
         },
         getGuestPreferences: function () {
             try {
@@ -228,5 +229,5 @@ define([
         },
     });
 
-    return User;
+    return new User.Response();
 });

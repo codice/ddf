@@ -19,9 +19,9 @@ define([
     'jquery',
     'text!./result-sort.hbs',
     'js/CustomElements',
-    'js/store',
+    'js/model/user',
     'component/sort-item/sort-item.collection.view'
-], function (Marionette, _, $, template, CustomElements, store, SortItemCollectionView) {
+], function (Marionette, _, $, template, CustomElements, user, SortItemCollectionView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -41,7 +41,7 @@ define([
         initialize: function () {
         },
         onRender: function () {
-            var resultSort = store.get('user').get('user').get('preferences').get('resultSort');
+            var resultSort = user.get('user').get('preferences').get('resultSort');
             this.editorProperties.show(new SortItemCollectionView({
                 collection: new Backbone.Collection(resultSort)
             }));
@@ -53,14 +53,14 @@ define([
             });
         },
         removeSort: function () {
-            store.get('user').get('user').get('preferences').set('resultSort', undefined);
-            store.get('user').get('user').get('preferences').savePreferences();
+            user.get('user').get('preferences').set('resultSort', undefined);
+            user.get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         },
         saveSort: function () {
             var sorting = this.editorProperties.currentView.collection.toJSON();
-            store.get('user').get('user').get('preferences').set('resultSort', sorting.length === 0 ? undefined : sorting);
-            store.get('user').get('user').get('preferences').savePreferences();
+            user.get('user').get('preferences').set('resultSort', sorting.length === 0 ? undefined : sorting);
+            user.get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         }
     });
