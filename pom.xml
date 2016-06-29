@@ -527,7 +527,7 @@
                                 <goal>npm</goal>
                             </goals>
                             <configuration>
-                                <arguments>install --ignore-scripts</arguments>
+                                <arguments>install --ignore-scripts --registry=http://artifacts.codice.org/content/repositories/npm-registry/</arguments>
                             </configuration>
                         </execution>
                         <execution>
