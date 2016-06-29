@@ -36,7 +36,8 @@
     </feature>
 
     <!-- The GeoWebCache app is considered experimental.  It has been tested for basic capabilities, but
-    full operational capabilites including configuration are limited -->
+    full operational capabilities including configuration are limited. This feature has unresolved security
+     issues would that would need to be resolved before it can be installed in a production environment -->
     <feature name="geowebcache-app" install="auto" version="${project.version}"
              description="The GeoWebCache application provides tile caching and tile service aggregation.::DDF GeoWebCache">
         <feature>geowebcache-server-standalone</feature>
