@@ -228,8 +228,7 @@ public class SourceConfigurationHandler implements EventHandler {
         for (ServiceBindingType bindingType : bindingTypes) {
             Map<String, Object> slotMap = this.getServiceBindingProperties(bindingType);
 
-            String factoryPidMask = slotMap.get(BINDING_TYPE)
-                    .toString();
+            String factoryPidMask = (String)slotMap.get(BINDING_TYPE);
             if (factoryPidMask == null) {
                 continue;
             }
