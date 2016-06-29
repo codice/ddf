@@ -18,8 +18,21 @@
          name="Metacard Attribute Security Policy Plugin"
          id="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin">
 
-        <AD name="Metacard Attributes:" id="metacardAttributes"
-            description="Metacard attributes that will be collected and mapped to security information. Example: security.classification=classification"
+        <AD name="Metacard Intersect Attributes:" id="intersectMetacardAttributes"
+            description="Metacard attributes that will be collected and mapped to security information. Example: security.classification=classification
+            Any duplicate destinations in this group will result in an intersection of values. E.g. source1=dest and source2=val
+            where source1 is the set of ['a', 'b', 'c'] and source2 is the set ['a', 'c', 'd'] will result in
+            a dest of ['a', 'c']. Note: duplicate destinations for Intersect and Union attributes will
+            behave unpredictably."
+            required="true" type="String" cardinality="1000"
+            default=""/>
+
+        <AD name="Metacard Union Attributes:" id="unionMetacardAttributes"
+            description="Metacard attributes that will be collected and mapped to security information. Example: security.classification=classification
+            Any duplicate destinations in this group will result in a union of values. E.g. source1=dest and source2=val
+            where source1 is the set of ['a', 'b', 'c'] and source2 is the set ['a', 'c', 'd'] will result in
+            a dest of ['a', 'b', 'c', 'd']. Note: duplicate destinations for Intersect and Union attributes will
+            behave unpredictably."
             required="true" type="String" cardinality="1000"
             default=""/>
 
