@@ -146,7 +146,9 @@ public class FederationStrategyTest {
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
-        framework.setHistorian(new Historian());
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+        framework.setHistorian(historian);
 
         List<Metacard> metacards = new ArrayList<Metacard>();
 

@@ -79,7 +79,7 @@ public class Historian {
 
     private final Map<String, List<Callable<Boolean>>> staged = new ConcurrentHashMap<>();
 
-    private boolean historyEnabled = false;
+    private boolean historyEnabled = true;
 
     private List<StorageProvider> storageProviders;
 
