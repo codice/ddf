@@ -44,7 +44,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import com.google.common.collect.ImmutableList;
 
 import ddf.action.Action;
-import ddf.action.ActionProvider;
+import ddf.action.MultiActionProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -98,7 +98,7 @@ public class AdminPollerTest {
                 "operationTitleTwo",
                 "operationDescriptionTwo",
                 "https://localhost:8993/provider/someAction");
-        ImmutableList<ActionProvider> operationActions = ImmutableList.of(
+        ImmutableList<MultiActionProvider> operationActions = ImmutableList.of(
                 getHandleableTestActionProvider(operatorActionOne),
                 getNotHandleableTestActionProvider(),
                 getHandleableTestActionProvider(operatorActionTwo));
@@ -108,7 +108,7 @@ public class AdminPollerTest {
                 "reportTitle",
                 "reportDescription",
                 "https://localhost:8993/provider/someAction");
-        ImmutableList<ActionProvider> reportActions = ImmutableList.of(
+        ImmutableList<MultiActionProvider> reportActions = ImmutableList.of(
                 getHandleableTestActionProvider(reportActionOne),
                 getNotHandleableTestActionProvider(),
                 getNotHandleableTestActionProvider());
@@ -199,8 +199,8 @@ public class AdminPollerTest {
         }
     }
 
-    private ActionProvider getHandleableTestActionProvider(Action action) {
-        ActionProvider actionProvider = mock(ActionProvider.class);
+    private MultiActionProvider getHandleableTestActionProvider(Action action) {
+        MultiActionProvider actionProvider = mock(MultiActionProvider.class);
         when(actionProvider.canHandle(any(Configuration.class))).thenReturn(true);
         when(actionProvider.getActions(any(Class.class))).thenReturn(CollectionUtils.asList(action));
 
@@ -222,8 +222,8 @@ public class AdminPollerTest {
         return action;
     }
 
-    private ActionProvider getNotHandleableTestActionProvider() {
-        ActionProvider actionProvider = mock(ActionProvider.class);
+    private MultiActionProvider getNotHandleableTestActionProvider() {
+        MultiActionProvider actionProvider = mock(MultiActionProvider.class);
 
         when(actionProvider.canHandle(any(Configuration.class))).thenReturn(false);
 

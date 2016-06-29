@@ -35,12 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
-import ddf.action.ActionProvider;
+import ddf.action.MultiActionProvider;
 import ddf.action.impl.ActionImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.source.Source;
 
-public class RegistryReportActionProvider implements ActionProvider {
+public class RegistryReportActionProvider implements MultiActionProvider {
 
     private static final String REGISTRY_PATH = "/registries";
 

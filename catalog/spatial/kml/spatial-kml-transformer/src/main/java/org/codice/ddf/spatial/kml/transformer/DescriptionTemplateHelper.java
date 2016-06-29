@@ -136,8 +136,7 @@ public class DescriptionTemplateHelper {
 
     public String resourceUrl(Metacard context) {
         if (resourceActionProvider != null) {
-            List<Action> actions = resourceActionProvider.getActions(context);
-            Action action = (actions.isEmpty()) ? null : actions.get(0);
+            Action action = resourceActionProvider.getAction(context);
             if (action != null) {
                 return action.getUrl()
                         .toString();

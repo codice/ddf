@@ -84,8 +84,7 @@ public class DerivedContentActionProviderTest {
                 "expected",
                 "expected",
                 actionUri.toURL());
-        when(mockResourceActionProvider.getActions(any(Metacard.class))).thenReturn(Arrays.asList(
-                expectedAction));
+        when(mockResourceActionProvider.getAction(any(Metacard.class))).thenReturn(expectedAction);
         List<Action> actions = actionProvider.getActions(metacard);
         assertThat(actions, hasSize(1));
         assertThat(actions.get(0), notNullValue());
@@ -103,8 +102,7 @@ public class DerivedContentActionProviderTest {
                 "expected",
                 "expected",
                 actionUri.toURL());
-        when(mockResourceActionProvider.getActions(any(Metacard.class))).thenReturn(Arrays.asList(
-                expectedAction));
+        when(mockResourceActionProvider.getAction(any(Metacard.class))).thenReturn(expectedAction);
         when(attribute.getValues()).thenReturn(Arrays.asList(EXAMPLE_URL));
         List<Action> actions = actionProvider.getActions(metacard);
         assertThat(actions, hasSize(1));

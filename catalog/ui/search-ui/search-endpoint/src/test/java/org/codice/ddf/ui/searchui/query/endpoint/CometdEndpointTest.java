@@ -138,7 +138,7 @@ public class CometdEndpointTest {
                 mock(PersistentStore.class),
                 mock(BundleContext.class),
                 mock(EventAdmin.class),
-                new ActionRegistryImpl(Collections.EMPTY_LIST),
+                new ActionRegistryImpl(Collections.EMPTY_LIST, Collections.EMPTY_LIST),
                 Executors.newSingleThreadExecutor());
     }
 

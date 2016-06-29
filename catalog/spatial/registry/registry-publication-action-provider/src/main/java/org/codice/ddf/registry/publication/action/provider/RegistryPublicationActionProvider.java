@@ -39,13 +39,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
-import ddf.action.ActionProvider;
+import ddf.action.MultiActionProvider;
 import ddf.action.impl.ActionImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.source.Source;
 
-public class RegistryPublicationActionProvider implements ActionProvider {
+public class RegistryPublicationActionProvider implements MultiActionProvider {
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(RegistryPublicationActionProvider.class);

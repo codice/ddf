@@ -51,8 +51,7 @@ public class IdpLogoutActionProviderTest {
         Subject subject = mock(Subject.class);
         HashMap map = new HashMap();
         map.put("idp", subject);
-        Action action = idpLogoutActionProvider.getActions(map)
-                .get(0);
+        Action action = idpLogoutActionProvider.getAction(map);
         Assert.assertTrue("Expected the encrypted nameId and time",
                 action.getUrl()
                         .getQuery()
@@ -65,8 +64,7 @@ public class IdpLogoutActionProviderTest {
         HashMap map = new HashMap();
         map.put("idp", notsubject);
         when(encryptionService.encrypt(any(String.class))).thenReturn(nameIdTime);
-        Action action = idpLogoutActionProvider.getActions(map)
-                .get(0);
+        Action action = idpLogoutActionProvider.getAction(map);
         Assert.assertNull("Expected the url to be null", action.getUrl());
     }
 

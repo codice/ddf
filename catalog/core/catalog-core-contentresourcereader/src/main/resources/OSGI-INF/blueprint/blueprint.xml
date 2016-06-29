@@ -43,7 +43,7 @@
 
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.resource)"/>
 
-    <service interface="ddf.action.ActionProvider" >
+    <service interface="ddf.action.MultiActionProvider" >
         <service-properties>
             <entry key="id" value="catalog.data.metacard.derived-content"/>
         </service-properties>

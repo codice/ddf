@@ -33,7 +33,7 @@
         <property name="federationAdminService" ref="federationAdminService"/>
     </bean>
 
-    <service ref="registryActionProvider" interface="ddf.action.ActionProvider">
+    <service ref="registryActionProvider" interface="ddf.action.MultiActionProvider">
         <service-properties>
             <entry key="id" value="catalog.source.operation.publication.registry"/>
         </service-properties>

@@ -13,25 +13,22 @@
  */
 package ddf.catalog.transformer;
 
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import ddf.action.Action;
-import ddf.action.ActionProvider;
 import ddf.catalog.data.impl.MetacardImpl;
 
 public class OverlayActionProviderTest {
     private static final String TRANSFORMER_ID = "overlay.thumbnail";
 
-    private ActionProvider actionProvider;
+    private OverlayActionProvider actionProvider;
 
     @Before
     public void setUp() {
@@ -74,8 +71,8 @@ public class OverlayActionProviderTest {
 
     @Test
     public void testGetActionsForNonMetacard() {
-        final List<Action> actions = actionProvider.getActions("foo");
-        assertThat(actions, is(empty()));
+        final Action action = actionProvider.getAction("foo");
+        assertThat(action, is(nullValue()));
     }
 
     @Test
@@ -86,10 +83,9 @@ public class OverlayActionProviderTest {
         final String sourceId = "bar";
         metacard.setSourceId(sourceId);
 
-        final List<Action> actions = actionProvider.getActions(metacard);
-        assertThat(actions, hasSize(1));
+        final Action action = actionProvider.getAction(metacard);
+        assertThat(action, is(notNullValue()));
 
-        final Action action = actions.get(0);
         assertThat(action.getId(), is("catalog.data.metacard.map.overlay.thumbnail"));
         assertThat(action.getUrl()
                         .toString(),
