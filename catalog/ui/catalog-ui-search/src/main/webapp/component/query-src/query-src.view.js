@@ -19,8 +19,8 @@ define([
     'jquery',
     'text!./query-src.hbs',
     'js/CustomElements',
-    'js/store'
-], function (Marionette, _, $, template, CustomElements, store) {
+    'js/model/source'
+], function (Marionette, _, $, template, CustomElements, sources) {
 
     return Marionette.ItemView.extend({
         template: template,
@@ -58,7 +58,7 @@ define([
             });
         },
         serializeData: function(){
-            return store.get('sources').toJSON();
+            return sources.toJSON();
         }
     });
 });

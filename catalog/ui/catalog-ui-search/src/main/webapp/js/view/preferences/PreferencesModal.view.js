@@ -94,8 +94,8 @@ define([
                 clonedLayerModel.set('modelCid', layerModel.cid);
                 viewLayerModels.push(clonedLayerModel);
             });
-            var mapLayerConstructor = user.get('user>preferences>mapLayers').constructor;
-            this.viewMapLayers = new mapLayerConstructor(viewLayerModels);
+            var MapLayerConstructor = user.get('user>preferences>mapLayers').constructor;
+            this.viewMapLayers = new MapLayerConstructor(viewLayerModels);
             // listen to any change on all models in collection.
             this.viewMapLayers.on('change', this.onEdit, this);
             if (maptype.is3d()) {

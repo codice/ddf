@@ -18,8 +18,8 @@ define([
     'moment',
     'js/model/source',
     'properties',
-    'js/store'
-], function (_, Backbone, Marionette, wreqr, moment, Source, Properties, store) {
+    'js/model/source'
+], function (_, Backbone, Marionette, wreqr, moment, Source, Properties, sources) {
         'use strict';
         var FilterController;
 
@@ -188,7 +188,7 @@ define([
 
             registerFacetCounts: function(facetCounts, numberOfResults){
                 var controller = this;
-                var contentTypes = store.get('sources').types();
+                var contentTypes = sources.types();
                 var contentTypeIds = contentTypes.pluck('name');
                 controller.facetCounts = _.pick(facetCounts,[Properties.filters.METADATA_CONTENT_TYPE]);
                 var defaults = {};

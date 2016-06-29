@@ -25,8 +25,10 @@ define([
     'js/store',
     'js/CustomElements',
     'moment',
+    'js/model/source',
     'bootstrapselect'
-], function ($, Backbone, Marionette, _, properties, MetaCard, Progress, wreqr, queryOldBasicTemplate, dir, maptype, store, CustomElements, moment) {
+], function ($, Backbone, Marionette, _, properties, MetaCard, Progress, wreqr, queryOldBasicTemplate,
+             dir, maptype, store, CustomElements, moment, sources) {
 
 
     var format = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
@@ -102,7 +104,7 @@ define([
             this.sourcesCollectionBinder = new Backbone.CollectionBinder(new Backbone.CollectionBinder.ElManagerFactory('<option></option>', sourcesBindings));
             this.typesCollectionBinder = new Backbone.CollectionBinder(new Backbone.CollectionBinder.ElManagerFactory('<option></option>', typesBindings));
             this.isWorkspace = options.isWorkspace;
-            this.sources = store.get('sources');
+            this.sources = sources;
             this.types = this.sources.types();
         },
         updateScheduling: function (e) {

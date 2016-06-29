@@ -20,8 +20,8 @@ define([
     '../dropdown.view',
     'text!./dropdown.query-src.hbs',
     'component/query-src/query-src.view',
-    'js/store'
-], function (Marionette, _, $, DropdownView, template, ComponentView, store) {
+    'js/model/source'
+], function (Marionette, _, $, DropdownView, template, ComponentView, sources) {
 
     return DropdownView.extend({
         template: template,
@@ -38,7 +38,7 @@ define([
         hasTail: true,
         serializeData: function(){
             var srcs = this.model.get('value');
-            return store.get('sources').toJSON().filter(function(src){
+            return sources.toJSON().filter(function(src){
                 return srcs.indexOf(src.id) !== -1;
             });
         }
