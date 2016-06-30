@@ -51,6 +51,8 @@ import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -79,6 +81,8 @@ import ddf.security.SubjectUtils;
 import spark.servlet.SparkApplication;
 
 public class MetacardApplication implements SparkApplication {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardApplication.class);
 
     private static final String UPDATE_ERROR_MESSAGE =
             "Workspace is either restricted or not found.";
@@ -349,6 +353,7 @@ public class MetacardApplication implements SparkApplication {
 
         exception(IngestException.class, (ex, req, res) -> {
             res.status(404);
+            LOGGER.warn("Failed to ingest metacard", ex);
             res.body(util.getJson(ImmutableMap.of("message", UPDATE_ERROR_MESSAGE)));
         });
 
