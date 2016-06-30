@@ -121,10 +121,12 @@
 
     <bean id="validator" class="org.codice.ddf.catalog.ui.metacard.validation.Validator">
         <argument>
-            <reference-list interface="ddf.catalog.validation.ReportingMetacardValidator"/>
+            <reference-list interface="ddf.catalog.validation.ReportingMetacardValidator"
+                            availability="optional"/>
         </argument>
         <argument>
-            <reference-list interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
+            <reference-list interface="ddf.catalog.validation.AttributeValidatorRegistry"
+                            availability="optional"/>
         </argument>
     </bean>
 
@@ -135,7 +137,8 @@
             <bean class="org.codice.ddf.catalog.ui.searchui.standard.endpoints.MetacardEditEndpoint">
                 <argument ref="catalogFramework"/>
                 <argument>
-                    <reference interface="ddf.catalog.data.AttributeRegistry"/>
+                    <reference interface="ddf.catalog.data.AttributeRegistry"
+                               availability="optional"/>
                 </argument>
                 <argument ref="endpointUtil"/>
             </bean>
@@ -148,7 +151,8 @@
 
     <bean id="enumerationExtractor" class="org.codice.ddf.catalog.ui.metacard.enumerations.ExperimentalEnumerationExtractor">
         <argument>
-            <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
+            <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"
+                       availability="optional"/>
         </argument>
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType" />
