@@ -220,7 +220,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                         FederationAdminService.class);
                 federationAdminServiceImpl.updateRegistryEntry(Library.getRegistryNode(regID,
                         "New Node Name",
-                        "2015-02-26T17:16:34.996Z"), destinations);
+                        "2016-02-26T17:16:34.996Z"), destinations);
 
                 ValidatableResponse validatableResponse = getCswRegistryResponse("title",
                         "New Node Name");
