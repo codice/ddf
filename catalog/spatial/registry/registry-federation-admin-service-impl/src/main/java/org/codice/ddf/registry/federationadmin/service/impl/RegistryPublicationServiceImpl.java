@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,10 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
         }
 
         String sourceId = getSourceIdFromRegistryId(destinationRegistryId);
+        if (sourceId == null) {
+            throw new FederationAdminException(
+                    "Could not find a source id for registry-id " + destinationRegistryId);
+        }
 
         federationAdminService.addRegistryEntry(metacard, Collections.singleton(sourceId));
 
@@ -81,7 +86,8 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
             locAttr = new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, locations);
         }
 
-        locAttr.getValues().remove(NO_PUBLICATIONS);
+        locAttr.getValues()
+                .remove(NO_PUBLICATIONS);
         metacard.setAttribute(locAttr);
         metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED,
                 Date.from(ZonedDateTime.now()
@@ -117,6 +123,11 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
 
         String sourceId = getSourceIdFromRegistryId(destinationRegistryId);
 
+        if (sourceId == null) {
+            throw new FederationAdminException(
+                    "Could not find a source id for registry-id " + destinationRegistryId);
+        }
+
         federationAdminService.deleteRegistryEntriesByRegistryIds(Collections.singletonList(
                 registryId), Collections.singleton(sourceId));
 
@@ -133,6 +144,8 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
         Set<String> locations = publishedLocations.getValues()
                 .stream()
                 .map(Object::toString)
+                .map(registryId -> getSourceIdFromRegistryId(registryId))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(HashSet::new));
 
         if (CollectionUtils.isNotEmpty(locations)) {
@@ -190,7 +203,7 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
         this.federationAdminService = federationAdminService;
     }
 
-    private String getSourceIdFromRegistryId(String registryId) throws FederationAdminException {
+    private String getSourceIdFromRegistryId(String registryId) {
 
         for (RegistryStore registryStore : registryStores) {
             if (registryStore.getRegistryId()
@@ -201,8 +214,7 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
             }
         }
 
-        throw new FederationAdminException(
-                "Could not find a source id for registry-id " + registryId);
+        return null;
     }
 
 }
