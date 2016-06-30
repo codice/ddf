@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -43,15 +45,31 @@ public class MetacardAttributeSecurityPolicyPlugin implements PolicyPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             MetacardAttributeSecurityPolicyPlugin.class);
 
-    private List<String> metacardAttributes = new ArrayList<>();
+    private List<String> intersectMetacardAttributes = new ArrayList<>();
 
-    private Map<String, String> mcAttribsLookup = new HashMap<>();
+    private List<String> unionMetacardAttributes = new ArrayList<>();
 
-    public synchronized List<String> getMetacardAttributes() {
-        return metacardAttributes;
+    private Map<String, String> mcIntersectAttrs = new HashMap<>();
+
+    private Map<String, String> mcUnionAttrs = new HashMap<>();
+
+    public synchronized List<String> getIntersectMetacardAttributes() {
+        return intersectMetacardAttributes;
     }
 
-    public synchronized void setMetacardAttributes(List<String> metacardAttributes) {
+    public synchronized List<String> getUnionMetacardAttributes() {
+        return unionMetacardAttributes;
+    }
+
+    public synchronized void setIntersectMetacardAttributes(List<String> metacardAttributes) {
+        mcIntersectAttrs = splitMetacardAttributes(metacardAttributes);
+    }
+
+    public synchronized void setUnionMetacardAttributes(List<String> metacardAttributes) {
+        mcUnionAttrs = splitMetacardAttributes(metacardAttributes);
+    }
+
+    private Map<String, String> splitMetacardAttributes(List<String> metacardAttributes) {
         List<String> badAttributes = metacardAttributes.stream()
                 .filter(s -> !s.contains("="))
                 .collect(Collectors.toList());
@@ -62,21 +80,32 @@ public class MetacardAttributeSecurityPolicyPlugin implements PolicyPlugin {
                     badAttributes);
         }
 
-        mcAttribsLookup = metacardAttributes.stream()
+        return metacardAttributes.stream()
                 .map(s -> s.split("="))
                 .collect(Collectors.toMap(sArr -> sArr[0],
                         sArr -> sArr.length == 1 ? sArr[0] : sArr[1]));
-        this.metacardAttributes = metacardAttributes;
     }
 
     private synchronized Map<String, Set<String>> buildSecurityMap(Metacard metacard) {
         Map<String, Set<String>> securityMap = new HashMap<>();
         if (metacard != null) {
-            for (Map.Entry<String, String> row : mcAttribsLookup.entrySet()) {
+            // Process intersection attributes first
+            for (Map.Entry<String, String> row : mcIntersectAttrs.entrySet()) {
                 Attribute attribute = metacard.getAttribute(row.getKey());
                 if (attribute != null) {
-                    securityMap.put(row.getValue(),
-                            new HashSet<>(listAsStrings(attribute.getValues())));
+                    securityMap.merge(row.getValue(),
+                            new HashSet<>(listAsStrings(attribute.getValues())),
+                            Sets::intersection);
+                }
+            }
+
+            // Process union attributes after intersects are complete
+            for (Map.Entry<String, String> row : mcUnionAttrs.entrySet()) {
+                Attribute attribute = metacard.getAttribute(row.getKey());
+                if (attribute != null) {
+                    securityMap.merge(row.getValue(),
+                            new HashSet<>(listAsStrings(attribute.getValues())),
+                            Sets::union);
                 }
             }
         }

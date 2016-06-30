@@ -1603,7 +1603,9 @@ While the *Security Attributes (intersection)* field will computer the intersect
 
 The *Metacard Attribute Security Policy Plugin* will pull attributes directly off of a metacard and combine these attributes into a security field for the metacard.
 This plugin assumes that the pertinent information has already been parsed out of the metadata and placed directly on the metacard itself.
-The plugin supports mapping attributes from their names on the metacard to a different security policy name.
+The plugin supports mapping attributes from their names on the metacard to a different security policy name. Attributes can be mapped by union or intersection. E.g.
+A union mapping of `src1=dest` and `src2=dest` will result in `dest` containing the union of all attributes from `src1` and `src2`; an intersection
+ mapping of `src1=dest` and `src2=dest` will result in `dest` containing the intersection of common attributes from `src1` and `src2`.
 
 To configure these policy plugins:
 . Open the ${admin-console} at \${secure_url}/admin
