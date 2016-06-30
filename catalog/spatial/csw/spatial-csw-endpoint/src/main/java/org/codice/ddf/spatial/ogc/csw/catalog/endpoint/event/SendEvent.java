@@ -82,8 +82,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
 
     public static final double JITTER_PERCENT = 0.25;
 
-    public static final long DEFAULT_PING_PERIOD = TimeUnit.MINUTES.convert(30,
-            TimeUnit.MILLISECONDS);
+    public static final long DEFAULT_PING_PERIOD = TimeUnit.MINUTES.toMillis(30L);
 
     private final TransformerManager transformerManager;
 
