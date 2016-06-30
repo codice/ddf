@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 
+import com.google.common.collect.Sets;
 import com.google.common.html.HtmlEscapers;
 import com.google.common.io.FileBackedOutputStream;
 import com.google.common.net.MediaType;
@@ -56,6 +57,7 @@ import com.google.common.net.MediaType;
 import ddf.catalog.content.operation.ContentMetadataExtractor;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -181,7 +183,8 @@ public class PdfInputTransformer implements InputTransformer {
                             .getName())
                     .collect(Collectors.joining("_"));
 
-            metacard = new MetacardImpl(new MetacardTypeImpl(typeName, attributes));
+            metacard = new MetacardImpl(new MetacardTypeImpl(typeName,
+                    Sets.union(BasicTypes.BASIC_METACARD.getAttributeDescriptors(), attributes)));
             for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
                 contentMetadataExtractor.process(contentInput, metacard);
             }

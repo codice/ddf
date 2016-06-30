@@ -22,9 +22,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableSet;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -44,6 +48,8 @@ public class MetacardAttributeSecurityPolicyPluginTest {
 
     Metacard metacard1;
 
+    Metacard metacard2;
+
     @Before
     public void setup() {
         metacard = new MetacardImpl();
@@ -54,14 +60,75 @@ public class MetacardAttributeSecurityPolicyPluginTest {
         metacard1.setAttribute(new AttributeImpl("parsed.security", Arrays.asList("X", "Y", "Z")));
         metacard1.setAttribute(new AttributeImpl("parsed.countries", Arrays.asList("GBR", "CAN")));
         metacard1.setAttribute(new AttributeImpl("parsed.other", Arrays.asList("E", "F")));
+        metacard2 = new MetacardImpl();
+        metacard2.setAttribute(new AttributeImpl("source1", Arrays.asList("A", "B", "C")));
+        metacard2.setAttribute(new AttributeImpl("source2", Arrays.asList("B", "C")));
+        metacard2.setAttribute(new AttributeImpl("source3", Arrays.asList("D", "E", "F")));
+        metacard2.setAttribute(new AttributeImpl("source4", Arrays.asList("F", "G", "H")));
+
         plugin = new MetacardAttributeSecurityPolicyPlugin();
-        plugin.setMetacardAttributes(Arrays.asList("parsed.security=mapped.security",
+        plugin.setUnionMetacardAttributes(Arrays.asList("parsed.security=mapped.security",
                 "parsed.countries=mapped.countries"));
     }
 
     @Test
+    public void testUnionAttributes() throws Exception {
+        plugin.setUnionMetacardAttributes(
+                Arrays.asList("source1=dest", "source2=dest", "source3=dest", "source4=dest2"));
+        PolicyResponse policyResponse = plugin.processPreCreate(metacard2, new HashMap<>());
+        Map<String, Set<String>> itemPolicy = policyResponse.itemPolicy();
+        assertThat(itemPolicy.size(), is(2));
+
+        assertThat(itemPolicy.get("dest")
+                .size(), is(6));
+        assertTrue(itemPolicy.get("dest")
+                .containsAll(ImmutableSet.of("A", "B", "C", "D", "E", "F")));
+        assertThat(itemPolicy.get("dest2")
+                .size(), is(3));
+        assertTrue(itemPolicy.get("dest2")
+                .containsAll(ImmutableSet.of("F", "G", "H")));
+    }
+
+    @Test
+    public void testIntersectAttributes() throws Exception {
+        plugin.setIntersectMetacardAttributes(
+                Arrays.asList("source1=dest", "source2=dest", "source3=dest2", "source4=dest2"));
+        PolicyResponse policyResponse = plugin.processPreCreate(metacard2, new HashMap<>());
+        Map<String, Set<String>> itemPolicy = policyResponse.itemPolicy();
+        assertThat(itemPolicy.size(), is(2));
+
+        assertThat(itemPolicy.get("dest")
+                .size(), is(2));
+        assertTrue(itemPolicy.get("dest")
+                .containsAll(ImmutableSet.of("B", "C")));
+        assertThat(itemPolicy.get("dest2")
+                .size(), is(1));
+        assertTrue(itemPolicy.get("dest2")
+                .containsAll(ImmutableSet.of("F")));
+    }
+
+    @Test
+    public void testUnionAndIntersectAttributes() throws Exception {
+        plugin.setIntersectMetacardAttributes(
+                Arrays.asList("source1=dest", "source2=dest"));
+        plugin.setUnionMetacardAttributes(Arrays.asList("source3=dest2", "source4=dest2"));
+        PolicyResponse policyResponse = plugin.processPreCreate(metacard2, new HashMap<>());
+        Map<String, Set<String>> itemPolicy = policyResponse.itemPolicy();
+        assertThat(itemPolicy.size(), is(2));
+
+        assertThat(itemPolicy.get("dest")
+                .size(), is(2));
+        assertTrue(itemPolicy.get("dest")
+                .containsAll(ImmutableSet.of("B", "C")));
+        assertThat(itemPolicy.get("dest2")
+                .size(), is(5));
+        assertTrue(itemPolicy.get("dest2")
+                .containsAll(ImmutableSet.of("D", "E", "F", "G", "H")));
+    }
+
+    @Test
     public void testBadAttributeDef() throws StopProcessingException {
-        plugin.setMetacardAttributes(Arrays.asList("parsed.security", "parsed.countries"));
+        plugin.setUnionMetacardAttributes(Arrays.asList("parsed.security", "parsed.countries"));
         PolicyResponse policyResponse = plugin.processPreCreate(metacard, new HashMap<>());
         assertThat(policyResponse.itemPolicy()
                 .size(), is(2));
