@@ -349,9 +349,10 @@ public class CatalogFrameworkImplTest {
         };
         framework.bind(provider);
         framework.bind(storageProvider);
-
-        framework.setHistorian(new Historian());
-        resourceFramework.setHistorian(new Historian());
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+        framework.setHistorian(historian);
+        resourceFramework.setHistorian(historian);
 
         ThreadContext.bind(mock(Subject.class));
     }
@@ -2542,7 +2543,9 @@ public class CatalogFrameworkImplTest {
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.bind(provider);
         framework.bind(storageProvider);
-        framework.setHistorian(new Historian());
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+        framework.setHistorian(historian);
         return framework;
 
     }
