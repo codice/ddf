@@ -141,7 +141,6 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
                  */
                 if ((tmpAttr = metacard.getAttribute(attribute.getName())) != null) {
                     List<Serializable> tmpAttrValues = tmpAttr.getValues();
-
                     tmpAttrValues.addAll(attribute.getValues());
                     tmpAttr = new AttributeImpl(attribute.getName(), tmpAttrValues);
                     metacard.setAttribute(tmpAttr);
@@ -231,6 +230,13 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.startPrefixMapping(prefix, uri);
+        }
+    }
+
+    @Override
+    public void endPrefixMapping(String prefix) throws SAXException {
+        for (SaxEventHandler transformer : eventHandlers) {
+            transformer.endPrefixMapping(prefix);
         }
     }
 
