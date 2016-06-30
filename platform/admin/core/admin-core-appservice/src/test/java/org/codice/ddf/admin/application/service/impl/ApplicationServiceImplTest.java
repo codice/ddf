@@ -1551,12 +1551,7 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ApplicationService appService = createPermittedApplicationServiceImpl();
 
         Application testApp = mock(ApplicationImpl.class);
 
