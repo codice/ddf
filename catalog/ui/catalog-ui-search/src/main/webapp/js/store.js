@@ -24,31 +24,10 @@ define([
 ], function ($, Backbone, poller, _, Workspace, Selected, Content, Application, properties) {
 
     return new (Backbone.Model.extend({
-        setupPolling: function(model, opts){
-            if (opts.persisted){
-                model.fetch();
-                if (opts.poll) {
-                    poller.get(model, opts.poll).start();
-                }
-            }
-        },
-        initModel: function (Model, opts) {
-            opts = _.extend({
-                persisted: true,
-                poll: false
-            }, opts);
-            var model = new Model({ store: this });
-            this.setupPolling(model, opts);
-            return model;
-        },
         initialize: function () {
-            this.set('content', this.initModel(Content, {
-                persisted: false
-            }));
-            this.set('workspaces', this.initModel(Workspace.Collection));
-            this.set('selected', this.initModel(Selected, {
-                persisted: false
-            }));
+            this.set('content', new Content());
+            this.set('workspaces', new Workspace.Collection());
+            this.set('selected', new Selected());
             this.getMetacardTypes();
             this.listenTo(this.get('workspaces'), 'remove', function(){
                 var currentWorkspace = this.getCurrentWorkspace();

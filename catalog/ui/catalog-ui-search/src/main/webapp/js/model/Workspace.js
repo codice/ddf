@@ -100,6 +100,7 @@ define([
             url: '/search/catalog/internal/workspaces',
             useAjaxSync: true,
             initialize: function(){
+                this.fetch();
                 this.listenTo(user, 'change', this.fetch);
                 var collection = this;
                 collection.on('add',function(workspace){
