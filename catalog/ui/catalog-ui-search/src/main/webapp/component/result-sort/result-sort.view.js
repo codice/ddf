@@ -15,13 +15,14 @@
 /*global define*/
 define([
     'marionette',
+    'backbone',
     'underscore',
     'jquery',
     'text!./result-sort.hbs',
     'js/CustomElements',
     'component/singletons/user-instance',
     'component/sort-item/sort-item.collection.view'
-], function (Marionette, _, $, template, CustomElements, user, SortItemCollectionView) {
+], function (Marionette, Backbone, _, $, template, CustomElements, user, SortItemCollectionView) {
 
     return Marionette.LayoutView.extend({
         template: template,

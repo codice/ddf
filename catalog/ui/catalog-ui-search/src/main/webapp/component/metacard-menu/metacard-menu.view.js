@@ -16,6 +16,7 @@
 define([
     'wreqr',
     'marionette',
+    'backbone',
     'underscore',
     'jquery',
     'text!./metacard-menu.hbs',
@@ -24,7 +25,7 @@ define([
     'component/metacard/metacard',
     'component/metacard-title/metacard-title.view',
     'component/router/router'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, metacardInstance, MetacardTitleView, router) {
+], function (wreqr, Marionette, Backbone, _, $, template, CustomElements, store, metacardInstance, MetacardTitleView, router) {
 
     return Marionette.LayoutView.extend({
         template: template,
