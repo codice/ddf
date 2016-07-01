@@ -92,7 +92,7 @@ define([
             this.startListeningToSort();
             this.startListeningToResult();
 
-            store.addMetacardTypes(this.model.get('result').get('metacard-types'));
+            //metacardDefinitions.addMetacardTypes(this.model.get('result').get('metacard-types'));
         },
         startListeningToBlacklist: function(){
             this.listenTo(user.get('user').get('preferences'), 'change:resultBlacklist', this.onBeforeShow);
@@ -173,7 +173,7 @@ define([
                 resultFilter = cql.simplify(cql.read(resultFilter));
             }
             resultFilter = mixinBlackListCQL(resultFilter);
-            var filteredResults = this.model.get('result').get('results').generateFilteredVersion(resultFilter, store.metacardTypes);
+            var filteredResults = this.model.get('result').get('results').generateFilteredVersion(resultFilter);
             var collapsedResults = filteredResults.collapseDuplicates();
             collapsedResults.updateSorting(user.get('user').get('preferences').get('resultSort'));
             this.showResultPaging(collapsedResults);

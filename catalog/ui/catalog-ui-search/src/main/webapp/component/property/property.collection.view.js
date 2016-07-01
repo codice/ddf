@@ -21,8 +21,8 @@ define([
     './property.view',
     './property.collection',
     'properties',
-    'js/store'
-], function (Marionette, _, $, CustomElements, PropertyView, PropertyCollection, properties, store) {
+    'component/singletons/metacard-definitions'
+], function (Marionette, _, $, CustomElements, PropertyView, PropertyCollection, properties, metacardDefinitions) {
 
      return Marionette.CollectionView.extend({
         tagName: CustomElements.register('property-collection'),
@@ -99,7 +99,7 @@ define([
              var propertyArray = [];
              this.summaryWhiteList.forEach(function(property){
                  propertyArray.push({
-                     enum: store.enums[property],
+                     enum: metacardDefinitions.enums[property],
                      label: properties.attributeAliases[property],
                      id: property,
                      type: types[0][property].format,
@@ -111,7 +111,7 @@ define([
                  return types[0][property] !== undefined;
              }).forEach(function(property){
                  propertyArray.push({
-                     enum: store.enums[property],
+                     enum: metacardDefinitions.enums[property],
                      label: properties.attributeAliases[property],
                      id: property,
                      type: types[0][property].format,
@@ -153,7 +153,7 @@ define([
              var propertyArray = [];
              propertyIntersection.forEach(function(property){
                  propertyArray.push({
-                     enum: store.enums[property],
+                     enum: metacardDefinitions.enums[property],
                      label: properties.attributeAliases[property],
                      id: property,
                      type: types[0][property].format,

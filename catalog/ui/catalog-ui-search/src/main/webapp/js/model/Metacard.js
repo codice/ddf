@@ -15,11 +15,12 @@ define([
         'backbone',
         'underscore',
         'wreqr',
+        'component/singletons/metacard-definitions',
         'terraformerWKTParser',
         'backboneassociations',
         'backbonepaginator'
     ],
-    function (Backbone, _, wreqr) {
+    function (Backbone, _, wreqr, metacardDefinitions) {
         "use strict";
 
         var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags'];
@@ -445,24 +446,24 @@ define([
         MetaCard.Results = Backbone.PageableCollection.extend({
             model: MetaCard.MetacardResult,
             mode: "client",
-            generateFilteredVersion: function(filter, metacardTypes){
+            generateFilteredVersion: function(filter){
                 var filteredCollection = new this.constructor();
-                filteredCollection.set(this.updateFilteredVersion(filter, metacardTypes));
-                filteredCollection.listenToOriginalCollection(this, filter, metacardTypes);
+                filteredCollection.set(this.updateFilteredVersion(filter));
+                filteredCollection.listenToOriginalCollection(this, filter);
                 return filteredCollection;
             },
-            listenToOriginalCollection: function(originalCollection, filter, metacardTypes){
+            listenToOriginalCollection: function(originalCollection, filter){
                 var debouncedUpdate = _.debounce(function(){
-                    this.reset(originalCollection.updateFilteredVersion(filter, metacardTypes));
+                    this.reset(originalCollection.updateFilteredVersion(filter));
                 }.bind(this), 200);
                 this.listenTo(originalCollection, 'add', debouncedUpdate);
                 this.listenTo(originalCollection, 'remove',debouncedUpdate);
                 this.listenTo(originalCollection, 'update', debouncedUpdate);
             },
-            updateFilteredVersion: function(filter, metacardTypes){
+            updateFilteredVersion: function(filter){
                 if (filter ) {
                     return this.fullCollection.filter(function (result) {
-                        return matchesFilters(result.get('metacard').toJSON(), filter, metacardTypes);
+                        return matchesFilters(result.get('metacard').toJSON(), filter, metacardDefinitions.metacardTypes);
                     });
                 } else {
                     return this.fullCollection.models;

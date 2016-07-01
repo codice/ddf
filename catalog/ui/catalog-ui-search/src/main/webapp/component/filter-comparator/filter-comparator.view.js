@@ -19,8 +19,8 @@ define([
     'jquery',
     'text!./filter-comparator.hbs',
     'js/CustomElements',
-    'js/store'
-], function (Marionette, _, $, template, CustomElements, store) {
+    'component/singletons/metacard-definitions'
+], function (Marionette, _, $, template, CustomElements, metacardDefinitions) {
 
     var geometryComparators = ['INTERSECTS'];
     var dateComparators = ['BEFORE', 'AFTER'];
@@ -52,7 +52,7 @@ define([
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         serializeData: function(){
-            switch(store.metacardTypes[this.model.get('type')].type) {
+            switch(metacardDefinitions.metacardTypes[this.model.get('type')].type) {
                 case 'LOCATION':
                 case 'GEOMETRY':
                     if (geometryComparators.indexOf(this.model.get('comparator')) === -1){

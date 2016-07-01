@@ -19,8 +19,8 @@ define([
     'jquery',
     'text!./filter-attribute.hbs',
     'js/CustomElements',
-    'js/store'
-], function (Marionette, _, $, template, CustomElements, store) {
+    'component/singletons/metacard-definitions'
+], function (Marionette, _, $, template, CustomElements, metacardDefinitions) {
 
     return Marionette.ItemView.extend({
         template: template,
@@ -48,7 +48,7 @@ define([
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         serializeData: function(){
-            return store.sortedMetacardTypes;
+            return metacardDefinitions.sortedMetacardTypes;
         }
     });
 });

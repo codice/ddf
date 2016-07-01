@@ -19,9 +19,9 @@ define([
     'jquery',
     'text!./sort-item.hbs',
     'js/CustomElements',
-    'js/store',
+    'component/singletons/metacard-definitions',
     'component/dropdown/dropdown.view',
-], function (Marionette, _, $, template, CustomElements, store, DropdownView) {
+], function (Marionette, _, $, template, CustomElements, metacardDefinitions, DropdownView) {
 
     var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags', 'anyText'];
 
@@ -41,7 +41,7 @@ define([
             this.model.destroy();
         },
         onBeforeShow: function(){
-            var sortAttributes = _.filter(store.metacardTypes, function(type){
+            var sortAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function(type){
                 return type.type === 'STRING' || type.type === 'DATE';
             }).filter(function(type){
                 return blacklist.indexOf(type.id) === -1;

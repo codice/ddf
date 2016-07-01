@@ -57,7 +57,6 @@ define([
             results: [],  //list of metacards
             filteredQueries: [],
             editing: true,
-            metacardTypes: {},
             activeSearchResults: [],
             drawing: false
         },
@@ -106,9 +105,6 @@ define([
             } else {
                 filteredQueries.add(queryRef);
             }
-        },
-        addMetacardTypes: function(metacardTypes){
-            _.extend(this.get('metacardTypes'), metacardTypes);
         }
     });
 });

@@ -27,9 +27,11 @@ define([
     'component/result-indicator/result-indicator.view',
     'properties',
     'component/router/router',
-    'js/model/user'
+    'js/model/user',
+    'component/singletons/metacard-definitions'
 ], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, DropdownModel,
-             MetacardInteractionsDropdownView, ResultIndicatorView, properties, router, user) {
+             MetacardInteractionsDropdownView, ResultIndicatorView, properties, router, user,
+             metacardDefinitions) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -88,8 +90,8 @@ define([
             if (properties.resultShow) {
                 properties.resultShow.forEach(function (additionProperty) {
                     var value = result.metacard.properties[additionProperty];
-                    if (value && store.metacardTypes[additionProperty]) {
-                        switch (store.metacardTypes[additionProperty].type) {
+                    if (value && metacardDefinitions.metacardTypes[additionProperty]) {
+                        switch (metacardDefinitions.metacardTypes[additionProperty].type) {
                             case 'DATE':
                                 if (value.constructor === Array) {
                                     value = value.map(function (val) {

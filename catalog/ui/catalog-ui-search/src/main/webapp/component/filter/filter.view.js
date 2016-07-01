@@ -22,11 +22,11 @@ define([
     'component/dropdown/filter-attribute/dropdown.filter-attribute.view',
     'component/dropdown/filter-comparator/dropdown.filter-comparator.view',
     'component/multivalue/multivalue.view',
-    'js/store',
+    'component/singletons/metacard-definitions',
     'component/property/property',
     'component/dropdown/dropdown'
 ], function (Marionette, _, $, template, CustomElements, FilterAttributeDropdownView, FilterComparatorDropdownView,
-             MultivalueView, store, PropertyModel, DropdownModel) {
+             MultivalueView, metacardDefinitions, PropertyModel, DropdownModel) {
 
     function isGeoFilter(type){
         return (type === 'DWITHIN' || type === 'INTERSECTS');
@@ -82,7 +82,7 @@ define([
     }
 
     function generateFilter(type, property, value) {
-        switch (store.metacardTypes[property].type) {
+        switch (metacardDefinitions.metacardTypes[property].type) {
             case 'LOCATION':
             case 'GEOMETRY':
                 return generateAnyGeoFilter(property, value);
@@ -168,7 +168,7 @@ define([
         },
         determineInput: function(){
             var propertyJSON = _.extend({},
-                store.metacardTypes[this.model.get('type')],
+                metacardDefinitions.metacardTypes[this.model.get('type')],
                 {
                     value: this.model.get('value'),
                     multivalued: false
@@ -199,7 +199,7 @@ define([
         getFilters: function(){
             var property = this.model.get('type');
             var type = comparatorToCQL[this.model.get('comparator')];
-            if (store.metacardTypes[this.model.get('type')].multivalued){
+            if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued){
                 return {
                     type: 'AND',
                     filters: this.filterInput.currentView.getCurrentValue().map(function(currentValue){

@@ -21,8 +21,10 @@ define([
     'js/store',
     'component/property/property.collection.view',
     'component/loading-companion/loading-companion.view',
-    'component/alert/alert'
-], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView, alertInstance) {
+    'component/alert/alert',
+    'component/singletons/metacard-definitions'
+], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView,
+             alertInstance, metacardDefinitions) {
 
     return EditorView.extend({
         className: 'is-metacards-basic',
@@ -90,7 +92,7 @@ define([
                     }).always(function(response){
                         var attributeMap = response.reduce(function(attributeMap, changes){
                             return changes.attributes.reduce(function(attrMap, chnges){
-                                attrMap[chnges.attribute] = store.metacardTypes[chnges.attribute].multivalued ? chnges.values : chnges.values[0];
+                                attrMap[chnges.attribute] = metacardDefinitions.metacardTypes[chnges.attribute].multivalued ? chnges.values : chnges.values[0];
                                 return attrMap;
                             }, attributeMap);
                         }, {});

@@ -18,17 +18,14 @@ define([
     'underscore',
     'js/model/Workspace',
     'js/model/Selected',
-    'component/content/content',
-    'application',
-    'properties'
-], function ($, Backbone, poller, _, Workspace, Selected, Content, Application, properties) {
+    'component/content/content'
+], function ($, Backbone, poller, _, Workspace, Selected, Content) {
 
     return new (Backbone.Model.extend({
         initialize: function () {
             this.set('content', new Content());
             this.set('workspaces', new Workspace.Collection());
             this.set('selected', new Selected());
-            this.getMetacardTypes();
             this.listenTo(this.get('workspaces'), 'remove', function(){
                 var currentWorkspace = this.getCurrentWorkspace();
                 if (currentWorkspace && !this.get("workspaces").get(currentWorkspace)){
@@ -106,66 +103,8 @@ define([
         addToActiveSearchResults: function(results){
             this.get('content').addToActiveSearchResults(results);
         },
-        addMetacardTypes: function(metacardTypes){
-            this.get('content').addMetacardTypes(metacardTypes);
-        },
         saveCurrentWorkspace: function(){
             this.getCurrentWorkspace().save();
-        },
-        getEnums: function(){
-            $.when.apply(this, this.metacardDefinitions.map(function(metacardDefinition){
-                return $.get( '/search/catalog/internal/enumerations/'+metacardDefinition);
-            })).always(function(){
-                _.forEach(arguments, function(response){
-                    _.extend(this.enums, response[0]);
-                }.bind(this));
-            }.bind(this));
-        },
-        getMetacardTypes: function(){
-            $.get('/search/catalog/internal/metacardtype').then(function(metacardTypes){
-                for (var metacardType in metacardTypes){
-                    if (metacardTypes.hasOwnProperty(metacardType)) {
-                        this.metacardDefinitions.push(metacardType);
-                        for (var type in metacardTypes[metacardType]) {
-                            if (metacardTypes[metacardType].hasOwnProperty(type)) {
-                                this.metacardTypes[type] = metacardTypes[metacardType][type];
-                                this.metacardTypes[type].alias = properties.attributeAliases[type];
-                            }
-                        }
-                    }
-                }
-                for (var propertyType in this.metacardTypes){
-                    if (this.metacardTypes.hasOwnProperty(propertyType)) {
-                        this.sortedMetacardTypes.push(this.metacardTypes[propertyType]);
-                    }
-                }
-                this.sortedMetacardTypes.sort(function(a, b){
-                    if (a.id < b.id){
-                        return -1;
-                    }
-                    if (a.id > b.id){
-                        return 1;
-                    }
-                    return 0;
-                });
-                this.getEnums();
-            }.bind(this));
-        },
-        metacardDefinitions: [],
-        sortedMetacardTypes: [],
-        metacardTypes: {
-            anyText: {
-                id: 'anyText',
-                type: 'STRING',
-                multivalued: false
-            },
-            anyGeo: {
-                id: 'anyGeo',
-                type: 'LOCATION',
-                multivalued: false
-            }
-        },
-        enums: {
         }
     }))();
 });
