@@ -144,13 +144,18 @@ define([
 
                 window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces));
             },
-            fetch: function (options) {
-                options = options || {};
-                options.success = function (model) {
-                    // merge remote response with local workspaces
-                    model.add(JSON.parse(window.localStorage.getItem('workspaces')));
-                };
-                return Backbone.Collection.prototype.fetch.call(this, options);
+            getLocalWorkspaces: function () {
+                var localWorkspaces = window.localStorage.getItem('workspaces') || '[]';
+                try {
+                    return JSON.parse(localWorkspaces);
+                } catch (e) {
+                    console.error('Failed to parse local workspaces.', localWorkspaces);
+                }
+                return [];
+            },
+            // override parse to merge server response with local storage
+            parse: function (resp, options) {
+                return resp.concat(this.getLocalWorkspaces());
             }
         });
 
