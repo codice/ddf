@@ -17,21 +17,10 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-
-        ports: {
-          phantom: 0,
-          selenium: 0,
-          express:  0,
-        },
-
         clean: {
             build: ['target/webapp']
         },
-        bower: {
-            install: {
-
-            }
-        },
+        bower: { install: {} },
         sed: {
             imports: {
                 path: 'target/webapp/lib/bootswatch/cyborg',
@@ -94,50 +83,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        mochaWebdriver: {
-            options: {
-                autoInstall: true,
-                usePromises: true,
-                reporter: 'spec',
-                timeout: 1000 * 30,
-                slow: 10000,
-                expressPort: '<%= ports.express %>'
-            },
-            phantom: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    hostname: '127.0.0.1',
-                    usePhantom: true,
-                    phantomPort: '<%= ports.phantom %>'
-                }
-            },
-            selenium: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    // make sure to start selenium server at host:port first
-                    hostname: '127.0.0.1',
-                    port: '<%= ports.selenium %>',
-                    // mochaWebdriver always starts a selenium server so
-                    // starting phantomjs instance that will not be used
-                    phantomPort: '<%= ports.phantom %>',
-                    usePhantom: true
-                }
-            },
-            sauce: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    autoInstall: false,
-                    testName: 'Search UI',
-                    concurrency: 3,
-                    timeout: 1000 * 60 * 2,
-                    browsers: [
-                        {platform: 'Windows 7', browserName: 'internet explorer', version: '9'},
-                        {platform: 'Windows 7', browserName: 'chrome', version: '38'},
-                        {platform: 'Windows 7', browserName: 'firefox', version: '31'}
-                    ]
-                }
-            }
-        },
         simplemocha: {
             options: {
                 fullTrace: true
@@ -150,12 +95,6 @@ module.exports = function (grunt) {
             options: {
                 port: 8282,
                 hostname: '*'
-            },
-            test: {
-                options: {
-                    port: '<%= ports.express %>',
-                    server: './test.js'
-                }
             },
             server: {
                 options: {
@@ -170,16 +109,13 @@ module.exports = function (grunt) {
             },
             livereload : {
                 options : {livereload :true},
-                files : ['target/webapp/css/index.css'
-                    // this one is more dangerous, tends to reload the page if one file changes
-                    // probably too annoying to be useful, uncomment if you want to try it out
-//                    '<%= jshint.files %>'
-                ]
+                files : ['target/webapp/css/index.css']
             },
             lessFiles: {
-                files: ['src/main/webapp/component/**/**/*.less','src/main/webapp/component/***/***/*.less',
-                    'src/main/webapp/component/**/*.less','src/main/webapp/component/***/*.less',
-                    'src/main/webapp/less/*.less','src/main/webapp/less/**/*.less','src/main/webapp/less/***/*.less'],
+                files: [
+                    'src/main/webapp/component/**/*.less',
+                    'src/main/webapp/less/**/*.less'
+                ],
                 tasks: ['less']
             },
             cssFiles : {
@@ -194,13 +130,18 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('test:unit', ['simplemocha:test']);
-    grunt.registerTask('test', ['port:allocator', 'express:test', 'mochaWebdriver:phantom']);
-    grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
-    grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
 
-    grunt.registerTask('build', ['bower-offline-install', 'sed', 'less',
-        'cssmin', 'jshint']);
+    grunt.registerTask('build', [
+        'bower-offline-install',
+        'sed',
+        'less',
+        'cssmin',
+        'jshint'
+    ]);
 
-    grunt.registerTask('default', ['build','express:server','watch']);
-
+    grunt.registerTask('default', [
+        'build',
+        'express:server',
+        'watch'
+    ]);
 };
