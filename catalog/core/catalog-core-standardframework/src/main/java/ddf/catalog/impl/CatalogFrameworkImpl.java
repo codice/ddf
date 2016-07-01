@@ -1078,9 +1078,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             .size());
             if (Requests.isLocal(createRequest)) {
                 createResponse = catalog.create(createRequest);
+                createResponse = historian.version(createResponse);
             }
-
-            createResponse = historian.version(createResponse);
 
             if (catalogStoreRequest) {
                 CreateResponse remoteCreateResponse = doRemoteCreate(createRequest);
@@ -1490,9 +1489,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             if (Requests.isLocal(updateReq)) {
                 updateResponse = catalog.update(updateReq);
+                updateResponse = historian.version(updateResponse);
             }
-
-            updateResponse = historian.version(updateResponse);
 
             if (catalogStoreRequest) {
                 UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateReq);
@@ -1644,9 +1642,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             e);
                 }
                 deleteResponse = catalog.delete(deleteRequest);
+                historian.version(deleteResponse);
             }
-
-            historian.version(deleteResponse);
 
             if (catalogStoreRequest) {
                 DeleteResponse remoteDeleteResponse = doRemoteDelete(deleteRequest);
