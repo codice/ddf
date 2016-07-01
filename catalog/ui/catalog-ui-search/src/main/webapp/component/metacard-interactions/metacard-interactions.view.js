@@ -22,7 +22,7 @@ define([
     'js/CustomElements',
     'js/store',
     'component/router/router',
-    'js/model/user'
+    'component/singletons/user-instance'
 ], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user) {
 
     return Marionette.ItemView.extend({

@@ -19,7 +19,7 @@ define([
     'jquery',
     'text!./alert-settings.hbs',
     'js/CustomElements',
-    'js/model/user',
+    'component/singletons/user-instance',
     'component/property/property.view',
     'component/property/property',
     'component/dropdown/dropdown.view',

@@ -21,7 +21,7 @@ define([
     'text!./workspace-sharing.hbs',
     'text!./workspace-sharing.item.hbs',
     'js/CustomElements',
-    'js/model/user',
+    'component/singletons/user-instance',
     './editable-rows.view',
     'component/dropdown/dropdown.view',
     'component/loading-companion/loading-companion.view',

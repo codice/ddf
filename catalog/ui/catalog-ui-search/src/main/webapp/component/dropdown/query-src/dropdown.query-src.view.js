@@ -20,7 +20,7 @@ define([
     '../dropdown.view',
     'text!./dropdown.query-src.hbs',
     'component/query-src/query-src.view',
-    'js/model/source'
+    'component/singletons/sources-instance'
 ], function (Marionette, _, $, DropdownView, template, ComponentView, sources) {
 
     return DropdownView.extend({

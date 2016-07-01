@@ -26,7 +26,7 @@ define([
     'component/dropdown/workspaces-filter/dropdown.workspaces-filter.view',
     'component/dropdown/workspaces-sort/dropdown.workspaces-sort.view',
     'component/dropdown/workspaces-display/dropdown.workspaces-display.view',
-    'js/model/user'
+    'component/singletons/user-instance'
 ], function (wreqr, Marionette, _, $, template, CustomElements, store, WorkspaceItemCollection, DropdownModel, FilterDropdownView,
         SortDropdownView, DisplayDropdownView, user) {
 

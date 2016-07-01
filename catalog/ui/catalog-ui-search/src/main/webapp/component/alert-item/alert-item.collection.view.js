@@ -19,7 +19,7 @@ define([
     'jquery',
     './alert-item.view',
     'js/CustomElements',
-    'js/model/user'
+    'component/singletons/user-instance'
 ], function (Marionette, _, $, childView, CustomElements, user) {
 
     return Marionette.CollectionView.extend({

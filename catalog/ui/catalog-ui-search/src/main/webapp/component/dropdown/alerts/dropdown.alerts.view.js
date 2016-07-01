@@ -19,7 +19,7 @@ define([
     '../dropdown.view',
     'text!./dropdown.alerts.hbs',
     'component/alerts/alerts.view',
-    'js/model/user'
+    'component/singletons/user-instance'
 ], function (_, $, DropdownView, template, ComponentView, user) {
 
     return DropdownView.extend({

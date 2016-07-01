@@ -27,7 +27,7 @@ define([
     'component/result-indicator/result-indicator.view',
     'properties',
     'component/router/router',
-    'js/model/user',
+    'component/singletons/user-instance',
     'component/singletons/metacard-definitions'
 ], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, DropdownModel,
              MetacardInteractionsDropdownView, ResultIndicatorView, properties, router, user,

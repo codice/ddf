@@ -19,7 +19,7 @@ define([
     'jquery',
     'text!./query-src.hbs',
     'js/CustomElements',
-    'js/model/source'
+    'component/singletons/sources-instance'
 ], function (Marionette, _, $, template, CustomElements, sources) {
 
     return Marionette.ItemView.extend({

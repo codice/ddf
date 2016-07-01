@@ -19,7 +19,7 @@ define([
     'jquery',
     'js/CustomElements',
     './workspace-item.view',
-    'js/model/user'
+    'component/singletons/user-instance'
 ], function (Marionette, _, $, CustomElements, WorkspaceItemView, user) {
 
     var getUser = function () {

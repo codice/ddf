@@ -26,7 +26,7 @@ define(['application',
         'jquery',
         'js/controllers/ol.layerCollection.controller',
         'js/view/openlayers.geocoder',
-        'js/model/user'
+        'component/singletons/user-instance'
     ], function (Application, _, Backbone, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, store,
                  Metacard, $, LayerCollectionController, geocoder, user) {
         "use strict";

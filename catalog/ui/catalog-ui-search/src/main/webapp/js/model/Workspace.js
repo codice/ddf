@@ -19,7 +19,7 @@ define([
         'js/ColorGenerator',
         'js/Common',
         'js/QueryPolling',
-        'js/model/user',
+        'component/singletons/user-instance',
         'backboneassociations'
     ],
     function (wreqr, Backbone, Query, Common, ColorGenerator, Common, QueryPolling, user) {

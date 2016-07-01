@@ -19,7 +19,7 @@ define([
     'jquery',
     'text!./result-filter.hbs',
     'js/CustomElements',
-    'js/model/user',
+    'component/singletons/user-instance',
     'component/filter-builder/filter-builder.view',
     'component/filter-builder/filter-builder',
     'js/cql'

@@ -29,7 +29,7 @@ define([
     'text!templates/preferences/layer.list.handlebars',
     'text!templates/preferences/layerPicker.handlebars',
     'text!templates/preferences/preference.buttons.handlebars',
-    'js/model/user',
+    'component/singletons/user-instance',
     'cesium',
     'wreqr',
     // load dependencies

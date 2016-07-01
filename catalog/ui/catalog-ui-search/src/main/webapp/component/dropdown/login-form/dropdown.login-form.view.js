@@ -15,7 +15,7 @@
 /*global define*/
 define([
     'underscore',
-    'js/model/user',
+    'component/singletons/user-instance',
     '../dropdown',
     '../dropdown.view',
     'text!./dropdown.login-form.hbs',

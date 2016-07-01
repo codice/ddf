@@ -19,7 +19,7 @@ define([
         'js/store',
         'properties',
         'application',
-        'js/model/user'
+        'component/singletons/user-instance'
     ],
     function (Backbone, Marionette, _, ol, store, properties, Application, user) {
         "use strict";

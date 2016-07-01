@@ -25,7 +25,7 @@ define([
     'js/store',
     'js/CustomElements',
     'moment',
-    'js/model/source',
+    'component/singletons/sources-instance',
     'bootstrapselect'
 ], function ($, Backbone, Marionette, _, properties, MetaCard, Progress, wreqr, queryOldBasicTemplate,
              dir, maptype, store, CustomElements, moment, sources) {

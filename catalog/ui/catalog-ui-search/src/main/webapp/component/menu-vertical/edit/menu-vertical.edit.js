@@ -20,7 +20,7 @@ define([
     '../menu-vertical',
     'component/lightbox/lightbox.view.instance',
     'component/ingest/ingest.view',
-    'js/model/user'
+    'component/singletons/user-instance'
 ], function (_, wreqr, Backbone, Vertical, lightboxInstance, IngestView, user) {
 
     var definition = [

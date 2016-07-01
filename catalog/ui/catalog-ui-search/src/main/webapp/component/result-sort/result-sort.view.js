@@ -19,7 +19,7 @@ define([
     'jquery',
     'text!./result-sort.hbs',
     'js/CustomElements',
-    'js/model/user',
+    'component/singletons/user-instance',
     'component/sort-item/sort-item.collection.view'
 ], function (Marionette, _, $, template, CustomElements, user, SortItemCollectionView) {
 

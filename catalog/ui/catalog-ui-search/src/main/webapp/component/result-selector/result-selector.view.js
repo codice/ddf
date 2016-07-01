@@ -29,7 +29,7 @@ define([
     'component/dropdown/dropdown',
     'js/cql',
     'component/dropdown/result-sort/dropdown.result-sort.view',
-    'js/model/user'
+    'component/singletons/user-instance'
 ], function (Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common,
              ResultItemCollectionView, PagingView, DropdownView, ResultFilterDropdownView,
              DropdownModel, cql, ResultSortDropdownView, user) {

@@ -18,7 +18,7 @@ define([
         'cesium',
         'application',
         'js/store',
-        'js/model/user'
+        'component/singletons/user-instance'
     ],
     function (Backbone, Marionette, _, Cesium, Application, store, user) {
         "use strict";

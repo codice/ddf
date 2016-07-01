@@ -26,7 +26,7 @@ define(['application',
         'drawHelper',
         'js/controllers/cesium.layerCollection.controller',
         'js/widgets/cesium.mapclustering',
-        'js/model/user'
+        'component/singletons/user-instance'
     ], function (Application, _, Backbone, Marionette, Cesium, Q, wreqr, store, properties, CesiumMetacard,
                  $, DrawHelper, LayerCollectionController, MapClustering, user) {
         "use strict";

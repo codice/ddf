@@ -16,9 +16,9 @@ define([
     'marionette',
     'wreqr',
     'moment',
-    'js/model/source',
+    'component/singletons/sources-instance',
     'properties',
-    'js/model/source'
+    'component/singletons/sources-instance'
 ], function (_, Backbone, Marionette, wreqr, moment, Source, Properties, sources) {
         'use strict';
         var FilterController;

@@ -30,7 +30,7 @@ define([
     'component/recent/recent',
     'component/recent/recent.view',
     'component/router/router',
-    'js/model/user',
+    'component/singletons/user-instance',
     'js/jquery.whenAll'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,

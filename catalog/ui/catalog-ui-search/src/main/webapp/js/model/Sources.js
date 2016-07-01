@@ -54,11 +54,14 @@ define([
         }
     };
 
-    var Sources = new (Backbone.Collection.extend({
+    return Backbone.Collection.extend({
         url: "/services/catalog/sources",
         useAjaxSync: true,
         initialize: function () {
           this._types = new Types();
+            poller.get(this, {
+                delay: properties.sourcePollInterval
+            }).start();
         },
         types: function () {
           return this._types;
@@ -67,12 +70,6 @@ define([
             this._types.set(computeTypes(response));
             return response;
         }
-    }))();
-
-    poller.get(Sources, {
-        delay: properties.sourcePollInterval
-    }).start();
-
-    return Sources;
+    });
 
 });

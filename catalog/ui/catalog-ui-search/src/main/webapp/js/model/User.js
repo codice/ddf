@@ -229,5 +229,5 @@ define([
         },
     });
 
-    return new User.Response();
+    return User;
 });

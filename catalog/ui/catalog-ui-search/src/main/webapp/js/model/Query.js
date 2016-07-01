@@ -19,7 +19,7 @@ define([
         'js/cql',
         'wellknown',
         'js/model/Metacard',
-        'js/model/source',
+        'component/singletons/sources-instance',
         'usngs',
         'wreqr',
         'js/Common',
