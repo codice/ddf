@@ -38,7 +38,7 @@ define([
         selectionInterface: store,
         initialize: function(options){
             this.selectionInterface = options.selectionInterface || store;
-            this.resultItemCollectionView = requirejs('component/result-item/result-item.collection.view');
+            this.resultItemCollectionView = require('component/result-item/result-item.collection.view');
         },
         onBeforeShow: function(){
             var resultCollection = new Metacard.Results();
