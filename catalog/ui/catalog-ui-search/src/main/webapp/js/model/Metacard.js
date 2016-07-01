@@ -10,7 +10,7 @@
  *
  **/
 /*global define, Terraformer*/
-/*jshint loopfunc: true */
+/*jshint loopfunc: true, latedef: nofunc */
 define([
         'backbone',
         'underscore',

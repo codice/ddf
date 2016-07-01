@@ -11,27 +11,6 @@ module.exports = {
     path: resolve('./target/webapp'),
     filename: 'bundle.js'
   },
-  devServer: {
-    host: '0.0.0.0',
-    port: 8282,
-    contentBase: './target/webapp/',
-    proxy: {
-      //'/lib/*': { target: 'https://localhost:8993', secure: false },
-      '/search/catalog/*': {
-        target: 'https://localhost:8993',
-        secure: false
-      },
-      '/search/cometd/*': {
-        target: 'https://localhost:8993',
-        secure: false
-      },
-      '/services/*': {
-        target: 'https://localhost:8993',
-        secure: false
-      }
-    }
-  },
-  devtool: 'eval',
   module: {
     loaders: [
       { test: /^text/, loader: 'text' },
@@ -61,8 +40,6 @@ module.exports = {
       strapdown: 'strapdown/v/0.2',
       spectrum: 'spectrum/spectrum',
       // backbone
-      //backbone: 'components-backbone/backbone',
-      //backboneassociations: 'backbone-associations/backbone-associations',
       backboneassociations: 'backbone-associations',
       backbonepaginator: 'backbone.paginator/lib/backbone.paginator.min',
       backbonecometd: 'backbone-cometd/backbone.cometd.extension',
@@ -108,17 +85,9 @@ module.exports = {
       // map
       cesium$: 'cesiumjs/Cesium/Cesium.js',
       'cesium.css': 'cesiumjs/Cesium/Widgets/widgets.css',
-      //cesium: 'cesiumjs/Cesium/Cesium',
-      //cesium: 'cesium/Cesium/Cesium.js',
-      //cesium: 'cesium/Build/Cesium/Cesium',
-      //cesium$: 'cesium/Build/CesiumUnminified/Cesium.js',
-      //'map.css': 'cesium/Build/Cesium/Widgets/widgets.css',
-      //cesium: 'cesium/Source/Cesium',
-      //cesium: 'cesium/Source/Core/buildModuleUrl',
       terraformer: 'terraformer/terraformer',
       terraformerWKTParser: 'terraformer-wkt-parser/terraformer-wkt-parser',
       drawHelper: 'cesium-drawhelper/DrawHelper',
-      // openlayers: 'openlayers3/build/ol',
       usngs: 'usng.js/usng',
       wellknown: 'wellknown/wellknown'
     },

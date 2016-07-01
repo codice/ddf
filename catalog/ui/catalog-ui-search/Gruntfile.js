@@ -10,6 +10,7 @@
  *
  **/
 /*global module,require*/
+var webpack = require('webpack');
 
 module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
@@ -27,6 +28,25 @@ module.exports = function (grunt) {
                 pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Roboto:400,700"\\);',
                 replacement: '@import url("../../lato/css/lato.min.css");',
                 recursive: true
+            }
+        },
+        webpack: {
+            options: require('./webpack.config'),
+            start: {
+                devtool: 'eval',
+                watch: true
+            },
+            build: {
+                plugins: [
+                    new webpack.optimize.UglifyJsPlugin({
+                        compress: {
+                            warnings: false
+                        },
+                        output: {
+                            comments: false
+                        }
+                    })
+                ]
             }
         },
         cssmin: {
@@ -131,7 +151,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test:unit', ['simplemocha:test']);
 
-    grunt.registerTask('build', [
+    grunt.registerTask('build:part', [
         'bower-offline-install',
         'sed',
         'less',
@@ -139,8 +159,14 @@ module.exports = function (grunt) {
         'jshint'
     ]);
 
+    grunt.registerTask('build', [
+        'build:part',
+        'webpack:build'
+    ]);
+
     grunt.registerTask('default', [
-        'build',
+        'build:part',
+        'webpack:start',
         'express:server',
         'watch'
     ]);

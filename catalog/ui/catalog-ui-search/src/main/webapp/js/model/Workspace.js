@@ -17,12 +17,11 @@ define([
         'js/model/Query',
         'js/Common',
         'js/ColorGenerator',
-        'js/Common',
         'js/QueryPolling',
         'component/singletons/user-instance',
         'backboneassociations'
     ],
-    function (wreqr, Backbone, Query, Common, ColorGenerator, Common, QueryPolling, user) {
+    function (wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, user) {
 
         var Workspace = {};
 
@@ -154,7 +153,7 @@ define([
                 return [];
             },
             // override parse to merge server response with local storage
-            parse: function (resp, options) {
+            parse: function (resp) {
                 return resp.concat(this.getLocalWorkspaces());
             }
         });
