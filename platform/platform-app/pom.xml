@@ -13,14 +13,12 @@
  **/
 
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>platform</artifactId>
         <groupId>ddf.platform</groupId>
-        <version>2.9.1-SNAPSHOT</version>
+        <version>2.9.1</version>
     </parent>
     <artifactId>platform-app</artifactId>
     <name>DDF :: Platform :: App</name>
@@ -408,13 +406,13 @@
         <cxf.tika.version>1.7</cxf.tika.version>
         <cxf.jexl.version>2.1.1</cxf.jexl.version>
         <cxf.htrace.version>4.0.1-incubating</cxf.htrace.version>
-        <cxf.checkstyle.extension/>
-        <cxf.jaxb.context.class/>
+        <cxf.checkstyle.extension />
+        <cxf.jaxb.context.class />
         <cxf.jaxb.context.class.property>none</cxf.jaxb.context.class.property>
         <cxf.spring.validation.mode>VALIDATION_AUTO</cxf.spring.validation.mode>
         <cxf.downloadSources>true</cxf.downloadSources>
-        <cxf.pmd.eclipse.ruleset.ext/>
-        <cxf.resources.base.path/>
+        <cxf.pmd.eclipse.ruleset.ext />
+        <cxf.resources.base.path />
         <!-- End apache-cxf-3.1.4-src/parent/pom.xml-->
         <!-- Copied from apache-cxf-3.0.4-src/pom.xml -->
         <cxf.build-utils.version>3.1.0</cxf.build-utils.version>

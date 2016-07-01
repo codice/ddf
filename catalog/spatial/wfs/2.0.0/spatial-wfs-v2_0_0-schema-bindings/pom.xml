@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
         <artifactId>wfs-v2.0.0</artifactId>
-        <version>2.9.1-SNAPSHOT</version>
+        <version>2.9.1</version>
     </parent>
     <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
     <name>DDF :: Spatial :: WFS :: 2.0.0 :: Schema Bindings</name>
@@ -116,8 +116,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete dir="./target/generated-sources/xjc/net/opengis/filter"/>
-                                <delete dir="./target/generated-sources/xjc/net/opengis/ows"/>
+                                <delete dir="./target/generated-sources/xjc/net/opengis/filter" />
+                                <delete dir="./target/generated-sources/xjc/net/opengis/ows" />
                             </tasks>
                         </configuration>
                     </execution>

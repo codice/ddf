@@ -17,7 +17,7 @@
     <parent>
         <artifactId>security-encryption-pom</artifactId>
         <groupId>ddf.security.encryption</groupId>
-        <version>2.9.1-SNAPSHOT</version>
+        <version>2.9.1</version>
     </parent>
     <artifactId>security-encryption-commands</artifactId>
     <name>DDF :: Security :: Encryption :: Commands</name>
@@ -51,7 +51,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package/>
+                        <Export-Package />
                         <Import-Package>
                             ddf.security.encryption,
                             org.apache.felix.service.command,

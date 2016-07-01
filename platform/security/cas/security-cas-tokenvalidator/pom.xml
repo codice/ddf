@@ -17,7 +17,7 @@
     <parent>
         <artifactId>security-cas-pom</artifactId>
         <groupId>ddf.security.cas</groupId>
-        <version>2.9.1-SNAPSHOT</version>
+        <version>2.9.1</version>
     </parent>
     <artifactId>security-cas-tokenvalidator</artifactId>
     <name>DDF :: Security :: CAS :: Token Validator</name>
@@ -99,7 +99,7 @@
                             javax.servlet.http;version="[2.5.0,3.0.0)",
                             *
                         </Import-Package>
-                        <Export-Package/>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
