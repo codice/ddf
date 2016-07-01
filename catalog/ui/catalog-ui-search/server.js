@@ -13,7 +13,6 @@
 var express = require('express');
 var httpProxy = require('http-proxy');
 var morgan = require('morgan')
-var server = require('./server-impl');
 
 var proxy = new httpProxy.createProxyServer({ changeOrigin: true, secure: false });
 
