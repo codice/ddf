@@ -21,12 +21,10 @@ define([
     'text!./workspace-item.hbs',
     'js/CustomElements',
     'js/store',
-    'wreqr',
     'component/menu-vertical/popout/menu-vertical.popout.view',
     'component/content-toolbar/content-toolbar',
     'moment'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, wreqr, MenuView, ContentToolbar,
-             moment) {
+], function (wreqr, Marionette, _, $, template, CustomElements, store, MenuView, ContentToolbar, moment) {
 
     return Marionette.ItemView.extend({
         template: template,
