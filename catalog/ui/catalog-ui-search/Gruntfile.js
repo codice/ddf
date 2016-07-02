@@ -21,6 +21,12 @@ module.exports = function (grunt) {
         clean: {
             build: ['target/webapp']
         },
+        open: {
+            chrome: {
+                path: 'http://localhost:8282/search/catalog/?map=2d',
+                app: 'Google Chrome'
+            }
+        },
         bower: { install: {} },
         sed: {
             imports: {
@@ -162,6 +168,14 @@ module.exports = function (grunt) {
     grunt.registerTask('build', [
         'build:part',
         'webpack:build'
+    ]);
+
+    grunt.registerTask('start', [
+        'build:part',
+        'webpack:start',
+        'express:server',
+        'open:chrome',
+        'watch'
     ]);
 
     grunt.registerTask('default', [
