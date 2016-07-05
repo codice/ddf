@@ -16,14 +16,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>core</artifactId>
-        <groupId>ddf.catalog.core</groupId>
+        <groupId>ddf.catalog</groupId>
+        <artifactId>catalog</artifactId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>catalog-core-ftp</artifactId>
-    <name>DDF :: Catalog :: Core :: Ftp</name>
+    <artifactId>ftp</artifactId>
+    <name>DDF :: Catalog :: Ftp</name>
     <packaging>bundle</packaging>
 
     <properties>
@@ -127,7 +127,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.69</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
@@ -137,12 +137,12 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.42</minimum>
+                                            <minimum>0.43</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.73</minimum>
+                                            <minimum>0.74</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
