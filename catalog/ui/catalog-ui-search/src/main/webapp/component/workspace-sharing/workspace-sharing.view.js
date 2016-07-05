@@ -161,7 +161,10 @@ define([
     var WorkspaceSharing = Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('workspace-sharing'),
-        modelEvents: { 'all': 'render' },
+        modelEvents: {
+            reset: 'render',
+            sync: 'cleanup'
+        },
         regions: {
             byEmail: '.workspace-sharing-by-email',
             byRole: '.workspace-sharing-by-role'
@@ -183,9 +186,8 @@ define([
         },
         getSharingByRole: function () {
             var view = this;
-            var user = user.get('user');
 
-            return user.get('roles').map(function (role) {
+            return user.get('user').get('roles').map(function (role) {
                 return _.findWhere(view.getSharing(), { value: role }) || {
                     attribute: 'role',
                     action: 'none',
@@ -225,16 +227,11 @@ define([
                 }).value();
 
             this.model.set('metacard.sharing', explodePermissions(roles.concat(emails)));
-            this.model.save(null, {
-                success: function () {
-                    view.$el.trigger(CustomElements.getNamespace()+'close-lightbox');
-                    Loading.endLoading(view);
-                },
-                error: function () {
-                    // TODO: handle error case :(
-                    Loading.endLoading(view);
-                }
-            });
+            this.model.save()
+        },
+        cleanup: function () {
+            this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
+            Loading.endLoading(this);
         }
     });
 
