@@ -80,8 +80,6 @@ module.exports = {
       // map
       cesium$: 'cesiumjs/Cesium/Cesium.js',
       'cesium.css': 'cesiumjs/Cesium/Widgets/widgets.css',
-      terraformer: 'terraformer/terraformer',
-      terraformerWKTParser: 'terraformer-wkt-parser/terraformer-wkt-parser',
       drawHelper: 'cesium-drawhelper/DrawHelper',
       usngs: 'usng.js/usng',
       wellknown: 'wellknown/wellknown'

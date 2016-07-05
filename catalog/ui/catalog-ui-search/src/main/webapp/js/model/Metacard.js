@@ -9,18 +9,19 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, Terraformer*/
+/*global define*/
 /*jshint loopfunc: true, latedef: nofunc */
 define([
         'backbone',
         'underscore',
         'wreqr',
         'component/singletons/metacard-definitions',
-        'terraformerWKTParser',
+        'terraformer',
+        'terraformer-wkt-parser',
         'backboneassociations',
         'backbonepaginator'
     ],
-    function (Backbone, _, wreqr, metacardDefinitions) {
+    function (Backbone, _, wreqr, metacardDefinitions, Terraformer, TerraformerWKTParser) {
         "use strict";
 
         var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags'];
@@ -65,7 +66,7 @@ define([
         }
 
         function matchesPOLYGON(value, filter){
-            var polygonToCheck = Terraformer.WKT.parse(filter.value.value);
+            var polygonToCheck = TerraformerWKTParser.parse(filter.value.value);
             if (polygonToCheck.contains(value)){
                 return true;
             }
