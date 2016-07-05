@@ -1,0 +1,20 @@
+.[[ddf.catalog.federation.layered.replication.RestReplicatorPlugin]]Catalog Federation Replication
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Parent Address
+|parentAddress
+|String
+|All create
+|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8182${org.codice.ddf.system.rootContext}/catalog
+|true
+
+|===
+

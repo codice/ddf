@@ -1,0 +1,34 @@
+.[[plugin.backup]]Backup Post-Ingest Plugin
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Enable Backup Plugin
+|enableBackupPlugin
+|Boolean
+|Enable the Backup Ingest plugin which will write each result to a directory
+|true
+|false
+
+| Root backup directory path
+| rootBackupDir
+| String
+| Root backup directory for Metacards. A relative path is relative to ddf.home.
+| data/backup
+| true
+
+| Subdirectory levels
+| subDirLevels
+| Integer
+| Number of subdirectory levels to create. Two characters from the ID will be used to name each subdirectory level.
+| 2
+| true
+
+|===
+

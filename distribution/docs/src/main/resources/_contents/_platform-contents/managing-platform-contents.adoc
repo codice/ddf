@@ -1,60 +1,40 @@
 
-The ${ddf-platform} application is considered to be a core application of the distribution.
-The Platform application provides the fundamental building blocks that the distribution needs to run.
-These building blocks include subsets of:
-
-* http://karaf.apache.org/[Karaf], 
-* http://cxf.apache.org/CXF[CXF],  and 
-* http://camel.apache.org/[Camel]. 
-
-A Command Scheduler is also included as part of the Platform application.
-The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals.
-
-=== Using ${ddf-platform} Application
-
-The Platform application is a core building block for any application and should be referenced for its core component versions so that developers can ensure compatibility with their own applications.
-The Command Scheduler included in the Platform application should be for the convenience of a "platform independent" method of running certain commands, such as backing up data or logging settings.
-
-=== Installing and Uninstalling Platform
-
-==== Prerequisites
+=== ${ddf-platform} Prerequisites
 
 None.
 
-==== Installing ${ddf-platform}
+=== Installing ${ddf-platform}
 
 The Platform application is installed by default on a standard installation.
 
-==== Configuring ${ddf-platform}
- 
-[cols="1,1,2" options="header"]
+=== Configuring ${ddf-platform}
+
+The following configuration properties can be changed under the Configuration tab of the ${admin-console}
+
+.${ddf-platform} Configurations
+[cols="1,1m,1" options="header"]
 |===
-|Configuration
-|ID
+|Name
+|Configuration ID
 |Description
 
-|Landing Page
-|`org.codice.${ddf-branding-lowercase}.distribution.landing-page.properties`
-|Customize elements seen on landing page.
-
-|MIME Custom Types
-|`${ddf-branding}_Custom_Mime_Type_Resolver`
-|Add or configure resolvers to identify files by type.
-
-|Metrics Reporting
-|`MetricsReporting`
-|Allocate resources for metrics collection.
-
-|Persistent Store
-|`org.codice.${ddf-branding-lowercase}.persistence.internal.PersistentStoreImpl`
-|Set URL for Solr server used as persistant store.
-
-|Platform Command Scheduler
-|`${ddf-branding-lowercase}.platform.scheduler.Command`
-|Schedule shell commands to run periodically.
-
-|Platform UI Configuration
-|`${ddf-branding-lowercase}.platform.ui.config`
-|
-
+include::../_tables/conf-org.codice.ddf.distribution.landing-page.properties-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.platform.logging.LoggingService-table-contents.adoc[]
+include::../_tables/conf-DDF_Custom_Mime_Type_Resolver-table-contents.adoc[]
+include::../_tables/conf-MetricsReporting-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.persistence.internal.PersistentStoreImpl-table-contents.adoc[]
+include::../_tables/conf-ddf.platform.scheduler.Command-table-contents.adoc[]
+include::../_tables/conf-ddf.platform.ui.config-table-contents.adoc[]
 |===
+
+include::../_tables/org.codice.ddf.distribution.landing-page.properties-table-contents.adoc[]
+include::../_tables/org.codice.ddf.platform.logging.LoggingService-table-contents.adoc[]
+include::../_tables/DDF_Custom_Mime_Type_Resolver-table-contents.adoc[]
+include::../_tables/MetricsReporting-table-contents.adoc[]
+include::../_tables/org.codice.ddf.persistence.internal.PersistentStoreImpl-table-contents.adoc[]
+include::../_tables/ddf.platform.scheduler.Command-table-contents.adoc[]
+include::../_tables/ddf.platform.ui.config-table-contents.adoc[]
+
+=== Using ${ddf-platform} Application
+
+The Command Scheduler included in the Platform application should be for the convenience of a "platform independent" method of running certain commands, such as backing up data or logging settings.

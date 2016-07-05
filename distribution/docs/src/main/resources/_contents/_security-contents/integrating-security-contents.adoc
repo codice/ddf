@@ -1,4 +1,7 @@
 
+The Security application provides authentication, authorization, and auditing services for the ${branding}.
+They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements.
+
 This section supports integration of this application with external frameworks.
 
 === Security CAS

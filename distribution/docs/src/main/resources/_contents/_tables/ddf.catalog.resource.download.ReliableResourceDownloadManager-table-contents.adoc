@@ -1,0 +1,55 @@
+.[[ddf.catalog.resource.download.ReliableResourceDownloadManager]]Resource Download Settings
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Product Cache Directory
+|productCacheDirectory
+|String
+|Directory where retrieved products will be cached for faster
+| true
+|false
+
+| Enable Product Caching
+| cacheEnabled
+| Boolean
+|future retrieval.              If a directory path is specified with directories that do not exist
+| 10
+| false
+
+| Delay (in seconds) between product retrieval retry attempts
+| delayBetweenRetryAttempts
+| Integer
+|              Product Download feature will attempt to create those directories.              Out of the box (without configuration)
+| 3
+| false
+
+| Max product retrieval retry attempts
+| maxRetryAttempts
+| Integer
+|the product cache directory is              INSTALL_DIR/data/product-cache. If a relative path is provided it will be relative              to the INSTALL_DIR. It is recommended to enter an absolute directory path such as              /opt/product-cache in Linux or C:\product-cache in Windows.
+| 5
+| false
+
+| Product Retrieval Monitor Period
+| retrievalMonitorPeriod
+| Integer
+| Check to enable caching of retrieved products.
+| false
+| false
+
+| Always Cache Product
+| cacheWhenCanceled
+| Boolean
+| The time to wait (in seconds) between attempting to retry retrieving a product.
+|null
+| false
+
+|===
+

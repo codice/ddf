@@ -16,211 +16,26 @@ To use the ${ddf-registry}, the following apps/features must be installed:
 
 === Configuring ${ddf-registry}
 
-.Registry Configuration Tab
+The following configuration properties can be changed under the Configuration tab of the ${admin-console}
+
+.${ddf-registry} Configurations
 [cols="1,1m,1" options="header"]
 |===
 |Name
 |Configuration ID
 |Description
 
-|<<Registry_Federation_Admin_Service,Registry Federation Admin Service>>
-|Registry_Federation_Admin_Service
-|Registry Federation Admin Service Settings
-
-|<<org.codice.ddf.registry.policy.RegistryPolicyPlugin,Registry Policy Plugin>>
-|org.codice.ddf.registry.policy.RegistryPolicyPlugin
-|Registry Policy Plugin Settings
-
-|<<Registry_Configuration_Event_Handler,Registry Source Configuration Handler>>
-|Registry_Configuration_Event_Handler
-|Configurable values for the registry source configuration handler
-
-|<<Csw_Registry_Store,Registry Store>>
-|Csw_Registry_Store
-|Registry CSW Store Settings
+include::../_tables/conf-Registry_Federation_Admin_Service-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.registry.policy.RegistryPolicyPlugin-table-contents.adoc[]
+include::../_tables/conf-Registry_Configuration_Event_Handler-table-contents.adoc[]
+include::../_tables/conf-Csw_Registry_Store-table-contents.adoc[]
 
 |===
 
-.[[Registry_Federation_Admin_Service]]Registry Federation Admin Service
-[cols="1,1m,1,2,1,1" options="header"]
-|===
-|Name
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|Registry Sub Poller Interval
-|registrySubPollerInterval
-|String
-|The polling interval for the registry subscriptions. In seconds.
-|30
-|yes
-
-|===
-
-.[[org.codice.ddf.registry.policy.RegistryPolicyPlugin]]Registry Policy Plugin
-[cols="1,1m,1,2,1,1" options="header"]
-|===
-|Name
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|Registry CUD Attributes
-|writeAccessPolicyStrings
-|String
-|Roles/attributes required for CUD (create/update/delete) operations on registry entries. Example: {role=role1;type=type1}
-|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
-|yes
-
-|Registry Read Attributes
-|readAccessPolicyStrings
-|String
-|Roles/attributes required for reading registry entries. Example: {role=role1;type=type1}
-|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
-|yes
-
-|Registry Admin Attributes
-|registryBypassPolicyStrings
-|String
-|Roles/attributes required for an admin to bypass all filtering/access controls. Example: {role=role1;type=type1}
-|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin
-|yes
-
-|Disable Registry Write Access
-|registryDisabled
-|Boolean
-|Disables all write access to registry entries in the catalog. Only users with Registry Admin Attributes will be able to write registry entries
-|
-|no
-
-|Entries are White List
-|whiteList
-|Boolean
-|A flag indicating whether or not the Registry Entry Ids represent a 'white list' (allowed - checked) or a 'black list' (blocked - unchecked) ids
-|
-|no
-
-|Registry Entries Ids
-|registryEntryIds
-|String
-|List of registry entry ids to be used in the white/black list.
-|
-|no
-
-|===
-
-.[[Registry_Configuration_Event_Handler]]Registry Source Configuration Handler
-[cols="1,1m,1,2,1,1" options="header"]
-|===
-|Name
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|Url Binding Name
-|urlBindingName
-|String
-|The url name for communicating with the specific instance.
-|urlBindingName
-|yes
-
-|BindingType to Factory PID
-|bindingTypeFactoryPid
-|String
-|Key/Value mappings of binding type to factory PID
-|CSW_2.0.2=Csw_Federated_Source,WFS_1.0.0=Wfs_v1_0_0_Federated_Source,OpenSearch_1.0.0=OpenSearchSource
-|yes
-
-|Remove Configurations on Metacard Delete
-|cleanUpOnDelete
-|Boolean
-|Flag used to determine if configurations should be deleted when the metacard is deleted.
-|false
-|yes
-
-|Activate Configurations
-|activateConfigurations
-|Boolean
-|Flag used to determine if a configuration should be activated on creation
-|false
-|yes
-
-|Preserve Active Configuration
-|preserveActiveConfigurations
-|Boolean
-|Flag used to determine if configurations should be preserved. If true will only allow auto activation on creation. If false auto activation will happen on updates as well. Only applicable if activateConfigurations is true.
-|true
-|yes
-
-|Source Activation Priority Order
-|sourceActivationPriorityOrder
-|String
-|This is the priority list used to determine which source should be activated on creation
-|CSW_2.0.2,WFS_1.0.0,OpenSearch_1.0.0
-|yes
-
-|===
-
-.[[Csw_Registry_Store]]Registry Store
-[cols="1,1m,1,2,1,1" options="header"]
-|===
-|Name
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|Registry ID
-|id
-|String
-|The unique name of the store
-|
-|yes
-
-|CSW URL
-|cswUrl
-|String
-|URL to the endpoint implementing CSW spec capable of returning ebrim formatted records
-|
-|yes
-
-|Username
-|username
-|String
-|Username for CSW Service (optional)
-|
-|no
-
-|Password
-|password
-|Password for CSW Service (optional)
-|Password
-|
-|no
-
-|Allow Push
-|pushAllowed
-|Boolean
-|Enable push (write) to this registry store
-|true
-|yes
-
-|Allow Pull
-|pullAllowed
-|Boolean
-|Enable pull (read) from this registry store
-|true
-|yes
-
-|===
+include::../_tables/Registry_Federation_Admin_Service-table-contents.adoc[]
+include::../_tables/org.codice.ddf.registry.policy.RegistryPolicyPlugin-table-contents.adoc[]
+include::../_tables/Registry_Configuration_Event_Handler-table-contents.adoc[]
+include::../_tables/Csw_Registry_Store-table-contents.adoc[]
 
 === Using ${ddf-registry}
 

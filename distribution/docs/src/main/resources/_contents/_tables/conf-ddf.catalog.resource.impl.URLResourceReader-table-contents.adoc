@@ -1,0 +1,4 @@
+|<<ddf.catalog.resource.impl.URLResourceReader,URL Resource Reader>>
+|ddf.catalog.resource.impl.URLResourceReader
+|URL Resource Reader
+

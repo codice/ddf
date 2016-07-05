@@ -1,0 +1,27 @@
+.[[ddf.security.user.attribute.mapping]]Security User Attribute Mapping
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Attribute Separator
+|attributeSeparator
+|String
+|Attribute separator - used to separate attributes in replacement strings - defaults to space (specified by no value).
+| 
+|false
+
+| Expansion Rules Configuration File Location
+| expansionFileName
+| String
+| Location of the file containing the attribute expansion rules.
+| ${ddf.home}/etc/pdp/ddf-user-attribute-ruleset.cfg
+| true
+
+|===
+

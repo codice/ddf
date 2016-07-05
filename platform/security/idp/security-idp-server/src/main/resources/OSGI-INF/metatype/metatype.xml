@@ -17,7 +17,7 @@
 
         <AD name="SP Metadata" id="spMetadata" required="true" type="String"
             default="" cardinality="100"
-            description="Refer to metadata by HTTPS URL (https://), file URL (file:), or an XML block(<md:EntityDescriptor>...</md:EntityDescriptor>)."/>
+            description="Refer to metadata by HTTPS URL (https://), file URL (file:), or an XML block(&lt;md:EntityDescriptor&gt;...&lt;/md:EntityDescriptor&gt;)."/>
 
         <AD name="Require Signed AuthnRequests" id="strictSignature" required="false" type="Boolean"
             default="true"

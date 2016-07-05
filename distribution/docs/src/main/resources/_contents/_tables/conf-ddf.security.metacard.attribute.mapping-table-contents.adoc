@@ -1,0 +1,4 @@
+|<<ddf.security.metacard.attribute.mapping,Security Metacard Attribute Mapping>>
+|ddf.security.metacard.attribute.mapping
+|Expansion Service for Metacard Attributes
+

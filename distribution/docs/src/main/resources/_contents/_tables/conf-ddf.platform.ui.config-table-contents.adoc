@@ -1,0 +1,4 @@
+|<<ddf.platform.ui.config,Platform UI Configuration>>
+|ddf.platform.ui.config
+|Global User Interface configurations used across the applications.  Contains configuration for banners and other generic ui components.
+

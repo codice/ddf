@@ -23,9 +23,7 @@ include::${project.build.directory}/doc-contents/_contents/_admin-contents/manag
 == Managing ${ddf-catalog}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_contents/_catalog-contents/installing-catalog-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_catalog-contents/configuring-catalog-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/managing-catalog-contents.adoc[]
 
 <<<
 

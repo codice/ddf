@@ -1,4 +1,13 @@
 
+The ${ddf-platform} application is considered to be a core application of the distribution.
+The Platform application is a core building block for any application and should be referenced for its core component versions so that developers can ensure compatibility with their own applications.
+The Platform application provides the fundamental building blocks that the distribution needs to run.
+These building blocks include subsets of:
+
+* http://karaf.apache.org/[Apache Karaf], 
+* http://cxf.apache.org/CXF[Apache CXF],  and 
+* http://camel.apache.org/[Apache Camel]. 
+
 This section supports developers creating extensions of the existing framework.
 
 === Whitelist

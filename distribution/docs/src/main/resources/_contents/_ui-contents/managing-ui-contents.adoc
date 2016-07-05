@@ -1,15 +1,7 @@
 
 The Standard Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.
 
-This section describes:
-
-* Which applications must be installed prior to installing this application.
-* How to install the ${ddf-ui}.
-* How to verify if the ${ddf-ui} was successfully installed.
-* How to uninstall the ${ddf-ui}.
-* How to upgrade the ${ddf-ui}.
-
-=== Prerequisites
+=== ${ddf-ui} Prerequisites
 
 Before the ${ddf-ui} application can be installed:
 
@@ -18,230 +10,36 @@ Before the ${ddf-ui} application can be installed:
 
 === Installing ${ddf-ui}
 
-The Search UI application is installed by default.
+The Search UI application is installed by default on a standard installation.
 
 === Configuring ${ddf-ui}
 
-Configure individual features within the application with the
-Admin Console.
+The following configuration properties can be changed under the Configuration tab of the ${admin-console}
 
-==== Configurable Properties
-
-===== Configurations
-
+.${ddf-catalog} Configurations
 [cols="1,2m,2" options="header"]
 |===
 |Configuration
 |ID
 |Description
 
-|Search UI Endpoint
-|org.codice.ddf.ui.search.standard.endpoint
-|Setting for cache and normalization of Search UI endpoint
+include::../_tables/conf-org.codice.ddf.ui.search.standard.endpoint-table-contents.adoc[]
 
-|Search UI Redirect
-|org.codice.ddf.ui.searchui.filter.RedirectServlet
-|URI to use with Search UI redir
+include::../_tables/conf-org.codice.ddf.ui.searchui.filter.RedirectServlet-table-contents.adoc[]
 
-|Simple Search UI
-|org.codice.ddf.ui.search.simple.properties
-|Basic Display options for using Simple Search UI
+include::../_tables/conf-org.codice.ddf.ui.search.simple.properties-table-contents.adoc[]
 
-|Standard Search UI
-|org.codice.ddf.ui.search.standard.properties
-|Display options for using Standard Search UI
- 
-|===
-
-.Search UI Endpoint
-[cols="1,1m,1,4,1" options="header"]
-|===
-|Title
-|Property
-|Type
-|Description
-|Required
-
-|Disable Cache
-|cacheDisabled
-|Boolean
-|Disables use of cache.
-|no
-
-|Disable Normalization
-|normalizationDisabled
-|Boolean
-|Disables relevance and distance normalization.
-|no
+include::../_tables/conf-org.codice.ddf.ui.search.standard.properties-table-contents.adoc[]
 
 |===
 
-.Search UI Redirect
-[cols="1,1m,1,4,1" options="header"]
-|===
-|Title
-|Property
-|Type
-|Description
-|Required
+include::../_tables/org.codice.ddf.ui.search.standard.endpoint-table-contents.adoc[]
 
-|Redirect URI
-|defaultUri
-|String
-|Specifies the redirect URI to use when accessing the /search URI.
-|Yes
+include::../_tables/org.codice.ddf.ui.searchui.filter.RedirectServlet-table-contents.adoc[]
 
-|===
+include::../_tables/org.codice.ddf.ui.search.simple.properties-table-contents.adoc[]
 
-.Simple Search UI
-[cols="1,1m,1,4,1" options="header"]
-|===
-|Title
-|Property
-|Type
-|Description
-|Required
-
-|Header
-|header
-|String
-|Specifies the header text to be rendered on the generated Query Page
-|Yes
-
-|Footer
-|footer
-|String
-|Specifies the footer text to be rendered on the generated Query Page
-|Yes
-
-|Text Color
-|color
-|Specifies the Text Color of the Header and Footer. Use html css colors or \#rrggbb.
-|String
-|Yes
-
-|Background Color
-|background
-|String
-|Specifies the Background Color of the Header and Footer.  Use html css colors or \#rrggbb.
-|Yes
-
-|===
-
-.Standard Search UI
-[cols="1,1m,1,4,1" options="header"]
-|===
-|Title
-|Property
-|Type
-|Description
-|Required
-
-|Header
-|header
-|String
-|The header text to be rendered on the Search UI.
-|no
-
-|Footer
-|footer
-|String
-|The footer text to be rendered on the Search UI.
-|no
-
-|Style
-|style
-|String
-|The style name (background color) of the Header and Footer.
-|yes
-
-|Text Color
-|textColor
-|String
-|The text color of the Heater and Footer.
-|yes
-
-|Result count
-|resultCount
-|Integer
-|The max number of results to display.
-|yes
-
-|Imagery Providers
-|imageryProviders
-|String
-|List of imagery providers to use. Valid types are: +
- -OSM (OpenStreetMap), +
- -AGM (ArcGisMap), +
- -BM (BingMap),+
- -WMS (WebMapService), +
- -WMT (WebMapTile), +
- -TMS (TileMapService), +
- -GE (GoogleEarth).
- -
- -Example: TYPE={url=
- -{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}}
-|no
-
-|Terrain Providers
-|terrainProvider
-|String
-|Terrain provider to use for height data. Valid types are: +
- -CT (CesiumTerrain), +
- -AGS (ArcGisImageServer), +
- -VRW (VRTheWorld).
- -
- -Example: +
- -{"type" "CT" "url" "http://example.com"}
-|no
-
-|Map Projection
-|projection
-|String
-|Projection of imagery providers
-|no
-
-|Connection timeout
-|timeout
-|Integer
-|The WMS connection timeout.
-|yes
-
-|Show sign in
-|signIn
-|Boolean
-|Whether or not to authenticate users.
-|no
-
-|Show tasks
-|task
-|Boolean
-|Whether or not to display progress of background tasks.
-|no
-
-|Show Gazetteer
-|gazetteer
-|Boolean
-|Whether or not to show gazetteer for searching place names.
-|no
-
-|Show Uploader
-|ingest
-|Boolean
-|Whether or not to show upload menu for adding new metadata.
-|no
-
-|Type Name Mapping
-|typeNameMapping
-|String[]
-|The mapping of content types to displayed names.
-|no
-
-|===
-
-==== Upgrading
-
-Upgrading to a newer version of the app can be performed by the Admin Console.
+include::../_tables/org.codice.ddf.ui.search.standard.properties-table-contents.adoc[]
 
 === Troubleshooting ${ddf-ui}
 

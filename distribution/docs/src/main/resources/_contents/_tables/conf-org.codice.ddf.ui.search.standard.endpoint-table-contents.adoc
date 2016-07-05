@@ -1,0 +1,4 @@
+|<<org.codice.ddf.ui.search.standard.endpoint,Search UI Endpoint>>
+|org.codice.ddf.ui.search.standard.endpoint
+|Search UI Endpoint
+

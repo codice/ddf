@@ -1,0 +1,4 @@
+|<<org.codice.ddf.security.idp.client.IdpMetadata,IdP Client>>
+|org.codice.ddf.security.idp.client.IdpMetadata
+|IdP Client
+

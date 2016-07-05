@@ -1,0 +1,34 @@
+.[[org.codice.ddf.security.idp.server.IdpEndpoint]]IdP Server
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|SP Metadata
+|spMetadata
+|String
+|Refer to metadata by HTTPS URL (https://);;;;file URL (file:);;;;or an XML block(<md:EntityDescriptor>...</md:EntityDescriptor>).
+| true
+|true
+
+| Require Signed AuthnRequests
+| strictSignature
+| Boolean
+| Toggle whether or not to require signed AuthnRequests. The default is 'true'.
+| 30
+| false
+
+| Cookie Expiration Time (minutes)
+| expirationTime
+| Integer
+| Sets the cookie expiration time for single sign on. This value should match the lifetime of SAML assertions
+|null
+| true
+
+|===
+

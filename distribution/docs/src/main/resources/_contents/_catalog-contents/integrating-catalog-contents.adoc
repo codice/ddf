@@ -691,55 +691,6 @@ For example, this would be useful for copying files from a hard drive (or direct
 ** The Catalog Framework sends back a successful status to the Camel route that was monitoring the directory.
 ** The Camel route completes and moves the file from the monitored directory to its `.ingested` sub-directory.
 
-====== Configuring
-
-The configurable properties for the Content Directory Monitor are accessed from the *Content Directory Monitor* Configuration in the Admin Console.
-
-====== Configuring Content Directory Monitors
-
-Managed Service Factory PID:
-`org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor`
-
-====== Configurable Properties
-
-[cols="1,1,1,4a,1,1," options="header"]
-|===
-
-|Title
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|Directory Path
-|`monitoredDirectoryPath`
-|String
-|Specifies the directory to be monitored.
-Can be a fully-qualified directory or a relative path (which is relative to the ${branding} installation directory).
-|N/A
-|Yes
-
-|Processing Directive
-|`directive`
-|String
-|One of three possible values from a drop down box:
-
-* Store only - indicates to only store content in Content Repository
-* Process only - indicates to only create metacard and insert into MDC
-* Store and Process - do both
-|Store and Process
-|Yes
-
-|Copy Files to Backup Directory
-|`copyIngestedFiles`
-|Boolean
-|Checking this option indicates that a backup of the file placed in the monitored directory should be made upon successful processing of the file. The file is moved into the `.ingested` sub-directory of the monitored directory.
-|False
-|No
-
-|===
-
 ===== Implementation Details
 
 ====== Imported Services

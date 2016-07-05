@@ -1,0 +1,27 @@
+.[[ddf.platform.scheduler.Command]]Platform Command Scheduler
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Command
+|command
+|String
+|Shell command to be used within the container. For example, log:set DEBUG
+| null
+|true
+
+| Interval in seconds
+| intervalInSeconds
+| Integer
+| The interval of time in seconds between each execution. Must be a positive integer. For example, 3600 is 1 hour.
+|null
+| true
+
+|===
+

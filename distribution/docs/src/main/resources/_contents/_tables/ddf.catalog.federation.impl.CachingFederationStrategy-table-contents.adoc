@@ -1,0 +1,69 @@
+.[[ddf.catalog.federation.impl.CachingFederationStrategy]]Catalog Federation Strategy
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Maximum start index
+|maxStartIndex
+|Integer
+|Sets a limit on the number of results this sorted federation strategy can handle from each federated source. A large start index         in conjunction with several federated sources could yield a large result set
+|50000
+|true
+
+| Expiration Interval
+| expirationIntervalInMinutes
+| Long
+|which the sorted federation strategy has a limited ability to do.           The admin can make a rough calculation to decide what maximum start index to use based on the amount of memory in the system
+| 10
+| true
+
+| Expiration Age
+| expirationAgeInMinutes
+| Long
+|the amount of          federated sources
+| 10080
+| true
+
+| Solr URL
+| url
+| String
+|the number of threads
+| ${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr
+| true
+
+| Cache Everything
+| cachingEverything
+| Boolean
+|and the expected amount of query results requested          ( (average # of threads) * (maximum # of federated sources) * (maxStartIndex + maximumQueryResults) ) must fit into the allocated memory of          the running distribution.  This field will be removed when sorted federation strategy has the ability to sort a larger amount of results.
+| false
+| true
+
+| Cache Remote Ingests
+| cacheRemoteIngests
+| Boolean
+| Interval that Solr Cache checks for expired documents to remove.
+| false
+| true
+
+| Show Validation Errors
+| showErrors
+| Boolean
+| The number of minutes a document will remain in the cache before it will expire. Default is 7 days.
+| false
+| true
+
+| Show Validation Warnings
+| showWarnings
+| Boolean
+| HTTP URL of Solr Server
+| true
+| true
+
+|===
+

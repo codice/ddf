@@ -1,0 +1,62 @@
+.[[Csw_Registry_Store]]CSW Registry Store
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Registry ID
+|id
+|String
+|The unique name of the store
+|null
+|true
+
+| Registry Service URL
+| cswUrl
+| String
+| URL to the endpoint implementing CSW spec capable of returning ebrim formatted records
+| null
+| true
+
+| Username
+| username
+| String
+| Username for CSW Service (optional)
+| null
+| false
+
+| Password
+| password
+| Password
+| Password for CSW Service (optional)
+| null
+| false
+
+| Allow Push
+| pushAllowed
+| Boolean
+| Enable push (write) to this registry
+| true
+| true
+
+| Allow Pull
+| pullAllowed
+| Boolean
+| Enable pull (read) from this registry
+| true
+| true
+
+| Push Identity Node
+| autoPush
+| Boolean
+| Enable an automatic publish from the local identity node to this registry. Setting this to Off will have the effect of unpublishing the identity from this registry.
+| true
+| true
+
+|===
+

@@ -30,7 +30,7 @@
         <AD
                 name="IdP Metadata" id="metadata" required="true" type="String"
                 default=""
-                description="Refer to metadata by HTTPS URL (https://), file URL (file:), or an XML block(<md:EntityDescriptor>...</md:EntityDescriptor>)."/>
+                description="Refer to metadata by HTTPS URL (https://), file URL (file:), or an XML block(&lt;md:EntityDescriptor&gt;...&lt;/md:EntityDescriptor&gt;)."/>
     </OCD>
 
     <Designate pid="org.codice.ddf.security.idp.client.IdpMetadata">

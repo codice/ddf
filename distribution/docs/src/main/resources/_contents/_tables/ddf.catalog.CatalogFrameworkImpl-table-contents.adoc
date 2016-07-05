@@ -1,0 +1,26 @@
+.[[ddf.catalog.CatalogFrameworkImpl]]Catalog Standard Framework
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Enable Fanout Proxy
+|fanoutEnabled
+|Boolean
+|When enabled the Framework acts as a proxy
+|false
+|true
+
+| Enable Notifications
+| notificationEnabled
+| Boolean
+|federating requests to all available sources. All requests are executed as federated queries and resource retrievals
+| true
+| false
+
+|===

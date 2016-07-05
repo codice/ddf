@@ -1,0 +1,41 @@
+.[[ddf.catalog.source.solr.SolrCatalogProvider]]Catalog Embedded Solr Catalog Provider
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Data Directory File Path
+|dataDirectoryPath
+|String
+|Specifies the directory to use for data storage. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist
+| false
+|true
+
+| Force Auto Commit
+| forceAutoCommit
+| Boolean
+|Solr Catalog Provider (SCP) will attempt to create those directories. Out of the box (without configuration)
+| false
+| true
+
+| Disable Text Path indexing
+| disableTextPath
+| Boolean
+|this Solr Catalog Provider writes to <DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr. It is recommended to use an absolute filepath to minimize confusion such as /opt/solr_data in Linux or C:/solr_data in Windows.
+| 1000
+| true
+
+| Nearest Neighbor Distance Limit
+| nearestNeighborDistanceLimit
+| Double
+| WARNING: Performance Impact.  Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately.
+|null
+| true
+
+|===
+

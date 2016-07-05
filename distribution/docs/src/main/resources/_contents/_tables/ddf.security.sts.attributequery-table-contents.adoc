@@ -1,0 +1,69 @@
+.[[ddf.security.sts.attributequery]]Security STS AttributeQuery Claims Handler
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|WSDL Location
+|wsdlLocation
+|String
+|Location or address of the WSDL.
+| 
+|true
+
+| Service Name
+| serviceName
+| String
+| Service name from the WSDL. Example format: {NamespaceURI}ServiceName
+| 
+| true
+
+| Port Name
+| portName
+| String
+| Port name that is supported by the service. Example format: {NamespaceURI}PortName
+| 
+| true
+
+| External Attribute Store URL
+| externalAttributeStoreUrl
+| String
+| URL of the External Attribute Store.
+| 
+| true
+
+| Issuer
+| issuer
+| String
+| Issuer of the AttributeQuery request.
+| 
+| true
+
+| Destination
+| destination
+| String
+| Destination of the AttributeQuery request.
+| 
+| false
+
+| Attribute Map File Location
+| attributeMapLocation
+| String
+| Location of the file which contains the attribute mappings.
+| http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
+| false
+
+| Supported Claims
+| supportedClaims
+| String
+| List of claims the AttributeQuery Claims Handler supports.
+|             http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress
+| true
+
+|===
+

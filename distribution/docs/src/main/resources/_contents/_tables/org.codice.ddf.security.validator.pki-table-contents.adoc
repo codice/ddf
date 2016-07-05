@@ -1,0 +1,27 @@
+.[[org.codice.ddf.security.validator.pki]]Security STS PKI Token Validator
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Realms
+|realms
+|String
+|The realms to be validated by this validator.
+|karaf
+|true
+
+| Do Full Path Validation
+| pathValidation
+| Boolean
+| Validate the full certificate path. Uncheck to only validate the subject cert. (RFC5280 6.1)
+| true
+| true
+
+|===
+

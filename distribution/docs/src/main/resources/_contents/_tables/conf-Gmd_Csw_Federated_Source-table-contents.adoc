@@ -1,0 +1,3 @@
+|<<Csw_Federated_Source,CSW Specification Profile Federated Source>>
+|Csw_Federated_Source
+|CSW Specification Profile Federated Source should be used when federating to an external CSW service.

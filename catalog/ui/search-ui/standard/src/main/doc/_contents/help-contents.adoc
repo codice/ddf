@@ -13,7 +13,7 @@
 
 ////
 
-The {branding} Standard Search UI application allows a user to search for records in the local
+The Standard Search UI application allows a user to search for records in the local
 Catalog (provider) and federated sources. Results of the search are returned in HTML format and are
 displayed on a globe, providing a visual representation of where the records were found.
 
@@ -297,7 +297,7 @@ the download link.
 Each user can create multiple workspaces and assign each of them a descriptive name. Each workspace
 can contain multiple <<Save a Search, saved searches>> and contain multiple saved records
 (metacards). Workspaces are saved for each user and are loaded when the user logs in. Workspaces
-and their contents are persisted, so they survive if {branding} is restarted. Currently, workspaces
+and their contents are persisted, so they survive if DDF is restarted. Currently, workspaces
 are private and cannot be viewed by other users.
 
 ==== Create a Workspace
