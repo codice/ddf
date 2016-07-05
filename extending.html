@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.2">
-<meta name="author" content="Version 2.9.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.9.1. Copyright (c) Codice Foundation">
 <title>Extending DDF</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400">
 <style>
@@ -506,7 +506,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Extending DDF</h1>
 <div class="details">
-<span id="author" class="author">Version 2.9.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.9.1. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -529,12 +529,12 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 <li><a href="#_extending_ddf_admin">2. Extending DDF Admin</a>
 <ul class="sectlevel2">
-<li><a href="#_whitelist">2.1. Whitelist</a></li>
+<li><a href="#_ddf_admin_whitelist">2.1. DDF Admin Whitelist</a></li>
 </ul>
 </li>
 <li><a href="#_extending_ddf_catalog">3. Extending DDF Catalog</a>
 <ul class="sectlevel2">
-<li><a href="#_whitelist_2">3.1. Whitelist</a></li>
+<li><a href="#_whitelist">3.1. Whitelist</a></li>
 <li><a href="#_catalog_architecture">3.2. Catalog Architecture</a></li>
 <li><a href="#_catalog_application_services">3.3. Catalog Application Services</a></li>
 <li><a href="#_catalog_development_fundamentals">3.4. Catalog Development Fundamentals</a></li>
@@ -552,30 +552,31 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 <li><a href="#_extending_ddf_platform">4. Extending DDF Platform</a>
 <ul class="sectlevel2">
-<li><a href="#_whitelist_3">4.1. Whitelist</a></li>
+<li><a href="#_whitelist_2">4.1. Whitelist</a></li>
 <li><a href="#_developing_action_components_action_framework">4.2. Developing Action Components (Action Framework)</a></li>
 <li><a href="#_developing_migratables">4.3. Developing Migratables</a></li>
+<li><a href="#_do_not_use_filebackedoutputstream">4.4. Do Not Use FileBackedOutputStream</a></li>
 </ul>
 </li>
 <li><a href="#_extending_ddf_security">5. Extending DDF Security</a>
 <ul class="sectlevel2">
-<li><a href="#_whitelist_4">5.1. Whitelist</a></li>
+<li><a href="#_whitelist_3">5.1. Whitelist</a></li>
 <li><a href="#_developing_token_validators">5.2. Developing Token Validators</a></li>
 </ul>
 </li>
 <li><a href="#_extending_ddf_solr">6. Extending DDF Solr</a>
 <ul class="sectlevel2">
-<li><a href="#_whitelist_5">6.1. Whitelist</a></li>
+<li><a href="#_whitelist_4">6.1. Whitelist</a></li>
 </ul>
 </li>
 <li><a href="#_extending_ddf_spatial">7. Extending DDF Spatial</a>
 <ul class="sectlevel2">
-<li><a href="#_whitelist_6">7.1. Whitelist</a></li>
+<li><a href="#_whitelist_5">7.1. Whitelist</a></li>
 </ul>
 </li>
 <li><a href="#_extending_ddf_search_ui">8. Extending DDF Search UI</a>
 <ul class="sectlevel2">
-<li><a href="#_whitelist_7">8.1. Whitelist</a></li>
+<li><a href="#_whitelist_6">8.1. Whitelist</a></li>
 </ul>
 </li>
 </ul>
@@ -1989,7 +1990,7 @@ When this occurs, the service is available to be used.</p>
 53
 54
 </pre></td>
-  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">catalog-app</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">install</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">auto</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.0</span><span class="delimiter">&quot;</span></span>
+  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">catalog-app</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">install</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">auto</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.1</span><span class="delimiter">&quot;</span></span>
     <span class="attribute-name">description</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">The DDF Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::DDF Catalog</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;feature&gt;</span>platform-app<span class="tag">&lt;/feature&gt;</span>
     <span class="tag">&lt;feature&gt;</span>catalog-core<span class="tag">&lt;/feature&gt;</span>
@@ -2013,35 +2014,35 @@ When this occurs, the service is available to be used.</p>
     <span class="tag">&lt;feature&gt;</span>catalog-plugin-jpeg2000<span class="tag">&lt;/feature&gt;</span>
 <span class="tag">&lt;/feature&gt;</span>
 
-<span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">catalog-core</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">install</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manual</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.0</span><span class="delimiter">&quot;</span></span>
+<span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">catalog-core</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">install</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manual</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.1</span><span class="delimiter">&quot;</span></span>
     <span class="attribute-name">description</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">Catalog Core feature containing the API, third party bundles necessary to run ddf-core.</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;feature&gt;</span>catalog-core-api<span class="tag">&lt;/feature&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-commons/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-camelcomponent/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.measure/measure-api/2.9.0<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-commons/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-camelcomponent/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.measure/measure-api/2.9.1<span class="tag">&lt;/bundle&gt;</span>
     <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/picocontainer/1.2_1<span class="tag">&lt;/bundle&gt;</span>
     <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/vecmath/1.3.2_1<span class="tag">&lt;/bundle&gt;</span> <span class="comment">&lt;!-- for GeoTools --&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/geotools-suite/8.4_1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/geotools-suite/8.4_2<span class="tag">&lt;/bundle&gt;</span>
     <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/jts/1.12_1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-federationstrategy/2.9.0<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-federationstrategy/2.9.1<span class="tag">&lt;/bundle&gt;</span>
     <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/lucene-core/3.0.2_1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/ddf-pubsub/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-eventcommands/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/ddf-pubsub-tracker/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-urlresourcereader/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/filter-proxy/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-commands/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/metacard-type-registry/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-standardframework/2.9.0<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/2.9.0<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/ddf-pubsub/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-eventcommands/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/ddf-pubsub-tracker/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-urlresourcereader/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/filter-proxy/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-commands/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/metacard-type-registry/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-standardframework/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/2.9.1<span class="tag">&lt;/bundle&gt;</span>
 
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/solrconfig.xml</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.0/xml/solrconfig<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/schema.xml</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.0/xml/schema<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/protwords.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.0/txt/protwords<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/stopwords_en.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.0/txt/stopwords_en<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/stopwords.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.0/txt/stopwords<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/synonyms.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.0/txt/synonyms<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/solrconfig.xml</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/xml/solrconfig<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/schema.xml</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/xml/schema<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/protwords.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/txt/protwords<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/stopwords_en.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/txt/stopwords_en<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/stopwords.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/txt/stopwords<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/synonyms.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/txt/synonyms<span class="tag">&lt;/configfile&gt;</span>
 <span class="tag">&lt;/feature&gt;</span></pre></td>
 </tr></table></code></pre>
 </div>
@@ -2223,16 +2224,16 @@ All bundles are then packaged into the KAR archive.</p>
                     same feature twice.
                     Refer to Karaf forum posting at http://karaf.922171.n3.nabble.com/Duplicate-feature-repository-entry-using-archive-kar-to-build-deployable-applications-td3650850.html
                     --&gt;</span>
-                    <span class="tag">&lt;resourcesDir&gt;</span>/opt/release/ddf/distribution/docs/target/doesNotExist<span class="tag">&lt;/resourcesDir&gt;</span>
+                    <span class="tag">&lt;resourcesDir&gt;</span>/Users/phillip/Documents/workspace/release/ddf/distribution/docs/target/doesNotExist<span class="tag">&lt;/resourcesDir&gt;</span>
 
                     <span class="comment">&lt;!--
-                    Location of the features.xml file. If it references properties that need to be filtered, e.g., 2.9.0, it will need to be
+                    Location of the features.xml file. If it references properties that need to be filtered, e.g., 2.9.1, it will need to be
                     filtered by the maven-resources-plugin.
                     --&gt;</span>
-                    <span class="tag">&lt;featuresFile&gt;</span>/opt/release/ddf/distribution/docs/target/classes/features.xml<span class="tag">&lt;/featuresFile&gt;</span>
+                    <span class="tag">&lt;featuresFile&gt;</span>/Users/phillip/Documents/workspace/release/ddf/distribution/docs/target/classes/features.xml<span class="tag">&lt;/featuresFile&gt;</span>
 
-                    <span class="comment">&lt;!-- Name of the kar file (.kar extension added by default). If not specified, defaults to docs-2.9.0 --&gt;</span>
-                    <span class="tag">&lt;finalName&gt;</span>ddf-ifis-2.9.0<span class="tag">&lt;/finalName&gt;</span>
+                    <span class="comment">&lt;!-- Name of the kar file (.kar extension added by default). If not specified, defaults to docs-2.9.1 --&gt;</span>
+                    <span class="tag">&lt;finalName&gt;</span>ddf-ifis-2.9.1<span class="tag">&lt;/finalName&gt;</span>
                 <span class="tag">&lt;/configuration&gt;</span>
             <span class="tag">&lt;/execution&gt;</span>
     <span class="tag">&lt;/executions&gt;</span>
@@ -2502,7 +2503,7 @@ Examples are included below for convenience.</p>
 For more information on the individual bindings, refer to the <a href="http://docs.cometd.org/2/reference/javascript.html">JavaScript Library page</a> in the CometD reference manual.
 The UI application uses the jQuery library.
 To initialize the CometD connection, an instance of CometD must be created and configured to point to the server and call the handshake, which creates the network connection.
-The CometD endpoint is exposed at <code>/cometd</code>, and it is recommended to not use websockets when connecting.</p>
+The CometD endpoint is exposed at <code>/search/cometd</code>, and it is recommended to not use websockets when connecting.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example Initialization with JQuery</div>
@@ -2530,7 +2531,7 @@ Cometd.Comet.websocketEnabled = <span class="predefined-constant">false</span>;
 
 <span class="comment">// configure the location of the cometd endpoint on the server</span>
 Cometd.Comet.configure({
-        <span class="key">url</span>: <span class="string"><span class="delimiter">'</span><span class="content">http://server:8181/cometd</span><span class="delimiter">'</span></span>
+        <span class="key">url</span>: <span class="string"><span class="delimiter">'</span><span class="content">http://server:8181/search/cometd</span><span class="delimiter">'</span></span>
 });
 
 <span class="comment">// create network connection to server</span>
@@ -5232,23 +5233,37 @@ Upon success, the STS realm returns the subject and the call is made to the endp
 <h2 id="_extending_ddf_admin"><a class="anchor" href="#_extending_ddf_admin"></a>2. Extending DDF Admin</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports developers creating extensions of the existing DDF Admin application.</p>
 </div>
 <div class="sect2">
-<h3 id="_whitelist"><a class="anchor" href="#_whitelist"></a>2.1. Whitelist</h3>
+<h3 id="_ddf_admin_whitelist"><a class="anchor" href="#_ddf_admin_whitelist"></a>2.1. DDF Admin Whitelist</h3>
 <div class="paragraph">
 <p>The following packages have been exported by the DDF Admin application and are approved for use by third parties:</p>
 </div>
-<div class="paragraph">
-<p><code>org.codice.ddf.ui.admin.api</code>
-<code>org.codice.ddf.ui.admin.api.module</code>
-<code>org.codice.ddf.ui.admin.api.plugin</code>
-<code>org.codice.ddf.admin.configuration.plugin</code>
-<code>org.codice.ddf.admin.application.service</code>
-<code>org.codice.ddf.admin.application.plugin</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>org.codice.ddf.ui.admin.api</code></p>
+</li>
+<li>
+<p><code>org.codice.ddf.ui.admin.api.module</code></p>
+</li>
+<li>
+<p><code>org.codice.ddf.ui.admin.api.plugin</code></p>
+</li>
+<li>
+<p><code>org.codice.ddf.admin.configuration.plugin</code></p>
+</li>
+<li>
+<p><code>org.codice.ddf.admin.application.service</code></p>
+</li>
+<li>
+<p><code>org.codice.ddf.admin.application.plugin</code></p>
+</li>
+</ul>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
@@ -5258,7 +5273,7 @@ Upon success, the STS realm returns the subject and the call is made to the endp
 <h2 id="_extending_ddf_catalog"><a class="anchor" href="#_extending_ddf_catalog"></a>3. Extending DDF Catalog</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Catalog provides a framework for storing, searching, processing, and transforming information.
@@ -5269,7 +5284,7 @@ At the core of the Catalog functionality is the Catalog Framework, which routes
 <p>This guide supports developers creating extensions of the existing framework.</p>
 </div>
 <div class="sect2">
-<h3 id="_whitelist_2"><a class="anchor" href="#_whitelist_2"></a>3.1. Whitelist</h3>
+<h3 id="_whitelist"><a class="anchor" href="#_whitelist"></a>3.1. Whitelist</h3>
 <div class="paragraph">
 <p>The following packages have been exported by the DDF Catalog application and are approved for use by third parties:</p>
 </div>
@@ -6928,123 +6943,6 @@ Geometries are usually represented as Well-Known Text (<em>WKT</em>).</p>
 <p><code>DDF.util.XPathHelper</code> provides convenience methods for executing XPath operations on XML.
 It also provides convenience methods for converting XML as a <code>String</code> from a <code>org.w3c.dom.Document</code> object and vice versa.</p>
 </div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_working_with_settings"><a class="anchor" href="#_working_with_settings"></a>3.5.7. Working with Settings</h4>
-<div class="paragraph">
-<p>DDF provides the ability to obtain DDF settings/properties.
-The <code>DdfConfigurationWatcher</code> will provide an update of properties to watchers. For example, if the port number changes, the <code>DDF_PORT</code> property value will be propagated to the watcher(s) in the form of a map.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_property_values"><a class="anchor" href="#_property_values"></a>3.5.8. Property Values</h4>
-<div class="paragraph">
-<p>To obtain the property values, complete the following procedure.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Import and implement the <code>DDF.catalog.util.DdfConfigurationWatcher</code> interface.</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="title">Implement DdfConfigurationWatcher</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">SettingsWatcher</span> <span class="directive">implements</span> DdfConfigurationWatcher</code></pre>
-</div>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Get properties map and search for the property.</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="title">Handle Properties</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="java"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-<strong>10</strong>
-</pre></td>
-  <td class="code"><pre><span class="directive">public</span> <span class="type">void</span> DDFConfigurationUpdated( <span class="predefined-type">Map</span> properties )
-{
-  <span class="comment">//Get property by name</span>
- <span class="error"> </span><span class="predefined-type">Object</span> value = properties.get( DdfConfigurationManager.DDF_HOME_DIR );
-  <span class="keyword">if</span> ( value != <span class="predefined-constant">null</span> )
-  {
-    <span class="local-variable">this</span>.DDFHomeDir = value.toString();
-    logger.debug( <span class="string"><span class="delimiter">&quot;</span><span class="content">DDFHomeDir = </span><span class="delimiter">&quot;</span></span> + <span class="local-variable">this</span>.DDFHomeDir );
-  }
-}</pre></td>
-</tr></table></code></pre>
-</div>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Export the watcher class as a service in the OSGi Registry. The example below uses the Blueprint dependency injection framework to add this watcher to the OSGi Registry. The 
-<code>DDF.catalog.DdfConfigurationManager</code> will search for <code>ConfigurationWatcher</code>(s) to send
-properties updates.</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="title">Blueprint Example of Export</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="xml"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-<strong>10</strong>
-11
-12
-13
-14
-</pre></td>
-  <td class="code"><pre><span class="tag">&lt;blueprint</span> <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.osgi.org/xmlns/blueprint/v1.0.0</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">xmlns:cm</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-
- <span class="comment">&lt;!-- create the bean --&gt;</span>
- <span class="tag">&lt;bean</span> <span class="attribute-name">id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">SettingsWatcher</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">class</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">DDF.catalog.SettingsWatcher</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-   <span class="tag">&lt;cm:managed-properties</span>
-     <span class="attribute-name">persistent-id</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">DDF.catalog.SettingsWatcher</span><span class="delimiter">&quot;</span></span>
-     <span class="attribute-name">update-strategy</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">container-managed</span><span class="delimiter">&quot;</span></span> <span class="tag">/&gt;</span>
- <span class="tag">&lt;/bean&gt;</span>
-
- <span class="comment">&lt;!-- export the bean in the service registry as a DdfConfigurationWatcher --&gt;</span>
- <span class="tag">&lt;service</span> <span class="attribute-name">ref</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">SettingsWatcher</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">interface</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">DDF.catalog.util.DdfConfigurationWatcher</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
- <span class="tag">&lt;/service&gt;</span>
-
-<span class="tag">&lt;/blueprint&gt;</span></pre></td>
-</tr></table></code></pre>
-</div>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Import the DDFpackages to the bundle&#8217;s manifest for run-time (in addition to any other required packages).
-<code>Import-Package: DDF.catalog, DDF.catalog.util, DDF.catalog.*</code></p>
-</li>
-<li>
-<p>Deploy the packaged service to DDF (refer to the Working with OSGi - Bundles section).</p>
-</li>
-</ol>
 </div>
 </div>
 </div>
@@ -8744,11 +8642,6 @@ If no local catalog provider is configured, the site information returned includ
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.codice.DDF.configuration.ConfigurationWatcher</code></p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"> </p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DDF.catalog.event.EventProcessor</code></p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"></td>
@@ -9107,11 +9000,6 @@ Details of the individual federated sources is not included, only the fanout cat
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DDF.catalog.CatalogFramework</code></p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.codice.DDF.configuration.ConfigurationWatcher</code></p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"> </p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DDF.catalog.event.EventProcessor</code></p></td>
@@ -9559,14 +9447,10 @@ Sources could include Catalog Provider, Connected Sources, and Federated Sour
 <div class="sect4">
 <h5 id="_console_commands"><a class="anchor" href="#_console_commands"></a>Console Commands</h5>
 <div class="paragraph">
-<p>DDF supports development of custom console commands.
-For more information, see the Karaf website on http://karaf.apache.org/manual/latest-2.2.x/developers-guide/extending-console.html[Extending the Console]. </p>
+<p>DDF supports development of custom console commands.</p>
 </div>
-</div>
-<div class="sect4">
-<h5 id="_custom_ddf_console_commands"><a class="anchor" href="#_custom_ddf_console_commands"></a>Custom DDF Console Commands</h5>
 <div class="paragraph">
-<p>DDF includes custom commands for working with the Catalog, as described in the Console Commands section.</p>
+<p>DDF includes custom commands for working with the Catalog, as described in the <a href="managing.html#_console_commands">Managing Console Commands</a> section.</p>
 </div>
 </div>
 </div>
@@ -9755,80 +9639,6 @@ The configurable properties for the OpenSearch source are accessed from the Cata
 <h5 id="_using_16"><a class="anchor" href="#_using_16"></a>Using</h5>
 <div class="paragraph">
 <p>Use the OpenSearch source if querying a CDR-compliant search service is desired.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_source_details"><a class="anchor" href="#_source_details"></a>Source Details</h5>
-<div class="sect5">
-<h6 id="_default_security_settings_applicable_to_all_opensearch_sources"><a class="anchor" href="#_default_security_settings_applicable_to_all_opensearch_sources"></a>Default Security Settings (applicable to all OpenSearch Sources)</h6>
-<div class="paragraph">
-<p>These settings are used to provide default security settings for the Title, Description, and Security elements in a record.
-The purpose of these defaults is that many providers fail to deliver a classification and Owner/Producer with the metadata returned.
-These default settings are used if a metadata record is returned without security settings. <strong>This feature can be enabled/disabled</strong>.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Open the Web Console.</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p><code><a href="http://localhost:8181/system/console" class="bare">http://localhost:8181/system/console</a></code></p>
-</li>
-<li>
-<p>Username/Password: <code>admin</code>/<code>admin</code></p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Click on the <code>Configuration</code> tab.</p>
-</li>
-<li>
-<p>Find <code>Catalog Security Defaults</code></p>
-</li>
-<li>
-<p>Select whether or not to apply these defaults by checking or unchecking the box marked "Apply Default Security Settings."</p>
-</li>
-<li>
-<p>If the applied defaults are selected, change the settings in the console to the default metadata security.</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>These settings can also be changed by editing the file <code>&lt;INSTALL_DIRECTORY&gt;/etc/DDF/DDF.DefaultSiteSecurity.cfg</code></p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Click Save at the bottom of the configuration window (or save the file).</p>
-</li>
-</ol>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-<div class="ulist">
-<ul>
-<li>
-<p>In the CDR Open Search Service, if one of the properties has a blank value, the "last-resort" default is U and USA.</p>
-</li>
-<li>
-<p>If the <code>DefaultSiteSecurity.cfg</code> file is deleted, it needs to be replaced otherwise all classification values are set to "last-resort" defaults U and USA.</p>
-</li>
-<li>
-<p>After the file is replaced, either restart DDF or the restart the CDR Open Search Service to reload the property values.</p>
-</li>
-</ul>
-</div>
-</td>
-</tr>
-</table>
-</div>
 </div>
 </div>
 <div class="sect4">
@@ -10713,7 +10523,7 @@ This allows any registered input transformer that are more specific for any of t
 To install or uninstall manually, use the <code>tika-input-transformer</code> feature in the Admin Console (<a href="https://localhost:8993/admin" class="bare">https://localhost:8993/admin</a>) under DDF Catalog &#8594; Features or use the System Console.</p>
 </div>
 <div class="paragraph">
-<p>Install the <code>catalog-transformer-tika</code> feature using the <a href="http://localhost:8181/admin">${admin-console</a>.
+<p>Install the <code>catalog-transformer-tika</code> feature using the Admin Console.
 This feature is uninstalled by default.</p>
 </div>
 </div>
@@ -11002,7 +10812,7 @@ the first page in the PPTX document.</p>
 <div class="sect5">
 <h6 id="_installing_and_uninstalling_9"><a class="anchor" href="#_installing_and_uninstalling_9"></a>Installing and Uninstalling</h6>
 <div class="paragraph">
-<p>Install the catalog-rest-endpoint feature using the <a href="http://localhost:8181/admin">Admin Console</a>.</p>
+<p>Install the <code>catalog-rest-endpoint</code> feature using the https://localhost:8993/admin.</p>
 </div>
 </div>
 <div class="sect5">
@@ -11020,7 +10830,7 @@ Once the REST Endpoint receives the GeoJSON Metacard, it is converted to a Catal
 <div class="listingblock">
 <div class="title">Example HTTP POST of a local <code>metacard.json</code> file using the Curl Command</div>
 <div class="content">
-<pre>curl -X POST -i -H "Content-Type: application/json" -d "@metacard.json" http://localhost:8181/services/catalog</pre>
+<pre>curl -X POST -i -H "Content-Type: application/json" -d "@metacard.json" https://localhost:8993/services/catalog</pre>
 </div>
 </div>
 </div>
@@ -11357,6 +11167,66 @@ If an unregistered <code>MetacardType</code> is specified, an exception will be 
 </div>
 </div>
 <div class="sect4">
+<h5 id="saxEventHandlers"><a class="anchor" href="#saxEventHandlers"></a>Create an XML Input Transformer using SaxEventHandlers</h5>
+<div class="paragraph">
+<p>If the transformer will transform XML, (as opposed to JSON or a Word document, for example) there is a simpler solution than fully implementing a MetacardValidator.
+DDF includes an extensible, configurable <code>XmlInputTransformer</code>. This transformer can be instantiated via blueprint as a managed service factory and configured via metatype.
+The <code>XmlInputTransformer</code> takes a configuration of <code>SaxEventHandler`s.
+A `SaxEventHandler</code> is a class that handles SAX Events (a very fast XML parser) to parse metadata and create metacards.
+As many <code>SaxEventHandler`s as needed can be implemented and included in the `XmlInputTransformer</code> configuration. See the <code>catalog-transformer-streaming-impl</code> bundle for examples (<code>XmlSaxEventHandlerImpl</code> which parses the DDF Metacard XML Metadata and the <code>GmlHandler</code> which parses GML 2.0)
+Each <code>SaxEventHandler</code> implementation has a <code>SaxEventHandlerFactory</code> associated with it.
+The <code>SaxEventHandlerFactory</code> is responsible for instantiating new <code>SaxEventHandlers</code> - each transform request gets a new instance of <code>XmlInputTransformer</code> and set of `SaxEventHandler`s to be thread- and state-safe.</p>
+</div>
+<div class="paragraph">
+<p>The following diagrams intend to clarify implementation details:</p>
+</div>
+<div class="paragraph">
+<p>Figure 1 shows the XmlInputTransformer configuration, which is configured using the metatype and has the <code>SaxEventHandlerFactory</code> ids.
+Then, when a transform request is received, the <code>ManagedServiceFactory</code> instantiates a new <code>XmlInputTransformer</code>.
+This <code>XmlInputTransformer</code> then instantiates a new <code>SaxEventHandlerDelegate</code> with the configured <code>SaxEventHandlersFactory</code> ids.
+The factories all in turn instantiate a <code>SaxEventHandler</code>.
+Then, the <code>SaxEventHandlerDelegate</code> begins parsing the XML input document, handing the SAX Events off to each <code>SaxEventHandler</code>, which handle them if they can.
+After parsing is finished, each <code>SaxEventHandler</code> returns a list of <code>Attributes</code> to the <code>SaxEventHandlerDelegate</code> and <code>XmlInputTransformer</code> which add the attributes to the metacard and then return the fully constructed metacard.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="data:image/png;base64,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" alt="XmlInputTransformer diagram1" width="500" height="168">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="data:image/png;base64,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" alt="XmlInputTransformer diagram2" width="550" height="196">
+</div>
+</div>
+<div class="paragraph">
+<p>For more specific details, see the Javadoc for the <code>org.codice.ddf.transformer.xml.streaming.*</code> package.
+Additionally, see the source code for the <code>org.codice.ddf.transformer.xml.streaming.impl.GmlHandler.java</code>, <code>org.codice.ddf.transformer.xml.streaming.impl.GmlHandlerFactory</code>, <code>org.codice.ddf.transformer.xml.streaming.impl.XmlInputTransformerImpl</code>, and <code>org.codice.ddf.transformer.xml.streaming.impl.XmlInputTransformerImplFactory</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The <code>XmlInputTransformer</code> &amp; <code>SaxEventHandlerDelegate</code> create and configure themselves based on String matches of the configuration ids with the <code>SaxEventHandlerFactory</code> ids, so ensure these match.</p>
+</li>
+<li>
+<p>The <code>XmlInputTransformer</code> uses a <code>DynamicMetacardType</code>.
+This is pertinent because a metacards attributes are only stored in Solr if they are declared on the <code>MetacardType</code>.
+Since the <code>DynamicMetacardType</code> is constructed dynamically, attributes are declared by the <code>SaxEventHandlerFactory</code> that parses them, as opposed to the <code>MetacardType</code>. See <code>org.codice.ddf.transformer.xml.streaming.impl.XmlSaxEventHandlerFactoryImpl.java</code> vs <code>ddf.catalog.data.impl.BasicTypes.java</code></p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
 <h5 id="_create_an_input_transformer_using_apache_camel"><a class="anchor" href="#_create_an_input_transformer_using_apache_camel"></a>Create an Input Transformer Using Apache Camel</h5>
 <div class="paragraph">
 <p>Alternatively, make an Apache Camel route in a blueprint file and deploy it using a feature file or via hot deploy.</p>
@@ -11512,7 +11382,7 @@ This will ensure that the value is taken exactly as is, and is especially useful
 <div class="sect5">
 <h6 id="_installing_and_uninstalling_10"><a class="anchor" href="#_installing_and_uninstalling_10"></a>Installing and Uninstalling</h6>
 <div class="paragraph">
-<p>Install the <code>catalog-transformer-html</code> feature using the Web Console (<a href="http://localhost:8181/system/console" class="bare">http://localhost:8181/system/console</a>) or System Console.</p>
+<p>Install the <code>catalog-transformer-html</code> feature using the Admin Console.</p>
 </div>
 </div>
 </div>
@@ -11606,7 +11476,7 @@ To install or uninstall manually, use the <code>catalog-transformer-xml</code> f
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>http://localhost:8181/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml</pre>
+<pre>https://localhost:8993/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml</pre>
 </div>
 </div>
 </div>
@@ -12691,7 +12561,7 @@ This transformer&#8217;s feature, <code>catalog-transformer-ui</code>, can be un
 <h5 id="_using_29"><a class="anchor" href="#_using_29"></a>Using</h5>
 <div class="paragraph">
 <p>In order to obtain the SearchUI, a user must use the transformer with an endpoint that queries the Catalog such as the OpenSearch Endpoint.
-If a distribution is running locally, http://localhost:8181/search/simple should bring up the Simple Search UI.
+If a distribution is running locally, https://localhost:8993/search/simple should bring up the Simple Search UI.
 After the page has loaded, enter the desired search criteria in the appropriate fields.
 Then click the "Search" button in order to execute the search on the Catalog.</p>
 </div>
@@ -14906,18 +14776,21 @@ An implementation of <code>BinaryContent</code> (<code>BinaryContentImpl</code
 <h2 id="_extending_ddf_platform"><a class="anchor" href="#_extending_ddf_platform"></a>4. Extending DDF Platform</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports developers creating extensions of the existing framework.</p>
 </div>
 <div class="sect2">
-<h3 id="_whitelist_3"><a class="anchor" href="#_whitelist_3"></a>4.1. Whitelist</h3>
+<h3 id="_whitelist_2"><a class="anchor" href="#_whitelist_2"></a>4.1. Whitelist</h3>
 <div class="paragraph">
 <p>The following packages have been exported by the DDF Platform application and are approved for use by third parties:</p>
 </div>
 <div class="ulist">
 <ul>
+<li>
+<p><code>ddf.action</code></p>
+</li>
 <li>
 <p><code>ddf.security</code></p>
 </li>
@@ -15202,8 +15075,16 @@ to lookup all implementations of <code>org.codice.ddf.migration.Migratable</code
 <p>The abstract base class <code>org.codice.ddf.migration.AbstractMigratable</code> in the <code>platform-migratable-api</code> implements common boilerplate code required
 when implementing <code>org.codice.ddf.migration.Migratable</code> and should be extended when creating a <code>org.codice.ddf.migration.Migratable</code>.</p>
 </div>
-<div style="page-break-after: always;"></div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_do_not_use_filebackedoutputstream"><a class="anchor" href="#_do_not_use_filebackedoutputstream"></a>4.4. Do Not Use FileBackedOutputStream</h3>
+<div class="paragraph">
+<p>It is recommended to avoid using <code>com.google.common.io.FileBackedOutputStream</code> (FBOS). FBOS can create temporary files that are not automatically
+removed when FBOS is closed. Use <code>org.codice.ddf.platform.util.TemporaryFileBackedOutputStream</code> (TFBOS). TFBOS provides the same method calls as FBOS, but
+will remove temporary files when it is closed.</p>
+</div>
+<div style="page-break-after: always;"></div>
 </div>
 </div>
 </div>
@@ -15211,13 +15092,13 @@ when implementing <code>org.codice.ddf.migration.Migratable</code> and should be
 <h2 id="_extending_ddf_security"><a class="anchor" href="#_extending_ddf_security"></a>5. Extending DDF Security</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports developers creating extensions of the existing framework.</p>
 </div>
 <div class="sect2">
-<h3 id="_whitelist_4"><a class="anchor" href="#_whitelist_4"></a>5.1. Whitelist</h3>
+<h3 id="_whitelist_3"><a class="anchor" href="#_whitelist_3"></a>5.1. Whitelist</h3>
 <div class="paragraph">
 <p>The following packages have been exported by the DDF Security application and are approved for use by third parties:</p>
 </div>
@@ -15388,10 +15269,10 @@ The <code>validateToken</code> method returns a <code>TokenValidatorResponse</co
 <h2 id="_extending_ddf_solr"><a class="anchor" href="#_extending_ddf_solr"></a>6. Extending DDF Solr</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="sect2">
-<h3 id="_whitelist_5"><a class="anchor" href="#_whitelist_5"></a>6.1. Whitelist</h3>
+<h3 id="_whitelist_4"><a class="anchor" href="#_whitelist_4"></a>6.1. Whitelist</h3>
 <div class="paragraph">
 <p>The following packages have been exported by the DDF Solr application and are approved for use by third parties:</p>
 </div>
@@ -15406,10 +15287,10 @@ The <code>validateToken</code> method returns a <code>TokenValidatorResponse</co
 <h2 id="_extending_ddf_spatial"><a class="anchor" href="#_extending_ddf_spatial"></a>7. Extending DDF Spatial</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="sect2">
-<h3 id="_whitelist_6"><a class="anchor" href="#_whitelist_6"></a>7.1. Whitelist</h3>
+<h3 id="_whitelist_5"><a class="anchor" href="#_whitelist_5"></a>7.1. Whitelist</h3>
 <div class="paragraph">
 <p>The following packages have been exported by the DDF Spatial Application and are approved for use by third parties:</p>
 </div>
@@ -15479,13 +15360,13 @@ The <code>validateToken</code> method returns a <code>TokenValidatorResponse</co
 <h2 id="_extending_ddf_search_ui"><a class="anchor" href="#_extending_ddf_search_ui"></a>8. Extending DDF Search UI</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports developers creating extensions of the existing framework.</p>
 </div>
 <div class="sect2">
-<h3 id="_whitelist_7"><a class="anchor" href="#_whitelist_7"></a>8.1. Whitelist</h3>
+<h3 id="_whitelist_6"><a class="anchor" href="#_whitelist_6"></a>8.1. Whitelist</h3>
 <div class="paragraph">
 <p>The following packages have been exported by the DDF Search UI application and are approved for use by third parties:</p>
 </div>
@@ -15498,7 +15379,7 @@ The <code>validateToken</code> method returns a <code>TokenValidatorResponse</co
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-04-28 17:03:37 -07:00
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-06-30 22:27:37 -07:00
 </div>
 </div>
 </body>
