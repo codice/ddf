@@ -39,7 +39,7 @@ module.exports = function (grunt) {
         webpack: {
             options: require('./webpack.config'),
             start: {
-                devtool: 'eval',
+                devtool: 'source-map',
                 watch: true
             },
             build: {

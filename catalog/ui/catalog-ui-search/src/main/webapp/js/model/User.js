@@ -109,6 +109,7 @@ define([
         url: '/search/catalog/internal/user/preferences',
         defaults: function () {
             return {
+                id: 'preferences',
                 mapColors: new User.MapColors(),
                 mapLayers: new User.MapLayers(),
                 resultDisplay: 'List',
@@ -177,7 +178,8 @@ define([
     User.Model = Backbone.AssociatedModel.extend({
         defaults: function () {
             return {
-                preferences: undefined,
+                id: 'user',
+                preferences: new User.Preferences(),
                 isGuest: true,
                 username: 'guest',
                 roles: ['guest']
@@ -219,12 +221,20 @@ define([
         parse: function (body) {
             if (body.isGuest) {
                 return {
-                    user: _.extend({}, body, {
-                        preferences: this.getGuestPreferences()
+                    user: _.extend({id: 'user'}, body, {
+                        preferences: _.extend(
+                            {id: 'preferences'},
+                            this.getGuestPreferences()
+                        )
                     })
                 };
             } else {
-                return { user: body };
+                _.extend(body.preferences, { id: 'preferences'});
+                return {
+                    user: _.extend({
+                        id: 'user'
+                    }, body)
+                };
             }
         },
     });
