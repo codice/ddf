@@ -117,8 +117,7 @@ public class TestGenericXmlLib {
     }
 
     @Test
-    public void testNoConfigTransform()
-            throws IOException, CatalogTransformerException {
+    public void testNoConfigTransform() throws IOException, CatalogTransformerException {
         SaxEventHandlerFactory saxEventHandlerFactory = mock(SaxEventHandlerFactory.class);
         when(saxEventHandlerFactory.getId()).thenReturn("test");
         SaxEventHandler handler = getNewHandler();
@@ -227,6 +226,58 @@ public class TestGenericXmlLib {
                 is("<foo:test xmlns:foo=\"bar\" xmlns:barfoo=\"foobar\" barfoo:foo=\"test\" bar=\"test\">&amp;lt;chara&amp;gt;cte</foo:test><foo:test xmlns:foo=\"bar\" xmlns:barfoo=\"foobar\" barfoo:foo=\"test\" bar=\"test\">characte</foo:test>"));
         saxEventToXmlElementConverter.reset();
         assertThat(saxEventToXmlElementConverter.toString(), is(""));
+    }
+
+    @Test
+    public void testSaxEventToXmlElementConverterEdgeCase()
+            throws UnsupportedEncodingException, XMLStreamException {
+        // set up mock Attribute object
+        Attributes attrs = mock(Attributes.class);
+        when(attrs.getLength()).thenReturn(2);
+        when(attrs.getLocalName(0)).thenReturn("foo");
+        when(attrs.getLocalName(1)).thenReturn("bar");
+        when(attrs.getURI(0)).thenReturn("ns1uri");
+        when(attrs.getURI(1)).thenReturn("");
+        when(attrs.getValue(anyInt())).thenReturn("test");
+        // inner attrs
+        Attributes attrs2 = mock(Attributes.class);
+        when(attrs2.getLength()).thenReturn(2);
+        when(attrs2.getLocalName(0)).thenReturn("foo");
+        when(attrs2.getLocalName(1)).thenReturn("bar");
+        when(attrs2.getURI(0)).thenReturn("ns1uri.v2");
+        when(attrs2.getURI(1)).thenReturn("");
+        when(attrs2.getValue(anyInt())).thenReturn("test");
+
+        SaxEventToXmlElementConverter converter = new SaxEventToXmlElementConverter();
+
+        // Simulate begin reading
+        converter.addNamespace("ns1", "ns1uri");
+        converter.addNamespace("ns2", "ns2uri");
+
+        // Write parent element and characters
+        converter.toElement("ns1uri", "element1", attrs);
+        converter.toElement("0123456789ABCDEF".toCharArray(), 0, 16);
+
+        // Declare new namespace, using same prefix as previous
+        converter.addNamespace("ns1", "ns1uri.v2");
+        converter.toElement("ns1uri.v2", "nestedElement", attrs2);
+        converter.toElement("ns1uri.v2", "nestedElement");
+
+        // Pop prefix
+        converter.removeNamespace("ns1");
+
+        converter.toElement("ns1uri", "element1", attrs);
+        converter.toElement("0123456789ABCDEF".toCharArray(), 0, 16);
+        converter.toElement("ns1uri", "element1");
+
+        // Finish writing parent
+        converter.toElement("ns1uri", "element1");
+
+        converter.toElement("ns1uri", "element1", attrs);
+        converter.toElement("0123456789ABCDEF".toCharArray(), 0, 16);
+        converter.toElement("ns1uri", "element1");
+        assertThat(converter.toString(),
+                is("<ns1:element1 xmlns:ns1=\"ns1uri\" ns1:foo=\"test\" bar=\"test\">0123456789ABCDEF<ns1:nestedElement xmlns:ns1=\"ns1uri.v2\" ns1:foo=\"test\" bar=\"test\"></ns1:nestedElement><ns1:element1 ns1:foo=\"test\" bar=\"test\">0123456789ABCDEF</ns1:element1></ns1:element1><ns1:element1 xmlns:ns1=\"ns1uri\" ns1:foo=\"test\" bar=\"test\">0123456789ABCDEF</ns1:element1>"));
     }
 
     @Test
