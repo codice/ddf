@@ -25,6 +25,7 @@
     "grunt-contrib-watch": "0.4.4",
     "grunt-contrib-cssmin": "0.5.0",
     "grunt-contrib-less": "0.11.0",
+    "grunt-sed": "0.1.1",
     "connect-livereload": "0.3.2",
     "grunt-express": "1.2.1",
     "load-grunt-tasks": "1.0.0"

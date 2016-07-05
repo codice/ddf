@@ -17,8 +17,7 @@
     "q": "1.0.1",
     "requirejs": "2.1.14",
     "requirejs-plugins": "1.0.2",
-    "bootswatch": "3.2.0",
-    "lato": "0.2.0"
+    "bootswatch": "3.2.0"
   },
   "resolutions": {
     "jquery": "^1.11.0",
