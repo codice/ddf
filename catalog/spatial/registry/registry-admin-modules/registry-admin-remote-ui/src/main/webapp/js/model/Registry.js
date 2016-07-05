@@ -29,16 +29,7 @@ function (Q, Service, Backbone, _) {
     });
 
     Registry.Model = Backbone.AssociatedModel.extend({
-        defaults: {
-                registryConfiguration : []
-        },
         configUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
-        idAttribute: 'name',
-        remoteId: 'remoteName',
-        pullAttribute: 'pullAllowed',
-        pushAttribute: 'pushAllowed',
-        autoPushAttribute: 'autoPush',
-        pidAttribute: 'pid',
         initialize: function() {
             this.set('registryConfiguration', new Registry.ConfigurationList());
         },
@@ -48,7 +39,7 @@ function (Q, Service, Backbone, _) {
            
         },
         removeRegistry: function(registry) {
-            this.get("registryConfigurations").remove(registry);
+            this.get("registryConfiguration").remove(registry);
         },
         size: function() {
             return this.get('registryConfiguration').length;
@@ -58,32 +49,18 @@ function (Q, Service, Backbone, _) {
     Registry.Collection = Backbone.Collection.extend({
         model: Registry.Model,
         addRegistry: function(configuration) {
-            var registry;
-            var registryId = configuration.get("properties").get('shortname');
-            if(!registryId){
-                registryId = configuration.get("properties").get('id');
-            }
-            var remoteIdName = configuration.get("properties").get('remoteName');
-            var allowPull = configuration.get("properties").get('pullAllowed');
-            var allowPush = configuration.get("properties").get('pushAllowed');
-            var pushAuto = configuration.get("properties").get('autoPush');
-            var id = configuration.get('id');
-            if(this.get(registryId)) {
-                registry = this.get(registryId);
-            } else {
-                registry = new Registry.Model({name: registryId, remoteName: remoteIdName, pullAllowed: allowPull, pushAllowed: allowPush, autoPush: pushAuto, pid: id});
-                this.add(registry);
-            }
 
+            var registry = new Registry.Model(configuration.get("properties"));
             registry.addRegistryConfiguration(configuration);
 
+            this.add(registry);
             registry.trigger('change');
         },
         removeRegistry: function(registry) {
             this.remove(registry);
         },
         comparator: function(model) {
-            var str = model.get('name') || '';
+            var str = model.get('id') || '';
             return str.toLowerCase();
         }
     });
