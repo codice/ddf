@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -54,6 +55,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
@@ -82,6 +84,7 @@ import com.google.common.io.ByteSource;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.cache.impl.ResourceCacheImpl;
+import ddf.catalog.cache.solr.impl.CachingFederationStrategy;
 import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
@@ -157,6 +160,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
+import ddf.catalog.util.Describable;
 import ddf.catalog.util.impl.CachedSource;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourcePollerRunner;
@@ -2352,6 +2356,58 @@ public class CatalogFrameworkImplTest {
 
         assertThat(response.getResults()
                 .size(), is(1));
+    }
+
+    @Test
+    public void testNoFanoutExcludesNoTagsProperty() throws Exception {
+        Consumer<Map<String, Serializable>> runner =
+                (requestProps) -> assertThat(requestProps.containsKey("no-default-tags"),
+                        is(Boolean.FALSE));
+
+        noTagsPropertyTest(false, runner);
+    }
+
+    @Test
+    public void testFanoutHasNoTagsProperty() throws Exception {
+        Consumer<Map<String, Serializable>> runner =
+                (requestProps) -> assertThat(requestProps.get("no-default-tags"), is(Boolean.TRUE));
+
+        noTagsPropertyTest(true, runner);
+    }
+
+    private void noTagsPropertyTest(boolean isFanout,
+            Consumer<Map<String, Serializable>> assertionRunnable) throws Exception {
+        CachingFederationStrategy federationStrategy = mock(CachingFederationStrategy.class);
+        SourcePoller mockPoller = mock(SourcePoller.class);
+        when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
+
+        FrameworkProperties frameworkProperties = new FrameworkProperties();
+        frameworkProperties.setSourcePoller(mockPoller);
+        frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
+        frameworkProperties.setFederationStrategy(federationStrategy);
+        frameworkProperties.setFederatedSources(createDefaultFederatedSourceList(true).stream()
+                .collect(Collectors.toMap(Describable::getId, fs -> fs)));
+        frameworkProperties.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
+
+        framework = new CatalogFrameworkImpl(frameworkProperties);
+        framework.bind(provider);
+
+        QueryRequest request = mock(QueryRequest.class);
+        HashMap<String, Serializable> requestProps = new HashMap<>();
+        when(request.getProperties()).thenReturn(requestProps);
+
+        when(request.getQuery()).thenReturn(mock(Query.class));
+        framework.setFanoutEnabled(isFanout);
+
+        QueryResponse response = mock(QueryResponse.class);
+        try {
+            when(federationStrategy.federate(anyListOf(Source.class), any(QueryRequest.class))).thenReturn(response);
+            framework.query(request);
+        } catch (FederationException | UnsupportedQueryException e) {
+            throw new RuntimeException(e);
+        }
+
+        assertionRunnable.accept(requestProps);
     }
 
     /**

@@ -2146,6 +2146,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         LOGGER.debug("Calling strategy.federate()");
 
+        if (fanoutEnabled) {
+            queryRequest.getProperties().put("no-default-tags", true);
+        }
         QueryResponse response = strategy.federate(sourcesToQuery, queryRequest);
         frameworkProperties.getQueryResponsePostProcessor()
                 .processResponse(response);
