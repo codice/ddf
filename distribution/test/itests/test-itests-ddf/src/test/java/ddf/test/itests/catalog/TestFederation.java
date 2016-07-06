@@ -155,8 +155,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String DEFAULT_SAMPLE_PRODUCT_FILE_NAME = "sample.txt";
 
-    private static final String STUB_SERVER_TEST_STRING = "testData";
-
     private static final DynamicPort RESTITO_STUB_SERVER_PORT = new DynamicPort(6);
 
     private static final Path PRODUCT_CACHE = Paths.get("data", "Product_Cache");
@@ -1085,6 +1083,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         String filename = "product1.txt";
         String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1098,9 +1097,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(0),
-                                0));
+                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(0), 0));
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1108,7 +1105,7 @@ public class TestFederation extends AbstractIntegrationTest {
         // Verify that the testData from the csw stub server is returned.
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(STUB_SERVER_TEST_STRING));
+                .body(is(resourceData));
         // @formatter:on
 
         expect("Waiting for notifications").within(10, SECONDS)
@@ -1125,7 +1122,7 @@ public class TestFederation extends AbstractIntegrationTest {
         assertThat(notifications.size(), is(1));
         CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)),
                 filename,
-                "Resource retrieval completed, 8 bytes retrieved. ",
+                getResourceRetrievalCompletedMessage(resourceData.length()),
                 "complete");
 
         List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
@@ -1136,7 +1133,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 "STARTED");
         CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)),
                 filename,
-                "Resource retrieval completed, 8 bytes retrieved. ",
+                getResourceRetrievalCompletedMessage(resourceData.length()),
                 "COMPLETE");
     }
 
@@ -1151,6 +1148,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         String filename = "product2.txt";
         String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1164,9 +1162,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(200),
-                                2));
+                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(200), 2));
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1174,7 +1170,7 @@ public class TestFederation extends AbstractIntegrationTest {
         // Verify that the testData from the csw stub server is returned.
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(STUB_SERVER_TEST_STRING));
+                .body(is(resourceData));
         // @formatter:on
 
         cswServer.verifyHttp()
@@ -1182,58 +1178,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.uri("/services/csw"),
                         Condition.parameter("request", "GetRecordById"));
 
-        expect("Waiting for notifications").within(10, SECONDS)
-                .until(() -> cometDClient.getMessages(NOTIFICATIONS_CHANNEL)
-                        .size() == 3);
-        expect("Waiting for activities").within(10, SECONDS)
-                .until(() -> cometDClient.getMessages(ACTIVITIES_CHANNEL)
-                        .size() == 7);
-
-        List<String> notifications = cometDClient.getMessagesInAscOrder(NOTIFICATIONS_CHANNEL);
-        assertThat(notifications.size(), is(3));
-        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)),
-                filename,
-                "Resource retrieval retrying after 1 bytes. Attempt 1 of 3.",
-                "retrying");
-        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(1)),
-                filename,
-                "Resource retrieval retrying after 1 bytes. Attempt 2 of 3.",
-                "retrying");
-        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(2)),
-                filename,
-                "Resource retrieval completed, 8 bytes retrieved. ",
-                "complete");
-
-        List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
-        assertThat(activities.size(), is(7));
-        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(0)),
-                filename,
-                "Resource retrieval started. ",
-                "STARTED");
-        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)),
-                filename,
-                "Resource retrieval downloading . ",
-                "RUNNING");
-        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(2)),
-                filename,
-                "Resource retrieval retrying after 1 bytes. Attempt 1 of 3.",
-                "RUNNING");
-        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(3)),
-                filename,
-                "Resource retrieval downloading . ",
-                "RUNNING");
-        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(4)),
-                filename,
-                "Resource retrieval retrying after 1 bytes. Attempt 2 of 3.",
-                "RUNNING");
-        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(5)),
-                filename,
-                "Resource retrieval downloading . ",
-                "RUNNING");
-        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(6)),
-                filename,
-                "Resource retrieval completed, 8 bytes retrieved. ",
-                "COMPLETE");
+        // Add CometD notification and activity assertions when DDF-2272 ihas been addressed.
     }
 
     /**
@@ -1244,17 +1189,24 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testRetrievalReliabilityFails() throws Exception {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
-        String filename = "product3.txt";
 
+        String filename = "product3.txt";
         String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
 
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(200),
-                                3));
+                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(200), 3));
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1338,6 +1290,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product4.txt";
 
         String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1346,13 +1299,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 .then(ok(),
                         contentType("text/xml"),
                         bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(0),
-                                0));
+                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(0), 0));
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1360,10 +1312,10 @@ public class TestFederation extends AbstractIntegrationTest {
         // Download product twice, should only call the stub server to download once
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(STUB_SERVER_TEST_STRING));
-        // TODO - Need to wait here
+                .body(is(resourceData));
+
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(STUB_SERVER_TEST_STRING));
+                .body(is(resourceData));
         // @formatter:on
 
         cswServer.verifyHttp()
@@ -1385,7 +1337,7 @@ public class TestFederation extends AbstractIntegrationTest {
         assertThat(notifications.size(), is(1));
         CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)),
                 filename,
-                "Resource retrieval completed, 8 bytes retrieved. ",
+                getResourceRetrievalCompletedMessage(resourceData.length()),
                 "complete");
 
         List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
@@ -1396,7 +1348,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 "STARTED");
         CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)),
                 filename,
-                "Resource retrieval completed, 8 bytes retrieved. ",
+                getResourceRetrievalCompletedMessage(resourceData.length()),
                 "COMPLETE");
     }
 
@@ -1408,8 +1360,8 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testCacheIsUpdatedIfRemoteProductChanges() throws Exception {
         String filename = "product5.txt";
-
         String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1418,13 +1370,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 .then(ok(),
                         contentType("text/xml"),
                         bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(0),
-                                0));
+                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(0), 0));
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource";
@@ -1432,7 +1383,7 @@ public class TestFederation extends AbstractIntegrationTest {
         // Download product twice, and change metacard on stub server between calls.
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(STUB_SERVER_TEST_STRING));
+                .body(is(resourceData));
         cswServer.whenHttp()
                 .match(post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
@@ -1441,8 +1392,9 @@ public class TestFederation extends AbstractIntegrationTest {
                         contentType("text/xml"),
                         bytesContent(getCswQueryResponse(metacardId, OffsetDateTime.now()).getBytes()));
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(STUB_SERVER_TEST_STRING));
+                .body(is(resourceData));
         // @formatter:on
+
         cswServer.verifyHttp()
                 .times(2,
                         Condition.uri("/services/csw"),
@@ -1467,6 +1419,7 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testProductDownloadListWithOneActiveDownload() {
         String filename = "product.txt";
         String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1475,13 +1428,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 .then(ok(),
                         contentType("text/xml"),
                         bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(STUB_SERVER_TEST_STRING,
-                                Duration.ofMillis(500),
-                                0));
+                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(500), 0));
 
         String startDownloadUrl =
                 RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + "?source=" + CSW_STUB_SOURCE_ID
@@ -1508,7 +1460,7 @@ public class TestFederation extends AbstractIntegrationTest {
         assertThat(download.get("status"), is("IN_PROGRESS"));
         int bytesDownloaded = (int) download.get("bytesDownloaded");
         assertThat(bytesDownloaded, is(greaterThan(0)));
-        assertThat(bytesDownloaded, is(lessThan(STUB_SERVER_TEST_STRING.length() + 1)));
+        assertThat(bytesDownloaded, is(lessThan(resourceData.length() + 1)));
         assertTrue(((String) download.get("percentDownloaded")).matches("UNKNOWN|[0-9]|[0-9]{2}|100"));
         assertThat((List<String>) download.get("users"), contains("Guest@Guest@127.0.0.1"));
     }
@@ -1708,6 +1660,14 @@ public class TestFederation extends AbstractIntegrationTest {
     private Action getCswRetrievalHeaders(String filename) {
         return composite(header("X-Csw-Product", "true"),
                 header("Content-Disposition", "filename=" + filename));
+    }
+
+    private String getResourceData(String metacardId) {
+        return String.format("Data for metacard ID %s", metacardId);
+    }
+
+    private String getResourceRetrievalCompletedMessage(int bytesRetrieved) {
+        return String.format("Resource retrieval completed, %d bytes retrieved. ", bytesRetrieved);
     }
 
     private CometDClient setupCometDClient(List<String> channels) throws Exception {
