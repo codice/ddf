@@ -20,6 +20,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import ddf.catalog.data.Attribute;
 
@@ -115,16 +116,6 @@ public class AttributeImpl implements Attribute {
         }
     }
 
-    private List<Serializable> createPopulatedList(Serializable value) {
-        List<Serializable> list = new LinkedList<>();
-        if (value instanceof List) {
-            list.addAll((List) value);
-        } else {
-            list.add(value);
-        }
-        return list;
-    }
-
     @Override
     public List<Serializable> getValues() {
         return values;
@@ -144,6 +135,37 @@ public class AttributeImpl implements Attribute {
      */
     public void clearValues() {
         values.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Attribute)) {
+            return false;
+        }
+
+        Attribute attribute = (Attribute) o;
+
+        return Objects.equals(name, attribute.getName()) && Objects.equals(values,
+                attribute.getValues());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, values);
+    }
+
+    private List<Serializable> createPopulatedList(Serializable value) {
+        List<Serializable> list = new LinkedList<>();
+        if (value instanceof List) {
+            list.addAll((List) value);
+        } else {
+            list.add(value);
+        }
+        return list;
     }
 
     /**
@@ -174,7 +196,7 @@ public class AttributeImpl implements Attribute {
     /**
      * Deserializes this {@link AttributeImpl}'s instance.
      *
-     * @param stream the {@link ObjectInputStream} that contains the bytes of the object
+     * @param s the {@link ObjectInputStream} that contains the bytes of the object
      * @throws IOException
      * @throws ClassNotFoundException
      */
