@@ -406,7 +406,7 @@ public class RegistryPackageWebConverterTest {
     private ServiceBindingType getFirstServiceBinding() {
         ServiceBindingType binding = RIM_FACTORY.createServiceBindingType();
         binding.setId("urn:registry:federation:method:csw");
-        binding.setService("urn:uuid:service:2014ca7f59ac46f495e32b4a67a51276");
+        binding.setService("urn:service:id0");
 
         binding.getSlot()
                 .add(stHelper.create("cswUrl", "https://some/address/here", "xs:anyURI"));
@@ -442,7 +442,7 @@ public class RegistryPackageWebConverterTest {
     private ServiceBindingType getSecondServiceBinding() {
         ServiceBindingType binding = RIM_FACTORY.createServiceBindingType();
         binding.setId("urn:registry:federation:method:soap13");
-        binding.setService("urn:uuid:service:2014ca7f59ac46f495e32b4a67a51276");
+        binding.setService("urn:service:id0");
         binding.setAccessURI("some:access:URI:any:URI");
         binding.setTargetBinding("some:target:binding:reference:URI");
 
