@@ -13,7 +13,7 @@
  */
 package ddf.catalog.cache.impl;
 
-import static ddf.catalog.cache.impl.MetacardComparator.isSame;
+import static ddf.catalog.cache.impl.CachedResourceMetacardComparator.isSame;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,9 +40,9 @@ import com.hazelcast.core.IMap;
 
 import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
-
 
 public class ResourceCacheImpl implements ResourceCacheInterface {
 
@@ -367,13 +367,18 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
         }
 
         Metacard cachedMetacard = cachedResource.getMetacard();
+        MetacardImpl latestMetacardImpl = new MetacardImpl(latestMetacard);
 
-        if (isSame(cachedMetacard, latestMetacard)) {
-
+        if (isSame(cachedMetacard, latestMetacardImpl)) {
+            LOGGER.debug("Metacard has not changed");
             LOGGER.trace("EXITING: validateCacheEntry");
             return true;
         }
+
+        LOGGER.debug("Metacard has changed");
+
         File cachedFile = new File(cachedResource.getFilePath());
+
         if (!FileUtils.deleteQuietly(cachedFile)) {
             LOGGER.debug("File was not removed from cache directory.  File Path: {}",
                     cachedResource.getFilePath());
@@ -382,7 +387,5 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
         cache.remove(cachedResource.getKey());
         LOGGER.trace("EXITING: validateCacheEntry");
         return false;
-
     }
-
 }

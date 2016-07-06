@@ -1207,8 +1207,6 @@ public class TestFederation extends AbstractIntegrationTest {
      * Tests that ddf will return the cached copy if there are no changes to the remote metacard
      * @throws Exception
      */
-    // TODO will be fixed with ticket DDF-2207
-    @Ignore
     @Test
     public void testDownloadFromCacheIfAvailable() throws Exception {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
