@@ -93,6 +93,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
+import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
@@ -553,12 +554,14 @@ public class RESTEndpoint implements RESTService {
                         "Specified query is unsupported.  Change query and resubmit: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
-                // The catalog framework will throw this if any of the transformers blow up. We need to
-
-                // catch this exception
-                // here or else execution will return to CXF and we'll lose this message and end up with
-                // a huge stack trace
-                // in a GUI or whatever else is connected to this endpoint
+            } catch (DataUsageLimitExceededException e) {
+                String exceptionMessage = "Unable to process request. Data usage limit exceeded: ";
+                LOGGER.warn(exceptionMessage, e);
+                throw new ServerErrorException(exceptionMessage, Status.REQUEST_ENTITY_TOO_LARGE);
+                // The catalog framework will throw this if any of the transformers blow up.
+                // We need to catch this exception here or else execution will return to CXF and
+                // we'll lose this message and end up with a huge stack trace in a GUI or whatever
+                // else is connected to this endpoint
             } catch (RuntimeException | UnsupportedEncodingException e) {
                 String exceptionMessage = "Unknown error occurred while processing request: ";
                 LOGGER.warn(exceptionMessage, e);
