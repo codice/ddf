@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -210,8 +211,9 @@ public class MetacardApplication implements SparkApplication {
                     daysBack);
 
             return util.getJson(results.stream()
-                    .map(mc -> mc.getAttribute("metacard.history.id")// -> metacard.version.id
-                            .getValue())
+                    .map(mc -> mc.getAttribute(MetacardVersion.VERSION_OF_ID))
+                    .filter(Objects::nonNull)
+                    .map(Attribute::getValue)
                     .collect(Collectors.toList()));
         });
 

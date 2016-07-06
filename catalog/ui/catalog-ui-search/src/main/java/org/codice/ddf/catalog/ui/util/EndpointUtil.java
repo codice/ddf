@@ -44,6 +44,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -273,34 +274,36 @@ public class EndpointUtil {
         }
 
         // TODO (RCZ) - Replace these with the actual constants once DDF-PR-868 is in
-        Filter tags = filterBuilder.attribute(Metacard.TAGS)
-                .is()
-                .like()
-                .text("history"); // history -> revision
 
-        Filter user = filterBuilder.attribute("metacard.history.edited-by") // -> metacard.version.edited-by
-                .is()
-                .equalTo()
-                .text(emailAddress);
+        Filter user =
+                filterBuilder.attribute(MetacardVersion.EDITED_BY)
+                        .is()
+                        .equalTo()
+                        .text(emailAddress);
 
-        Filter time = filterBuilder.attribute("metacard.history.versioned") // -> metacard.version.versioned-on
-                .is()
-                .after()
-                .date(Date.from(Instant.now()
-                        .minus(daysBack, ChronoUnit.DAYS)));
+        Filter time =
+                filterBuilder.attribute(MetacardVersion.VERSIONED_ON)
+                        .is()
+                        .after()
+                        .date(Date.from(Instant.now()
+                                .minus(daysBack, ChronoUnit.DAYS)));
 
-        Filter createdAction = filterBuilder.attribute("metacard.history.action") // -> metacard.version.action
-                .is()
-                .equalTo()
-                .text("Created");
-        Filter createdContentAction = filterBuilder.attribute("metacard.history.action")// -> metacard.version.action
-                .is()
-                .equalTo()
-                .text("Created-Content");
+        Filter createdAction =
+                filterBuilder.attribute(MetacardVersion.ACTION)
+                        .is()
+                        .equalTo()
+                        .text(MetacardVersion.Action.CREATED.getKey());
+        Filter createdContentAction =
+                filterBuilder.attribute(MetacardVersion.ACTION)
+                        .is()
+                        .equalTo()
+                        .text(MetacardVersion.Action.CREATED_CONTENT.getKey());
         Filter created = filterBuilder.anyOf(createdAction, createdContentAction);
 
-        Filter filter = filterBuilder.allOf(tags, user, time, created);
+        Filter filter = filterBuilder.allOf(user, time, created);
 
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put("no-default-tags", true);
         int startIndex = 1 + ((pageNumber - 1) * pageSize);
         QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
                 filter,
@@ -308,9 +311,8 @@ public class EndpointUtil {
                 pageSize,
                 SortBy.NATURAL_ORDER,
                 false,
-                TimeUnit.SECONDS.toMillis(10))));
+                TimeUnit.SECONDS.toMillis(10)), properties));
 
-        // TODO (RCZ) - now need to sort and return results.
         return queryResponse.getResults()
                 .stream()
                 .map(Result::getMetacard)
