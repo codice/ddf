@@ -19,14 +19,13 @@ define([
     'jquery',
     'text!./filter.hbs',
     'js/CustomElements',
-    'component/dropdown/filter-attribute/dropdown.filter-attribute.view',
     'component/dropdown/filter-comparator/dropdown.filter-comparator.view',
     'component/multivalue/multivalue.view',
     'component/singletons/metacard-definitions',
     'component/property/property',
     'component/dropdown/dropdown',
     'component/dropdown/dropdown.view'
-], function (Marionette, _, $, template, CustomElements, FilterAttributeDropdownView, FilterComparatorDropdownView,
+], function (Marionette, _, $, template, CustomElements, FilterComparatorDropdownView,
              MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView) {
 
     function isGeoFilter(type){
