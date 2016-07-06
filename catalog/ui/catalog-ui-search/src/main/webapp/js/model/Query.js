@@ -118,10 +118,10 @@ define([
                     case 'DWITHIN':
                         if (filter.property === 'anyGeo') {
                             var geo = wellknown.parse(filter.value.value);
-                            if (geo.geometry.type === 'Point') {
+                            if (geo.type === 'Point') {
                                 _.extend(defaultValues, {
-                                    lon: geo.geometry.coordinates[0],
-                                    lat: geo.geometry.coordinates[1],
+                                    lon: geo.coordinates[0],
+                                    lat: geo.coordinates[1],
                                     radius: filter.distance
                                 });
                             }
