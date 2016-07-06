@@ -56,14 +56,15 @@ define([
         },
         initializeEnum: function(){
             this.enumRegion.show(DropdownView.createSimpleDropdown(
-                this.model.get('property').get('enum').map(function(value){
-                    return {
-                        label: value,
-                        value: value
-                    };
-                }),
-                false,
-                [this.model.get('value')]
+                {
+                    list: this.model.get('property').get('enum').map(function(value){
+                        return {
+                            label: value,
+                            value: value
+                        };
+                    }),
+                    defaultSelection: [this.model.get('value')]
+                }
             ));
             this.listenTo(this.enumRegion.currentView.model, 'change:value', this.triggerChange);
         },

@@ -82,20 +82,25 @@ define([
             this.settingsSort.currentView.turnOffEditing();
         },
         setupFederationDropdown: function(){
-            this.settingsFederation.show(DropdownView.createSimpleDropdown([
+            this.settingsFederation.show(DropdownView.createSimpleDropdown(
                 {
-                    label: 'All Sources',
-                    value: 'enterprise'
-                },
-                {
-                    label: 'Specific Sources',
-                    value: 'selected'
-                },
-                {
-                    label: 'None',
-                    value: 'local'
+                    list: [
+                        {
+                            label: 'All Sources',
+                            value: 'enterprise'
+                        },
+                        {
+                            label: 'Specific Sources',
+                            value: 'selected'
+                        },
+                        {
+                            label: 'None',
+                            value: 'local'
+                        }
+                    ],
+                    defaultSelection: [this.model.get('federation')]
                 }
-            ], false, [this.model.get('federation')]));
+            ));
             this.settingsFederation.currentView.turnOffEditing();
         },
         setupSrcDropdown: function(){

@@ -24,9 +24,10 @@ define([
     'component/multivalue/multivalue.view',
     'component/singletons/metacard-definitions',
     'component/property/property',
-    'component/dropdown/dropdown'
+    'component/dropdown/dropdown',
+    'component/dropdown/dropdown.view'
 ], function (Marionette, _, $, template, CustomElements, FilterAttributeDropdownView, FilterComparatorDropdownView,
-             MultivalueView, metacardDefinitions, PropertyModel, DropdownModel) {
+             MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView) {
 
     function isGeoFilter(type){
         return (type === 'DWITHIN' || type === 'INTERSECTS');
@@ -127,21 +128,34 @@ define([
             filterInput: '.filter-input'
         },
         initialize: function(){
+            this.listenTo(this.model, 'change:type', this.updateTypeDropdown);
             this.listenTo(this.model, 'change:type', this.determineInput);
             this.listenTo(this.model, 'change:value', this.determineInput);
         },
         onBeforeShow: function(){
-            this._attributeDropdownModel = new DropdownModel({value: 'anyText'});
             this._filterDropdownModel = new DropdownModel({value: 'CONTAINS'});
-            this.filterAttribute.show(new FilterAttributeDropdownView({
-                model: this._attributeDropdownModel,
-                modelForComponent: this.model
+            this.filterAttribute.show(DropdownView.createSimpleDropdown({
+                list: metacardDefinitions.sortedMetacardTypes.map(function(metacardType){
+                    return {
+                        label: metacardType.alias || metacardType.id,
+                        value: metacardType.id
+                    };
+                }),
+                defaultSelection: ['anyText'],
+                hasFiltering: true
             }));
+            this.listenTo(this.filterAttribute.currentView.model, 'change:value', this.handleAttributeUpdate);
             this.filterComparator.show(new FilterComparatorDropdownView({
                 model: this._filterDropdownModel,
                 modelForComponent: this.model
             }));
             this.determineInput();
+        },
+        updateTypeDropdown: function(){
+            this.filterAttribute.currentView.model.set('value', [this.model.get('type')]);
+        },
+        handleAttributeUpdate: function(){
+            this.model.set('type', this.filterAttribute.currentView.model.get('value')[0]);
         },
         delete: function(){
             this.model.destroy();
@@ -223,7 +237,6 @@ define([
             }.bind(this),0);
         },
         onDestroy: function(){
-            this._attributeDropdownModel.destroy();
             this._filterDropdownModel.destroy();
         },
         turnOnEditing: function(){

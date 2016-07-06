@@ -71,39 +71,44 @@ define([
         setupExpiration: function () {
             var expiration = user.get('user').get('preferences').get('alertExpiration');
             var millisecondsInDay = 24 * 60 * 60 * 1000;
-            this.propertyExpiration.show(DropdownView.createSimpleDropdown([
+            this.propertyExpiration.show(DropdownView.createSimpleDropdown(
                 {
-                    label: '1 Day',
-                    value: 1 * millisecondsInDay
-                }, {
-                    label: '2 Days',
-                    value: 2 * millisecondsInDay
-                }, {
-                    label: '4 Days',
-                    value: 4 * millisecondsInDay
-                }, {
-                    label: '1 Week',
-                    value: 7 * millisecondsInDay
-                }, {
-                    label: '2 Weeks',
-                    value: 14 * millisecondsInDay
-                }, {
-                    label: '1 Month',
-                    value: 30 * millisecondsInDay
-                }, {
-                    label: '2 Months',
-                    value: 60 * millisecondsInDay
-                }, {
-                    label: '4 Months',
-                    value: 120 * millisecondsInDay
-                }, {
-                    label: '6 Months',
-                    value: 180 * millisecondsInDay
-                }, {
-                    label: '1 Year',
-                    value: 365 * millisecondsInDay
+                    list: [
+                        {
+                            label: '1 Day',
+                            value: 1 * millisecondsInDay
+                        }, {
+                            label: '2 Days',
+                            value: 2 * millisecondsInDay
+                        }, {
+                            label: '4 Days',
+                            value: 4 * millisecondsInDay
+                        }, {
+                            label: '1 Week',
+                            value: 7 * millisecondsInDay
+                        }, {
+                            label: '2 Weeks',
+                            value: 14 * millisecondsInDay
+                        }, {
+                            label: '1 Month',
+                            value: 30 * millisecondsInDay
+                        }, {
+                            label: '2 Months',
+                            value: 60 * millisecondsInDay
+                        }, {
+                            label: '4 Months',
+                            value: 120 * millisecondsInDay
+                        }, {
+                            label: '6 Months',
+                            value: 180 * millisecondsInDay
+                        }, {
+                            label: '1 Year',
+                            value: 365 * millisecondsInDay
+                        }
+                    ],
+                    defaultSelection: [expiration]
                 }
-            ], false, [expiration]));
+            ));
         },
         turnOnEditing: function () {
             this.$el.addClass('is-editing');

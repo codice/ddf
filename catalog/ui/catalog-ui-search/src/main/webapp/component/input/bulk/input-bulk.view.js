@@ -75,7 +75,11 @@ define([
                 value: 'bulkCustom'
             });
             this.enumRegion.show(DropdownView.createSimpleDropdown(
-                enumValues, false, ['bulkDefault']
+                {
+                    list: enumValues,
+                    defaultSelection: ['bulkDefault'],
+                    hasFiltering: true
+                }
             ));
             this.listenTo(this.enumRegion.currentView.model, 'change:value', this.triggerChange);
         },

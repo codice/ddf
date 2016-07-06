@@ -40,7 +40,12 @@ define([
             componentToShow: '.dropdown-companion-component'
         },
         events: {
+            'keydown': 'handleSpecialKeys',
+            'keyup .dropdown-companion-filter': 'handleFilterUpdate',
             'mousedown': 'handleMousedown'
+        },
+        attributes: {
+            'tabindex': 0
         },
         initialize: function(){
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
@@ -95,7 +100,77 @@ define([
             this.$el.addClass('is-open');
             this.listenForOutsideClick();
             this.listenForResize();
+            this.focusOnFilter();
+            this.handleFiltering();
             //this.listenForScroll();
+        },
+        focusOnFilter: function(){
+            var hasFiltering = Boolean(this.options.linkedView.hasFiltering || this.options.linkedView.options.hasFiltering);
+            if (hasFiltering) {
+                setTimeout(function () {
+                    this.$el.children('input').focus()
+                }.bind(this), 0);
+            } else {
+                this.$el.focus();
+            }
+        },
+        handleFiltering: function(){
+            var hasFiltering = Boolean(this.options.linkedView.hasFiltering || this.options.linkedView.options.hasFiltering);
+            this.$el.toggleClass('has-filtering', hasFiltering);
+        },
+        handleFilterUpdate: function(event){
+            var code = event.keyCode;
+            if (event.charCode && code == 0)
+                code = event.charCode;
+            switch(code) {
+                case 13:
+                    // Enter
+                case 27:
+                    // Escape
+                case 37:
+                    // Key left.
+                case 39:
+                    // Key right.
+                case 38:
+                    // Key up.
+                case 40:
+                    // Key down
+                    break;
+                default:
+                    var filterValue = this.$el.children('input').val();
+                    this.componentToShow.currentView.handleFilterUpdate(filterValue);
+                    break;
+            }
+        },
+        handleSpecialKeys: function(event){
+            var code = event.keyCode;
+            if (event.charCode && code == 0)
+                code = event.charCode;
+            switch(code) {
+                case 13:
+                    // Enter
+                    event.preventDefault();
+                    if (this.componentToShow.currentView.handleEnter)
+                        this.componentToShow.currentView.handleEnter();
+                    break;
+                case 27:
+                    // Escape
+                    event.preventDefault();
+                    this.handleEscape();
+                    break;
+                case 38:
+                    // Key up.
+                    event.preventDefault();
+                    if (this.componentToShow.currentView.handleUpArrow)
+                        this.componentToShow.currentView.handleUpArrow();
+                    break;
+                case 40:
+                    // Key down.
+                    event.preventDefault();
+                    if (this.componentToShow.currentView.handleDownArrow)
+                        this.componentToShow.currentView.handleDownArrow();
+                    break;
+            }
         },
         onClose: function () {
             if (this.el.parentElement) {
@@ -107,6 +182,9 @@ define([
         },
         close: function(){
             this.options.linkedView.model.close();
+        },
+        handleEscape: function(){
+            this.close();
         },
         listenForClose: function(){
             this.$el.on('closeDropdown.'+CustomElements.getNamespace(), function(e){

@@ -114,16 +114,17 @@ define([
             }
         }
     }, {
-        createSimpleDropdown: function(list, isMultiSelect, defaultSelection, customChildView){
+        createSimpleDropdown: function(options){
             return new this({
                 model: new DropdownModel({
-                    value: defaultSelection
+                    value: options.defaultSelection
                 }),
-                list: list,
+                list: options.list,
+                hasFiltering: options.hasFiltering,
                 componentToShow: SelectView,
-                isMultiSelect: isMultiSelect,
-                defaultSelection: defaultSelection,
-                customChildView: customChildView
+                isMultiSelect: options.isMultiSelect,
+                defaultSelection: options.defaultSelection,
+                customChildView: options.customChildView
             });
         }
     });

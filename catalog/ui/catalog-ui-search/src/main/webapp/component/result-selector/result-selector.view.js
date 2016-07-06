@@ -205,13 +205,18 @@ define([
             }));
         },
         showResultDisplayDropdown: function(){
-            this.resultDisplay.show(DropdownView.createSimpleDropdown([{
-                label: 'List',
-                value: 'List'
-            }, {
-                label: 'Grid',
-                value: 'Grid'
-            }], false, [user.get('user').get('preferences').get('resultDisplay')]));
+            this.resultDisplay.show(DropdownView.createSimpleDropdown(
+                {
+                    list: [{
+                        label: 'List',
+                        value: 'List'
+                    }, {
+                        label: 'Grid',
+                        value: 'Grid'
+                    }],
+                    defaultSelection: [user.get('user').get('preferences').get('resultDisplay')]
+                }
+            ));
             this.stopListening(this.resultDisplay.currentView.model);
             this.listenTo(this.resultDisplay.currentView.model, 'change:value', function(){
                 var prefs = user.get('user').get('preferences');

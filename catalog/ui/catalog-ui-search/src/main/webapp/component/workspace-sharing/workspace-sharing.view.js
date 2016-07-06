@@ -67,10 +67,16 @@ define([
         onRender: function () {
             this.email.show(new Input({ model: this.model }));
 
-            this.action.show(DropdownView.createSimpleDropdown([
-                { icon: 'fa-eye',    label: 'Can view',  value: 'view' },
-                { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' }
-            ], false, [this.model.get('action')], IconView));
+            this.action.show(DropdownView.createSimpleDropdown(
+                {
+                    list: [
+                        { icon: 'fa-eye',    label: 'Can view',  value: 'view' },
+                        { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' }
+                    ],
+                    defaultSelection: [this.model.get('action')],
+                    customChildView: IconView
+                }
+            ));
 
             this.listenTo(this.action.currentView.model, 'change:value', this.updateAction);
         }
@@ -94,11 +100,17 @@ define([
             this.model.set('action', this.action.currentView.model.get('value')[0]);
         },
         onRender: function () {
-            this.action.show(DropdownView.createSimpleDropdown([
-                { icon: 'fa-ban',    label: 'No Access',  value: 'none' },
-                { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' },
-                { icon: 'fa-eye',    label: 'Can view',  value: 'view' }
-            ], false, [this.model.get('action')], IconView));
+            this.action.show(DropdownView.createSimpleDropdown(
+                {
+                    list: [
+                        { icon: 'fa-ban',    label: 'No Access',  value: 'none' },
+                        { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' },
+                        { icon: 'fa-eye',    label: 'Can view',  value: 'view' }
+                    ],
+                    defaultSelection: [this.model.get('action')],
+                    customChildView: IconView
+                }
+            ));
 
             this.listenTo(this.action.currentView.model, 'change:value', this.updateAction);
         }

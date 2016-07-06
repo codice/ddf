@@ -51,17 +51,24 @@ define([
                     value: type.id
                 };
             });
-            this.sortAttribute.show(DropdownView.createSimpleDropdown(sortAttributes, false, [this.model.get('attribute')]));
-            this.sortDirection.show(DropdownView.createSimpleDropdown([
-                {
-                    label: 'Ascending',
-                    value: 'ascending'
-                },
-                {
-                    label: 'Descending',
-                    value: 'descending'
-                }
-            ], false, [this.model.get('direction')]));
+
+            this.sortAttribute.show(DropdownView.createSimpleDropdown({
+                list: sortAttributes,
+                defaultSelection: [this.model.get('attribute')]
+            }));
+            this.sortDirection.show(DropdownView.createSimpleDropdown({
+                list: [
+                    {
+                        label: 'Ascending',
+                        value: 'ascending'
+                    },
+                    {
+                        label: 'Descending',
+                        value: 'descending'
+                    }
+                ],
+                defaultSelection: [this.model.get('direction')]
+            }));
             this.listenTo(this.sortAttribute.currentView.model, 'change:value', function(model, attribute){
                 this.model.set('attribute', attribute[0]);
             })

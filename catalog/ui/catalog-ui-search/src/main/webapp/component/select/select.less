@@ -1,6 +1,12 @@
 @{customElementNamespace}select-collection {
   display: block;
 
+  > .select-collection-empty {
+    text-align: center;
+    padding: 10px;
+    color: lighten(@warning-color, 20%);
+  }
+
   .choice {
     padding: 0px @minimumButtonSize 0px 20px;
     height: @minimumButtonSize;
@@ -10,7 +16,7 @@
     position: relative;
   }
 
-  .choice:hover {
+  .choice.is-active {
     background: @dropdownHoverBackground;
   }
 

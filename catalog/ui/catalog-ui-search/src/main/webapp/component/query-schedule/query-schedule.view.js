@@ -53,40 +53,45 @@ define([
         setupInterval: function(){
             var halfHour = 30 * 60 * 1000;
             var hour = 2 * halfHour;
-            this.propertyInterval.show(DropdownView.createSimpleDropdown([
+            this.propertyInterval.show(DropdownView.createSimpleDropdown(
                 {
-                    label: 'Never',
-                    value: false
-                },
-                {
-                    label: '1/2 Hour',
-                    value: halfHour
-                },
-                {
-                    label: '1 Hour',
-                    value: hour
-                },
-                {
-                    label: '2 Hours',
-                    value: 2 * hour
-                },
-                {
-                    label: '4 Hours',
-                    value: 4 * hour
-                },
-                {
-                    label: '8 Hours',
-                    value: 8 * hour
-                },
-                {
-                    label: '16 Hours',
-                    value: 16 * hour
-                },
-                {
-                    label: 'Day',
-                    value: 24 * hour
+                    list: [
+                        {
+                            label: 'Never',
+                            value: false
+                        },
+                        {
+                            label: '1/2 Hour',
+                            value: halfHour
+                        },
+                        {
+                            label: '1 Hour',
+                            value: hour
+                        },
+                        {
+                            label: '2 Hours',
+                            value: 2 * hour
+                        },
+                        {
+                            label: '4 Hours',
+                            value: 4 * hour
+                        },
+                        {
+                            label: '8 Hours',
+                            value: 8 * hour
+                        },
+                        {
+                            label: '16 Hours',
+                            value: 16 * hour
+                        },
+                        {
+                            label: 'Day',
+                            value: 24 * hour
+                        }
+                    ],
+                    defaultSelection: [this.model.get('polling') || false]
                 }
-            ], false, [this.model.get('polling') || false]));
+            ));
         },
         turnOnEditing: function(){
             this.$el.addClass('is-editing');
