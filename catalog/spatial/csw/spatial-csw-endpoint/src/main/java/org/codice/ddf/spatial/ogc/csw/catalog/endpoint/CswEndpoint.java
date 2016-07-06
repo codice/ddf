@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -183,7 +183,8 @@ public class CswEndpoint implements Csw {
                     ComparisonOperatorType.LESS_THAN,
                     ComparisonOperatorType.LESS_THAN_EQUAL_TO,
                     ComparisonOperatorType.EQUAL_TO,
-                    ComparisonOperatorType.NOT_EQUAL_TO));
+                    ComparisonOperatorType.NOT_EQUAL_TO,
+                    ComparisonOperatorType.FUZZY));
 
     protected static final String PROVIDER_NAME = "DDF";
 
@@ -222,7 +223,8 @@ public class CswEndpoint implements Csw {
             "Unable to retrieve product for ID: %s";
 
     private static final List<String> TYPE_NAMES_LIST = Arrays.asList(CswConstants.CSW_RECORD,
-            GmdMetacardType.GMD_METACARD_TYPE_NAME, CswConstants.EBRIM_RECORD);
+            GmdMetacardType.GMD_METACARD_TYPE_NAME,
+            CswConstants.EBRIM_RECORD);
 
     private static Map<String, Element> documentElements = new HashMap<>();
 
@@ -1143,9 +1145,9 @@ public class CswEndpoint implements Csw {
 
         // Builds GetRecords operation metadata
         Operation getRecordsOp = buildOperation(CswConstants.GET_RECORDS, getAndPost);
-        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER, Arrays.asList("hits",
-                "results",
-                "validate"), getRecordsOp);
+        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
+                Arrays.asList("hits", "results", "validate"),
+                getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
                 schemaTransformerManager.getAvailableSchemas(),
@@ -1165,16 +1167,16 @@ public class CswEndpoint implements Csw {
                 supportedSchemas,
                 getRecordByIdOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordByIdOp);
-        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER, Arrays.asList("hits",
-                "results",
-                "validate"), getRecordByIdOp);
+        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
+                Arrays.asList("hits", "results", "validate"),
+                getRecordByIdOp);
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
                 ELEMENT_NAMES,
                 getRecordByIdOp);
 
         // Builds Transactions operation metadata
-        Operation transactionOp = buildOperation(CswConstants.TRANSACTION, Arrays.asList(
-                CswConstants.POST));
+        Operation transactionOp = buildOperation(CswConstants.TRANSACTION,
+                Arrays.asList(CswConstants.POST));
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
                 inputTransformerManager.getAvailableIds(),
                 transactionOp);

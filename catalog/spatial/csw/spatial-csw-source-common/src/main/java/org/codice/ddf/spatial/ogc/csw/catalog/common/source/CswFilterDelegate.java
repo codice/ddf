@@ -789,6 +789,17 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     @Override
+    public FilterType propertyIsFuzzy(String propertyName, String pattern) {
+        isComparisonOperationSupported(ComparisonOperatorType.FUZZY);
+        propertyName = mapPropertyName(propertyName);
+        if (isPropertyQueryable(propertyName)) {
+            return cswFilterFactory.buildPropertyIsFuzzyFilter(propertyName, pattern);
+        } else {
+            return new FilterType();
+        }
+    }
+
+    @Override
     public FilterType xpathIsFuzzy(String xpath, String literal) {
         return propertyIsFuzzy(xpath, literal);
     }

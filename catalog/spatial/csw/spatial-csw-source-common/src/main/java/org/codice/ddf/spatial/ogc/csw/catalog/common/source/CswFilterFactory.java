@@ -63,6 +63,7 @@ import net.opengis.filter.v_1_1_0.LiteralType;
 import net.opengis.filter.v_1_1_0.LowerBoundaryType;
 import net.opengis.filter.v_1_1_0.ObjectFactory;
 import net.opengis.filter.v_1_1_0.PropertyIsBetweenType;
+import net.opengis.filter.v_1_1_0.PropertyIsFuzzyType;
 import net.opengis.filter.v_1_1_0.PropertyIsLikeType;
 import net.opengis.filter.v_1_1_0.PropertyIsNullType;
 import net.opengis.filter.v_1_1_0.PropertyNameType;
@@ -192,6 +193,12 @@ public class CswFilterFactory {
             boolean isCaseSensitive) {
         FilterType filter = new FilterType();
         filter.setComparisonOps(createPropertyIsLike(propertyName, literal, isCaseSensitive));
+        return filter;
+    }
+
+    public FilterType buildPropertyIsFuzzyFilter(String propertyName, Object literal) {
+        FilterType filter = new FilterType();
+        filter.setComparisonOps(createPropertyIsFuzzy(propertyName, literal));
         return filter;
     }
 
@@ -609,6 +616,17 @@ public class CswFilterFactory {
         propertyIsLikeType.setLiteral(createLiteralType(literal).getValue());
         propertyIsLikeType.setMatchCase(isCaseSensitive);
         return filterObjectFactory.createPropertyIsLike(propertyIsLikeType);
+    }
+
+    private JAXBElement<PropertyIsFuzzyType> createPropertyIsFuzzy(String propertyName,
+            Object literal) {
+        PropertyIsFuzzyType propertyIsFuzzyType = new PropertyIsFuzzyType();
+
+        propertyIsFuzzyType.setPropertyName(createPropertyNameType(Arrays.asList(new Object[] {
+                propertyName})).getValue());
+        propertyIsFuzzyType.setLiteral(createLiteralType(literal).getValue());
+
+        return filterObjectFactory.createPropertyIsFuzzy(propertyIsFuzzyType);
     }
 
     private JAXBElement<BinaryComparisonOpType> createPropertyIsEqualTo(String propertyName,

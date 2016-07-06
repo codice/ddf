@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<!DOCTYPE catalog
+        PUBLIC "-//OASIS//DTD XML Catalogs V1.1//EN"
+        "http://www.oasis-open.org/committees/entity/release/1.1/catalog.dtd">
+<catalog
+        xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+    <systemSuffix systemIdSuffix="filter.xsd"
+                  uri="maven:org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar::!/filter/1.1.0/filter.xsd"/>
+    <systemSuffix systemIdSuffix="expr.xsd"
+                  uri="maven:org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar::!/filter/1.1.0/expr.xsd"/>
+    <systemSuffix systemIdSuffix="filterCapabilities.xsd"
+                  uri="maven:org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar::!/filter/1.1.0/filterCapabilities.xsd"/>
+    <systemSuffix systemIdSuffix="sort.xsd"
+                  uri="maven:org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar::!/filter/1.1.0/sort.xsd"/>
+
+</catalog>

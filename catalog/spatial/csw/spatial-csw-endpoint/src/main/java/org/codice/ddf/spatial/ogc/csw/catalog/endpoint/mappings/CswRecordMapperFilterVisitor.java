@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
 import org.opengis.filter.PropertyIsNotEqualTo;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
@@ -56,6 +58,7 @@ import org.xml.sax.helpers.NamespaceSupport;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
 
@@ -401,4 +404,18 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         }
         return (Expression) expression.accept(this, extraData);
     }
+
+    @Override
+    public Object visit(Function function, Object extraData) {
+
+        if (function instanceof FuzzyFunction){
+            //FuzzyFunction has 1 parameter to visit
+            Expression expr1 = visit(function.getParameters().get(0), null);
+            ((FuzzyFunction) function).setParameters(Arrays.asList(expr1));
+            return function;
+        } else {
+            return super.visit(function, extraData);
+        }
+    }
 }
+

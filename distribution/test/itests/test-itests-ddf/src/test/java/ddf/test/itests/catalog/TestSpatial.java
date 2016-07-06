@@ -147,8 +147,11 @@ public class TestSpatial extends AbstractIntegrationTest {
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_FAR_METACARD)})
                     .put("CswXPathExpressionQuery",
-                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
-                                    CSW_METACARD)})
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
+                    .put("CswFuzzyTextQuery",
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
                     .build();
 
     @BeforeExam
@@ -331,6 +334,13 @@ public class TestSpatial extends AbstractIntegrationTest {
             throws XPathException, ParserConfigurationException, SAXException, IOException {
 
         performQueryAndValidateExpectedResults("CswXPathExpressionQuery");
+    }
+
+    @Test
+    public void testCswFuzzyTextQuery()
+            throws XPathException, ParserConfigurationException, SAXException, IOException {
+
+        performQueryAndValidateExpectedResults("CswFuzzyTextQuery");
     }
 
     /**
