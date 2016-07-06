@@ -13,7 +13,6 @@
 /*jslint nomen:false, -W064 */
 window.jQuery = window.$ = require('jquery');
 window.CESIUM_BASE_URL = './lib/cesiumjs/Cesium/';
-require('jquery-ui');
 require('backbone').$ = window.$;
 require('cesium.css');
 

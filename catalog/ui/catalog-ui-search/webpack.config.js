@@ -5,6 +5,7 @@ var resolve = function (place) {
 }
 
 module.exports = {
+  devtool: 'source-map',
   context: resolve('./src/main/webapp/js'),
   entry: resolve('./src/main/webapp/main.js'),
   output: {
@@ -23,6 +24,10 @@ module.exports = {
       {
         test: /modelbinder/,
         loader: 'imports?Backbone=backbone,jQuery=jquery,_=underscore'
+      },
+      {
+        test: /jquery-ui/,
+        loader: 'imports?jQuery=jquery,jqueryui=jquery-ui'
       }
     ]
   },

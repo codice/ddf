@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define,setTimeout*/
+/* global define,setTimeout,require*/
 define([
     'application',
     'underscore',
@@ -20,8 +20,6 @@ define([
     'backbone',
     'jquery',
     'properties',
-    'js/controllers/ol.layerCollection.controller',
-    'js/controllers/cesium.layerCollection.controller',
     'maptype',
     'js/view/Modal',
     'text!templates/preferences/preferences.modal.handlebars',
@@ -30,15 +28,13 @@ define([
     'text!templates/preferences/layerPicker.handlebars',
     'text!templates/preferences/preference.buttons.handlebars',
     'component/singletons/user-instance',
-    'cesium',
     'wreqr',
     // load dependencies
     'spectrum',
     'jquerySortable'
-], function (Application, _, Marionette, Backbone, $, properties, OpenLayersController,
-             CesiumLayersController, maptype, Modal, preferencesModalTemplate,
-             layerPrefsTabTemplate, layerListTemplate,
-             layerPickerTemplate, preferenceButtonsTemplate, user, Cesium, wreqr) {
+], function (Application, _, Marionette, Backbone, $, properties, maptype, Modal,
+             preferencesModalTemplate, layerPrefsTabTemplate, layerListTemplate,
+             layerPickerTemplate, preferenceButtonsTemplate, user, wreqr) {
     var PrefsModalView = Marionette.LayoutView.extend({
         setDefaultModel: function(){
             this.model = user.get('user>preferences');
@@ -99,22 +95,63 @@ define([
             // listen to any change on all models in collection.
             this.viewMapLayers.on('change', this.onEdit, this);
             if (maptype.is3d()) {
-                this.widgetController = new PrefsModalView.CesiumLayersController({
-                    collection: this.viewMapLayers,
-                    element: this
-                });
+                require(['cesium', 'js/controllers/cesium.layerCollection.controller'], function(Cesium, CesiumLayersController){
+                    PrefsModalView.CesiumLayersController = CesiumLayersController.extend({
+                        showMap: function () {
+                            this.makeMap({
+                                element: this.options.element.el.querySelector('#layerPickerMap'),
+                                cesiumOptions: {
+                                    sceneMode: Cesium.SceneMode.SCENE3D,
+                                    animation: false,
+                                    geocoder: false,
+                                    navigationHelpButton: false,
+                                    fullscreenButton: false,
+                                    timeline: false,
+                                    homeButton: false,
+                                    sceneModePicker: false,
+                                    baseLayerPicker: false
+                                }
+                            });
+                        }
+                    });
+                    this.widgetController = new PrefsModalView.CesiumLayersController({
+                        collection: this.viewMapLayers,
+                        element: this
+                    });
+
+                    // HACK fix it
+                    this.layerPickers = new PrefsModalView.LayerPickerTable({
+                        childView: PrefsModalView.LayerPicker,
+                        collection: this.viewMapLayers,
+                        childViewOptions: { widgetController: this.widgetController }
+                    });
+                    this.layerButtons = new PrefsModalView.Buttons({ tabView: this });
+                }.bind(this));
             } else if (maptype.is2d()) {
-                this.widgetController = new PrefsModalView.OpenLayersController({
-                    collection: this.viewMapLayers,
-                    element: this
-                });
+                require(['js/controllers/ol.layerCollection.controller'], function(OpenLayersController){
+                    PrefsModalView.OpenLayersController = OpenLayersController.extend({
+                        showMap: function () {
+                            this.makeMap({
+                                element: this.options.element.el.querySelector('#layerPickerMap'),
+                                zoom: 2,
+                                controls: []
+                            });
+                        }
+                    });
+                    this.widgetController = new PrefsModalView.OpenLayersController({
+                        collection: this.viewMapLayers,
+                        element: this
+                    });
+
+                    // HACK fix it
+                    this.layerPickers = new PrefsModalView.LayerPickerTable({
+                        childView: PrefsModalView.LayerPicker,
+                        collection: this.viewMapLayers,
+                        childViewOptions: { widgetController: this.widgetController }
+                    });
+                    this.layerButtons = new PrefsModalView.Buttons({ tabView: this });
+                }.bind(this));
             }
-            this.layerPickers = new PrefsModalView.LayerPickerTable({
-                childView: PrefsModalView.LayerPicker,
-                collection: this.viewMapLayers,
-                childViewOptions: { widgetController: this.widgetController }
-            });
-            this.layerButtons = new PrefsModalView.Buttons({ tabView: this });
         },
         onRender: function () {
             this.layerPickersRegion.show(this.layerPickers);
@@ -170,33 +207,6 @@ define([
                 viewLayer.set('index', defaultConfig.index);
             });
             this.viewMapLayers.sort();
-        }
-    });
-    PrefsModalView.CesiumLayersController = CesiumLayersController.extend({
-        showMap: function () {
-            this.makeMap({
-                element: this.options.element.el.querySelector('#layerPickerMap'),
-                cesiumOptions: {
-                    sceneMode: Cesium.SceneMode.SCENE3D,
-                    animation: false,
-                    geocoder: false,
-                    navigationHelpButton: false,
-                    fullscreenButton: false,
-                    timeline: false,
-                    homeButton: false,
-                    sceneModePicker: false,
-                    baseLayerPicker: false
-                }
-            });
-        }
-    });
-    PrefsModalView.OpenLayersController = OpenLayersController.extend({
-        showMap: function () {
-            this.makeMap({
-                element: this.options.element.el.querySelector('#layerPickerMap'),
-                zoom: 2,
-                controls: []
-            });
         }
     });
     /*

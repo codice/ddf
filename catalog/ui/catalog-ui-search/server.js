@@ -10,9 +10,10 @@
  *
  **/
 /*global require,__dirname*/
+var compression = require('compression');
 var express = require('express');
 var httpProxy = require('http-proxy');
-var morgan = require('morgan')
+var morgan = require('morgan');
 
 var proxy = new httpProxy.createProxyServer({ changeOrigin: true, secure: false });
 
@@ -29,6 +30,7 @@ proxy.on('proxyRes', function(proxyRes, req, res) {
 });
 
 var app = express();
+app.use(compression());
 // enable the live reload
 app.use(require('connect-livereload')());
 

@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codice.httpproxy</groupId>
@@ -235,8 +235,9 @@
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
-                            org.eclipse.jetty.server;version="8.1.9.v20130131",
-                            org.eclipse.jetty.server.handler;version="8.1.9.v20130131",
+                            org.eclipse.jetty.server,
+                            org.eclipse.jetty.server.handler,
+                            org.eclipse.jetty.servlets,
                             javax.servlet.http;version="[3,4)",
                             javax.servlet;version="[3,4)",
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",
