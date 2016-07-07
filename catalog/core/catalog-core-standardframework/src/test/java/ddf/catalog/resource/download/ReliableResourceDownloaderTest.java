@@ -82,6 +82,8 @@ public class ReliableResourceDownloaderTest {
 
     private Metacard mockMetacard;
 
+    private ReliableResourceDownloadManager manager;
+
     @BeforeClass
     public static void oneTimeSetup() throws IOException {
         String workingDir = System.getProperty("user.dir");
@@ -98,6 +100,8 @@ public class ReliableResourceDownloaderTest {
         // Don't wait between attempts
         downloaderConfig.setDelayBetweenAttemptsMS(0);
         mockMetacard = getMockMetacard(DOWNLOAD_ID, "sauce");
+
+        manager = mock(ReliableResourceDownloadManager.class);
     }
 
     @Test
@@ -113,7 +117,7 @@ public class ReliableResourceDownloaderTest {
                 DOWNLOAD_ID,
                 mockResponse,
                 getMockRetriever());
-        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl(), manager);
         downloader.run();
 
         verify(mockPublisher, times(retries)).postRetrievalStatus(any(ResourceResponse.class),
@@ -143,7 +147,7 @@ public class ReliableResourceDownloaderTest {
                 "123",
                 mockResponse,
                 getMockRetriever());
-        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl(), manager);
 
         FileOutputStream mockFos = mock(FileOutputStream.class);
         doThrow(new IOException()).when(mockFos)
@@ -158,7 +162,7 @@ public class ReliableResourceDownloaderTest {
                 anyString(),
                 anyLong(),
                 eq(DOWNLOAD_ID));
-        verify(mockCache, times(1)).removePendingCacheEntry(anyString());
+        verify(manager, times(1)).removePendingCacheEntry(anyString());
         assertThat(downloaderConfig.isCacheEnabled(), is(false));
 
     }
@@ -183,7 +187,7 @@ public class ReliableResourceDownloaderTest {
                 "123",
                 mockResponse,
                 getMockRetriever());
-        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl(), manager);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         CountingOutputStream mockCountingFbos = new CountingOutputStream(baos);

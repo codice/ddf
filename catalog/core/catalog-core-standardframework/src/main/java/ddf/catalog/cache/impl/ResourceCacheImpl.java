@@ -19,11 +19,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -43,8 +42,13 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 
 public class ResourceCacheImpl implements ResourceCacheInterface {
+
+    private static final String DEPRECATE_MESSAGE =
+            "%s was part of the deprecated ResourceCacheInterface. Use instead the methods from"
+                    + "ReliableResourceDownloadManager";
 
     private static final String KARAF_HOME = "karaf.home";
 
@@ -61,8 +65,6 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
     private static final long BYTES_IN_MEGABYTES = FileUtils.ONE_MB;
 
     private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L;  //10 GB
-
-    private List<String> pendingCache = new ArrayList<>();
 
     /**
      * Directory for products cached to file system
@@ -240,17 +242,10 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
         this.xmlConfigFilename = xmlConfigFilename;
     }
 
-    /**
-     * Returns true if resource with specified cache key is already in the process of
-     * being cached. This check helps clients prevent attempting to cache the same resource
-     * multiple times.
-     *
-     * @param key
-     * @return
-     */
     @Override
     public boolean isPending(String key) {
-        return pendingCache.contains(key);
+        throw new NotImplementedException(String.format(DEPRECATE_MESSAGE,
+                "ResourceCacheImpl.isPending"));
     }
 
     /**
@@ -271,23 +266,14 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
 
     @Override
     public void removePendingCacheEntry(String cacheKey) {
-        if (!pendingCache.remove(cacheKey)) {
-            LOGGER.debug("Did not find pending cache entry with key = {}", cacheKey);
-        } else {
-            LOGGER.debug("Removed pending cache entry with key = {}", cacheKey);
-        }
+        throw new NotImplementedException(String.format(DEPRECATE_MESSAGE,
+                "ResourceCacheImpl.removePendingCacheEntry"));
     }
 
     @Override
     public void addPendingCacheEntry(ReliableResource reliableResource) {
-        String cacheKey = reliableResource.getKey();
-        if (isPending(cacheKey)) {
-            LOGGER.debug("Cache entry with key = {} is already pending", cacheKey);
-        } else if (containsValid(cacheKey, reliableResource.getMetacard())) {
-            LOGGER.debug("Cache entry with key = {} is already in cache", cacheKey);
-        } else {
-            pendingCache.add(cacheKey);
-        }
+        throw new NotImplementedException(String.format(DEPRECATE_MESSAGE,
+                "ResourceCacheImpl.addPendingCacheEntry"));
     }
 
     /**

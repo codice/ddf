@@ -106,6 +106,8 @@ public class ReliableResourceDownloader implements Runnable {
 
     private ResourceRetriever retriever;
 
+    private ReliableResourceDownloadManager manager;
+
     /**
      * Only set to true if cacheEnabled is true *AND* product being downloaded is not already
      * pending caching, e.g., another client has already started downloading and caching it.
@@ -134,8 +136,10 @@ public class ReliableResourceDownloader implements Runnable {
         this.downloadState.setContinueCaching(this.downloaderConfig.isCacheWhenCanceled());
     }
 
-    public ResourceResponse setupDownload(Metacard metacard,
-            DownloadStatusInfo downloadStatusInfo) {
+    public ResourceResponse setupDownload(Metacard metacard, DownloadStatusInfo downloadStatusInfo,
+            ReliableResourceDownloadManager downloadManager) {
+        this.manager = downloadManager;
+
         Resource resource = resourceResponse.getResource();
         MimeType mimeType = resource.getMimeType();
         String resourceName = resource.getName();
@@ -177,7 +181,7 @@ public class ReliableResourceDownloader implements Runnable {
                 return resourceResponse;
             }
 
-            if (!resourceCache.isPending(key)) {
+            if (!manager.isPending(key)) {
 
                 // Fully qualified path to cache file that will be written to.
                 // Example:
@@ -189,7 +193,7 @@ public class ReliableResourceDownloader implements Runnable {
                         mimeType,
                         resourceName,
                         metacard);
-                resourceCache.addPendingCacheEntry(reliableResource);
+                manager.addPendingCacheEntry(reliableResource);
 
                 try {
                     fos = FileUtils.openOutputStream(new File(filePath));
@@ -382,7 +386,7 @@ public class ReliableResourceDownloader implements Runnable {
                                 downloadIdentifier);
                         if (doCaching) {
                             deleteCacheFile(fos);
-                            resourceCache.removePendingCacheEntry(reliableResource.getKey());
+                            manager.removePendingCacheEntry(reliableResource.getKey());
                             // Disable caching since the cache file being written to had issues
                             downloaderConfig.setCacheEnabled(false);
                             doCaching = false;
@@ -583,7 +587,7 @@ public class ReliableResourceDownloader implements Runnable {
             if (reliableResourceStatus.getDownloadStatus()
                     != DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE) {
                 if (doCaching) {
-                    resourceCache.removePendingCacheEntry(reliableResource.getKey());
+                    manager.removePendingCacheEntry(reliableResource.getKey());
                 }
                 if (reliableResourceStatus.getDownloadStatus()
                         == DownloadStatus.RESOURCE_DOWNLOAD_CANCELED) {

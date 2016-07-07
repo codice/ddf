@@ -82,7 +82,7 @@ public class DownloadResourceActionProviderTest {
     public void canHandle() {
         assertThat(actionProvider.canHandleMetacard(metacard), is(true));
         verify(resourceCache).containsValid(anyString(), same(metacard));
-        verify(resourceCache).isPending(anyString());
+        verify(downloadManager).isPending(anyString());
         verify(downloadManager).isCacheEnabled();
     }
 
@@ -100,7 +100,7 @@ public class DownloadResourceActionProviderTest {
 
     @Test
     public void canHandleWhenResourceBeingDownloaded() {
-        when(resourceCache.isPending(anyString())).thenReturn(true);
+        when(downloadManager.isPending(anyString())).thenReturn(true);
         assertThat(actionProvider.canHandleMetacard(metacard), is(false));
     }
 

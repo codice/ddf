@@ -49,6 +49,8 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resource.download.ReliableResourceDownloadManager;
+import ddf.catalog.resource.download.ReliableResourceDownloaderConfig;
 
 public class ResourceCacheImplTest {
 
@@ -111,6 +113,12 @@ public class ResourceCacheImplTest {
 
         newResourceCache = new org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl(
                 resourceCache);
+
+        ReliableResourceDownloaderConfig config = mock(ReliableResourceDownloaderConfig.class);
+        when(config.getResourceCache()).thenReturn(resourceCache);
+        resourceCache.setManager(new ReliableResourceDownloadManager(config,
+                null,
+                null));
     }
 
     @After
