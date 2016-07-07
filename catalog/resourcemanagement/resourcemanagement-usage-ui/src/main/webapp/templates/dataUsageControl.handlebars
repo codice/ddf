@@ -24,6 +24,10 @@
             Data usage resets at <input type="time" class="input-time" value={{cronTime}}><i class="glyphicon glyphicon-question-sign" data-toggle="cron-time-popover"></i>
         </div>
 
+        <div class="update-limit">
+            Monitor data from local sources : <input type="checkbox" class="monitor-checkbox" {{#if monitorLocalSources}}checked{{/if}}><i class="glyphicon glyphicon-question-sign" data-toggle="monitor-local-sources"></i>
+        </div>
+
        <div class="button-div">
            <i class="fa fa-refresh refresh"></i>
            <button class="btn btn-primary save">Save</button>

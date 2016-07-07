@@ -81,10 +81,12 @@ define([
                 _.bindAll(this);
                this.listenTo(this.model, 'change:saving', this.render);
                this.listenTo(this.model, 'change:cronTime', this.render);
+               this.listenTo(this.model, 'change:monitorLocalSources', this.render);
             },
             onRender : function() {
                this.setupPopOver('[data-toggle="update-all-popover"]', 'Updates the Data Limit for all users in the table.  If there are individual fields set in the table, the limit for all fields takes precedence.');
-               this.setupPopOver('[data-toggle="cron-time-popover"]', 'Sets the time for the Data Usage for each user to reset.  The system must be restarted for this new time to take effect. ');
+               this.setupPopOver('[data-toggle="cron-time-popover"]', 'Sets the time for the Data Usage for each user to reset.  The system must be restarted for this new time to take effect.');
+               this.setupPopOver('[data-toggle="monitor-local-sources"]', 'When checked, the Data Usage Plugin will also consider data usage from local sources.');
             },
             updateUsers : function () {
                 var userData = this.model.get('users');
@@ -131,10 +133,15 @@ define([
                 if(updateTime !== this.model.get('cronTime')) {
                     this.model.updateCronTime(updateTime);
                 }
+                var updateMonitorLocalSources = $('.monitor-checkbox').prop('checked');
+                if(updateMonitorLocalSources !== this.model.get('monitorLocalSources')) {
+                    this.model.updateMonitorLocalSources(updateMonitorLocalSources);
+                }
             },
             refreshUsers : function() {
                 this.model.getUsageData();
                 this.model.trigger('change:users', this.model);
+                this.model.trigger('change:monitorLocalSources', this.model);
             },
             notifyAllData : function(e) {
                 var value = $(e.target).val();

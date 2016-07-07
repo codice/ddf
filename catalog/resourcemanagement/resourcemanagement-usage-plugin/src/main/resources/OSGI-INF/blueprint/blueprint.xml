@@ -11,11 +11,15 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <bean id="plugin"
           class="org.codice.ddf.resourcemanagement.usage.ResourceUsagePlugin">
         <argument ref="attributesStore"/>
+        <cm:managed-properties persistent-id="org.codice.ddf.resourcemanagement.usage"
+                               update-strategy="container-managed"/>
+        <property name="monitorLocalSources" value="false"/>
     </bean>
 
     <!-- Register in the OSGi Service Registry -->
