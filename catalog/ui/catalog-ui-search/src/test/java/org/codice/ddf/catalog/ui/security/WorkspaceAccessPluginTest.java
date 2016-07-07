@@ -45,20 +45,18 @@ import ddf.security.permission.KeyValuePermission;
 
 public class WorkspaceAccessPluginTest {
 
-    private AccessPlugin accessPlugin;
+    private Subject subject;
 
-    private Subject subject = mock(Subject.class);
+    private AccessPlugin accessPlugin;
 
     @Before
     public void setUp() {
+        subject = mock(Subject.class);
+
         accessPlugin = new WorkspaceAccessPlugin() {
             @Override
             protected Subject getSubject() {
                 return subject;
-            }
-
-            @Override
-            protected void warn(String message, Object... params) {
             }
         };
     }
@@ -80,24 +78,13 @@ public class WorkspaceAccessPluginTest {
     }
 
     @Test
-    public void testIgnoreWorkspaceWithNoRoles() throws Exception {
-        String id = "0";
-        Map<String, Metacard> updates = ImmutableMap.of(id,
-                WorkspaceMetacardImpl.from(ImmutableMap.of("id", id)));
-        UpdateRequest update = mockUpdateRequest(updates);
-
-        // should ignore any workspace metacards with roles
-        accessPlugin.processPreUpdate(update, updates);
-    }
-
-    @Test
-    public void testIgnoreWorkspaceWithNoUpdatedRoles() throws Exception {
+    public void testBasicUpdate() throws Exception {
         String id = "0";
 
-        Map<String, Serializable> attrs = ImmutableMap.of("id",
+        Map<String, Serializable> attrs = ImmutableMap.of(Metacard.ID,
                 id,
-                "roles",
-                ImmutableList.of("guest"));
+                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                "guest");
 
         Map<String, Metacard> updates = ImmutableMap.of(id, WorkspaceMetacardImpl.from(attrs));
         UpdateRequest update = mockUpdateRequest(updates);
@@ -138,7 +125,7 @@ public class WorkspaceAccessPluginTest {
                 .getKeyValuePermissionList()
                 .get(0);
 
-        assertThat(permission.getKey(), is(WorkspacePolicyExtension.EMAIL_ADDRESS_CLAIM_URI));
+        assertThat(permission.getKey(), is(Constants.EMAIL_ADDRESS_CLAIM_URI));
         // NOTE: the permission should contain the owner of the before metacard, not after
         assertThat(permission.getValues(), is(ImmutableSet.of(before.getOwner())));
     }
@@ -165,6 +152,50 @@ public class WorkspaceAccessPluginTest {
 
         doReturn(false).when(subject)
                 .isPermitted(any(Permission.class));
+
+        accessPlugin.processPreUpdate(update, ImmutableMap.of(id, before));
+    }
+
+    @Test
+    public void testSetOwnerRole() throws Exception {
+        String id = "0";
+
+        WorkspaceMetacardImpl before = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
+                id,
+                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                "user1"));
+
+        WorkspaceMetacardImpl after = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
+                id,
+                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                "user2"));
+
+        UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));
+
+        ArgumentCaptor<KeyValueCollectionPermission> args = ArgumentCaptor.forClass(
+                KeyValueCollectionPermission.class);
+
+        doReturn(true).when(subject)
+                .isPermitted(any(Permission.class));
+
+        accessPlugin.processPreUpdate(update, ImmutableMap.of(id, before));
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testFailToSetOwnerRole() throws Exception {
+        String id = "0";
+
+        WorkspaceMetacardImpl before = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
+                id,
+                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                "user1"));
+
+        WorkspaceMetacardImpl after = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
+                id,
+                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                "user2"));
+
+        UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));
 
         accessPlugin.processPreUpdate(update, ImmutableMap.of(id, before));
     }

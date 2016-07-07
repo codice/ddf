@@ -38,23 +38,20 @@ public class WorkspacePolicyExtensionTest {
 
     private static final String SYSTEM_EMAIL = "system@localhost";
 
-    private static final Permission SYSTEM =
-            makePermission(WorkspacePolicyExtension.EMAIL_ADDRESS_CLAIM_URI,
-                    ImmutableSet.of(SYSTEM_EMAIL));
+    private static final Permission SYSTEM = makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
+            ImmutableSet.of(SYSTEM_EMAIL));
 
-    private static final Permission ADMIN =
-            makePermission(WorkspacePolicyExtension.EMAIL_ADDRESS_CLAIM_URI,
-                    ImmutableSet.of("admin@localhost"));
+    private static final Permission ADMIN = makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
+            ImmutableSet.of("admin@localhost"));
 
     private static final Set<String> VALUES = ImmutableSet.of("value1", "value2", "value3");
 
     private static final Permission RANDOM = makePermission("random", VALUES);
 
-    private static final Permission ROLES = makePermission(WorkspacePolicyExtension.ROLES_CLAIM_URI,
-            VALUES);
+    private static final Permission ROLES = makePermission(Constants.ROLES_CLAIM_URI, VALUES);
 
-    private static final Permission EMAILS =
-            makePermission(WorkspacePolicyExtension.EMAIL_ADDRESS_CLAIM_URI, VALUES);
+    private static final Permission EMAILS = makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
+            VALUES);
 
     private PolicyExtension extension;
 

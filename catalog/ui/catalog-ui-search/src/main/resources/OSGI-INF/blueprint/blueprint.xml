@@ -68,8 +68,14 @@
         <bean class="org.codice.ddf.catalog.ui.security.WorkspacePreIngestPlugin"/>
     </service>
 
+    <bean id="workspaceAccessPlugin" class="org.codice.ddf.catalog.ui.security.WorkspaceAccessPlugin">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.security"
+                update-strategy="container-managed"/>
+    </bean>
+
     <service interface="ddf.catalog.plugin.AccessPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.WorkspaceAccessPlugin"/>
+        <ref component-id="workspaceAccessPlugin"/>
     </service>
 
     <service interface="ddf.catalog.plugin.PolicyPlugin">
@@ -78,14 +84,9 @@
         </bean>
     </service>
 
-    <bean id="workspacePolicyExtension"
-          class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension">
-        <cm:managed-properties persistent-id="org.codice.ddf.ui.searchui.standard.endpoints"
-                               update-strategy="container-managed"/>
-    </bean>
 
     <service interface="ddf.security.policy.extension.PolicyExtension">
-        <ref component-id="workspacePolicyExtension"/>
+        <bean class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension"/>
     </service>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
@@ -149,13 +150,14 @@
         </jaxrs:providers>
     </jaxrs:server>
 
-    <bean id="enumerationExtractor" class="org.codice.ddf.catalog.ui.metacard.enumerations.ExperimentalEnumerationExtractor">
+    <bean id="enumerationExtractor"
+          class="org.codice.ddf.catalog.ui.metacard.enumerations.ExperimentalEnumerationExtractor">
         <argument>
             <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"
                        availability="optional"/>
         </argument>
         <argument>
-            <reference-list interface="ddf.catalog.data.MetacardType" />
+            <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
     </bean>
 
@@ -165,7 +167,7 @@
         <argument ref="endpointUtil"/>
         <argument ref="validator"/>
         <argument ref="workspaceTransformer"/>
-        <argument ref="enumerationExtractor" />
+        <argument ref="enumerationExtractor"/>
         <!--todo (RCZ) - Add the enumeration extractor to here and make the endpoint-->
     </bean>
 

@@ -41,9 +41,6 @@ import spark.servlet.SparkApplication;
 
 public class UserApplication implements SparkApplication {
 
-    public static final String ROLES_CLAIM_URI =
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UserApplication.class);
 
     private final EndpointUtil util;
@@ -78,7 +75,7 @@ public class UserApplication implements SparkApplication {
     }
 
     private Set<String> getSubjectRoles(Subject subject) {
-        return new TreeSet<>(SubjectUtils.getAttribute(subject, ROLES_CLAIM_URI));
+        return new TreeSet<>(SubjectUtils.getAttribute(subject, Constants.ROLES_CLAIM_URI));
     }
 
     private Map getSubjectPreferences(Subject subject) {

@@ -31,14 +31,8 @@ import ddf.security.policy.extension.PolicyExtension;
 
 public class WorkspacePolicyExtension implements PolicyExtension {
 
-    public static final String EMAIL_ADDRESS_CLAIM_URI =
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
-
-    public static final String ROLES_CLAIM_URI =
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
-
-    public static final Set<String> CLAIMS = ImmutableSet.of(ROLES_CLAIM_URI,
-            EMAIL_ADDRESS_CLAIM_URI);
+    public static final Set<String> CLAIMS = ImmutableSet.of(Constants.ROLES_CLAIM_URI,
+            Constants.EMAIL_ADDRESS_CLAIM_URI);
 
     /**
      * Find a permission from a list of permissions by key.
@@ -60,7 +54,8 @@ public class WorkspacePolicyExtension implements PolicyExtension {
     }
 
     private boolean isSystem(List<Permission> permissions) {
-        Optional<KeyValuePermission> subjectEmail = find(permissions, EMAIL_ADDRESS_CLAIM_URI);
+        Optional<KeyValuePermission> subjectEmail = find(permissions,
+                Constants.EMAIL_ADDRESS_CLAIM_URI);
 
         if (subjectEmail.isPresent()) {
             return subjectEmail.get()
