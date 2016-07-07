@@ -140,12 +140,8 @@ public class GeoPdfParser {
             return null;
         }
 
-        StringBuilder wkt = new StringBuilder();
         if (polygons.size() == 1) {
-            wkt.append(POLYGON);
-            wkt.append(polygons.get(0));
-            wkt.append("))");
-            return wkt.toString();
+            return POLYGON + polygons.get(0) + "))";
         } else {
             return polygons.stream()
                     .map(polygon -> "((" + polygon + "))")
@@ -163,8 +159,8 @@ public class GeoPdfParser {
     private COSArray generateNeatLineFromPDFDimensions(PDPage pdPage) {
         COSArray neatLineArray = new COSArray();
 
-        String width = pdPage.getMediaBox().getWidth() + "";
-        String height = pdPage.getMediaBox().getHeight() + "";
+        String width = String.valueOf(pdPage.getMediaBox().getWidth());
+        String height = String.valueOf(pdPage.getMediaBox().getHeight());
 
         neatLineArray.add(new COSString("0"));
         neatLineArray.add(new COSString("0"));
@@ -203,7 +199,6 @@ public class GeoPdfParser {
     private String getWktFromNeatLine(COSDictionary lgidict, COSArray neatLineArray,
             ICOSVisitor toDoubleVisitor) throws IOException {
         List<Double> neatline = new LinkedList<>();
-        StringBuilder wktString = new StringBuilder();
         List<String> coordinateList = new LinkedList<>();
         String firstCoordinate = null;
 
@@ -235,7 +230,7 @@ public class GeoPdfParser {
             coordinateList.add(xySet);
         }
         coordinateList.add(firstCoordinate);
-        wktString.append(StringUtils.join(coordinateList, ", "));
+        String wktString = StringUtils.join(coordinateList, ", ");
         LOGGER.debug("{}", wktString);
         return wktString.toString();
     }
