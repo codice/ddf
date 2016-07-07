@@ -47,7 +47,7 @@ define([
                     break;
             }
             var choice = this.model.get('property').get('enum').filter(function(choice){
-                return choice.value === value || choice === value;
+                return JSON.stringify(choice.value) === JSON.stringify(value) || JSON.stringify(choice) === JSON.stringify(value);
             })[0];
             return {
                 label: choice ? choice.label || choice : value

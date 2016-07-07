@@ -20,14 +20,12 @@ define([
     'text!./query-settings.hbs',
     'js/CustomElements',
     'js/store',
-    'component/dropdown/query-sort/dropdown.query-sort.view',
     'component/dropdown/dropdown',
     'component/dropdown/query-src/dropdown.query-src.view',
     'component/property/property.view',
-    'component/property/property',
-    'component/dropdown/dropdown.view'
-], function (Marionette, _, $, template, CustomElements, store, QuerySortView, DropdownModel,
-            QuerySrcView, PropertyView, Property, DropdownView) {
+    'component/property/property'
+], function (Marionette, _, $, template, CustomElements, store, DropdownModel,
+            QuerySrcView, PropertyView, Property) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -69,16 +67,84 @@ define([
             this.settingsTitle.currentView.turnOnLimitedWidth();
         },
         setupSortDropdown: function(){
-            this._sortDropdownModel = new DropdownModel({
-                value: {
-                    sortField: this.model.get('sortField'),
-                    sortOrder: this.model.get('sortOrder')
-                }
-            });
-            this.settingsSort.show(new QuerySortView({
-                model: this._sortDropdownModel
+            var defaultValue = {
+                sortField: this.model.get('sortField')
+            };
+            if (defaultValue.sortField !== 'RELEVANCE') {
+                defaultValue.sortOrder = this.model.get('sortOrder');
+            }
+            this.settingsSort.show(new PropertyView({
+                model: new Property({
+                    enum: [
+                        {
+                            label: 'Best Text Match',
+                            value: {
+                                sortField: 'RELEVANCE'
+                            }
+                        },
+                        {
+                            label: 'Shortest Distance',
+                            value: {
+                                sortField: 'DISTANCE',
+                                sortOrder: 'asc'
+                            }
+                        },
+                        {
+                            label: 'Furthest Distance',
+                            value: {
+                                sortField: 'DISTANCE',
+                                sortOrder: 'desc'
+                            }
+                        },
+                        {
+                            label: 'Earliest Modified',
+                            value: {
+                                sortField: 'modified',
+                                sortOrder: 'asc'
+                            }
+                        },
+                        {
+                            label: 'Latest Modified',
+                            value: {
+                                sortField: 'modified',
+                                sortOrder: 'desc'
+                            }
+                        },
+                        {
+                            label: 'Earliest Created',
+                            value: {
+                                sortField: 'created',
+                                sortOrder: 'asc'
+                            }
+                        },
+                        {
+                            label: 'Latest Created',
+                            value: {
+                                sortField: 'created',
+                                sortOrder: 'desc'
+                            }
+                        },
+                        {
+                            label: 'Earliest Effective',
+                            value: {
+                                sortField: 'effective',
+                                sortOrder: 'asc'
+                            }
+                        },
+                        {
+                            label: 'Latest Effective',
+                            value: {
+                                sortField: 'effective',
+                                sortOrder: 'desc'
+                            }
+                        },
+                    ],
+                    value: [defaultValue],
+                    id: 'Sorting'
+                })
             }));
             this.settingsSort.currentView.turnOffEditing();
+            this.settingsSort.currentView.turnOnLimitedWidth();
         },
         setupFederationDropdown: function(){
             this.settingsFederation.show(new PropertyView({
@@ -145,7 +211,7 @@ define([
             this.model.set({
                 federation: federation
             });
-            this.model.set(this._sortDropdownModel.get('value'));
+            this.model.set(this.settingsSort.currentView.getCurrentValue()[0]);
             store.saveQuery();
         }
     });

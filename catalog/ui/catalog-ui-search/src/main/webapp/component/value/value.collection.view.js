@@ -50,7 +50,7 @@ define([
                         return childView.getCurrentValue();
                     });
                     currentValue.sort();
-                    return currentValue.toString() !== this.model.getInitialValue().toString();
+                    return JSON.stringify(currentValue) !== JSON.stringify(this.model.getInitialValue());
                     break;
             }
         },
