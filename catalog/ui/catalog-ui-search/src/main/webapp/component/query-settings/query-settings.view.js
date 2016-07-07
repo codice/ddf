@@ -22,13 +22,12 @@ define([
     'js/store',
     'component/dropdown/query-sort/dropdown.query-sort.view',
     'component/dropdown/dropdown',
-    'component/dropdown/query-federation/dropdown.query-federation.view',
     'component/dropdown/query-src/dropdown.query-src.view',
     'component/property/property.view',
     'component/property/property',
     'component/dropdown/dropdown.view'
 ], function (Marionette, _, $, template, CustomElements, store, QuerySortView, DropdownModel,
-            QueryFederationView, QuerySrcView, PropertyView, Property, DropdownView) {
+            QuerySrcView, PropertyView, Property, DropdownView) {
 
     return Marionette.LayoutView.extend({
         template: template,
