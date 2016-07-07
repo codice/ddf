@@ -48,7 +48,6 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
-import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 
 /**
@@ -108,73 +107,81 @@ public class FtpRequestHandler extends DefaultFtplet {
         LOGGER.debug("Beginning FTP ingest of {}", request.getArgument());
 
         Subject shiroSubject = (Subject) session.getAttribute(SUBJECT);
-        if (shiroSubject != null) {
-            FtpFile ftpFile = null;
-            String fileName = request.getArgument();
+        if (shiroSubject == null) {
+            return FtpletResult.DISCONNECT;
+        }
 
-            try {
-                ftpFile = session.getFileSystemView()
-                        .getFile(fileName);
-            } catch (FtpException e) {
-                LOGGER.error("Failed to retrieve file from FTP session");
-            }
+        FtpFile ftpFile = null;
+        String fileName = request.getArgument();
 
-            if (ftpFile == null) {
+        try {
+            ftpFile = session.getFileSystemView()
+                    .getFile(fileName);
+        } catch (FtpException e) {
+            LOGGER.error("Failed to retrieve file from FTP session");
+        }
+
+        if (ftpFile == null) {
+            LOGGER.error(
+                    "Sending FTP status code 501 to client - syntax errors in request parameters");
+            session.write(new DefaultFtpReply(FtpReply.REPLY_501_SYNTAX_ERROR_IN_PARAMETERS_OR_ARGUMENTS,
+                    STOR_REQUEST));
+
+            throw new FtpException("File to be transferred from client did not exist");
+        }
+
+        DataConnectionFactory connFactory = session.getDataConnection();
+        if (connFactory instanceof IODataConnectionFactory) {
+            InetAddress address = ((IODataConnectionFactory) connFactory).getInetAddress();
+            if (address == null) {
+                session.write(new DefaultFtpReply(FtpReply.REPLY_503_BAD_SEQUENCE_OF_COMMANDS,
+                        "PORT or PASV must be issued first"));
                 LOGGER.error(
-                        "Sending FTP status code 501 to client - syntax errors in request parameters");
-                session.write(new DefaultFtpReply(FtpReply.REPLY_501_SYNTAX_ERROR_IN_PARAMETERS_OR_ARGUMENTS,
-                        STOR_REQUEST));
-
-                throw new FtpException("File to be transferred from client did not exist");
+                        "Sending FTP status code 503 to client - PORT or PASV must be issued before STOR");
+                throw new FtpException("FTP client address was null");
             }
+        }
 
-            DataConnectionFactory connFactory = session.getDataConnection();
-            if (connFactory instanceof IODataConnectionFactory) {
-                InetAddress address = ((IODataConnectionFactory) connFactory).getInetAddress();
-                if (address == null) {
-                    session.write(new DefaultFtpReply(FtpReply.REPLY_503_BAD_SEQUENCE_OF_COMMANDS,
-                            "PORT or PASV must be issued first"));
-                    LOGGER.error(
-                            "Sending FTP status code 503 to client - PORT or PASV must be issued before STOR");
-                    throw new FtpException("FTP client address was null");
+        if (!ftpFile.isWritable()) {
+            session.write(new DefaultFtpReply(FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN,
+                    "Insufficient permissions"));
+            LOGGER.error(
+                    "Sending FTP status code 550 to client - insufficient permissions to write file.");
+            throw new FtpException("Insufficient permissions to write file");
+        }
+
+        session.write(new DefaultFtpReply(FtpReply.REPLY_150_FILE_STATUS_OKAY,
+                STOR_REQUEST + " " + fileName));
+        LOGGER.debug("Replying to client with code 150 - file status okay");
+
+        try (FileBackedOutputStream outputStream = new FileBackedOutputStream(1000000);
+                final AutoCloseable ac = outputStream::reset) {
+            DataConnection dataConnection = connFactory.openConnection();
+            dataConnection.transferFromClient(session, outputStream);
+
+            session.write(new DefaultFtpReply(FtpReply.REPLY_226_CLOSING_DATA_CONNECTION,
+                    "Closing data connection"));
+            LOGGER.debug("Sending FTP status code 226 to client - closing data connection");
+
+            String fileExtension = FilenameUtils.getExtension(ftpFile.getAbsolutePath());
+            String mimeType = getMimeType(fileExtension, outputStream);
+
+            ContentItem newItem = new ContentItemImpl(outputStream.asByteSource(),
+                    mimeType,
+                    fileName,
+                    null);
+
+            CreateStorageRequest createRequest =
+                    new CreateStorageRequestImpl(Collections.singletonList(newItem), null);
+
+            shiroSubject.execute(() -> {
+                CreateResponse createResponse = null;
+                try {
+                    createResponse = catalogFramework.create(createRequest);
+                } catch (IngestException | SourceUnavailableException e) {
+                    LOGGER.error("Failure to ingest file {}", fileName, e);
                 }
-            }
 
-            if (!ftpFile.isWritable()) {
-                session.write(new DefaultFtpReply(FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN,
-                        "Insufficient permissions"));
-                LOGGER.error(
-                        "Sending FTP status code 550 to client - insufficient permissions to write file.");
-                throw new FtpException("Insufficient permissions to write file");
-            }
-
-            session.write(new DefaultFtpReply(FtpReply.REPLY_150_FILE_STATUS_OKAY,
-                    STOR_REQUEST + " " + fileName));
-            LOGGER.debug("Replying to client with code 150 - file status okay");
-
-            try (FileBackedOutputStream outputStream = new FileBackedOutputStream(1000000);
-                    final AutoCloseable ac = outputStream::reset) {
-                DataConnection dataConnection = connFactory.openConnection();
-                dataConnection.transferFromClient(session, outputStream);
-
-                session.write(new DefaultFtpReply(FtpReply.REPLY_226_CLOSING_DATA_CONNECTION,
-                        "Closing data connection"));
-                LOGGER.debug("Sending FTP status code 226 to client - closing data connection");
-
-                String fileExtension = FilenameUtils.getExtension(ftpFile.getAbsolutePath());
-                String mimeType = getMimeType(fileExtension, outputStream);
-
-                ContentItem newItem = new ContentItemImpl(outputStream.asByteSource(),
-                        mimeType,
-                        fileName,
-                        null);
-
-                CreateStorageRequest createRequest =
-                        new CreateStorageRequestImpl(Collections.singletonList(newItem), null);
-                createRequest.getProperties()
-                        .put(SecurityConstants.SECURITY_SUBJECT, shiroSubject);
-
-                CreateResponse createResponse = catalogFramework.create(createRequest);
                 if (createResponse != null) {
                     List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
 
@@ -184,20 +191,19 @@ public class FtpRequestHandler extends DefaultFtplet {
                 } else {
                     throw new FtpException();
                 }
-            } catch (SourceUnavailableException | IngestException e) {
-                LOGGER.error("Failure to ingest file {}", fileName, e);
-                throw new FtpException("Failure to ingest file " + fileName);
-            } catch (FtpException fe) {
-                LOGGER.error("Failure to create metacard for file {}", fileName);
-                throw new FtpException("Failure to create metacard for file " + fileName);
-            } catch (Exception e) {
-                LOGGER.error("Error getting the output data stream from the FTP session");
-                throw new IOException("Error getting the output stream from FTP session");
-            } finally {
-                session.getDataConnection()
-                        .closeDataConnection();
-            }
+                return null;
+            });
+        } catch (FtpException fe) {
+            LOGGER.error("Failure to create metacard for file {}", fileName);
+            throw new FtpException("Failure to create metacard for file " + fileName);
+        } catch (Exception e) {
+            LOGGER.error("Error getting the output data stream from the FTP session");
+            throw new IOException("Error getting the output stream from FTP session");
+        } finally {
+            session.getDataConnection()
+                    .closeDataConnection();
         }
+
         return FtpletResult.SKIP;
     }
 
