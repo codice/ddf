@@ -88,7 +88,7 @@ public class ResourceDownloadEndpoint {
      * Gets the list of active product downloads, or starts an asynchronous download of a specific
      * metacard product to the product cache if called with query parameters.
      * <p/>
-     * This method supports both, starting new downloads and returning the current list of active
+     * This method supports both starting new downloads and returning the current list of active
      * downloads based on the presence of query parameters. This behavior is required because
      * some clients (e.g., {@link ddf.action.Action}) only support GET and need to be able to start
      * downloads.

@@ -1095,7 +1095,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"))
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
                         chunkedContentWithHeaders(resourceData, Duration.ofMillis(0), 0));
 
@@ -1160,7 +1161,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"))
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
                         chunkedContentWithHeaders(resourceData, Duration.ofMillis(200), 2));
 
@@ -1176,7 +1178,8 @@ public class TestFederation extends AbstractIntegrationTest {
         cswServer.verifyHttp()
                 .times(3,
                         Condition.uri("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"));
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId));
 
         // Add CometD notification and activity assertions when DDF-2272 ihas been addressed.
     }
@@ -1204,7 +1207,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"))
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
                         chunkedContentWithHeaders(resourceData, Duration.ofMillis(200), 3));
 
@@ -1287,8 +1291,8 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testDownloadFromCacheIfAvailable() throws Exception {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
-        String filename = "product4.txt";
 
+        String filename = "product4.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
 
@@ -1302,7 +1306,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"))
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
                         chunkedContentWithHeaders(resourceData, Duration.ofMillis(0), 0));
 
@@ -1321,7 +1326,8 @@ public class TestFederation extends AbstractIntegrationTest {
         cswServer.verifyHttp()
                 .times(1,
                         Condition.uri("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"));
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId));
 
         expect("Waiting for notifications. Received " + cometDClient.getMessages(
                 NOTIFICATIONS_CHANNEL)
@@ -1373,7 +1379,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"))
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
                         chunkedContentWithHeaders(resourceData, Duration.ofMillis(0), 0));
 
@@ -1398,7 +1405,8 @@ public class TestFederation extends AbstractIntegrationTest {
         cswServer.verifyHttp()
                 .times(2,
                         Condition.uri("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"));
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId));
     }
 
     @Test
@@ -1431,7 +1439,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         cswServer.whenHttp()
                 .match(Condition.get("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"))
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
                         chunkedContentWithHeaders(resourceData, Duration.ofMillis(500), 0));
 
