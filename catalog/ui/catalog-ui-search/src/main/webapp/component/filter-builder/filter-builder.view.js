@@ -23,13 +23,13 @@ define([
     './filter-builder',
     'component/filter/filter',
     'component/filter/filter.collection.view',
-    'component/dropdown/filter-operator/dropdown.filter-operator.view',
     'component/dropdown/dropdown',
     'component/filter/filter.view',
-    'js/cql'
+    'js/cql',
+    'component/dropdown/dropdown.view'
 ], function (Marionette, Backbone, _, $, template, CustomElements, FilterBuilderModel, FilterModel,
-             FilterCollectionView, FilterOperatorDropdownView, DropdownModel, FilterView,
-            cql) {
+             FilterCollectionView, DropdownModel, FilterView,
+            cql, DropdownView) {
 
     //we should probably regex this or find a better way, but for now this works
     function sanitizeGeometryCql(cqlString){
@@ -53,17 +53,30 @@ define([
             filterContents: '.contents-filters'
         },
         initialize: function(){
+            this.listenTo(this.model, 'change:operator', this.updateOperatorDropdown);
         },
         onBeforeShow: function(){
-            this._operatorDropdownModel = new DropdownModel({value: 'AND'});
-            this.filterOperator.show(new FilterOperatorDropdownView({
-                model: this._operatorDropdownModel,
-                modelForComponent: this.model
+            this.filterOperator.show(DropdownView.createSimpleDropdown({
+                list: [{
+                    label: 'AND',
+                    value: 'AND'
+                }, {
+                    label: 'OR',
+                    value: 'OR'
+                }],
+                defaultSelection: ['AND']
             }));
+            this.listenTo(this.filterOperator.currentView.model, 'change:value', this.handleOperatorUpdate);
             this.filterContents.show(new FilterCollectionView({
                 collection: new Backbone.Collection([new FilterModel()]),
                 'filter-builder': this
             }));
+        },
+        updateOperatorDropdown: function(){
+            this.filterOperator.currentView.model.set('value', [this.model.get('operator')]);
+        },
+        handleOperatorUpdate: function(){
+            this.model.set('operator', this.filterOperator.currentView.model.get('value')[0]);
         },
         delete: function(){
             this.model.destroy();
@@ -162,9 +175,6 @@ define([
             }
             this.model.set('operator', cql.type);
             this.setFilters(cql.filters);
-        },
-        onBeforeDestroy: function(){
-            this._operatorDropdownModel.destroy();
         },
         handleEditing: function(){
             var isEditing = this.$el.hasClass('is-editing');
