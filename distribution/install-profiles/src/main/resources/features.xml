@@ -36,6 +36,7 @@
         <feature>spatial-app</feature>
         <feature>resourcemanagement-app</feature>
         <feature>geowebcache-app</feature>
+        <feature>registry-app</feature>
     </feature>
 
 </features>
