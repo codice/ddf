@@ -33,17 +33,17 @@ import org.mockito.internal.util.collections.Sets;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-public class ConfigurationStoreTest {
+public class ConfigurationApplicationTest {
 
     private static final String PROXY_SERVER = "http://www.example.com/wms";
 
     private static final String BUNDLE_SYMBOLIC_NAME = "mySymbolicName";
 
-    private ConfigurationStore configurationStore;
+    private ConfigurationApplication configurationApplication;
 
     @Before
     public void setUp() {
-        configurationStore = new ConfigurationStore();
+        configurationApplication = new ConfigurationApplication();
     }
 
     @Test
@@ -58,13 +58,13 @@ public class ConfigurationStoreTest {
                 anyString(),
                 anyInt())).thenReturn(PROXY_SERVER);
 
-        configurationStore.setHttpProxy(mockHttpProxyService);
-        configurationStore.setImageryProviders(IOUtils.toString(getClass().getResourceAsStream(
+        configurationApplication.setHttpProxy(mockHttpProxyService);
+        configurationApplication.setImageryProviders(IOUtils.toString(getClass().getResourceAsStream(
                 "/imagery-providers.json")));
 
         // Verify
-        for (Map<String, Object> provider : configurationStore.getProxiedImageryProviders()) {
-            assertTrue(provider.get(ConfigurationStore.URL)
+        for (Map<String, Object> provider : configurationApplication.getProxiedImageryProviders()) {
+            assertTrue(provider.get(ConfigurationApplication.URL)
                     .toString()
                     .contains(PROXY_SERVER));
         }
@@ -82,13 +82,13 @@ public class ConfigurationStoreTest {
                 anyString(),
                 anyInt())).thenReturn(PROXY_SERVER);
 
-        configurationStore.setHttpProxy(mockHttpProxyService);
-        configurationStore.setTerrainProvider(IOUtils.toString(getClass().getResourceAsStream(
+        configurationApplication.setHttpProxy(mockHttpProxyService);
+        configurationApplication.setTerrainProvider(IOUtils.toString(getClass().getResourceAsStream(
                 "/terrain-provider.json")));
 
         // Verify
-        assertTrue(configurationStore.getProxiedTerrainProvider()
-                .get(ConfigurationStore.URL)
+        assertTrue(configurationApplication.getProxiedTerrainProvider()
+                .get(ConfigurationApplication.URL)
                 .toString()
                 .contains(PROXY_SERVER));
     }
@@ -96,7 +96,7 @@ public class ConfigurationStoreTest {
     @Test
     public void testContentTypeMappings() throws Exception {
         // Setup
-        configurationStore.setTypeNameMapping((String[]) Arrays.asList("foo=bar,foo=baz",
+        configurationApplication.setTypeNameMapping((String[]) Arrays.asList("foo=bar,foo=baz",
                 "foo=qux",
                 "alpha=beta, alpha = omega ",
                 "=,=,",
@@ -105,18 +105,18 @@ public class ConfigurationStoreTest {
                 .toArray());
 
         // Verify
-        assertThat(configurationStore.getTypeNameMapping()
+        assertThat(configurationApplication.getTypeNameMapping()
                 .size(), is(2));
-        assertThat(configurationStore.getTypeNameMapping(),
+        assertThat(configurationApplication.getTypeNameMapping(),
                 hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
-        assertThat(configurationStore.getTypeNameMapping(),
+        assertThat(configurationApplication.getTypeNameMapping(),
                 hasEntry("alpha", Sets.newSet("beta", "omega")));
     }
 
     @Test
     public void testContentTypeMappingsList() throws Exception {
         // Setup
-        configurationStore.setTypeNameMapping(Arrays.asList("foo=bar,foo=baz",
+        configurationApplication.setTypeNameMapping(Arrays.asList("foo=bar,foo=baz",
                 "foo=qux",
                 "alpha=beta, alpha = omega ",
                 "=,=,",
@@ -124,33 +124,33 @@ public class ConfigurationStoreTest {
                 "name=,=type"));
 
         // Verify
-        assertThat(configurationStore.getTypeNameMapping()
+        assertThat(configurationApplication.getTypeNameMapping()
                 .size(), is(2));
-        assertThat(configurationStore.getTypeNameMapping(),
+        assertThat(configurationApplication.getTypeNameMapping(),
                 hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
-        assertThat(configurationStore.getTypeNameMapping(),
+        assertThat(configurationApplication.getTypeNameMapping(),
                 hasEntry("alpha", Sets.newSet("beta", "omega")));
     }
 
     @Test
     public void testContentTypeMappingsListString() throws Exception {
         // Setup
-        configurationStore.setTypeNameMapping(
+        configurationApplication.setTypeNameMapping(
                 "foo=bar,foo=baz,foo=qux,alpha=beta, alpha = omega , =,=,bad,input,name=,=type");
 
         // Verify
-        assertThat(configurationStore.getTypeNameMapping()
+        assertThat(configurationApplication.getTypeNameMapping()
                 .size(), is(2));
-        assertThat(configurationStore.getTypeNameMapping(),
+        assertThat(configurationApplication.getTypeNameMapping(),
                 hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
-        assertThat(configurationStore.getTypeNameMapping(),
+        assertThat(configurationApplication.getTypeNameMapping(),
                 hasEntry("alpha", Sets.newSet("beta", "omega")));
     }
 
     @Test
     public void testsetAttributeAliases() throws Exception {
-        configurationStore.setAttributeAliases(Arrays.asList(" a = b ", " x = y "));
-        assertThat(configurationStore.getAttributeAliases(), is(Arrays.asList("a=b", "x=y")));
+        configurationApplication.setAttributeAliases(Arrays.asList(" a = b ", " x = y "));
+        assertThat(configurationApplication.getAttributeAliases(), is(Arrays.asList("a=b", "x=y")));
     }
 
 }

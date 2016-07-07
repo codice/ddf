@@ -38,11 +38,11 @@
         <argument ref="uiCamelContext"/>
     </bean>
 
-    <bean id="configurationStore"
-          class="org.codice.ddf.catalog.ui.config.ConfigurationStore"
+    <bean id="configurationApplication"
+          class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
         <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.ui.config.ConfigurationStore"
+                persistent-id="org.codice.ddf.catalog.ui.config"
                 update-strategy="container-managed"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
@@ -189,7 +189,7 @@
                 <ref component-id="queryApplication"/>
                 <ref component-id="metacardApplication"/>
                 <ref component-id="userApplication"/>
-                <ref component-id="configurationStore"/>
+                <ref component-id="configurationApplication"/>
             </list>
         </argument>
     </bean>

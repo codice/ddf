@@ -11,110 +11,146 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search" id="org.codice.ddf.catalog.ui.config.ConfigurationStore">
-        <AD
-                description="Specifies the number of results to request from each source"
-                name="Result Count" id="resultCount" required="true" type="Integer"
-                default="250">
-        </AD>
-        <AD name="Imagery Providers" id="imageryProviders"
-            required="false" type="String"
+    <OCD name="Catalog UI Search" id="org.codice.ddf.catalog.ui.config">
+        <AD id="resultCount"
+            name="Result Count"
+            description="Specifies the number of results to request from each source"
+            type="Integer"
+            default="250"
+            required="true"/>
+
+        <AD id="imageryProviders"
+            name="Imagery Providers"
             description='List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"type": "WMS", "url": "http://example.com", "layers": ["layer1", "layer2"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "alpha": 0.5}'
+            type="String"
             default='[{ "type": "OSM"\, "url": "http://otile1.mqcdn.com/tiles/1.0.0/map"\, "fileExtension": "jpg"\, "alpha": 1 }\, { "type": "OSM"\, "url": "http://otile1.mqcdn.com/tiles/1.0.0/sat"\, "fileExtension": "jpg"\, "alpha": 0.5 }]'
-                />
+            required="false"/>
 
-        <AD name="Terrain Provider" id="terrainProvider"
-            required="false" type="String"
+        <AD id="terrainProvider"
+            name="Terrain Provider"
             description='Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type": "CT", "url": "http://example.com"}'
+            type="String"
             default='{ "type": "CT"\, "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles" }'
-                />
+            required="false"/>
 
-        <AD description="Projection of imagery providers" name="Map Projection" id="projection"
-            required="false" type="String" default="EPSG:3857"/>
+        <AD id="projection"
+            name="Map Projection"
+            description="Projection of imagery providers"
+            type="String"
+            default="EPSG:3857"
+            required="false"/>
 
-        <AD description="Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers." name="Bing Maps Key" id="bingKey"
-            required="false" type="String" default="" />
+        <AD id="bingKey"
+            name="Bing Maps Key"
+            description="Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers."
+            type="String"
+            default=""
+            required="false"/>
 
-        <AD description="Specifies the client-side connection timeout in milliseconds."
-            name="Connection Timeout" id="timeout"
-            required="false" type="Integer" default="300000"/>
+        <AD id="timeout"
+            name="Connection Timeout"
+            description="Specifies the client-side connection timeout in milliseconds."
+            type="Integer"
+            default="300000"
+            required="false"/>
 
         <AD id="sourcePollInterval"
             name="Source Poll Interval"
             description="Specifies the interval to poll for sources in milliseconds."
+            type="Integer"
             default="60000"
-            required="true"
-            type="Integer"/>
+            required="true"/>
 
-        <AD description="URL to help documentation" name="Help Location" id="helpUrl"
-            required="false" type="String" default="help.html"/>
+        <AD id="helpUrl"
+            name="Help Location"
+            description="URL to help documentation"
+            type="String"
+            default="help.html"
+            required="false"/>
 
-        <AD description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected."
-            name="Show Sign In" id="signIn"
-            required="false" type="Boolean" default="true"/>
+        <AD id="signIn"
+            name="Show Sign In"
+            description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected."
+            type="Boolean"
+            default="true"
+            required="false"/>
 
-        <AD description="Show task menu area for long running actions." name="Show Tasks" id="task"
-            required="false" type="Boolean" default="false"/>
+        <AD id="task"
+            name="Show Tasks"
+            description="Show task menu area for long running actions."
+            type="Boolean"
+            default="false"
+            required="false"/>
 
-        <AD description="Show gazetteer for searching place names." name="Show Gazetteer"
-            id="gazetteer"
-            required="false" type="Boolean" default="true"/>
+        <AD id="gazetteer"
+            name="Show Gazetteer"
+            description="Show gazetteer for searching place names."
+            type="Boolean"
+            default="true"
+            required="false"/>
 
-        <AD description="Show upload menu for adding new record." name="Show Uploader" id="ingest"
-            required="false" type="Boolean" default="true"/>
+        <AD id="ingest"
+            name="Show Uploader"
+            description="Show upload menu for adding new record."
+            type="Boolean"
+            default="true"
+            required="false"/>
 
-        <AD description="Use an external authentication point, such as IdP"
-            name="Use External Authentication" id="externalAuthentication"
-            required="false" type="Boolean" default="false"
-                />
+        <AD id="externalAuthentication"
+            name="Use External Authentication"
+            description="Use an external authentication point, such as IdP"
+            type="Boolean"
+            default="false"
+            required="false"/>
 
-        <AD name="Type Name Mapping" id="typeNameMapping"
-            required="false" type="String" cardinality="10000"
+        <AD id="typeNameMapping"
+            name="Type Name Mapping"
             description="Mapping of display names to content types in the form name=type."
-                />
+            type="String"
+            cardinality="10000"
+            required="false"/>
 
         <AD id="readOnly"
             name="Read Only Metacard Attributes"
             description="List of metacard attributes that are read-only."
             type="String"
             cardinality="10000"
-            required="false" />
+            required="false"/>
 
         <AD id="summaryShow"
             name="Summary Metacard Attributes"
             description="List of metacard attributes to display in the summary view."
             type="String"
             cardinality="10000"
-            required="false" />
+            required="false"/>
 
         <AD id="resultShow"
             name="Result Preview Metacard Attributes"
             description="List of metacard attributes to display in the result preview."
             type="String"
             cardinality="10000"
-            required="false" />
+            required="false"/>
 
         <AD id="attributeAliases"
             name="Attribute Aliases"
             description="List of attribute aliases. Example 'title=Title'"
             type="String"
             cardinality="10000"
-            required="false" />
+            required="false"/>
 
         <AD id="hiddenAttributes"
             name="Hidden Attributes"
             description="List of attributes to be hidden in the UI."
             type="String"
             cardinality="10000"
-            required="false" />
+            required="false"/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.ui.config.ConfigurationStore">
-        <Object ocdref="org.codice.ddf.catalog.ui.config.ConfigurationStore"/>
+    <Designate pid="org.codice.ddf.catalog.ui.config">
+        <Object ocdref="org.codice.ddf.catalog.ui.config"/>
     </Designate>
 
 </metatype:MetaData>

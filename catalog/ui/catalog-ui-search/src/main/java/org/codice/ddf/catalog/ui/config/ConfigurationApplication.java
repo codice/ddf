@@ -42,7 +42,7 @@ import com.google.common.collect.ImmutableMap;
 
 import spark.servlet.SparkApplication;
 
-public class ConfigurationStore implements SparkApplication {
+public class ConfigurationApplication implements SparkApplication {
 
     public static final String SERVLET_PATH = "/search/catalog/proxy";
 
@@ -56,7 +56,7 @@ public class ConfigurationStore implements SparkApplication {
         }
     };
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationApplication.class);
 
     private String format;
 
@@ -165,7 +165,7 @@ public class ConfigurationStore implements SparkApplication {
         return sourcePollInterval;
     }
 
-    public ConfigurationStore() {
+    public ConfigurationApplication() {
     }
 
     public void destroy() {
