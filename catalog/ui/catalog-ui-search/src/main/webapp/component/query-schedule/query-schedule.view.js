@@ -38,7 +38,7 @@ define([
             'click .editor-save': 'save'
         },
         regions: {
-            propertyInterval: '.property-interval .property-region'
+            propertyInterval: '.property-interval'
         },
         ui: {
         },
@@ -53,9 +53,9 @@ define([
         setupInterval: function(){
             var halfHour = 30 * 60 * 1000;
             var hour = 2 * halfHour;
-            this.propertyInterval.show(DropdownView.createSimpleDropdown(
-                {
-                    list: [
+            this.propertyInterval.show(new PropertyView({
+                model: new Property({
+                    enum: [
                         {
                             label: 'Never',
                             value: false
@@ -89,9 +89,12 @@ define([
                             value: 24 * hour
                         }
                     ],
-                    defaultSelection: [this.model.get('polling') || false]
-                }
-            ));
+                    value: [this.model.get('polling') || false],
+                    id: 'Frequency'
+                })
+            }));
+            this.propertyInterval.currentView.turnOffEditing();
+            this.propertyInterval.currentView.turnOnLimitedWidth();
         },
         turnOnEditing: function(){
             this.$el.addClass('is-editing');
@@ -119,7 +122,7 @@ define([
         save: function(){
             this.$el.removeClass('is-editing');
             this.model.set({
-                polling: this.propertyInterval.currentView.model.get('value')[0]
+                polling: this.propertyInterval.currentView.getCurrentValue()[0]
             });
             store.saveQuery();
         }

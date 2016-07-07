@@ -52,7 +52,7 @@ define([
             this.setupFederationDropdown();
             this.setupSrcDropdown();
             this.setupTitleInput();
-            this.listenTo(this.settingsFederation.currentView.model, 'change:value', this.handleFederationValue);
+            this.settingsFederation.currentView.$el.on('change', this.handleFederationValue.bind(this));
             this.handleFederationValue();
             if (this.model._cloneOf === undefined){
                 this.edit();
@@ -81,9 +81,9 @@ define([
             this.settingsSort.currentView.turnOffEditing();
         },
         setupFederationDropdown: function(){
-            this.settingsFederation.show(DropdownView.createSimpleDropdown(
-                {
-                    list: [
+            this.settingsFederation.show(new PropertyView({
+                model: new Property({
+                    enum: [
                         {
                             label: 'All Sources',
                             value: 'enterprise'
@@ -97,10 +97,12 @@ define([
                             value: 'local'
                         }
                     ],
-                    defaultSelection: [this.model.get('federation')]
-                }
-            ));
+                    value: [this.model.get('federation')],
+                    id: 'Federation'
+                })
+            }));
             this.settingsFederation.currentView.turnOffEditing();
+            this.settingsFederation.currentView.turnOnLimitedWidth();
         },
         setupSrcDropdown: function(){
             var sources = this.model.get('src');
@@ -113,7 +115,7 @@ define([
             this.settingsSrc.currentView.turnOffEditing();
         },
         handleFederationValue: function(){
-            var federation = this.settingsFederation.currentView.model.get('value')[0];
+            var federation = this.settingsFederation.currentView.getCurrentValue()[0];
             this.$el.toggleClass('is-specific-sources', federation === 'selected');
         },
         edit: function(){
@@ -133,7 +135,7 @@ define([
         },
         save: function(){
             this.$el.removeClass('is-editing');
-            var federation = this.settingsFederation.currentView.model.get('value')[0];
+            var federation = this.settingsFederation.currentView.getCurrentValue()[0];
             this.model.set({
                 title: this.settingsTitle.currentView.getCurrentValue()
             });

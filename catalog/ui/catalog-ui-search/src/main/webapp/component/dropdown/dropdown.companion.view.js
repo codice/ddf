@@ -51,6 +51,12 @@ define([
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
             this.listenForClose();
         },
+        updateWidth: function(){
+           // if (this.options.linkedView.matchWidth){
+                var clientRect = this.options.linkedView.getCenteringElement().getBoundingClientRect();
+                this.$el.css('min-width', clientRect.width);
+           // }
+        },
         updatePosition: function () {
             if (this.options.linkedView.isCentered){
                 var clientRect = this.options.linkedView.getCenteringElement().getBoundingClientRect();
@@ -96,6 +102,7 @@ define([
                 })));
                 $('body').append(this.el);
             }
+            this.updateWidth();
             this.updatePosition();
             this.$el.addClass('is-open');
             this.listenForOutsideClick();

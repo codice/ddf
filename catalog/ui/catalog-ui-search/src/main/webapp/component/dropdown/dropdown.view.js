@@ -90,7 +90,7 @@ define([
         },
         isCentered: true,
         getCenteringElement: function(){
-            return this.el.querySelector('.dropdown-text');
+            return this.el;
         },
         serializeData: function(){
             if (this.options.list){

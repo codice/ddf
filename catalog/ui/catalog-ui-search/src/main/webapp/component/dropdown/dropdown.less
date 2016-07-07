@@ -1,7 +1,6 @@
 @{customElementNamespace}dropdown.is-simpleDropdown {
   cursor: not-allowed;
   display: block;
-  padding-left: 10px;
 
   .dropdown-text {
     display: inline-block;
@@ -32,7 +31,7 @@
   }
 
   .is-invalid {
-    color: lighten(@warning-color, 20%);
+    color: lighten(@warning-color, 10%);
   }
 
   .is-invalid::after {
@@ -42,8 +41,28 @@
 
 @{customElementNamespace}dropdown.is-simpleDropdown.is-editing {
   cursor: pointer;
+  
+  .dropdown-text,
+  .dropdown-icon {
+    vertical-align: top;
+  }
+
+  .dropdown-text {
+    background: white;
+    color: black;
+    padding: 0px 10px;
+    width: ~'calc(100% - @{minimumButtonSize})';
+    height: @minimumButtonSize;
+  }
 
   .dropdown-icon {
     display: inline-block;
+    background: @primary-color;
+    width: @minimumButtonSize;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    text-align: center;
+    font-size: 3rem;
+    margin-left: -4px;
   }
 }

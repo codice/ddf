@@ -79,6 +79,7 @@ define([
         },
         revert: function(){
             this.onBeforeShow();
+            this.$el.trigger('change');
         },
         save: function(){
             var value = this.$el.find('input').val();

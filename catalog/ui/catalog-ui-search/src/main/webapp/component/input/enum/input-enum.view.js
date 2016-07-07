@@ -38,16 +38,19 @@ define([
             enumRegion: '.enum-region'
         },
         serializeData: function () {
-            var label = this.model.get('value');
+            var value = this.model.get('value');
             switch(this.model.getCalculatedType()){
                 case 'date':
-                    label = getHumanReadableDate(label);
+                    value = getHumanReadableDate(value);
                     break;
                 default:
                     break;
             }
+            var choice = this.model.get('property').get('enum').filter(function(choice){
+                return choice.value === value || choice === value;
+            })[0];
             return {
-                label: label
+                label: choice ? choice.label || choice : value
             };
         },
         onRender: function () {
@@ -58,10 +61,17 @@ define([
             this.enumRegion.show(DropdownView.createSimpleDropdown(
                 {
                     list: this.model.get('property').get('enum').map(function(value){
-                        return {
-                            label: value,
-                            value: value
-                        };
+                        if (value.label) {
+                            return {
+                                label: value.label,
+                                value: value.value
+                            }
+                        } else {
+                            return {
+                                label: value,
+                                value: value
+                            };
+                        }
                     }),
                     defaultSelection: [this.model.get('value')]
                 }
