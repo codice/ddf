@@ -33,7 +33,10 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
-      http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+      http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+    <ext:property-placeholder />
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
@@ -54,7 +57,7 @@
             <property name="objectClass" value="groupOfNames"/>
             <property name="memberNameAttribute" value="member"/>
             <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
-            <property name="propertyFileLocation" value="etc/ws-security/attributeMap.properties"/>
+            <property name="propertyFileLocation" value="${ddf.home}/etc/ws-security/attributeMap.properties"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed" update-method="update"/>
         </cm:managed-component>

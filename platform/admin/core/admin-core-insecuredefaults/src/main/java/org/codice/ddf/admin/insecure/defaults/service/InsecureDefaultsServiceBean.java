@@ -26,6 +26,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,8 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InsecureDefaultsServiceBean.class);
 
-    private static final String BLACK_LIST = "etc/keystores/blacklisted.jks";
+    private static final String BLACK_LIST =
+            new AbsolutePathResolver("etc/keystores/blacklisted.jks").getPath();
 
     private static final String BLACK_LIST_PASSWORD = "changeit";
 
@@ -45,19 +47,20 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private static final String DEFAULT_TRUSTSTORE_PASSWORD = "changeit";
 
-    private static final String ISSUER_ENCRYPTION_PROPERTIES_FILE =
-            "etc/ws-security/issuer/encryption.properties";
+    private static final String ISSUER_ENCRYPTION_PROPERTIES_FILE = new AbsolutePathResolver(
+            "etc/ws-security/issuer/encryption.properties").getPath();
 
-    private static final String ISSUER_SIGNATURE_PROPERTIES_FILE =
-            "etc/ws-security/issuer/signature.properties";
+    private static final String ISSUER_SIGNATURE_PROPERTIES_FILE = new AbsolutePathResolver(
+            "etc/ws-security/issuer/signature.properties").getPath();
 
-    private static final String SERVER_ENCRYPTION_PROPERTIES_FILE =
-            "etc/ws-security/server/encryption.properties";
+    private static final String SERVER_ENCRYPTION_PROPERTIES_FILE = new AbsolutePathResolver(
+            "etc/ws-security/server/encryption.properties").getPath();
 
-    private static final String SERVER_SIGNATURE_PROPERTIES_FILE =
-            "etc/ws-security/server/signature.properties";
+    private static final String SERVER_SIGNATURE_PROPERTIES_FILE = new AbsolutePathResolver(
+            "etc/ws-security/server/signature.properties").getPath();
 
-    private static final String USERS_PROPERTIES_FILE = "etc/users.properties";
+    private static final String USERS_PROPERTIES_FILE =
+            new AbsolutePathResolver("etc/users.properties").getPath();
 
     private static final String DEFAULT_ADMIN_USER = "admin";
 
@@ -67,7 +70,8 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private static final String DEFAULT_CERTIFICATE_USER_PASSWORD = "localhost";
 
-    private static final String PAX_WEB_CFG_FILE = "etc/org.ops4j.pax.web.cfg";
+    private static final String PAX_WEB_CFG_FILE =
+            new AbsolutePathResolver("etc/org.ops4j.pax.web.cfg").getPath();
 
     private static final String KEYSTORE_SYSTEM_PROPERTY = "javax.net.ssl.keyStore";
 
@@ -264,8 +268,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
     }
 
     private String getKeystorePath() {
-        String keystorePath = System.getProperty(KEYSTORE_SYSTEM_PROPERTY);
-        return keystorePath;
+        return new AbsolutePathResolver(System.getProperty(KEYSTORE_SYSTEM_PROPERTY)).getPath();
     }
 
     private String getKeystorePassword() {
@@ -274,8 +277,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
     }
 
     private String getTruststorePath() {
-        String truststorePath = System.getProperty(TRUSTSTORE_SYSTEM_PROPERTY);
-        return truststorePath;
+        return new AbsolutePathResolver(TRUSTSTORE_SYSTEM_PROPERTY).getPath();
     }
 
     private String getTruststorePassword() {

@@ -36,6 +36,7 @@ import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.impl.ApplicationFileInstaller;
 import org.codice.ddf.admin.application.service.impl.ZipFileApplicationDetails;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,8 @@ public class ApplicationUploadEndpoint {
 
     private static final String DEFAULT_FILE_NAME = "file.jar";
 
-    private static String defaultFileLocation = "data/installer/uploads/";
+    private static String defaultFileLocation =
+            new AbsolutePathResolver("data/installer/uploads/").getPath();
 
     private static final String JAR_EXT = "jar";
 
@@ -233,10 +235,9 @@ public class ApplicationUploadEndpoint {
     /**
      * Setter method for DEFAULT_FILE_LOCATION for testing purposes
      *
-     * @param fileLocation
-     *            the desired fileLocation
+     * @param fileLocation the desired fileLocation
      */
     void setDefaultFileLocation(String fileLocation) {
-        defaultFileLocation = fileLocation;
+        defaultFileLocation = new AbsolutePathResolver(fileLocation).getPath();
     }
 }

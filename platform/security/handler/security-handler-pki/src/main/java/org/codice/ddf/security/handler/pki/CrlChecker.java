@@ -23,6 +23,7 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.apache.wss4j.common.crypto.Merlin;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +36,8 @@ public class CrlChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPKIHandler.class);
 
-    private static String encryptionPropertiesLocation =
-            "etc/ws-security/server/encryption.properties";
+    private static String encryptionPropertiesLocation = new AbsolutePathResolver(
+            "etc/ws-security/server/encryption.properties").getPath();
 
     private CRL crl = null;
 

@@ -25,6 +25,7 @@ import java.util.Enumeration;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -39,9 +40,11 @@ public class ConfigurationFileProxy {
 
     public static final String DEFAULT_SOLR_CONFIG_PARENT_DIR = "etc";
 
-    public static final String SOLR_CONFIG_LOCATION_IN_BUNDLE = "solr/conf";
+    public static final String SOLR_CONFIG_LOCATION_IN_BUNDLE =
+            new AbsolutePathResolver("solr/conf").getPath();
 
-    public static final String DEFAULT_SOLR_DATA_PARENT_DIR = "data/solr";
+    public static final String DEFAULT_SOLR_DATA_PARENT_DIR =
+            new AbsolutePathResolver("data/solr").getPath();
 
     public static final String CATALOG_SOLR_COLLECTION_NAME = "metacard";
 

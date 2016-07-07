@@ -32,6 +32,7 @@ import javax.management.ReflectionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
 import org.rrd4j.core.RrdDb;
@@ -47,7 +48,7 @@ import ddf.metrics.collector.MetricsUtil;
 
 public class RrdJmxCollector implements JmxCollector {
 
-    public static final String DEFAULT_METRICS_DIR = "data/metrics/";
+    public static final String DEFAULT_METRICS_DIR = new AbsolutePathResolver("data/metrics/").getPath();
 
     public static final String RRD_FILENAME_SUFFIX = ".rrd";
 
