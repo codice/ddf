@@ -49,7 +49,7 @@ define(function (require) {
                 async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
                 cache: false,
                 dataType: 'json',
-                url: "/services/search/catalog/config"
+                url: "/search/catalog/internal/config"
             }).success(function(data) {
                     props = _.extend(props, data);
 

@@ -133,8 +133,6 @@
 
     <jaxrs:server id="workspaceService" address="/search/catalog">
         <jaxrs:serviceBeans>
-            <!-- config store -->
-            <ref component-id="configurationStore"/>
             <bean class="org.codice.ddf.catalog.ui.searchui.standard.endpoints.MetacardEditEndpoint">
                 <argument ref="catalogFramework"/>
                 <argument>
@@ -191,6 +189,7 @@
                 <ref component-id="queryApplication"/>
                 <ref component-id="metacardApplication"/>
                 <ref component-id="userApplication"/>
+                <ref component-id="configurationStore"/>
             </list>
         </argument>
     </bean>

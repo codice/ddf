@@ -13,6 +13,11 @@
  */
 package org.codice.ddf.catalog.ui.config;
 
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static org.boon.HTTP.APPLICATION_JSON;
+import static spark.Spark.exception;
+import static spark.Spark.get;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,14 +28,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
@@ -43,13 +40,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
-/**
- * Stores external configuration properties.
- *
- * @author ddf.isgs@lmco.com
- */
-@Path("/")
-public class ConfigurationStore {
+import spark.servlet.SparkApplication;
+
+public class ConfigurationStore implements SparkApplication {
 
     public static final String SERVLET_PATH = "/search/catalog/proxy";
 
@@ -173,7 +166,6 @@ public class ConfigurationStore {
     }
 
     public ConfigurationStore() {
-
     }
 
     public void destroy() {
@@ -195,11 +187,22 @@ public class ConfigurationStore {
         }
     }
 
-    @GET
-    @Path("/config")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Object> getDocument(@Context UriInfo uriInfo,
-            @Context HttpServletRequest httpRequest) {
+    private List<Map> getConfigImageryProviders() {
+        if (proxiedImageryProviders.isEmpty()) {
+            // @formatter:off
+            return Collections.singletonList(ImmutableMap.of(
+                    "type", "SI",
+                    "url", "/search/catalog/images/natural_earth_50m.png",
+                    "parameters", ImmutableMap.of(
+                            "imageSize", Arrays.asList(10800, 5400)),
+                    "alpha", 1));
+            // @formatter:on
+        } else {
+            return proxiedImageryProviders;
+        }
+    }
+
+    public Map<String, Object> getConfig() {
         Map<String, Object> config = new HashMap<>();
 
         config.put("branding", getProductName());
@@ -211,19 +214,7 @@ public class ConfigurationStore {
         config.put("resultCount", resultCount);
         config.put("typeNameMapping", typeNameMapping);
         config.put("terrainProvider", proxiedTerrainProvider);
-
-        if (proxiedImageryProviders.isEmpty()) {
-            config.put("imageryProviders",
-                    Arrays.asList(ImmutableMap.of(
-                            "type", "SI",
-                            "url", "/search/catalog/images/natural_earth_50m.png",
-                            "parameters", ImmutableMap.of(
-                                    "imageSize", Arrays.asList(10800, 5400)),
-                                    "alpha", 1)));
-        } else {
-            config.put("imageryProviders", proxiedImageryProviders);
-        }
-
+        config.put("imageryProviders", getConfigImageryProviders());
         config.put("gazetteer", isGazetteer);
         config.put("showIngest", isIngest);
         config.put("projection", projection);
@@ -238,6 +229,19 @@ public class ConfigurationStore {
         config.put("sourcePollInterval", sourcePollInterval);
 
         return config;
+    }
+
+    @Override
+    public void init() {
+        get("/config", (req, res) -> this.getConfig(), JsonFactory.create()::toJson);
+
+        exception(Exception.class, (ex, req, res) -> {
+            res.status(500);
+            res.header(CONTENT_TYPE, APPLICATION_JSON);
+            LOGGER.warn("Failed to serve request.", ex);
+            res.body(JsonFactory.create()
+                    .toJson(ImmutableMap.of("message", ex.getMessage())));
+        });
     }
 
     public String getProductName() {
