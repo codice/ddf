@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.catalog.ui.metacard.enumerations;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -12,15 +25,11 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.violation.ValidationViolation;
 import spark.Experimental;
@@ -60,9 +69,11 @@ public class ExperimentalEnumerationExtractor {
                         .distinct()
                         .collect(Collectors.toMap(o -> o, o -> avr.getSuggestedValues())))
                 .reduce((m1, m2) -> {
-                    m2.entrySet().forEach(e -> m1.merge(e.getKey(), e.getValue(), Sets::union));
+                    m2.entrySet()
+                            .forEach(e -> m1.merge(e.getKey(), e.getValue(), Sets::union));
                     return m1;
-                }).orElseGet(HashMap::new);
+                })
+                .orElseGet(HashMap::new);
 
     }
 

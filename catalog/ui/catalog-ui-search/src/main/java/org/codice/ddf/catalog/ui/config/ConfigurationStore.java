@@ -138,7 +138,9 @@ public class ConfigurationStore {
         this.summaryShow = summaryShow;
     }
 
-    public void setResultShow(List<String> resultShow) { this.resultShow = resultShow; }
+    public void setResultShow(List<String> resultShow) {
+        this.resultShow = resultShow;
+    }
 
     public void setAttributeAliases(List<String> attributeAliases) {
         this.attributeAliases = attributeAliases.stream()
