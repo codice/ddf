@@ -19,9 +19,10 @@ define([
         'js/ColorGenerator',
         'js/QueryPolling',
         'component/singletons/user-instance',
+        'moment',
         'backboneassociations'
     ],
-    function (wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, user) {
+    function (wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, user, moment) {
 
         var Workspace = {};
 
@@ -125,6 +126,54 @@ define([
             },
             createWorkspace: function(title){
                 this.create({title: title || 'New Workspace'});
+            },
+            createLocalWorkspace: function(){
+                var queryForWorkspace = new Query.Model({
+                    title: 'Example Local',
+                    federation: 'local'
+                });
+                this.create({
+                    title: 'Template Local',
+                    queries: [
+                        queryForWorkspace.toJSON()
+                    ]
+                }).get('queries').first().startSearch();
+            },
+            createAllWorkspace: function(){
+                var queryForWorkspace = new Query.Model({
+                    title: 'Example Federated',
+                    federation: 'enterprise'
+                });
+                this.create({
+                    title: 'Template Federated',
+                    queries: [
+                        queryForWorkspace.toJSON()
+                    ]
+                }).get('queries').first().startSearch();
+            },
+            createGeoWorkspace: function(){
+                var queryForWorkspace = new Query.Model({
+                    title: 'Example Location',
+                    cql: 'INTERSECTS(anyGeo, POLYGON((-130.7514 20.6825, -130.7514 44.5780, -65.1230 44.5780, -65.1230 20.6825, -130.7514 20.6825)))'
+                });
+                this.create({
+                    title: 'Template Location',
+                    queries: [
+                        queryForWorkspace.toJSON()
+                    ]
+                }).get('queries').first().startSearch();
+            },
+            createLatestWorkspace: function(){
+                var queryForWorkspace = new Query.Model({
+                    title: 'Example Temporal',
+                    cql: '("created" AFTER ' + moment().subtract(1, 'days').toISOString() + ')'
+                });
+                this.create({
+                    title: 'Template Temporal',
+                    queries: [
+                        queryForWorkspace.toJSON()
+                    ]
+                }).get('queries').first().startSearch();
             },
             duplicateWorkspace: function(workspace){
                 var workspaceToDuplicate = workspace.toJSON();

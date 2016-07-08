@@ -48,7 +48,7 @@ define([
         },
         onRender: function(){
         },
-        createNewWorkspace: function(){
+        createNewWorkspace: function(e){
             var loadingview = new LoadingView();
             store.get('workspaces').once('sync', function(workspace, resp, options){
                 loadingview.remove();
@@ -59,8 +59,27 @@ define([
                     }
                 });
             });
-            store.get('workspaces').createWorkspace();
             this.close();
+            switch($(e.currentTarget).attr('data-template')) {
+                case 'blank':
+                    store.get('workspaces').createWorkspace();
+                    break;
+                case 'local':
+                    store.get('workspaces').createLocalWorkspace();
+                    break;
+                case 'all':
+                    store.get('workspaces').createAllWorkspace();
+                    break;
+                case 'geo':
+                    store.get('workspaces').createGeoWorkspace();
+                    break;
+                case 'latest':
+                    store.get('workspaces').createLatestWorkspace();
+                    break;
+                default:
+                    store.get('workspaces').createWorkspace();
+                    break;
+            }
         },
         expand: function(){
             this.$el.addClass('is-expanded');
