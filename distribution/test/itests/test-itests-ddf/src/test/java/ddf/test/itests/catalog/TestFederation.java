@@ -100,6 +100,8 @@ import com.jayway.restassured.path.xml.XmlPath;
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
+import com.xebialabs.restito.semantics.Function;
+import com.xebialabs.restito.semantics.Predicate;
 import com.xebialabs.restito.server.StubServer;
 import com.xebialabs.restito.server.secure.SecureStubServer;
 
@@ -1185,6 +1187,51 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     /**
+     * Tests that if the endpoint disconnects twice, the retrieval retries both times
+     * This test will respond with the correct Partial Content when a range header is sent in the request
+     * @throws Exception
+     */
+    // this test is ignored until the csw range-header bug is resolved with ticket DDF-2300
+    @Test
+    public void testRetrievalWithByteOffset() throws Exception {
+
+        cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
+        String filename = "product2.txt";
+        String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
+        HeaderCapture headerCapture = new HeaderCapture();
+
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.custom(headerCapture))
+                .then(getCswRetrievalHeaders(filename),
+                        getRangeSupportHeader(),
+                        chunkedContentWithHeaders(resourceData,
+                                Duration.ofMillis(200),
+                                2,
+                                headerCapture.getHeaders));
+
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
+                + "?transform=resource" + "&session=" + cometDClient.getClientId();
+
+        // Verify that the testData from the csw stub server is returned.
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(resourceData));
+        // @formatter:on
+
+        cswServer.verifyHttp()
+                .times(3,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId));
+
+        // Add CometD notification and activity assertions when DDF-2272 ihas been addressed.
+
+    }
+
+    /**
      * Tests that if the endpoint disconnects 3 times, the retrieval fails after 3 attempts
      *
      * @throws Exception
@@ -1671,6 +1718,10 @@ public class TestFederation extends AbstractIntegrationTest {
                 header("Content-Disposition", "filename=" + filename));
     }
 
+    private Action getRangeSupportHeader() {
+        return header("Accept-Ranges", "bytes");
+    }
+
     private String getResourceData(String metacardId) {
         return String.format("Data for metacard ID %s", metacardId);
     }
@@ -1691,5 +1742,23 @@ public class TestFederation extends AbstractIntegrationTest {
     @Override
     protected Option[] configureCustom() {
         return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
+    }
+
+    /**
+     * Class used to capture record the headers from the incoming request to the StubServer.
+     * Restito does not pass the incoming request from inside of the response function, so this
+     * class is needed to extract any headers needed for the response.
+     */
+    private static class HeaderCapture implements Predicate<Call> {
+
+        private Map<String, String> headers;
+
+        public Function<Void, Map<String, String>> getHeaders = (Void) -> headers;
+
+        @Override
+        public boolean apply(Call call) {
+            headers = call.getHeaders();
+            return true;
+        }
     }
 }
