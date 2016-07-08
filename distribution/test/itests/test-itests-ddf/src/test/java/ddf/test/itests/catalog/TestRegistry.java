@@ -286,8 +286,8 @@ public class TestRegistry extends AbstractIntegrationTest {
 
         final String xPathServices = "//html/body/h4";
 
-        response.body(hasXPath(xPathServices, CoreMatchers.is("Csw_Federated_Source")),
-                hasXPath(xPathServices + "[2]", CoreMatchers.is("soap13")));
+        response.body(hasXPath(xPathServices, CoreMatchers.is("CSW Federation Method")),
+                hasXPath(xPathServices + "[2]", CoreMatchers.is("Soap Federation Method")));
     }
 
     private String createRegistryEntry(String id) throws Exception {
