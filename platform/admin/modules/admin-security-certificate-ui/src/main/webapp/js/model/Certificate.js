@@ -23,6 +23,18 @@ define([
         var Certificate = {};
 
         Certificate.Model = Jolokia.extend({
+            relations: [
+                {
+                    type: Backbone.One,
+                    key: 'issuerDn',
+                    relatedModel: Backbone.AssociatedModel
+                },
+                {
+                    type: Backbone.One,
+                    key: 'subjectDn',
+                    relatedModel: Backbone.AssociatedModel
+                }
+            ],
             idAttribute: 'alias',
             defaults: {
                 isKey: false
