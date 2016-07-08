@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -75,6 +76,8 @@ public class PdfInputTransformer implements InputTransformer {
     private static final float IMAGE_HEIGHTWIDTH = 128;
 
     private static final String FORMAT_NAME = "jpg";
+
+    private static final GeoPdfParser GEO_PDF_PARSER = new GeoPdfParser();
 
     private static final FastDateFormat DATE_FORMAT = FastDateFormat.getInstance(
             "yyyy-MM-dd'T'HH:mm:ssZZ");
@@ -214,6 +217,9 @@ public class PdfInputTransformer implements InputTransformer {
         extractPdfMetadata(pdfDocument, metacard);
 
         metacard.setThumbnail(generatePdfThumbnail(pdfDocument));
+
+        Optional.ofNullable(GEO_PDF_PARSER.getWktFromPDF(pdfDocument)).ifPresent(metacard::setLocation);
+
         return metacard;
     }
 
