@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -51,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import ddf.catalog.cache.SolrCacheMBean;
+import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.Result;
@@ -330,6 +332,10 @@ public class SolrCache implements SolrCacheMBean {
 
         SourceResponse response = client.query(queryRequest);
         return getMetacardsFromResponse(response);
+    }
+
+    Set<ContentType> getContentTypes() {
+        return client.getContentTypes();
     }
 
     private List<Metacard> getMetacardsFromResponse(SourceResponse sourceResponse) {
