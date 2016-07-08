@@ -149,7 +149,7 @@ public class DownloadResourceActionProviderTest {
     private URL getUrl(String metacardId)
             throws MalformedURLException, UnsupportedEncodingException {
         String encodedMetacardId = URLEncoder.encode(metacardId, CharEncoding.UTF_8);
-        String urlString = String.format("%s/%s/%s",
+        String urlString = String.format("%s?source=%s&metacard=%s",
                 CONTEXT_PATH,
                 REMOTE_SOURCE_ID,
                 encodedMetacardId);

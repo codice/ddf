@@ -29,6 +29,7 @@ import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
+import ddf.catalog.resource.download.ResourceDownloadEndpoint;
 
 /**
  * Action provider that creates {@link Action}s used to asynchronously download resources to
@@ -81,9 +82,11 @@ public class DownloadResourceActionProvider extends AbstractMetacardActionProvid
     }
 
     private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
-        return new URI(SystemBaseUrl.constructUrl(String.format("%s/%s/%s",
+        return new URI(SystemBaseUrl.constructUrl(String.format("%s?%s=%s&%s=%s",
                 CONTEXT_PATH,
+                ResourceDownloadEndpoint.SOURCE_PARAM,
                 metacardSource,
+                ResourceDownloadEndpoint.METACARD_PARAM,
                 metacardId), true)).toURL();
     }
 }

@@ -140,7 +140,7 @@ public class ChunkedContent {
                         response.getOutputBuffer()
                                 .recycle();
                         numberOfRetries++;
-                        break;
+                        return response;
                     }
                 } catch (IOException | InterruptedException e) {
                     LOGGER.error("Error", e);

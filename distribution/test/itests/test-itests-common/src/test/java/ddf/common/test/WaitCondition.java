@@ -53,6 +53,8 @@ public class WaitCondition {
 
     private long pollingIntervalMs;
 
+    private Object latestRetrieverResult;
+
     private WaitCondition(String description) {
         this.description = description;
         this.timeoutMs = DEFAULT_TIMEOUT;
@@ -105,11 +107,14 @@ public class WaitCondition {
      * @param matchCondition        matcher used to determine whether the condition has been
      *                              met or not
      */
-    public <T> void until(Callable<T> currentValueRetriever, Matcher<T> matchCondition) {
+    public <T> WaitCondition until(Callable<T> currentValueRetriever, Matcher<T> matchCondition) {
         long timeoutLimit = System.currentTimeMillis() + timeoutMs;
 
         try {
-            while (!matchCondition.matches(currentValueRetriever.call())) {
+            latestRetrieverResult = currentValueRetriever.call();
+            boolean done = matchCondition.matches(latestRetrieverResult);
+
+            while (!done) {
                 Thread.sleep(pollingIntervalMs);
 
                 if (System.currentTimeMillis() > timeoutLimit) {
@@ -117,6 +122,9 @@ public class WaitCondition {
                             description,
                             TimeUnit.MILLISECONDS.toSeconds(timeoutMs)));
                 }
+
+                latestRetrieverResult = currentValueRetriever.call();
+                done = matchCondition.matches(latestRetrieverResult);
             }
         } catch (Exception e) {
             String message = String.format(
@@ -126,6 +134,8 @@ public class WaitCondition {
             LOGGER.error(message);
             fail(message);
         }
+
+        return this;
     }
 
     /**
@@ -135,7 +145,11 @@ public class WaitCondition {
      *
      * @param condition object that indicates whether the wait condition has been met or not
      */
-    public void until(Callable<Boolean> condition) {
-        until(condition, is(true));
+    public WaitCondition until(Callable<Boolean> condition) {
+        return until(condition, is(true));
+    }
+
+    public <R> R lastResult() {
+        return (R) latestRetrieverResult;
     }
 }

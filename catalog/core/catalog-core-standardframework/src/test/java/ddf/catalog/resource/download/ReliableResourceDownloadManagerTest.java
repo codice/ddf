@@ -32,7 +32,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -73,6 +75,7 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
 public class ReliableResourceDownloadManagerTest {
@@ -95,6 +98,18 @@ public class ReliableResourceDownloadManagerTest {
     private static long expectedFileSize;
 
     private static String expectedFileContents;
+
+    private static final String DOWNLOAD_ID_KEY = "downloadId";
+
+    private static final String FILE_NAME_KEY = "fileName";
+
+    private static final String BYTES_DOWNLOADED_KEY = "bytesDownloaded";
+
+    private static final String PERCENT_KEY = "percent";
+
+    private static final String USER_KEY = "user";
+
+    private static final String STATUS_KEY = "status";
 
     @Rule
     public MethodRule watchman = new TestWatchman() {
@@ -151,7 +166,9 @@ public class ReliableResourceDownloadManagerTest {
         eventListener = mock(DownloadsStatusEventListener.class);
         downloadStatusInfo = new DownloadStatusInfoImpl();
 
-        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(), downloadStatusInfo, Executors.newSingleThreadExecutor());
+        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(),
+                downloadStatusInfo,
+                Executors.newSingleThreadExecutor());
 
     }
 
@@ -612,7 +629,9 @@ public class ReliableResourceDownloadManagerTest {
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
 
-        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(), downloadStatusInfo, Executors.newSingleThreadExecutor());
+        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig(),
+                downloadStatusInfo,
+                Executors.newSingleThreadExecutor());
 
         // Use small chunk size so download takes long enough for client
         // to have time to simulate FileBackedOutputStream exception
@@ -652,9 +671,98 @@ public class ReliableResourceDownloadManagerTest {
         cleanup();
     }
 
+    @Test
+    public void testGetDownloadsInProgress() {
+        List<String> downloadIds = new ArrayList<>();
+        downloadIds.add("03e3f850-240c-4cc6-a5a3-318dc34ad4bd");
+        downloadIds.add("5tygH67-345t-3er5-r86y-5tyZHU7UGD092");
+        downloadIds.add("9tY75f4-345t-4er8-jj87-Y67hJJK098yaq");
+        downloadIds.add("56lJOJl-45gg-3wf5-ww23-tldf7HewfhweJ");
+        downloadIds.add("rRdlefj-ggal-erty-rr6e-ZZefoeje546kL");
+
+        List<Map<String, String>> downloadStatusMaps = getDownloadStatusMaps(downloadIds);
+
+        DownloadStatusInfo downloadStatusInfo = mock(DownloadStatusInfo.class);
+        when(downloadStatusInfo.getAllDownloads()).thenReturn(downloadIds);
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(0))).thenReturn(downloadStatusMaps.get(
+                0));
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(1))).thenReturn(downloadStatusMaps.get(
+                1));
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(2))).thenReturn(downloadStatusMaps.get(
+                2));
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(3))).thenReturn(downloadStatusMaps.get(
+                3));
+        when(downloadStatusInfo.getDownloadStatus(downloadIds.get(4))).thenReturn(downloadStatusMaps.get(
+                4));
+
+        ReliableResourceDownloadManager reliableResorceDownloadManager =
+                new ReliableResourceDownloadManager(null, downloadStatusInfo, null);
+
+        List<DownloadInfo> downloadInfoList =
+                reliableResorceDownloadManager.getDownloadsInProgress();
+
+        assertThat(downloadInfoList.size(), is(2));
+        for (DownloadInfo downloadInfo : downloadInfoList) {
+            assertThat(downloadInfo.isDownloadInState(DownloadState.IN_PROGRESS), is(true));
+        }
+    }
+
+    private List<Map<String, String>> getDownloadStatusMaps(List<String> downloadIds) {
+        List<Map<String, String>> downloads = new ArrayList<>();
+        Map<String, String> downloadStatus1 = createDownloadStatusMap(downloadIds.get(0),
+                "image1.jpg",
+                DownloadState.IN_PROGRESS.name(),
+                "862978048",
+                "76",
+                "admin");
+        downloads.add(downloadStatus1);
+        Map<String, String> downloadStatus2 = createDownloadStatusMap(downloadIds.get(1),
+                "image2.jpg",
+                DownloadState.IN_PROGRESS.name(),
+                "456212",
+                "21",
+                "localhost");
+        downloads.add(downloadStatus2);
+        Map<String, String> downloadStatus3 = createDownloadStatusMap(downloadIds.get(2),
+                "image3.jpg",
+                DownloadState.COMPLETED.name(),
+                "3487",
+                "11",
+                "andrewreynolds");
+        downloads.add(downloadStatus3);
+        Map<String, String> downloadStatus4 = createDownloadStatusMap(downloadIds.get(3),
+                "image4.jpg",
+                DownloadState.FAILED.name(),
+                "6567544543",
+                "11",
+                "markjohnson");
+        downloads.add(downloadStatus4);
+        Map<String, String> downloadStatus5 = createDownloadStatusMap(downloadIds.get(4),
+                "image5.jpg",
+                DownloadState.CANCELED.name(),
+                "243",
+                "1",
+                "chriscole");
+        downloads.add(downloadStatus5);
+
+        return downloads;
+    }
+
+    private Map<String, String> createDownloadStatusMap(String downloadId, String fileName,
+            String status, String bytesDownloaded, String percent, String user) {
+        Map<String, String> downloadStatus1 = new HashMap<>();
+        downloadStatus1.put(DOWNLOAD_ID_KEY, downloadId);
+        downloadStatus1.put(FILE_NAME_KEY, fileName);
+        downloadStatus1.put(STATUS_KEY, status);
+        downloadStatus1.put(BYTES_DOWNLOADED_KEY, bytesDownloaded);
+        downloadStatus1.put(PERCENT_KEY, percent);
+        downloadStatus1.put(USER_KEY, user);
+        return downloadStatus1;
+    }
+
     private void startDownload(boolean cacheEnabled, int chunkSize, boolean cacheWhenCanceled,
             Metacard metacard, ResourceRetriever retriever) throws Exception {
-//        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig());
+        //        downloadMgr = new ReliableResourceDownloadManager(getDownloaderConfig());
         downloadMgr.setCacheEnabled(cacheEnabled);
         downloadMgr.setChunkSize(chunkSize);
         downloadMgr.setCacheWhenCanceled(cacheWhenCanceled);
@@ -907,6 +1015,7 @@ public class ReliableResourceDownloadManagerTest {
         downloaderConfig.setEventListener(eventListener);
         return downloaderConfig;
     }
+
     private enum RetryType {
         INPUT_STREAM_IO_EXCEPTION,
         TIMEOUT_EXCEPTION,
