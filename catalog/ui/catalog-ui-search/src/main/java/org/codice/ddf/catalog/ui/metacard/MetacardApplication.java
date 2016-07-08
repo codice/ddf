@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard;
 
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static spark.Spark.delete;
@@ -355,12 +356,21 @@ public class MetacardApplication implements SparkApplication {
 
         exception(IngestException.class, (ex, req, res) -> {
             res.status(404);
+            res.header(CONTENT_TYPE, APPLICATION_JSON);
             LOGGER.warn("Failed to ingest metacard", ex);
             res.body(util.getJson(ImmutableMap.of("message", UPDATE_ERROR_MESSAGE)));
         });
 
+        exception(NotFoundException.class, (ex, req, res) -> {
+            res.status(404);
+            res.header(CONTENT_TYPE, APPLICATION_JSON);
+            LOGGER.warn("Failed to find metacard.", ex);
+            res.body(util.getJson(ImmutableMap.of("message", ex.getMessage())));
+        });
+
         exception(NumberFormatException.class, (ex, req, res) -> {
             res.status(400);
+            res.header(CONTENT_TYPE, APPLICATION_JSON);
             res.body(util.getJson(ImmutableMap.of("message", "Invalid values for numbers")));
         });
     }

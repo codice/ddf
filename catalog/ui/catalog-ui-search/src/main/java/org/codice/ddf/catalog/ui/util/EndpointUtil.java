@@ -92,12 +92,14 @@ public class EndpointUtil {
         QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
                 filter), true));
 
-        if (queryResponse.getHits() == 0) {
+        if (queryResponse.getResults()
+                .isEmpty()) {
             throw new NotFoundException("Could not find metacard for id: " + id);
         }
 
         Result result = queryResponse.getResults()
                 .get(0);
+
         return result.getMetacard();
     }
 
@@ -232,11 +234,7 @@ public class EndpointUtil {
 
     public String metacardToJson(String id)
             throws SourceUnavailableException, UnsupportedQueryException, FederationException {
-        Metacard metacard = getMetacard(id);
-        if (metacard == null) {
-            throw new NotFoundException("Could not find specified Metacard. (id= " + id + " )");
-        }
-        return metacardToJson(metacard);
+        return metacardToJson(getMetacard(id));
     }
 
     public String metacardToJson(Metacard metacard)
@@ -275,29 +273,25 @@ public class EndpointUtil {
 
         // TODO (RCZ) - Replace these with the actual constants once DDF-PR-868 is in
 
-        Filter user =
-                filterBuilder.attribute(MetacardVersion.EDITED_BY)
-                        .is()
-                        .equalTo()
-                        .text(emailAddress);
+        Filter user = filterBuilder.attribute(MetacardVersion.EDITED_BY)
+                .is()
+                .equalTo()
+                .text(emailAddress);
 
-        Filter time =
-                filterBuilder.attribute(MetacardVersion.VERSIONED_ON)
-                        .is()
-                        .after()
-                        .date(Date.from(Instant.now()
-                                .minus(daysBack, ChronoUnit.DAYS)));
+        Filter time = filterBuilder.attribute(MetacardVersion.VERSIONED_ON)
+                .is()
+                .after()
+                .date(Date.from(Instant.now()
+                        .minus(daysBack, ChronoUnit.DAYS)));
 
-        Filter createdAction =
-                filterBuilder.attribute(MetacardVersion.ACTION)
-                        .is()
-                        .equalTo()
-                        .text(MetacardVersion.Action.CREATED.getKey());
-        Filter createdContentAction =
-                filterBuilder.attribute(MetacardVersion.ACTION)
-                        .is()
-                        .equalTo()
-                        .text(MetacardVersion.Action.CREATED_CONTENT.getKey());
+        Filter createdAction = filterBuilder.attribute(MetacardVersion.ACTION)
+                .is()
+                .equalTo()
+                .text(MetacardVersion.Action.CREATED.getKey());
+        Filter createdContentAction = filterBuilder.attribute(MetacardVersion.ACTION)
+                .is()
+                .equalTo()
+                .text(MetacardVersion.Action.CREATED_CONTENT.getKey());
         Filter created = filterBuilder.anyOf(createdAction, createdContentAction);
 
         Filter filter = filterBuilder.allOf(user, time, created);

@@ -21,6 +21,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static ddf.test.itests.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 
 import ddf.common.test.BeforeExam;
+import ddf.security.permission.CollectionPermission;
 import ddf.test.itests.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
@@ -112,9 +114,9 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
                 .when();
     }
 
-    private static Map<String, String> makePermission(String type, String permission,
+    private static Map<String, String> makePermission(String attribute, String action,
             String value) {
-        return ImmutableMap.of("type", type, "permission", permission, "value", value);
+        return ImmutableMap.of("attribute", attribute, "action", action, "value", value);
     }
 
     private static void delete(String id) {
@@ -145,8 +147,24 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testGuestCantViewUnsharedWorkspace() {
+        Map<String, Object> workspace = Collections.emptyMap();
+        Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+
+        Map body = parse(res);
+        String id = (String) body.get("id");
+        assertNotNull(id);
+
+        expect(asGuest(), 404).get(api() + "/" + id);
+
+        ids.add(id); // for cleanUp
+    }
+
+    @Test
     public void testCanShareViewWithGuestByRole() {
-        Map<String, String> guestPermission = makePermission("role", "view", "guest");
+        Map<String, String> guestPermission = makePermission("role",
+                CollectionPermission.READ_ACTION,
+                "guest");
 
         Map<String, Object> workspace = ImmutableMap.of("metacard.sharing",
                 ImmutableList.of(guestPermission));
@@ -164,26 +182,30 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     @Test
     public void testCanShareEditWithGuestByRole() {
-        Map<String, String> guestPermission = makePermission("role", "edit", "guest");
+
+        Map<String, String> guestPermission = makePermission("role",
+                CollectionPermission.UPDATE_ACTION,
+                "guest");
 
         Map<String, Object> workspace = ImmutableMap.of("metacard.sharing",
                 ImmutableList.of(guestPermission));
 
         Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
 
-        String id = (String) parse(res).get("id");
+        Map body = parse(res);
+        String id = (String) body.get("id");
         assertNotNull(id);
 
         String title = "from guest";
 
-        Map<String, Object> update = ImmutableMap.of("title",
-                title,
-                "metacard.sharing",
-                ImmutableList.of(guestPermission));
+        Map update = ImmutableMap.builder()
+                .putAll(body)
+                .put("title", title)
+                .build();
 
         res = expect(asGuest().body(stringify(update)), 200).put(api() + "/" + id);
+        body = parse(res);
 
-        Map body = parse(res);
         assertThat(body.get("id"), is(id));
         assertThat(body.get("title"), is(title));
 
