@@ -44,6 +44,14 @@ module.exports = function (grunt) {
                 }
             }
         },
+        sed: {
+            imports: {
+                path: 'target/webapp/lib/bootswatch/flatly',
+                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Lato:400,700,400italic"\\);',
+                replacement: '',
+                recursive: true
+            }
+        },
         jshint: {
             files: ['Gruntfile.js', 'src/main/webapp/js/**/*.js'],
             options: {
@@ -112,7 +120,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-express');
 
-    var buildTasks = ['clean', 'bower-offline-install', 'less', 'jshint'];
+    var buildTasks = ['clean', 'bower-offline-install', 'sed', 'less', 'jshint'];
 
     grunt.registerTask('build', buildTasks);
     grunt.registerTask('default', ['build','express', 'watch']);
