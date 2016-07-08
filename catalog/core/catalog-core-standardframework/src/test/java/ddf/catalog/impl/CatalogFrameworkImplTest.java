@@ -403,14 +403,15 @@ public class CatalogFrameworkImplTest {
     @Test
     public void testInjectsAttributesOnCreate() throws Exception {
         final String title = "Create";
-        final Date created = new Date();
+        final String injectAttributeName = "new attribute";
+        final double injectAttributeValue = 2;
         final MetacardImpl originalMetacard = new MetacardImpl(BASIC_METACARD);
         originalMetacard.setTitle(title);
-        originalMetacard.setCreatedDate(created);
+        originalMetacard.setAttribute(injectAttributeName, injectAttributeValue);
         final List<Metacard> metacards = Collections.singletonList(originalMetacard);
         final CreateRequest request = new CreateRequestImpl(metacards, null);
 
-        final AttributeDescriptor injectAttribute = new AttributeDescriptorImpl("new attribute",
+        final AttributeDescriptor injectAttribute = new AttributeDescriptorImpl(injectAttributeName,
                 true,
                 true,
                 false,
@@ -432,7 +433,8 @@ public class CatalogFrameworkImplTest {
         assertThat(createdMetacardType.getAttributeDescriptors(), is(expectedAttributeDescriptors));
 
         assertThat(createdMetacard.getTitle(), is(title));
-        assertThat(createdMetacard.getCreatedDate(), is(created));
+        assertThat(createdMetacard.getAttribute(injectAttributeName)
+                .getValue(), is(injectAttributeValue));
     }
 
     private void registerDefaults() {
@@ -774,27 +776,29 @@ public class CatalogFrameworkImplTest {
 
     @Test
     public void testInjectsAttributesOnUpdate() throws Exception {
-        final String id =
-                provider.create(new CreateRequestImpl(Collections.singletonList(new MetacardImpl()),
-                        null))
-                        .getCreatedMetacards()
-                        .get(0)
-                        .getId();
-        final String title = "Update";
-        final Date modified = new Date();
-        final MetacardImpl metacard = new MetacardImpl();
-        metacard.setId(id);
-        metacard.setTitle(title);
-        metacard.setModifiedDate(modified);
-        final UpdateRequest request = new UpdateRequestImpl(id, metacard);
-
-        final AttributeDescriptor injectAttribute = new AttributeDescriptorImpl("new attribute",
+        final String injectAttributeName = "new attribute";
+        final AttributeDescriptor injectAttribute = new AttributeDescriptorImpl(injectAttributeName,
                 true,
                 true,
                 false,
                 false,
                 BasicTypes.DOUBLE_TYPE);
         stubMetacardInjection(injectAttribute);
+
+        final String id =
+                framework.create(new CreateRequestImpl(Collections.singletonList(new MetacardImpl()),
+                        null))
+                        .getCreatedMetacards()
+                        .get(0)
+                        .getId();
+
+        final String title = "Update";
+        final double injectAttributeValue = -1;
+        final MetacardImpl metacard = new MetacardImpl();
+        metacard.setId(id);
+        metacard.setTitle(title);
+        metacard.setAttribute(injectAttributeName, injectAttributeValue);
+        final UpdateRequest request = new UpdateRequestImpl(id, metacard);
 
         final UpdateResponse response = framework.update(request);
 
@@ -811,7 +815,8 @@ public class CatalogFrameworkImplTest {
         assertThat(updatedMetacardType.getAttributeDescriptors(), is(expectedAttributeDescriptors));
 
         assertThat(updatedMetacard.getTitle(), is(title));
-        assertThat(updatedMetacard.getModifiedDate(), is(modified));
+        assertThat(updatedMetacard.getAttribute(injectAttributeName)
+                .getValue(), is(injectAttributeValue));
     }
 
     /**
@@ -891,6 +896,49 @@ public class CatalogFrameworkImplTest {
         assertTrue(eventAdmin.wasEventPosted());
         assertEquals(eventAdmin.getLastEvent(), array[array.length - 1]);
 
+    }
+
+    @Test
+    public void testInjectsAttributesOnDelete() throws Exception {
+        final String title = "Delete this";
+        final String injectAttributeName = "new attribute";
+        final double injectAttributeValue = 11.1;
+        final MetacardImpl metacard = new MetacardImpl();
+        metacard.setTitle(title);
+        metacard.setAttribute(injectAttributeName, injectAttributeValue);
+
+        final String id =
+                framework.create(new CreateRequestImpl(Collections.singletonList(metacard), null))
+                        .getCreatedMetacards()
+                        .get(0)
+                        .getId();
+
+        final DeleteRequest request = new DeleteRequestImpl(id);
+
+        final AttributeDescriptor injectAttribute = new AttributeDescriptorImpl(injectAttributeName,
+                true,
+                true,
+                false,
+                false,
+                BasicTypes.DOUBLE_TYPE);
+        stubMetacardInjection(injectAttribute);
+
+        final DeleteResponse response = framework.delete(request);
+
+        final Metacard deletedMetacard = response.getDeletedMetacards()
+                .get(0);
+        final MetacardType originalMetacardType = metacard.getMetacardType();
+        final MetacardType deletedMetacardType = deletedMetacard.getMetacardType();
+        assertThat(deletedMetacardType.getName(), is(originalMetacardType.getName()));
+
+        final Set<AttributeDescriptor> expectedAttributeDescriptors = new HashSet<>(
+                originalMetacardType.getAttributeDescriptors());
+        expectedAttributeDescriptors.add(injectAttribute);
+        assertThat(deletedMetacardType.getAttributeDescriptors(), is(expectedAttributeDescriptors));
+
+        assertThat(deletedMetacard.getTitle(), is(title));
+        assertThat(deletedMetacard.getAttribute(injectAttributeName)
+                .getValue(), is(injectAttributeValue));
     }
 
     /**
@@ -1105,17 +1153,12 @@ public class CatalogFrameworkImplTest {
 
     @Test
     public void testInjectsAttributesOnQuery() throws Exception {
-        final String title = "Foo";
-        final Date modified = new Date();
-        final MetacardImpl metacard = new MetacardImpl();
-        metacard.setTitle(title);
-        metacard.setModifiedDate(modified);
-
-        final String id = provider.create(new CreateRequestImpl(Collections.singletonList(metacard),
-                null))
-                .getCreatedMetacards()
-                .get(0)
-                .getId();
+        final Metacard original = new MetacardImpl();
+        final String id =
+                framework.create(new CreateRequestImpl(Collections.singletonList(original), null))
+                        .getCreatedMetacards()
+                        .get(0)
+                        .getId();
 
         final AttributeDescriptor injectAttribute = new AttributeDescriptorImpl("new attribute",
                 true,
@@ -1136,7 +1179,7 @@ public class CatalogFrameworkImplTest {
         final Metacard queryMetacard = response.getResults()
                 .get(0)
                 .getMetacard();
-        final MetacardType originalMetacardType = metacard.getMetacardType();
+        final MetacardType originalMetacardType = original.getMetacardType();
         final MetacardType queryMetacardType = queryMetacard.getMetacardType();
         assertThat(originalMetacardType.getName(), is(queryMetacardType.getName()));
 

@@ -1669,6 +1669,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             e);
                 }
                 deleteResponse = catalog.delete(deleteRequest);
+                deleteResponse = injectAttributes(deleteResponse);
                 historian.version(deleteResponse);
             }
 
@@ -1676,6 +1677,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 DeleteResponse remoteDeleteResponse = doRemoteDelete(deleteRequest);
                 if (deleteResponse == null) {
                     deleteResponse = remoteDeleteResponse;
+                    deleteResponse = injectAttributes(deleteResponse);
                 } else {
                     deleteResponse.getProperties()
                             .putAll(remoteDeleteResponse.getProperties());
@@ -1738,6 +1740,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
 
         return deleteResponse;
+    }
+
+    private DeleteResponse injectAttributes(DeleteResponse response) {
+        List<Metacard> deletedMetacards = response.getDeletedMetacards()
+                .stream()
+                .map(this::applyInjectors)
+                .collect(Collectors.toList());
+
+        return new DeleteResponseImpl(response.getRequest(),
+                response.getProperties(),
+                deletedMetacards,
+                response.getProcessingErrors());
     }
 
     @Override
