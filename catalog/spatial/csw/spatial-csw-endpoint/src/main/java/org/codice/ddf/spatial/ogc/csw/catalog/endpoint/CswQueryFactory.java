@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -33,10 +33,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.PropertyIsFuzzyFunction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
+import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.xml.Configuration;
@@ -175,6 +177,8 @@ public class CswQueryFactory {
                     null);
         }
 
+        filter = transformCustomFunctionToFilter(filter);
+
         try {
             visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
         } catch (UnsupportedOperationException ose) {
@@ -182,6 +186,32 @@ public class CswQueryFactory {
         }
 
         return visitor;
+    }
+
+    /**
+     * Transforms the filter if it contains a custom function from the
+     * {@link org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactory}. If
+     * the filter does not contain a custom function then the original filter is returned.
+     *
+     * @param filter
+     * @return
+     */
+    private Filter transformCustomFunctionToFilter(Filter filter) {
+        if (filter instanceof IsEqualsToImpl
+                && ((IsEqualsToImpl) filter).getExpression1() instanceof PropertyIsFuzzyFunction) {
+
+            PropertyIsFuzzyFunction fuzzyProperty =
+                    (PropertyIsFuzzyFunction) ((IsEqualsToImpl) filter).getExpression1();
+
+            return builder.attribute(fuzzyProperty.getPropertyName()
+                    .toString())
+                    .is()
+                    .like()
+                    .fuzzyText(fuzzyProperty.getLiteral()
+                            .toString());
+        }
+
+        return filter;
     }
 
     private SortBy buildSort(SortByType sort) throws CswException {

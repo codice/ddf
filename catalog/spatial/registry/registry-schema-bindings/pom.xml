@@ -47,7 +47,6 @@
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
-            <version>1.1.0_2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -110,6 +109,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
+                            <catalog>src/main/resources/catalog.xml</catalog>
                             <schemaIncludes>
                                 <value>csw-ebrim/*/csw-ebrim.xsd</value>
                                 <value>gml/*/base/gml.xsd</value>

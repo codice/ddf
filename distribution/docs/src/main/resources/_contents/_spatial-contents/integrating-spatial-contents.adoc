@@ -2352,9 +2352,8 @@ The configurable properties for the CSW source are accessed from the CSW Federat
 ==== Known Issues
 
 * The CSW Source does not support text path searches.
-* All contextual searches are case sensitive; case-insensitive searches are not supported.
 * Nearest neighbor spatial searches are not supported.
-* Fuzzy contextual searches are not supported.
+
 
 === GMD CSW APISO v2.0.2 Source
 

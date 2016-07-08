@@ -64,6 +64,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.impl.filter.FuzzyFunction;
 
 public class TestCswRecordMapperFilterVisitor {
 
@@ -211,6 +213,24 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(duplicate.getExpression1(), equalTo(attrExpr));
         assertThat(duplicate.getExpression2(), equalTo(val));
         assertTrue(duplicate.isMatchingCase());
+    }
+
+    @Test
+    public void testVisitPropertyIsFuzzy() {
+        visitor = new CswRecordMapperFilterVisitor();
+        Expression val1 = factory.property("fooProperty");
+        Expression val2 = factory.literal("fooLiteral");
+
+        //PropertyIsFuzzy maps to a propertyIsLike filter with a fuzzy function
+        GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
+        PropertyIsLike fuzzySearch = (PropertyIsLike) builder.attribute(val1.toString())
+                .is()
+                .like()
+                .fuzzyText(val2.toString());
+        PropertyIsLike visitedFilter = (PropertyIsLike) visitor.visit(fuzzySearch, null);
+
+        assertTrue(visitedFilter.getExpression() instanceof FuzzyFunction);
+        assertThat(visitedFilter.getLiteral(), equalTo(val2.toString()));
     }
 
     @Test
