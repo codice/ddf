@@ -86,7 +86,7 @@ module.exports = function (grunt) {
             imports: {
                 path: 'target/webapp/lib/bootswatch/flatly',
                 pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Lato:400,700,400italic"\\);',
-                replacement: '@import url("../../lato/css/lato.min.css");',
+                replacement: '',
                 recursive: true
             }
         }
@@ -100,7 +100,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-casperjs');
     grunt.loadNpmTasks('grunt-sed');
 
-    var buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'cssmin', 'jshint'];
+    var buildTasks = ['clean', 'bower-offline-install', 'sed', 'cssmin', 'jshint'];
     grunt.registerTask('build', buildTasks);
     grunt.registerTask('default', ['build']);
 

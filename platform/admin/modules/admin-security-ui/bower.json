@@ -19,7 +19,6 @@
     "requirejs": "2.1.14",
     "require-css": "0.1.5",
     "requirejs-plugins": "1.0.2",
-    "lato": "0.2.1",
     "bootstrap-select": "1.6.4",
     "iframe-resizer": "2.6.2"
   },

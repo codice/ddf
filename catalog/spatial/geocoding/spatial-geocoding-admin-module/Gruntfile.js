@@ -28,7 +28,7 @@ module.exports = function (grunt) {
         sed: {
             imports: {
                 path: 'target/webapp/lib/bootswatch/flatly',
-                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Roboto:400,700"\\);',
+                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Lato:400,700,400italic"\\);',
                 replacement: '@import url("../../lato/css/lato.min.css");',
                 recursive: true
             }

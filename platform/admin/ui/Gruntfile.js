@@ -119,7 +119,7 @@ module.exports = function (grunt) {
             imports: {
                 path: 'target/webapp/lib/bootswatch/flatly',
                 pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Lato:400,700,400italic"\\);',
-                replacement: '@import url("../../lato/css/lato.min.css");',
+                replacement: '',
                 recursive: true
             }
         },
