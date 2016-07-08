@@ -34,6 +34,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -233,11 +234,8 @@ public class SchematronValidationService implements MetacardValidator, Describab
     public void validate(Metacard metacard) throws ValidationException {
         for (Templates validator : validators) {
             String metadata = metacard.getMetadata();
-            if (metadata == null) {
-                throw new SchematronValidationException(
-                        "The Metacard.METADATA attribute must not be null to run schematron validation against the Metacard");
-            }
-            if (namespace != null && !namespace.equals(XMLUtils.getRootNamespace(metadata))) {
+            if (StringUtils.isEmpty(metadata) || (namespace != null
+                    && !namespace.equals(XMLUtils.getRootNamespace(metadata)))) {
                 return;
             }
             schematronReport = generateReport(metadata, validator);
@@ -275,11 +273,13 @@ public class SchematronValidationService implements MetacardValidator, Describab
 
     /**
      * Replace tabs, literal carriage returns, and newlines with a single whitespace
+     *
      * @param input
      * @return
      */
     static String sanitize(final String input) {
-        return input.replaceAll("[\t \r\n]+", " ").trim();
+        return input.replaceAll("[\t \r\n]+", " ")
+                .trim();
     }
 
     @Override
