@@ -13,6 +13,8 @@
  */
 package ddf.catalog.cache.impl;
 
+import static ddf.catalog.cache.impl.CachedResourceMetacardComparator.isSame;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -364,25 +366,26 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
                     "Neither the cachedResource nor the metacard retrieved from the catalog can be null.");
         }
 
-        int cachedResourceHash = cachedResource.getMetacard()
-                .hashCode();
+        Metacard cachedMetacard = cachedResource.getMetacard();
         MetacardImpl latestMetacardImpl = new MetacardImpl(latestMetacard);
-        int latestMetacardHash = latestMetacardImpl.hashCode();
 
-        // compare hashes of cachedResource.getMetacard() and latestMetcard
-        if (cachedResourceHash == latestMetacardHash) {
+        if (isSame(cachedMetacard, latestMetacardImpl)) {
+            LOGGER.debug("Metacard has not changed");
             LOGGER.trace("EXITING: validateCacheEntry");
             return true;
-        } else {
-            File cachedFile = new File(cachedResource.getFilePath());
-            if (!FileUtils.deleteQuietly(cachedFile)) {
-                LOGGER.debug("File was not removed from cache directory.  File Path: {}",
-                        cachedResource.getFilePath());
-            }
-
-            cache.remove(cachedResource.getKey());
-            LOGGER.trace("EXITING: validateCacheEntry");
-            return false;
         }
+
+        LOGGER.debug("Metacard has changed");
+
+        File cachedFile = new File(cachedResource.getFilePath());
+
+        if (!FileUtils.deleteQuietly(cachedFile)) {
+            LOGGER.debug("File was not removed from cache directory.  File Path: {}",
+                    cachedResource.getFilePath());
+        }
+
+        cache.remove(cachedResource.getKey());
+        LOGGER.trace("EXITING: validateCacheEntry");
+        return false;
     }
 }

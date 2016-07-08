@@ -21,7 +21,6 @@ import ddf.catalog.data.MetacardType;
 /**
  * Used for test purposes, this is an empty {@link MetacardType} that returns null for all its
  * required fields.
- *
  */
 public class EmptyMetacardType implements MetacardType {
 
@@ -42,4 +41,21 @@ public class EmptyMetacardType implements MetacardType {
         return null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 }
