@@ -23,7 +23,7 @@ module.exports = function (grunt) {
         },
         open: {
             chrome: {
-                path: 'http://localhost:8282/search/catalog/?map=2d',
+                path: 'http://127.0.0.1:8282/search/catalog/?map=2d',
                 app: 'Google Chrome'
             }
         },
