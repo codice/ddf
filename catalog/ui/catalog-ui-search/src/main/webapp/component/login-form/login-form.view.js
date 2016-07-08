@@ -32,12 +32,12 @@ define([
             //if you aren't using basic auth, this shouldn't do anything
             $.ajax({
                 type: 'GET',
-                url: document.URL,
+                url: '/search/catalog/internal/user',
                 async: false,
                 username: '1',
                 password: '1'
             }).then(function () {
-                window.location = '/logout';
+                window.location = '/logout/';
             });
         },
         login: function (e) {
@@ -47,7 +47,7 @@ define([
 
             $.ajax({
                 type: 'GET',
-                url: document.URL,
+                url: '/search/catalog/internal/user',
                 async: false,
                 beforeSend: function (xhr) {
                     var base64 = window.btoa(view.$('#username').val() + ':' + view.$('#password').val());
