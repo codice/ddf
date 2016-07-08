@@ -21,24 +21,24 @@ define([
     'text!./dropdown.result-filter.hbs',
     'component/result-filter/result-filter.view',
     './dropdown.companion.result-filter.view',
-    'js/store'
-], function (Marionette, _, $, DropdownView, template, ComponentView, ResultFilterDropdownCompanion, store) {
+    'component/singletons/user-instance'
+], function (Marionette, _, $, DropdownView, template, ComponentView, ResultFilterDropdownCompanion, user) {
 
     return DropdownView.extend({
         template: template,
         className: 'is-resultFilter',
         componentToShow: ComponentView,
-        initializeComponentModel: function(){
-            //override if you need more functionality
-            this.modelForComponent = this.model;
+        initialize: function(){
+            DropdownView.prototype.initialize.call(this);
+            this.listenTo(user.get('user').get('preferences'), 'change:resultFilter', this.handleFilter);
+            this.handleFilter();
         },
-        isCentered: true,
-        getCenteringElement: function(){
-            return this.el;
-        },
-        hasTail: true,
         initializeDropdown: function(){
             this.dropdownCompanion = ResultFilterDropdownCompanion.getNewCompanionView(this);
+        },
+        handleFilter: function(){
+            var resultFilter = user.get('user').get('preferences').get('resultFilter');
+            this.$el.toggleClass('has-filter', Boolean(resultFilter));
         }
     });
 });

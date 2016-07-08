@@ -17,21 +17,23 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'js/CustomElements',
-    './sort-item.view',
-    'js/store'
-], function (Marionette, _, $, CustomElements, queryItemView, store) {
+    'text!./result-status.hbs',
+    'js/CustomElements'
+], function (Marionette, _, $, template, CustomElements) {
 
-    return Marionette.CollectionView.extend({
-        tagName: CustomElements.register('sort-item-collection'),
-        childView: queryItemView,
-        initialize: function (options) {
-            if (this.collection.length === 0) {
-                this.collection.add({
-                    attribute: 'title',
-                    direction: 'ascending'
-                });
-            }
+    return Marionette.ItemView.extend({
+        template: template,
+        tagName: CustomElements.register('result-status'),
+        initialize: function(){
+            this.render = _.throttle(this.render, 250);
+        },
+        serializeData: function(){
+            return {
+                amountFiltered: this.model.amountFiltered
+            };
+        },
+        onRender: function(){
+            this.$el.toggleClass('has-filtered', this.model.amountFiltered !== 0);
         }
     });
 });

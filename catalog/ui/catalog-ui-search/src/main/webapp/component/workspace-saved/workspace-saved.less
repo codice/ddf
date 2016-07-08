@@ -1,10 +1,26 @@
 @{customElementNamespace}workspace-saved {
   .customElement;
 
-  .workspaceSaved {
+  .saved-empty {
+    padding: 20px;
+    text-align: center;
+    display: none;
+  }
+
+  .saved-results {
     .customElement;
   }
     
+}
+
+@{customElementNamespace}workspace-saved.is-empty {
+  .saved-empty {
+    display: block;
+  }
+
+  .saved-results {
+    display: none;
+  }
 }
 
 @media (max-width: @mediumScreenSize) {

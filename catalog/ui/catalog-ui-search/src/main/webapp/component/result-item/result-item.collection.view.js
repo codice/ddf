@@ -24,6 +24,7 @@ define([
 ], function (Marionette, _, $, CustomElements, childView, groupView, store) {
 
     return Marionette.CollectionView.extend({
+        emptyView: Marionette.ItemView.extend({className: 'result-item-collection-empty', template: 'No results found.'}),
         tagName: CustomElements.register('result-item-collection'),
         getChildView: function(childModel){
             if (childModel.duplicates && !this.options.group){

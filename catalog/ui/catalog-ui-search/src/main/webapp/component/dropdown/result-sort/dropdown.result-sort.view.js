@@ -19,21 +19,22 @@ define([
     'jquery',
     '../dropdown.view',
     'text!./dropdown.result-sort.hbs',
-    'component/result-sort/result-sort.view'
-], function (Marionette, _, $, DropdownView, template, ComponentView) {
+    'component/result-sort/result-sort.view',
+    'component/singletons/user-instance'
+], function (Marionette, _, $, DropdownView, template, ComponentView, user) {
 
     return DropdownView.extend({
         template: template,
         className: 'is-resultSort',
         componentToShow: ComponentView,
-        initializeComponentModel: function(){
-            //override if you need more functionality
-            this.modelForComponent = this.model;
+        initialize: function(){
+            DropdownView.prototype.initialize.call(this);
+            this.listenTo(user.get('user').get('preferences'), 'change:resultSort', this.handleSort);
+            this.handleSort();
         },
-        isCentered: true,
-        getCenteringElement: function(){
-            return this.el;
-        },
-        hasTail: true
+        handleSort: function(){
+            var resultSort = user.get('user').get('preferences').get('resultSort');
+            this.$el.toggleClass('has-sort', Boolean(resultSort));
+        }
     });
 });

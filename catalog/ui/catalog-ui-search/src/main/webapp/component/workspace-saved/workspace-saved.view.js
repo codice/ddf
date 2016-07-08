@@ -36,52 +36,60 @@ define([
         events: {
         },
         regions: {
-            resultCollection: '.workspaceSaved'
+            resultCollection: '.saved-results'
         },
         initialize: function () {
+
         },
         onBeforeShow: function(){
             var self = this;
-            var query = new Query.Model({
-                cql: cql.write({
-                    type: 'OR',
-                    filters: store.getCurrentWorkspace().get('metacards').map(function(id){
-                        return {
-                            type: '=',
-                            value: id,
-                            property: '"id"'
-                        };
+            var isEmpty = store.getCurrentWorkspace().get('metacards').length === 0;
+            if (!isEmpty) {
+                var query = new Query.Model({
+                    cql: cql.write({
+                        type: 'OR',
+                        filters: store.getCurrentWorkspace().get('metacards').map(function (id) {
+                            return {
+                                type: '=',
+                                value: id,
+                                property: '"id"'
+                            };
+                        })
                     })
-                })
-            });
-            $.whenAll.apply(this, query.startSearch()).always(function(){
-                var results = query.get('result').get('results').map(function(result){
-                    return result.get('metacard').get('properties').get('id');
                 });
-                var missingMetacards = store.getCurrentWorkspace().get('metacards').filter(function(id){
-                    return results.indexOf(id) === -1;
-                });
-                if (missingMetacards.length !== 0 ){
-                    self.listenTo(ConfirmationView.generateConfirmation({
-                            prompt: missingMetacards.length + ' metacard(s) unable to be found.  ' +
-                            'This could be do to unavailable sources, deletion of the metacard, or lack of permissions to view the metacard.',
-                            no: 'Keep',
-                            yes: 'Remove'
-                        }),
-                        'change:choice',
-                        function(confirmation){
-                            if (confirmation.get('choice')){
-                                var currentWorkspace = store.getCurrentWorkspace();
-                                if (currentWorkspace){
-                                    currentWorkspace.set('metacards', _.difference(currentWorkspace.get('metacards'), missingMetacards));
+                $.whenAll.apply(this, query.startSearch()).always(function () {
+                    var results = query.get('result').get('results').map(function (result) {
+                        return result.get('metacard').get('properties').get('id');
+                    });
+                    var missingMetacards = store.getCurrentWorkspace().get('metacards').filter(function (id) {
+                        return results.indexOf(id) === -1;
+                    });
+                    if (missingMetacards.length !== 0) {
+                        self.listenTo(ConfirmationView.generateConfirmation({
+                                prompt: missingMetacards.length + ' metacard(s) unable to be found.  ' +
+                                'This could be do to unavailable sources, deletion of the metacard, or lack of permissions to view the metacard.',
+                                no: 'Keep',
+                                yes: 'Remove'
+                            }),
+                            'change:choice',
+                            function (confirmation) {
+                                if (confirmation.get('choice')) {
+                                    var currentWorkspace = store.getCurrentWorkspace();
+                                    if (currentWorkspace) {
+                                        currentWorkspace.set('metacards', _.difference(currentWorkspace.get('metacards'), missingMetacards));
+                                    }
                                 }
-                            }
-                        });
-                }
-            });
-            this.resultCollection.show(new ResultSelectorView({
-                model: query
-            }));
+                            });
+                    }
+                });
+                this.resultCollection.show(new ResultSelectorView({
+                    model: query
+                }));
+            }
+            this.handleEmpty();
+        },
+        handleEmpty: function(){
+            this.$el.toggleClass('is-empty', store.getCurrentWorkspace().get('metacards').length === 0);
         }
     });
 

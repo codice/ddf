@@ -447,10 +447,12 @@ define([
         MetaCard.Results = Backbone.PageableCollection.extend({
             model: MetaCard.MetacardResult,
             mode: "client",
+            amountFiltered: 0,
             generateFilteredVersion: function(filter){
                 var filteredCollection = new this.constructor();
                 filteredCollection.set(this.updateFilteredVersion(filter));
                 filteredCollection.listenToOriginalCollection(this, filter);
+                filteredCollection.amountFiltered = this.amountFiltered;
                 return filteredCollection;
             },
             listenToOriginalCollection: function(originalCollection, filter){
@@ -462,10 +464,15 @@ define([
                 this.listenTo(originalCollection, 'update', debouncedUpdate);
             },
             updateFilteredVersion: function(filter){
-                if (filter ) {
+                this.amountFiltered = 0;
+                if (filter) {
                     return this.fullCollection.filter(function (result) {
-                        return matchesFilters(result.get('metacard').toJSON(), filter, metacardDefinitions.metacardTypes);
-                    });
+                        var passFilter = matchesFilters(result.get('metacard').toJSON(), filter, metacardDefinitions.metacardTypes);
+                        if (!passFilter) {
+                            this.amountFiltered++;
+                        }
+                        return passFilter;
+                    }.bind(this));
                 } else {
                     return this.fullCollection.models;
                 }
@@ -488,6 +495,7 @@ define([
             collapseDuplicates: function () {
                 var collapsedCollection = new this.constructor();
                 collapsedCollection.set(this.fullCollection.models);
+                collapsedCollection.amountFiltered = this.amountFiltered;
                 var endIndex = collapsedCollection.fullCollection.length;
                 for (var i = 0; i < endIndex; i++) {
                     var currentResult = collapsedCollection.fullCollection.models[i];

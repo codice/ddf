@@ -5,12 +5,12 @@
 
   .resultSelector-status, .paging .status {
     text-align: center;
-    color: @muted-color;
+    opacity: .6;
   }
 
   .resultSelector-list {
     overflow: auto;
-    height: ~'calc(100% - 100px)';
+    height: ~'calc(100% - 110px)';
   }
 
   .resultSelector-result-example {
@@ -21,7 +21,7 @@
 
   .resultSelector-menu {
     position: relative;
-    text-align: right;
+    text-align: center;
     .inlineBlockDisplay(div);
   }
 
@@ -39,8 +39,9 @@
 
 }
 
-@media (max-width: @smallScreenSize) {
-  @{customElementNamespace}result-selector {
-
+@{customElementNamespace}result-selector.has-filter {
+  .resultSelector-list {
+    overflow: auto;
+    height: ~'calc(100% - 130px)';
   }
 }

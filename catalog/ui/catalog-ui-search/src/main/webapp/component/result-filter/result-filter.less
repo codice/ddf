@@ -10,8 +10,27 @@
       white-space: nowrap;
       button {
         display: inline-block;
-        width: 50%;
+        width: 100%;
+      }
+
+      .footer-remove {
+        display: none;
       }
   }
 
+}
+
+@{customElementNamespace}result-filter.has-filter {
+
+  > .editor-footer {
+
+    button {
+      display: inline-block;
+      width: 50%;
+    }
+
+    .footer-remove {
+      display: inline-block;
+    }
+  }
 }

@@ -46,6 +46,7 @@ define([
             this.editorProperties.show(new SortItemCollectionView({
                 collection: new Backbone.Collection(resultSort)
             }));
+            this.handleSort();
         },
         addSort: function () {
             this.editorProperties.currentView.collection.add({
@@ -63,6 +64,10 @@ define([
             user.get('user').get('preferences').set('resultSort', sorting.length === 0 ? undefined : sorting);
             user.get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+        },
+        handleSort: function(){
+            var resultSort = user.get('user').get('preferences').get('resultSort');
+            this.$el.toggleClass('has-sort', Boolean(resultSort));
         }
     });
 });

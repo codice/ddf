@@ -29,10 +29,11 @@ define([
     'component/dropdown/dropdown',
     'js/cql',
     'component/dropdown/result-sort/dropdown.result-sort.view',
-    'component/singletons/user-instance'
+    'component/singletons/user-instance',
+    'component/result-status/result-status.view'
 ], function (Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common,
              ResultItemCollectionView, PagingView, DropdownView, ResultFilterDropdownView,
-             DropdownModel, cql, ResultSortDropdownView, user) {
+             DropdownModel, cql, ResultSortDropdownView, user, ResultStatusView) {
 
     function mixinBlackListCQL(originalCQL){
         var blackListCQL = {
@@ -72,6 +73,7 @@ define([
         ui: {
         },
         regions: {
+            resultStatus: '.resultSelector-status',
             resultList: '.resultSelector-list',
             resultPaging: '.resultSelector-paging',
             resultDisplay: '.menu-resultDisplay',
@@ -178,10 +180,20 @@ define([
             collapsedResults.updateSorting(user.get('user').get('preferences').get('resultSort'));
             this.showResultPaging(collapsedResults);
             this.showResultList(collapsedResults);
+            this.showResultStatus(collapsedResults);
             this.showResultDisplayDropdown();
             this.showResultFilterDropdown();
             this.showResultSortDropdown();
             this.handleSelectionChange();
+            this.handleFiltering(collapsedResults);
+        },
+        handleFiltering: function(resultCollection){
+            this.$el.toggleClass('has-filter', resultCollection.amountFiltered !== 0);
+        },
+        showResultStatus: function(resultCollection){
+            this.resultStatus.show(new ResultStatusView({
+                model: resultCollection
+            }));
         },
         showResultPaging: function(resultCollection){
             this.resultPaging.show(new PagingView({

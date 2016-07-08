@@ -52,6 +52,7 @@ define([
             if (resultFilter){
                 this.editorProperties.currentView.deserialize(cql.simplify(cql.read(resultFilter)));
             }
+            this.handleFilter();
         },
         removeFilter: function(){
             user.get('user').get('preferences').set('resultFilter', undefined);
@@ -62,6 +63,10 @@ define([
             user.get('user').get('preferences').set('resultFilter', this.editorProperties.currentView.transformToCql());
             user.get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        },
+        handleFilter: function(){
+            var resultFilter = user.get('user').get('preferences').get('resultFilter');
+            this.$el.toggleClass('has-filter', Boolean(resultFilter));
         }
     });
 });
