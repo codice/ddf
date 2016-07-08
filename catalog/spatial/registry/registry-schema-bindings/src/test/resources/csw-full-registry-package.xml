@@ -245,7 +245,7 @@
             created will be based on the bindingType attribute which should be the factory pid of a managed service factory
             -->
             <rim:ServiceBinding id="urn:registry:federation:method:csw"
-                                service="urn:uuid:service:2014ca7f59ac46f495e32b4a67a51276">
+                                service="urn:service:id0">
                 <!--Slot defining the query url for this particular method of communicating with this instance-->
                 <rim:Slot name="cswUrl" slotType="xs:anyURI">
                     <rim:ValueList>
@@ -285,7 +285,7 @@
                                        specificationObject="urn:service:params:id0"/>
             </rim:ServiceBinding>
             <rim:ServiceBinding id="urn:registry:federation:method:soap13"
-                                service="urn:uuid:service:2014ca7f59ac46f495e32b4a67a51276"
+                                service="urn:service:id0"
                                 accessURI="some:access:URI:any:URI"
                                 targetBinding="some:target:binding:reference:URI">
                 <rim:Slot name="queryAddress" slotType="xs:anyURI">
