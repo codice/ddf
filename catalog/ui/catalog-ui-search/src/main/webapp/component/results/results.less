@@ -11,10 +11,24 @@
   }
 
   .results-list {
-    height: ~'calc(100% - 80px)';
+    height: ~'calc(100% - 110px)';
   }
 
+  > .results-empty {
+    display: none;
+  }
     
+}
+
+@{customElementNamespace}results.is-empty {
+  > .results-empty {
+    display: block;
+  }
+
+  > .results-select,
+  > .results-list {
+    display: none;
+  }
 }
 
 @media (max-width: @mediumScreenSize) {

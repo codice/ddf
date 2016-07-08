@@ -22,9 +22,10 @@ define([
     'component/dropdown/query-select/dropdown.query-select.view',
     'component/dropdown/dropdown',
     'js/store',
-    'component/result-selector/result-selector.view'
+    'component/result-selector/result-selector.view',
+    'component/workspace-explore/workspace-explore.view'
 ], function (Marionette, _, $, resultsTemplate, CustomElements, QuerySelectDropdown, DropdownModel, store,
-            ResultSelectorView) {
+            ResultSelectorView, WorkspaceExploreView) {
 
     var ResultsView = Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -39,6 +40,7 @@ define([
         ui: {
         },
         regions: {
+            resultsEmpty: '.results-empty',
             resultsSelect: '.results-select',
             resultsList: '.results-list'
         },
@@ -46,15 +48,21 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            this._resultsSelectDropdownModel = new DropdownModel({
-                value: undefined
-            });
-            this.listenTo(this._resultsSelectDropdownModel, 'change:value', this.updateResultsList);
         },
         onBeforeShow: function(){
+            this._resultsSelectDropdownModel = new DropdownModel({
+                value: this.model.length === 1 ? this.model.first().id : undefined
+            });
             this.resultsSelect.show(new QuerySelectDropdown({
                 model: this._resultsSelectDropdownModel
             }));
+            this.listenTo(this._resultsSelectDropdownModel, 'change:value', this.updateResultsList);
+            this.resultsEmpty.show(new WorkspaceExploreView());
+            this.updateResultsList();
+            this.handleEmptyQueries();
+            this.listenTo(this.model, 'add', this.handleEmptyQueries);
+            this.listenTo(this.model, 'remove', this.handleEmptyQueries);
+            this.listenTo(this.model, 'update', this.handleEmptyQueries);
         },
         updateResultsList: function(){
             var queryId = this._resultsSelectDropdownModel.get('value');
@@ -62,11 +70,13 @@ define([
                 this.resultsList.show(new ResultSelectorView({
                     model: store.getCurrentQueries().get(queryId)
                 }));
-            } else {
-
             }
         },
-        onRender: function(){
+        handleEmptyQueries: function(){
+            this.$el.toggleClass('is-empty', this.model.isEmpty());
+            if (this.model.length === 1){
+                this._resultsSelectDropdownModel.set('value', this.model.first().id);
+            }
         }
     });
 
