@@ -14,14 +14,21 @@
 package ddf.security.principal;
 
 import java.io.Serializable;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.Principal;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Principal that designates a {@link ddf.security.Subject} as guest
  */
 public class GuestPrincipal implements Principal, Serializable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GuestPrincipal.class);
 
     public static final String GUEST_NAME_PREFIX = "Guest";
 
@@ -65,9 +72,25 @@ public class GuestPrincipal implements Principal, Serializable {
         if (!StringUtils.isEmpty(fullName)) {
             String[] parts = fullName.split(NAME_DELIMITER);
             if (parts.length == 2) {
-                return parts[1];
+                return formatIpAddress(parts[1]);
             }
         }
         return null;
+    }
+
+    //IPv6 addresses should be contained within brackets to conform
+    //to the spec IETF RFC 2732
+    private static String formatIpAddress(String ipAddress) {
+        try {
+            if (InetAddress.getByName(ipAddress) instanceof Inet6Address) {
+                if (!ipAddress.contains("[")) {
+                    ipAddress = ipAddress.indexOf('[') == 0 ? ipAddress : "[" + ipAddress + "]";
+                }
+            }
+        } catch (UnknownHostException e) {
+            LOGGER.debug("Error formatting the ip address, using the unformatted ipaddress", e);
+        }
+
+        return ipAddress;
     }
 }
