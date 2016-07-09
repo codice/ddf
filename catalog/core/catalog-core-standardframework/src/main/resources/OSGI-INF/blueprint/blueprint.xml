@@ -58,6 +58,8 @@
     </bean>
     <bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
     </bean>
+    <bean id="defaultAttributeSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
     <bean id="catalogProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
     </bean>
     <bean id="storageProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
@@ -174,6 +176,13 @@
                     interface="ddf.catalog.plugin.PostResourcePlugin" availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postResourceSortedList"/>
+    </reference-list>
+
+    <!-- DEFAULT ATTRIBUTE REFERENCE -->
+    <reference-list id="defaultAttribute"
+                    interface="ddf.catalog.plugin.DefaultMetacardAttributePlugin" availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="defaultAttributeSortedList"/>
     </reference-list>
 
     <reference-list id="connectedSources" interface="ddf.catalog.source.ConnectedSource"
@@ -360,9 +369,6 @@
 
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
-    <reference id="defaultAttributeValueRegistry"
-               interface="ddf.catalog.data.DefaultAttributeValueRegistry"/>
-
     <reference-list id="attributeInjectors" interface="ddf.catalog.data.AttributeInjector"
                     availability="optional">
         <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin">
@@ -390,6 +396,7 @@
                 <property name="postQuery" ref="postQuerySortedList"/>
                 <property name="preResource" ref="preResourceSortedList"/>
                 <property name="postResource" ref="postResourceSortedList"/>
+                <property name="defaultMetacardAttributePlugin" ref="defaultAttributeSortedList"/>
                 <property name="connectedSources" ref="connectedSources"/>
                 <property name="federatedSources" ref="federatedSourceMap"/>
                 <property name="resourceReaders" ref="resourceReaderSortedList"/>
@@ -406,7 +413,6 @@
                 <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
                 <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
                 <property name="validationQueryFactory" ref="validationQueryFactory"/>
-                <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
                 <property name="attributeInjectors" ref="attributeInjectors"/>
             </bean>
         </argument>

@@ -100,6 +100,12 @@
         </configfile>
     </feature>
 
+    <feature name="catalog-plugin-defaultsecurityattributevalues" install="manual" version="${project.version}"
+             description="Plugin to mark unmarked metacards with the system high security markings.">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-defaultsecurityattributevalues/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-core-content" install="auto" version="${project.version}"
              description="Core features for content">
         <feature prerequisite="true">catalog-app</feature>

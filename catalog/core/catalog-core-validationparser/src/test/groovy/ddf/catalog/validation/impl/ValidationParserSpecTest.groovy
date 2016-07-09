@@ -1,13 +1,9 @@
 package ddf.catalog.validation.impl
 
-import static org.mockito.Mockito.when
-import static org.powermock.api.mockito.PowerMockito.mockStatic
-
 import ddf.catalog.data.AttributeRegistry
-import ddf.catalog.data.DefaultAttributeValueRegistry
+import ddf.catalog.data.DefaultAttributeValue
 import ddf.catalog.data.InjectableAttribute
 import ddf.catalog.data.MetacardType
-import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
 import ddf.catalog.data.impl.AttributeRegistryImpl
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
@@ -20,8 +16,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.rule.PowerMockRule
 import spock.lang.Specification
 
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import static org.mockito.Mockito.when
+import static org.powermock.api.mockito.PowerMockito.mockStatic
 
 @PrepareForTest(FrameworkUtil.class)
 class ValidationParserSpecTest extends Specification {
@@ -37,8 +33,6 @@ class ValidationParserSpecTest extends Specification {
 
     AttributeValidatorRegistry attributeValidatorRegistry
 
-    DefaultAttributeValueRegistry defaultAttributeValueRegistry
-
     File file
 
     void setup() {
@@ -46,10 +40,7 @@ class ValidationParserSpecTest extends Specification {
 
         attributeValidatorRegistry = new AttributeValidatorRegistryImpl()
 
-        defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
-
-        validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry,
-                defaultAttributeValueRegistry)
+        validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry)
 
         file = temporaryFolder.newFile("temp.json")
     }
@@ -118,35 +109,21 @@ class ValidationParserSpecTest extends Specification {
         setup:
         file.withPrintWriter { it.write(defaultValues) }
         mockStatic(FrameworkUtil.class)
-        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(Mock(Bundle))
-
+        Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+        BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
         when:
         validationParser.install(file)
 
         then:
-        verifyDefaultValue("type2", "title", "Default Title")
-        def expectedDateTime = OffsetDateTime.of(2020, 2, 2, 2, 2, 2, 0, ZoneOffset.UTC)
-        verifyDefaultValue("expiration", Date.from(expectedDateTime.toInstant()))
-        verifyDefaultValue("thumbnail", [0x41, 0x42, 0x43] as byte[])
-        verifyDefaultValue("short", -123)
-        verifyDefaultValue("type1", "integer", 1234567890)
-        verifyDefaultValue("long", 1125899906842624)
-        verifyDefaultValue("type1", "float", -90.912f)
-        verifyDefaultValue("type2", "float", -90.912f)
-        verifyDefaultValue("double", 84812938.293818)
-        verifyDefaultValue("boolean", true)
-    }
-
-    void verifyDefaultValue(attributeName, expected) {
-        Optional<Serializable> optional = defaultAttributeValueRegistry.getDefaultValue("", attributeName)
-        assert optional.isPresent()
-        assert optional.get() == expected
-    }
-
-    void verifyDefaultValue(metacardTypeName, attributeName, expected) {
-        Optional<Serializable> optional = defaultAttributeValueRegistry.getDefaultValue(metacardTypeName, attributeName)
-        assert optional.isPresent()
-        assert optional.get() == expected
+        1 * mockBundleContext.registerService(DefaultAttributeValue.class, _ as DefaultAttributeValue, {
+            it.get("attribute") == "short"
+        })
+        1 * mockBundleContext.registerService(DefaultAttributeValue.class, _ as DefaultAttributeValue, {
+            it.get("attribute") == "thumbnail"
+        })
+        8 * mockBundleContext.registerService(DefaultAttributeValue.class, _ as DefaultAttributeValue, _)
     }
 
     def "test invalid validators"() {

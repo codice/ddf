@@ -51,11 +51,12 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.data.DefaultAttributeValueRegistry;
+import ddf.catalog.data.DefaultAttributeValue;
 import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.DefaultAttributeValueImpl;
 import ddf.catalog.data.impl.InjectableAttributeImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.validation.AttributeValidator;
@@ -78,18 +79,14 @@ public class ValidationParser implements ArtifactInstaller {
 
     private final AttributeValidatorRegistry attributeValidatorRegistry;
 
-    private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
-
     private static Map<String, Outer> sourceMap = new ConcurrentHashMap<>();
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
     public ValidationParser(AttributeRegistry attributeRegistry,
-            AttributeValidatorRegistry attributeValidatorRegistry,
-            DefaultAttributeValueRegistry defaultAttributeValueRegistry) {
+            AttributeValidatorRegistry attributeValidatorRegistry) {
         this.attributeRegistry = attributeRegistry;
         this.attributeValidatorRegistry = attributeValidatorRegistry;
-        this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
     }
 
     @Override
@@ -329,15 +326,24 @@ public class ValidationParser implements ArtifactInstaller {
                     List<String> metacardTypes = defaultObj.metacardTypes;
                     if (metacardTypes == null || metacardTypes.isEmpty()) {
                         return Stream.of(() -> {
-                            defaultAttributeValueRegistry.setDefaultValue(attribute, defaultValue);
+                            Dictionary<String, String> props = new Hashtable<>();
+                            props.put("attribute", attribute);
+                            getBundleContext().registerService(DefaultAttributeValue.class,
+                                    new DefaultAttributeValueImpl(attribute, defaultValue),
+                                    props);
                             return true;
                         });
                     } else {
                         return metacardTypes.stream()
                                 .map(metacardType -> (Callable<Boolean>) () -> {
-                                    defaultAttributeValueRegistry.setDefaultValue(metacardType,
-                                            attribute,
-                                            defaultValue);
+                                    Dictionary<String, String> props = new Hashtable<>();
+                                    props.put("attribute", attribute);
+                                    props.put("metacardType", metacardType);
+                                    getBundleContext().registerService(DefaultAttributeValue.class,
+                                            new DefaultAttributeValueImpl(metacardType,
+                                                    attribute,
+                                                    defaultValue),
+                                            props);
                                     return true;
                                 });
                     }

@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
@@ -143,7 +142,6 @@ public class FederationStrategyTest {
         props.setSourcePoller(poller);
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setFilterBuilder(new GeotoolsFilterBuilder());
-        props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
         Historian historian = new Historian();

@@ -18,6 +18,9 @@
     <string name="metadata-content-type-version">
         <value>myVersion</value>
     </string>
+    <string name="point-of-contact">
+        <value>mypoc@email.com</value>
+    </string>
     <string name="title">
         <value>Metacard-1</value>
     </string>

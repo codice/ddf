@@ -57,7 +57,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 
@@ -99,11 +98,9 @@ import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
-import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeRegistryImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -209,8 +206,6 @@ public class CatalogFrameworkImplTest {
     ArgumentCaptor<ResourceResponse> argument;
 
     List<FederatedSource> federatedSources;
-
-    DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
     AttributeInjector attributeInjector;
 
@@ -335,9 +330,6 @@ public class CatalogFrameworkImplTest {
         }
         frameworkProperties.setFederatedSources(federatedSourceMap);
 
-        defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl();
-        frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
-
         attributeInjector = spy(new AttributeInjectorImpl(new AttributeRegistryImpl()));
         frameworkProperties.setAttributeInjectors(Collections.singletonList(attributeInjector));
 
@@ -437,17 +429,6 @@ public class CatalogFrameworkImplTest {
                 .getValue(), is(injectAttributeValue));
     }
 
-    private void registerDefaults() {
-        defaultAttributeValueRegistry.setDefaultValue(Metacard.TITLE, DEFAULT_TITLE);
-        defaultAttributeValueRegistry.setDefaultValue(CUSTOM_METACARD_TYPE_NAME,
-                Metacard.TITLE,
-                DEFAULT_TITLE_CUSTOM);
-        defaultAttributeValueRegistry.setDefaultValue(Metacard.EXPIRATION, DEFAULT_EXPIRATION);
-        defaultAttributeValueRegistry.setDefaultValue(CUSTOM_METACARD_TYPE_NAME,
-                Metacard.EXPIRATION,
-                DEFAULT_EXPIRATION_CUSTOM);
-    }
-
     private List<Metacard> getMetacards(String title, Date expiration) {
         List<Metacard> metacards = new ArrayList<>();
 
@@ -478,47 +459,6 @@ public class CatalogFrameworkImplTest {
         metacards.add(customMetacardHasNeither);
 
         return metacards;
-    }
-
-    private void verifyDefaults(List<Metacard> metacards, String originalTitle,
-            Date originalExpiration, String expectedDefaultTitle, Date expectedDefaultExpiration,
-            String expectedDefaultTitleCustom, Date expectedDefaultDateCustom) {
-        Metacard neitherDefault = metacards.get(0);
-        assertThat(neitherDefault.getTitle(), is(originalTitle));
-        assertThat(neitherDefault.getExpirationDate(), is(originalExpiration));
-
-        Metacard expirationDefault = metacards.get(1);
-        assertThat(expirationDefault.getTitle(), is(originalTitle));
-        assertThat(expirationDefault.getExpirationDate(), is(expectedDefaultExpiration));
-
-        Metacard titleDefault = metacards.get(2);
-        assertThat(titleDefault.getTitle(), is(expectedDefaultTitle));
-        assertThat(titleDefault.getExpirationDate(), is(originalExpiration));
-
-        Metacard basicBothDefault = metacards.get(3);
-        assertThat(basicBothDefault.getTitle(), is(expectedDefaultTitle));
-        assertThat(basicBothDefault.getExpirationDate(), is(expectedDefaultExpiration));
-
-        Metacard customBothDefault = metacards.get(4);
-        assertThat(customBothDefault.getTitle(), is(expectedDefaultTitleCustom));
-        assertThat(customBothDefault.getExpirationDate(), is(expectedDefaultDateCustom));
-    }
-
-    @Test
-    public void testCreateWithDefaultValues() throws IngestException, SourceUnavailableException {
-        registerDefaults();
-
-        final String title = "some title";
-        final Date expiration = new Date();
-        CreateRequest createRequest = new CreateRequestImpl(getMetacards(title, expiration));
-        CreateResponse createResponse = framework.create(createRequest);
-        verifyDefaults(createResponse.getCreatedMetacards(),
-                title,
-                expiration,
-                DEFAULT_TITLE,
-                DEFAULT_EXPIRATION,
-                DEFAULT_TITLE_CUSTOM,
-                DEFAULT_EXPIRATION_CUSTOM);
     }
 
     /**
@@ -736,42 +676,6 @@ public class CatalogFrameworkImplTest {
                 .getOldMetacard()
                 .getId());
 
-    }
-
-    @Test
-    public void testUpdateWithDefaults() throws IngestException, SourceUnavailableException {
-        final String title = "some title";
-        final Date expiration = new Date();
-        List<Metacard> metacards = getMetacards(title, expiration);
-
-        CreateRequest createRequest = new CreateRequestImpl(metacards);
-        CreateResponse createResponse = framework.create(createRequest);
-
-        verifyDefaults(createResponse.getCreatedMetacards(),
-                title,
-                expiration,
-                null,
-                null,
-                null,
-                null);
-
-        registerDefaults();
-
-        UpdateRequest updateRequest = new UpdateRequestImpl(new String[] {"1", "2", "3", "4", "5"},
-                createResponse.getCreatedMetacards());
-        UpdateResponse updateResponse = framework.update(updateRequest);
-
-        List<Metacard> updatedMetacards = updateResponse.getUpdatedMetacards()
-                .stream()
-                .map(Update::getNewMetacard)
-                .collect(Collectors.toList());
-        verifyDefaults(updatedMetacards,
-                title,
-                expiration,
-                DEFAULT_TITLE,
-                DEFAULT_EXPIRATION,
-                DEFAULT_TITLE_CUSTOM,
-                DEFAULT_EXPIRATION_CUSTOM);
     }
 
     @Test
@@ -2173,8 +2077,6 @@ public class CatalogFrameworkImplTest {
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setSourcePoller(mockPoller);
         props.setFilterBuilder(new GeotoolsFilterBuilder());
-        props.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
-
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
         framework.setId("ddf");
@@ -2733,7 +2635,6 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder());
         frameworkProperties.setValidationQueryFactory(new ValidationQueryFactory(new GeotoolsFilterAdapterImpl(),
                 new GeotoolsFilterBuilder()));
-        frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.bind(provider);
@@ -2769,7 +2670,6 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setStorageProviders(Collections.singletonList(storageProvider));
         frameworkProperties.setSourcePoller(mockPoller);
         frameworkProperties.setBundleContext(context);
-        frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.bind(provider);

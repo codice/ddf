@@ -28,11 +28,11 @@ import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.data.AttributeInjector;
-import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.plugin.AccessPlugin;
+import ddf.catalog.plugin.DefaultMetacardAttributePlugin;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostQueryPlugin;
@@ -74,6 +74,8 @@ public class FrameworkProperties {
 
     private List<PostResourcePlugin> postResource = new ArrayList<>();
 
+    private List<DefaultMetacardAttributePlugin> defaultMetacardAttributePlugin = new ArrayList<>();
+
     private List<PolicyPlugin> policyPlugins = new ArrayList<>();
 
     private List<AccessPlugin> accessPlugins = new ArrayList<>();
@@ -113,8 +115,6 @@ public class FrameworkProperties {
     private List<PostUpdateStoragePlugin> postUpdateStoragePlugins = new ArrayList<>();
 
     private ValidationQueryFactory validationQueryFactory;
-
-    private DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
     private List<AttributeInjector> attributeInjectors = new ArrayList<>();
 
@@ -356,13 +356,13 @@ public class FrameworkProperties {
         return this.validationQueryFactory;
     }
 
-    public void setDefaultAttributeValueRegistry(
-            DefaultAttributeValueRegistry defaultAttributeValueRegistry) {
-        this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
+    public List<DefaultMetacardAttributePlugin> getDefaultMetacardAttributePlugin() {
+        return defaultMetacardAttributePlugin;
     }
 
-    public DefaultAttributeValueRegistry getDefaultAttributeValueRegistry() {
-        return defaultAttributeValueRegistry;
+    public void setDefaultMetacardAttributePlugin(
+            List<DefaultMetacardAttributePlugin> defaultMetacardAttributePlugin) {
+        this.defaultMetacardAttributePlugin = defaultMetacardAttributePlugin;
     }
 
     public void setAttributeInjectors(List<AttributeInjector> attributeInjectors) {
