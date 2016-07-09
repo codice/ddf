@@ -13,15 +13,16 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference-list interface="ddf.catalog.data.InjectableAttribute" availability="optional">
-        <reference-listener ref="injector" bind-method="bind" unbind-method="unbind"/>
-    </reference-list>
+    <service interface="ddf.catalog.data.AttributeInjector">
+        <bean class="ddf.catalog.data.inject.AttributeInjectorImpl">
+            <argument>
+                <reference interface="ddf.catalog.data.AttributeRegistry"/>
+            </argument>
+            <property name="injectableAttributes">
+                <reference-list interface="ddf.catalog.data.InjectableAttribute"
+                                availability="optional"/>
+            </property>
+        </bean>
+    </service>
 
-    <bean id="injector" class="ddf.catalog.data.inject.AttributeInjectorImpl">
-        <argument>
-            <reference interface="ddf.catalog.data.AttributeRegistry"/>
-        </argument>
-    </bean>
-
-    <service ref="injector" interface="ddf.catalog.data.AttributeInjector"/>
 </blueprint>

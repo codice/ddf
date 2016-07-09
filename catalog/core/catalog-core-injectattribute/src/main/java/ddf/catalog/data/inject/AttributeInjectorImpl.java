@@ -13,22 +13,13 @@
  */
 package ddf.catalog.data.inject;
 
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.Validate.notNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeInjector;
@@ -40,65 +31,28 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 
 public class AttributeInjectorImpl implements AttributeInjector {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AttributeInjectorImpl.class);
-
     private final AttributeRegistry attributeRegistry;
 
-    private final Set<String> globalInjections = new CopyOnWriteArraySet<>();
-
-    private final Map<String, Set<String>> metacardTypeInjections = new ConcurrentHashMap<>();
+    private List<InjectableAttribute> injectableAttributes = new ArrayList<>();
 
     public AttributeInjectorImpl(AttributeRegistry attributeRegistry) {
         this.attributeRegistry = attributeRegistry;
     }
 
-    private BundleContext getBundleContext() {
-        return FrameworkUtil.getBundle(getClass())
-                .getBundleContext();
-    }
-
-    public void bind(ServiceReference<InjectableAttribute> reference) {
-        LOGGER.debug("New service registered [{}]", reference);
-
-        InjectableAttribute injectableAttribute = getBundleContext().getService(reference);
-        String attributeName = injectableAttribute.attribute();
-        Set<String> metacardTypeNames = injectableAttribute.metacardTypes();
-
-        if (metacardTypeNames.isEmpty()) {
-            globalInjections.add(attributeName);
-        } else {
-            metacardTypeNames.forEach(metacardTypeName -> {
-                metacardTypeInjections.computeIfAbsent(metacardTypeName,
-                        k -> new CopyOnWriteArraySet<>())
-                        .add(attributeName);
-            });
-        }
-    }
-
-    public void unbind(ServiceReference<InjectableAttribute> reference) {
-        LOGGER.debug("Service deregistered [{}]", reference);
-
-        InjectableAttribute injectableAttribute = getBundleContext().getService(reference);
-        String attributeName = injectableAttribute.attribute();
-        Set<String> metacardTypeNames = injectableAttribute.metacardTypes();
-
-        if (metacardTypeNames.isEmpty()) {
-            globalInjections.remove(attributeName);
-        } else {
-            metacardTypeNames.forEach(metcardTypeName -> {
-                Set<String> injectIntoMetacardType = metacardTypeInjections.get(metcardTypeName);
-                if (injectIntoMetacardType != null) {
-                    injectIntoMetacardType.remove(attributeName);
-                }
-            });
-        }
+    public void setInjectableAttributes(List<InjectableAttribute> injectableAttributes) {
+        this.injectableAttributes = injectableAttributes;
     }
 
     private Set<String> injectableAttributes(String metacardTypeName) {
-        final Set<String> injections = new HashSet<>(globalInjections);
-        injections.addAll(metacardTypeInjections.getOrDefault(metacardTypeName,
-                Collections.emptySet()));
-        return injections;
+        return injectableAttributes.stream()
+                .filter(injectableAttribute -> isInjected(injectableAttribute.metacardTypes(),
+                        metacardTypeName))
+                .map(InjectableAttribute::attribute)
+                .collect(toSet());
+    }
+
+    private boolean isInjected(Set<String> metacardTypes, String metacardTypeName) {
+        return metacardTypes.isEmpty() || metacardTypes.contains(metacardTypeName);
     }
 
     @Override
@@ -112,7 +66,7 @@ public class AttributeInjectorImpl implements AttributeInjector {
                         .map(attributeRegistry::lookup)
                         .filter(Optional::isPresent)
                         .map(Optional::get)
-                        .collect(Collectors.toSet());
+                        .collect(toSet());
 
         if (injectAttributes.isEmpty()) {
             return original;

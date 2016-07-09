@@ -16,24 +16,14 @@ package ddf.catalog.data.inject;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
 
 import java.util.Date;
-import java.util.function.Consumer;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import ddf.catalog.data.AttributeDescriptor;
@@ -48,7 +38,6 @@ import ddf.catalog.data.impl.InjectableAttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 
-@PrepareForTest(FrameworkUtil.class)
 public class AttributeInjectorImplTest {
     private static final String NITF = "nitf";
 
@@ -97,36 +86,20 @@ public class AttributeInjectorImplTest {
             basicAndNitfAttributeName,
             Sets.newHashSet(BASIC_METACARD.getName(), NITF));
 
-    @Rule
-    public PowerMockRule powerMockRule = new PowerMockRule();
-
-    private BundleContext mockBundleContext = mock(BundleContext.class);
-
-    private AttributeRegistry attributeRegistry;
-
     private AttributeInjectorImpl attributeInjector;
 
     @Before
     public void setUp() {
-        attributeRegistry = new AttributeRegistryImpl();
+        AttributeRegistry attributeRegistry = new AttributeRegistryImpl();
         attributeInjector = new AttributeInjectorImpl(attributeRegistry);
 
-        mockStatic(FrameworkUtil.class);
-        Bundle mockBundle = mock(Bundle.class);
-        when(FrameworkUtil.getBundle(AttributeInjectorImpl.class)).thenReturn(mockBundle);
-        when(mockBundle.getBundleContext()).thenReturn(mockBundleContext);
-
-        setUpInjectableAttributes();
-    }
-
-    private void setUpInjectableAttributes() {
         attributeRegistry.register(globalAttribute);
         attributeRegistry.register(basicAttribute);
         attributeRegistry.register(basicAndNitfAttribute);
 
-        bindService(globalInjection);
-        bindService(basicInjection);
-        bindService(basicAndNitfInjection);
+        attributeInjector.setInjectableAttributes(Lists.newArrayList(globalInjection,
+                basicInjection,
+                basicAndNitfInjection));
     }
 
     @Test
@@ -177,40 +150,22 @@ public class AttributeInjectorImplTest {
     }
 
     @Test
-    public void testUnbind() {
-        unbindService(globalInjection);
-        unbindService(basicAndNitfInjection);
+    public void testInjectNothingIntoMetacardType() {
+        attributeInjector.setInjectableAttributes(Lists.newArrayList(basicInjection));
 
-        assertThat(attributeInjector.injectAttributes(NITF_TYPE), is(NITF_TYPE));
-        final Metacard nitfMetacard = new MetacardImpl(NITF_TYPE);
-        assertThat(attributeInjector.injectAttributes(nitfMetacard),
-                is(sameInstance(nitfMetacard)));
+        final MetacardType injectedMetacardType = attributeInjector.injectAttributes(NITF_TYPE);
 
-        final MetacardType expectedBasicMetacardType =
-                new MetacardTypeImpl(BASIC_METACARD.getName(),
-                        BASIC_METACARD,
-                        Sets.newHashSet(basicAttribute));
-        assertThat(attributeInjector.injectAttributes(BASIC_METACARD),
-                is(expectedBasicMetacardType));
-
-        final MetacardImpl basicMetacard = new MetacardImpl();
-        assertThat(attributeInjector.injectAttributes(basicMetacard)
-                .getMetacardType(), is(expectedBasicMetacardType));
+        assertThat(injectedMetacardType, is(sameInstance(NITF_TYPE)));
     }
 
-    private void bindService(InjectableAttribute injectableAttribute) {
-        handleService(injectableAttribute, attributeInjector::bind);
-    }
+    @Test
+    public void testInjectNothingIntoMetacard() {
+        attributeInjector.setInjectableAttributes(Lists.newArrayList(basicInjection));
 
-    private void unbindService(InjectableAttribute injectableAttribute) {
-        handleService(injectableAttribute, attributeInjector::unbind);
-    }
+        final Metacard original = new MetacardImpl(NITF_TYPE);
+        final Metacard injected = attributeInjector.injectAttributes(original);
 
-    private void handleService(InjectableAttribute injectableAttribute,
-            Consumer<ServiceReference<InjectableAttribute>> consumer) {
-        ServiceReference<InjectableAttribute> serviceRef = mock(ServiceReference.class);
-        when(mockBundleContext.getService(serviceRef)).thenReturn(injectableAttribute);
-        consumer.accept(serviceRef);
+        assertThat(injected, is(sameInstance(original)));
     }
 
     @Test(expected = IllegalArgumentException.class)
