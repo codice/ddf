@@ -8,11 +8,36 @@
 # See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
 # <http://www.gnu.org/licenses/lgpl.html>.
 
-usage() { echo "Usage: $0 <-d directory> <-z zipname> <-k keystore location> [-a alias]" 1>&2; exit 1; }
+usage() {
+	echo "SYNTAX ";
+	echo "\t$0 <-d directory> <-z zipname> <-k keystore> [-a alias] [-c cql-expr]" 1>&2;
+	echo "";
+	echo "ARGUMENTS";
+	echo "\t-d directory : The absolute path of the directory to export the metacard";
+	echo "\t               archive. Directory path must exist.";
+	echo "";
+	echo "\t-z zipname   : The name of the archive file to be generated. The command";
+	echo "\t               will fail if this name is not unique in the directory.";
+	echo "";
+	echo "\t-k keystore  : The path to the keystore file.";
+	echo "";
+	echo "OPTIONS";
+	echo "\t-a alias     : Name of alias of the private key entry in the keystore.";
+	echo "\t               Typically matches the Common Name (CN) for the host in";
+	echo "\t               the keystore.";
+	echo "";
+	echo "\t-c cql-expr  : Search using CQL filter expressions.";
+	echo "\t               Example CQL Expressions:";
+	echo "\t                {Textual} \"title like 'some text'\"";
+	echo "\t               {Temporal} \"modified before 2012-09-01T12:30:00Z\"";
+	echo "\t                {Spatial} \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"";
+	echo "";
+	exit 1;
+}
 
 JARSIGNER='jarsigner'
 
-while getopts ":d:z:k:a:" o; do
+while getopts "d:z:k:a:c:" o; do
     case "${o}" in
         d)
             d=${OPTARG}
@@ -25,6 +50,9 @@ while getopts ":d:z:k:a:" o; do
             ;;
         a)
             a=${OPTARG}
+            ;;
+        c)
+            c=${OPTARG}
             ;;
         *)
             usage
@@ -42,10 +70,18 @@ if [ -z "${d}" ] || [ -z "${z}" ] || [ -z "${k}" ]; then
 fi
 
 echo "Connecting to running DDF and exporting catalog to ${z}..."
-./client "catalog:dump --include-content=${z} ${d}"
+
+if [ -z "${c}" ]; then
+    echo Executing command: ./client catalog:dump --include-content ${z} ${d}
+    ./client "catalog:dump --include-content ${z} ${d}"
+else
+    echo Executing command: ./client -v "catalog:dump --include-content ${z} --cql \"${c}\" ${d}"
+    ./client "catalog:dump --include-content ${z} --cql \"${c}\" ${d}"
+fi
+
 if which ${JARSIGNER} >/dev/null; then
-        echo "Running  ${JARSIGNER} on ${z}, which will prompt you to enter the keystore password to sign the zip file..."
-         ${JARSIGNER} -keystore ${k} ${d}/${z} ${a}
+    echo "Running  ${JARSIGNER} on ${z}, which will prompt you to enter the keystore password to sign the zip file..."
+    ${JARSIGNER} -keystore ${k} ${d}/${z} ${a}
 else
     echo "Unable to find ${JARSIGNER}, ensure that $JAVA_HOME and $JAVA_HOME/bin are set on the path."
     exit 1
