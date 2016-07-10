@@ -11,9 +11,7 @@
  **/
 /*global require, window */
 /*jslint nomen:false, -W064 */
-window.jQuery = window.$ = require('jquery');
 window.CESIUM_BASE_URL = './lib/cesiumjs/Cesium/';
-require('cesium.css');
 
 require([
     'underscore',
@@ -24,7 +22,8 @@ require([
     'properties',
     'handlebars',
     'js/HandlebarsHelpers',
-    'js/ApplicationHelpers'
+    'js/ApplicationHelpers',
+    'cesium.css'
 ], function (_, $, Backbone, Marionette, app, properties, hbs) {
     // Make lodash compatible with Backbone
     var lodash = _.noConflict();

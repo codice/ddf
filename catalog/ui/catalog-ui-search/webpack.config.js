@@ -27,7 +27,11 @@ module.exports = {
       },
       {
         test: /jquery-ui/,
-        loader: 'imports?jQuery=jquery,jqueryui=jquery-ui'
+        loader: 'imports?jQuery=jquery,$=jquery,jqueryui=jquery-ui'
+      },
+      {
+        test: /bootstrap/,
+        loader: 'imports?jQuery=jquery'
       }
     ]
   },
