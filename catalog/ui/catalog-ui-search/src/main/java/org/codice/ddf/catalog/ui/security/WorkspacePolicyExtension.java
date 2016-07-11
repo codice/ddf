@@ -49,8 +49,8 @@ public class WorkspacePolicyExtension implements PolicyExtension {
     }
 
     protected String getSystemEmail() {
-        return SubjectUtils.getEmailAddress(Security.getInstance()
-                .getSystemSubject());
+        return Security.runAsAdmin(() -> SubjectUtils.getEmailAddress(Security.getInstance()
+                .getSystemSubject()));
     }
 
     private boolean isSystem(List<Permission> permissions) {
