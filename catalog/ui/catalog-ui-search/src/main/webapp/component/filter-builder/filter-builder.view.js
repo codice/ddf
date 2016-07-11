@@ -114,7 +114,13 @@ define([
             return text;
         },
         transformToCql: function(){
-            return sanitizeGeometryCql("("+ cql.write(cql.simplify(cql.read(cql.write(this.getFilters())))) +")");
+            this.deleteInvalidFilters();
+            var filter = this.getFilters();
+            if (filter.filters.length === 0){
+                return "(\"anyText\" ILIKE '%')";
+            } else {
+                return sanitizeGeometryCql("(" + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ")");
+            }
         },
         getFilters: function(){
             var operator = this.model.get('operator');
@@ -133,8 +139,18 @@ define([
                     type: operator,
                     filters: this.filterContents.currentView.children.map(function(childView){
                         return childView.getFilters();
+                    }).filter(function(filter){
+                       return filter && filter.value !== "";
                     })
                 }
+            }
+        },
+        deleteInvalidFilters: function(){
+            this.filterContents.currentView.children.forEach(function(childView){
+                childView.deleteInvalidFilters();
+            });
+            if (this.filterContents.currentView.children.length === 0){
+                this.delete();
             }
         },
         setFilters: function(filters){

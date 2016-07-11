@@ -223,6 +223,12 @@ define([
                 return generateFilter(type, property, this.filterInput.currentView.getCurrentValue()[0]);
             }
         },
+        deleteInvalidFilters: function(){
+            var currentValue = this.filterInput.currentView.getCurrentValue()[0];
+            if (currentValue === "" || currentValue === null){
+                this.delete();
+            }
+        },
         setFilter: function(filter){
             setTimeout(function(){
                 if (isGeoFilter(filter.type)){
