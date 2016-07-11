@@ -51,6 +51,12 @@ define([
             var resultFilter = user.get('user').get('preferences').get('resultFilter');
             if (resultFilter){
                 this.editorProperties.currentView.deserialize(cql.simplify(cql.read(resultFilter)));
+            } else {
+                this.editorProperties.currentView.deserialize({
+                    property: 'anyText',
+                    value: '',
+                    type: 'ILIKE'
+                });
             }
             this.handleFilter();
         },
