@@ -62,15 +62,20 @@ public class ServiceTypeConverter extends AbstractRegistryObjectTypeConverter<Se
         if (map.containsKey(SERVICE_BINDING_KEY)) {
             ServiceBindingTypeConverter bindingConverter = new ServiceBindingTypeConverter();
             Optional<ServiceBindingType> optionalBinding;
+
+            if (!optionalService.isPresent()) {
+                optionalService = Optional.of(mapToSchemaElement.getObjectFactory()
+                        .get());
+            }
+
             for (Map<String, Object> bindingMap : (List<Map<String, Object>>) map.get(
                     SERVICE_BINDING_KEY)) {
                 optionalBinding = bindingConverter.convert(bindingMap);
 
                 if (optionalBinding.isPresent()) {
-                    if (!optionalService.isPresent()) {
-                        optionalService = Optional.of(mapToSchemaElement.getObjectFactory()
-                                .get());
-                    }
+                    optionalBinding.get()
+                            .setService(optionalService.get()
+                                    .getId());
 
                     optionalService.get()
                             .getServiceBinding()
