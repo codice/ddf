@@ -55,6 +55,7 @@ define([
             this.checkDisplayType();
             this.checkIfSaved();
             this.checkIsInWorkspace();
+            this.checkIfBlacklisted();
             var currentWorkspace = store.getCurrentWorkspace();
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
@@ -62,6 +63,7 @@ define([
             this.listenTo(this.model.get('metacard').get('properties'), 'change', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
             this.listenTo(router, 'change', this.handleMetacardUpdate);
+            this.listenTo(user.get('user').get('preferences'), 'change:resultBlacklist', this.checkIfBlacklisted);
         },
         handleMetacardUpdate: function(){
             var currentWorkspace = store.getCurrentWorkspace();
@@ -74,6 +76,7 @@ define([
             this.checkDisplayType();
             this.checkIfSaved();
             this.checkIsInWorkspace();
+            this.checkIfBlacklisted();
         },
         onBeforeShow: function(){
             this._resultActions = new DropdownModel();
@@ -129,6 +132,13 @@ define([
         },
         serializeData: function(){
             return this.addConfiguredResultProperties(this.massageResult(this.model.toJSON()));
+        },
+        checkIfBlacklisted: function(){
+            var pref = user.get('user').get('preferences');
+            var blacklist = pref.get('resultBlacklist');
+            var id = this.model.get('metacard').get('properties').get('id');
+            var isBlacklisted = blacklist.indexOf(id) !== -1;
+            this.$el.toggleClass('is-blacklisted', isBlacklisted);
         },
         checkIsInWorkspace: function(){
             var currentWorkspace = store.getCurrentWorkspace();
