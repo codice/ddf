@@ -29,15 +29,15 @@ define([
         var filter = {
             type: 'AND',
             filters: [
-                { type: '=', property: '"metacard-tags"', value: 'history' },
-                { type: '=', property: '"metacard.history.action"', value: 'Deleted' }
+                { type: '=', property: '"metacard-tags"', value: 'revision' },
+                { type: '=', property: '"metacard.version.action"', value: 'Deleted' }
             ]
         };
 
         return new Query.Model({
             federation: 'local',
             cql: cql.write(filter),
-            sortField: 'metacard.history.versioned',
+            sortField: 'metacard.version.versioned',
             sortOrder: 'desc'
         });
     }
@@ -57,8 +57,8 @@ define([
                 message: this.model.get('message'),
                 messageClass: this.model.get('messageClass'),
                 title: properties.title,
-                editedBy: properties['metacard.history.edited-by'],
-                deleted: properties['metacard.history.versioned']
+                editedBy: properties['metacard.version.edited-by'],
+                deleted: properties['metacard.version.versioned']
             }
         },
         restore: function () {
@@ -82,7 +82,12 @@ define([
         }
     });
 
+    var EmptyRestoreItemView = Marionette.ItemView.extend({
+        template: 'No items to restore.'
+    });
+
     var RestoreCollectionView = Marionette.CollectionView.extend({
+        emptyView: EmptyRestoreItemView,
         childView: RestoreItemView,
     });
 
