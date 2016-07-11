@@ -199,12 +199,6 @@ define([
             var selectedResults = store.getSelectedResults();
             if (queryRef === undefined && selectedResults.length === 0){
                 this.hidePanelTwo();
-            } else if (queryRef !== undefined) {
-                this.updatePanelTwoQueryTitle();
-                this.showPanelTwo();
-                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== QueryTabsView) {
-                    this.panelTwo.show(new QueryTabsView());
-                }
             } else if (selectedResults.length === 1) {
                 this.showPanelTwo();
                 if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardTabsView) {
@@ -213,7 +207,7 @@ define([
                 this.panelTwoTitle.show(new MetacardTitleView({
                     model: selectedResults
                 }));
-            } else {
+            } else if (selectedResults.length > 1) {
                 this.showPanelTwo();
                 if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardsTabsView) {
                     this.panelTwo.show(new MetacardsTabsView());
@@ -221,6 +215,14 @@ define([
                 this.panelTwoTitle.show(new MetacardTitleView({
                     model: selectedResults
                 }));
+            } else if (queryRef !== undefined) {
+                this.updatePanelTwoQueryTitle();
+                this.showPanelTwo();
+                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== QueryTabsView) {
+                    this.panelTwo.show(new QueryTabsView());
+                }
+            } else {
+                this.hidePanelTwo();
             }
             Common.repaintForTimeframe(500, function(){
                 wreqr.vent.trigger('resize');
