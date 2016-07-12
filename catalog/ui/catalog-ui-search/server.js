@@ -14,6 +14,8 @@ var compression = require('compression');
 var express = require('express');
 var httpProxy = require('http-proxy');
 var morgan = require('morgan');
+var webpack = require('webpack');
+var merge = require('webpack-merge');
 
 var proxy = new httpProxy.createProxyServer({ changeOrigin: true, secure: false });
 
@@ -30,6 +32,34 @@ proxy.on('proxyRes', function(proxyRes, req, res) {
 });
 
 var app = express();
+
+var webpackConfig = merge(require('./webpack.config'), {
+    entry: [
+        'webpack-hot-middleware/client?path=/__webpack_hmr'
+    ],
+    module: {
+        loaders: [
+            {
+                test: /\.(hbs|handlebars)$/,
+                loader: 'handlebars-hot-loader'
+            }
+        ]
+    },
+    plugins: [
+        new webpack.HotModuleReplacementPlugin()
+    ]
+});
+
+var compiler = webpack(webpackConfig);
+
+app.use('/search/catalog/', require('webpack-dev-middleware')(compiler, {
+    noInfo: true
+}));
+
+app.use(require('webpack-hot-middleware')(compiler), {
+    path: '/__webpack_hmr'
+});
+
 app.use(compression());
 // enable the live reload
 app.use(require('connect-livereload')());

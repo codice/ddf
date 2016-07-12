@@ -12,22 +12,18 @@
 /* global define */
 define([
     'backbone',
-    'handlebars',
-    'text!templates/notification/notification.message.handlebars',
-    'text!templates/notification/notification.title.handlebars',
+    'templates/notification/notification.message.handlebars',
+    'templates/notification/notification.title.handlebars',
     'underscore',
     'jquery',
     'wreqr',
     'moment',
     'pnotify'
-], function (Backbone, hbs, messageTemplate, titleTemplate, _, $, wreqr, moment) {
+], function (Backbone, message, title, _, $, wreqr, moment) {
     // Create object to contain both the NotificationItemView and the NotificationListView in.
     // This is so we can return it below.
     var NotificationView = {};
     var currentTime = moment();
-
-    var message = hbs.compile(messageTemplate);
-    var title = hbs.compile(titleTemplate);
 
     //notificationStack and isNotificationOpen used to display only one popup notification at a time
     var notificationStack = [];

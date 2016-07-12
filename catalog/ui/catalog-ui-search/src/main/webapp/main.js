@@ -25,6 +25,12 @@ require([
     'js/ApplicationHelpers',
     'cesium.css'
 ], function (_, $, Backbone, Marionette, app, properties, hbs) {
+
+    require('regions-extras').register({
+        Handlebars: hbs,
+        Marionette: Marionette
+    });
+
     // Make lodash compatible with Backbone
     var lodash = _.noConflict();
     _.mixin({
@@ -34,7 +40,6 @@ require([
     });
     var document = window.document;
     //in here we drop in any top level patches, etc.
-    var cache = {};
     var toJSON = Backbone.Model.prototype.toJSON;
     Backbone.Model.prototype.toJSON = function(options){
         var originalJSON = toJSON.call(this, options);
@@ -58,11 +63,12 @@ require([
         cloneRef._cloneOf = this.id || this.cid;
         return cloneRef;
     };
-    Marionette.Renderer.render = function (template, data) {
-        if (cache[template] === undefined) {
-            cache[template] = hbs.compile(template);
+    Marionette.Renderer.render = function (template, data, view) {
+        if (typeof template === 'function') {
+            return template(data, { hash: { view: view }});
+        } else {
+            return template;
         }
-        return cache[template](data);
     };
     //$(window).trigger('resize');
     $(document).ready(function () {

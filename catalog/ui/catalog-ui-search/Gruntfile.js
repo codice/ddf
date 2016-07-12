@@ -38,9 +38,6 @@ module.exports = function (grunt) {
         },
         webpack: {
             options: require('./webpack.config'),
-            start: {
-                watch: true
-            },
             build: {
                 plugins: [
                     new webpack.optimize.UglifyJsPlugin({
@@ -171,7 +168,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('start', [
         'build:part',
-        'webpack:start',
         'express:server',
         'open:chrome',
         'watch'
@@ -179,7 +175,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', [
         'build:part',
-        'webpack:start',
         'express:server',
         'watch'
     ]);

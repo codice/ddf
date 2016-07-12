@@ -7,14 +7,15 @@ var resolve = function (place) {
 module.exports = {
   devtool: 'source-map',
   context: resolve('./src/main/webapp/js'),
-  entry: resolve('./src/main/webapp/main.js'),
+  entry: [
+      resolve('./src/main/webapp/main.js')
+  ],
   output: {
     path: resolve('./target/webapp'),
     filename: 'bundle.js'
   },
   module: {
     loaders: [
-      { test: /^text/, loader: 'text' },
       { test: /\.css$/, loader: "css" },
       {
         test: /\.(png|gif|jpg|jpeg)$/,
@@ -32,6 +33,10 @@ module.exports = {
       {
         test: /bootstrap/,
         loader: 'imports?jQuery=jquery'
+      },
+      {
+        test: /\.(hbs|handlebars)$/,
+        loader: 'handlebars'
       }
     ]
   },
@@ -82,7 +87,7 @@ module.exports = {
       fileupload: 'jquery-file-upload/js/jquery.fileupload',
       jquerySortable: 'jquery-ui/sortable',
       // handlebars
-      handlebars: 'handlebars/dist/handlebars',
+      handlebars: 'handlebars/runtime',
       // pnotify
       pnotify: 'pnotify/jquery.pnotify.min',
       // map
