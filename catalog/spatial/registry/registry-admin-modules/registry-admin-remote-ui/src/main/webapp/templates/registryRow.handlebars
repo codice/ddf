@@ -13,8 +13,8 @@
  --}}
 <td>
     <a href='#{{id}}' class='newLink' data-toggle="modal">
-        {{#if name}}
-            {{name}}
+        {{#if id}}
+            {{id}}
         {{else}}
             <span class='label label-danger'>[No Title]</span>
         {{/if}}
@@ -35,12 +35,12 @@
     {{/if}}
 </td>
 <td>
-    {{#if pushAllowed}}
+    {{#if attributes.pushAllowed}}
         <span class="fa fa-check"></span>
     {{/if}}
 </td>
 <td colspan="4">
-    {{#if pullAllowed}}
+    {{#if attributes.pullAllowed}}
         <span class="fa fa-check"></span>
     {{/if}}
 </td>

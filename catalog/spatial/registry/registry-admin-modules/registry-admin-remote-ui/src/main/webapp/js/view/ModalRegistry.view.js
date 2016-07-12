@@ -45,7 +45,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,wreqr,_,$,Utils,Service,moda
         className: 'modal',
         events: {
             "click .submit-button": "submitData",
-            "click .cancel-button": "cancel",
+            "click .cancel-button": "closeAndUnbind",
             "change .registryName": "registryNameChanged"
         },
         regions: {
@@ -67,11 +67,11 @@ function (ich,Marionette,Backbone,ConfigurationEdit,wreqr,_,$,Utils,Service,moda
             this.registry = options.registry;
             this.modelBinder = new Backbone.ModelBinder();
             this.mode = options.mode;
+            this.type = options.registryType;
         },
         onRender: function() {
 
-            //TO DO - will want to get any registry details/properties here
-            var config = this.model.get('registryConfiguration').at(0);
+            var config = this.getConfig();
             var properties = config.get('properties');
 
             this.$el.attr('role', "dialog");
@@ -90,7 +90,8 @@ function (ich,Marionette,Backbone,ConfigurationEdit,wreqr,_,$,Utils,Service,moda
         submitData: function() {
             wreqr.vent.trigger('beforesave');
             var view = this;
-            var service = view.model.get('registryConfiguration').at(0);
+            var service = this.getConfig();
+
             service.get('properties').set('remoteName', view.model.get('remoteName'));
             if (service) {
                 if (_.isUndefined(service.get('properties').id)) {
@@ -100,7 +101,12 @@ function (ich,Marionette,Backbone,ConfigurationEdit,wreqr,_,$,Utils,Service,moda
 
                 service.save().then(function (response) {
                         var existingRegistry = view.registry.get('collection').find(function (item) {
-                            var config = item.get('registryConfiguration').at(0);
+                            var config;
+                            item.get('registryConfiguration').forEach(function(regConfig){
+                                if(regConfig.get('name') === view.type){
+                                    config = regConfig;
+                                }
+                            });
                             return (config && config.get('properties').id === service.get('properties').id);
                         });
 
@@ -176,7 +182,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,wreqr,_,$,Utils,Service,moda
         checkName: function(newName) {
             var view = this;
             var model = view.model;
-            var config = model.get('registryConfiguration');
+            var config = this.getConfig();
 
             if (newName === '') {
                 view.showError('A registry must have a unique name.');
@@ -203,7 +209,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,wreqr,_,$,Utils,Service,moda
             var valid = false;
             var configs = this.registry.get('collection');
             var match = configs.find(function(registryConfig) {
-                return registryConfig.get('name') === name;
+                return registryConfig.get('id') === name;
             });
             if (_.isUndefined(match)) {
                 valid = true;
@@ -244,12 +250,27 @@ function (ich,Marionette,Backbone,ConfigurationEdit,wreqr,_,$,Utils,Service,moda
         },
         setConfigName: function(config, name) {
             if (!_.isUndefined(config)) {
-                var properties =  config.at(0).get('properties');
+                var properties =  config.get('properties');
                 properties.set({
                     'shortname': name,
                     'id': name
                 });
             }
+        },
+        getConfig: function() {
+            var config;
+            var type = this.type;
+            if(type && this.mode === 'add'){
+                this.model.get('registryConfiguration').forEach(function(regConfig){
+                    if (regConfig.get('name') === type){
+                        config = regConfig;
+                    }
+                });
+            } else {
+                config = this.model.get('registryConfiguration').at(0);
+            }
+
+            return config;
         }
     });
 

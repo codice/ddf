@@ -19,6 +19,7 @@ define([
     'underscore',
     'jquery',
     'q',
+    'js/view/ModalConfig.view.js',
     'js/view/ModalRegistry.view.js',
     'js/view/EmptyView.js',
     'wreqr',
@@ -32,7 +33,7 @@ define([
     'js/model/RemoteStatus.js',
     'js/model/Status.js'
 ],
-function (ich,Marionette,_,$,Q,ModalRegistry,EmptyView,wreqr,Utils,deleteRegistryModal,deleteRegistry,registryPage,registryList,registryRow,poller,RemoteStatus,Status) {
+function (ich,Marionette,_,$,Q,ModalConfig,ModalRegistry,EmptyView,wreqr,Utils,deleteRegistryModal,deleteRegistry,registryPage,registryList,registryRow,poller,RemoteStatus,Status) {
 
     var RegistryView ={};
 
@@ -195,14 +196,26 @@ function (ich,Marionette,_,$,Q,ModalRegistry,EmptyView,wreqr,Utils,deleteRegistr
             });
         },
         addRegistry: function(){
-            if(this.model) {
-                wreqr.vent.trigger("showModal",
-                    new ModalRegistry.View({
-                        model: this.model.getRegistryModel(),
-                        registry: this.model,
-                        mode: 'add'
-                    })
-                );
+            var self = this.model;
+            if(self) {
+                var regConfigs = self.getRegistryModel().get('registryConfiguration');
+                if(regConfigs.size() > 1) {
+                    wreqr.vent.trigger("showModal",
+                        new ModalConfig.View({
+                            model:self.getRegistryModel(),
+                            registry: self
+                        })
+                    );
+                } else {
+                    wreqr.vent.trigger("showModal",
+                        new ModalRegistry.View({
+                            model: self.getRegistryModel(),
+                            registry: self,
+                            mode: 'add',
+                            registryType: self.getRegistryModel().type
+                        })
+                    );
+                }
             }
         },
         removeRegistry: function() {
@@ -216,11 +229,13 @@ function (ich,Marionette,_,$,Q,ModalRegistry,EmptyView,wreqr,Utils,deleteRegistr
             }
         },
         editRegistry: function(service) {
+            var self = this.model;
             wreqr.vent.trigger("showModal",
                 new ModalRegistry.View({
-                    model: this.model.getRegistryModel(service),
-                    registry: this.model,
-                    mode: 'edit'
+                    model: self.getRegistryModel(service),
+                    registry: self,
+                    mode: 'edit',
+                    registryType: service.get('type')
                 })
             );
         }

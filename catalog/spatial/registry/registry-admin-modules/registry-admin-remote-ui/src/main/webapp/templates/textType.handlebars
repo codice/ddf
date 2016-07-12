@@ -19,12 +19,8 @@
         </a>
     {{/if}}
     <div class="controls">
-        {{#if optionValues}}
-            <select id="{{id}}" name="{{id}}" class="form-control input-sm">
-                {{#each optionLabels}}
-                    <option value="{{lookup ../optionValues @index}}" {{#is @index 0}}selected="selected" {{/is}}>{{.}}</option>
-                {{/each}}
-            </select>
+        {{#if id}}
+            <input type='text' class='{{id}} metatype form-control input-sm' name='{{id}}' id='{{id}}' value='{{id}}'>
         {{else}}
             <input type='text' class='{{id}} metatype form-control input-sm' name='{{id}}' id='{{id}}' value='{{#defaultValue}}{{.}}{{/defaultValue}}'>
         {{/if}}
