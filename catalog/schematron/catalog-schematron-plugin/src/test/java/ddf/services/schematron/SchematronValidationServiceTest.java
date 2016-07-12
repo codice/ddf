@@ -65,6 +65,17 @@ public class SchematronValidationServiceTest {
         getService("dog_legs.sch").validate(getMetacard("dog_4leg_3paw.xml"));
     }
 
+    @Test
+    public void testNullorEmptyMetadata()
+            throws ValidationException, IOException, SchematronInitializationException {
+        MetacardImpl card = new MetacardImpl();
+        SchematronValidationService service = getService("dog_legs.sch");
+        service.validate(card);
+        card.setMetadata("");
+        service.validate(card);
+        assertThat("No exceptions were thrown validating null/empty metadata", true, is(true));
+    }
+
     @Test(expected = ValidationException.class)
     public void testMultipleSchematron()
             throws ValidationException, IOException, SchematronInitializationException {
@@ -200,8 +211,7 @@ public class SchematronValidationServiceTest {
     public void testSanitizationChangesNothing() {
         String str = "ontattoinewerunfromsandpeople";
         // verify that nothing changes
-        assertThat(str,
-                is(SchematronValidationService.sanitize(str)));
+        assertThat(str, is(SchematronValidationService.sanitize(str)));
         str = "princess leia";
         // verify that nothing changes again
         assertThat(str, is(SchematronValidationService.sanitize(str)));
