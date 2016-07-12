@@ -1681,7 +1681,6 @@ public class TestFederation extends AbstractIntegrationTest {
             LOGGER.error("Unexpected data in the download");
             fail("Unexpected data in the download");
         }
-
     }
 
     /**
@@ -1832,6 +1831,69 @@ public class TestFederation extends AbstractIntegrationTest {
 
         return found;
     }
+
+    @Test
+    public void testCancelDownload() throws Exception {
+        getSecurityPolicy().configureWebContextPolicy(null, "/=SAML|basic,/solr=SAML|PKI|basic",
+                null, null);
+        localhostCometDClient = setupCometDClientWithUser(
+                Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL), "localhost", "localhost");
+        String filename = testName + ".txt";
+        String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
+                .delayBetweenChunks(Duration.ofMillis(200))
+                .fail(0)
+                .build();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"), withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(), contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId))
+                .then(getCswRetrievalHeaders(filename),
+                        response);
+
+        String startDownloadUrl = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + "?source="
+                + CSW_STUB_SOURCE_ID + "&metacard=" + metacardId;
+
+        // @formatter:off
+        String downloadId = given().auth().preemptive().basic("localhost", "localhost")
+                .get(startDownloadUrl).then().log().all()
+                .extract().jsonPath().getString("downloadId");
+        // @formatter:on
+
+        localhostCometDClient.cancelDownload(downloadId);
+
+        expect("Waiting for notifications.").within(10, SECONDS)
+                .until(() -> localhostCometDClient.getMessages(NOTIFICATIONS_CHANNEL)
+                        .size() == 1);
+
+        /**
+         * Wait for 2 activities. The first one is the download started, and the second one is the
+         * download canceled.
+         */
+        expect("Waiting for activities.").within(10, SECONDS)
+                .until(() -> localhostCometDClient.getMessages(ACTIVITIES_CHANNEL)
+                        .size() == 2);
+
+        List<String> notifications = localhostCometDClient
+                .getMessagesInAscOrder(NOTIFICATIONS_CHANNEL);
+
+        List<String> activities = localhostCometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
+
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)), filename,
+                "Resource retrieval cancelled. ", "cancelled");
+
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)), filename,
+                "Resource retrieval cancelled. ", "STOPPED");
+    }
+
 
     @Ignore
     public void testFederatedDownloadProductToCacheOnlyCacheEnabled() throws Exception {

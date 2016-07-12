@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,8 @@ public class CometDClient {
 
     private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(60);
 
+    private static final long MAX_NETWORK_DELAY = 60000;
+
     private final BayeuxClient bayeuxClient;
 
     private final HttpClient httpClient;
@@ -96,8 +99,9 @@ public class CometDClient {
     public CometDClient(String url) throws Exception {
         SslContextFactory sslContextFactory = new SslContextFactory(true);
         httpClient = new HttpClient(sslContextFactory);
-        doTrustAllCertificates();
+        doTrustAllCertificates();        
         ClientTransport transport = new LongPollingTransport(new HashMap<>(), httpClient);
+        transport.setOption(ClientTransport.MAX_NETWORK_DELAY_OPTION, MAX_NETWORK_DELAY);
         bayeuxClient = new BayeuxClient(url, transport);
     }
 
@@ -140,6 +144,19 @@ public class CometDClient {
             LOGGER.error(message);
             throw new ConnectException(message);
         }
+    }
+
+    public void publish(String channel, Map<String, Object> jsonMap) {
+        LOGGER.debug("Publishing to channel: {} using message: {}", channel, jsonMap);
+        bayeuxClient.getChannel(channel)
+                .publish(jsonMap, new ClientSessionChannel.MessageListener() {
+
+                    @Override
+                    public void onMessage(ClientSessionChannel channel, Message message) {
+                        LOGGER.debug("On channel {} received message {}", channel,
+                                message.getJSON());
+                    }
+                });
     }
 
     /**
@@ -270,6 +287,17 @@ public class CometDClient {
         bayeuxClient.waitFor(TIMEOUT, BayeuxClient.State.DISCONNECTED);
     }
 
+    public void cancelDownload(String downloadId) {
+        Map<String, Object> jsonMap = new HashMap<String, Object>();
+        List<Map<String, Object>> data = new ArrayList<>();
+        Map<String, Object> dataMap = new HashMap<String, Object>();
+        dataMap.put("id", downloadId);
+        dataMap.put("action", "cancel");
+        data.add(dataMap);
+        jsonMap.put("data", data);
+        publish("/service/action", jsonMap);
+    }
+
     private void verifyConnected() {
         if (!bayeuxClient.isConnected()) {
             String message = String.format("%s has not connected to the server at %s",
@@ -346,10 +374,8 @@ public class CometDClient {
 
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
-            LOGGER.debug("On channel {} received message {} at {}", channel, message.getJSON());
-            LOGGER.debug("timestamp of message: {}",
-                    message.getDataAsMap()
-                            .get("timestamp"));
+            LOGGER.debug("On channel {} received message {}", channel, message.getJSON());
+            LOGGER.debug("timestamp of message: {}", message.getDataAsMap().get("timestamp"));
             messages.add(message.getJSON());
         }
 
