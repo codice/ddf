@@ -22,9 +22,11 @@ define([
     'js/CustomElements',
     'component/router/router',
     'maptype',
-    'text!templates/map.handlebars',
-    'component/metacard/metacard'
-], function (wreqr, Marionette, _, $, template, CustomElements, router, maptype, map, metacardInstance) {
+    'component/metacard/metacard',
+    'component/visualization/cesium/cesium.view',
+    'component/visualization/openlayers/openlayers.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, router, maptype,
+             metacardInstance, CesiumView, OpenlayersView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -41,66 +43,14 @@ define([
         initialize: function(){
             this.listenTo(router, 'change', this.handleRoute);
             this.handleRoute();
-            var contentView = this;
             if (maptype.is3d()) {
-                var Map3d = Marionette.LayoutView.extend({
-                    template: map,
-                    className: 'height-full',
-                    regions: { mapDrawingPopup: '#mapDrawingPopup' },
-                    onShow: function () {
-                        var self = this;
-                        require([
-                            'js/controllers/cesium.controller'
-                        ], function (GeoController) {
-                            var geoController = new GeoController({
-                                element: self.el.querySelector('#cesiumContainer')
-                            });
-                            geoController._billboardPromise.then(function(){
-                                geoController.showResult(metacardInstance.get('currentMetacard'));
-                                geoController.zoomToResult(metacardInstance.get('currentMetacard'));
-                                self.setupListeners(geoController);
-                            });
-                        });
-                    },
-                    setupListeners: function(geoController){
-                        geoController.listenTo(router, 'change', this.handleMetacardChange)
-                    },
-                    handleMetacardChange: function(){
-                        this.showResult(metacardInstance.get('currentMetacard'));
-                        this.zoomToResult(metacardInstance.get('currentMetacard'));
-                    }
+                this._mapView = new CesiumView({
+                    selectionInterface: metacardInstance
                 });
-                this._mapView = new Map3d();
             } else if (maptype.is2d()) {
-                var Map2d = Marionette.LayoutView.extend({
-                    template: map,
-                    className: 'height-full',
-                    regions: { mapDrawingPopup: '#mapDrawingPopup' },
-                    onShow: function () {
-                        var map2d = this;
-                        require([
-                            'js/controllers/openlayers.controller'
-                        ], function (GeoController) {
-                            var geoController = new GeoController({
-                                element: map2d.el.querySelector('#cesiumContainer')
-                            });
-                            geoController.showResult(metacardInstance.get('currentMetacard'));
-                            geoController.zoomToResult(metacardInstance.get('currentMetacard'));
-                            map2d.setupListeners(geoController);
-                            map2d.listenTo(wreqr.vent, 'resize', function(){
-                                geoController.mapViewer.updateSize();
-                            });
-                        });
-                    },
-                    setupListeners: function(geoController){
-                        geoController.listenTo(router, 'change', this.handleMetacardChange)
-                    },
-                    handleMetacardChange: function(){
-                        this.showResult(metacardInstance.get('currentMetacard'));
-                        this.zoomToResult(metacardInstance.get('currentMetacard'));
-                    }
+                this._mapView = new OpenlayersView({
+                    selectionInterface: metacardInstance
                 });
-                this._mapView = new Map2d();
             }
         },
         handleRoute: function(){

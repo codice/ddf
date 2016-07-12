@@ -26,16 +26,18 @@ define([
     'component/tabs/workspace-content/tabs-workspace-content.view',
     'component/tabs/query/tabs-query.view',
     'maptype',
-    'text!templates/map.handlebars',
     'js/store',
     'component/tabs/metacard/tabs-metacard.view',
     'component/tabs/metacards/tabs-metacards.view',
     'js/Common',
     'component/metacard-title/metacard-title.view',
-    'component/router/router'
+    'component/router/router',
+    'component/visualization/cesium/cesium.view',
+    'component/visualization/openlayers/openlayers.view'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
-             WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, maptype, map, store,
-             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, router) {
+             WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, maptype, store,
+             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, router, CesiumView,
+            OpenlayersView) {
 
     var debounceTime = 25;
 
@@ -57,105 +59,14 @@ define([
             'panelThree': '.content-panelThree'
         },
         initialize: function(){
-            var contentView = this;
             if (maptype.is3d()) {
-                var Map3d = Marionette.LayoutView.extend({
-                    template: map,
-                    className: 'height-full',
-                    regions: { mapDrawingPopup: '#mapDrawingPopup' },
-                    events: { 'click .cluster-results': 'toggleClustering' },
-                    onShow: function () {
-                        var self = this;
-                        require([
-                            'js/controllers/cesium.controller',
-                            'js/widgets/cesium.bbox',
-                            'js/widgets/cesium.circle',
-                            'js/widgets/cesium.polygon',
-                            'js/widgets/filter.cesium.geometry.group'
-                        ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, FilterCesiumGeometryGroup) {
-                            var geoController = new GeoController({
-                                element: self.el.querySelector('#cesiumContainer')
-                            });
-                            self.setupListeners(geoController);
-                            new FilterCesiumGeometryGroup.Controller({ geoController: geoController });
-                            new DrawBbox.Controller({
-                                scene: geoController.scene,
-                                notificationEl: contentView._mapView.mapDrawingPopup.el
-                            });
-                            new DrawCircle.Controller({
-                                scene: geoController.scene,
-                                notificationEl: contentView._mapView.mapDrawingPopup.el
-                            });
-                            new DrawPolygon.Controller({
-                                scene: geoController.scene,
-                                notificationEl: contentView._mapView.mapDrawingPopup.el,
-                                drawHelper: geoController.drawHelper,
-                                geoController: geoController
-                            });
-                            self.geoController = geoController;
-                        });
-                    },
-                    toggleClustering: function () {
-                        this.geoController.toggleClustering();
-                    },
-                    setupListeners: function(geoController){
-                        geoController.listenTo(store.get('content'), 'reset:activeSearchResults', geoController.newActiveSearchResults);
-                        if (store.get('content').getActiveSearchResults()) {
-                            geoController.newActiveSearchResults(store.get('content').getActiveSearchResults());
-                        }
-                        geoController.listenTo(store.getSelectedResults(), 'update', geoController.zoomToSelected);
-                        geoController.listenTo(store.getSelectedResults(), 'add', geoController.zoomToSelected);
-                        geoController.listenTo(store.getSelectedResults(), 'remove', geoController.zoomToSelected);
-
-                        geoController.listenTo(wreqr.vent, 'search:mapshow', geoController.flyToLocation);
-                    }
+                this._mapView = new CesiumView({
+                    selectionInterface: store.get('content')
                 });
-                this._mapView = new Map3d();
             } else if (maptype.is2d()) {
-                var Map2d = Marionette.LayoutView.extend({
-                    template: map,
-                    className: 'height-full',
-                    regions: { mapDrawingPopup: '#mapDrawingPopup' },
-                    onShow: function () {
-                        var map2d = this;
-                        require([
-                            'js/controllers/openlayers.controller',
-                            'js/widgets/openlayers.bbox',
-                            'js/widgets/openlayers.polygon',
-                            'js/widgets/filter.openlayers.geometry.group'
-                        ], function (GeoController, DrawBbox, DrawPolygon, FilterCesiumGeometryGroup) {
-                            var geoController = new GeoController({
-                                element: map2d.el.querySelector('#cesiumContainer')
-                            });
-                            map2d.setupListeners(geoController);
-                            new FilterCesiumGeometryGroup.Controller({ geoController: geoController });
-                            new DrawBbox.Controller({
-                                map: geoController.mapViewer,
-                                notificationEl: contentView._mapView.mapDrawingPopup.el
-                            });
-                            new DrawPolygon.Controller({
-                                map: geoController.mapViewer,
-                                notificationEl: contentView._mapView.mapDrawingPopup.el
-                            });
-                            map2d.listenTo(wreqr.vent, 'resize', function(){
-                                geoController.mapViewer.updateSize();
-                            });
-                        });
-                    },
-                    setupListeners: function(geoController){
-                        geoController.listenTo(store.get('content'), 'reset:activeSearchResults', geoController.newActiveSearchResults);
-                        if (store.get('content').getActiveSearchResults()) {
-                            geoController.newActiveSearchResults(store.get('content').getActiveSearchResults());
-                        }
-
-                        geoController.listenTo(wreqr.vent, 'search:mapshow', geoController.flyToLocation);
-                        geoController.listenTo(wreqr.vent, 'search:maprectanglefly', geoController.flyToRectangle);
-                        geoController.listenTo(store.getSelectedResults(), 'update', geoController.zoomToSelected);
-                        geoController.listenTo(store.getSelectedResults(), 'add', geoController.zoomToSelected);
-                        geoController.listenTo(store.getSelectedResults(), 'remove', geoController.zoomToSelected);
-                    }
+                this._mapView = new OpenlayersView({
+                    selectionInterface: store.get('content')
                 });
-                this._mapView = new Map2d();
             }
             this.listenTo(router, 'change', this.handleRoute);
             this.listenTo(store.get('content'), 'change:currentWorkspace', this.updatePanelOne);

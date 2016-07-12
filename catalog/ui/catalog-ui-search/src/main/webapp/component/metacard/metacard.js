@@ -22,10 +22,53 @@ define([
                 type: Backbone.One,
                 key: 'currentMetacard',
                 relatedModel: Metacard.SearchResult
+            },
+            {
+                type: Backbone.Many,
+                key: 'selectedResults',
+                relatedModel: Metacard.Metacard
+            },
+            {
+                type: Backbone.Many,
+                key: 'activeSearchResults',
+                relatedModel: Metacard.MetacardResult
             }
         ],
         defaults: {
-            currentMetacard: undefined
+            currentMetacard: undefined,
+            selectedResults: [],
+            activeSearchResults: []
+        },
+        initialize: function(){
+            this.set('currentResult', new Metacard.SearchResult());
+            this.listenTo(this, 'change:currentMetacard', this.handleUpdate);
+        },
+        handleUpdate: function(){
+            this.clearSelectedResults();
+            this.setActiveSearchResults(this.get('currentResult').get('results'));
+            this.addSelectedResult(this.get('currentMetacard'));
+            console.log('update');
+        },
+        getActiveSearchResults: function(){
+            return this.get('activeSearchResults');
+        },
+        setActiveSearchResults: function(results){
+            this.get('activeSearchResults').reset(results.models);
+        },
+        addToActiveSearchResults: function(results){
+            this.get('activeSearchResults').add(results.models);
+        },
+        getSelectedResults: function(){
+            return this.get('selectedResults');
+        },
+        clearSelectedResults: function(){
+            this.getSelectedResults().reset();
+        },
+        addSelectedResult: function(metacard){
+            this.getSelectedResults().add(metacard);
+        },
+        removeSelectedResult: function(metacard){
+            this.getSelectedResults().remove(metacard);
         }
     }))();
 });

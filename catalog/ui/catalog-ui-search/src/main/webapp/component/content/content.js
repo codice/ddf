@@ -97,6 +97,18 @@ define([
         addToActiveSearchResults: function(results){
             this.get('activeSearchResults').add(results.models);
         },
+        getSelectedResults: function(){
+            return this.get('selectedResults');
+        },
+        clearSelectedResults: function(){
+            this.getSelectedResults().reset();
+        },
+        addSelectedResult: function(metacard){
+            this.getSelectedResults().add(metacard);
+        },
+        removeSelectedResult: function(metacard){
+            this.getSelectedResults().remove(metacard);
+        },
         filterQuery: function(queryRef) {
             var filteredQueries = this.get('filteredQueries');
             var filtered = Boolean(filteredQueries.get(queryRef));

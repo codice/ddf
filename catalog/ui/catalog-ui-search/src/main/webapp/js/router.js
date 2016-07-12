@@ -144,7 +144,10 @@ define([
                                     });
                                 });
                         } else {
-                            metacardInstance.set('currentMetacard', queryForMetacard.get('result').get('results').first());
+                            metacardInstance.set({
+                                'currentMetacard': queryForMetacard.get('result').get('results').first(),
+                                'currentResult': queryForMetacard.get('result')
+                            });
                             if (Application.App.metacardRegion.currentView === undefined) {
                                 Application.App.metacardRegion.show(new MetacardView());
                             }
