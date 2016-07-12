@@ -40,18 +40,8 @@
 
   @{customElementNamespace}query-item.is-selected {
     font-weight: bold;
-  }
-
-  @{customElementNamespace}query-item.is-selected {
-    &::after {
-      content: '';
-      width: 1px;
-      height: 100%;
-      position: absolute;
-      top: 0px;
-      right: 0px;
-      border-right: 1px solid grey;
-    }
+    color: lighten(@primary-color, 20%);
+    background: rgba(64,80, 93, .8);
   }
 }
 

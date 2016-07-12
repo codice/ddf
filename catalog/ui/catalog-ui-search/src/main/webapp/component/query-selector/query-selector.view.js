@@ -48,6 +48,7 @@ define([
         },
         onBeforeShow: function(){
             this.queryCollection.show(new QueryItemCollectionView());
+            this.queryCollection.currentView.$el.addClass('is-list');
         },
         initialize: function(options){
             if (options.model === undefined){
