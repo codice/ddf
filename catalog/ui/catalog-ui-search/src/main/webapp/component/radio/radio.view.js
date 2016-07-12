@@ -51,8 +51,14 @@ define([
             }
         },
         handleValue: function(){
-            this.$el.find('button').removeClass('is-selected');
-            this.$el.find('[data-value="'+JSON.stringify(this.model.get('value'))+'"]').addClass('is-selected');
+            var value = this.model.get('value');
+            var choices = this.$el.children('[data-value]');
+            choices.removeClass('is-selected');
+            _.forEach(choices, function (choice) {
+                if ($(choice).attr('data-value') === JSON.stringify(value)) {
+                    $(choice).addClass('is-selected');
+                }
+            }.bind(this));
         },
         turnOnEditing: function(){
             this.model.set('isEditing', true);
@@ -62,16 +68,17 @@ define([
         },
         serializeData: function(){
             var modelJSON = this.model.toJSON();
-            modelJSON.value = JSON.stringify(modelJSON.value);
+            modelJSON.options.forEach(function(option){
+                option.value =  JSON.stringify(option.value);
+            });
             return modelJSON;
         }
     }, {
-        createRadio: function(options, defaultValue, isEditing){
+        createRadio: function(configuration){
             return new this({
                 model: new RadioModel({
-                    options: options,
-                    value: defaultValue,
-                    isEditing: Boolean(isEditing)
+                    options: configuration.options,
+                    value: configuration.defaultValue
                 })
             });
         }

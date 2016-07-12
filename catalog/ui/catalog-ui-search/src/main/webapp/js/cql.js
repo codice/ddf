@@ -502,7 +502,13 @@ define(function () {
             return write(filter);
         },
         simplify: function(cqlAst){
-            return simplifyAst(cqlAst);
+            var prevAst = JSON.parse(JSON.stringify(cqlAst));
+            simplifyAst(cqlAst)
+            while (JSON.stringify(prevAst) !== JSON.stringify(cqlAst)){
+                prevAst = JSON.parse(JSON.stringify(cqlAst));
+                simplifyAst(cqlAst);
+            }
+            return cqlAst;
         }
     };
 });

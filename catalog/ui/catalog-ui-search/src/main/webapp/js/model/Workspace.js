@@ -130,7 +130,8 @@ define([
             createLocalWorkspace: function(){
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Local',
-                    federation: 'local'
+                    federation: 'local',
+                    cql: "anyText ILIKE '%'"
                 });
                 this.create({
                     title: 'Template Local',
@@ -142,7 +143,8 @@ define([
             createAllWorkspace: function(){
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Federated',
-                    federation: 'enterprise'
+                    federation: 'enterprise',
+                    cql: "anyText ILIKE '%'"
                 });
                 this.create({
                     title: 'Template Federated',
@@ -154,7 +156,7 @@ define([
             createGeoWorkspace: function(){
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Location',
-                    cql: 'INTERSECTS(anyGeo, POLYGON((-130.7514 20.6825, -130.7514 44.5780, -65.1230 44.5780, -65.1230 20.6825, -130.7514 20.6825)))'
+                    cql: "anyText ILIKE '%' AND INTERSECTS(anyGeo, POLYGON((-130.7514 20.6825, -130.7514 44.5780, -65.1230 44.5780, -65.1230 20.6825, -130.7514 20.6825)))"
                 });
                 this.create({
                     title: 'Template Location',
@@ -166,7 +168,7 @@ define([
             createLatestWorkspace: function(){
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Temporal',
-                    cql: '("created" AFTER ' + moment().subtract(1, 'days').toISOString() + ')'
+                    cql: 'anyText ILIKE \'%\' AND ("created" AFTER ' + moment().subtract(1, 'days').toISOString() + ')'
                 });
                 this.create({
                     title: 'Template Temporal',

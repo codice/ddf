@@ -73,7 +73,8 @@ define([
                             };
                         }
                     }),
-                    defaultSelection: [this.model.get('value')]
+                    defaultSelection: this.model.get('property').get('enumMulti') ? this.model.get('value') : [this.model.get('value')],
+                    isMultiSelect: this.model.get('property').get('enumMulti')
                 }
             ));
             this.listenTo(this.enumRegion.currentView.model, 'change:value', this.triggerChange);
@@ -82,7 +83,13 @@ define([
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
         },
         handleValue: function(){
-            this.enumRegion.currentView.model.set('value', [this.model.get('value')]);
+            var value = this.model.get('value');
+            if (value && !this.model.get('property').get('enumMulti')){
+                value = [value];
+            } else if (!value) {
+                value = [];
+            }
+            this.enumRegion.currentView.model.set('value', value);
         },
         save: function(){
             /*var value = this.$el.find('input').val();
@@ -103,7 +110,8 @@ define([
             }
         },
         getCurrentValue: function(){
-            var currentValue = this.enumRegion.currentView.model.get('value')[0];
+            var currentValue = this.model.get('property').get('enumMulti') ?
+                this.enumRegion.currentView.model.get('value') : this.enumRegion.currentView.model.get('value')[0];
             switch(this.model.getCalculatedType()){
                 case 'date':
                     if (currentValue){

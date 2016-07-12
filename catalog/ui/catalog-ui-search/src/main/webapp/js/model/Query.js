@@ -46,8 +46,8 @@ define([
             //that we have enough values to search
             defaults: function() {
                 return {
-                    cql: "anyText ILIKE '%'",
-                    title: 'Untitled',
+                    cql: "anyText ILIKE ''",
+                    title: '',
                     offsetTimeUnits: 'hours',
                     scheduleUnits: 'minutes',
                     timeType: 'modified',

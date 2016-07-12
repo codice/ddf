@@ -132,6 +132,7 @@ define([
             }, { unset: true });
             //wreqr.vent.trigger('search:drawstop');
             wreqr.vent.trigger('search:drawend', this.model);
+            this.$el.trigger('change');
         },
         swapLocationTypeLatLon: function () {
             this.model.set('locationType', 'latlon');

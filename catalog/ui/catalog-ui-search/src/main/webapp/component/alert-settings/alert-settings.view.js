@@ -60,13 +60,16 @@ define([
         },
         setupPersistance: function () {
             var persistance = user.get('user').get('preferences').get('alertPersistance');
-            this.propertyPersistance.show(RadioView.createRadio([{
-                label: 'Yes',
-                value: 'true'
-            }, {
-                label: 'No',
-                value: 'false'
-            }], persistance));
+            this.propertyPersistance.show(RadioView.createRadio({
+                options: [{
+                    label: 'Yes',
+                    value: 'true'
+                }, {
+                    label: 'No',
+                    value: 'false'
+                }],
+                defaultValue: persistance
+            }));
         },
         setupExpiration: function () {
             var expiration = user.get('user').get('preferences').get('alertExpiration');

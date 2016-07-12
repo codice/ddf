@@ -22,10 +22,11 @@ define([
     'component/input/input.view',
     'component/input/thumbnail/input-thumbnail.view',
     'component/input/date/input-date.view',
-    'component/location-old/location-old.view',
-    'component/input/enum/input-enum.view'
+    'component/input/location/input-location.view',
+    'component/input/enum/input-enum.view',
+    'component/input/radio/input-radio.view'
 ], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView,
-             LocationOldView, InputEnumView) {
+             InputLocationView, InputEnumView, InputRadioView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -44,8 +45,12 @@ define([
             this.handleMultivalue();
         },
         onBeforeShow: function(){
-            if (this.model.get('property').get('enum')){
+            if (this.model.get('property').get('enum')) {
                 this.input.show(new InputEnumView({
+                    model: this.model
+                }));
+            } else if (this.model.get('property').get('radio')){
+                this.input.show(new InputRadioView({
                     model: this.model
                 }));
             } else {
@@ -61,7 +66,7 @@ define([
                         }));
                         break;
                     case 'location':
-                        this.input.show(new LocationOldView({
+                        this.input.show(new InputLocationView({
                             model: this.model
                         }));
                         break;

@@ -30,6 +30,7 @@ define([
         hasChanged: function(){
             switch(this.model.getCalculatedType()){
                 case 'thumbnail':
+                case 'location':
                     return this.children.first().hasChanged();
                     break;
                 case 'date':
@@ -48,6 +49,8 @@ define([
                 default:
                     var currentValue = this.children.map(function(childView){
                         return childView.getCurrentValue();
+                    }).filter(function(value){
+                        return Boolean(value);
                     });
                     currentValue.sort();
                     return JSON.stringify(currentValue) !== JSON.stringify(this.model.getInitialValue());
@@ -69,12 +72,19 @@ define([
     },{
         generateValueCollectionView: function(propertyModel){
             var valueCollection = new ValueCollection();
-            valueCollection.add(propertyModel.get('value').map(function(value){
-                return {
-                    value: value,
-                    property: propertyModel
-                }
-            }));
+            if (propertyModel.get('value').length > 0){
+                valueCollection.add(propertyModel.get('value').map(function(value){
+                    return {
+                        value: value,
+                        property: propertyModel
+                    }
+                }));
+            } else {
+                valueCollection.add({
+                        value: null,
+                        property: propertyModel
+                });
+            }
             return new this({
                 collection: valueCollection,
                 model: propertyModel

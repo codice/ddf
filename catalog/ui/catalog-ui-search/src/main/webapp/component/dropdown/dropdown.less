@@ -27,7 +27,11 @@
   }
 
   .text-src {
-    display: block;
+    display: inline-block;
+  }
+
+  .text-src + .text-src:before {
+    content: ',';
   }
 
   .is-invalid {

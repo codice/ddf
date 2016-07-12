@@ -29,7 +29,6 @@ define([
         },
         tagName: CustomElements.register('select-collection'),
         modelEvents: {
-            'change': 'render'
         },
         events: {
             'click .choice': 'handleChoice',

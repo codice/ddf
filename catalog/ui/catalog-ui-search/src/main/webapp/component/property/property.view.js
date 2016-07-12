@@ -108,7 +108,9 @@ define([
             return this.propertyValue.currentView.getCurrentValue();
         },
         focus: function(){
-            this.$el.find('input').select();
+            setTimeout(function() {
+                this.$el.find('input').select()
+            }.bind(this), 0);
         },
         hasChanged: function(){
             if (this.propertyValue.currentView){

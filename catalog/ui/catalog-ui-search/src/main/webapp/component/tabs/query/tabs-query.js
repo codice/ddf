@@ -14,18 +14,18 @@ define([
     'underscore',
     '../tabs',
     'js/store',
-    'component/query-old-basic/query-old-basic.view',
+    'component/query-basic/query-basic.view',
     'component/query-settings/query-settings.view',
     'component/query-status/query-status.view',
     'component/query-schedule/query-schedule.view',
     'component/query-advanced/query-advanced.view'
-], function (_, Tabs, store, QueryOldBasicView, QuerySettingsView, QueryStatusView,
+], function (_, Tabs, store, QueryBasicView, QuerySettingsView, QueryStatusView,
              QueryScheduleView, QueryAdvancedView) {
 
     var WorkspaceContentTabs = Tabs.extend({
         defaults: {
             tabs: {
-                'Basic': QueryOldBasicView,
+                'Basic': QueryBasicView,
                 'Advanced': QueryAdvancedView,
                 'Settings': QuerySettingsView,
                 'Schedule': QueryScheduleView,

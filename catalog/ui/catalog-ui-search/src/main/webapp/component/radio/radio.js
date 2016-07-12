@@ -28,7 +28,7 @@ define([
                 value: 'yes'
             }],
             value: undefined,
-            isEditing: false
+            isEditing: true
         }
     });
 });

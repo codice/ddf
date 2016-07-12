@@ -92,23 +92,25 @@ define([
         getCenteringElement: function(){
             return this.el;
         },
-        serializeData: function(){
-            if (this.options.list){
-                var values = this.model.get('value');
-                var selections = values.map(function(value){
-                     var selection = this.options.list.filter(function(item){
-                         return JSON.stringify(item.value) === JSON.stringify(value);
-                     });
-                    if (selection.length > 0){
-                        return selection[0];
-                    } else {
-                        return {
-                            invalid: true,
-                            label: value
-                        };
-                    }
-                }.bind(this));
-                return selections;
+        determineSelections: function () {
+            var values = this.model.get('value');
+            return values.map(function (value) {
+                var selection = this.options.list.filter(function (item) {
+                    return JSON.stringify(item.value) === JSON.stringify(value);
+                });
+                if (selection.length > 0) {
+                    return selection[0];
+                } else {
+                    return {
+                        invalid: true,
+                        label: value
+                    };
+                }
+            }.bind(this));
+        },
+        serializeData: function () {
+            if (this.options.list) {
+                return this.determineSelections();
             } else {
                 return this.model.toJSON();
             }
