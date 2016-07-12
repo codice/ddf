@@ -21,12 +21,10 @@ define([
     'text!./metacard-visual.hbs',
     'js/CustomElements',
     'component/router/router',
-    'maptype',
     'component/metacard/metacard',
-    'component/visualization/cesium/cesium.view',
-    'component/visualization/openlayers/openlayers.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, router, maptype,
-             metacardInstance, CesiumView, OpenlayersView) {
+    'component/visualization/visualization.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, router, metacardInstance,
+             VisualizationView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -43,15 +41,9 @@ define([
         initialize: function(){
             this.listenTo(router, 'change', this.handleRoute);
             this.handleRoute();
-            if (maptype.is3d()) {
-                this._mapView = new CesiumView({
-                    selectionInterface: metacardInstance
-                });
-            } else if (maptype.is2d()) {
-                this._mapView = new OpenlayersView({
-                    selectionInterface: metacardInstance
-                });
-            }
+            this._mapView = new VisualizationView({
+                selectionInterface: metacardInstance
+            });
         },
         handleRoute: function(){
             if (router.toJSON().name === 'openMetacard'){

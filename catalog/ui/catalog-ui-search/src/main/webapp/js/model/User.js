@@ -122,7 +122,8 @@ define([
                 alerts: [],
                 alertPersistance: false, // don't persist across sessions by default
                 alertExpiration: 86400000, // 1 day
-                resultBlacklist: []
+                resultBlacklist: [],
+                visualization: 'map'
             };
         },
         relations: [

@@ -47,7 +47,6 @@ define([
             this.clearSelectedResults();
             this.setActiveSearchResults(this.get('currentResult').get('results'));
             this.addSelectedResult(this.get('currentMetacard'));
-            console.log('update');
         },
         getActiveSearchResults: function(){
             return this.get('activeSearchResults');

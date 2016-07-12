@@ -25,19 +25,16 @@ define([
     'component/tabs/workspace-content/tabs-workspace-content',
     'component/tabs/workspace-content/tabs-workspace-content.view',
     'component/tabs/query/tabs-query.view',
-    'maptype',
     'js/store',
     'component/tabs/metacard/tabs-metacard.view',
     'component/tabs/metacards/tabs-metacards.view',
     'js/Common',
     'component/metacard-title/metacard-title.view',
     'component/router/router',
-    'component/visualization/cesium/cesium.view',
-    'component/visualization/openlayers/openlayers.view'
+    'component/visualization/visualization.view'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
-             WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, maptype, store,
-             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, router, CesiumView,
-            OpenlayersView) {
+             WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
+             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, router, VisualizationView) {
 
     var debounceTime = 25;
 
@@ -59,15 +56,9 @@ define([
             'panelThree': '.content-panelThree'
         },
         initialize: function(){
-            if (maptype.is3d()) {
-                this._mapView = new CesiumView({
-                    selectionInterface: store.get('content')
-                });
-            } else if (maptype.is2d()) {
-                this._mapView = new OpenlayersView({
-                    selectionInterface: store.get('content')
-                });
-            }
+            this._mapView = new VisualizationView({
+                selectionInterface: store.get('content')
+            });
             this.listenTo(router, 'change', this.handleRoute);
             this.listenTo(store.get('content'), 'change:currentWorkspace', this.updatePanelOne);
             var debouncedUpdatePanelTwo = _.debounce(this.updatePanelTwo, debounceTime);
