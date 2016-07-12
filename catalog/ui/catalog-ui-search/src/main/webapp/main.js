@@ -21,14 +21,30 @@ require([
     'application',
     'properties',
     'handlebars',
+    './component/announcement',
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
     'cesium.css'
-], function (_, $, Backbone, Marionette, app, properties, hbs) {
+], function (_, $, Backbone, Marionette, app, properties, hbs, announcement) {
 
     require('regions-extras').register({
         Handlebars: hbs,
         Marionette: Marionette
+    });
+
+    $(window.document).ajaxError(function (event, jqxhr, settings, throwError) {
+        var message;
+        console.error(event, jqxhr, settings, throwError);
+
+        if (jqxhr.responseJSON !== undefined) {
+            message = jqxhr.responseJSON.message;
+        }
+
+        announcement.announce({
+            title: 'Server Error',
+            message: message || 'Unknown error.',
+            type: 'error'
+        });
     });
 
     // Make lodash compatible with Backbone
@@ -67,7 +83,7 @@ require([
         if (typeof template === 'function') {
             return template(data, { hash: { view: view }});
         } else {
-            return template;
+            return hbs.compile(template)(data);
         }
     };
     //$(window).trigger('resize');

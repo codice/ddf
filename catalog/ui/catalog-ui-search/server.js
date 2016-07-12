@@ -15,9 +15,42 @@ var express = require('express');
 var httpProxy = require('http-proxy');
 var morgan = require('morgan');
 var webpack = require('webpack');
-var merge = require('webpack-merge');
 
-var proxy = new httpProxy.createProxyServer({ changeOrigin: true, secure: false });
+var app = express();
+
+app.use(compression());
+// enable the live reload
+app.use(require('connect-livereload')());
+
+
+var devCompiler = webpack(require('./webpack/config/dev'));
+
+app.use('/search/catalog/', require('webpack-dev-middleware')(devCompiler, {
+    noInfo: true
+}));
+
+app.use(require('webpack-hot-middleware')(devCompiler, {
+    path: '/__webpack_hmr'
+}));
+
+var testCompiler = webpack(require('./webpack/config/test'));
+
+app.use('/search/catalog/test/', require('webpack-dev-middleware')(testCompiler, {
+    noInfo: true
+}));
+app.use(require('webpack-hot-middleware')(testCompiler, {
+    path: '/__webpack_hmr_test'
+}));
+
+// our compiled css gets moved to /target/webapp/css so use it there
+app.use('/search/catalog/', express.static(__dirname + '/target/webapp/'));
+app.use('/search/catalog/', express.static(__dirname + '/src/main/webapp'));
+
+app.use(morgan('dev'));
+
+var proxy = new httpProxy.createProxyServer({
+    changeOrigin: true, secure: false
+});
 
 proxy.on('error', function (error) {
     console.error('http-proxy', error);
@@ -30,45 +63,6 @@ proxy.on('proxyRes', function(proxyRes, req, res) {
         proxyRes.headers['set-cookie'] = cookie[0].replace(/;Secure/, '')
     }
 });
-
-var app = express();
-
-var webpackConfig = merge(require('./webpack.config'), {
-    entry: [
-        'webpack-hot-middleware/client?path=/__webpack_hmr'
-    ],
-    module: {
-        loaders: [
-            {
-                test: /\.(hbs|handlebars)$/,
-                loader: 'handlebars-hot-loader'
-            }
-        ]
-    },
-    plugins: [
-        new webpack.HotModuleReplacementPlugin()
-    ]
-});
-
-var compiler = webpack(webpackConfig);
-
-app.use('/search/catalog/', require('webpack-dev-middleware')(compiler, {
-    noInfo: true
-}));
-
-app.use(require('webpack-hot-middleware')(compiler), {
-    path: '/__webpack_hmr'
-});
-
-app.use(compression());
-// enable the live reload
-app.use(require('connect-livereload')());
-
-// our compiled css gets moved to /target/webapp/css so use it there
-app.use('/search/catalog/', express.static(__dirname + '/target/webapp/'));
-app.use('/search/catalog/', express.static(__dirname + '/src/main/webapp'));
-
-app.use(morgan('dev'));
 
 //if we're mocking, it is being run by grunt
 app.use(function (req, res) {

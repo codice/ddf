@@ -13,7 +13,7 @@
 define([
     'underscore',
     'moment',
-    'handlebars'
+    'handlebars/runtime'
 ], function (_, moment, Handlebars) {
     'use strict';
     // The module to be exported

@@ -10,8 +10,6 @@
  *
  **/
 /*global module,require*/
-var webpack = require('webpack');
-
 module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
     grunt.loadTasks('src/main/grunt/tasks');
@@ -37,19 +35,7 @@ module.exports = function (grunt) {
             }
         },
         webpack: {
-            options: require('./webpack.config'),
-            build: {
-                plugins: [
-                    new webpack.optimize.UglifyJsPlugin({
-                        compress: {
-                            warnings: false
-                        },
-                        output: {
-                            comments: false
-                        }
-                    })
-                ]
-            }
+            build: require('./webpack/config/prod')
         },
         cssmin: {
             compress: {
