@@ -172,6 +172,10 @@ public class CatalogBundle {
         setConfigProperty(RESOURCE_DOWNLOAD_MANAGER_PID, "delayBetweenAttempts", delay);
     }
 
+    public void setupMaxDownloadRetryAttempts(int maxRetryAttempts) throws IOException {
+        setConfigProperty(RESOURCE_DOWNLOAD_MANAGER_PID, "maxRetryAttempts", maxRetryAttempts);
+    }
+
     private void setConfigProperty(String pid, String propertyName, Object propertyValue)
             throws IOException {
         Map<String, Object> existingProperties = Optional.ofNullable(adminConfig.getDdfConfigAdmin()

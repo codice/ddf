@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 @Service
 public class NotificationController extends AbstractEventController {
-    // CometD requires prepending the topic name with a '/' character, whereas
+    // CometD requires pre-pending the topic name with a '/' character, whereas
     // the OSGi Event Admin doesn't allow it.
     protected static final String NOTIFICATION_TOPIC_DOWNLOADS_COMETD =
             "/" + Notification.NOTIFICATION_TOPIC_DOWNLOADS;
@@ -59,12 +59,12 @@ public class NotificationController extends AbstractEventController {
     }
 
     /**
-     * Implementation of {@link org.osgi.service.event.EventHandler#handleEvent(Event)} that receives notifications
-     * published on the {@link #NOTIFICATIONS_TOPIC_NAME} topic from the OSGi eventing framework and
-     * forwards them to their intended recipients.
+     * Implementation of {@link org.osgi.service.event.EventHandler#handleEvent(Event)} that
+     * receives notifications published on the {@link Notification#NOTIFICATION_TOPIC_ROOT} topic
+     * from the OSGi eventing framework and forwards them to their intended recipients.
      *
-     * @throws IllegalArgumentException when any of the following required properties are either missing from the Event
-     *                                  or contain empty values:
+     * @throws IllegalArgumentException when any of the following required properties are either
+     *                                  missing from the Event or contain empty values:
      *                                  <p>
      *                                  <ul>
      *                                  <li>{@link Notification#NOTIFICATION_KEY_APPLICATION}</li>
@@ -81,41 +81,52 @@ public class NotificationController extends AbstractEventController {
                 || event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION)
                 .toString()
                 .isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Event \"" + Notification.NOTIFICATION_KEY_APPLICATION
-                            + "\" property is null or empty");
+            String message = String.format("Event [%s] property is null or empty",
+                    Notification.NOTIFICATION_KEY_APPLICATION);
+            LOGGER.warn(message);
+            throw new IllegalArgumentException(message);
         }
 
         if (null == event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE) || event.getProperty(
                 Notification.NOTIFICATION_KEY_MESSAGE)
                 .toString()
                 .isEmpty()) {
-            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_MESSAGE
-                    + "\" property is null or empty");
+            String message = String.format("Event [%s] property is null or empty",
+                    Notification.NOTIFICATION_KEY_MESSAGE);
+            LOGGER.warn(message);
+            throw new IllegalArgumentException(message);
         }
 
         if (null == event.getProperty(Notification.NOTIFICATION_KEY_TIMESTAMP)) {
-            throw new IllegalArgumentException(
-                    "Event \"" + Notification.NOTIFICATION_KEY_TIMESTAMP + "\" property is null");
+            String message = String.format("Event [%s] property is null",
+                    Notification.NOTIFICATION_KEY_TIMESTAMP);
+            LOGGER.warn(message);
+            throw new IllegalArgumentException(message);
         }
 
         if (null == event.getProperty(Notification.NOTIFICATION_KEY_TITLE) || event.getProperty(
                 Notification.NOTIFICATION_KEY_TITLE)
                 .toString()
                 .isEmpty()) {
-            throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_TITLE
-                    + "\" property is null or empty");
+            String message = String.format("Event [%s] property is null or empty",
+                    Notification.NOTIFICATION_KEY_TITLE);
+            LOGGER.warn(message);
+            throw new IllegalArgumentException(message);
         }
 
         String sessionId = (String) event.getProperty(Notification.NOTIFICATION_KEY_SESSION_ID);
         String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
 
         if (StringUtils.isBlank(userId) && StringUtils.isBlank(sessionId)) {
-            throw new IllegalArgumentException("No user information was provided in the event object. userId and sessionId properties were null");
+            String message =
+                    "No user information was provided in the event object. userId and sessionId properties were null";
+            LOGGER.error(message);
+            throw new IllegalArgumentException(message);
         }
 
-        ServerSession recipient = null;
-        LOGGER.debug("Getting ServerSession for userId/sessionId {}", userId);
+        ServerSession recipient;
+
+        LOGGER.debug("Getting ServerSession for userId/sessionId [{}]/[{}]", userId, sessionId);
         recipient = getSessionById(userId, sessionId);
 
         if (null != recipient) {
@@ -132,8 +143,8 @@ public class NotificationController extends AbstractEventController {
                     NOTIFICATION_TOPIC_DOWNLOADS_COMETD,
                     propMap);
         } else {
-            LOGGER.debug("Session with ID \"{}\" is not connected to the server. "
-                    + "Ignnoring notification", sessionId);
+            LOGGER.debug("Session with ID [{}] is not connected to the server. "
+                    + "Ignoring notification", sessionId);
         }
     }
 

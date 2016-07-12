@@ -78,11 +78,11 @@ public class DownloadsStatusEventPublisher {
     /**
      * Send notification and activity with current retrieval status.
      *
-     * @param resourceResponse the response from the product retrieval containing the actual @Resource
-     * @param status the status of the product retrieval, e.g., IN_PROGRESS, STARTED, etc.
-     * @param metacard the @Metacard associated with the product being downloaded
-     * @param detail detailed message to be displayed in the notification and/or activity
-     * @param bytes the number of bytes read thus far during the product download
+     * @param resourceResponse   the response from the product retrieval containing the actual @Resource
+     * @param status             the status of the product retrieval, e.g., IN_PROGRESS, STARTED, etc.
+     * @param metacard           the @Metacard associated with the product being downloaded
+     * @param detail             detailed message to be displayed in the notification and/or activity
+     * @param bytes              the number of bytes read thus far during the product download
      * @param downloadIdentifier unique ID for this product download
      */
     public void postRetrievalStatus(final ResourceResponse resourceResponse,
@@ -101,14 +101,14 @@ public class DownloadsStatusEventPublisher {
     /**
      * Based on the input parameters send notification and/or activity with current retrieval status.
      *
-     * @param resourceResponse the response from the product retrieval containing the actual @Resource
-     * @param status the status of the product retrieval, e.g., IN_PROGRESS, STARTED, etc.
-     * @param metacard the @Metacard associated with the product being downloaded
-     * @param detail detailed message to be displayed in the notification and/or activity
-     * @param bytes the number of bytes read thus far during the product download
+     * @param resourceResponse   the response from the product retrieval containing the actual @Resource
+     * @param status             the status of the product retrieval, e.g., IN_PROGRESS, STARTED, etc.
+     * @param metacard           the @Metacard associated with the product being downloaded
+     * @param detail             detailed message to be displayed in the notification and/or activity
+     * @param bytes              the number of bytes read thus far during the product download
      * @param downloadIdentifier unique ID for this product download
-     * @param sendNotification true indicates a notification with current retrieval status is to be sent
-     * @param sendActivity true indicates an activity with current retrieval status is to be sent
+     * @param sendNotification   true indicates a notification with current retrieval status is to be sent
+     * @param sendActivity       true indicates an activity with current retrieval status is to be sent
      */
     public void postRetrievalStatus(final ResourceResponse resourceResponse,
             ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes,
@@ -128,12 +128,18 @@ public class DownloadsStatusEventPublisher {
 
         // Add user information to the request properties.
         org.apache.shiro.subject.Subject shiroSubject = null;
+
         try {
             shiroSubject = SecurityUtils.getSubject();
         } catch (Exception e) {
             LOGGER.debug("Could not determine current user, using session id.");
         }
+
         String user = SubjectUtils.getName(shiroSubject, "");
+
+        LOGGER.debug("User: {}, session: {}",
+                user,
+                getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY));
 
         if (notificationEnabled && sendNotification && (status
                 != ProductRetrievalStatus.IN_PROGRESS) && (status

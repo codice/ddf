@@ -64,6 +64,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -198,7 +199,17 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String ACTIVITIES_CHANNEL = "/ddf/activities/**";
 
+    private static final String POLL_INTERVAL = "pollInterval";
+
+    private static final int CSW_SOURCE_POLL_INTERVAL = 10;
+
+    private static final int MAX_DOWNLOAD_RETRY_ATTEMPTS = 3;
+
     private CometDClient cometDClient;
+
+    private CometDClient adminCometDClient;
+
+    private CometDClient localhostCometDClient;
 
     @Rule
     public TestName testName = new TestName();
@@ -211,6 +222,7 @@ public class TestFederation extends AbstractIntegrationTest {
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
+            getCatalogBundle().setupMaxDownloadRetryAttempts(MAX_DOWNLOAD_RETRY_ATTEMPTS);
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
 
             OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
@@ -232,18 +244,20 @@ public class TestFederation extends AbstractIntegrationTest {
             getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
             get(CSW_PATH + "?_wadl").prettyPrint();
             CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
-
+            cswProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
             getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
                     cswProperties);
 
             CswSourceProperties cswProperties2 = new CswSourceProperties(
                     CSW_SOURCE_WITH_METACARD_XML_ID);
             cswProperties2.put("outputSchema", "urn:catalog:metacard");
+            cswProperties2.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
             getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
                     cswProperties2);
 
             CswSourceProperties gmdProperties = new CswSourceProperties(GMD_SOURCE_ID,
                     CswSourceProperties.GMD_FACTORY_PID);
+            gmdProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
             getServiceManager().createManagedService(CswSourceProperties.GMD_FACTORY_PID,
                     gmdProperties);
 
@@ -318,6 +332,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         cswServer.stop();
 
+        getSecurityPolicy().configureRestForGuest();
+
         // @formatter:off
         expect("List of active downloads is empty").within(30, SECONDS)
                 .until(()-> when().get(RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl())
@@ -328,9 +344,20 @@ public class TestFederation extends AbstractIntegrationTest {
             server.stop();
         }
 
-        if (cometDClient != null) {
-            cometDClient.shutdown();
-        }
+        cleanupCometDClients();
+    }
+
+    private void cleanupCometDClients() {
+        Arrays.asList(cometDClient, adminCometDClient, localhostCometDClient)
+                .stream()
+                .filter(Objects::nonNull)
+                .forEach(cometDClient -> {
+                    try {
+                        cometDClient.shutdown();
+                    } catch (Exception e) {
+                        fail("Failed to shutdown cometD client!");
+                    }
+                });
     }
 
     /**
@@ -721,10 +748,10 @@ public class TestFederation extends AbstractIntegrationTest {
 
         // Declare array of matchers so we can be sure we use the same matchers in each assertion
         Matcher[] assertion = new Matcher[] {hasXPath(
-                "/GetRecordsResponse/SearchResults/Record/identifier[text()='" +
-                        metacardIds[GEOJSON_RECORD_INDEX] + "']"), hasXPath(
-                "/GetRecordsResponse/SearchResults/Record/identifier[text()='" +
-                        metacardIds[XML_RECORD_INDEX] + "']"), hasXPath(
+                "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
+                        + metacardIds[GEOJSON_RECORD_INDEX] + "']"), hasXPath(
+                "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
+                        + metacardIds[XML_RECORD_INDEX] + "']"), hasXPath(
                 "/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
                 is("2")), hasXPath("/GetRecordsResponse/SearchResults/Record/relation",
                 containsString("/services/catalog/sources/"))};
@@ -1169,7 +1196,12 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testRetrievalReliablility() throws Exception {
-        cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
+        getSecurityPolicy().configureWebContextPolicy(null,
+                "/=SAML|basic,/solr=SAML|PKI|basic",
+                null,
+                null);
+        localhostCometDClient = setupCometDClientWithUser(Arrays.asList(NOTIFICATIONS_CHANNEL,
+                ACTIVITIES_CHANNEL), "localhost", "localhost");
 
         String filename = "product2.txt";
         String metacardId = generateUniqueMetacardId();
@@ -1194,12 +1226,13 @@ public class TestFederation extends AbstractIntegrationTest {
                 .then(getCswRetrievalHeaders(filename), response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
-                + "?transform=resource" + "&session=" + cometDClient.getClientId();
+                + "?transform=resource";
 
         // Verify that the testData from the csw stub server is returned.
         // @formatter:off
-        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(resourceData));
+        given().auth().preemptive().basic("localhost", "localhost")
+                .get(restUrl).then().log().all()
+                .assertThat().contentType("text/plain").body(is(resourceData));
         // @formatter:on
 
         cswServer.verifyHttp()
@@ -1208,7 +1241,50 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId));
 
-        // Add CometD notification and activity assertions when DDF-2272 has been addressed.
+        /**
+         * Verify that we get 3 notifictions: 2 retrying and 1 complete.
+         */
+        expect("Waiting for notifications").within(10, SECONDS)
+                .until(() -> localhostCometDClient.getMessages(NOTIFICATIONS_CHANNEL)
+                        .size() == 3);
+        /**
+         * Verify that we get 9 activity messages: started, downloading, retrying, and complete.
+         */
+        expect("Waiting for activities").within(10, SECONDS)
+                .until(() -> localhostCometDClient.getMessages(ACTIVITIES_CHANNEL)
+                        .size() == 9);
+
+        List<String> notifications = localhostCometDClient.getMessagesInAscOrder(NOTIFICATIONS_CHANNEL);
+        assertThat(notifications.size(), is(3));
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)), filename,
+                "Resource retrieval retrying after 1 bytes. Attempt 1 of 3.", "retrying");
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(1)), filename,
+                "Resource retrieval retrying after 1 bytes. Attempt 2 of 3.", "retrying");
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(2)), filename,
+                String.format("Resource retrieval completed, %d bytes retrieved. ",
+                        resourceData.length()), "complete");
+
+        List<String> activities = localhostCometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
+        assertThat(activities.size(), is(9));
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(0)), filename,
+                "Resource retrieval started. ", "STARTED");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)), filename,
+                "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(2)), filename,
+                "Resource retrieval retrying after 1 bytes. Attempt 1 of 3.", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(3)), filename,
+                "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(4)), filename,
+                "Resource retrieval retrying after 1 bytes. Attempt 2 of 3.", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(5)), filename,
+                "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(6)), filename,
+                "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(7)), filename,
+                "Resource retrieval downloading . ", "RUNNING");
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(8)), filename,
+                String.format("Resource retrieval completed, %d bytes retrieved. ",
+                        resourceData.length()), "COMPLETE");
     }
 
     /**
@@ -1826,6 +1902,154 @@ public class TestFederation extends AbstractIntegrationTest {
                 .resolve(CSW_SOURCE_ID + "-" + metacardId + ".ser")), is(false));
     }
 
+    @Test
+    public void testProductDownloadWithTwoUsers() throws Exception {
+        getSecurityPolicy().configureWebContextPolicy(null,
+                "/=SAML|basic,/solr=SAML|PKI|basic",
+                null,
+                null);
+
+        adminCometDClient = setupCometDClientWithUser(Arrays.asList(NOTIFICATIONS_CHANNEL,
+                ACTIVITIES_CHANNEL), "admin", "admin");
+        localhostCometDClient = setupCometDClientWithUser(Arrays.asList(NOTIFICATIONS_CHANNEL,
+                ACTIVITIES_CHANNEL), "localhost", "localhost");
+
+        String filename1 = "product4.txt";
+        String metacardId1 = generateUniqueMetacardId();
+        String resourceData1 = getResourceData(metacardId1);
+        Action response1 = new ChunkedContent.ChunkedContentBuilder(resourceData1)
+                .build();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId1))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId1).getBytes()));
+
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId1))
+                .then(getCswRetrievalHeaders(filename1),
+                        response1);
+
+        String filename2 = "product5.txt";
+        String metacardId2 = generateUniqueMetacardId();
+        String resourceData2 = getResourceData(metacardId2);
+        Action response2 = new ChunkedContent.ChunkedContentBuilder(resourceData2)
+                .build();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId2))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId2).getBytes()));
+
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId2))
+                .then(getCswRetrievalHeaders(filename2),
+                        response2);
+
+        String resourceDownloadUrlAdminUser = String.format("%ssources/%s/%s?transform=resource",
+                REST_PATH.getUrl(), CSW_STUB_SOURCE_ID, metacardId1);
+
+        String resourceDownloadUrlLocalhostUser = String.format(
+                "%ssources/%s/%s?transform=resource", REST_PATH.getUrl(), CSW_STUB_SOURCE_ID,
+                metacardId2);
+
+        // @formatter:off
+        given().auth().preemptive().basic("admin", "admin").when()
+                .get(resourceDownloadUrlAdminUser).then().log().all()
+                .assertThat().contentType("text/plain").body(is(resourceData1));
+        given().auth().preemptive().basic("localhost", "localhost")
+                .get(resourceDownloadUrlLocalhostUser).then().log().all()
+                .assertThat().contentType("text/plain").body(is(resourceData2));
+        // @formatter:on
+
+        cswServer.verifyHttp()
+                .times(1,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId1));
+
+        cswServer.verifyHttp()
+                .times(1,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId2));
+
+        expect("Waiting for notifications. Received " + adminCometDClient.getMessages(
+                NOTIFICATIONS_CHANNEL)
+                .size() + " of 1").within(10, SECONDS)
+                .until(() -> adminCometDClient.getMessages(NOTIFICATIONS_CHANNEL)
+                        .size() == 1);
+        expect("Waiting for activities. Received " + adminCometDClient.getMessages(
+                ACTIVITIES_CHANNEL)
+                .size() + " of 2").within(10, SECONDS)
+                .until(() -> adminCometDClient.getMessages(ACTIVITIES_CHANNEL)
+                        .size() == 2);
+
+        expect("Waiting for notifications. Received " + localhostCometDClient.getMessages(
+                NOTIFICATIONS_CHANNEL)
+                .size() + " of 1").within(10, SECONDS)
+                .until(() -> localhostCometDClient.getMessages(NOTIFICATIONS_CHANNEL)
+                        .size() == 1);
+        expect("Waiting for activities. Received " + localhostCometDClient.getMessages(
+                ACTIVITIES_CHANNEL)
+                .size() + " of 2").within(10, SECONDS)
+                .until(() -> localhostCometDClient.getMessages(ACTIVITIES_CHANNEL)
+                        .size() == 2);
+
+        List<String> adminNotifications = adminCometDClient.getMessagesInAscOrder(
+                NOTIFICATIONS_CHANNEL);
+        assertThat(adminNotifications.size(), is(1));
+        CometDMessageValidator.verifyNotification(JsonPath.from(adminNotifications.get(0)),
+                filename1,
+                String.format("Resource retrieval completed, %d bytes retrieved. ",
+                        resourceData1.length()),
+                "complete");
+
+        List<String> localhostNotifications = localhostCometDClient.getMessagesInAscOrder(
+                NOTIFICATIONS_CHANNEL);
+        assertThat(adminNotifications.size(), is(1));
+        CometDMessageValidator.verifyNotification(JsonPath.from(localhostNotifications.get(0)),
+                filename2,
+                String.format("Resource retrieval completed, %d bytes retrieved. ",
+                        resourceData2.length()),
+                "complete");
+
+        List<String> adminActivities = adminCometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
+        assertThat(adminActivities.size(), is(2));
+        CometDMessageValidator.verifyActivity(JsonPath.from(adminActivities.get(0)),
+                filename1,
+                "Resource retrieval started. ",
+                "STARTED");
+        CometDMessageValidator.verifyActivity(JsonPath.from(adminActivities.get(1)),
+                filename1,
+                String.format("Resource retrieval completed, %d bytes retrieved. ",
+                        resourceData1.length()),
+                "COMPLETE");
+
+        List<String> localhostActivities = localhostCometDClient.getMessagesInAscOrder(
+                ACTIVITIES_CHANNEL);
+        assertThat(localhostActivities.size(), is(2));
+        CometDMessageValidator.verifyActivity(JsonPath.from(localhostActivities.get(0)),
+                filename2,
+                "Resource retrieval started. ",
+                "STARTED");
+        CometDMessageValidator.verifyActivity(JsonPath.from(localhostActivities.get(1)),
+                filename2,
+                String.format("Resource retrieval completed, %d bytes retrieved. ",
+                        resourceData2.length()),
+                "COMPLETE");
+    }
+
     private String generateUniqueMetacardId() {
         return UUID.randomUUID()
                 .toString();
@@ -1964,10 +2188,20 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private CometDClient setupCometDClient(List<String> channels) throws Exception {
         String cometDEndpointUrl = COMETD_ENDPOINT.getUrl();
+
         CometDClient cometDClient = new CometDClient(cometDEndpointUrl);
         cometDClient.start();
-        channels.stream()
-                .forEach(cometDClient::subscribe);
+        channels.forEach(cometDClient::subscribe);
+        return cometDClient;
+    }
+
+    private CometDClient setupCometDClientWithUser(List<String> channels, String user,
+            String password) throws Exception {
+        String cometDEndpointUrl = COMETD_ENDPOINT.getUrl();
+
+        CometDClient cometDClient = new CometDClient(cometDEndpointUrl, "karaf", user, password);
+        cometDClient.start();
+        channels.forEach(cometDClient::subscribe);
         return cometDClient;
     }
 
