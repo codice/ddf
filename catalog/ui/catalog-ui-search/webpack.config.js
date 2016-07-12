@@ -69,7 +69,6 @@ module.exports = {
       wreqr: 'js/wreqr',
       properties: 'properties',
       // jquery
-      jqueryCookie: 'js-cookie',
       jqueryuiCore: 'jquery-ui/core',
       datepicker: 'jquery-ui/datepicker',
       progressbar: 'jquery-ui/progressbar',

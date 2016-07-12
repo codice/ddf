@@ -9,30 +9,28 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define */
-define(['jquery',
-        'underscore',
-        'marionette',
+/*global define,window*/
+define(['marionette',
         'wreqr',
         'properties',
-        'js/view/SystemUsageModal.view',
-        'jqueryCookie'
-    ], function ($, _, Marionette, wreqr, properties, SystemUsageModal) {
+        'js/view/SystemUsageModal.view'
+    ], function (Marionette, wreqr, properties, SystemUsageModal) {
         'use strict';
-        var SystemUsageController;
 
-        SystemUsageController = Marionette.Controller.extend({
+        return Marionette.Controller.extend({
+            shouldDisplayModal: function () {
+                return properties.ui.systemUsageTitle && (
+                        window.localStorage.getItem('systemUsage') === null ||
+                        !properties.ui.systemUsageOncePerSession);
+            },
             initialize: function () {
-                if(properties.ui.systemUsageTitle && (_.isUndefined($.cookie("systemUsage")) ||
-                        !properties.ui.systemUsageOncePerSession)) {
-                    $.cookie("systemUsage", true);
+                if (this.shouldDisplayModal()) {
+                    window.localStorage.setItem('systemUsage', 'true');
                     var modal = new SystemUsageModal();
                     wreqr.vent.trigger('showModal', modal);
                 }
             }
 
         });
-
-        return SystemUsageController;
     }
 );
