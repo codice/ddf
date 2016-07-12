@@ -61,21 +61,27 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleService;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.glassfish.grizzly.http.server.Response;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -103,6 +109,7 @@ import com.jayway.restassured.path.xml.XmlPath;
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
+import com.xebialabs.restito.semantics.Function;
 import com.xebialabs.restito.server.StubServer;
 import com.xebialabs.restito.server.secure.SecureStubServer;
 
@@ -113,12 +120,14 @@ import ddf.common.test.BeforeExam;
 import ddf.common.test.cometd.CometDClient;
 import ddf.common.test.cometd.CometDMessageValidator;
 import ddf.common.test.mock.csw.FederatedCswMockServer;
-import ddf.common.test.restito.ChunkedContent;
 import ddf.common.test.restito.HeaderCapture;
+import ddf.common.test.restito.RestitoContent;
+import ddf.common.test.restito.TriggeredContentFunction;
 import ddf.test.itests.AbstractIntegrationTest;
 import ddf.test.itests.common.CswQueryBuilder;
 import ddf.test.itests.common.Library;
 import ddf.test.itests.common.UrlResourceReaderConfigurator;
+import ddf.test.itests.common.downloads.DownloadStrategy;
 
 /**
  * Tests Federation aspects.
@@ -310,7 +319,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
         if (fatalError) {
             server.stop();
-
             fail("An unrecoverable error occurred from previous test");
         }
 
@@ -373,8 +381,6 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Given what was ingested in beforeTest(), tests that a Federated wildcard search will return
      * all appropriate record(s).
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedQueryByWildCardSearchPhrase() throws Exception {
@@ -392,8 +398,6 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Given what was ingested in beforeTest(), tests that a Federated wildcard search will return
      * all appropriate record(s) in ATOM format.
-     *
-     * @throws Exception
      */
     @Test
     public void testAtomFederatedQueryByWildCardSearchPhrase() throws Exception {
@@ -410,8 +414,6 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Given what was ingested in beforeTest(), tests that a Federated search phrase will return the
      * appropriate record(s).
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedQueryBySearchPhrase() throws Exception {
@@ -429,8 +431,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests Source can retrieve based on a pure spatial query
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedSpatial() throws Exception {
@@ -449,8 +449,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests given bad spatial query, no result should be returned
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedNegativeSpatial() throws Exception {
@@ -466,8 +464,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests that given a bad test phrase, no records should have been returned.
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedQueryByNegativeSearchPhrase() throws Exception {
@@ -484,8 +480,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests that a federated search by ID will return the right record.
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedQueryById() throws Exception {
@@ -501,8 +495,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests that a federated search by ID will return the right record after we change the id.
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedQueryByIdAfterIdChange() throws Exception {
@@ -533,6 +525,7 @@ public class TestFederation extends AbstractIntegrationTest {
             OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
                     OPENSEARCH_SOURCE_ID);
             Dictionary<String, ?> configProps = new Hashtable<>(openSearchProperties);
+            assert openSourceConfig != null;
             openSourceConfig.update(configProps);
             getServiceManager().waitForAllBundles();
         }
@@ -542,12 +535,10 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Tests Source can retrieve existing product. The product is located in one of the
      * URLResourceReader's root resource directories, so it can be downloaded.
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedRetrieveExistingProduct() throws Exception {
-        /**
+        /*
          * Setup
          * Add productDirectory to the URLResourceReader's set of valid root resource directories.
          */
@@ -573,12 +564,10 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Tests Source can retrieve existing product. The product is located in one of the
      * URLResourceReader's root resource directories, so it can be downloaded.
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedRetrieveExistingProductWithRange() throws Exception {
-        /**
+        /*
          * Setup
          * Add productDirectory to the URLResourceReader's set of valid root resource directories.
          */
@@ -611,8 +600,6 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Tests Source CANNOT retrieve existing product. The product is NOT located in one of the
      * URLResourceReader's root resource directories, so it CANNOT be downloaded.
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedRetrieveProductInvalidResourceUrl() throws Exception {
@@ -650,8 +637,6 @@ public class TestFederation extends AbstractIntegrationTest {
      * <p>
      * So the product (/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt) is
      * not located under either of the URLResourceReader's root resource directories.
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedRetrieveProductInvalidResourceUrlWithBackReferences()
@@ -699,8 +684,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests Source can retrieve nonexistent product.
-     *
-     * @throws Exception
      */
     @Test
     public void testFederatedRetrieveNoProduct() throws Exception {
@@ -877,7 +860,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testListAllSourceInfo() {
-
         // TODO: Connected csw/wfs sources are broken. Ticket: DDF-1366
         /*
         try {
@@ -896,6 +878,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testFederatedSourceStatus() {
         // Find and test OpenSearch Federated Source
         // @formatter:off
@@ -919,6 +902,7 @@ public class TestFederation extends AbstractIntegrationTest {
     // TODO: Connected csw/wfs sources are broken. Ticket: DDF-1366
     @Ignore
     @Test
+    @SuppressWarnings("unchecked")
     public void testConnectedSourceStatus() {
         try {
             setupConnectedSources();
@@ -961,6 +945,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testCswSubscriptionByWildCardSearchPhrase() throws Exception {
         whenHttp(server).match(Condition.post(SUBSCRIBER))
                 .then(success());
@@ -982,7 +967,7 @@ public class TestFederation extends AbstractIntegrationTest {
         given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
-                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
+                .extract().body().xmlPath().get("Acknowledgement.RequestId");
         // @formatter:on
 
         String metacardId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
@@ -991,7 +976,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         String[] subscrptionIds = {subscriptionId};
 
-        verifyEvents(new HashSet(Arrays.asList(metacardId)),
+        verifyEvents(new HashSet(Collections.singletonList(metacardId)),
                 new HashSet(0),
                 new HashSet(Arrays.asList(subscrptionIds)));
 
@@ -999,7 +984,7 @@ public class TestFederation extends AbstractIntegrationTest {
         given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
-                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
+                .extract().body().xmlPath().get("Acknowledgement.RequestId");
 
         given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat().statusCode(404);
@@ -1008,6 +993,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testCswDurableSubscription() throws Exception {
         whenHttp(server).match(Condition.post(SUBSCRIBER))
                 .then(success());
@@ -1044,7 +1030,7 @@ public class TestFederation extends AbstractIntegrationTest {
         given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
-                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
+                .extract().body().xmlPath().get("Acknowledgement.RequestId");
         // @formatter:on
 
         String metacardId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
@@ -1053,7 +1039,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         String[] subscrptionIds = {subscriptionId};
 
-        verifyEvents(new HashSet(Arrays.asList(metacardId)),
+        verifyEvents(new HashSet(Collections.singletonList(metacardId)),
                 new HashSet(0),
                 new HashSet(Arrays.asList(subscrptionIds)));
 
@@ -1061,7 +1047,7 @@ public class TestFederation extends AbstractIntegrationTest {
         given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
-                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
+                .extract().body().xmlPath().get("Acknowledgement.RequestId");
 
         given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat().statusCode(404);
@@ -1070,6 +1056,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testCswCreateEventEndpoint() throws Exception {
         whenHttp(server).match(Condition.post(SUBSCRIBER))
                 .then(success());
@@ -1101,8 +1088,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .extract()
                 .body()
                 .xmlPath()
-                .get("Acknowledgement.RequestId")
-                .toString();
+                .get("Acknowledgement.RequestId");
 
         given().contentType(ContentType.XML).body(event).when().post(CSW_EVENT_PATH.getUrl())
                 .then().assertThat()
@@ -1111,7 +1097,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         String[] subscrptionIds = {subscriptionId};
 
-        verifyEvents(new HashSet(Arrays.asList(metacardId)),
+        verifyEvents(new HashSet(Collections.singletonList(metacardId)),
                 new HashSet(0),
                 new HashSet(Arrays.asList(subscrptionIds)));
 
@@ -1123,8 +1109,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .extract()
                 .body()
                 .xmlPath()
-                .get("Acknowledgement.RequestId")
-                .toString();
+                .get("Acknowledgement.RequestId");
 
         given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat().statusCode(404);
@@ -1134,8 +1119,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests basic download from the live federated csw source
-     *
-     * @throws Exception
      */
     @Test
     public void testDownloadFromFederatedCswSource() throws Exception {
@@ -1144,7 +1127,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product1.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1201,8 +1184,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests that if the endpoint disconnects twice, the retrieval retries both times
-     *
-     * @throws Exception
      */
     @Test
     public void testRetrievalReliablility() throws Exception {
@@ -1216,7 +1197,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product2.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                 Duration.ofMillis(200))
                 .fail(2)
                 .build();
@@ -1325,8 +1306,6 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Tests that if the endpoint disconnects twice, the retrieval retries both times
      * This test will respond with the correct Partial Content when a range header is sent in the request
-     *
-     * @throws Exception
      */
     @Test
     public void testRetrievalWithByteOffset() throws Exception {
@@ -1336,7 +1315,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
         HeaderCapture headerCapture = new HeaderCapture();
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                 Duration.ofMillis(200))
                 .fail(2)
                 .allowPartialContent(headerCapture)
@@ -1378,8 +1357,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests that if the endpoint disconnects 3 times, the retrieval fails after 3 attempts
-     *
-     * @throws Exception
      */
     @Test
     public void testRetrievalReliabilityFails() throws Exception {
@@ -1388,7 +1365,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product3.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                 Duration.ofMillis(200))
                 .fail(3)
                 .build();
@@ -1491,7 +1468,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product4.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1556,15 +1533,13 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests that ddf will redownload a product if the remote metacard has changed
-     *
-     * @throws Exception
      */
     @Test
     public void testCacheIsUpdatedIfRemoteProductChanges() throws Exception {
         String filename = "product5.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1608,17 +1583,15 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Tests that a product caches correctly when the download is interrupted twice and ddf uses
      * range header requests to re-eretrieve the undownloaded portion.
-     *
-     * @throws Exception
      */
     @Test
-    public void testFileCachesCorrectlyWhenRangeHeadersAreSupported() throws Exception{
+    public void testFileCachesCorrectlyWhenRangeHeadersAreSupported() throws Exception {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
         String filename = "product2.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
         HeaderCapture headerCapture = new HeaderCapture();
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                 Duration.ofMillis(200))
                 .fail(2)
                 .allowPartialContent(headerCapture)
@@ -1707,8 +1680,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Similar to the test for one active download but checks that two downloads can be active at once.
-     *
-     * @throws Exception
      */
     @Test
     public void testProductDownloadListWithTwoActiveDownloads() throws IOException {
@@ -1774,13 +1745,11 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Determines that when two downloads are downloaded at once and one fails, it does not affect the
      * success of the other download.
-     *
-     * @throws Exception
      */
     @Test
     public void testProductDownloadListWithTwoActiveDownloadsOneFails() throws Exception {
 
-        cometDClient = setupCometDClient(Arrays.asList(ACTIVITIES_CHANNEL));
+        cometDClient = setupCometDClient(Collections.singletonList(ACTIVITIES_CHANNEL));
 
         String filename1 = "product1.txt";
         String metacardId1 = generateUniqueMetacardId();
@@ -1833,19 +1802,14 @@ public class TestFederation extends AbstractIntegrationTest {
         List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
 
         expect("Waiting for activities").within(10, SECONDS)
-                .until(() -> {
-                    if (foundExpectedActivity(activities, filename1, ACTIVITES_STARTED_MESSAGE)
-                            && foundExpectedActivity(activities,
-                            failFilename,
-                            ACTIVITES_STARTED_MESSAGE) && foundExpectedActivity(activities,
-                            failFilename,
-                            ACTIVITIES_FAILED_MESSAGE) && foundExpectedActivity(activities,
-                            filename1,
-                            ACTIVITIES_COMPLETED_MESSAGE)) {
-                        return true;
-                    }
-                    return false;
-                });
+                .until(() -> foundExpectedActivity(activities, filename1, ACTIVITES_STARTED_MESSAGE)
+                        && foundExpectedActivity(activities,
+                        failFilename,
+                        ACTIVITES_STARTED_MESSAGE) && foundExpectedActivity(activities,
+                        failFilename,
+                        ACTIVITIES_FAILED_MESSAGE) && foundExpectedActivity(activities,
+                        filename1,
+                        ACTIVITIES_COMPLETED_MESSAGE));
 
         downloadHandleFail.startDownload();
         downloadHandle1.startDownload();
@@ -1898,22 +1862,14 @@ public class TestFederation extends AbstractIntegrationTest {
         } else {
             LOGGER.debug("Found wanted messageToFind? {}",
                     activities.stream()
-                            .anyMatch(activity -> activity.toString()
-                                    .contains(messageToFind)));
+                            .anyMatch(activity -> activity.contains(messageToFind)));
             LOGGER.debug("Found wanted filename? {}",
                     activities.stream()
-                            .anyMatch(activity -> activity.toString()
-                                    .contains(filename)));
+                            .anyMatch(activity -> activity.contains(filename)));
 
             found = activities.stream()
-                    .anyMatch(activity -> {
-                        if (activity.toString()
-                                .contains(messageToFind) && activity.toString()
-                                .contains(filename)) {
-                            return true;
-                        }
-                        return false;
-                    });
+                    .anyMatch(activity -> activity.contains(messageToFind) && activity.contains(
+                            filename));
 
         }
 
@@ -1922,14 +1878,16 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCancelDownload() throws Exception {
-        getSecurityPolicy().configureWebContextPolicy(null, "/=SAML|basic,/solr=SAML|PKI|basic",
-                null, null);
-        localhostCometDClient = setupCometDClientWithUser(
-                Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL), LOCALHOST_USERNAME, LOCALHOST_PASSWORD);
+        getSecurityPolicy().configureWebContextPolicy(null,
+                "/=SAML|basic,/solr=SAML|PKI|basic",
+                null,
+                null);
+        localhostCometDClient = setupCometDClientWithUser(Arrays.asList(NOTIFICATIONS_CHANNEL,
+                ACTIVITIES_CHANNEL), LOCALHOST_USERNAME, LOCALHOST_PASSWORD);
         String filename = testName + ".txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                 Duration.ofMillis(200))
                 .fail(0)
                 .build();
@@ -1964,7 +1922,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .until(() -> localhostCometDClient.getMessages(NOTIFICATIONS_CHANNEL)
                         .size() == 1);
 
-        /**
+        /*
          * Wait for 2 activities. The first one is the download started, and the second one is the
          * download canceled.
          */
@@ -1988,11 +1946,47 @@ public class TestFederation extends AbstractIntegrationTest {
                 "STOPPED");
     }
 
+    @Test
+    public void testInterruptSyncUsersWhenOneBreaksConnection() throws Exception {
+        runParallelInterruptDownloadTest(DownloadStrategy.Synchronous(),
+                DownloadStrategy.Synchronous(),
+                false);
+    }
+
+    @Test
+    @Ignore
+    public void testInterruptAsyncUsersWhenOneCancelsDownload() throws Exception {
+        // TODO: [DDF-2287] Cannot implement until async cancel is available
+    }
+
+    /* Start the synchronous connection first */
+    @Test
+    public void testInterruptSyncAsyncUsersWhenSyncBreaksConnection() throws Exception {
+        runParallelInterruptDownloadTest(DownloadStrategy.Synchronous(),
+                DownloadStrategy.Asynchronous(),
+                false);
+    }
+
+    /*  Start the asynchronous download to cache first */
+    @Test
+    public void testInterruptAsyncSyncUsersWhenSyncBreaksConnection() throws Exception {
+        runParallelInterruptDownloadTest(DownloadStrategy.Synchronous(),
+                DownloadStrategy.Asynchronous(),
+                true);
+    }
+
+    @Test
+    @Ignore
+    public void testInterruptSyncAsyncUsersWhenAsyncCancelsDownload() throws Exception {
+        // TODO: [DDF-2287] Cannot implement until async cancel is available
+        //  Be sure to include counter-part with start order flipped (AsyncSync)
+    }
+
     @Ignore
     public void testFederatedDownloadProductToCacheOnlyCacheEnabled() throws Exception {
-        /**
-         * Setup Add productDirectory to the URLResourceReader's set of valid root resource
-         * directories.
+        /*
+          Setup Add productDirectory to the URLResourceReader's set of valid root resource
+          directories.
          */
         String fileName = testName.getMethodName() + ".txt";
         String metacardId = ingestXmlWithProduct(fileName);
@@ -2025,7 +2019,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Ignore
     public void testFederatedDownloadProductToCacheOnlyCacheDisabled() throws Exception {
-        /**
+        /*
          * Setup Add productDirectory to the URLResourceReader's set of valid root resource
          * directories.
          */
@@ -2072,7 +2066,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename1 = "product4.txt";
         String metacardId1 = generateUniqueMetacardId();
         String resourceData1 = getResourceData(metacardId1);
-        Action response1 = new ChunkedContent.ChunkedContentBuilder(resourceData1).build();
+        Action response1 = new RestitoContent.ChunkedContentBuilder(resourceData1).build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -2091,7 +2085,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename2 = "product5.txt";
         String metacardId2 = generateUniqueMetacardId();
         String resourceData2 = getResourceData(metacardId2);
-        Action response2 = new ChunkedContent.ChunkedContentBuilder(resourceData2).build();
+        Action response2 = new RestitoContent.ChunkedContentBuilder(resourceData2).build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -2204,6 +2198,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         resourceData2.length()),
                 "COMPLETE");
     }
+
     @Test
     public void testSingleUserDownloadSameProductSyncAndAsync() throws Exception {
         getSecurityPolicy().configureWebContextPolicy(null,
@@ -2295,7 +2290,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private void setupStubCswResponse(String filename, String metacardId, String resourceData) {
         Action response =
-                new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+                new RestitoContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                         Duration.ofMillis(0))
                         .fail(NO_RETRIES)
                         .build();
@@ -2402,7 +2397,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
 
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                 Duration.ofMillis(200))
                 .fail(2)
                 .build();
@@ -2448,7 +2443,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
 
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+        Action response = new RestitoContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                 Duration.ofMillis(200))
                 .fail(3)
                 .build();
@@ -2629,7 +2624,10 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     private String getResourceData(String metacardId) {
-        return String.format("Data for metacard ID %s", metacardId);
+        /* Test data should be > 40 characters, not including the actual metacard ID
+                This provides the required cushion to greatly increase probability (close to 100%)
+                that test failures are a result of infrastructure issues; not race conditions. */
+        return String.format("Hello there. This is data for metacard ID %s", metacardId);
     }
 
     private String getResourceRetrievalCompletedMessage(int bytesRetrieved) {
@@ -2655,9 +2653,104 @@ public class TestFederation extends AbstractIntegrationTest {
         return cometDClient;
     }
 
+    private void setupParallelInterruptDownloadTest(String metacardId, String filename,
+            Function<Response, Response> contentFunction) throws Exception {
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId))
+                .then(getCswRetrievalHeaders(filename),
+                        RestitoContent.createContentWithCustomFunction(contentFunction, null));
+    }
+
+    /**
+     * EXECUTION LOGIC FOR PARALLEL INTERRUPTION OF DOWNLOADS
+     * In this template:
+     * We always start client2 first, unless the flipStartOrder flag is set
+     * We always interrupt client1
+     * We always validate the output integrity of client2
+     */
+    private void runParallelInterruptDownloadTest(DownloadStrategy client1,
+            DownloadStrategy client2, boolean flipStartOrder) throws Exception {
+        final int numberOfSynchronizedThreads = 3;
+        final int firstRevealSize = 4;
+        final int secondRevealSize = 14;
+        final int lastRevealSize = 1000;
+        final long startDelay = 200;
+        final long awaitTimeout = 5000;
+
+        final String filename = "product1.txt";
+        final String metacardId = generateUniqueMetacardId();
+        final String resourceData = getResourceData(metacardId);
+        final CyclicBarrier barrier = new CyclicBarrier(numberOfSynchronizedThreads);
+        final TriggeredContentFunction triggeredContentFunction = new TriggeredContentFunction(
+                resourceData,
+                null);
+
+        setupParallelInterruptDownloadTest(metacardId, filename, triggeredContentFunction);
+        triggeredContentFunction.revealBytes(firstRevealSize);
+
+        Future<String> future1;
+        Future<String> future2;
+
+        if (flipStartOrder) {
+            future1 = client1.startDownload(metacardId, barrier);
+            Thread.sleep(startDelay);
+            future2 = client2.startDownload(metacardId, barrier);
+        } else {
+            future2 = client2.startDownload(metacardId, barrier);
+            Thread.sleep(startDelay);
+            future1 = client1.startDownload(metacardId, barrier);
+        }
+
+        try {
+            barrier.await(awaitTimeout, TimeUnit.MILLISECONDS);
+            triggeredContentFunction.revealBytes(secondRevealSize);
+            barrier.await(awaitTimeout, TimeUnit.MILLISECONDS);
+            client1.cancelDownload();
+            triggeredContentFunction.revealBytes(lastRevealSize);
+        } catch (TimeoutException e) {
+            fail("Barrier was not triggered within acceptable amount of time");
+        }
+
+        //        WaitCondition.expect("descrip")
+        //                .checkEvery(100, TimeUnit.MILLISECONDS)
+        //                .within(5, TimeUnit.SECONDS)
+        //                .until(() -> true);
+
+        String result2 = future2.get();
+
+        logParallelInterruptTestState("[2287]", resourceData, result2);
+        assertThat("Valid result was not complete", result2, is(resourceData));
+    }
+
+    private void logParallelInterruptTestState(String prefix, String... args) {
+        Iterator<String> arg = Arrays.asList(args)
+                .iterator();
+        LOGGER.debug("{} Resource Data: {}", prefix, arg.next());
+        //LOGGER.debug("{} Result 1: {}", prefix, arg.next());
+        LOGGER.debug("{} Result 2: {}", prefix, arg.next());
+    }
+
     @Override
     protected Option[] configureCustom() {
-        return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
+        return combineOptions(options(mavenBundle("ddf.test.thirdparty",
+                "restito").versionAsInProject()),
+                options(mavenBundle("org.apache.httpcomponents",
+                        "httpcore-osgi").versionAsInProject()),
+                options(mavenBundle("org.apache.httpcomponents",
+                        "httpclient-osgi").versionAsInProject()),
+                options(mavenBundle("org.apache.httpcomponents",
+                        "httpasyncclient-osgi").versionAsInProject()));
     }
 
     /**
@@ -2681,7 +2774,7 @@ public class TestFederation extends AbstractIntegrationTest {
             downloadId = "";
 
             Action response =
-                    new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+                    new RestitoContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                             Duration.ofMillis(delayBetweenChunksInMillis))
                             .fail(retries)
                             .build();
@@ -2709,7 +2802,7 @@ public class TestFederation extends AbstractIntegrationTest {
          * Starts the download and stores the download Id. This must be called before
          * getDownloadId() to get a valid download id.
          */
-        public void startDownload() {
+        void startDownload() {
             // @formatter:off
             downloadId = when().get(startDownloadUrl).then().log().all()
                 .extract().jsonPath().getString("downloadId");
@@ -2723,7 +2816,8 @@ public class TestFederation extends AbstractIntegrationTest {
          *
          * @param download the map containing the actual download list information to compare.
          */
-        public void verifyGuestDownloadInProgress(Map download) {
+        @SuppressWarnings("unchecked")
+        void verifyGuestDownloadInProgress(Map download) {
             assertThat(download.get("downloadId"), is(downloadId));
             assertThat(download.get("fileName"), is(filename));
             assertThat(download.get("status"), is("IN_PROGRESS"));
@@ -2739,7 +2833,7 @@ public class TestFederation extends AbstractIntegrationTest {
         /**
          * @return the download id. If there is no valid download id, it will be an empty string.
          */
-        public String getDownloadId() {
+        String getDownloadId() {
             return downloadId;
         }
     }
