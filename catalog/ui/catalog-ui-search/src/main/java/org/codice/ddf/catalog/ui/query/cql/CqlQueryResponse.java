@@ -69,7 +69,15 @@ public class CqlQueryResponse {
                         mt -> mt.getAttributeDescriptors()
                                 .stream()
                                 .collect(Collectors.toMap(AttributeDescriptor::getName,
-                                        MetacardAttribute::new))));
+                                        MetacardAttribute::new,
+                                        (ad1, ad2) -> {
+                                            LOGGER.debug("Removed duplicate attribute descriptor.");
+                                            return ad1;
+                                        })),
+                        (mt1, mt2) -> {
+                            LOGGER.debug("Removed duplicate metacard type.");
+                            return mt1;
+                        }));
 
         final Set<SearchTerm> searchTerms = extractSearchTerms(request.getQuery(), filterAdapter);
         results = queryResponse.getResults()
