@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
 import org.codice.ddf.security.common.Security;
 import org.osgi.service.event.Event;
@@ -77,9 +78,8 @@ public class RegistryPublicationHandler implements EventHandler {
     }
 
     private void processUpdate(Metacard mcard) {
-        Attribute publishedLocations =
-                mcard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
-        if (publishedLocations == null) {
+        if (RegistryUtility.getListOfStringAttribute(mcard,
+                RegistryObjectMetacardType.PUBLISHED_LOCATIONS).isEmpty()) {
             return;
         }
 

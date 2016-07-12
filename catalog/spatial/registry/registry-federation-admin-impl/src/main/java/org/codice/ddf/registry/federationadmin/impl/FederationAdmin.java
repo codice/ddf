@@ -50,6 +50,7 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.FederationAdminMBean;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
@@ -435,7 +436,9 @@ public class FederationAdmin implements FederationAdminMBean {
         Metacard metacard;
 
         try {
-            metacard = registryTransformer.transform(metacardMarshaller.getRegistryPackageAsInputStream(registryPackage));
+            metacard =
+                    registryTransformer.transform(metacardMarshaller.getRegistryPackageAsInputStream(
+                            registryPackage));
         } catch (IOException | CatalogTransformerException | ParserException e) {
             String message = "Error creating metacard from registry package.";
             LOGGER.error("{} Registry id: {}", message, registryPackage.getId());
@@ -468,9 +471,10 @@ public class FederationAdmin implements FederationAdminMBean {
         Map<String, Metacard> registryIdMetacardMap = new HashMap<>();
 
         for (Metacard metacard : metacards) {
-            String registryId = metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                    .getValue()
-                    .toString();
+            String registryId = RegistryUtility.getRegistryId(metacard);
+            if (registryId == null) {
+                continue;
+            }
 
             registryIdMetacardMap.put(registryId, metacard);
         }

@@ -22,10 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
@@ -160,11 +159,12 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
 
     private PolicyResponse getWritePolicy(Metacard input, Map<String, Serializable> properties) {
         HashMap<String, Set<String>> operationPolicy = new HashMap<>();
-        if (Requests.isLocal(properties) && input != null && input.getTags()
-                .contains(RegistryConstants.REGISTRY_TAG)) {
-            Attribute attribute = input.getAttribute(RegistryObjectMetacardType.REGISTRY_BASE_URL);
-            if (isRegistryDisabled() || (attribute != null && attribute.getValue() instanceof String
-                    && ((String) attribute.getValue()).startsWith(SystemBaseUrl.getBaseUrl()))) {
+        if (Requests.isLocal(properties) && RegistryUtility.isRegistryMetacard(input)) {
+            String registryBaseUrl = RegistryUtility.getStringAttribute(input,
+                    RegistryObjectMetacardType.REGISTRY_BASE_URL,
+                    null);
+            if (isRegistryDisabled() || (registryBaseUrl != null && registryBaseUrl.startsWith(
+                    SystemBaseUrl.getBaseUrl()))) {
                 operationPolicy.putAll(bypassAccessPolicy);
             } else {
                 operationPolicy.putAll(writeAccessPolicy);
@@ -217,8 +217,7 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
             throws StopProcessingException {
         HashMap<String, Set<String>> itemPolicy = new HashMap<>();
         Metacard metacard = input.getMetacard();
-        if (metacard.getTags()
-                .contains(RegistryConstants.REGISTRY_TAG)) {
+        if (RegistryUtility.isRegistryMetacard(metacard)) {
             if ((whiteList && !registryEntryIds.contains(metacard.getId())) || (!whiteList
                     && registryEntryIds.contains(metacard.getId()))) {
                 itemPolicy.putAll(bypassAccessPolicy);

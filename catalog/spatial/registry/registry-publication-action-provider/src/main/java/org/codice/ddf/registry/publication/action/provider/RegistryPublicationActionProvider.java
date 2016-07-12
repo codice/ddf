@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.registry.api.RegistryStore;
-import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.publication.manager.RegistryPublicationManager;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import ddf.action.Action;
 import ddf.action.MultiActionProvider;
 import ddf.action.impl.ActionImpl;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.source.Source;
 
@@ -92,7 +91,8 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
                 .filter((registryStore) -> shouldRegistryPublishToStore(registryIdToPublish,
                         registryStore))
                 .map(registryStore -> getAction(registryIdToPublish,
-                        registryStore.getRegistryId(), registryStore.getId(),
+                        registryStore.getRegistryId(),
+                        registryStore.getId(),
                         !currentPublications.contains(registryStore.getRegistryId())))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -109,10 +109,12 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
         return StringUtils.isNotBlank(getRegistryId(subject));
     }
 
-    private Action getAction(String regId, String destinationId, String destinationName, boolean publish) {
+    private Action getAction(String regId, String destinationId, String destinationName,
+            boolean publish) {
 
         URL url;
-        String title = publish ? PUBLISH_TITLE + destinationName : UNPUBLISH_TITLE + destinationName;
+        String title =
+                publish ? PUBLISH_TITLE + destinationName : UNPUBLISH_TITLE + destinationName;
         String description = publish ?
                 PUBLISH_DESCRIPTION + destinationName :
                 UNPUBLISH_DESCRIPTION + destinationName;
@@ -138,15 +140,8 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
 
     private <T> String getRegistryId(T subject) {
         if (subject instanceof Metacard) {
-            Metacard metacard = (Metacard) subject;
-            if (metacard.getTags()
-                    .contains(RegistryConstants.REGISTRY_TAG)) {
-                Attribute registryIdAttribute =
-                        metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
-                if (registryIdAttribute != null) {
-                    return registryIdAttribute.getValue()
-                            .toString();
-                }
+            if (RegistryUtility.isRegistryMetacard((Metacard) subject)) {
+                return RegistryUtility.getRegistryId((Metacard) subject);
             }
         } else if (subject instanceof Source) {
             try {

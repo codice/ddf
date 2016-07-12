@@ -14,18 +14,15 @@
 package org.codice.ddf.registry.publication.manager;
 
 import java.security.PrivilegedActionException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.osgi.service.event.Event;
@@ -33,7 +30,6 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 
 public class RegistryPublicationManager implements EventHandler {
@@ -61,28 +57,14 @@ public class RegistryPublicationManager implements EventHandler {
     @Override
     public void handleEvent(Event event) {
         Metacard mcard = (Metacard) event.getProperty(METACARD_PROPERTY);
-        if (mcard == null || !mcard.getTags()
-                .contains(RegistryConstants.REGISTRY_TAG)) {
+        if (mcard == null || !RegistryUtility.isRegistryMetacard(mcard)) {
             return;
         }
 
-        Attribute registryIdAttribute = mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
-        if (registryIdAttribute == null || StringUtils.isBlank(registryIdAttribute.getValue()
-                .toString())) {
-            return;
-        }
-        String registryId = registryIdAttribute.getValue()
-                .toString();
+        String registryId = RegistryUtility.getRegistryId(mcard);
+        List<String> locations = RegistryUtility.getListOfStringAttribute(mcard,
+                RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
 
-        Attribute locationAttribute =
-                mcard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
-        List<String> locations = new ArrayList<>();
-        if (locationAttribute != null) {
-            locations = locationAttribute.getValues()
-                    .stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toList());
-        }
         if (event.getTopic()
                 .equals(CREATED_TOPIC) || event.getTopic()
                 .equals(UPDATED_TOPIC)) {
@@ -100,26 +82,17 @@ public class RegistryPublicationManager implements EventHandler {
                     Security.runAsAdminWithException(() -> federationAdminService.getRegistryMetacards());
 
             for (Metacard metacard : metacards) {
-                Attribute registryIdAttribute =
-                        metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
-                if (registryIdAttribute == null
-                        || StringUtils.isBlank(registryIdAttribute.getValue()
-                        .toString())) {
+                String registryId = RegistryUtility.getRegistryId(metacard);
+                if (registryId == null) {
                     LOGGER.warn("Warning metacard (id: {}} did not contain a registry id.",
                             metacard.getId());
                     continue;
                 }
-                Attribute locations =
-                        metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
 
-                String registryId = registryIdAttribute.getValue()
-                        .toString();
-                if (locations != null) {
-                    publications.put(registryId,
-                            Collections.unmodifiableList(locations.getValues()
-                                    .stream()
-                                    .map(Object::toString)
-                                    .collect(Collectors.toList())));
+                List<String> locations = RegistryUtility.getListOfStringAttribute(metacard,
+                        RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
+                if (!locations.isEmpty()) {
+                    publications.put(registryId, Collections.unmodifiableList(locations));
                 } else {
                     publications.put(registryId, Collections.emptyList());
                 }

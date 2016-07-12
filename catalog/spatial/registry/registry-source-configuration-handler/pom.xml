@@ -79,7 +79,8 @@
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test,
-                            ddf-security-common
+                            ddf-security-common,
+                            registry-common
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util.http,
