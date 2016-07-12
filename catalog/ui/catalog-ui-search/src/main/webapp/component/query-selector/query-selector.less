@@ -31,6 +31,28 @@
   .if-empty {
     display: none;
   }
+
+  @{customElementNamespace}query-item {
+    .query-details:hover {
+      color: lighten(@primary-color, 20%);
+    }
+  }
+
+  @{customElementNamespace}query-item.is-selected {
+    font-weight: bold;
+  }
+
+  @{customElementNamespace}query-item.is-selected {
+    &::after {
+      content: '';
+      width: 1px;
+      height: 100%;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      border-right: 1px solid grey;
+    }
+  }
 }
 
 @{customElementNamespace}query-selector.is-empty {

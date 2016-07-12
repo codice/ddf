@@ -23,6 +23,7 @@ define([
 ], function (Marionette, _, $, TabsView, QueryTabsModel, store) {
 
     var QueryTabsView = TabsView.extend({
+        className: 'is-query',
         setDefaultModel: function(){
             this.model = new QueryTabsModel();
         },
@@ -30,16 +31,40 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            this.listenTo(store.get('content'), 'change:query', this.determineContent);
+            this.listenTo(store.get('content'), 'change:query', this.handleQuery);
+            this.determineAvailableContent();
             TabsView.prototype.initialize.call(this);
         },
-        determineContent: function(){
-            if (store.get('content').get('query')){
-                var activeTab = this.model.getActiveView();
-                this.tabsContent.show(new activeTab({
-                    model: this.model.getAssociatedQuery()
-                }));
+        handleQuery: function(){
+            this.determineAvailableContent();
+            this.determineContent();
+        },
+        determineTabForExistingQuery: function(){
+            var activeTab = this.model.getActiveView();
+            this.tabsContent.show(new activeTab({
+                model: this.model.getAssociatedQuery()
+            }));
+        },
+        determineTabForNewQuery: function(){
+            var activeTabName = this.model.get('activeTab');
+            if (activeTabName !== 'Basic' && activeTabName !== 'Advanced'){
+                this.model.set('activeTab', 'Basic');
             }
+            this.determineTabForExistingQuery();
+        },
+        determineContent: function(){
+            var currentQuery = store.get('content').get('query');
+            if (currentQuery){
+                if (currentQuery._cloneOf){
+                    this.determineTabForExistingQuery();
+                } else {
+                    this.determineTabForNewQuery();
+                }
+            }
+        },
+        determineAvailableContent: function(){
+            var currentQuery = store.get('content').get('query');
+            this.$el.toggleClass('is-new', currentQuery && !currentQuery._cloneOf);
         }
     });
 

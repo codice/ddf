@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, setTimeout*/
 define([
     'marionette',
     'underscore',
@@ -23,6 +23,8 @@ define([
     'js/model/Query',
     'component/query-item/query-item.collection.view'
 ], function (Marionette, _, $, querySelectorTemplate, CustomElements, store, Query, QueryItemCollectionView) {
+
+    var namespace = CustomElements.getNamespace();
 
     var QuerySelector = Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -55,21 +57,33 @@ define([
             this.listenTo(this.model, 'add', this.handleUpdate);
             this.listenTo(this.model, 'remove', this.handleUpdate);
             this.listenTo(this.model, 'update', this.handleUpdate);
+            this.listenTo(store.get('content'), 'query', this.handleQuerySelect);
         },
         addQuery: function(){
             if (this.model.canAddQuery()){
                 var newQuery = new Query.Model();
                 store.setQueryByReference(newQuery);
-
+                this.handleQuerySelect();
             }
         },
         selectQuery: function(event){
             var queryId = event.currentTarget.getAttribute('data-queryId');
             store.setQueryById(queryId);
+            this.handleQuerySelect();
+        },
+        handleQuerySelect: function(){
+            var query = store.getQuery();
+            this.$el.find(namespace+'query-item').removeClass('is-selected');
+            if (query){
+                this.$el.find(namespace+'query-item[data-queryid="'+query.id+'"]').addClass('is-selected');
+            }
         },
         handleUpdate: function(){
             this.handleMaxQueries();
             this.handleEmptyQueries();
+            setTimeout(function() {
+                this.handleQuerySelect();
+            }.bind(this), 0);
         },
         handleMaxQueries: function(){
             this.$el.toggleClass('can-addQuery', this.model.canAddQuery());

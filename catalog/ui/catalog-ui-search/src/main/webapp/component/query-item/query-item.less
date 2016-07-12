@@ -12,6 +12,7 @@
 @{customElementNamespace}query-item {
   display: block;
   cursor: pointer;
+  position: relative;
 
   .query-container {
     height: 90px;
@@ -47,6 +48,7 @@
     margin: 0px 44px 0px 20px;
     padding: 0px 10px;
     line-height: 30px;
+    height: 90px;
   }
 
   .query-actions {
@@ -73,18 +75,6 @@
   .is-queryInteractions {
     height: 100%;
     font-size: larger;
-  }
-}
-
-@{customElementNamespace}query-item.is-selected {
-  &::after {
-    content: '';
-    width: 1px;
-    height: 100%;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    border-right: 1px solid grey;
   }
 }
 
