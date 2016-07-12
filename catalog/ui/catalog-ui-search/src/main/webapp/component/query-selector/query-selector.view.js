@@ -58,19 +58,17 @@ define([
             this.listenTo(this.model, 'add', this.handleUpdate);
             this.listenTo(this.model, 'remove', this.handleUpdate);
             this.listenTo(this.model, 'update', this.handleUpdate);
-            this.listenTo(store.get('content'), 'query', this.handleQuerySelect);
+            this.listenTo(store.get('content'), 'change:query', this.handleQuerySelect);
         },
         addQuery: function(){
             if (this.model.canAddQuery()){
                 var newQuery = new Query.Model();
                 store.setQueryByReference(newQuery);
-                this.handleQuerySelect();
             }
         },
         selectQuery: function(event){
             var queryId = event.currentTarget.getAttribute('data-queryId');
             store.setQueryById(queryId);
-            this.handleQuerySelect();
         },
         handleQuerySelect: function(){
             var query = store.getQuery();
@@ -82,9 +80,6 @@ define([
         handleUpdate: function(){
             this.handleMaxQueries();
             this.handleEmptyQueries();
-            setTimeout(function() {
-                this.handleQuerySelect();
-            }.bind(this), 0);
         },
         handleMaxQueries: function(){
             this.$el.toggleClass('can-addQuery', this.model.canAddQuery());
