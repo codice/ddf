@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,14 +25,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
@@ -43,12 +39,10 @@ import org.codice.solr.factory.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
@@ -147,95 +141,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     @Override
     public Set<ContentType> getContentTypes() {
-
-        Set<ContentType> finalSet = new HashSet<>();
-
-        String contentTypeField = resolver.getField(Metacard.CONTENT_TYPE,
-                AttributeFormat.STRING,
-                true);
-        String contentTypeVersionField = resolver.getField(Metacard.CONTENT_TYPE_VERSION,
-                AttributeFormat.STRING,
-                true);
-
-        /*
-         * If we didn't find the field, it most likely means it does not exist. If it does not
-         * exist, then we can safely say that no content types are in this catalog provider
-         */
-        if (contentTypeField == null || contentTypeVersionField == null) {
-            return finalSet;
-        }
-
-        SolrQuery query = new SolrQuery(contentTypeField + ":[* TO *]");
-        query.setFacet(true);
-        query.addFacetField(contentTypeField);
-        query.addFacetPivotField(contentTypeField + "," + contentTypeVersionField);
-
-        try {
-            QueryResponse solrResponse = solr.query(query, METHOD.POST);
-            List<FacetField> facetFields = solrResponse.getFacetFields();
-            for (Entry<String, List<PivotField>> entry : solrResponse.getFacetPivot()) {
-
-                // if no content types have an associated version, the list of pivot fields will be
-                // empty.
-                // however, the content type names can still be obtained via the facet fields.
-                if (CollectionUtils.isEmpty(entry.getValue())) {
-                    LOGGER.debug(
-                            "No content type versions found associated with any available content types.");
-
-                    if (CollectionUtils.isNotEmpty(facetFields)) {
-                        // Only one facet field was added. That facet field may contain multiple
-                        // values (content type names).
-                        for (FacetField.Count currContentType : facetFields.get(0)
-                                .getValues()) {
-                            // unknown version, so setting it to null
-                            ContentTypeImpl contentType =
-                                    new ContentTypeImpl(currContentType.getName(), null);
-
-                            finalSet.add(contentType);
-                        }
-                    }
-                } else {
-                    for (PivotField pf : entry.getValue()) {
-
-                        String contentTypeName = pf.getValue()
-                                .toString();
-                        LOGGER.debug("contentTypeName:{}", contentTypeName);
-
-                        if (CollectionUtils.isEmpty(pf.getPivot())) {
-                            // if there are no sub-pivots, that means that there are no content type
-                            // versions
-                            // associated with this content type name
-                            LOGGER.debug(
-                                    "Content type does not have associated contentTypeVersion: {}",
-                                    contentTypeName);
-                            ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
-                                    null);
-
-                            finalSet.add(contentType);
-
-                        } else {
-                            for (PivotField innerPf : pf.getPivot()) {
-
-                                LOGGER.debug("contentTypeVersion:{}. For contentTypeName: {}",
-                                        innerPf.getValue(),
-                                        contentTypeName);
-
-                                ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
-                                        innerPf.getValue()
-                                                .toString());
-
-                                finalSet.add(contentType);
-                            }
-                        }
-                    }
-                }
-            }
-
-        } catch (SolrServerException | IOException e) {
-            LOGGER.info("Solr exception getting content types", e);
-        }
-
-        return finalSet;
+        return client.getContentTypes();
     }
 
     @Override

@@ -68,6 +68,7 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcestatusplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-tagsfilterplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}</bundle>

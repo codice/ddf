@@ -119,5 +119,6 @@
         <module>catalog-core-defaultvalues</module>
         <module>catalog-core-injectattribute</module>
         <module>catalog-core-resourcestatusplugin</module>
+        <module>catalog-core-tagsfilterplugin</module>
     </modules>
 </project>

@@ -490,5 +490,10 @@
             <artifactId>ftp</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-tagsfilterplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -261,8 +261,6 @@
         <argument ref="postFederatedQuerySortedList"/>
         <argument ref="solrCatalogCache"/>
         <argument ref="cacheThreadPool"/>
-        <argument ref="filterAdapter"/>
-        <argument ref="filterBuilder"/>
         <argument ref="validationQueryFactory"/>
         <property name="maxStartIndex" value="50000"/>
     </bean>
