@@ -27,7 +27,7 @@
     <OCD name="Metacard Validation Marker Plugin"
          id="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
         <AD
-                description="ID of Metacard Validator to enforce."
+                description="ID of Metacard Validator to enforce. Metacards that fail these validators will NOT be ingested."
                 name="Enforced Validators" id="enforcedMetacardValidators" required="false"
                 type="String"
                 default="" cardinality="100"/>
