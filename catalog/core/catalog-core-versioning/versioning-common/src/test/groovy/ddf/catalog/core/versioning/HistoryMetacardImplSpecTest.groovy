@@ -14,8 +14,11 @@
 package ddf.catalog.core.versioning
 
 import ddf.catalog.data.Metacard
+import ddf.catalog.data.impl.AttributeDescriptorImpl
+import ddf.catalog.data.impl.AttributeImpl
 import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.data.impl.MetacardImpl
+import ddf.catalog.data.impl.MetacardTypeImpl
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext
@@ -52,13 +55,13 @@ class HistoryMetacardImplSpecTest extends Specification {
                     - Old tags should be stored in `tagsHistory
                     - new tag should be `history`
                     - Old id should be in `idHistory` /$
-        !history.id.equals(meta.id)
-        history.versionOfId.equals(meta.id)
+        history.id != meta.id
+        history.versionOfId == meta.id
         history.tags.containsAll([MetacardVersion.VERSION_TAG])
         !history.tags.any { meta.tags.contains(it) }
-        history.metadata.equals(meta.metadata)
-        history.title.equals(meta.title)
-        history.action.equals(action)
+        history.metadata == meta.metadata
+        history.title == meta.title
+        history.action == action
         history.versionTags.containsAll(meta.tags)
 
         Instant finish = Instant.now()
@@ -72,18 +75,71 @@ class HistoryMetacardImplSpecTest extends Specification {
         def meta = defaultMetacard()
         Action action = Action.CREATED
         MetacardVersion history = new MetacardVersion(
-                meta.metacard,
+                meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject)
 
         when:
-        Metacard metacard = history.toBasicMetacard()
+        Metacard metacard = history.getMetacard([BasicTypes.BASIC_METACARD])
 
         then:
         metacard != null
-        history.versionOfId.equals(metacard.id)
+        history.versionOfId == metacard.id
         metacard.tags.containsAll(meta.tags)
         !metacard.tags.contains(MetacardVersion.VERSION_TAG)
+        metacard.title == meta.metacard.title
+    }
+
+    def "Non default metacard type back to type from existing list"() {
+        setup:
+        def meta = nonBasicMetacard()
+        Action action = Action.CREATED
+
+        when: "History items are created from non basic metacard types"
+        MetacardVersion history = new MetacardVersion(
+                meta.metacard as Metacard,
+                action,
+                SecurityUtils.subject,
+                [BasicTypes.BASIC_METACARD, meta.metacardType])
+
+        then: "The metacard type should contain non default attribute descriptors"
+        meta.attributeDescriptor in history.metacardType.attributeDescriptors
+        history.metacardType.attributeDescriptors.containsAll(
+                meta.metacard.metacardType.attributeDescriptors)
+
+        when:
+        Metacard metacard = history.getMetacard([BasicTypes.BASIC_METACARD, meta.metacardType])
+
+        then:
+        metacard != null
+        history.versionOfId == metacard.id
+        metacard.tags.containsAll(meta.tags)
+        !metacard.tags.contains(MetacardVersion.VERSION_TAG)
+        metacard.getAttribute(meta.attributeDescriptor.name)?.value == meta.attributeValue
+        meta.metacard.metacardType.attributeDescriptors.containsAll(metacard.metacardType.attributeDescriptors)
+
+
+    }
+
+    def "Non default metacard type back to type from serialized type"() {
+        setup:
+        def meta = nonBasicMetacard()
+        Action action = Action.CREATED
+
+        when: "History items are created from non basic metacard types"
+        MetacardVersion history = new MetacardVersion(
+                meta.metacard as Metacard,
+                action,
+                SecurityUtils.subject)
+
+        then: "ensure the type-binary attribute is there"
+        history.getAttribute(MetacardVersion.VERSION_TYPE_BINARY)?.value != null
+
+        when: "reconstructing metacard with only serialized type available"
+        Metacard metacard = history.getMetacard([BasicTypes.BASIC_METACARD])
+
+        then: "ensure metacard and type are properly restored"
+        metacard.metacardType == meta.metacard.metacardType
     }
 
     def defaultMetacard() {
@@ -99,6 +155,33 @@ class HistoryMetacardImplSpecTest extends Specification {
         metacard.metadata = res.metadata
         metacard.title = res.title
         res.metacard = metacard
+        return res
+    }
+
+    def nonBasicMetacard() {
+        def res = [:]
+        res.id = "NonBasicMetacardTypeId"
+        res.title = "NonBasic Title"
+        res.tags = ["NonBasicTags"]
+        res.attributeDescriptor = new AttributeDescriptorImpl(
+                "New Attribute Name",
+                true,
+                true,
+                false,
+                false,
+                BasicTypes.STRING_TYPE)
+        res.metacardType = new MetacardTypeImpl(
+                "NonBasicType",
+                BasicTypes.BASIC_METACARD, [res.attributeDescriptor] as Set)
+        res.metacard = new MetacardImpl(res.metacardType)
+        res.attributeValue = "My New Attribute Value"
+        res.metacard.with {
+            id = res.id
+            title = res.title
+            tags = res.tags
+            it.setAttribute(
+                    new AttributeImpl(res.attributeDescriptor.name, res.attributeValue))
+        }
         return res
     }
 }
