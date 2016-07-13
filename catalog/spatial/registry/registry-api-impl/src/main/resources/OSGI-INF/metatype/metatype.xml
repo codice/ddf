@@ -19,8 +19,8 @@
         <AD description="The unique name of the store" name="Registry ID" id="id" required="true"
             type="String"/>
 
-        <AD description="URL to the endpoint implementing CSW spec capable of returning ebrim formatted records"
-            name="Registry Service URL" id="cswUrl" required="true" type="String"/>
+        <AD description="Registry URL to the endpoint implementing CSW spec capable of returning ebrim formatted records"
+            name="Registry URL" id="registryUrl" required="true" type="String"/>
 
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
             required="false" type="String"/>

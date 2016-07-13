@@ -38,6 +38,7 @@
                interface="org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService"/>
     <reference id="registryPublicationService"
                interface="org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService"/>
+    <reference id="metaTypeService" interface="org.osgi.service.metatype.MetaTypeService"/>
 
     <bean id="registryPublisherExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
     <bean id="metacardHandlerExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
@@ -145,13 +146,14 @@
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterBuilder" ref="filterBuilder"/>
             <property name="filterAdapter" ref="filterAdapter"/>
-            <property name="cswUrl" value=""/>
+            <property name="registryUrl" value=""/>
             <property name="id" value=""/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="disableCnCheck" value="false"/>
             <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>
+            <property name="metaTypeService" ref="metaTypeService"/>
             <property name="metacardMappings">
                 <list/>
             </property>
