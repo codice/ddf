@@ -16,7 +16,6 @@ package org.codice.ddf.catalog.transformer.zip;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -28,8 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,23 +35,81 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestZipCompression {
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    private static final String LOCAL_RESOURCE_FILENAME = "localresource.txt";
+
+    private static final String LOCAL_RESOURCE_PATH = TestZipCompression.class.getResource(
+            File.separator + LOCAL_RESOURCE_FILENAME)
+            .getPath();
+
+    private static final String CONTENT_SCHEME = "content:";
+
+    private static final String HTTP_SCHEME = "http://example.com";
+
+    private static final String CONTENT_PATH = "content" + File.separator;
+
+    private static final String PREVIEW_PATH = CONTENT_PATH + "preview" + File.separator;
+
+    private static final String ID_1 = "id1";
+
+    private static final String ID_2 = "id2";
+
+    private static final String ID_3 = "id3";
+
+    private static final String METACARD_1 = ZipCompression.METACARD_PATH + ID_1;
+
+    private static final String METACARD_2 = ZipCompression.METACARD_PATH + ID_2;
+
+    private static final String METACARD_3 = ZipCompression.METACARD_PATH + ID_3;
+
+    private static final String METACARD_3_CONTENT =
+            CONTENT_PATH + ID_3 + "-" + LOCAL_RESOURCE_FILENAME;
+
+    private static final String METACARD_3_DERIVED_CONTENT =
+            PREVIEW_PATH + ID_3 + "-" + LOCAL_RESOURCE_FILENAME;
+
+    private static final List<String> METACARD_ID_LIST = Arrays.asList(ID_1, ID_2, ID_3);
+
+    private static final List<String> METACARD_RESULT_LIST_NO_CONTENT = Arrays.asList(METACARD_1,
+            METACARD_2,
+            METACARD_3);
+
+    private static final List<String> METACARD_RESULT_LIST_WITH_CONTENT = Arrays.asList(METACARD_1,
+            METACARD_2,
+            METACARD_3,
+            METACARD_3_CONTENT);
+
+    private static final List<String> METACARD_RESULT_LIST_WITH_CONTENT_AND_DERIVED_RESOURCES =
+            Arrays.asList(METACARD_1,
+                    METACARD_2,
+                    METACARD_3,
+                    METACARD_3_CONTENT,
+                    METACARD_3_DERIVED_CONTENT);
 
     private ZipCompression zipCompression;
 
@@ -64,25 +119,16 @@ public class TestZipCompression {
 
     private CatalogFramework catalogFramework;
 
-    private static final String LOCAL_RESOURCE_FILENAME = "localresource.txt";
-
-    private static final String LOCAL_RESOURCE_PATH = TestZipCompression.class.getResource(
-            File.separator + LOCAL_RESOURCE_FILENAME)
-            .getPath();
-
-    private static final String ZIP_FILE_PATH = "target/signed.zip";
-
-    File file = new File(ZIP_FILE_PATH);
-
     private InputStream resourceFileStream;
 
     @Before
     public void setUp() throws Exception {
         zipCompression = new ZipCompression();
-        sourceResponse = generateMetacardList("ddf.distribution", false, Arrays.asList("id1",
-                "id2"));
+        sourceResponse = createSourceResponseWithURISchemes(null, null);
         filePathArgument = new HashMap<>();
-        filePathArgument.put("filePath", ZIP_FILE_PATH);
+        filePathArgument.put("filePath",
+                temporaryFolder.getRoot()
+                        .getAbsolutePath() + File.separator + "signed.zip");
         catalogFramework = mock(CatalogFramework.class);
 
         Resource resource = mock(Resource.class);
@@ -90,83 +136,124 @@ public class TestZipCompression {
         when(resource.getName()).thenReturn(LOCAL_RESOURCE_FILENAME);
         when(resource.getInputStream()).thenReturn(resourceFileStream);
         ResourceResponse resourceResponse = new ResourceResponseImpl(resource);
-        when(catalogFramework.getLocalResource(any(ResourceRequest.class))).thenReturn(
+        when(catalogFramework.getLocalResource(any(ResourceRequestById.class))).thenReturn(
                 resourceResponse);
         zipCompression.setCatalogFramework(catalogFramework);
+    }
 
+    @Test
+    public void testGetCatalogFramework() {
+        assertThat(catalogFramework, is(zipCompression.getCatalogFramework()));
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testCompressionNullArguments() throws Exception {
-        BinaryContent binaryContent = zipCompression.transform(sourceResponse, null);
-        assertThat(binaryContent, nullValue());
-        Files.deleteIfExists(file.toPath());
-    }
-
-    @Test(expected = CatalogTransformerException.class)
-    public void testCompressionNullSourceResponse() throws Exception {
-        BinaryContent binaryContent = zipCompression.transform(null, filePathArgument);
-        assertThat(binaryContent, nullValue());
-        Files.deleteIfExists(file.toPath());
-    }
-
-    @Test(expected = CatalogTransformerException.class)
-    public void testCompressioNullListInSourceResponse() throws Exception {
-        BinaryContent binaryContent = zipCompression.transform(new SourceResponseImpl(null, null),
-                filePathArgument);
-        assertThat(binaryContent, nullValue());
-        Files.deleteIfExists(file.toPath());
-    }
-
-    @Test(expected = CatalogTransformerException.class)
-    public void testCompressionEmptyListInSourceResponse() throws Exception {
-        BinaryContent binaryContent = zipCompression.transform(new SourceResponseImpl(null,
-                new ArrayList<>()), filePathArgument);
-        assertThat(binaryContent, nullValue());
-        Files.deleteIfExists(file.toPath());
+        zipCompression.transform(sourceResponse, null);
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testCompressionEmptyArguments() throws Exception {
-        BinaryContent binaryContent = zipCompression.transform(sourceResponse, new HashMap<>());
-        assertThat(binaryContent, nullValue());
-        Files.deleteIfExists(file.toPath());
+        zipCompression.transform(sourceResponse, new HashMap<>());
     }
 
     @Test(expected = CatalogTransformerException.class)
-    public void testCompressionMissingArguments() throws Exception {
+    public void testCompressionNoFilePathKeyArgument() throws Exception {
         HashMap<String, Serializable> arguments = new HashMap<>();
         arguments.put("bad", "argument");
-        BinaryContent binaryContent = zipCompression.transform(sourceResponse, null);
-        assertThat(binaryContent, nullValue());
-        Files.deleteIfExists(file.toPath());
+        zipCompression.transform(sourceResponse, arguments);
+    }
+
+    @Test(expected = CatalogTransformerException.class)
+    public void testCompressionEmptyFilePathKeyArgument() throws Exception {
+        HashMap<String, Serializable> arguments = new HashMap<>();
+        arguments.put(ZipDecompression.FILE_PATH, "");
+        zipCompression.transform(sourceResponse, arguments);
+    }
+
+    @Test(expected = CatalogTransformerException.class)
+    public void testCompressionNullSourceResponse() throws Exception {
+        zipCompression.transform(null, filePathArgument);
+    }
+
+    @Test(expected = CatalogTransformerException.class)
+    public void testCompressioNullListInSourceResponse() throws Exception {
+        zipCompression.transform(new SourceResponseImpl(null, null), filePathArgument);
+    }
+
+    @Test(expected = CatalogTransformerException.class)
+    public void testCompressionEmptyListInSourceResponse() throws Exception {
+        zipCompression.transform(new SourceResponseImpl(null, new ArrayList<>()), filePathArgument);
     }
 
     @Test
-    public void testCompressionWithFilePath() throws Exception {
+    public void testCompressionWithoutContent() throws Exception {
         BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
         assertThat(binaryContent, notNullValue());
-        assertZipContents(binaryContent, Arrays.asList(ZipCompression.METACARD_PATH + "id1",
-                ZipCompression.METACARD_PATH + "id2"));
-        Files.deleteIfExists(file.toPath());
+        assertZipContents(binaryContent, METACARD_RESULT_LIST_NO_CONTENT);
     }
 
     @Test
-    public void testCompressionWithContent() throws Exception {
-        List<String> idList = Arrays.asList("id1", "id2", "id3");
-        SourceResponse sourceResponse = generateMetacardList("", true, idList);
+    public void testCompressionWithRemoteContent() throws Exception {
+        SourceResponse sourceResponse = createSourceResponseWithURISchemes(HTTP_SCHEME, null);
         BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
         assertThat(binaryContent, notNullValue());
+        assertZipContents(binaryContent, METACARD_RESULT_LIST_NO_CONTENT);
+    }
 
-        List<String> assertionList = Arrays.asList(
-                ZipCompression.METACARD_PATH + "id1",
-                ZipCompression.METACARD_PATH + "id2",
-                ZipCompression.METACARD_PATH + "id3",
-                "content/id3-localresource.txt");
-        assertZipContents(binaryContent, assertionList);
+    @Test
+    public void testCompressionWithLocalContent() throws Exception {
+        SourceResponse sourceResponse = createSourceResponseWithURISchemes(CONTENT_SCHEME, null);
+        BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
+        assertThat(binaryContent, notNullValue());
+        assertZipContents(binaryContent, METACARD_RESULT_LIST_WITH_CONTENT);
+    }
 
-        Files.deleteIfExists(file.toPath());
+    @Test
+    public void testCompressionWithDerivedContent() throws Exception {
+        SourceResponse sourceResponse = createSourceResponseWithURISchemes(CONTENT_SCHEME,
+                "content:id3#preview");
+        BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
+        assertThat(binaryContent, notNullValue());
+        assertZipContents(binaryContent, METACARD_RESULT_LIST_WITH_CONTENT_AND_DERIVED_RESOURCES);
+    }
 
+    @Test
+    public void testCompressionWithNullResources() throws Exception {
+        when(catalogFramework.getLocalResource(any(ResourceRequestById.class))).thenThrow(
+                ResourceNotFoundException.class);
+        SourceResponse sourceResponse = createSourceResponseWithURISchemes(CONTENT_SCHEME,
+                "content:1234#preview");
+        BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
+        assertThat(binaryContent, notNullValue());
+        assertZipContents(binaryContent, METACARD_RESULT_LIST_NO_CONTENT);
+    }
+
+    @Test
+    public void testCompressionWithDerivedContentInvalidURI() throws Exception {
+        String invalidUri = "^";
+        SourceResponse sourceResponse = createSourceResponseWithURISchemes(CONTENT_SCHEME,
+                invalidUri);
+        BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
+        assertThat(binaryContent, notNullValue());
+        assertZipContents(binaryContent, METACARD_RESULT_LIST_WITH_CONTENT);
+    }
+
+    @Test
+    public void testCompressionWithDerivedContentNullFragment() throws Exception {
+        SourceResponse sourceResponse = createSourceResponseWithURISchemes(CONTENT_SCHEME,
+                "content:1234");
+        BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
+        assertThat(binaryContent, notNullValue());
+        assertZipContents(binaryContent, METACARD_RESULT_LIST_WITH_CONTENT);
+    }
+
+    @Test
+    public void testCompressionWithRemoteDerivedContent() throws Exception {
+        SourceResponse sourceResponse = createSourceResponseWithURISchemes(CONTENT_SCHEME,
+                HTTP_SCHEME);
+        BinaryContent binaryContent = zipCompression.transform(sourceResponse, filePathArgument);
+        assertThat(binaryContent, notNullValue());
+        assertZipContents(binaryContent, METACARD_RESULT_LIST_WITH_CONTENT);
     }
 
     private void assertZipContents(BinaryContent binaryContent, List<String> ids)
@@ -179,7 +266,6 @@ public class TestZipCompression {
             entryNames.add(zipEntry.getName());
             zipEntry = zipInputStream.getNextEntry();
         }
-
         assertThat(entryNames.size(), is(ids.size()));
 
         for (String id : ids) {
@@ -187,28 +273,29 @@ public class TestZipCompression {
         }
     }
 
-    private SourceResponse generateMetacardList(String sourceId, boolean setResourceUri,
-            List<String> ids) {
+    private SourceResponse createSourceResponseWithURISchemes(String scheme,
+            String derivedResourceScheme) throws Exception {
+
         List<Result> resultList = new ArrayList<>();
 
-        for (String string : ids) {
+        for (String string : METACARD_ID_LIST) {
             MetacardImpl metacard = new MetacardImpl();
             metacard.setId(string);
-            metacard.setSourceId(sourceId);
 
-            if (setResourceUri) {
-                try {
-                    metacard.setResourceURI(new URI("content:" + metacard.getId()));
-                } catch (URISyntaxException e) {
-                    // ignore
+            if (scheme != null && string.equals(METACARD_ID_LIST.get(
+                    METACARD_ID_LIST.size() - 1))) {
+
+                URI uri = new URI(scheme + metacard.getId());
+                metacard.setResourceURI(uri);
+                if (StringUtils.isNotBlank(derivedResourceScheme)) {
+                    metacard.setAttribute(Metacard.DERIVED_RESOURCE_URI, derivedResourceScheme);
                 }
+
             }
-
             Result result = new ResultImpl(metacard);
-
             resultList.add(result);
         }
-        SourceResponse sourceResponse = new SourceResponseImpl(null, resultList);
-        return sourceResponse;
+
+        return new SourceResponseImpl(null, resultList);
     }
 }

@@ -32,11 +32,11 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -46,7 +46,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.ResourceRequestByProductUri;
+import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
@@ -98,7 +98,7 @@ public class ZipCompression implements QueryResponseTransformer {
 
         List<Result> resultList = upstreamResponse.getResults();
 
-        Map<Resource, String> resourceMap = new HashMap<>();
+        Map<String, Resource> resourceMap = new HashMap<>();
 
         resultList.stream()
                 .map(Result::getMetacard)
@@ -125,7 +125,7 @@ public class ZipCompression implements QueryResponseTransformer {
                     }
                 });
 
-        resourceMap.forEach((resource, filename) -> {
+        resourceMap.forEach((filename, resource) -> {
             try {
                 ZipParameters zipParameters = new ZipParameters();
                 zipParameters.setSourceExternalStream(true);
@@ -148,66 +148,61 @@ public class ZipCompression implements QueryResponseTransformer {
     }
 
     private boolean hasLocalResources(Metacard metacard) {
-        return metacard.getSourceId()
-                .equals(SystemInfo.getSiteName()) && (metacard.getResourceURI() != null
-                || metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI) != null);
+        URI uri = metacard.getResourceURI();
+        return (uri != null && ContentItem.CONTENT_SCHEME.equals(uri.getScheme()));
     }
 
-    private Map<Resource, String> getAllMetacardContent(Metacard metacard) {
-        Map<Resource, String> resourceList = new HashMap<>();
+    private Map<String, Resource> getAllMetacardContent(Metacard metacard) {
+        Map<String, Resource> resourceMap = new HashMap<>();
         Attribute attribute = metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI);
 
         if (attribute != null) {
-
             List<Serializable> serializables = attribute.getValues();
             serializables.forEach(serializable -> {
                 String fragment = ZipDecompression.CONTENT + File.separator;
+                URI uri = null;
                 try {
-                    URI uri = new URI((String) serializable);
+                    uri = new URI((String) serializable);
                     String derivedResourceFragment = uri.getFragment();
-                    if (StringUtils.isNotBlank(derivedResourceFragment)) {
+                    if (ContentItem.CONTENT_SCHEME.equals(uri.getScheme())
+                            && StringUtils.isNotBlank(derivedResourceFragment)) {
                         fragment += derivedResourceFragment + File.separator;
+                        Resource resource = getResource(metacard);
+                        if (resource != null) {
+                            resourceMap.put(fragment + uri.getSchemeSpecificPart() + "-"
+                                    + resource.getName(), resource);
+                        }
                     }
                 } catch (URISyntaxException e) {
                     LOGGER.debug("Invalid Derived Resource URI Syntax for metacard : {}",
                             metacard.getId(),
                             e);
                 }
-
-                Resource resource = getResource(serializable, metacard);
-                if (resource != null) {
-                    resourceList.put(resource,
-                            fragment + metacard.getId() + "-" + resource.getName());
-                }
             });
         }
 
         URI resourceUri = metacard.getResourceURI();
-        if (resourceUri != null) {
-            Resource resource = getResource(resourceUri.toString(), metacard);
 
-            if (resource != null) {
-                resourceList.put(resource,
-                        ZipDecompression.CONTENT + File.separator + metacard.getId() + "-"
-                                + resource.getName());
-            }
+        Resource resource = getResource(metacard);
+
+        if (resource != null) {
+            resourceMap.put(
+                    ZipDecompression.CONTENT + File.separator + resourceUri.getSchemeSpecificPart()
+                            + "-" + resource.getName(), resource);
         }
-        return resourceList;
+
+        return resourceMap;
     }
 
-    private Resource getResource(Serializable serializable, Metacard metacard) {
+    private Resource getResource(Metacard metacard) {
         Resource resource = null;
-        URI fileUri;
 
         try {
-            fileUri = new URI((String) serializable);
-            ResourceRequest resourceRequest = new ResourceRequestByProductUri(fileUri);
+            ResourceRequest resourceRequest = new ResourceRequestById(metacard.getId());
             ResourceResponse resourceResponse = catalogFramework.getLocalResource(resourceRequest);
             resource = resourceResponse.getResource();
-        } catch (URISyntaxException | IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
-            LOGGER.debug("Unable to retrieve content from metacard resource uri : {}",
-                    metacard.getResourceURI(),
-                    e);
+        } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
+            LOGGER.debug("Unable to retrieve content from metacard : {}", metacard.getId(), e);
         }
         return resource;
     }
