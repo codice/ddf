@@ -15,6 +15,11 @@ package ddf.catalog.core.versioning;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -22,20 +27,27 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -46,13 +58,9 @@ import ddf.security.SubjectUtils;
  * performed, who it was edited by, and what time it was edited on.
  */
 public class MetacardVersion extends MetacardImpl {
-
     public enum Action {
-        CREATED("Created"),
-        CREATED_CONTENT("Created-Content"),
-        UPDATED("Updated"),
-        UPDATED_CONTENT("Updated-Content"),
-        DELETED("Deleted");
+        CREATED("Created"), CREATED_CONTENT("Created-Content"), UPDATED("Updated"), UPDATED_CONTENT(
+                "Updated-Content"), DELETED("Deleted");
 
         private static Map<String, Action> keyMap = new HashMap<>();
 
@@ -90,7 +98,10 @@ public class MetacardVersion extends MetacardImpl {
             String value = (String) svalue;
             return keyMap.get(value);
         }
+
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardVersion.class);
 
     public static final String SKIP_VERSIONING = "skip-versioning";
 
@@ -137,11 +148,16 @@ public class MetacardVersion extends MetacardImpl {
 
     public static final String VERSION_TAGS = prefix.apply("tags");
 
+    public static final String VERSION_TYPE = prefix.apply("type");
+
+    public static final String VERSION_TYPE_BINARY = prefix.apply("type-binary");
+
     private static MetacardType metacardVersion;
 
+    private static Set<AttributeDescriptor> versionDescriptors =
+            new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+
     static {
-        HashSet<AttributeDescriptor> versionDescriptors =
-                new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
         versionDescriptors.add(new AttributeDescriptorImpl(ACTION,
                 true /* indexed */,
                 true /* stored */,
@@ -172,7 +188,18 @@ public class MetacardVersion extends MetacardImpl {
                 false /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-
+        versionDescriptors.add(new AttributeDescriptorImpl(VERSION_TYPE,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        versionDescriptors.add(new AttributeDescriptorImpl(VERSION_TYPE_BINARY,
+                false /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.BINARY_TYPE));
         metacardVersion = new MetacardTypeImpl(VERSION_PREFIX, versionDescriptors);
     }
 
@@ -186,7 +213,17 @@ public class MetacardVersion extends MetacardImpl {
      * @throws IllegalArgumentException
      */
     public MetacardVersion(Metacard sourceMetacard, Action action, Subject subject) {
-        super(sourceMetacard, metacardVersion);
+        this(sourceMetacard, action, subject, Collections.singletonList(BasicTypes.BASIC_METACARD));
+    }
+
+    public MetacardVersion(Metacard sourceMetacard, Action action, Subject subject,
+            List<MetacardType> types) {
+        super(sourceMetacard,
+                new MetacardTypeImpl(VERSION_PREFIX,
+                        metacardVersion,
+                        sourceMetacard.getMetacardType()
+                                .getAttributeDescriptors()));
+
         if (sourceMetacard instanceof MetacardVersion) {
             throw new IllegalArgumentException(
                     "Cannot create a history item from a history metacard.");
@@ -195,6 +232,20 @@ public class MetacardVersion extends MetacardImpl {
         this.setAction(action);
         this.setVersionOfId(sourceMetacard.getId());
         this.setVersionTags(sourceMetacard.getTags());
+
+        Optional<MetacardType> type = types.stream()
+                .filter(mt -> sourceMetacard.getMetacardType()
+                        .getName()
+                        .equals(mt.getName()))
+                .findFirst();
+
+        this.setVersionType(sourceMetacard.getMetacardType()
+                .getName());
+        if (!type.isPresent()) {
+            this.setVersionType(sourceMetacard.getMetacardType()
+                    .getName());
+            this.setVersionTypeBinary(getVersionType(sourceMetacard));
+        }
 
         String editedBy = SubjectUtils.getEmailAddress(subject);
         if (isNullOrEmpty(editedBy)) {
@@ -209,18 +260,28 @@ public class MetacardVersion extends MetacardImpl {
         this.setTags(Collections.singleton(VERSION_TAG));
     }
 
+    private byte[] getVersionType(Metacard sourceMetacard) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(sourceMetacard.getMetacardType());
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not serialize MetacardType");
+        }
+    }
+
     /**
-     * Returns a {@link BasicTypes#BASIC_METACARD} version of the given
+     * Returns a {@link Metacard} version of the given
      * {@link MetacardVersion}
      *
      * @return The converted metacard
      * @throws IllegalStateException
      */
-    public Metacard toBasicMetacard() {
-        return toBasicMetacard(this);
+    public Metacard getMetacard(List<MetacardType> types) {
+        return toMetacard(this, types);
     }
 
-    public static Metacard toBasicMetacard(Metacard source) {
+    public static Metacard toMetacard(Metacard source, List<MetacardType> types) {
         String id = (String) source.getAttribute(MetacardVersion.VERSION_OF_ID)
                 .getValue();
         if (isNullOrEmpty(id)) {
@@ -228,10 +289,52 @@ public class MetacardVersion extends MetacardImpl {
                     "Cannot convert history metacard without the original metacard id");
         }
 
-        MetacardImpl result = new MetacardImpl(source, BasicTypes.BASIC_METACARD);
+        String typeString = (String) source.getAttribute(VERSION_TYPE)
+                .getValue();
+        Optional<MetacardType> typeFromExisting = types.stream()
+                .filter(mt -> mt.getName()
+                        .equals(typeString))
+                .findFirst();
+
+        MetacardImpl result = new MetacardImpl(source,
+                typeFromExisting.orElseGet(() -> getMetacardTypeBinary(source).orElseThrow(
+                        cannotDeserializeException)));
         result.setId(id);
         result.setTags(getVersionTags(source));
+
+        sanitizeVersionAttributes(result);
         return result;
+    }
+
+    private static void sanitizeVersionAttributes(/*Mutable*/ Metacard source) {
+        Consumer<String> nullifySourceAttribute = (s) -> source.setAttribute(new AttributeImpl(s,
+                (Serializable) null));
+        versionDescriptors.stream()
+                .filter(((Predicate<AttributeDescriptor>) BasicTypes.BASIC_METACARD.getAttributeDescriptors()::contains).negate())
+                .map(AttributeDescriptor::getName)
+                .forEach(nullifySourceAttribute);
+    }
+
+    private static Supplier<RuntimeException> cannotDeserializeException =
+            () -> new RuntimeException("Could not Deserialize MetacardType");
+
+    private static Optional<MetacardType> getMetacardTypeBinary(Metacard source) {
+        byte[] typeBytes = Optional.of(source)
+                .map(m -> m.getAttribute(MetacardVersion.VERSION_TYPE_BINARY))
+                .map(Attribute::getValue)
+                .filter(byte[].class::isInstance)
+                .map(byte[].class::cast)
+                .orElseThrow(cannotDeserializeException);
+
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(typeBytes);
+                ObjectInputStream ois = new ObjectInputStream(bais)) {
+            return Optional.ofNullable(ois.readObject())
+                    .filter(MetacardType.class::isInstance)
+                    .map(MetacardType.class::cast);
+        } catch (IOException | ClassNotFoundException e) {
+            LOGGER.error("Error while processing metacard type", e);
+            return Optional.empty();
+        }
     }
 
     private static Set<String> getVersionTags(Metacard source) {
@@ -285,6 +388,22 @@ public class MetacardVersion extends MetacardImpl {
 
     public void setEditedBy(String editedBy) {
         setAttribute(EDITED_BY, editedBy);
+    }
+
+    public byte[] getVersionType() {
+        return requestBytes(VERSION_TYPE);
+    }
+
+    public void setVersionType(String versionType) {
+        setAttribute(VERSION_TYPE, versionType);
+    }
+
+    public String getVersionTypeBinary() {
+        return requestString(VERSION_TYPE_BINARY);
+    }
+
+    public void setVersionTypeBinary(byte[] versionType) {
+        setAttribute(VERSION_TYPE_BINARY, versionType);
     }
 
     public Action getAction() {
