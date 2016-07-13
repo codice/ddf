@@ -16,9 +16,9 @@ package ddf.test.itests;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.InvalidSyntaxException;
@@ -42,7 +42,8 @@ public class CatalogBundle {
 
     public static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
 
-    public static final String RESOURCE_DOWNLOAD_MANAGER_PID = "ddf.catalog.resource.download.ReliableResourceDownloadManager";
+    public static final String RESOURCE_DOWNLOAD_MANAGER_PID =
+            "ddf.catalog.resource.download.ReliableResourceDownloadManager";
 
     private final ServiceManager serviceManager;
 
@@ -160,20 +161,29 @@ public class CatalogBundle {
     }
 
     public void setupCaching(boolean cachingEnabled) throws IOException {
-        Map<String, Object> existingProperties = adminConfig.getDdfConfigAdmin()
-                .getProperties(RESOURCE_DOWNLOAD_MANAGER_PID);
-        if (existingProperties == null) {
-            existingProperties = new Hashtable<String, Object>();
+        if (cachingEnabled) {
+            setConfigProperty(RESOURCE_DOWNLOAD_MANAGER_PID, "cacheEnabled", "True");
+        } else {
+            setConfigProperty(RESOURCE_DOWNLOAD_MANAGER_PID, "cacheEnabled", "False");
         }
+    }
+
+    public void setDownloadRetryDelayInSeconds(int delay) throws IOException {
+        setConfigProperty(RESOURCE_DOWNLOAD_MANAGER_PID, "delayBetweenAttempts", delay);
+    }
+
+    private void setConfigProperty(String pid, String propertyName, Object propertyValue)
+            throws IOException {
+        Map<String, Object> existingProperties = Optional.ofNullable(adminConfig.getDdfConfigAdmin()
+                .getProperties(pid))
+                .orElse(new Hashtable<>());
         Hashtable<String, Object> updatedProperties = new Hashtable<>();
         updatedProperties.putAll(existingProperties);
-        if (cachingEnabled) {
-            updatedProperties.put("cacheEnabled", "True");
-        } else {
-            updatedProperties.put("cacheEnabled", "False");
-        }
 
-        Configuration configuration = adminConfig.getConfiguration(RESOURCE_DOWNLOAD_MANAGER_PID, null);
+        updatedProperties.put(propertyName, propertyValue);
+
+        Configuration configuration = adminConfig.getConfiguration(RESOURCE_DOWNLOAD_MANAGER_PID,
+                null);
         configuration.update(updatedProperties);
     }
 }

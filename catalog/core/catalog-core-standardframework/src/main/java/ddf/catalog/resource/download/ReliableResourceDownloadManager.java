@@ -150,6 +150,7 @@ public class ReliableResourceDownloadManager {
     }
 
     public void setDelayBetweenAttempts(int delayBetweenAttempts) {
+        LOGGER.debug("Delay between attempts set to {} second(s)", delayBetweenAttempts);
         downloaderConfig.setDelayBetweenAttemptsMS(delayBetweenAttempts * ONE_SECOND_IN_MS);
     }
 

@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
@@ -161,6 +162,18 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(7);
 
+    private static final int NO_RETRIES = 0;
+
+    private static final int FAIL_RETRIES = 3;
+
+    private static final String ACTIVITIES_COMPLETED_MESSAGE = "completed";
+
+    private static final String ACTIVITIES_FAILED_MESSAGE = "failed";
+
+    private static final String ACTIVITES_STARTED_MESSAGE = "started";
+
+    private static final int DOWNLOAD_SIZE = 6;
+
     public static final DynamicUrl CSW_STUB_SERVER_PATH = new DynamicUrl(INSECURE_ROOT,
             CSW_STUB_SERVER_PORT,
             "/services/csw");
@@ -265,6 +278,9 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Before
     public void setup() throws Exception {
+
+        getCatalogBundle().setDownloadRetryDelayInSeconds(1);
+
         getCatalogBundle().setupCaching(true);
         urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
 
@@ -282,6 +298,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
+
         if (metacardsToDelete != null) {
             for (String metacardId : metacardsToDelete) {
                 TestCatalog.deleteMetacard(metacardId);
@@ -300,6 +317,12 @@ public class TestFederation extends AbstractIntegrationTest {
         }
 
         cswServer.stop();
+
+        // @formatter:off
+        expect("List of active downloads is empty").within(30, SECONDS)
+                .until(()-> when().get(RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl())
+                        .then().log().all().extract().body().jsonPath().getList(""), hasSize(0));
+        // @formatter:on
 
         if (server != null) {
             server.stop();
@@ -1084,8 +1107,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product1.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
-                .build();
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1099,8 +1121,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
-                .then(getCswRetrievalHeaders(filename),
-                        response);
+                .then(getCswRetrievalHeaders(filename), response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1153,8 +1174,8 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product2.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
-                .delayBetweenChunks(Duration.ofMillis(200))
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+                Duration.ofMillis(200))
                 .fail(2)
                 .build();
 
@@ -1170,8 +1191,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
-                .then(getCswRetrievalHeaders(filename),
-                        response);
+                .then(getCswRetrievalHeaders(filename), response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1207,8 +1227,8 @@ public class TestFederation extends AbstractIntegrationTest {
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
         HeaderCapture headerCapture = new HeaderCapture();
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
-                .delayBetweenChunks(Duration.ofMillis(200))
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+                Duration.ofMillis(200))
                 .fail(2)
                 .allowPartialContent(headerCapture)
                 .build();
@@ -1226,8 +1246,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId),
                         Condition.custom(headerCapture))
-                .then(getCswRetrievalHeaders(filename),
-                        response);
+                .then(getCswRetrievalHeaders(filename), response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1260,8 +1279,8 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product3.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
-                .delayBetweenChunks(Duration.ofMillis(200))
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+                Duration.ofMillis(200))
                 .fail(3)
                 .build();
 
@@ -1277,8 +1296,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
-                .then(getCswRetrievalHeaders(filename),
-                        response);
+                .then(getCswRetrievalHeaders(filename), response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1363,8 +1381,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product4.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
-                .build();
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1378,8 +1395,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
-                .then(getCswRetrievalHeaders(filename),
-                        response);
+                .then(getCswRetrievalHeaders(filename), response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1438,8 +1454,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product5.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
-                .build();
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1453,8 +1468,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .match(Condition.get("/services/csw"),
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
-                .then(getCswRetrievalHeaders(filename),
-                        response);
+                .then(getCswRetrievalHeaders(filename), response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource";
@@ -1496,57 +1510,251 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testProductDownloadListWithOneActiveDownload() {
+    public void testProductDownloadListWithOneActiveDownload() throws IOException {
+
         String filename = "product.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
-        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
-                .delayBetweenChunks(Duration.ofMillis(500))
-                .build();
 
-        cswServer.whenHttp()
-                .match(post("/services/csw"),
-                        withPostBodyContaining("GetRecords"),
-                        withPostBodyContaining(metacardId))
-                .then(ok(),
-                        contentType("text/xml"),
-                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
+        int delayBetweenChunksInMillis = 500;
 
-        cswServer.whenHttp()
-                .match(Condition.get("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"),
-                        Condition.parameter("id", metacardId))
-                .then(getCswRetrievalHeaders(filename),
-                        response);
+        DownloadHandle downloadHandle = new DownloadHandle(metacardId,
+                filename,
+                resourceData,
+                NO_RETRIES,
+                delayBetweenChunksInMillis);
 
-        String startDownloadUrl =
-                RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + "?source=" + CSW_STUB_SOURCE_ID
-                        + "&metacard=" + metacardId;
-
-        // @formatter:off
-        String downloadId = when().get(startDownloadUrl).then().log().all()
-                .extract().jsonPath().getString("downloadId");
-        // @formatter:on
+        downloadHandle.startDownload();
 
         String getAllDownloadsUrl = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl();
 
         // @formatter:off
-        List<Map<String, Object>> downloads = expect("List of active downloads is not empty").within(10, SECONDS)
+        List<Map<String, Object>> downloads = expect("List of active downloads is not empty").within(30, SECONDS)
                 .until(()-> when().get(getAllDownloadsUrl)
                         .then().log().all().extract().body().jsonPath().getList(""), hasSize(1)).lastResult();
         // @formatter:on
 
         Map download = downloads.get(0);
-        assertThat(download.size(), is(6));
+        assertThat(download.size(), is(DOWNLOAD_SIZE));
 
-        assertThat(download.get("downloadId"), is(downloadId));
-        assertThat(download.get("fileName"), is(filename));
-        assertThat(download.get("status"), is("IN_PROGRESS"));
-        int bytesDownloaded = (int) download.get("bytesDownloaded");
-        assertThat(bytesDownloaded, is(greaterThan(0)));
-        assertThat(bytesDownloaded, is(lessThan(resourceData.length() + 1)));
-        assertTrue(((String) download.get("percentDownloaded")).matches("UNKNOWN|[0-9]|[0-9]{2}|100"));
-        assertThat((List<String>) download.get("users"), contains("Guest@Guest@127.0.0.1"));
+        downloadHandle.verifyGuestDownloadInProgress(download);
+
+    }
+
+    /**
+     * Similar to the test for one active download but checks that two downloads can be active at once.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testProductDownloadListWithTwoActiveDownloads() throws IOException {
+
+        String filename1 = "product1.txt";
+        String metacardId1 = generateUniqueMetacardId();
+        String resourceData1 = getResourceData(metacardId1);
+
+        String filename2 = "product2.txt";
+        String metacardId2 = generateUniqueMetacardId();
+        String resourceData2 = getResourceData(metacardId2);
+
+        int delayBetweenChunksInMillis = 200;
+
+        DownloadHandle downloadHandle1 = new DownloadHandle(metacardId1,
+                filename1,
+                resourceData1,
+                NO_RETRIES,
+                delayBetweenChunksInMillis);
+
+        DownloadHandle downloadHandle2 = new DownloadHandle(metacardId2,
+                filename2,
+                resourceData2,
+                NO_RETRIES,
+                delayBetweenChunksInMillis);
+
+        downloadHandle1.startDownload();
+        String downloadId1 = downloadHandle1.getDownloadId();
+
+        downloadHandle2.startDownload();
+        String downloadId2 = downloadHandle2.getDownloadId();
+
+        String getAllDownloadsUrl = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl();
+
+        // @formatter:off
+        List<Map<String, Object>> downloads =
+                expect("List of active downloads is not empty").within(30, SECONDS)
+                        .until(() -> when().get(getAllDownloadsUrl).then().log().all()
+                                .extract().body().jsonPath().getList(""), hasSize(2))
+                        .lastResult();
+        // @formatter:on
+
+        Map download1 = downloads.get(0);
+        assertThat(download1.size(), is(DOWNLOAD_SIZE));
+        Map download2 = downloads.get(1);
+        assertThat(download2.size(), is(DOWNLOAD_SIZE));
+
+        if (download1.get("downloadId")
+                .equals(downloadId1)) {
+            downloadHandle1.verifyGuestDownloadInProgress(download1);
+            downloadHandle2.verifyGuestDownloadInProgress(download2);
+
+        } else if (download1.get("downloadId")
+                .equals(downloadId2)) {
+            downloadHandle2.verifyGuestDownloadInProgress(download1);
+            downloadHandle1.verifyGuestDownloadInProgress(download2);
+        } else {
+            LOGGER.error("Unexpected data in the download");
+            fail("Unexpected data in the download");
+        }
+
+    }
+
+    /**
+     * Determines that when two downloads are downloaded at once and one fails, it does not affect the
+     * success of the other download.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testProductDownloadListWithTwoActiveDownloadsOneFails() throws Exception {
+
+        cometDClient = setupCometDClient(Arrays.asList(ACTIVITIES_CHANNEL));
+
+        String filename1 = "product1.txt";
+        String metacardId1 = generateUniqueMetacardId();
+        String resourceData1 = getResourceData(metacardId1);
+
+        String failFilename = "failProduct.txt";
+        String failMetacardId = generateUniqueMetacardId();
+        String failResourceData = getResourceData(failMetacardId);
+
+        int delayBetweenChunksInMillis = 200;
+
+        String restUrlFail =
+                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + failMetacardId
+                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
+
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId1
+                + "?transform=resource" + "&session=" + cometDClient.getClientId();
+
+        DownloadHandle downloadHandle1 = new DownloadHandle(metacardId1,
+                filename1,
+                resourceData1,
+                NO_RETRIES,
+                delayBetweenChunksInMillis);
+        DownloadHandle downloadHandleFail = new DownloadHandle(failMetacardId,
+                failFilename,
+                failResourceData,
+                FAIL_RETRIES,
+                delayBetweenChunksInMillis);
+
+        // Verify that product retrieval fails from the csw stub server.
+        // @formatter:off
+        when().get(restUrlFail).then().log().all().assertThat().statusCode(500).contentType("text/plain")
+                .body(containsString("cannot retrieve product"));
+        // @formatter:on
+
+        //verify that before the successful download is started, there are zero requests for it
+        //(to later confirm that the one request received is the test's request)
+        cswServer.verifyHttp()
+                .times(0,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId1));
+
+        // Verify that the testData from the csw stub server is returned.
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(resourceData1));
+        // @formatter:on
+
+        List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
+
+        expect("Waiting for activities").within(10, SECONDS)
+                .until(() -> {
+                    if (foundExpectedActivity(activities, filename1, ACTIVITES_STARTED_MESSAGE)
+                            && foundExpectedActivity(activities,
+                            failFilename,
+                            ACTIVITES_STARTED_MESSAGE) && foundExpectedActivity(activities,
+                            failFilename,
+                            ACTIVITIES_FAILED_MESSAGE) && foundExpectedActivity(activities,
+                            filename1,
+                            ACTIVITIES_COMPLETED_MESSAGE)) {
+                        return true;
+                    }
+                    return false;
+                });
+
+        downloadHandleFail.startDownload();
+        downloadHandle1.startDownload();
+
+        cswServer.verifyHttp()
+                .times(1,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId1));
+
+        //download again to confirm the successfully downloaded product is not downloaded from
+        //the server a second time
+        DownloadHandle repeatDownloadHandle = new DownloadHandle(metacardId1,
+                filename1,
+                resourceData1,
+                NO_RETRIES,
+                delayBetweenChunksInMillis);
+        repeatDownloadHandle.startDownload();
+
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(resourceData1));
+        // @formatter:on
+
+        //we should still only have accessed the server once, because the data should come from
+        //the cache the second time it is requested
+        cswServer.verifyHttp()
+                .times(1,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId1));
+
+    }
+
+    /**
+     * Helper method used to determine that a certain message is showing up in the cometDClient activities.
+     *
+     * @param activities    the activity messages extracted from the CometDClient.
+     * @param filename      the filename of the resource to check against the CometDClient.
+     * @param messageToFind the message to find in the CometDClient activities connected to the filename.
+     * @return a boolean that is only true when the message has been found in the activities and matched to the filename.
+     */
+    private boolean foundExpectedActivity(List<String> activities, String filename,
+            String messageToFind) throws Exception {
+
+        boolean found;
+
+        if (filename.equals("") || messageToFind.equals("")) {
+            throw new IllegalArgumentException();
+        } else {
+            LOGGER.debug("Found wanted messageToFind? {}",
+                    activities.stream()
+                            .anyMatch(activity -> activity.toString()
+                                    .contains(messageToFind)));
+            LOGGER.debug("Found wanted filename? {}",
+                    activities.stream()
+                            .anyMatch(activity -> activity.toString()
+                                    .contains(filename)));
+
+            found = activities.stream()
+                    .anyMatch(activity -> {
+                        if (activity.toString()
+                                .contains(messageToFind) && activity.toString()
+                                .contains(filename)) {
+                            return true;
+                        }
+                        return false;
+                    });
+
+        }
+
+        return found;
     }
 
     @Ignore
@@ -1746,7 +1954,6 @@ public class TestFederation extends AbstractIntegrationTest {
                 header("Content-Disposition", "filename=" + filename));
     }
 
-
     private String getResourceData(String metacardId) {
         return String.format("Data for metacard ID %s", metacardId);
     }
@@ -1767,5 +1974,89 @@ public class TestFederation extends AbstractIntegrationTest {
     @Override
     protected Option[] configureCustom() {
         return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
+    }
+
+    /**
+     * Sets up a download response and starts a download for testing in progress downloads.
+     */
+    private class DownloadHandle {
+
+        private String filename;
+
+        private String resourceData;
+
+        private String startDownloadUrl;
+
+        String downloadId;
+
+        DownloadHandle(String metacardId, String filename, String resourceData, int retries,
+                int delayBetweenChunksInMillis) {
+
+            this.filename = filename;
+            this.resourceData = resourceData;
+            downloadId = "";
+
+            Action response =
+                    new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+                            Duration.ofMillis(delayBetweenChunksInMillis))
+                            .fail(retries)
+                            .build();
+
+            cswServer.whenHttp()
+                    .match(post("/services/csw"),
+                            withPostBodyContaining("GetRecords"),
+                            withPostBodyContaining(metacardId))
+                    .then(ok(),
+                            contentType("text/xml"),
+                            bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
+            cswServer.whenHttp()
+                    .match(Condition.get("/services/csw"),
+                            Condition.parameter("request", "GetRecordById"),
+                            Condition.parameter("id", metacardId))
+                    .then(getCswRetrievalHeaders(filename), response);
+
+            startDownloadUrl =
+                    RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + "?source=" + CSW_STUB_SOURCE_ID
+                            + "&metacard=" + metacardId;
+        }
+
+        /**
+         * Starts the download and stores the download Id. This must be called before
+         * getDownloadId() to get a valid download id.
+         */
+        public void startDownload() {
+            // @formatter:off
+            downloadId = when().get(startDownloadUrl).then().log().all()
+                .extract().jsonPath().getString("downloadId");
+            // @formatter:on
+            assertThat(downloadId, not(isEmptyString()));
+        }
+
+        /**
+         * Used to compare the expected information about the download and the actual information
+         * pulled from the list about a download.
+         *
+         * @param download the map containing the actual download list information to compare.
+         */
+        public void verifyGuestDownloadInProgress(Map download) {
+            assertThat(download.get("downloadId"), is(downloadId));
+            assertThat(download.get("fileName"), is(filename));
+            assertThat(download.get("status"), is("IN_PROGRESS"));
+            int bytesDownloaded = (int) download.get("bytesDownloaded");
+            assertThat(bytesDownloaded, is(greaterThan(0)));
+            assertThat(bytesDownloaded, is(lessThan(resourceData.length() + 1)));
+            assertTrue(((String) download.get("percentDownloaded")).matches(
+                    "UNKNOWN|[0-9]|[0-9]{2}|100"));
+            assertThat((List<String>) download.get("users"), contains("Guest@Guest@127.0.0.1"));
+
+        }
+
+        /**
+         * @return the download id. If there is no valid download id, it will be an empty string.
+         */
+        public String getDownloadId() {
+            return downloadId;
+        }
     }
 }
