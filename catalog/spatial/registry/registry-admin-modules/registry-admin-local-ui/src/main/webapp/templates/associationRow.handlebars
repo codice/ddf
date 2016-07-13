@@ -18,7 +18,9 @@
 <td>
     <label class="association-name">{{targetType}}</label>
 </td>
-<td>
-    <a href="#" name="{{id}}"
-       class="remove-association fa fa-trash-o fa-lg minus-button"></a>
-</td>
+{{#unless readOnly}}
+    <td>
+        <a href="#" name="{{id}}"
+           class="remove-association fa fa-trash-o fa-lg minus-button"></a>
+    </td>
+{{/unless}}
