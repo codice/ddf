@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -33,27 +32,24 @@ import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.configuration.SystemInfo;
-import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
+import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
@@ -64,7 +60,6 @@ import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.Requests;
 
@@ -124,6 +119,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private final SolrCache cache;
 
+    private final SolrCacheSource cacheSource;
+
     private final ExecutorService cacheExecutorService;
 
     /**
@@ -150,10 +147,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private boolean cacheRemoteIngests = false;
 
-    private FilterAdapter adapter;
-
-    private FilterBuilder builder;
-
     private ValidationQueryFactory validationQueryFactory;
 
     private boolean showErrors = false;
@@ -167,8 +160,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
      */
     public CachingFederationStrategy(ExecutorService queryExecutorService,
             List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
-            SolrCache cache, ExecutorService cacheExecutorService, FilterAdapter adapter,
-            FilterBuilder builder, ValidationQueryFactory validationQueryFactory) {
+            SolrCache cache, ExecutorService cacheExecutorService,
+            ValidationQueryFactory validationQueryFactory) {
         this.queryExecutorService = queryExecutorService;
         this.preQuery = preQuery;
         this.postQuery = postQuery;
@@ -176,14 +169,13 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         this.cache = cache;
         this.cacheExecutorService = cacheExecutorService;
         cacheBulkProcessor = new CacheBulkProcessor(cache);
-        this.adapter = adapter;
-        this.builder = builder;
         this.validationQueryFactory = validationQueryFactory;
+        cacheSource = new SolrCacheSource(cache);
     }
 
     @Override
     public QueryResponse federate(List<Source> sources, QueryRequest queryRequest) {
-        Set<String> sourceIds = new HashSet<String>();
+        Set<String> sourceIds = new HashSet<>();
         for (Source source : sources) {
             sourceIds.add(source.getId());
         }
@@ -192,8 +184,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 sourceIds,
                 queryRequest.getProperties());
 
-        if (queryRequest.getProperties()
-                .containsKey(QUERY_MODE) && CACHE_QUERY_MODE.equals(queryRequest.getProperties()
+        if (CACHE_QUERY_MODE.equals(queryRequest.getProperties()
                 .get(QUERY_MODE))) {
             return queryCache(modifiedQueryRequest);
         } else {
@@ -202,19 +193,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     QueryResponse queryCache(QueryRequest queryRequest) {
-        QueryRequest updatedRequest = getQueryRequestWithAdditionalFilters(queryRequest);
-        final QueryResponseImpl queryResponse = new QueryResponseImpl(updatedRequest);
-        try {
-            SourceResponse result = cache.query(updatedRequest);
-            queryResponse.setHits(result.getHits());
-            queryResponse.setProperties(result.getProperties());
-            queryResponse.addResults(result.getResults(), true);
-        } catch (UnsupportedQueryException e) {
-            queryResponse.getProcessingDetails()
-                    .add(new ProcessingDetailsImpl("cache", e));
-            queryResponse.closeResultQueue();
-        }
-        return queryResponse;
+        return sourceFederate(ImmutableList.of(cacheSource), queryRequest);
     }
 
     private QueryResponse sourceFederate(List<Source> sources, final QueryRequest queryRequest) {
@@ -245,10 +224,9 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 queryRequest.isEnterprise(),
                 queryRequest.getSourceIds(),
                 queryRequest.getProperties());
-        QueryRequest finalQueryRequest;
 
-        CompletionService<SourceResponse> queryCompletion =
-                new ExecutorCompletionService<SourceResponse>(queryExecutorService);
+        CompletionService<SourceResponse> queryCompletion = new ExecutorCompletionService<>(
+                queryExecutorService);
 
         // Do NOT call source.isAvailable() when checking sources
         for (final Source source : sources) {
@@ -256,11 +234,12 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 if (!futures.containsValue(source)) {
                     logger.debug("running query on source: {}", source.getId());
 
+                    QueryRequest sourceQueryRequest = modifiedQueryRequest;
                     try {
                         for (PreFederatedQueryPlugin service : preQuery) {
                             try {
-                                modifiedQueryRequest = service.process(source,
-                                        modifiedQueryRequest);
+                                sourceQueryRequest = service.process(source,
+                                        sourceQueryRequest);
                             } catch (PluginExecutionException e) {
                                 logger.warn("Error executing PreFederatedQueryPlugin", e);
                             }
@@ -269,15 +248,18 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                         logger.warn("Plugin stopped processing", e);
                     }
 
-                    finalQueryRequest = modifiedQueryRequest;
                     if (source instanceof CatalogProvider && SystemInfo.getSiteName()
                             .equals(source.getId())) {
-                        finalQueryRequest = getQueryRequestWithAdditionalFilters(
-                                modifiedQueryRequest);
+                        // TODO RAP 12 Jul 16: DDF-2294 - Extract into a new PreFederatedQueryPlugin
+                        sourceQueryRequest =
+                                validationQueryFactory.getQueryRequestWithValidationFilter(
+                                        sourceQueryRequest,
+                                        showErrors,
+                                        showWarnings);
                     }
 
                     futures.put(queryCompletion.submit(new CallableSourceResponse(source,
-                            finalQueryRequest)), source);
+                            sourceQueryRequest)), source);
                 } else {
                     logger.warn("Duplicate source found with name {}. Ignoring second one.",
                             source.getId());
@@ -328,53 +310,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         return queryResponse;
     }
 
-    /**
-     * If the passed in requests query doesn't include a filter for 'tags' one will be
-     * added for the default tag of 'resource'. A filter will also be added to include
-     * metacards without any tags attribute to support backwards compatibility.
-     *
-     * @param request The query request
-     * @return The updated query
-     */
-    private QueryRequest getRequestWithTagsFilter(QueryRequest request) {
-        QueryRequest newRequest = request;
-        try {
-            Query query = request.getQuery();
-            if (!noDefaultTags(request) && !adapter.adapt(query, new TagsFilterDelegate())) {
-                List<Filter> filters = new ArrayList<>();
-                //no tags filter given in props or in query. Add the default ones.
-                filters.add(builder.attribute(Metacard.TAGS)
-                        .is()
-                        .like()
-                        .text(Metacard.DEFAULT_TAG));
-                filters.add(builder.attribute(Metacard.TAGS)
-                        .empty());
-                Filter newFilter = builder.allOf(builder.anyOf(filters), query);
-
-                QueryImpl newQuery = new QueryImpl(newFilter,
-                        query.getStartIndex(),
-                        query.getPageSize(),
-                        query.getSortBy(),
-                        query.requestsTotalResultsCount(),
-                        query.getTimeoutMillis());
-                newRequest = new QueryRequestImpl(newQuery,
-                        request.isEnterprise(),
-                        request.getSourceIds(),
-                        request.getProperties());
-            }
-        } catch (UnsupportedQueryException uqe) {
-            logger.error("Unable to update query with default tags filter");
-        }
-        return newRequest;
-    }
-
-    private boolean noDefaultTags(Operation op) {
-        return Optional.ofNullable(op)
-                    .map(Operation::getProperties)
-                    .map(p -> (Boolean) p.get("no-default-tags"))
-                    .orElse(false);
-    }
-
     private Query getModifiedQuery(Query originalQuery, int numberOfSources, int offset,
             int pageSize) {
 
@@ -411,11 +346,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         return query;
     }
 
-    private QueryRequest getQueryRequestWithAdditionalFilters(QueryRequest originalRequest) {
-        return validationQueryFactory.getQueryRequestWithValidationFilter(getRequestWithTagsFilter(
-                originalRequest), showErrors, showWarnings);
-    }
-
     /**
      * Base 1 offset, hence page size is one less.
      */
@@ -436,7 +366,14 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             return input;
         }
 
-        List<Metacard> metacards = new ArrayList<Metacard>(input.getUpdatedMetacards()
+        if (cacheSource.getId()
+                .equals(input.getRequest()
+                        .getProperties()
+                        .get(Constants.SERVICE_TITLE))) {
+            return input;
+        }
+
+        List<Metacard> metacards = new ArrayList<>(input.getUpdatedMetacards()
                 .size());
 
         for (Update update : input.getUpdatedMetacards()) {
@@ -457,6 +394,14 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         if (!isCacheRemoteIngests() && !Requests.isLocal(input.getRequest())) {
             return input;
         }
+
+        if (cacheSource.getId()
+                .equals(input.getRequest()
+                        .getProperties()
+                        .get(Constants.SERVICE_TITLE))) {
+            return input;
+        }
+
         logger.debug("Deleting metacard(s) in cache.");
         cache.delete(input.getRequest());
         logger.debug("Deletion of metacard(s) in cache complete.");
