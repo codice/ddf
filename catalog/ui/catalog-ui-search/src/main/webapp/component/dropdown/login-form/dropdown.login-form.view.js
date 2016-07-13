@@ -18,7 +18,7 @@ define([
     'component/singletons/user-instance',
     '../dropdown',
     '../dropdown.view',
-    'text!./dropdown.login-form.hbs',
+    './dropdown.login-form.hbs',
     'js/CustomElements',
     'component/login-form/login-form.view'
 ], function (_, user, Dropdown, DropdownView, template, CustomElements, ComponentView) {

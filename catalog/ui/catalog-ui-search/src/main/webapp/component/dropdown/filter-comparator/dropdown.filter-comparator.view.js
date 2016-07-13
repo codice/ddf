@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.filter-comparator.hbs',
+    './dropdown.filter-comparator.hbs',
     'component/filter-comparator/filter-comparator.view'
 ], function (Marionette, _, $, DropdownView, template, ComponentView) {
 

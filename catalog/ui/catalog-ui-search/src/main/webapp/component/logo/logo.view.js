@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./logo.hbs',
+    './logo.hbs',
     'js/CustomElements',
 ], function (Marionette, _, $, template, CustomElements) {
 

@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!templates/workspace/workspaceIndicator.handlebars',
+    'templates/workspace/workspaceIndicator.handlebars',
     'js/CustomElements',
     'component/lightbox/lightbox.view.instance',
     'js/store',

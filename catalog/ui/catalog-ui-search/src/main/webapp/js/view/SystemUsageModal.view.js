@@ -17,7 +17,7 @@ define([
     'backbone',
     'js/view/Modal',
     'properties',
-    'text!templates/systemUsage.layout.handlebars'
+    'templates/systemUsage.layout.handlebars'
 ], function (Backbone, Modal, properties, systemUsageTemplate) {
     var SystemUsageModal = Modal.extend({
         template: systemUsageTemplate,

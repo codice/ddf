@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./query-federation.hbs',
+    './query-federation.hbs',
     'js/CustomElements',
     'js/store'
 ], function (Marionette, _, $, template, CustomElements, store) {

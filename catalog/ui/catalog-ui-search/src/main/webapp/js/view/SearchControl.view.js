@@ -16,7 +16,7 @@ define([
     'marionette',
     'backbone',
     'wreqr',
-    'text!templates/search/searchControl.handlebars',
+    'templates/search/searchControl.handlebars',
     'direction'
 ], function ($, _, Marionette, Backbone, wreqr, searchControlTemplate, dir) {
     'use strict';

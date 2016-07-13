@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.metacard-interactions.hbs',
+    './dropdown.metacard-interactions.hbs',
     'component/metacard-interactions/metacard-interactions.view'
 ], function (Marionette, _, $, DropdownView, template, ComponentView) {
 

@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     'js/CustomElements',
-    'text!./dropdown.companion.hbs'
+    './dropdown.companion.hbs'
 ], function (Marionette, _, $, CustomElements, template) {
 
     function hasBottomRoom(top, element){

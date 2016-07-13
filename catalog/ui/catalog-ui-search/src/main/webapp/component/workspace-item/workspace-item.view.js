@@ -18,7 +18,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./workspace-item.hbs',
+    './workspace-item.hbs',
     'js/CustomElements',
     'js/store',
     'component/menu-vertical/popout/menu-vertical.popout.view',

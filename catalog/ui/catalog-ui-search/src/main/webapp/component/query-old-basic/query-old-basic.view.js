@@ -19,7 +19,7 @@ define([
     'js/model/Metacard',
     'js/view/Progress.view',
     'wreqr',
-    'text!./query-old-basic.hbs',
+    './query-old-basic.hbs',
     'direction',
     'maptype',
     'js/store',

@@ -15,7 +15,7 @@ define([
     'marionette',
     'backbone',
     'wreqr',
-    'text!templates/geocoder.handlebars',
+    'templates/geocoder.handlebars',
     'jquery'
 ], function (_, Marionette, Backbone, wreqr, geocoderTemplate, $) {
     var geocoder = {};

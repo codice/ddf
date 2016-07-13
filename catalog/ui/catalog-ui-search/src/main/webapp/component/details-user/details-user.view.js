@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     'js/store',
-    'text!./details-user.hbs',
+    './details-user.hbs',
     'js/CustomElements',
     'component/dropdown/dropdown',
     'component/dropdown/login-form/dropdown.login-form.view'

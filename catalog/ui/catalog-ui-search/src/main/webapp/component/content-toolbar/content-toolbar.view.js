@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./content-toolbar.hbs',
+    './content-toolbar.hbs',
     'js/CustomElements',
     'component/menu-vertical/toolbar/menu-vertical.toolbar.view',
     './content-toolbar'

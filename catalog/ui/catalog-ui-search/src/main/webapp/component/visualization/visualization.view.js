@@ -17,7 +17,7 @@ define([
     'wreqr',
     'marionette',
     'js/CustomElements',
-    'text!./visualization.hbs',
+    './visualization.hbs',
     'component/visualization/cesium/cesium.view',
     'component/visualization/openlayers/openlayers.view',
     'component/visualization/histogram/histogram.view',

@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./query-advanced.hbs',
+    './query-advanced.hbs',
     'js/CustomElements',
     'component/filter-builder/filter-builder.view',
     'component/filter-builder/filter-builder',

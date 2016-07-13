@@ -16,7 +16,7 @@
 define([
     'marionette',
     'jquery',
-    'text!./login-form.hbs',
+    './login-form.hbs',
     'js/CustomElements',
 ], function (Marionette, $, template, CustomElements) {
 

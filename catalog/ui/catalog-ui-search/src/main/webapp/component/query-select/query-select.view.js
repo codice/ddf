@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     'js/CustomElements',
-    'text!./query-select.hbs',
+    './query-select.hbs',
     'js/store',
     'component/query-item/query-item.collection.view'
 ], function (Marionette, _, $, CustomElements, template, store, QueryItemCollectionView) {

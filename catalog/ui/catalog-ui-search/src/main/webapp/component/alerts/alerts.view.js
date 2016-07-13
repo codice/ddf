@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./alerts.hbs',
+    './alerts.hbs',
     'js/CustomElements',
     'component/alert-item/alert-item.collection.view'
 ], function (Marionette, _, $, template, CustomElements, AlertItemCollectionView) {

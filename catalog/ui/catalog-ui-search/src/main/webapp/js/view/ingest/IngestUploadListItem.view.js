@@ -16,7 +16,7 @@
 define([
     'marionette',
     'jquery',
-    'text!templates/ingest/ingestNewFileRow.handlebars',
+    'templates/ingest/ingestNewFileRow.handlebars',
     'fileupload'
 ], function (Marionette, $, ingestNewFileRow) {
     var UploadItem = Marionette.ItemView.extend({

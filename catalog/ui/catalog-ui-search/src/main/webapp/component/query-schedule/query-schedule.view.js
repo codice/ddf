@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./query-schedule.hbs',
+    './query-schedule.hbs',
     'js/CustomElements',
     'js/store',
     'component/property/property.view',

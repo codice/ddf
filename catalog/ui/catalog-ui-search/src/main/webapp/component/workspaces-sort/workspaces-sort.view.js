@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./workspaces-sort.hbs',
+    './workspaces-sort.hbs',
     'js/CustomElements'
 ], function (Marionette, _, $, template, CustomElements) {
 

@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.result-sort.hbs',
+    './dropdown.result-sort.hbs',
     'component/result-sort/result-sort.view',
     'component/singletons/user-instance'
 ], function (Marionette, _, $, DropdownView, template, ComponentView, user) {

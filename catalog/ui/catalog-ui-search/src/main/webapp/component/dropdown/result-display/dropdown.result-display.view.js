@@ -15,7 +15,7 @@
 /*global define*/
 define([
     '../dropdown.view',
-    'text!./dropdown.result-display.hbs'
+    './dropdown.result-display.hbs'
 ], function (DropdownView, template) {
 
     return DropdownView.extend({

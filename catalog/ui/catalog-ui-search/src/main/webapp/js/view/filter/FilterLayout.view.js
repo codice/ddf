@@ -17,7 +17,7 @@ define([
     'js/model/Filter',
     './FacetCollection.view',
     './FilterCollection.view',
-    'text!templates/filter/filter.layout.handlebars'
+    'templates/filter/filter.layout.handlebars'
 ], function (_, Marionette, wreqr, Properties, Filter, FacetCollectionView, FilterCollectionView, filterLayoutTemplate) {
     'use strict';
     var FilterView = Marionette.LayoutView.extend({

@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./sort-item.hbs',
+    './sort-item.hbs',
     'js/CustomElements',
     'component/singletons/metacard-definitions',
     'component/dropdown/dropdown.view',

@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./filter.hbs',
+    './filter.hbs',
     'js/CustomElements',
     'component/dropdown/filter-comparator/dropdown.filter-comparator.view',
     'component/multivalue/multivalue.view',

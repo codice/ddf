@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./query-src.hbs',
+    './query-src.hbs',
     'js/CustomElements',
     'component/singletons/sources-instance'
 ], function (Marionette, _, $, template, CustomElements, sources) {

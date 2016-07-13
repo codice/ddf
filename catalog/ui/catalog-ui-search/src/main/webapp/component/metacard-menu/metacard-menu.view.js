@@ -19,7 +19,7 @@ define([
     'backbone',
     'underscore',
     'jquery',
-    'text!./metacard-menu.hbs',
+    './metacard-menu.hbs',
     'js/CustomElements',
     'js/store',
     'component/metacard/metacard',

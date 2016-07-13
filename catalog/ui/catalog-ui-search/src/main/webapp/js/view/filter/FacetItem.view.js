@@ -14,7 +14,7 @@ define([
     'backbone',
     'marionette',
     'wreqr',
-    'text!templates/filter/facet.item.handlebars'
+    'templates/filter/facet.item.handlebars'
 ], function (_, Backbone, Marionette, wreqr, facetItemTemplate) {
     'use strict';
     var FacetItemView = Marionette.ItemView.extend({

@@ -14,7 +14,7 @@ define([
     'jquery',
     'underscore',
     'marionette',
-    'text!templates/metacardNearbyLocation.handlebars'
+    'templates/metacardNearbyLocation.handlebars'
 ], function ($, _, Marionette, metacardNearbyLocationTemplate) {
     'use strict';
     var NearbyLocationView = {};

@@ -18,7 +18,7 @@ define([
     'backbone',
     'underscore',
     'jquery',
-    'text!./filter-builder.hbs',
+    './filter-builder.hbs',
     'js/CustomElements',
     './filter-builder',
     'component/filter/filter',

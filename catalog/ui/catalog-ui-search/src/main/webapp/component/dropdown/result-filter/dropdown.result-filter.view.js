@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.result-filter.hbs',
+    './dropdown.result-filter.hbs',
     'component/result-filter/result-filter.view',
     './dropdown.companion.result-filter.view',
     'component/singletons/user-instance'

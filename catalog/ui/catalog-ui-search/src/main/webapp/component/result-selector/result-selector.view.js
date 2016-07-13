@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./result-selector.hbs',
+    './result-selector.hbs',
     'js/CustomElements',
     'properties',
     'js/store',

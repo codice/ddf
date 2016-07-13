@@ -17,7 +17,7 @@ define([
     'properties',
     'wreqr',
     'js/model/Filter',
-    'text!templates/filter/filter.item.handlebars',
+    'templates/filter/filter.item.handlebars',
     'bootstrapselect'
 ], function ($, _, Marionette, Backbone, Properties, wreqr, Filter, filterItemTemplate) {
     'use strict';

@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./loading-companion.hbs',
+    './loading-companion.hbs',
     'js/CustomElements'
 ], function (Marionette, _, $, template, CustomElements) {
 

@@ -14,7 +14,7 @@ define(['marionette',
         'cesium',
         'underscore',
         'handlebars',
-        'text!templates/clusteringMarker.handlebars'
+        'templates/clusteringMarker.handlebars'
 ], function(Marionette, Cesium, _, Handlebars, clusteringMarker) {
 
     var DEFAULT_PIXEL_DISTANCE = 100;

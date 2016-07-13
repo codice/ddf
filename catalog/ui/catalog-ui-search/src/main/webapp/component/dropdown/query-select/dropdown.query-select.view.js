@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.query-select.hbs',
+    './dropdown.query-select.hbs',
     'component/query-select/query-select.view',
     'component/query-item/query-item.view',
     'js/store'

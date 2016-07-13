@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./input.hbs',
+    './input.hbs',
     'js/CustomElements'
 ], function (Marionette, _, $, InputTemplate, CustomElements) {
 

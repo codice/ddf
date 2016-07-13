@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./Lightbox.hbs',
+    './Lightbox.hbs',
     'js/CustomElements',
     'js/store'
 ], function (Marionette, _, $, LightboxTemplate, CustomElements, store) {

@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./input-location.hbs',
+    './input-location.hbs',
     'js/CustomElements',
     '../input.view',
     'component/location-old/location-old.view'

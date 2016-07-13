@@ -15,7 +15,7 @@
 /* global define */
 define([
     'marionette',
-    'text!templates/ingest/ingest.menuItem.handlebars',
+    'templates/ingest/ingest.menuItem.handlebars',
     'js/view/ingest/IngestModal.view',
     'wreqr'
 ], function (Marionette, ingestMenuItem, IngestModal, wreqr) {

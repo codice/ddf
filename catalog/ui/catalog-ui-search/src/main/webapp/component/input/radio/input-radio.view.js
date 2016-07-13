@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./input-radio.hbs',
+    './input-radio.hbs',
     'js/CustomElements',
     '../input.view',
     'component/radio/radio.view'

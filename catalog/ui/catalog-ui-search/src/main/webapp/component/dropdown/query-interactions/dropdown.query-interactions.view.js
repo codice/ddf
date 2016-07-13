@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.query-interactions.hbs',
+    './dropdown.query-interactions.hbs',
     'component/query-interactions/query-interactions.view'
 ], function (Marionette, _, $, DropdownView, template, ComponentView) {
 

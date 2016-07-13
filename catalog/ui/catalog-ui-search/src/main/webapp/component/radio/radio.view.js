@@ -19,7 +19,7 @@ define([
     'jquery',
     'js/CustomElements',
     './radio',
-    'text!./radio.hbs',
+    './radio.hbs',
 ], function (Marionette, _, $, CustomElements, RadioModel, template) {
 
     return Marionette.ItemView.extend({

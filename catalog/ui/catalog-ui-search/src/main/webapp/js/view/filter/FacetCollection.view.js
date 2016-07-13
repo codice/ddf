@@ -14,7 +14,7 @@ define([
     'marionette',
     'backbone',
     './FacetItem.view',
-    'text!templates/filter/facet.collection.handlebars',
+    'templates/filter/facet.collection.handlebars',
     'properties'
 ], function (_, Marionette, Backbone, FacetItemView, facetCollectionTemplate, Properties) {
     'use strict';

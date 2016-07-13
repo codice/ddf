@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     'js/CustomElements',
-    'text!./paging.hbs',
+    './paging.hbs',
 ], function (Marionette, _, $, CustomElements, template) {
 
     return Marionette.ItemView.extend({

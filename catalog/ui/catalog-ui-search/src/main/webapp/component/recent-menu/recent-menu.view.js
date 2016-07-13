@@ -18,7 +18,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./recent-menu.hbs',
+    './recent-menu.hbs',
     'js/CustomElements'
 ], function (wreqr, Marionette, _, $, template, CustomElements) {
 

@@ -17,9 +17,9 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./action/menu-item.action.hbs',
-    'text!./component/menu-item.component.hbs',
-    'text!./submenu/menu-item.submenu.hbs',
+    './action/menu-item.action.hbs',
+    './component/menu-item.component.hbs',
+    './submenu/menu-item.submenu.hbs',
     'js/CustomElements'
 ], function (Marionette, _, $, ActionTemplate, ComponentTemplate, SubmenuTemplate, CustomElements) {
 

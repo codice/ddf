@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./metacard-archive.hbs',
+    './metacard-archive.hbs',
     'js/CustomElements',
     'js/store',
     'component/loading/loading.view',

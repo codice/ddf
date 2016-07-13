@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./tabs.hbs',
+    './tabs.hbs',
     'js/CustomElements'
 ], function (Marionette, _, $, TabsTemplate, CustomElements) {
 

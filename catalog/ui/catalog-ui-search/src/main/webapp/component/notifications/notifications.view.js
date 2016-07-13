@@ -15,7 +15,7 @@
 /*global define*/
 define([
     'marionette',
-    'text!./notification.hbs',
+    './notification.hbs',
     'js/CustomElements',
 ], function (Marionette, template, CustomElements) {
 

@@ -15,7 +15,7 @@
 /* global define */
 define([
     'marionette',
-    'text!templates/preferences/preferences.menu.handlebars',
+    'templates/preferences/preferences.menu.handlebars',
     'js/view/preferences/PreferencesModal.view',
     'wreqr'
 ], function (Marionette, preferencesMenuItem, Modal, wreqr) {

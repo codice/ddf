@@ -19,8 +19,8 @@ define([
     'properties',
     'maptype',
     // Templates
-    'text!templates/header.layout.handlebars',
-    'text!templates/footer.layout.handlebars',
+    'templates/header.layout.handlebars',
+    'templates/footer.layout.handlebars',
     'js/controllers/Modal.controller',
     'js/controllers/SystemUsage.controller',
     // Load non attached libs and plugins

@@ -15,7 +15,7 @@ define([
     'properties',
     'js/model/Filter',
     './FilterItem.view',
-    'text!templates/filter/filter.collection.handlebars'
+    'templates/filter/filter.collection.handlebars'
 ], function (Backbone, Marionette, Properties, Filter, FilterItemView, filterCollectionTemplate) {
     'use strict';
     var FilterCollectionView = Marionette.CompositeView.extend({

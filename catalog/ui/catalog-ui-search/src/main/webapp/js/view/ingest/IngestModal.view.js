@@ -20,7 +20,7 @@ define([
         'jquery',
         'js/view/Modal',
         './IngestUploadList.view',
-        'text!templates/ingest/ingestModal.handlebars',
+        'templates/ingest/ingestModal.handlebars',
         'cometdinit',
         'wreqr',
         'bootstrapselect'

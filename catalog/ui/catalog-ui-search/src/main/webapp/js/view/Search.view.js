@@ -23,7 +23,7 @@ define([
     'backbone',
     'direction',
     'wreqr',
-    'text!templates/search/search.panel.handlebars',
+    'templates/search/search.panel.handlebars',
     'js/view/SearchControl.view',
     'js/model/Query',
     'js/view/WorkspaceSaveResults.view',

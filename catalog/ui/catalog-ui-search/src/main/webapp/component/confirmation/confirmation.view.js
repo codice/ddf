@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./confirmation.hbs',
+    './confirmation.hbs',
     './confirmation',
     'js/CustomElements',
 ], function (Marionette, _, $, template, Confirmation, CustomElements) {

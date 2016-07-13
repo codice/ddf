@@ -18,7 +18,7 @@ define([
     'backbone',
     'underscore',
     'jquery',
-    'text!./result-sort.hbs',
+    './result-sort.hbs',
     'js/CustomElements',
     'component/singletons/user-instance',
     'component/sort-item/sort-item.collection.view'

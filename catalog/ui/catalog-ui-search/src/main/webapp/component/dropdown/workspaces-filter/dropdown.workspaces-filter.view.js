@@ -18,7 +18,7 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.workspaces-filter.hbs',
+    './dropdown.workspaces-filter.hbs',
     'component/workspaces-filter/workspaces-filter.view'
 ], function (Marionette, _, $, DropdownView, template, ComponentView) {
 

@@ -20,7 +20,7 @@ define([
     'js/CustomElements',
     './dropdown.companion.view',
     './dropdown',
-    'text!./dropdown.hbs',
+    './dropdown.hbs',
     'component/select/select.collection.view'
 ], function (Marionette, _, $, CustomElements, DropdownCompanionView, DropdownModel, template, SelectView) {
 

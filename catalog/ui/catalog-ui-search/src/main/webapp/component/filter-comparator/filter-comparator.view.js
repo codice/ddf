@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./filter-comparator.hbs',
+    './filter-comparator.hbs',
     'js/CustomElements',
     'component/singletons/metacard-definitions'
 ], function (Marionette, _, $, template, CustomElements, metacardDefinitions) {

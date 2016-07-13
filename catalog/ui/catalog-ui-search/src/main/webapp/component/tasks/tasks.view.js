@@ -12,12 +12,12 @@
 /*global define, setTimeout, clearTimeout, document, window, parseInt*/
 define([
     'marionette',
-    'text!templates/menu/menubarItem.handlebars',
+    'templates/menu/menubarItem.handlebars',
     'backbone',
     'wreqr',
     'underscore',
-    'text!./task.menu.hbs',
-    'text!./task.category.hbs',
+    './task.menu.hbs',
+    './task.category.hbs',
     'cometdinit',
     'jquery',
     'modelbinder',

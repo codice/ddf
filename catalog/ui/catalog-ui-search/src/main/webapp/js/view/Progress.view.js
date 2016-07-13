@@ -19,7 +19,7 @@ define([
     'underscore',
     'spin',
     'spinnerConfig',
-    'text!templates/search/progress.handlebars',
+    'templates/search/progress.handlebars',
     'direction',
     'progressbar'
 ], function ($, Backbone, Marionette, wreqr, Q, _, Spinner, spinnerConfig, progressTemplate, dir) {

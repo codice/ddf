@@ -19,7 +19,7 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.notifications.hbs',
+    './dropdown.notifications.hbs',
     'component/notifications/notifications.view'
 ], function (wreqr, Marionette, _, $, DropdownView, template, ComponentView) {
 

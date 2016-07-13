@@ -18,7 +18,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./result-indicator.hbs',
+    './result-indicator.hbs',
     'js/CustomElements',
     'js/store'
 ], function (Backbone, Marionette, _, $, template, CustomElements, store) {

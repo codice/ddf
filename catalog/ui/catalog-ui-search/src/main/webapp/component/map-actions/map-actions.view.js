@@ -16,7 +16,7 @@ define([
     'marionette',
     'backbone',
     'wreqr',
-    'text!./map-actions.hbs'
+    './map-actions.hbs'
 ], function (_, Marionette, Backbone, wreqr, template) {
     "use strict";
 

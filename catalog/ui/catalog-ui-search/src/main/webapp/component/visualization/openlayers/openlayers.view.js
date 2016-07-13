@@ -17,7 +17,7 @@ define([
     'wreqr',
     'marionette',
     'js/CustomElements',
-    'text!./openlayers.hbs'
+    './openlayers.hbs'
 ], function (wreqr, Marionette, CustomElements, template) {
 
     return Marionette.LayoutView.extend({

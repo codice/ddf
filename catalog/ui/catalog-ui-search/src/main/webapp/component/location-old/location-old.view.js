@@ -19,7 +19,7 @@ define([
     'js/model/Metacard',
     'js/view/Progress.view',
     'wreqr',
-    'text!./location-old.hbs',
+    './location-old.hbs',
     'maptype',
     'js/store',
     'js/CustomElements',

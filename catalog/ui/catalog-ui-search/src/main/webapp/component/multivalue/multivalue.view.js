@@ -18,7 +18,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./multivalue.hbs',
+    './multivalue.hbs',
     'js/CustomElements',
     'component/value/value.collection.view'
 ], function (Backbone, Marionette, _, $, template, CustomElements, ValueCollection) {

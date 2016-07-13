@@ -18,7 +18,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./query-interactions.hbs',
+    './query-interactions.hbs',
     'js/CustomElements',
     'js/store'
 ], function (wreqr, Marionette, _, $, template, CustomElements, store) {

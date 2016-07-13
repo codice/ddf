@@ -17,7 +17,7 @@ define([
     'wreqr',
     'marionette',
     'js/CustomElements',
-    'text!./cesium.hbs'
+    './cesium.hbs'
 ], function (wreqr, Marionette, CustomElements, template) {
 
     return Marionette.LayoutView.extend({

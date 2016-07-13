@@ -17,7 +17,7 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    'text!./dropdown.alerts.hbs',
+    './dropdown.alerts.hbs',
     'component/alerts/alerts.view',
     'component/singletons/user-instance'
 ], function (_, $, DropdownView, template, ComponentView, user) {

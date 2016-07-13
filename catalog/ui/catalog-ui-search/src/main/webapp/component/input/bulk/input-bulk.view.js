@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./input-bulk.hbs',
+    './input-bulk.hbs',
     'js/CustomElements',
     'component/input/input.view',
     'component/multivalue/multivalue.view',

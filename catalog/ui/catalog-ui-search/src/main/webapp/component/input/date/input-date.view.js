@@ -17,7 +17,7 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./input-date.hbs',
+    './input-date.hbs',
     'js/CustomElements',
     'moment',
     '../input.view',
