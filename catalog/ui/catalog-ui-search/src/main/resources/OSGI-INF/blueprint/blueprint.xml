@@ -47,7 +47,7 @@
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
         <property name="imageryProviders"
-                  value='[{ "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "alpha": 1 }]'/>
+                  value='[{ "type": "WMS", "url": "http://geoint.nrlssc.navy.mil/nrltileserver/wms", "layers": ["bluemarble"], "alpha": 1 }, { "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "alpha": 0.3 }]'/>
         <property name="terrainProvider"
                   value='{"type": "CT", "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'/>
     </bean>
