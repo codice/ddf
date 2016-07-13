@@ -93,6 +93,7 @@ import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
@@ -270,7 +271,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         frameworkProperties.getDownloadsStatusEventPublisher()
                 .setActivityEnabled(activityEnabled);
     }
-
 
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
@@ -1026,12 +1026,14 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw sourceUnavailableException;
         }
 
-        setDefaultValues(createRequest);
-
         CreateResponse createResponse = null;
 
         Exception ingestError = null;
         try {
+            createRequest = injectAttributes(createRequest);
+
+            setDefaultValues(createRequest);
+
             Map<String, Serializable> unmodifiablePropertiesMap = Collections.unmodifiableMap(
                     createRequest.getProperties());
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
@@ -1142,6 +1144,23 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     buildIngestLog(createRequest));
         }
         return createResponse;
+    }
+
+    private CreateRequest injectAttributes(CreateRequest request) {
+        List<Metacard> metacards = request.getMetacards()
+                .stream()
+                .map(this::applyInjectors)
+                .collect(Collectors.toList());
+
+        return new CreateRequestImpl(metacards, request.getProperties(), request.getStoreIds());
+    }
+
+    private Metacard applyInjectors(Metacard original) {
+        Metacard metacard = original;
+        for (AttributeInjector injector : frameworkProperties.getAttributeInjectors()) {
+            metacard = injector.injectAttributes(metacard);
+        }
+        return metacard;
     }
 
     private void applyAttributeOverridesToMetacardMap(Map<String, String> attributeOverrideMap,
@@ -1389,20 +1408,21 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw new IngestException(FANOUT_MESSAGE);
         }
 
-        UpdateRequest updateReq = updateRequest;
-        validateUpdateRequest(updateReq);
+        validateUpdateRequest(updateRequest);
 
         if (Requests.isLocal(updateRequest) && !sourceIsAvailable(catalog)) {
             throw new SourceUnavailableException(
                     "Local provider is not available, cannot perform update operation.");
         }
 
-        setDefaultValues(updateRequest);
-
         UpdateResponse updateResponse = null;
         try {
+            injectAttributes(updateRequest);
+
+            setDefaultValues(updateRequest);
+
             List<Filter> idFilters = new ArrayList<>();
-            for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
+            for (Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
                 idFilters.add(frameworkProperties.getFilterBuilder()
                         .attribute(updateRequest.getAttributeName())
                         .is()
@@ -1413,13 +1433,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters));
             queryImpl.setStartIndex(1);
-            queryImpl.setPageSize(updateReq.getUpdates()
+            queryImpl.setPageSize(updateRequest.getUpdates()
                     .size());
             QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl,
-                    updateReq.getStoreIds());
+                    updateRequest.getStoreIds());
 
             QueryResponse query;
-            Map<String, Metacard> metacardMap = new HashMap<>(updateReq.getUpdates()
+            Map<String, Metacard> metacardMap = new HashMap<>(updateRequest.getUpdates()
                     .size());
             if (!frameworkProperties.getPolicyPlugins()
                     .isEmpty()) {
@@ -1434,16 +1454,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
             }
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
+            for (Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
                 HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
                 Metacard oldMetacard = metacardMap.get(getAttributeStringValue(update.getValue(),
                         updateRequest.getAttributeName()));
                 for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                     PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
-                            Collections.unmodifiableMap(updateReq.getProperties()));
+                            Collections.unmodifiableMap(updateRequest.getProperties()));
                     PolicyResponse oldPolicyResponse = plugin.processPreUpdate(oldMetacard,
-                            Collections.unmodifiableMap(updateReq.getProperties()));
+                            Collections.unmodifiableMap(updateRequest.getProperties()));
                     buildPolicyMap(itemPolicyMap,
                             updatePolicyResponse.itemPolicy()
                                     .entrySet());
@@ -1461,39 +1481,39 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             oldItemPolicyMap));
                 }
             }
-            updateReq.getProperties()
+            updateRequest.getProperties()
                     .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
 
             for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                updateReq = plugin.processPreUpdate(updateReq, metacardMap);
+                updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
             }
 
-            updateReq.getProperties()
+            updateRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
                             new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
                                     metacardMap.values()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
-                    updateReq = plugin.process(updateReq);
+                    updateRequest = plugin.process(updateRequest);
                 } catch (PluginExecutionException e) {
                     LOGGER.warn("error processing update in PreIngestPlugin", e);
                 }
             }
-            validateUpdateRequest(updateReq);
+            validateUpdateRequest(updateRequest);
 
             // Call the create on the catalog
             LOGGER.debug("Calling catalog.update() with {} updates.",
                     updateRequest.getUpdates()
                             .size());
 
-            if (Requests.isLocal(updateReq)) {
-                updateResponse = catalog.update(updateReq);
+            if (Requests.isLocal(updateRequest)) {
+                updateResponse = catalog.update(updateRequest);
                 updateResponse = historian.version(updateResponse);
             }
 
             if (catalogStoreRequest) {
-                UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateReq);
+                UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateRequest);
                 if (updateResponse == null) {
                     updateResponse = remoteUpdateResponse;
                 } else {
@@ -1505,7 +1525,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             // Handle the posting of messages to pubsub
-            updateResponse = validateFixUpdateResponse(updateResponse, updateReq);
+            updateResponse = validateFixUpdateResponse(updateResponse, updateRequest);
             for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
                 try {
                     updateResponse = plugin.process(updateResponse);
@@ -1517,14 +1537,21 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } catch (StopProcessingException see) {
             LOGGER.warn(PRE_INGEST_ERROR, see);
             throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
-
         } catch (RuntimeException re) {
             LOGGER.warn("Exception during runtime while performing update", re);
             throw new InternalIngestException("Exception during runtime while performing update");
-
         }
 
         return updateResponse;
+    }
+
+    private void injectAttributes(UpdateRequest request) {
+        request.getUpdates()
+                .forEach(updateEntry -> {
+                    Metacard original = updateEntry.getValue();
+                    Metacard metacard = applyInjectors(original);
+                    updateEntry.setValue(metacard);
+                });
     }
 
     @Override
@@ -1642,6 +1669,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             e);
                 }
                 deleteResponse = catalog.delete(deleteRequest);
+                deleteResponse = injectAttributes(deleteResponse);
                 historian.version(deleteResponse);
             }
 
@@ -1649,6 +1677,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 DeleteResponse remoteDeleteResponse = doRemoteDelete(deleteRequest);
                 if (deleteResponse == null) {
                     deleteResponse = remoteDeleteResponse;
+                    deleteResponse = injectAttributes(deleteResponse);
                 } else {
                     deleteResponse.getProperties()
                             .putAll(remoteDeleteResponse.getProperties());
@@ -1711,6 +1740,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
 
         return deleteResponse;
+    }
+
+    private DeleteResponse injectAttributes(DeleteResponse response) {
+        List<Metacard> deletedMetacards = response.getDeletedMetacards()
+                .stream()
+                .map(this::applyInjectors)
+                .collect(Collectors.toList());
+
+        return new DeleteResponseImpl(response.getRequest(),
+                response.getProperties(),
+                deletedMetacards,
+                response.getProcessingErrors());
     }
 
     @Override
@@ -1808,6 +1849,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             queryResponse = doQuery(queryReq, fedStrategy);
 
+            queryResponse = injectAttributes(queryResponse);
+
             validateFixQueryResponse(queryResponse, queryReq, overrideFanoutRename);
 
             HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
@@ -1858,7 +1901,26 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
 
         return queryResponse;
+    }
 
+    private QueryResponse injectAttributes(QueryResponse response) {
+        List<Result> results = response.getResults()
+                .stream()
+                .map(result -> {
+                    Metacard original = result.getMetacard();
+                    Metacard metacard = applyInjectors(original);
+                    ResultImpl newResult = new ResultImpl(metacard);
+                    newResult.setDistanceInMeters(result.getDistanceInMeters());
+                    newResult.setRelevanceScore(result.getRelevanceScore());
+                    return newResult;
+                })
+                .collect(Collectors.toList());
+
+        return new QueryResponseImpl(response.getRequest(),
+                results,
+                true,
+                response.getHits(),
+                response.getProperties());
     }
 
     private Filter getTagsQueryFilter() {
@@ -2457,21 +2519,17 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         .get(resourceSourceName);
 
                 if (source != null) {
-                    LOGGER.debug("Adding federated site to federated query: {}",
-                            source.getId());
+                    LOGGER.debug("Adding federated site to federated query: {}", source.getId());
                     LOGGER.debug("Retrieving product from remote source {}", source.getId());
-                    retriever = new RemoteResourceRetriever(source,
-                            responseURI,
-                            requestProperties);
+                    retriever = new RemoteResourceRetriever(source, responseURI, requestProperties);
                 } else {
                     LOGGER.warn("Could not find federatedSource: {}", resourceSourceName);
                 }
             } else {
                 LOGGER.debug("Retrieving product from local source {}", resourceSourceName);
-                retriever =
-                        new LocalResourceRetriever(frameworkProperties.getResourceReaders(),
-                                responseURI,
-                                requestProperties);
+                retriever = new LocalResourceRetriever(frameworkProperties.getResourceReaders(),
+                        responseURI,
+                        requestProperties);
             }
 
             try {

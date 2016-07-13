@@ -29,6 +29,10 @@ import java.util.Optional;
  * In the event that an attribute has a 'global' default value as well as a default value for a
  * specific metacard type, the default value for the specific metacard type will be returned (i.e.,
  * the more specific default value wins).
+ * <p>
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ * </p>
  */
 public interface DefaultAttributeValueRegistry {
     /**

@@ -365,6 +365,13 @@
     <reference id="defaultAttributeValueRegistry"
                interface="ddf.catalog.data.DefaultAttributeValueRegistry"/>
 
+    <reference-list id="attributeInjectors" interface="ddf.catalog.data.AttributeInjector"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin">
+            <bean class="ddf.catalog.util.impl.SortedServiceList"/>
+        </reference-listener>
+    </reference-list>
+
     <!-- create the ddf bean -->
     <bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">
         <cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
@@ -402,6 +409,7 @@
                 <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
                 <property name="validationQueryFactory" ref="validationQueryFactory"/>
                 <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
+                <property name="attributeInjectors" ref="attributeInjectors"/>
             </bean>
         </argument>
         <property name="historian" ref="historian"/>

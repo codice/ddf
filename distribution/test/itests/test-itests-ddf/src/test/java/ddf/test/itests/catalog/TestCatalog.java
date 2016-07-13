@@ -29,6 +29,7 @@ import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
+import static ddf.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME;
 import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 import static ddf.common.test.WaitCondition.expect;
 import static ddf.test.itests.common.CswQueryBuilder.AND;
@@ -59,7 +60,9 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -93,6 +96,7 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
 import ddf.catalog.data.DefaultAttributeValueRegistry;
+import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.common.test.BeforeExam;
@@ -972,18 +976,17 @@ public class TestCatalog extends AbstractIntegrationTest {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
         String url = REST_PATH.getUrl() + "sources/ddf.distribution/" + metacardId;
-        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()", Metacard.RESOURCE_CACHE_STATUS);
+        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()",
+                Metacard.RESOURCE_CACHE_STATUS);
 
-        get(url).
-                then().
-                body(hasXPath(resourceCachedXpath, is("false")));
+        get(url).then()
+                .body(hasXPath(resourceCachedXpath, is("false")));
 
         deleteMetacard(metacardId);
     }
 
     @Test
-    public void testGetMetacardResourceStatusCached()
-            throws IOException, XPathExpressionException {
+    public void testGetMetacardResourceStatusCached() throws IOException, XPathExpressionException {
         String fileName = testName.getMethodName() + ".txt";
         String metacardId = ingestXmlWithProduct(fileName);
 
@@ -993,13 +996,13 @@ public class TestCatalog extends AbstractIntegrationTest {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
         String url = REST_PATH.getUrl() + "sources/ddf.distribution/" + metacardId;
-        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()", Metacard.RESOURCE_CACHE_STATUS);
+        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()",
+                Metacard.RESOURCE_CACHE_STATUS);
 
         get(url + "?transform=resource").then();
 
-        get(url).
-            then().
-                body(hasXPath(resourceCachedXpath, is("true")));
+        get(url).then()
+                .body(hasXPath(resourceCachedXpath, is("true")));
 
         deleteMetacard(metacardId);
     }
@@ -1717,16 +1720,15 @@ public class TestCatalog extends AbstractIntegrationTest {
         return tmpFile.toFile();
     }
 
-    private void ingestDefinitionJsonWithMetacardType(String filename, String newMetacardTypeName)
-            throws IOException {
+    private void ingestDefinitionJsonWithWaitCondition(String filename,
+            Callable<Void> waitCondition) throws Exception {
         File definitionFile = copyFileToDefinitionsDir(filename);
 
-        expect("Service to be available: " + MetacardType.class.getName()).within(10,
-                TimeUnit.SECONDS)
-                .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
-                        "(name=" + newMetacardTypeName + ")"), not(empty()));
-
-        FileUtils.deleteQuietly(definitionFile);
+        try {
+            waitCondition.call();
+        } finally {
+            FileUtils.deleteQuietly(definitionFile);
+        }
     }
 
     @Test
@@ -1734,7 +1736,13 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
 
         final String newMetacardTypeName = "new.metacard.type";
-        ingestDefinitionJsonWithMetacardType("definitions.json", newMetacardTypeName);
+        ingestDefinitionJsonWithWaitCondition("definitions.json", () -> {
+            expect("Service to be available: " + MetacardType.class.getName()).within(10,
+                    TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
+                            "(name=" + newMetacardTypeName + ")"), not(empty()));
+            return null;
+        });
 
         String ddfMetacardXml = IOUtils.toString(getClass().getClassLoader()
                 .getResourceAsStream("metacard1.xml"), UTF_8.name());
@@ -1802,7 +1810,13 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
 
         final String customMetacardTypeName = "custom";
-        ingestDefinitionJsonWithMetacardType("defaults.json", customMetacardTypeName);
+        ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
+            expect("Service to be available: " + MetacardType.class.getName()).within(10,
+                    TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
+                            "(name=" + customMetacardTypeName + ")"), not(empty()));
+            return null;
+        });
 
         String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
                 .getResourceAsStream("metacard1.xml"), UTF_8.name());
@@ -1858,7 +1872,13 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
 
         final String customMetacardTypeName = "custom";
-        ingestDefinitionJsonWithMetacardType("defaults.json", customMetacardTypeName);
+        ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
+            expect("Service to be available: " + MetacardType.class.getName()).within(10,
+                    TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
+                            "(name=" + customMetacardTypeName + ")"), not(empty()));
+            return null;
+        });
 
         String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
                 .getResourceAsStream("metacard1.xml"), UTF_8.name());
@@ -1912,6 +1932,98 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             deregisterDefaults(customMetacardTypeName);
+            getServiceManager().stopFeature(true, "catalog-core-validationparser");
+        }
+    }
+
+    @Test
+    public void testInjectAttributesOnCreate() throws Exception {
+        getServiceManager().startFeature(true, "catalog-core-validationparser");
+
+        ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
+            expect("Injectable attributes to be registered").within(10, TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                            null), hasSize(2));
+            return null;
+        });
+
+        final String id = ingestXmlFromResource("/metacard-injections.xml");
+
+        final String originalMetacardXml = IOUtils.toString(getClass().getClassLoader()
+                .getResourceAsStream("metacard-injections.xml"), UTF_8.name());
+
+        final String basicMetacardTypeName = DEFAULT_METACARD_TYPE_NAME;
+        final String otherMetacardTypeName = "other.metacard.type";
+
+        final String otherMetacardXml = originalMetacardXml.replaceFirst(Pattern.quote(
+                basicMetacardTypeName), otherMetacardTypeName);
+
+        final String id2 = ingest(otherMetacardXml, MediaType.APPLICATION_XML);
+
+        try {
+            final String basicMetacardXpath = String.format(METACARD_X_PATH, id);
+            final String otherMetacardXpath = String.format(METACARD_X_PATH, id2);
+
+            executeOpenSearch("xml", "q=*").log()
+                    .all()
+                    .assertThat()
+                    .body(hasXPath(basicMetacardXpath + "/type", is(basicMetacardTypeName)))
+                    .body(hasXPath(basicMetacardXpath + "/int[@name='page-count']/value", is("55")))
+                    .body(not(hasXPath(basicMetacardXpath + "/double[@name='temperature']")))
+                    .body(hasXPath(otherMetacardXpath + "/type", is(otherMetacardTypeName)))
+                    .body(hasXPath(otherMetacardXpath + "/int[@name='page-count']/value", is("55")))
+                    .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value",
+                            is("-12.541")));
+        } finally {
+            deleteMetacard(id);
+            deleteMetacard(id2);
+            getServiceManager().stopFeature(true, "catalog-core-validationparser");
+        }
+    }
+
+    @Test
+    public void testInjectAttributesOnUpdate() throws Exception {
+        getServiceManager().startFeature(true, "catalog-core-validationparser");
+
+        ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
+            expect("Injectable attributes to be registered").within(10, TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                            null), hasSize(2));
+            return null;
+        });
+
+        final String id = ingestXmlFromResource("/metacard1.xml");
+        final String id2 = ingestXmlFromResource("/metacard1.xml");
+
+        try {
+            final String basicMetacardTypeName = DEFAULT_METACARD_TYPE_NAME;
+            final String otherMetacardTypeName = "other.metacard.type";
+
+            final String updateBasicMetacardXml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard-injections.xml"), UTF_8.name());
+
+            final String updateOtherMetacardXml = updateBasicMetacardXml.replaceFirst(Pattern.quote(
+                    basicMetacardTypeName), otherMetacardTypeName);
+
+            update(id, updateBasicMetacardXml, MediaType.APPLICATION_XML);
+            update(id2, updateOtherMetacardXml, MediaType.APPLICATION_XML);
+
+            final String basicMetacardXpath = String.format(METACARD_X_PATH, id);
+            final String otherMetacardXpath = String.format(METACARD_X_PATH, id2);
+
+            executeOpenSearch("xml", "q=*").log()
+                    .all()
+                    .assertThat()
+                    .body(hasXPath(basicMetacardXpath + "/type", is(basicMetacardTypeName)))
+                    .body(hasXPath(basicMetacardXpath + "/int[@name='page-count']/value", is("55")))
+                    .body(not(hasXPath(basicMetacardXpath + "/double[@name='temperature']")))
+                    .body(hasXPath(otherMetacardXpath + "/type", is(otherMetacardTypeName)))
+                    .body(hasXPath(otherMetacardXpath + "/int[@name='page-count']/value", is("55")))
+                    .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value",
+                            is("-12.541")));
+        } finally {
+            deleteMetacard(id);
+            deleteMetacard(id2);
             getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }

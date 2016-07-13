@@ -13,12 +13,18 @@
  */
 package ddf.catalog.data.impl;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import org.junit.Test;
 
@@ -123,6 +129,27 @@ public class MetacardTypeImplTest {
     }
 
     @Test
+    public void testHashCode() {
+        MetacardTypeImpl metacardType1 = generateMetacardType("test", 0);
+        MetacardTypeImpl metacardType2 = generateMetacardType("test", 0);
+        assertThat(metacardType1.hashCode(), is(metacardType2.hashCode()));
+    }
+
+    @Test
+    public void testHashCodeDifferentDescriptors() {
+        MetacardTypeImpl metacardType1 = generateMetacardType("test", 0);
+        MetacardTypeImpl metacardType2 = generateMetacardType("test", 1);
+        assertThat(metacardType1.hashCode(), is(not(metacardType2.hashCode())));
+    }
+
+    @Test
+    public void testHashCodeDifferentNames() {
+        MetacardTypeImpl metacardType1 = generateMetacardType("foo", 0);
+        MetacardTypeImpl metacardType2 = generateMetacardType("bar", 0);
+        assertThat(metacardType1.hashCode(), is(not(metacardType2.hashCode())));
+    }
+
+    @Test
     public void testEqualsDifferentDescriptors() {
 
         MetacardTypeImpl metacardType1 = generateMetacardType("metacardType", 0);
@@ -196,6 +223,99 @@ public class MetacardTypeImplTest {
 
         assertTrue(extendedMetacardType.equals(metacardType));
         assertTrue(metacardType.equals(extendedMetacardType));
+    }
+
+    @Test
+    public void testExtendingMetacardTypeCombinesDescriptors() {
+        final Set<AttributeDescriptor> additionalDescriptors = new HashSet<>();
+        additionalDescriptors.add(new AttributeDescriptorImpl("foo",
+                true,
+                false,
+                true,
+                false,
+                BasicTypes.BOOLEAN_TYPE));
+        additionalDescriptors.add(new AttributeDescriptorImpl("bar",
+                false,
+                true,
+                false,
+                true,
+                BasicTypes.STRING_TYPE));
+
+        final String metacardTypeName = "extended";
+        final MetacardType extended = new MetacardTypeImpl(metacardTypeName,
+                BASIC_METACARD,
+                additionalDescriptors);
+
+        assertThat(extended.getName(), is(metacardTypeName));
+
+        final Set<AttributeDescriptor> expectedDescriptors =
+                new HashSet<>(BASIC_METACARD.getAttributeDescriptors());
+        expectedDescriptors.addAll(additionalDescriptors);
+        assertThat(extended.getAttributeDescriptors(), is(expectedDescriptors));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtendingNullMetacardTypeThrowsException() {
+        new MetacardTypeImpl("name", null, BASIC_METACARD.getAttributeDescriptors());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtendingMetacardTypeWithNullAdditionalDescriptorsThrowsException() {
+        new MetacardTypeImpl("name", BASIC_METACARD, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testExtendingMetacardTypeWithEmptyAdditionalDescriptorsThrowsException() {
+        new MetacardTypeImpl("name", BASIC_METACARD, Collections.emptySet());
+    }
+
+    @Test
+    public void testExtendedMetacardTypeEqualsEquivalentMetacardType() {
+        compareExtendedMetacardTypeToEquivalentMetacardType((extended, equivalent) -> {
+            assertThat(extended, is(equivalent));
+            assertThat(equivalent, is(extended));
+        });
+    }
+
+    @Test
+    public void testHashCodeExtendedMetacardType() {
+        compareExtendedMetacardTypeToEquivalentMetacardType((extended, equivalent) -> {
+            assertThat(extended.hashCode(), is(equivalent.hashCode()));
+        });
+    }
+
+    private void compareExtendedMetacardTypeToEquivalentMetacardType(
+            BiConsumer<MetacardType, MetacardType> assertions) {
+        final Set<AttributeDescriptor> originalDescriptors =
+                new HashSet<>(BASIC_METACARD.getAttributeDescriptors());
+
+        final MetacardType baseMetacardType = new MetacardTypeImpl("base", originalDescriptors);
+
+        final Set<AttributeDescriptor> additionalDescriptors = new HashSet<>();
+        additionalDescriptors.add(new AttributeDescriptorImpl("foo",
+                true,
+                false,
+                true,
+                false,
+                BasicTypes.BOOLEAN_TYPE));
+        additionalDescriptors.add(new AttributeDescriptorImpl("bar",
+                false,
+                true,
+                false,
+                true,
+                BasicTypes.STRING_TYPE));
+
+        final MetacardType extendedMetacardType = new MetacardTypeImpl("type",
+                baseMetacardType,
+                additionalDescriptors);
+
+        final Set<AttributeDescriptor> combinedDescriptors = new HashSet<>(originalDescriptors);
+        combinedDescriptors.addAll(additionalDescriptors);
+
+        final MetacardType equivalentMetacardType = new MetacardTypeImpl("type",
+                combinedDescriptors);
+
+        assertions.accept(extendedMetacardType, equivalentMetacardType);
     }
 
     private MetacardTypeImpl generateMetacardType(String name, int descriptorSetIndex) {

@@ -32,7 +32,7 @@ public interface AttributeRegistry {
      * @throws IllegalArgumentException if {@code attributeDescriptor} or
      *                                  {@link AttributeDescriptor#getName()} is null
      */
-    boolean registerAttribute(AttributeDescriptor attributeDescriptor);
+    boolean register(AttributeDescriptor attributeDescriptor);
 
     /**
      * Removes an attribute from the registry.
@@ -42,7 +42,7 @@ public interface AttributeRegistry {
      * @param name the name of the attribute to remove
      * @throws IllegalArgumentException if {@code name} is null
      */
-    void deregisterAttribute(String name);
+    void deregister(String name);
 
     /**
      * Gets the {@link AttributeDescriptor} for the attribute with the given name.
@@ -54,5 +54,5 @@ public interface AttributeRegistry {
      * @return an {@link Optional} containing the registered {@link AttributeDescriptor}
      * @throws IllegalArgumentException if {@code name} is null
      */
-    Optional<AttributeDescriptor> getAttributeDescriptor(String name);
+    Optional<AttributeDescriptor> lookup(String name);
 }

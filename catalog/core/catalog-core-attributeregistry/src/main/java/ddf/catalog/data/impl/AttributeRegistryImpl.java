@@ -13,14 +13,14 @@
  */
 package ddf.catalog.data.impl;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
@@ -33,15 +33,13 @@ public class AttributeRegistryImpl implements AttributeRegistry {
     public AttributeRegistryImpl() {
         BasicTypes.BASIC_METACARD.getAttributeDescriptors()
                 .stream()
-                .forEach(this::registerAttribute);
+                .forEach(this::register);
     }
 
     @Override
-    public boolean registerAttribute(final AttributeDescriptor attributeDescriptor) {
-        Preconditions.checkArgument(attributeDescriptor != null,
-                "The attribute descriptor cannot be null.");
-        Preconditions.checkArgument(attributeDescriptor.getName() != null,
-                "The attribute name cannot be null.");
+    public boolean register(final AttributeDescriptor attributeDescriptor) {
+        notNull(attributeDescriptor, "The attribute descriptor cannot be null.");
+        notNull(attributeDescriptor.getName(), "The attribute name cannot be null.");
 
         final String name = attributeDescriptor.getName();
 
@@ -56,15 +54,15 @@ public class AttributeRegistryImpl implements AttributeRegistry {
     }
 
     @Override
-    public void deregisterAttribute(final String name) {
-        Preconditions.checkArgument(name != null, "The attribute name cannot be null.");
+    public void deregister(final String name) {
+        notNull(name, "The attribute name cannot be null.");
 
         attributeMap.remove(name);
     }
 
     @Override
-    public Optional<AttributeDescriptor> getAttributeDescriptor(final String name) {
-        Preconditions.checkArgument(name != null, "The attribute name cannot be null.");
+    public Optional<AttributeDescriptor> lookup(final String name) {
+        notNull(name, "The attribute name cannot be null.");
 
         return Optional.ofNullable(attributeMap.get(name));
     }

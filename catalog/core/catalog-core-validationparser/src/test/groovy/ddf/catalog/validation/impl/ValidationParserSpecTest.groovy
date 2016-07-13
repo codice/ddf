@@ -5,6 +5,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic
 
 import ddf.catalog.data.AttributeRegistry
 import ddf.catalog.data.DefaultAttributeValueRegistry
+import ddf.catalog.data.InjectableAttribute
 import ddf.catalog.data.MetacardType
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
 import ddf.catalog.data.impl.AttributeRegistryImpl
@@ -47,7 +48,8 @@ class ValidationParserSpecTest extends Specification {
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
 
-        validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry, defaultAttributeValueRegistry)
+        validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry,
+                defaultAttributeValueRegistry)
 
         file = temporaryFolder.newFile("temp.json")
     }
@@ -97,8 +99,8 @@ class ValidationParserSpecTest extends Specification {
         validationParser.install(file)
 
         then:
-        attributeRegistry.getAttributeDescriptor("cool-attribute").isPresent()
-        attributeRegistry.getAttributeDescriptor("geospatial-goodness").isPresent()
+        attributeRegistry.lookup("cool-attribute").isPresent()
+        attributeRegistry.lookup("geospatial-goodness").isPresent()
 
         def validators = attributeValidatorRegistry.getValidators("cool-attribute")
         validators.size() == 2
@@ -167,8 +169,34 @@ class ValidationParserSpecTest extends Specification {
 
         then:
         thrown(IllegalArgumentException)
-        attributeRegistry.getAttributeDescriptor("cool-attribute").isPresent()
+        attributeRegistry.lookup("cool-attribute").isPresent()
         attributeValidatorRegistry.getValidators("cool-attribute").size() == 0
+    }
+
+    def "test injections"() {
+        setup:
+        file.withPrintWriter { it.write(injections) }
+
+        mockStatic(FrameworkUtil.class)
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        when:
+        validationParser.install(file)
+
+        then:
+        1 * mockBundleContext.registerService(InjectableAttribute.class, {
+            it.attribute() == "cool-attribute"
+            it.metacardTypes().isEmpty()
+        }, null)
+
+        1 * mockBundleContext.registerService(InjectableAttribute.class, {
+            it.attribute() == "geospatial-goodness"
+            it.metacardTypes() == ["nitf"] as Set
+        }, null)
     }
 
     String valid = '''
@@ -335,6 +363,36 @@ class ValidationParserSpecTest extends Specification {
             }
         ]
     }
-}'''
+}
+'''
 
+    String injections = '''
+{
+    "attributeTypes": {
+        "cool-attribute": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        },
+        "geospatial-goodness": {
+            "type": "GEO_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": true
+        }
+    },
+    "inject": [
+        {
+            "attribute": "cool-attribute"
+        },
+        {
+            "attribute": "geospatial-goodness",
+            "metacardTypes": ["nitf"]
+        }
+    ]
+}
+'''
 }
