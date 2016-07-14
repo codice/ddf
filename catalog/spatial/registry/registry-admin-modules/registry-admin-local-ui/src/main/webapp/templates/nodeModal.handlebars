@@ -20,12 +20,12 @@
             <h4 class="modal-title">
                 {{#unless readOnly}}
                     {{#is mode 'edit'}}
-                        Edit {{name}}
+                        Edit: {{name}}
                     {{else}}
                         Add Local Node
                     {{/is}}
                 {{else}}
-                    Read Only
+                    {{name}} (Read Only)
                 {{/unless}}
             </h4>
         </div>

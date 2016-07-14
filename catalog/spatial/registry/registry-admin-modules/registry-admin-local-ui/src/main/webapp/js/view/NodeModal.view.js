@@ -114,7 +114,16 @@ define([
                 data.mode = this.mode;
                 data.readOnly = this.readOnly;
 
+                data.name = this.getNodeName();
+
                 return data;
+            },
+            getNodeName: function() {
+                var node = this.model.get("RegistryObjectList").ExtrinsicObject.find(function(extObj) {
+                    return extObj.objectType === "urn:registry:federation:node";
+                });
+
+                return node.Name;
             },
             onRender: function () {
                 this.$el.attr('role', "dialog");
