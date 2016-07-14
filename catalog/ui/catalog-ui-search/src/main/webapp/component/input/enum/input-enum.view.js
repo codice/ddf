@@ -74,7 +74,8 @@ define([
                         }
                     }),
                     defaultSelection: this.model.get('property').get('enumMulti') ? this.model.get('value') : [this.model.get('value')],
-                    isMultiSelect: this.model.get('property').get('enumMulti')
+                    isMultiSelect: this.model.get('property').get('enumMulti'),
+                    hasFiltering: this.model.get('property').get('enumFiltering')
                 }
             ));
             this.listenTo(this.enumRegion.currentView.model, 'change:value', this.triggerChange);

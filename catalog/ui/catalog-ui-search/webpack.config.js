@@ -90,7 +90,8 @@ module.exports = {
       'cesium.css': 'cesiumjs/Cesium/Widgets/widgets.css',
       drawHelper: 'cesium-drawhelper/DrawHelper',
       usngs: 'usng.js/usng',
-      wellknown: 'wellknown/wellknown'
+      wellknown: 'wellknown/wellknown',
+      plotly: 'plotly.js/dist/plotly.js'
     },
     root: [
       './node_modules',

@@ -53,6 +53,10 @@ define([
                 });
             });
         },
+        getHumanReadableDate: function(date) {
+            var format = 'DD MMM YYYY HH:mm:ss.SSS';
+            return moment(date).format(format);
+        },
         getNiceDate: function(date){
             var niceDiff;
             var dateModified = new Date(date);

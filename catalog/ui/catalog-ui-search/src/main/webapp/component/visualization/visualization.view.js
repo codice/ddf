@@ -20,9 +20,11 @@ define([
     'text!./visualization.hbs',
     'component/visualization/cesium/cesium.view',
     'component/visualization/openlayers/openlayers.view',
+    'component/visualization/histogram/histogram.view',
     'component/singletons/user-instance',
     'maptype'
-], function (wreqr, Marionette, CustomElements, template, CesiumView, OpenlayersView, user, maptype) {
+], function (wreqr, Marionette, CustomElements, template, CesiumView, OpenlayersView, HistogramView,
+             user, maptype) {
 
     function getActiveVisualization() {
         return user.get('user').get('preferences').get('visualization');
@@ -71,7 +73,7 @@ define([
             }
         },
         showHistogram: function(){
-            this.activeVisualization.show(new CesiumView({
+            this.activeVisualization.show(new HistogramView({
                 selectionInterface: this.options.selectionInterface
             }));
         }

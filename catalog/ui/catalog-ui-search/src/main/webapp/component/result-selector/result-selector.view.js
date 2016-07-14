@@ -90,6 +90,7 @@ define([
             this.listenTo(this.selectionInterface.getSelectedResults(), 'update', this.handleSelectionChange);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'add', this.handleSelectionChange);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', this.handleSelectionChange);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'reset', this.handleSelectionChange);
             this.startListeningToFilter();
             this.startListeningToSort();
             this.startListeningToResult();
@@ -122,7 +123,8 @@ define([
             } else if (event.ctrlKey || event.metaKey){
                 this.handleControlClick(resultid, alreadySelected);
             } else {
-                this.handleNormalClick(resultid);
+                this.selectionInterface.clearSelectedResults();
+                this.handleControlClick(resultid, alreadySelected);
             }
         },
         handleShiftClick: function(resultid, indexClicked){
@@ -130,7 +132,8 @@ define([
             var firstIndex = resultItems.index(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').first());
             var lastIndex = resultItems.index(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').last());
             if (firstIndex === -1 && lastIndex === -1){
-                this.handleNormalClick(resultid);
+                this.selectionInterface.clearSelectedResults();
+                this.handleControlClick(resultid, alreadySelected);
             } else if (indexClicked <= firstIndex) {
                 this.selectBetween(indexClicked, firstIndex);
             } else if (indexClicked >= lastIndex) {
@@ -148,10 +151,6 @@ define([
             } else {
                 this.selectionInterface.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
             }
-        },
-        handleNormalClick: function(resultid){
-            this.selectionInterface.clearSelectedResults();
-            this.selectionInterface.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
         },
         handleSelectionChange: function(){
             var self = this;

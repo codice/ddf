@@ -19,8 +19,9 @@ define([
     '../menu-vertical',
     'component/lightbox/lightbox.view.instance',
     'js/view/preferences/PreferencesModal.view',
-    'component/alert-settings/alert-settings.view'
-], function (_, Backbone, Vertical, lightboxInstance, PreferencesModalView, AlertSettingsView) {
+    'component/alert-settings/alert-settings.view',
+    'component/singletons/user-instance'
+], function (_, Backbone, Vertical, lightboxInstance, PreferencesModalView, AlertSettingsView, user) {
 
     var definition = [
         [
@@ -50,6 +51,22 @@ define([
                     lightboxInstance.model.updateTitle('Alert Preferences');
                     lightboxInstance.model.open();
                     lightboxInstance.lightboxContent.show(new AlertSettingsView());
+                }
+            }
+        ],
+        [
+            {
+                type: 'action',
+                name: 'Map',
+                action: function () {
+                    user.get('user').get('preferences').set('visualization', 'map');
+                }
+            },
+            {
+                type: 'action',
+                name: 'Histogram',
+                action: function () {
+                    user.get('user').get('preferences').set('visualization', 'histogram');
                 }
             }
         ]
