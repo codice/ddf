@@ -58,6 +58,7 @@ define([
             {
                 type: 'action',
                 name: 'Map',
+                icon: 'globe',
                 action: function () {
                     user.get('user').get('preferences').set('visualization', 'map');
                 }
@@ -65,6 +66,7 @@ define([
             {
                 type: 'action',
                 name: 'Histogram',
+                icon: 'bar-chart',
                 action: function () {
                     user.get('user').get('preferences').set('visualization', 'histogram');
                 }
