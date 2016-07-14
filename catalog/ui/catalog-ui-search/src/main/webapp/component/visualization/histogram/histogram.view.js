@@ -127,7 +127,8 @@ define([
         },
         yaxis: {
             fixedrange: true
-        }
+        },
+        showlegend: true
     };
 
     return Marionette.LayoutView.extend({
@@ -187,7 +188,7 @@ define([
                     x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
                     opacity:.5,
                     type: 'histogram',
-                    name: 'Hits'
+                    name: 'Hits        '
                 }, {
                     x: calculateAttributeArray(selectedResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
                     opacity:.5,
