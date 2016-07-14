@@ -32,7 +32,9 @@ define([
         results.forEach(function(result){
             availableAttributes = _.union(availableAttributes, Object.keys(result.get('metacard').get('properties').toJSON()));
         });
-        return availableAttributes;
+        return availableAttributes.filter(function(attribute){
+            return metacardDefinitions.metacardTypes[attribute] !== undefined;
+        });
     }
 
     function calculateAttributeArray(results, attribute){
