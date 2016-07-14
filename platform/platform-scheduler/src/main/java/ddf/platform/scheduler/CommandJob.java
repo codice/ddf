@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,12 +18,13 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Callable;
 
 import org.apache.felix.gogo.runtime.CommandNotFoundException;
-import org.apache.felix.service.command.CommandProcessor;
-import org.apache.felix.service.command.CommandSession;
-import org.apache.karaf.shell.security.impl.SecuredCommandProcessorImpl;
+import org.apache.karaf.shell.api.console.Session;
+import org.apache.karaf.shell.api.console.SessionFactory;
+import org.codice.ddf.security.common.Security;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -33,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.Subject;
-import ddf.security.common.util.Security;
 
 /**
  * Executes Felix/Karaf commands when called as a Quartz {@link Job}
@@ -47,50 +47,76 @@ public class CommandJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandJob.class);
 
-    private CommandProcessor commandProcessor;
+    public Subject getSystemSubject() {
+        return Security.getInstance()
+                .getSystemSubject();
+    }
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        Subject subject = getSystemSubject();
-        if (subject != null) {
-            subject.execute(new Callable<Object>() {
-                @Override
-                public Object call() throws Exception {
+
+        Security.runAsAdmin(() -> {
+            Subject subject = getSystemSubject();
+
+            if (subject != null) {
+                subject.execute(() -> {
                     doExecute(context);
                     return null;
-                }
-            });
-        } else {
-            LOGGER.warn("Could not execute command. Could not get subject to run command");
+                });
+            } else {
+                LOGGER.warn("Could not execute command. Could not get subject to run command");
+            }
+
+            return null;
+        });
+    }
+
+    private Bundle getBundle() {
+        return FrameworkUtil.getBundle(getClass());
+    }
+
+    protected SessionFactory getSessionFactory() {
+        BundleContext bundleContext = getBundle().getBundleContext();
+        if (bundleContext == null) {
+            LOGGER.warn("unable to get the bundle context");
+            return null;
         }
+        return bundleContext.getService(bundleContext.getServiceReference(SessionFactory.class));
     }
 
     public void doExecute(JobExecutionContext context) throws JobExecutionException {
 
-        String commandInput = null;
+        String commandInput;
         try {
             commandInput = checkInput(context);
         } catch (CommandException e) {
+            LOGGER.warn("unable to get command from job execution context", e);
             return;
         }
 
-        if (getCommandProcessor() == null) {
-            LOGGER.warn("No CommandProcessor instance to run commands.");
+        SessionFactory sessionFactory = getSessionFactory();
+
+        if (sessionFactory == null) {
+            LOGGER.warn("unable to create session factory: command=[{}]", commandInput);
             return;
         }
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        CommandSession commandSession = null;
+        Session session = null;
 
-        try (PrintStream output = new PrintStream(byteArrayOutputStream,
-                false,
-                StandardCharsets.UTF_8.name())) {
-            commandSession = getCommandProcessor().createSession(null, output, output);
+        try (PrintStream output = getPrintStream(byteArrayOutputStream)) {
+
+            session = sessionFactory.create(null, output, output);
+
+            if (session == null) {
+                LOGGER.warn("unable to create session: command=[{}]", commandInput);
+                return;
+            }
 
             if (commandInput != null) {
                 try {
                     LOGGER.info("Executing command [{}]", commandInput);
-                    commandSession.execute(commandInput);
+                    session.execute(commandInput);
                     LOGGER.info("Execution Output: {}",
                             byteArrayOutputStream.toString(StandardCharsets.UTF_8.name()));
                 } catch (CommandNotFoundException e) {
@@ -106,8 +132,8 @@ public class CommandJob implements Job {
             LOGGER.info("Unable to produce output", e);
         } finally {
 
-            if (commandSession != null) {
-                commandSession.close();
+            if (session != null) {
+                session.close();
             }
             try {
                 byteArrayOutputStream.close();
@@ -118,21 +144,9 @@ public class CommandJob implements Job {
 
     }
 
-    public Subject getSystemSubject() {
-        return org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
-    }
-
-    private CommandProcessor getCommandProcessor() {
-
-        if (this.commandProcessor == null) {
-            this.commandProcessor = createCommandProcessor();
-        }
-        return this.commandProcessor;
-    }
-
-    protected CommandProcessor createCommandProcessor() {
-        return new SecuredCommandProcessorImpl(FrameworkUtil.getBundle(this.getClass())
-                .getBundleContext());
+    private PrintStream getPrintStream(ByteArrayOutputStream byteArrayOutputStream)
+            throws UnsupportedEncodingException {
+        return new PrintStream(byteArrayOutputStream, false, StandardCharsets.UTF_8.name());
     }
 
     private String checkInput(JobExecutionContext context) throws CommandException {
