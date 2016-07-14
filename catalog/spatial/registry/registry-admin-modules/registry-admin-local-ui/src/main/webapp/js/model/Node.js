@@ -250,7 +250,7 @@ define([
         getRemoteNodes: function(){
             return this.models.filter(function(model){
                 var transValues = model.get('TransientValues');
-                return !transValues || (!transValues['registry-identity-node'] && !transValues['registry-local-node']);
+                return !transValues || !transValues['registry-local-node'];
             });
         },
         deleteNodes: function (nodes) {
