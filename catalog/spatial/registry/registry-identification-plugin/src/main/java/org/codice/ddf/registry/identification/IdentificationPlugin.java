@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,8 @@ import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
@@ -64,6 +68,12 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
  * registry-ids are not added to the catalog.
  */
 public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IdentificationPlugin.class);
+
+    private static final int RETRY_INTERVAL = 30;
+
+    private ScheduledExecutorService executorService;
 
     private CatalogFramework catalogFramework;
 
@@ -269,39 +279,44 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
                 .toString();
     }
 
-    public void init()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-            PluginExecutionException {
+    public void init() {
+        try {
+            List<Metacard> registryMetacards;
+            Filter registryFilter = filterBuilder.attribute(Metacard.TAGS)
+                    .is()
+                    .like()
+                    .text(RegistryConstants.REGISTRY_TAG);
+            QueryImpl query = new QueryImpl(registryFilter);
+            query.setPageSize(1000);
+            QueryRequest request = new QueryRequestImpl(query);
 
-        List<Metacard> registryMetacards;
-        Filter registryFilter = filterBuilder.attribute(Metacard.TAGS)
-                .is()
-                .like()
-                .text(RegistryConstants.REGISTRY_TAG);
-        QueryImpl query = new QueryImpl(registryFilter);
-        query.setPageSize(1000);
-        QueryRequest request = new QueryRequestImpl(query);
+            request.getProperties()
+                    .put(SecurityConstants.SECURITY_SUBJECT,
+                            Security.runAsAdmin(() -> Security.getInstance()
+                                    .getSystemSubject()));
 
-        request.getProperties()
-                .put(SecurityConstants.SECURITY_SUBJECT,
-                        Security.runAsAdmin(() -> Security.getInstance()
-                                .getSystemSubject()));
+            QueryResponse response = catalogFramework.query(request);
 
-        QueryResponse response = catalogFramework.query(request);
+            if (response == null) {
+                throw new PluginExecutionException(
+                        "Plugin failed to initialize plugin, unable to query identity node.");
+            }
 
-        if (response == null) {
-            throw new PluginExecutionException(
-                    "Plugin failed to initialize plugin, unable to query identity node.");
+            registryMetacards = response.getResults()
+                    .stream()
+                    .map(Result::getMetacard)
+                    .collect(Collectors.toList());
+            registryIds.addAll(registryMetacards.stream()
+                    .map(this::getRegistryId)
+                    .collect(Collectors.toList()));
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException | PluginExecutionException e) {
+            LOGGER.warn("Error getting registry metacards. Will try again later");
+            executorService.schedule(this::init, RETRY_INTERVAL, TimeUnit.SECONDS);
         }
+    }
 
-        registryMetacards = response.getResults()
-                .stream()
-                .map(Result::getMetacard)
-                .collect(Collectors.toList());
-        registryIds.addAll(registryMetacards.stream()
-                .map(this::getRegistryId)
-                .collect(Collectors.toList()));
-
+    public void destroy() {
+        executorService.shutdown();
     }
 
     public void setFilterBuilder(FilterBuilder filterBuilder) {
@@ -314,5 +329,9 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
 
     public void setMetacardMarshaller(MetacardMarshaller helper) {
         this.metacardMarshaller = helper;
+    }
+
+    public void setExecutorService(ScheduledExecutorService executorService) {
+        this.executorService = executorService;
     }
 }

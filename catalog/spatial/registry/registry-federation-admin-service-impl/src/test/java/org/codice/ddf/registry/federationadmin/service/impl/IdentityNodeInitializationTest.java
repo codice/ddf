@@ -18,6 +18,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -26,8 +27,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.PrivilegedActionException;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.parser.ParserException;
@@ -59,6 +61,9 @@ public class IdentityNodeInitializationTest {
     @Mock
     private FederationAdminServiceImpl federationAdminService;
 
+    @Mock
+    private ScheduledExecutorService executorService;
+
     private IdentityNodeInitialization identityNodeInitialization;
 
     private Metacard testMetacard;
@@ -82,6 +87,7 @@ public class IdentityNodeInitializationTest {
         identityNodeInitialization.setRegistryTransformer(registryTransformer);
         identityNodeInitialization.setMetacardMarshaller(metacardMarshaller);
         identityNodeInitialization.setFederationAdminService(federationAdminService);
+        identityNodeInitialization.setExecutorService(executorService);
         System.setProperty(SystemInfo.SITE_NAME, TEST_SITE_NAME);
         System.setProperty(SystemInfo.VERSION, TEST_VERSION);
         testMetacard = getTestMetacard();
@@ -104,49 +110,57 @@ public class IdentityNodeInitializationTest {
 
     @Test
     public void initWithPreviousPrimaryEntry() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.of(
-                testMetacard));
+        when(federationAdminService.getLocalRegistryIdentityMetacard())
+                .thenReturn(Optional.of(testMetacard));
         identityNodeInitialization.init();
         verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
     }
 
-    @Test(expected = PrivilegedActionException.class)
+    @Test
     public void initWithGetLocalRegistryNodeException() throws Exception {
         doThrow(FederationAdminException.class).when(federationAdminService)
                 .getLocalRegistryIdentityMetacard();
         identityNodeInitialization.init();
+        verify(executorService).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     }
 
-    @Test(expected = PrivilegedActionException.class)
+    @Test
     public void initWithIngestException() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
-        when(federationAdminService.addRegistryEntry(any(Metacard.class))).thenThrow(
-                FederationAdminException.class);
+        when(federationAdminService.getLocalRegistryIdentityMetacard())
+                .thenReturn(Optional.empty());
+        when(federationAdminService.addRegistryEntry(any(Metacard.class)))
+                .thenThrow(FederationAdminException.class);
         identityNodeInitialization.init();
+        verify(executorService).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     }
 
-    @Test(expected = PrivilegedActionException.class)
+    @Test
     public void initWithRegistryTransformerException() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
+        when(federationAdminService.getLocalRegistryIdentityMetacard())
+                .thenReturn(Optional.empty());
         doThrow(CatalogTransformerException.class).when(registryTransformer)
                 .transform(any(InputStream.class));
         identityNodeInitialization.init();
+        verify(executorService).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     }
 
-    @Test(expected = PrivilegedActionException.class)
+    @Test
     public void initWithParserException() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
+        when(federationAdminService.getLocalRegistryIdentityMetacard())
+                .thenReturn(Optional.empty());
         doThrow(ParserException.class).when(metacardMarshaller)
                 .getRegistryPackageAsInputStream(any(RegistryPackageType.class));
         identityNodeInitialization.init();
+        verify(executorService).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     }
 
-    @Test(expected = PrivilegedActionException.class)
+    @Test
     public void initWithIOException() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
-        doThrow(IOException.class).when(registryTransformer)
-                .transform(any(InputStream.class));
+        when(federationAdminService.getLocalRegistryIdentityMetacard())
+                .thenReturn(Optional.empty());
+        doThrow(IOException.class).when(registryTransformer).transform(any(InputStream.class));
         identityNodeInitialization.init();
+        verify(executorService).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     }
 
     private Metacard getTestMetacard() {

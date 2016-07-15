@@ -24,11 +24,15 @@
         <argument ref="xmlParser"/>
     </bean>
 
+    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+
     <bean id="identificationPlugin"
-          class="org.codice.ddf.registry.identification.IdentificationPlugin" init-method="init">
+          class="org.codice.ddf.registry.identification.IdentificationPlugin" init-method="init"
+          destroy-method="destroy">
         <property name="metacardMarshaller" ref="metacardMarshaller"/>
         <property name="catalogFramework" ref="catalogFramework"/>
         <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="executorService" ref="executor"/>
     </bean>
 
     <service ref="identificationPlugin" auto-export="interfaces" ranking="0"/>
