@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, window*/
 define([
     'backbone',
     'marionette',
@@ -38,24 +38,25 @@ define([
             this.collection = new Backbone.Collection(this.options.list);
         },
         onAddChild: function(childView){
-            childView.$el.addClass('choice');
-            childView.$el.attr('data-value', JSON.stringify(childView.model.get('value')));
+            if (!childView.isDestroyed && childView.model) {
+                childView.$el.addClass('choice');
+                childView.$el.attr('data-value', JSON.stringify(childView.model.get('value')));
+                if (childView._index === 0){
+                    childView.$el.addClass('is-active');
+                }
+                this.handleValueForChildView(childView);
+            }
         },
         onRender: function(){
-            this.handleValue();
             this.handleActive();
         },
-        handleValue: function(){
+        handleValueForChildView: function(childView){
             var values = this.model.get('value');
-            var choices = this.$el.children('[data-value]');
-            choices.removeClass('is-selected');
             values.forEach(function(value){
-                _.forEach(choices, function(choice){
-                   if ($(choice).attr('data-value') === JSON.stringify(value)) {
-                       $(choice).addClass('is-selected');
-                   }
-                });
-            }.bind(this));
+                    if (childView.$el.attr('data-value') === JSON.stringify(value)) {
+                        childView.$el.addClass('is-selected');
+                    }
+            });
         },
         handleActive: function(){
             this.$el.children('.choice').first().addClass('is-active');
@@ -95,6 +96,13 @@ define([
             if ($nextActive.length !== 0){
                 $currentActive.removeClass('is-active');
                 $nextActive.addClass('is-active');
+                var diff = ($nextActive[0].getBoundingClientRect().top +
+                    $nextActive[0].getBoundingClientRect().height) -
+                    ($nextActive[0].parentNode.parentNode.clientHeight +
+                    $nextActive[0].parentNode.parentNode.getBoundingClientRect().top);
+                if (diff >= 0) {
+                    $nextActive[0].parentNode.parentNode.scrollTop = $nextActive[0].parentNode.parentNode.scrollTop + diff;
+                }
             }
         },
         handleUpArrow: function(){
@@ -103,6 +111,11 @@ define([
             if ($nextActive.length !== 0){
                 $currentActive.removeClass('is-active');
                 $nextActive.addClass('is-active');
+                var diff = ($nextActive[0].parentNode.parentNode.getBoundingClientRect().top) -
+                    ($nextActive[0].getBoundingClientRect().top);
+                if (diff >= 0) {
+                    $nextActive[0].parentNode.parentNode.scrollTop = $nextActive[0].parentNode.parentNode.scrollTop - diff;
+                }
             }
         },
         filter: function(child){
