@@ -131,7 +131,7 @@ define([
                             depthTest: {
                                 enabled: true
                             },
-                            lineWidth: Math.min(4.0, this.scene.context.maximumAliasedLineWidth)
+                            lineWidth: Math.min(4.0, this.scene.maximumAliasedLineWidth)
                         }
                     })
                 });
