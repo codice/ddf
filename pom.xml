@@ -64,7 +64,7 @@
         <!-- Properties for the frontend-maven-plugin -->
         <node.version>v4.4.4</node.version>
         <npm.version>2.15.6</npm.version>
-        <camel.version>2.16.1</camel.version>
+        <camel.version>2.16.3</camel.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-io.version>2.1</commons-io.version>
         <cxf.version>3.1.4</cxf.version>
@@ -97,6 +97,16 @@
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <validation.version>1.1.0.Final</validation.version>
         <commons-configuration.version>1.10</commons-configuration.version>
+        <servicemix.bundles.mina.version>1.1.7_6</servicemix.bundles.mina.version>
+        <qpid-jms-client.version>0.6.0</qpid-jms-client.version>
+        <proton-j.version>0.10</proton-j.version>
+        <netty-all.version>4.0.17.Final</netty-all.version>
+        <geronimo-jta_1.1_spec.version>1.1.1</geronimo-jta_1.1_spec.version>
+        <geronimo-jms_1.1_spec.version>1.1.1</geronimo-jms_1.1_spec.version>
+        <servicemix.bundles.freemarker.version>2.3.23_1</servicemix.bundles.freemarker.version>
+        <servicemix.bundles.commons-httpclient.version>3.1_7</servicemix.bundles.commons-httpclient.version>
+        <commons-pool.version>1.6</commons-pool.version>
+        <servicemix.bundles.junit.version>4.11_2</servicemix.bundles.junit.version>
         <!--Documentation Replacements-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>
