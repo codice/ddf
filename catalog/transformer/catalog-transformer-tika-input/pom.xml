@@ -111,7 +111,7 @@
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.transformer.input.tika,
-                            ddf.catalog.data.impl
+                            ddf.catalog.data.impl.*
                         </Private-Package>
                         <Import-Package>!sun.security.action, *</Import-Package>
                         <Export-Package/>

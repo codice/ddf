@@ -197,7 +197,7 @@
                         </Import-Package>
                         <Private-Package>
                             ddf.catalog.source.opensearch,
-                            ddf.catalog.data.impl,
+                            ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl,
                             org.codice.ddf.platform.util

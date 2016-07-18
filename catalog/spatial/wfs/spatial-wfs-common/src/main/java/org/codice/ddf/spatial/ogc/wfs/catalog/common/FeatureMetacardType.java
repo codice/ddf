@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -66,7 +67,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
     public FeatureMetacardType(XmlSchema schema, final QName featureType,
             List<String> nonQueryableProperties, String gmlNamespace) {
-        super(featureType.getLocalPart(), null);
+        super(featureType.getLocalPart(), (Set<AttributeDescriptor>) null);
 
         addBasicMetacardAttributeDescriptors();
 

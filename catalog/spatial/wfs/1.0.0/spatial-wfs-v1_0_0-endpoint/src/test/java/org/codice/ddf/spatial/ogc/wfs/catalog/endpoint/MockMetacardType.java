@@ -15,7 +15,9 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.endpoint;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -42,7 +44,7 @@ public class MockMetacardType extends MetacardTypeImpl {
     }
 
     public MockMetacardType() {
-        super(NAME, null);
+        super(NAME, (Set<AttributeDescriptor>) null);
 
         descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
 

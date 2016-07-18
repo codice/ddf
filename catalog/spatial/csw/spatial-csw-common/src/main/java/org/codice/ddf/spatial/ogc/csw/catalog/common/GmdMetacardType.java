@@ -15,9 +15,11 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -190,14 +192,14 @@ public class GmdMetacardType extends MetacardTypeImpl {
     private static final long serialVersionUID = 1L;
 
     public GmdMetacardType() {
-        super(GMD_METACARD_TYPE_NAME, null);
+        super(GMD_METACARD_TYPE_NAME, (Set<AttributeDescriptor>) null);
 
         addDdfMetacardAttributes();
         addGmdMetacardAttributes();
     }
 
     public GmdMetacardType(String sourceId) {
-        super(sourceId + "." + GMD_METACARD_TYPE_NAME, null);
+        super(sourceId + "." + GMD_METACARD_TYPE_NAME, (Set<AttributeDescriptor>) null);
 
         addDdfMetacardAttributes();
         addGmdMetacardAttributes();

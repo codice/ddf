@@ -44,7 +44,7 @@
                             ddf.catalog.operation.impl,
                             ddf.catalog.resource.impl,
                             ddf.catalog.util.impl,
-                            ddf.catalog.data.impl
+                            ddf.catalog.data.impl.*
                         </Private-Package>
                         <DDF-Mime-Type>application/octet-stream</DDF-Mime-Type>
                         <Export-Package/>
