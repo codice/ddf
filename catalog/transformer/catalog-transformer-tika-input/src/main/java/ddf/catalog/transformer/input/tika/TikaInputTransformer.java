@@ -112,11 +112,11 @@ public class TikaInputTransformer implements InputTransformer {
         try {
             Thread.currentThread()
                     .setContextClassLoader(getClass().getClassLoader());
-            templates = TransformerFactory.newInstance(
-                    net.sf.saxon.TransformerFactoryImpl.class.getName(),
-                    net.sf.saxon.TransformerFactoryImpl.class.getClassLoader())
-                    .newTemplates(new StreamSource(
-                            TikaMetadataExtractor.class.getResourceAsStream("/metadata.xslt")));
+            templates =
+                    TransformerFactory.newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
+                            net.sf.saxon.TransformerFactoryImpl.class.getClassLoader())
+                            .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
+                                    "/metadata.xslt")));
         } catch (TransformerConfigurationException e) {
             LOGGER.warn("Couldn't create XML transformer", e);
         } finally {
@@ -194,17 +194,10 @@ public class TikaInputTransformer implements InputTransformer {
                         .flatMap(Collection::stream)
                         .collect(Collectors.toSet());
 
-                // TODO RAP 14 Jun 16: Might need to add service method to extract
-                // name/id type info from the extractor. Those would then be
-                // concatted together to form a name for the metacardtype.
-                String typeName = contentMetadataExtractors.values()
-                        .stream()
-                        .map(v -> v.getClass()
-                                .getName())
-                        .collect(Collectors.joining("_"));
-
-                metacard = MetacardCreator.createEnhancedMetacard(metadata, id, metadataText,
-                        typeName, attributes);
+                metacard = MetacardCreator.createEnhancedMetacard(metadata,
+                        id,
+                        metadataText,
+                        attributes);
                 for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
                     contentMetadataExtractor.process(plainText, metacard);
                 }
@@ -232,7 +225,8 @@ public class TikaInputTransformer implements InputTransformer {
     private void registerService(BundleContext bundleContext) {
         LOGGER.debug("Registering {} as an osgi service.",
                 TikaInputTransformer.class.getSimpleName());
-        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class, this,
+        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class,
+                this,
                 getServiceProperties());
     }
 
@@ -271,7 +265,8 @@ public class TikaInputTransformer implements InputTransformer {
 
             if (null != image) {
                 BufferedImage bufferedImage = new BufferedImage(image.getWidth(null),
-                        image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+                        image.getHeight(null),
+                        BufferedImage.TYPE_INT_RGB);
                 Graphics2D graphics = bufferedImage.createGraphics();
                 graphics.drawImage(image, null, null);
                 graphics.dispose();
