@@ -29,8 +29,8 @@ module.exports = function (grunt) {
         sed: {
             imports: {
                 path: 'target/webapp/lib/bootswatch/cyborg',
-                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Roboto:400,700"\\);',
-                replacement: '@import url("../../lato/css/lato.min.css");',
+                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Droid\\+Sans:400,700"\\);',
+                replacement: '',
                 recursive: true
             }
         },
