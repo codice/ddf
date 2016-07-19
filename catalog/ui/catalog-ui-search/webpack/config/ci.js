@@ -24,7 +24,8 @@ var config =  merge.smart(base, {
         loaders: [
             {
                 test: /\.spec\./,
-                loaders: ['mocha', path.resolve(__dirname, '../loaders', 'spec-loader.js')],
+                loaders: [path.resolve(__dirname, '../loaders', 'patched-mocha-loader.js'),
+                    path.resolve(__dirname, '../loaders', 'spec-loader.js')],
                 exclude: /(node_modules|target)/
             }
         ]

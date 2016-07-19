@@ -57,7 +57,7 @@
     "jshint-stylish": "1.0.2",
     "load-grunt-tasks": "1.0.0",
     "mocha": "2.3.3",
-    "mocha-loader": "git+https://github.com/djblue/mocha-loader.git",
+    "mocha-loader": "0.7.1",
     "mocha-phantomjs": "4.1.0",
     "morgan": "1.7.0",
     "react-addons-test-utils": "15.2.1",
