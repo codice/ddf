@@ -169,7 +169,7 @@ define([
                     enumFiltering: true,
                     enum: calculateAvailableAttributes(this.options.selectionInterface.getActiveSearchResults()),
                     value: defaultValue,
-                    id: 'Attribute'
+                    id: 'Group by'
                 })
             }));
             this.histogramAttribute.currentView.turnOnEditing();
@@ -188,14 +188,20 @@ define([
             return [
                 {
                     x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
-                    opacity:.5,
+                    opacity: 1,
                     type: 'histogram',
-                    name: 'Hits        '
+                    name: 'Hits        ',
+                    marker: {
+                        color: 'rgb(128, 128, 128)'
+                    }
                 }, {
                     x: calculateAttributeArray(selectedResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
-                    opacity:.5,
+                    opacity: 1,
                     type: 'histogram',
-                    name: 'Selected'
+                    name: 'Selected',
+                    marker: {
+                        color: 'rgb(66, 133, 244)'
+                    }
                 }
             ]
 
