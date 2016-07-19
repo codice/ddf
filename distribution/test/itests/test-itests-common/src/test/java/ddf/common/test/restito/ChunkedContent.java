@@ -21,10 +21,14 @@ import static com.xebialabs.restito.semantics.Action.header;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.glassfish.grizzly.http.server.Response;
+import org.glassfish.grizzly.http.util.HttpStatus;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Function;
@@ -35,34 +39,83 @@ import com.xebialabs.restito.semantics.Function;
  * network failure retry testing.
  */
 public class ChunkedContent {
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(ChunkedContent.class));
+    protected static final Logger LOGGER = LoggerFactory.getLogger(ChunkedContent.class);
 
-    /**
-     * Returns the minimum headers required for sending a chunked data response, but does not
-     * include the response function itself.
-     *
-     * @return the minimum headers required for sending a chunked data response
-     */
-    private static Action getHeaders() {
+    public static class ChunkedContentBuilder {
+        private String message;
+
+        private Duration delayBetweenChunks = Duration.ofMillis(0);
+
+        private int numberOfFailures = 0;
+
+        private HeaderCapture headerCapture = null;
+
+        /**
+         * Set message.
+         *
+         * @param message Message to be sent in the response.
+         */
+        public ChunkedContentBuilder(String message) {
+            this.message = message;
+        }
+
+        /**
+         * Set delay between sending each character of the message in milliseconds.
+         *
+         * @param delay Time to wait between sending each character of the message.
+         * @return Builder object
+         */
+        public ChunkedContentBuilder delayBetweenChunks(Duration delay) {
+            this.delayBetweenChunks = delay;
+            return this;
+        }
+
+        /**
+         * Number of times to fail (simulate network disconnect) after sending
+         * the first character. Once this number is reached, the message will
+         * send successfully.
+         *
+         * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending
+         *                         the first character. Once this number is reached, the message will
+         *                         send successfully.
+         * @return Builder object
+         */
+        public ChunkedContentBuilder fail(int numberOfFailures) {
+            this.numberOfFailures = numberOfFailures;
+            return this;
+        }
+
+        /**
+         * Setting this will make the Response handle range headers properly. If this isn't set, then
+         * the response will ignore range requests and return the entire message every time.
+         *
+         * @param headerCapture HeaderCapture object that contains the request's headers.
+         * @return
+         */
+        public ChunkedContentBuilder allowPartialContent(HeaderCapture headerCapture) {
+            this.headerCapture = headerCapture;
+            return this;
+        }
+
+        /**
+         * Builds Action.
+         *
+         * @return Action constructed from builder object.
+         */
+        public Action build() {
+            return createChunkedContent(message, delayBetweenChunks, numberOfFailures,
+                    headerCapture);
+        }
+    }
+
+    private static Action getChunkedResponseHeaders() {
         return composite(contentType("text/plain"),
                 header("Transfer-Encoding", "chunked"),
                 header("content-type", "text/plain"));
     }
 
-    /**
-     * Constructor for a response that has a delay and a number of planned failures.
-     *
-     * @param responseMessage  Message to be sent in response.
-     * @param messageDelay     Time to wait between sending each character of the message.
-     * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending
-     *                         the first character. Once this number is reached, the message will
-     *                         send successfully.
-     */
-    public static Action chunkedContent(String responseMessage, Duration messageDelay,
-            int numberOfFailures) {
-        return custom(new ChunkedContentFunction(responseMessage, messageDelay, numberOfFailures));
-
+    private static Action getRangeSupportHeaders() {
+        return header("Accept-Ranges", "bytes");
     }
 
     /**
@@ -74,64 +127,117 @@ public class ChunkedContent {
      * method returns a composite action so that additional headers can be set alongside this action.
      *
      * @param responseMessage  Message to be sent in response.
-     * @param messageDelay     Time to wait between sending each character of the message.
+     * @param delayBetweenChunks     Time to wait between sending each character of the message.
      * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending
      *                         the first character. Once this number is reached, the message will
      *                         send successfully.
+     * @param headerCapture    Object that can be called to return the request's headers.
      * @return composite action that holds the headers required for a plain text response as well
      * as the response function itself.
      */
-    public static Action chunkedContentWithHeaders(String responseMessage, Duration messageDelay,
-            int numberOfFailures) {
-        return composite(getHeaders(),
-                chunkedContent(responseMessage, messageDelay, numberOfFailures));
+    private static Action createChunkedContent(String responseMessage,
+            Duration delayBetweenChunks, int numberOfFailures, HeaderCapture headerCapture) {
+
+        Action response = composite(getChunkedResponseHeaders(),
+                custom(new ChunkedContentFunction(responseMessage,
+                delayBetweenChunks,
+                numberOfFailures,
+                headerCapture)));
+
+        // adds the Accept-Ranges header for range-header support
+        if (headerCapture != null) {
+            response = composite(getRangeSupportHeaders(), response);
+        }
+
+        return response;
     }
 
     /**
      * Private inner class representing the response function
      */
     private static class ChunkedContentFunction implements Function<Response, Response> {
-        private String responseMessage;
+        private char[] responseMessage;
 
         private long messageDelayMs;
 
         private int numberOfFailures;
 
-        private int numberOfRetries = 0;
+        private int numberOfRetries;
 
-        /**
-         * Constructor for a response that has a delay and a number of planned failures.
-         *
-         * @param responseMessage  Message to be sent in response.
-         * @param messageDelay     Time to wait between sending each character of the message.
-         * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending
-         *                         the first character. Once this number is reached, the message will
-         *                         send successfully.
-         */
-        private ChunkedContentFunction(String responseMessage, Duration messageDelay,
-                int numberOfFailures) {
-            this.responseMessage = responseMessage;
-            this.messageDelayMs = messageDelay.toMillis();
-            this.numberOfFailures = numberOfFailures;
-        }
+        private HeaderCapture headerCapture;
 
         /**
          * Implementation of the Function interface's apply method. This class can also be used as a
          * Function<Response, Response> directly in the Restito response if custom actions are needed.
          *
-         * @param response
-         * @return
+         * @param response Response object correlating to the incoming request. Used to write data
+         *                 back to the requesting client.
+         * @return Response New state of the response object correlating to the incoming request.
          */
         @Override
         public Response apply(Response response) {
             return respond(response);
         }
 
+        /**
+         * Constructor for a response that has a delay and a number of planned failures.
+         * Supports range headers.
+         *
+         * @param responseMessage  Message to be sent in response.
+         * @param messageDelay     Time to wait between sending each character of the message.
+         * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending
+         *                         the first character. Once this number is reached, the message will
+         *                         send successfully.
+         * @param headerCapture    HeaderCapture object that contains the request's headers.
+         */
+        private ChunkedContentFunction(String responseMessage, Duration messageDelay,
+                int numberOfFailures, HeaderCapture headerCapture) {
+            this.responseMessage = responseMessage.toCharArray();
+            this.messageDelayMs = messageDelay.toMillis();
+            this.numberOfFailures = numberOfFailures;
+            this.headerCapture = headerCapture;
+        }
+
         private Response respond(Response response) {
-            for (char c : responseMessage.toCharArray()) {
+            Map<String, String> requestHeaders = Collections.emptyMap();
+            if (headerCapture != null) {
+                requestHeaders = headerCapture.getHeaders();
+                LOGGER.debug("ChunkedContentResponse: extracted request headers [{}]", requestHeaders);
+            }
+
+
+            // if range header is present, return 206 - Partial Content status and set Content-Range header if byte Offset is specified
+            ByteRange byteRange;
+            if (StringUtils.isNotBlank(requestHeaders.get("range"))) {
+                byteRange = new ByteRange(requestHeaders.get("range"), responseMessage.length);
+                response.setStatus(HttpStatus.PARTIAL_CONTENT_206);
+                response.setHeader("Content-Range", byteRange.contentRangeValue());
+                LOGGER.debug("ChunkedContentResponse: Response range header set to [Content-Range: {}]",
+                        byteRange.contentRangeValue());
+            } else {
+                response.setStatus(HttpStatus.OK_200);
+                byteRange = new ByteRange(0, responseMessage.length - 1);
+                LOGGER.debug("ChunkedContentResponse: set response status to 200");
+            }
+
+            return send(response, byteRange);
+        }
+
+        /**
+         * Sends message to the client one character at a time. Appropriate headers must be set on
+         * the Response object before calling this method.
+         *
+         * @param response   Response object containing an output stream to the client
+         * @param byteRange  Object containing the range of bytes to send to the client
+         * @return
+         */
+        private Response send(Response response, ByteRange byteRange) {
+            // send each character, respecting the range header
+            for (int i = byteRange.start; i <= byteRange.end; i++) {
                 try {
+                    LOGGER.debug("ChunkedContentResponse: Sending character [{}]", responseMessage[i]);
                     response.getNIOWriter()
-                            .write(c);
+                            .write(responseMessage[i]);
                     response.flush();
                     sleep(messageDelayMs);
 
@@ -148,8 +254,61 @@ public class ChunkedContent {
                 }
             }
             response.finish();
-
             return response;
         }
+
+        /**
+         * Holds byte offset data specified by the request's range header and any related parsing
+         * methods.
+         */
+        private class ByteRange {
+            public final int start;
+
+            public final int end;
+
+            ByteRange(int start, int end) {
+                this.start = start;
+                this.end = end;
+            }
+
+            /**
+             * Tokenizes the starting and ending bytes values from a range header. The stub server only
+             * advertising supporting byte offsets specifically, so this function assumes that byte
+             * ranges are provided and does not evaluate the unit of measurement
+             *
+             * @param rangeHeaderValue          Value of the range header sent in the request
+             * @param totalSizeOfProductInBytes Total size of the message to be returned. This is
+             *                                  not the partial content size, but the FULL size of
+             *                                  the product.
+             */
+            ByteRange(String rangeHeaderValue, int totalSizeOfProductInBytes) {
+                // extract bytes
+                String startToken = StringUtils.substringBetween(rangeHeaderValue, "=", "-");
+                String endToken = StringUtils.substringAfter(rangeHeaderValue, "-");
+
+                // range offsets can be blank to indicate "until beginning" or "until end" of data.
+                try {
+                    if (StringUtils.isBlank(startToken)) {
+                        start = 0;
+                    } else {
+                        start = Integer.parseInt(startToken);
+                    }
+                    if (StringUtils.isBlank(endToken)) {
+                        end = totalSizeOfProductInBytes - 1;
+                    } else {
+                        end = Integer.parseInt(endToken);
+                    }
+                }catch (NumberFormatException e){
+                    LOGGER.error("Incoming request's range header is improperly formatted: [range={}]", rangeHeaderValue, e);
+                    throw e;
+                }
+            }
+
+            String contentRangeValue() {
+                return "bytes " + start + "-" + end + "/" + responseMessage.length;
+            }
+        }
     }
+
+
 }

@@ -45,7 +45,6 @@ import static com.xebialabs.restito.semantics.Action.success;
 import static com.xebialabs.restito.semantics.Condition.post;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 import static ddf.common.test.WaitCondition.expect;
-import static ddf.common.test.restito.ChunkedContent.chunkedContentWithHeaders;
 import static ddf.test.itests.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 
 import java.io.File;
@@ -89,8 +88,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
@@ -110,6 +109,8 @@ import ddf.common.test.BeforeExam;
 import ddf.common.test.cometd.CometDClient;
 import ddf.common.test.cometd.CometDMessageValidator;
 import ddf.common.test.mock.csw.FederatedCswMockServer;
+import ddf.common.test.restito.ChunkedContent;
+import ddf.common.test.restito.HeaderCapture;
 import ddf.test.itests.AbstractIntegrationTest;
 import ddf.test.itests.common.CswQueryBuilder;
 import ddf.test.itests.common.Library;
@@ -122,8 +123,7 @@ import ddf.test.itests.common.UrlResourceReaderConfigurator;
 @ExamReactorStrategy(PerClass.class)
 public class TestFederation extends AbstractIntegrationTest {
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(TestFederation.class));
+    protected static final Logger LOGGER = LoggerFactory.getLogger(TestFederation.class);
 
     private static final String SAMPLE_DATA = "sample data";
 
@@ -1084,6 +1084,8 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product1.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
+                .build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1098,13 +1100,14 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(0), 0));
+                        response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that the testData from the csw stub server is returned.
         // @formatter:off
+
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(resourceData));
         // @formatter:on
@@ -1150,6 +1153,10 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product2.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
+                .delayBetweenChunks(Duration.ofMillis(200))
+                .fail(2)
+                .build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1164,7 +1171,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(200), 2));
+                        response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1181,7 +1188,64 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId));
 
-        // Add CometD notification and activity assertions when DDF-2272 ihas been addressed.
+        // Add CometD notification and activity assertions when DDF-2272 has been addressed.
+    }
+
+    /**
+     * Tests that if the endpoint disconnects twice, the retrieval retries both times
+     * This test will respond with the correct Partial Content when a range header is sent in the request
+     *
+     * @throws Exception
+     */
+    // TODO: this test is ignored until the csw range-header bug is resolved with ticket DDF-2300
+    @Ignore
+    @Test
+    public void testRetrievalWithByteOffset() throws Exception {
+
+        cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
+        String filename = "product2.txt";
+        String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
+        HeaderCapture headerCapture = new HeaderCapture();
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
+                .delayBetweenChunks(Duration.ofMillis(200))
+                .fail(2)
+                .allowPartialContent(headerCapture)
+                .build();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId),
+                        Condition.custom(headerCapture))
+                .then(getCswRetrievalHeaders(filename),
+                        response);
+
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
+                + "?transform=resource" + "&session=" + cometDClient.getClientId();
+
+        // Verify that the testData from the csw stub server is returned.
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(resourceData));
+        // @formatter:on
+
+        cswServer.verifyHttp()
+                .times(3,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId));
+
+        // Add CometD notification and activity assertions when DDF-2272 has been addressed.
+
     }
 
     /**
@@ -1196,6 +1260,10 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product3.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
+                .delayBetweenChunks(Duration.ofMillis(200))
+                .fail(3)
+                .build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1210,7 +1278,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(200), 3));
+                        response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1295,6 +1363,8 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product4.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
+                .build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1309,7 +1379,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(0), 0));
+                        response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
@@ -1368,6 +1438,8 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product5.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
+                .build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1382,7 +1454,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(0), 0));
+                        response);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
                 + "?transform=resource";
@@ -1428,6 +1500,9 @@ public class TestFederation extends AbstractIntegrationTest {
         String filename = "product.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData)
+                .delayBetweenChunks(Duration.ofMillis(500))
+                .build();
 
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1442,7 +1517,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId))
                 .then(getCswRetrievalHeaders(filename),
-                        chunkedContentWithHeaders(resourceData, Duration.ofMillis(500), 0));
+                        response);
 
         String startDownloadUrl =
                 RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + "?source=" + CSW_STUB_SOURCE_ID
@@ -1670,6 +1745,7 @@ public class TestFederation extends AbstractIntegrationTest {
         return composite(header("X-Csw-Product", "true"),
                 header("Content-Disposition", "filename=" + filename));
     }
+
 
     private String getResourceData(String metacardId) {
         return String.format("Data for metacard ID %s", metacardId);
