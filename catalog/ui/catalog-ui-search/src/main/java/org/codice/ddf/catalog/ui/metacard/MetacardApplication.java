@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard;
 
-import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static spark.Spark.delete;

@@ -196,14 +196,23 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>grunt test</id>
+                        <id>npm install</id>
                         <goals>
-                            <goal>grunt</goal>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install --ignore-scripts</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm test</id>
+                        <goals>
+                            <goal>npm</goal>
                         </goals>
                         <phase>test</phase>
                         <configuration>
                             <skip>${skipTests}</skip>
-                            <arguments>test:unit</arguments>
+                            <arguments>test</arguments>
                         </configuration>
                     </execution>
                 </executions>

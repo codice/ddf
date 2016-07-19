@@ -74,7 +74,7 @@ public class MetacardEditEndpoint {
                     .build();
         }
         Optional<AttributeDescriptor> attributeDescriptor =
-                attributeRegistry.getAttributeDescriptor(attribute);
+                attributeRegistry.lookup(attribute);
         if (!attributeDescriptor.isPresent()) {
             /* Could not find attribute descriptor for requested attribute */
             return Response.status(404)
@@ -101,7 +101,7 @@ public class MetacardEditEndpoint {
 
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         Optional<AttributeDescriptor> attributeDescriptor =
-                attributeRegistry.getAttributeDescriptor(attribute);
+                attributeRegistry.lookup(attribute);
         if (!attributeDescriptor.isPresent()) {
             /* Could not find attribute descriptor for requested attribute */
             return Response.status(404)
@@ -147,7 +147,7 @@ public class MetacardEditEndpoint {
 
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         Optional<AttributeDescriptor> attributeDescriptor =
-                attributeRegistry.getAttributeDescriptor(attribute);
+                attributeRegistry.lookup(attribute);
         if (!attributeDescriptor.isPresent()) {
             /* Could not find attribute descriptor for requested attribute */
             response.setStatus(404);

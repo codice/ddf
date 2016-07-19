@@ -91,14 +91,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        simplemocha: {
-            options: {
-                fullTrace: true
-            },
-            test: {
-                src: ['src/main/webapp/**/*.spec.js']
-            }
-        },
         express: {
             options: {
                 port: 8282,
@@ -136,8 +128,6 @@ module.exports = function (grunt) {
             }
         }
     });
-
-    grunt.registerTask('test:unit', ['simplemocha:test']);
 
     grunt.registerTask('build:part', [
         'bower-offline-install',
