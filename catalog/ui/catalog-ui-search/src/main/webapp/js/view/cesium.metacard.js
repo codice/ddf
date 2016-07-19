@@ -429,7 +429,10 @@ define([
 
             getPolygonOutline: function(positions) {
                 return new Cesium.GeometryInstance({
-                    geometry: Cesium.PolygonOutlineGeometry.fromPositions({positions: positions}),
+                    geometry: Cesium.PolygonOutlineGeometry.fromPositions({
+                        positions: positions,
+                        perPositionHeight: true
+                    }),
                     attributes: {
                         color: Cesium.ColorGeometryInstanceAttribute.fromColor(this.outlineColor),
                         show : new Cesium.ShowGeometryInstanceAttribute(true)
@@ -442,7 +445,8 @@ define([
                 return new Cesium.GeometryInstance({
                     geometry: Cesium.PolygonGeometry.fromPositions({
                         positions: positions,
-                        vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT
+                        vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+                        perPositionHeight: true
                     }),
                     attributes: {
                         color: Cesium.ColorGeometryInstanceAttribute.fromColor(this.polygonColor),
