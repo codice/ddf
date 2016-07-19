@@ -16,9 +16,6 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        clean: {
-            build: ['target/webapp']
-        },
         open: {
             chrome: {
                 path: 'http://127.0.0.1:8282/search/catalog/?map=2d',
