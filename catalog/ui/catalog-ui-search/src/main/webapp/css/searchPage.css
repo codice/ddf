@@ -604,18 +604,6 @@ table.metacard-table {
     background: none;
 }
 
-.ui-pnotify {
-    top: auto;
-}
-
-.ui-pnotify-container {
-    background-color: rgba(36, 36, 36, .9);
-}
-
-.ui-pnotify-closer {
-    color: #33b5e5;
-}
-
 .input-group {
     width: 100%;
     margin-bottom: 10px;

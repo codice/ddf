@@ -13,9 +13,8 @@
 define(['application',
         'cometdinit',
         'js/model/Notification',
-        'js/view/Notification.view',
         'wreqr'],
-        function(Application, Cometd, Notification, NotificationView, wreqr) {
+        function(Application, Cometd, Notification, wreqr) {
 
     // Create a new module in the StandardUiApp
     Application.App.module('MenuModule.NotificationModule', function(NotificationModule) {

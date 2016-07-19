@@ -108,8 +108,6 @@ module.exports = {
             'jquery.ui.widget': 'jquery-ui/widget',
             fileupload: 'jquery-file-upload/js/jquery.fileupload',
             jquerySortable: 'jquery-ui/sortable',
-            // pnotify
-            pnotify: 'pnotify/jquery.pnotify.min',
             // map
             cesium$: 'cesium/Build/Cesium/Cesium.js',
             'cesium.css': 'cesium/Build/Cesium/Widgets/widgets.css',
