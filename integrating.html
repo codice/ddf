@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.2">
-<meta name="author" content="Version 2.9.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.9.1. Copyright (c) Codice Foundation">
 <title>Integrating DDF</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400">
 <style>
@@ -506,7 +506,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Integrating DDF</h1>
 <div class="details">
-<span id="author" class="author">Version 2.9.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.9.1. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -539,14 +539,13 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 <li><a href="#_integrating_ddf_platform">4. Integrating DDF Platform</a>
 <ul class="sectlevel2">
-<li><a href="#_system_properties">4.1. System Properties</a></li>
-<li><a href="#_platform_ui_settings">4.2. Platform UI Settings</a></li>
-<li><a href="#_landing_page">4.3. Landing Page</a></li>
-<li><a href="#_ddf_mime_framework">4.4. DDF Mime Framework</a></li>
-<li><a href="#_metrics_collection">4.5. Metrics Collection</a></li>
-<li><a href="#_metrics_reporting_application">4.6. Metrics Reporting Application</a></li>
-<li><a href="#_security_core_api">4.7. Security Core API</a></li>
-<li><a href="#_compression_services">4.8. Compression Services</a></li>
+<li><a href="#_platform_ui_settings">4.1. Platform UI Settings</a></li>
+<li><a href="#_landing_page">4.2. Landing Page</a></li>
+<li><a href="#_ddf_mime_framework">4.3. DDF Mime Framework</a></li>
+<li><a href="#_metrics_collection">4.4. Metrics Collection</a></li>
+<li><a href="#_metrics_reporting_application">4.5. Metrics Reporting Application</a></li>
+<li><a href="#_security_core_api">4.6. Security Core API</a></li>
+<li><a href="#_compression_services">4.7. Compression Services</a></li>
 </ul>
 </li>
 <li><a href="#_integrating_ddf_security">5. Integrating DDF Security</a>
@@ -606,7 +605,7 @@ table.CodeRay td.code>pre{padding:0}
 <h3 id="_understanding_metadata_and_metacards"><a class="anchor" href="#_understanding_metadata_and_metacards"></a>1.1. Understanding Metadata and Metacards</h3>
 <div class="paragraph">
 <p>Metadata is information about a resource, organized into a schema to make it possible to search against.
-The DDF Catalog stores this metadata and allows access to it. If desired, the DDF Content application can be installed to store the resources themselves.
+The DDF Catalog stores this metadata and allows access to it. If desired, the ${ddf-content} application can be installed to store the resources themselves.
 Metacards are single instances of metadata, representing a single record, in the Metadata Catalog (MDC).
 Metacards follow one of several schemas to ensure reliable, accurate, and complete metadata.
 Essentially, Metacards function as containers of metadata.</p>
@@ -1017,10 +1016,10 @@ If caching is enabled, a progress bar is displayed in the Activity (Product Retr
 <div class="paragraph">
 <p>The following section shows examples of integration.
 The channels are used for clients to subscribe, followed by examples of request and responses.
-There is only one endpoint hosted at <code>&lt;DDF_IP&gt;:&lt;DDF_PORT_NUMBER&gt;/cometd</code></p>
+There is only one endpoint hosted at <code>&lt;DDF_IP&gt;:&lt;DDF_PORT_NUMBER&gt;/search/cometd</code></p>
 </div>
 <div class="sect4">
-<h5 id="_subscribing_to_notifications"><a class="anchor" href="#_subscribing_to_notifications"></a>Subscribing to Notifications</h5>
+<h5 id="__a_id_asynchronous_search_subscribing_a_subscribing_to_notifications"><a class="anchor" href="#__a_id_asynchronous_search_subscribing_a_subscribing_to_notifications"></a><a id="asynchronous_search_subscribing"></a>Subscribing to Notifications</h5>
 <div class="sect5">
 <h6 id="_notifications_overview"><a class="anchor" href="#_notifications_overview"></a>Notifications Overview</h6>
 <div class="paragraph">
@@ -1052,7 +1051,7 @@ Any client interested in receiving these progress notifications must subscribe t
 DDF starts downloading the resource to the client that requested it, a notification with a status of "Started" will be broadcast.
 If the resource download fails, a notification with a status of "Failed" will be broadcast.
 Or, if the resource download is being attempted again after a failure, "Retry" will be broadcast.
-When a notification is received, DDF Search UI displays a popup containing the contents of the notiafication, so a user is made aware of how their downloads are proceeding.
+When a notification is received, DDF Search UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.
 Behind the scenes, the DDF Search UI invokes the REST endpoint to retrieve a resource.
 In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.
 This allows the CometD server to know which subscriber is interested in the notification.
@@ -1320,7 +1319,7 @@ This message contains a data map that encapsulates the notification information.
 <div class="sect4">
 <h5 id="_activity_events_channel"><a class="anchor" href="#_activity_events_channel"></a>Activity Events Channel</h5>
 <div class="paragraph">
-<p>To receive all activity updates, follow the instructions on the Asynchronous Search and Retrieval page and subscribe to <code>/ddf/activities/*\*</code></p>
+<p>To receive all activity updates, follow the instructions at <a href="#asynchronous_search_subscribing">Subscribing to Notifications</a> and subscribe to <code>/ddf/activities/*\*</code></p>
 </div>
 </div>
 <div class="sect4">
@@ -1350,41 +1349,31 @@ These messages contain a data map that encapsulates the activity information.</p
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>category</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Category of the activity</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Product Retrieval"</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>"Product Retrieval"</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">event.topics</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">id</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ID that uniquely identifies the activity that sent out the update. Not required
 to be unique per update.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"b72ccdf6-8ca7-4f53-a0f6-b0ad264393b0"</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>"b72ccdf6-8ca7-4f53-a0f6-b0ad264393b0"</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">message</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">User-readable message that explains the current activity status</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Resource retrieval downloading."</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>"Resource retrieval downloading."</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">operations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operations</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Map of operations that can be performed on this activity</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JSON Map</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">A map of keys with populated values (that evaluate to 'true' rather than 'null' 'undefined' or 'false') These operations and their values can be used by clients to communicate back to the server by sending a message back on the same channel.
 </p><p class="tableblock">If the value is a URL, the client should invoke the URL as a result of the user invoking the activity operation.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><div><div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="json"><table class="CodeRay"><tr>
@@ -1410,14 +1399,16 @@ to be unique per update.</p></td>
 * <code>remove</code>
 * <code>resume</code></p>
 </div></div></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">progress</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>progress</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Percentage value of activity completion</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Integer between 0 - 100 followed by a %</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"45%"</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>"45%"</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Enumerated value that displays the current state of the activity</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><div><div class="ulist">
@@ -1440,11 +1431,9 @@ to be unique per update.</p></td>
 <li>
 <p><code>FAILED</code></p>
 </li>
-<li>
-<p><code>RUNNING</code></p>
-</li>
 </ul>
 </div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RUNNING</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>timestamp</code></p></td>
@@ -1462,18 +1451,32 @@ since unix epoch)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">"Download Complete"</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>user</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>subject</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">User who started the activity</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">"admin"</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of bytes the activity consumed (upload or download)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>session</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The session ID of the user/subject</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"6q2lfmmwh9dwv1c4gevboyp297"</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Custom Value</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Additional keys can be inserted by the component sending the activity notification</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any JSON Type</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any JSON</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"{}"</p></td>
 </tr>
 </tbody>
 </table>
@@ -1525,9 +1528,6 @@ since unix epoch)</p></td>
 <h5 id="_channel"><a class="anchor" href="#_channel"></a>Channel</h5>
 <div class="paragraph">
 <p>An activity operation is published to the channel <code>/service/action</code></p>
-</div>
-<div class="paragraph">
-<p>Refer to <a href="#Asynchronous Search and Retrieval">[Asynchronous Search and Retrieval]</a> for instructions on how to publish to a CometD channel.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 4. Activity Format</caption>
@@ -1771,7 +1771,7 @@ since unix epoch)</p></td>
 <div class="paragraph">
 <p>The query responses are returned on the <code>/&lt;id&gt;</code> channel, which should be subscribed to in order to retrieve the results.
 Replace <code>&lt;id&gt;</code> with the id that was used in the request.
-The <a href="#Asynchronous Search and Retrieval">[Asynchronous Search and Retrieval]</a> section details how to subscribe to a CometD channel.</p>
+The &lt;&lt;<a href="#asynchronous_search_subscribing">Subscribing to Notifications</a>&gt;&gt; section details how to subscribe to a CometD channel.</p>
 </div>
 </div>
 <div class="sect4">
@@ -1819,6 +1819,13 @@ The <a href="#Asynchronous Search and Retrieval">[Asynchronous Search and Retrie
 <td class="tableblock halign-left valign-top"><p class="tableblock">This format is defined by the GeoJSON Metacard Transformer.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>results/metacard/properties/resource.cached</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A property indicating whether a metacard&#8217;s associated resource is cached</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true, false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true, false</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>results/metacard/actions</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">An array of actions that applies to each metacard, injected into each metacard</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Array of Maps</p></td>
@@ -1837,35 +1844,42 @@ The <a href="#Asynchronous Search and Retrieval">[Asynchronous Search and Retrie
 <td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the state of the query</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SUCCEEDED, FAILED, ACTIVE</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">status.elapsed</p></td>
+<td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Time in milliseconds that it took for the source to complete the request</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status.elapsed</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time in milliseconds that it took for the source to complete the request</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Integer &gt;= 0</p></td>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">status.hits</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number of records that were found on the source that matched the query</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status.hits</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of records that were found on the source that matched the query</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Integer &gt;= 0</p></td>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">status.id</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ID of the federated source</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ID of the federated source</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any string value</p></td>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">status.results</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number of results that were returned in this response from the source</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status.results</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of results that were returned in this response from the source</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Integer &gt;= 0</p></td>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">types</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>types</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A Map mapping a metacard-type&#8217;s name to a map about that metacard-type. Only metacard-types represented by the metacards returned in the query are represented.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Map of Maps</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Map defining a particular <code>metacard-type</code> maps the fields supported by that <code>metacardtype</code> to the datatype for that particular field.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1933,93 +1947,65 @@ The <a href="#Asynchronous Search and Retrieval">[Asynchronous Search and Retrie
 56
 57
 58
-59
-<strong>60</strong>
-61
-62
-63
-64
-65
-66
-67
-68
-69
-<strong>70</strong>
-71
-72
 </pre></td>
-  <td class="code"><pre><span class="key"><span class="delimiter">&quot;</span><span class="content">data</span><span class="delimiter">&quot;</span></span>: {
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">4303ba5d-21af-4878-9a4c-808e80052e6c</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">hits</span><span class="delimiter">&quot;</span></span>: <span class="integer">20</span>,
-         <span class="key"><span class="delimiter">&quot;</span><span class="content">results</span><span class="delimiter">&quot;</span></span>: [
-         {
+  <td class="code"><pre>{
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">data</span><span class="delimiter">&quot;</span></span>: {
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">hits</span><span class="delimiter">&quot;</span></span>: <span class="integer">1</span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard-types</span><span class="delimiter">&quot;</span></span>: {
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">ddf.metacard</span><span class="delimiter">&quot;</span></span>: {<span class="error">.</span><span class="error">.</span><span class="error">.</span>}
+        },
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">857f76c0-da8c-72f5-09cd-536b69e427af</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">results</span><span class="delimiter">&quot;</span></span>: [
+           {
                 <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard</span><span class="delimiter">&quot;</span></span>: {
-                         <span class="key"><span class="delimiter">&quot;</span><span class="content">geometry</span><span class="delimiter">&quot;</span></span>: {
-                                 <span class="key"><span class="delimiter">&quot;</span><span class="content">coordinates</span><span class="delimiter">&quot;</span></span>: [ <span class="float">174.77557</span>, <span class="float">-41.28664</span> ],
-                                 <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Point</span><span class="delimiter">&quot;</span></span>
-                         },
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">properties</span><span class="delimiter">&quot;</span></span>: {
-                                <span class="key"><span class="delimiter">&quot;</span><span class="content">created</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2014-07-02T18:53:59.496 +0000</span><span class="delimiter">&quot;</span></span>,
-                                 <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">126e16d340dd47b7ad823b70662ed8ca</span><span class="delimiter">&quot;</span></span>,
-                                <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard-type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ddf.metacard</span><span class="delimiter">&quot;</span></span>,
-                                <span class="key"><span class="delimiter">&quot;</span><span class="content">metadata</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">...xml...</span><span class="delimiter">&quot;</span></span>,
-                                <span class="key"><span class="delimiter">&quot;</span><span class="content">modified</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2014-07-02T18:53:59.496+0000</span><span class="delimiter">&quot;</span></span>,
-                                <span class="key"><span class="delimiter">&quot;</span><span class="content">source-id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ddf.distribution</span><span class="delimiter">&quot;</span></span>,
-                                <span class="key"><span class="delimiter">&quot;</span><span class="content">title</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">NORMAL WORK RESUMES AT NEW ZEALAND PORTS</span><span class="delimiter">&quot;</span></span>
-                         },
-                         <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Feature</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">actions</span><span class="delimiter">&quot;</span></span>: [
-                                 {
-                                         <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">catalog.data.metacard.resource</span><span class="delimiter">&quot;</span></span>,
-                                         <span class="key"><span class="delimiter">&quot;</span><span class="content">title</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Get resource</span><span class="delimiter">&quot;</span></span>,
-                                        <span class="key"><span class="delimiter">&quot;</span><span class="content">description</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Gets the Metacard resource</span><span class="delimiter">&quot;</span></span>,
-                                         <span class="key"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">http://ddf.codice.org:8181/services/catalog/sources/ddf.distribution/85227c45d9c34fe1ad3e725a72d6b44a?transform=resource</span><span class="delimiter">&quot;</span></span>
-                                 },
-                                 {
-                                         <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">catalog.data.metacard.html</span><span class="delimiter">&quot;</span></span>,
-                                        <span class="key"><span class="delimiter">&quot;</span><span class="content">title</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Get html</span><span class="delimiter">&quot;</span></span>,
-                                        <span class="key"><span class="delimiter">&quot;</span><span class="content">description</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Gets the Metacard html</span><span class="delimiter">&quot;</span></span>,
-                                        <span class="key"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">http://ddf.codice.org:8181/services/catalog/sources/ddf.distribution/85227c45d9c34fe1ad3e725a72d6b44a?transform=html</span><span class="delimiter">&quot;</span></span>
-                                 } ]
-                 },
-                 <span class="error">.</span><span class="error">.</span><span class="error">.</span><span class="error">o</span><span class="error">t</span><span class="error">h</span><span class="error">e</span><span class="error">r</span> <span class="error">m</span><span class="error">e</span><span class="error">t</span><span class="error">a</span><span class="error">c</span><span class="error">a</span><span class="error">r</span><span class="error">d</span><span class="error">s</span><span class="error">.</span><span class="error">.</span><span class="error">.</span>
-         ],
-         <span class="key"><span class="delimiter">&quot;</span><span class="content">status</span><span class="delimiter">&quot;</span></span>: [
-         {
-                 <span class="key"><span class="delimiter">&quot;</span><span class="content">elapsed</span><span class="delimiter">&quot;</span></span>: <span class="integer">539</span>,
-                <span class="key"><span class="delimiter">&quot;</span><span class="content">hits</span><span class="delimiter">&quot;</span></span>: <span class="integer">10</span>,
-                <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">DDF-OS</span><span class="delimiter">&quot;</span></span>,
-                <span class="key"><span class="delimiter">&quot;</span><span class="content">results</span><span class="delimiter">&quot;</span></span>: <span class="integer">10</span>,
-                <span class="key"><span class="delimiter">&quot;</span><span class="content">state</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">SUCCEEDED</span><span class="delimiter">&quot;</span></span>
-         },
-         {
-                 <span class="key"><span class="delimiter">&quot;</span><span class="content">elapsed</span><span class="delimiter">&quot;</span></span>: <span class="integer">11</span>,
-                <span class="key"><span class="delimiter">&quot;</span><span class="content">hits</span><span class="delimiter">&quot;</span></span>: <span class="integer">10</span>,
+                    <span class="key"><span class="delimiter">&quot;</span><span class="content">cached</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2016-06-09T22:46:57.258+0000</span><span class="delimiter">&quot;</span></span>,
+                    <span class="key"><span class="delimiter">&quot;</span><span class="content">geometry</span><span class="delimiter">&quot;</span></span>: {
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">coordinates</span><span class="delimiter">&quot;</span></span>: [
+                            <span class="float">-97.03125</span>,
+                            <span class="float">35.173808</span>
+                        ],
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Point</span><span class="delimiter">&quot;</span></span>
+                    },
+                    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Feature</span><span class="delimiter">&quot;</span></span>,
+                    <span class="key"><span class="delimiter">&quot;</span><span class="content">actions</span><span class="delimiter">&quot;</span></span>: [ <span class="error">.</span><span class="error">.</span><span class="error">.</span> ],
+                    <span class="key"><span class="delimiter">&quot;</span><span class="content">properties</span><span class="delimiter">&quot;</span></span>: {
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">thumbnail</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">metadata</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">&lt;?xml version=</span><span class="char">\&quot;</span><span class="content">1.0</span><span class="char">\&quot;</span><span class="content"> encoding=</span><span class="char">\&quot;</span><span class="content">UTF-8</span><span class="char">\&quot;</span><span class="content">?&gt;&lt;metadata&gt; ... &lt;/metadata&gt;</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">resource-size</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">92314</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">created</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2016-06-09T22:46:37.707+0000</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard-tags</span><span class="delimiter">&quot;</span></span>: [
+                            <span class="string"><span class="delimiter">&quot;</span><span class="content">resource</span><span class="delimiter">&quot;</span></span>
+                        ],
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">resource-uri</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">content:1a83781dd56a4050afc420016d078e22</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">checksum-algorithm</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Adler32</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">metadata-content-type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">image/jpeg</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">metacard-type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ddf.metacard</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">title</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">fixTheBugs_geotagged.jpg</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">resource-download-url</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">https://localhost:8993services/catalog/sources/ddf.distribution/1a83781dd56a4050afc420016d078e22?transform=resource</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">source-id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ddf.distribution</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">effective</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2016-06-09T22:46:37.707+0000</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">point-of-contact</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">checksum</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">edfa1836</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">modified</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2016-06-09T22:46:37.707+0000</span><span class="delimiter">&quot;</span></span>,
+                        <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1a83781dd56a4050afc420016d078e22</span><span class="delimiter">&quot;</span></span>
+                    }
+                }
+            }
+        ],
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">status</span><span class="delimiter">&quot;</span></span>: [
+           {
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">hits</span><span class="delimiter">&quot;</span></span>: <span class="integer">1</span>,
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">elapsed</span><span class="delimiter">&quot;</span></span>: <span class="integer">432</span>,
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">reasons</span><span class="delimiter">&quot;</span></span>: [],
                 <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ddf.distribution</span><span class="delimiter">&quot;</span></span>,
-                <span class="key"><span class="delimiter">&quot;</span><span class="content">results</span><span class="delimiter">&quot;</span></span>: <span class="integer">10</span>,
-                <span class="key"><span class="delimiter">&quot;</span><span class="content">state</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">SUCCEEDED</span><span class="delimiter">&quot;</span></span>
-         }],
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">types</span><span class="delimiter">&quot;</span></span>: {
-                 <span class="key"><span class="delimiter">&quot;</span><span class="content">ddf.metacard</span><span class="delimiter">&quot;</span></span> : {
-                         <span class="key"><span class="delimiter">&quot;</span><span class="content">resource-uri</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">location</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">GEOMETRY</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">expiration</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">DATE</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">metadata-target-namespace</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">metadata-content-type</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">effective</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">DATE</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">modified</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">DATE</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">title</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">thumbnail</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">BINARY</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">created</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">DATE</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">metadata-content-type-version</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">resource-size</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>,
-                        <span class="key"><span class="delimiter">&quot;</span><span class="content">metadata</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">XML</span><span class="delimiter">&quot;</span></span>
-                 },
-                 <span class="error">.</span><span class="error">.</span><span class="error">.</span><span class="error">o</span><span class="error">t</span><span class="error">h</span><span class="error">e</span><span class="error">r</span> <span class="error">m</span><span class="error">e</span><span class="error">t</span><span class="error">a</span><span class="error">c</span><span class="error">a</span><span class="error">r</span><span class="error">d</span> <span class="error">t</span><span class="error">y</span><span class="error">p</span><span class="error">e</span><span class="error">s</span><span class="error">.</span><span class="error">.</span><span class="error">.</span>
-         }
-         }
- }</pre></td>
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">state</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">SUCCEEDED</span><span class="delimiter">&quot;</span></span>,
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">results</span><span class="delimiter">&quot;</span></span>: <span class="integer">1</span>
+            }
+        ],
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">successful</span><span class="delimiter">&quot;</span></span>: <span class="value">true</span>
+    },
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">channel</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">/857f76c0-da8c-72f5-09cd-536b69e427af</span><span class="delimiter">&quot;</span></span>
+}</pre></td>
 </tr></table></code></pre>
 </div>
 </div>
@@ -2034,7 +2020,7 @@ The <a href="#Asynchronous Search and Retrieval">[Asynchronous Search and Retrie
 <h2 id="_integrating_ddf_admin"><a class="anchor" href="#_integrating_ddf_admin"></a>2. Integrating DDF Admin</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Admin Application is a service that allows components to perform operations on applications.
@@ -2329,7 +2315,7 @@ Information about how to use it is available on the Application Commands page.</
 <h2 id="_integrating_ddf_catalog"><a class="anchor" href="#_integrating_ddf_catalog"></a>3. Integrating DDF Catalog</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="sect2">
 <h3 id="_design"><a class="anchor" href="#_design"></a>3.1. Design</h3>
@@ -3559,11 +3545,6 @@ Can be a fully-qualified directory or a relative path (which is relative to the 
 <td class="tableblock halign-left valign-top"><p class="tableblock">id</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">catalog.data.metacard.view</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ddf.catalog.util.DdfConfigurationWatcher</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -3992,28 +3973,129 @@ OpenSearch Description Document</pre>
 </div>
 <div class="sect5">
 <h6 id="_exported_services_3"><a class="anchor" href="#_exported_services_3"></a>Exported Services</h6>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_known_issues"><a class="anchor" href="#_known_issues"></a>Known Issues</h6>
+<div class="paragraph">
+<p>None</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ftp_endpoint"><a class="anchor" href="#_ftp_endpoint"></a>3.2.3. FTP Endpoint</h4>
+<div class="paragraph">
+<p>The FTP Endpoint provides a method for ingesting files directly into the DDF Catalog using the FTP protocol. The files sent over FTP are not first written to the file system, like the Directory Monitor, but instead the FTP stream of the file is ingested directly into the DDF catalog, thus avoiding extra I/O overhead.</p>
+</div>
+<div class="sect4">
+<h5 id="_installing_and_uninstalling_3"><a class="anchor" href="#_installing_and_uninstalling_3"></a>Installing and Uninstalling</h5>
+<div class="paragraph">
+<p>Use the Admin Menu to install the FTP feature in the DDF Catalog. The FTP Endpoint is not installed by default.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_configuring_4"><a class="anchor" href="#_configuring_4"></a>Configuring</h5>
+<div class="paragraph">
+<p>The configurable properties for the FTP Endpoint are accessed from the <strong>FTP Endpoint</strong> Configuration in the Admin Console under the DDF Catalog application.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_using_the_ftp_endpoint"><a class="anchor" href="#_using_the_ftp_endpoint"></a>Using the FTP Endpoint</h5>
+<div class="sect5">
+<h6 id="_using_the_endpoint_2"><a class="anchor" href="#_using_the_endpoint_2"></a>Using the endpoint</h6>
+<div class="paragraph">
+<p>The FTP endpoint supports the PUT and MPUT operations. Any other operation, such as DELETE, will return a 550 action not taken response.</p>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_from_code_2"><a class="anchor" href="#_from_code_2"></a>From Code:</h6>
+<div class="paragraph">
+<p>Custom Ftplets can be implemented by extending the <code>DefaultFtplet</code> class provided by Apache FTP Server. Doing this will allow custom handling of various FTP commands by overriding the methods of the <code>DefaultFtplet</code>. Refer to <code><a href="https://mina.apache.org/ftpserver-project/ftplet.html" class="bare">https://mina.apache.org/ftpserver-project/ftplet.html</a></code> for available methods that can be overridden.
+After creating a custom Ftplet, it needs to be added to the FTP server’s Ftplets before the server is started. Any Ftplets that are registered to the FTP server will execute the FTP command in the order that they were registered.</p>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_from_an_ftp_client"><a class="anchor" href="#_from_an_ftp_client"></a>From an FTP client:</h6>
+<div class="paragraph">
+<p>The FTP endpoint can be accessed from any FTP client of choice. Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal. The default port number is <strong>8021</strong>. Valid usernames and password are stored in the <code>&lt;INSTALL_DIR&gt;/etc/users.properties</code> file.</p>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_implementation_details_4"><a class="anchor" href="#_implementation_details_4"></a>Implementation Details</h5>
+<div class="paragraph">
+<p>The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apache Mina provides an API for transport protocols such as TCP and UDP. The FTP server is built on top of Apache Mina to transport its messages. DDF implements a custom Ftplet by overriding the <code>DefaultFtplet</code> class provided by Apache FTP Server.</p>
+</div>
+<div class="sect5">
+<h6 id="_known_issues_2"><a class="anchor" href="#_known_issues_2"></a>Known Issues</h6>
+<div class="paragraph">
+<p>None</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_resource_download_endpoint"><a class="anchor" href="#_resource_download_endpoint"></a>3.2.4. Resource Download Endpoint</h4>
+<div class="paragraph">
+<p>The Resource Download Endpoint provides a REST API to trigger downloading resources to the DDF cache only. The resource is not returned to the client.</p>
+</div>
+<div class="sect4">
+<h5 id="_configuring_5"><a class="anchor" href="#_configuring_5"></a>Configuring</h5>
+<div class="paragraph">
+<p>The Resource Download Endpoint has no configurable properties.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_using_the_resource_download_endpoint"><a class="anchor" href="#_using_the_resource_download_endpoint"></a>Using the Resource Download Endpoint</h5>
+<div class="sect5">
+<h6 id="_using_the_endpoint_3"><a class="anchor" href="#_using_the_endpoint_3"></a>Using the endpoint</h6>
+<div class="paragraph">
+<p>The Resource Download Endpoint WADL is accessible from <code><a href="http://&lt;DDF_HOST&gt;:&lt;DDF_PORT&gt;/services/catalog/downloads?_wadl" class="bare">http://&lt;DDF_HOST&gt;:&lt;DDF_PORT&gt;/services/catalog/downloads?_wadl</a></code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If resource caching is not enabled in DDF, the endpoint will return a <code>400 BAD REQUEST</code> response.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
-<col style="width: 33%;">
-<col style="width: 33%;">
-<col style="width: 33%;">
+<col style="width: 20%;">
+<col style="width: 10%;">
+<col style="width: 30%;">
+<col style="width: 40%;">
 </colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Operation</th>
+<th class="tableblock halign-left valign-top">HTTP Request</th>
+<th class="tableblock halign-left valign-top">Details</th>
+<th class="tableblock halign-left valign-top">Example URL</th>
+</tr>
+</thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registered Interface</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Service Property</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Value</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ddf.catalog.util.DdfConfigurationWatcher</code></p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cache only</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP GET</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Resource caching must be enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">http://&lt;DDF_HOST&gt;:&lt;DDF_PORT&gt;/services/catalog/downloads/&lt;sourceId&gt;/&lt;metacardId&gt;</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect5">
-<h6 id="_known_issues"><a class="anchor" href="#_known_issues"></a>Known Issues</h6>
+<h6 id="_known_issues_3"><a class="anchor" href="#_known_issues_3"></a>Known Issues</h6>
 <div class="paragraph">
 <p>None</p>
 </div>
@@ -4356,7 +4438,7 @@ However, when using the document function within a schematron ruleset to referen
 </table>
 </div>
 <div class="sect3">
-<h4 id="_configuring_4"><a class="anchor" href="#_configuring_4"></a>3.6.1. Configuring</h4>
+<h4 id="_configuring_6"><a class="anchor" href="#_configuring_6"></a>3.6.1. Configuring</h4>
 <div class="paragraph">
 <p>Schematron validation services are configured with a namespace and one or more schematron rule sets.
 Additionally, warnings may be suppressed so that only errors are reported.
@@ -4383,7 +4465,7 @@ To create a new service, ensure that catalog-schematron-plugin is started and th
 <div class="sect3">
 <h4 id="_definition_file_format"><a class="anchor" href="#_definition_file_format"></a>3.7.1. Definition File Format</h4>
 <div class="paragraph">
-<p>Metacard Types, Attribute Types, and global Attribute Validators can be defined within a definition file. A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed. There are three main types that can be defined in a definition file.</p>
+<p>Metacard types, attribute types, global attribute validators, and default attribute values can be defined within a definition file. A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed. There are four main types that can be defined in a definition file.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -4396,10 +4478,13 @@ To create a new service, ensure that catalog-schematron-plugin is started and th
 <li>
 <p>Global Attribute Validators</p>
 </li>
+<li>
+<p>Default Attribute Values</p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
-<p>Within a definition file you may define as many of the three types as you wish. This means that types can be defined across multiple files for grouping or clarity.</p>
+<p>Within a definition file you may define as many of the four types as you wish. This means that types can be defined across multiple files for grouping or clarity.</p>
 </div>
 </div>
 <div class="sect3">
@@ -4553,6 +4638,9 @@ To create a new service, ensure that catalog-schematron-plugin is started and th
                     <span class="key"><span class="delimiter">&quot;</span><span class="content">required</span><span class="delimiter">&quot;</span></span>: <span class="value">true</span>
                 },
                 <span class="key"><span class="delimiter">&quot;</span><span class="content">target-areas</span><span class="delimiter">&quot;</span></span>: {
+                    <span class="key"><span class="delimiter">&quot;</span><span class="content">required</span><span class="delimiter">&quot;</span></span>: <span class="value">false</span>
+                },
+                <span class="key"><span class="delimiter">&quot;</span><span class="content">expiration</span><span class="delimiter">&quot;</span></span>: {
                     <span class="key"><span class="delimiter">&quot;</span><span class="content">required</span><span class="delimiter">&quot;</span></span>: <span class="value">false</span>
                 },
                 <span class="key"><span class="delimiter">&quot;</span><span class="content">point-of-contact</span><span class="delimiter">&quot;</span></span>: {
@@ -4795,6 +4883,101 @@ To create a new service, ensure that catalog-schematron-plugin is started and th
 }</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_default_attribute_values"><a class="anchor" href="#_default_attribute_values"></a>3.7.6. Default Attribute Values</h4>
+<div class="paragraph">
+<p>To define default attribute values, your definition file must have a <code>defaults</code> key in the root object.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">{
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">defaults</span><span class="delimiter">&quot;</span></span>: [<span class="error">.</span><span class="error">.</span><span class="error">.</span>]
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The value of <code>defaults</code> is a list of objects where each object contains the keys <code>attribute</code>, <code>value</code>, and optionally <code>metacardTypes</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">{
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">defaults</span><span class="delimiter">&quot;</span></span>: [
+        {
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">attribute</span><span class="delimiter">&quot;</span></span>: <span class="error">.</span><span class="error">.</span><span class="error">.</span>,
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="error">.</span><span class="error">.</span><span class="error">.</span>,
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">metacardTypes</span><span class="delimiter">&quot;</span></span>: [<span class="error">.</span><span class="error">.</span><span class="error">.</span>]
+        }
+    ]
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The value corresponding to the <code>attribute</code> key is the name of the attribute to which the default value will be applied. The value corresponding to the <code>value</code> key is the default value of the attribute.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The attribute&#8217;s default value must be of the same type as the attribute, but it has to be written as a string (i.e., enclosed in quotation marks) in the JSON file.</p>
+</div>
+<div class="paragraph">
+<p>Dates must be UTC datetimes in the ISO 8601 format, i.e., <code>yyyy-MM-ddTHH:mm:ssZ</code></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The <code>metacardTypes</code> key is optional. If it is left out, then the default attribute value will be applied to every metacard that has that attribute. It can be thought of as a 'global' default value. If the <code>metacardTypes</code> key is included, then its value must be a list of strings where each string is the name of a metacard type. In this case, the default attribute value will be applied only to metacards that match one of the types given in the list.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In the event that an attribute has a 'global' default value as well as a default value for a specific metacard type, the default value for the specific metacard type will be applied (i.e., the more specific default value wins).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">{
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">defaults</span><span class="delimiter">&quot;</span></span>: [
+        {
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">attribute</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">title</span><span class="delimiter">&quot;</span></span>,
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Default Title</span><span class="delimiter">&quot;</span></span>
+        },
+        {
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">attribute</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">description</span><span class="delimiter">&quot;</span></span>,
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Default video description</span><span class="delimiter">&quot;</span></span>,
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">metacardTypes</span><span class="delimiter">&quot;</span></span>: [<span class="string"><span class="delimiter">&quot;</span><span class="content">video</span><span class="delimiter">&quot;</span></span>]
+        },
+        {
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">attribute</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">expiration</span><span class="delimiter">&quot;</span></span>,
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">2020-05-06T12:00:00Z</span><span class="delimiter">&quot;</span></span>,
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">metacardTypes</span><span class="delimiter">&quot;</span></span>: [<span class="string"><span class="delimiter">&quot;</span><span class="content">video</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">nitf</span><span class="delimiter">&quot;</span></span>]
+        },
+        {
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">attribute</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">frame-rate</span><span class="delimiter">&quot;</span></span>,
+            <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">30</span><span class="delimiter">&quot;</span></span>
+        }
+    ]
+}</code></pre>
+</div>
+</div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
@@ -4804,109 +4987,24 @@ To create a new service, ensure that catalog-schematron-plugin is started and th
 <h2 id="_integrating_ddf_platform"><a class="anchor" href="#_integrating_ddf_platform"></a>4. Integrating DDF Platform</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports integration of this application with external frameworks.</p>
 </div>
 <div class="sect2">
-<h3 id="_system_properties"><a class="anchor" href="#_system_properties"></a>4.1. System Properties</h3>
-<div class="paragraph">
-<p>The Platform Global Settings are the system-wide configuration settings used throughout DDF to specify the information about the machine hosting DDF.</p>
-</div>
-<div class="sect3">
-<h4 id="_configuration"><a class="anchor" href="#_configuration"></a>4.1.1. Configuration</h4>
-<div class="paragraph">
-<p>The configurable properties for the platform-wide configuration are accessed from <strong>Configuration &#8594; Platform Global Configuration</strong> in the Web Console.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_configurable_properties_2"><a class="anchor" href="#_configurable_properties_2"></a>4.1.2. Configurable Properties</h4>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 12%;">
-<col style="width: 12%;">
-<col style="width: 12%;">
-<col style="width: 37%;">
-<col style="width: 12%;">
-<col style="width: 12%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Title</th>
-<th class="tableblock halign-left valign-top">Property</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Protocol</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>protocol</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Default protocol that should be used to connect to this machine.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">http</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Host</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>host</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The host name or IP address of the machine that DDF is running on. Do not enter localhost.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Port</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>port</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The port that DDF is running on.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Site Name</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The site name for this DDF instance.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ddf.distribution</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Version</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>version</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The version of DDF that is running. This value should not be changed from the factory default.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">DDF 2.3.0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Organization</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>organization</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The organization responsible for this installation of DDF</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Codice Foundation</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_platform_ui_settings"><a class="anchor" href="#_platform_ui_settings"></a>4.2. Platform UI Settings</h3>
+<h3 id="_platform_ui_settings"><a class="anchor" href="#_platform_ui_settings"></a>4.1. Platform UI Settings</h3>
 <div class="paragraph">
 <p>The Platform UI Settings are the system-wide configuration settings used throughout DDF to customize certain aspects of the DDF UI.</p>
 </div>
 <div class="sect3">
-<h4 id="_configuration_2"><a class="anchor" href="#_configuration_2"></a>4.2.1. Configuration</h4>
+<h4 id="_configuration"><a class="anchor" href="#_configuration"></a>4.1.1. Configuration</h4>
 <div class="paragraph">
 <p>The configurable properties for the platform-wide configuration are accessed from <strong>DDF Platform &#8594; Configuration &#8594; Platform UI Configuration</strong> in the Admin Console.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configurable_properties_3"><a class="anchor" href="#_configurable_properties_3"></a>4.2.2. Configurable Properties</h4>
+<h4 id="_configurable_properties_2"><a class="anchor" href="#_configurable_properties_2"></a>4.1.2. Configurable Properties</h4>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 16%;">
@@ -4996,19 +5094,19 @@ To create a new service, ensure that catalog-schematron-plugin is started and th
 </div>
 </div>
 <div class="sect2">
-<h3 id="_landing_page"><a class="anchor" href="#_landing_page"></a>4.3. Landing Page</h3>
+<h3 id="_landing_page"><a class="anchor" href="#_landing_page"></a>4.2. Landing Page</h3>
 <div class="paragraph">
 <p>The DDF landing page offers a starting point and general information for a DDF node.
 It is accessible at <code>/(index|home|landing(.htm|html))</code>.</p>
 </div>
 <div class="sect3">
-<h4 id="_configuration_3"><a class="anchor" href="#_configuration_3"></a>4.3.1. Configuration</h4>
+<h4 id="_configuration_2"><a class="anchor" href="#_configuration_2"></a>4.2.1. Configuration</h4>
 <div class="paragraph">
 <p>The configurable properties for the landing page configuration are accessed from <strong>DDF Platform &#8594; Landing Page</strong> in the Admin UI.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configurable_properties_4"><a class="anchor" href="#_configurable_properties_4"></a>4.3.2. Configurable Properties</h4>
+<h4 id="_configurable_properties_3"><a class="anchor" href="#_configurable_properties_3"></a>4.2.2. Configurable Properties</h4>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 16%;">
@@ -5100,9 +5198,9 @@ The contents of <code>&lt;outfile&gt;</code> should be pasted into this field.</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ddf_mime_framework"><a class="anchor" href="#_ddf_mime_framework"></a>4.4. DDF Mime Framework</h3>
+<h3 id="_ddf_mime_framework"><a class="anchor" href="#_ddf_mime_framework"></a>4.3. DDF Mime Framework</h3>
 <div class="sect3">
-<h4 id="_mime_type_mapper"><a class="anchor" href="#_mime_type_mapper"></a>4.4.1. Mime Type Mapper</h4>
+<h4 id="_mime_type_mapper"><a class="anchor" href="#_mime_type_mapper"></a>4.3.1. Mime Type Mapper</h4>
 <div class="paragraph">
 <p>The MimeTypeMapper is the entry point in DDF for resolving file extensions to mime types, and vice versa.</p>
 </div>
@@ -5121,7 +5219,7 @@ If no mapping is found for the mime type, <code>null</code> is returned for th
 </div>
 </div>
 <div class="sect3">
-<h4 id="_included_mime_type_mappers"><a class="anchor" href="#_included_mime_type_mappers"></a>4.4.2. Included Mime Type Mappers</h4>
+<h4 id="_included_mime_type_mappers"><a class="anchor" href="#_included_mime_type_mappers"></a>4.3.2. Included Mime Type Mappers</h4>
 <div class="sect4">
 <h5 id="_ddf_mime_type_mapper"><a class="anchor" href="#_ddf_mime_type_mapper"></a>DDF Mime Type Mapper</h5>
 <div class="paragraph">
@@ -5130,20 +5228,20 @@ It provides access to all <code>MimeTypeResolvers</code> within DDF, which pr
 </div>
 </div>
 <div class="sect4">
-<h5 id="_installing_and_uninstalling_3"><a class="anchor" href="#_installing_and_uninstalling_3"></a>Installing and Uninstalling</h5>
+<h5 id="_installing_and_uninstalling_4"><a class="anchor" href="#_installing_and_uninstalling_4"></a>Installing and Uninstalling</h5>
 <div class="paragraph">
 <p>The DDF Mime Type Mapper is bundled in the <code>mime-core</code> feature, which is installed by default, as part of the <code>mime-core-app</code> application.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_5"><a class="anchor" href="#_configuring_5"></a>Configuring</h5>
+<h5 id="_configuring_7"><a class="anchor" href="#_configuring_7"></a>Configuring</h5>
 <div class="paragraph">
 <p>There is no configuration needed for this feature.</p>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_mime_type_resolver"><a class="anchor" href="#_mime_type_resolver"></a>4.4.3. Mime Type Resolver</h4>
+<h4 id="_mime_type_resolver"><a class="anchor" href="#_mime_type_resolver"></a>4.3.3. Mime Type Resolver</h4>
 <div class="paragraph">
 <p>A <code>MimeTypeResolver</code> is a DDF service that can map a file extension to its corresponding mime type and, conversely, can map a mime type to its file extension.</p>
 </div>
@@ -5175,7 +5273,7 @@ This insures that any custom <code>MimeTypeResolvers</code> that may be instal
 </div>
 </div>
 <div class="sect5">
-<h6 id="_installing_and_uninstalling_4"><a class="anchor" href="#_installing_and_uninstalling_4"></a>Installing and Uninstalling</h6>
+<h6 id="_installing_and_uninstalling_5"><a class="anchor" href="#_installing_and_uninstalling_5"></a>Installing and Uninstalling</h6>
 <div class="paragraph">
 <p>The <code>TikaMimeTypeResolver</code> is bundled as the <code>mime-tika-resolver</code> feature in the <code>mime-tika-app</code> application.</p>
 </div>
@@ -5184,13 +5282,13 @@ This insures that any custom <code>MimeTypeResolvers</code> that may be instal
 </div>
 </div>
 <div class="sect5">
-<h6 id="_configuring_6"><a class="anchor" href="#_configuring_6"></a>Configuring</h6>
+<h6 id="_configuring_8"><a class="anchor" href="#_configuring_8"></a>Configuring</h6>
 <div class="paragraph">
 <p>There are no configuration properties for the <code>mime-tika-resolver</code>.</p>
 </div>
 </div>
 <div class="sect5">
-<h6 id="_implementation_details_4"><a class="anchor" href="#_implementation_details_4"></a>Implementation Details</h6>
+<h6 id="_implementation_details_5"><a class="anchor" href="#_implementation_details_5"></a>Implementation Details</h6>
 <div class="paragraph">
 <p><strong>Exported Services</strong></p>
 </div>
@@ -5266,7 +5364,7 @@ By adding custom mime type resolvers to DDF, new content with that mime type ca
 </div>
 </div>
 <div class="sect5">
-<h6 id="_installing_and_uninstalling_5"><a class="anchor" href="#_installing_and_uninstalling_5"></a>Installing and Uninstalling</h6>
+<h6 id="_installing_and_uninstalling_6"><a class="anchor" href="#_installing_and_uninstalling_6"></a>Installing and Uninstalling</h6>
 <div class="paragraph">
 <p>One Custom Mime Type Resolver is configured and installed out of the box for the <code>image/nitf</code> mime type.
 This custom resolver is bundled in the <code>mime-core-app</code> application and is part of the <code>mime-core</code> feature.</p>
@@ -5276,7 +5374,7 @@ This custom resolver is bundled in the <code>mime-core-app</code> application 
 </div>
 </div>
 <div class="sect5">
-<h6 id="_configuring_7"><a class="anchor" href="#_configuring_7"></a>Configuring</h6>
+<h6 id="_configuring_9"><a class="anchor" href="#_configuring_9"></a>Configuring</h6>
 <div class="paragraph">
 <p>The configurable properties for the Custom Mime Type Resolver are accessed from the <strong>MIME Custom Types</strong> configuration in the Admin Console.</p>
 </div>
@@ -5340,7 +5438,7 @@ This custom resolver is bundled in the <code>mime-core-app</code> application 
 </table>
 </div>
 <div class="sect5">
-<h6 id="_implementation_details_5"><a class="anchor" href="#_implementation_details_5"></a>Implementation Details</h6>
+<h6 id="_implementation_details_6"><a class="anchor" href="#_implementation_details_6"></a>Implementation Details</h6>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 10. Imported Services</caption>
 <colgroup>
@@ -5405,7 +5503,7 @@ This custom resolver is bundled in the <code>mime-core-app</code> application 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_metrics_collection"><a class="anchor" href="#_metrics_collection"></a>4.5. Metrics Collection</h3>
+<h3 id="_metrics_collection"><a class="anchor" href="#_metrics_collection"></a>4.4. Metrics Collection</h3>
 <div class="paragraph">
 <p>The Metrics Collection collects data for all of the pre-configured metrics in DDF and stores them in custom JMX Management Bean (MBean) attributes.
 Samples of each metric&#8217;s data is collected every 60 seconds and stored in the <code>&lt;DDF_INSTALL_DIR&gt;/data/metrics</code> directory with each metric stored in its own <code>.rrd</code> file.
@@ -5553,7 +5651,7 @@ If this is done, all existing metrics data will be permanently lost.</p>
 </tbody>
 </table>
 <div class="sect3">
-<h4 id="_source_metrics"><a class="anchor" href="#_source_metrics"></a>4.5.1. Source Metrics</h4>
+<h4 id="_source_metrics"><a class="anchor" href="#_source_metrics"></a>4.4.1. Source Metrics</h4>
 <div class="paragraph">
 <p>Metrics are also collected on a per source basis for each configured Federated Source and Catalog Provider.
 When the source is configured, the metrics listed in the table below are automatically created.
@@ -5640,13 +5738,13 @@ Also note that the source metrics' names are modified to remove all non-alphanum
 </div>
 </div>
 <div class="sect3">
-<h4 id="_usage_2"><a class="anchor" href="#_usage_2"></a>4.5.2. Usage</h4>
+<h4 id="_usage_2"><a class="anchor" href="#_usage_2"></a>4.4.2. Usage</h4>
 <div class="paragraph">
 <p>The Metrics Collection is used when collection of historical metrics data, such as catalog query metrics, message latency, or individual sources' metrics type of data, is desired.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_install_and_uninstall"><a class="anchor" href="#_install_and_uninstall"></a>4.5.3. Install and Uninstall</h4>
+<h4 id="_install_and_uninstall"><a class="anchor" href="#_install_and_uninstall"></a>4.4.3. Install and Uninstall</h4>
 <div class="paragraph">
 <p>The Metrics Collecting application is installed by default.</p>
 </div>
@@ -5658,29 +5756,29 @@ Also note that the source metrics' names are modified to remove all non-alphanum
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_4"><a class="anchor" href="#_configuration_4"></a>4.5.4. Configuration</h4>
+<h4 id="_configuration_3"><a class="anchor" href="#_configuration_3"></a>4.4.4. Configuration</h4>
 <div class="paragraph">
 <p>No configuration is made for the Metrics Collecting application. All of the metrics that it collects data on are either pre-configured in DDF out of the box or dynamically created as sources are created or deleted.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_2"><a class="anchor" href="#_known_issues_2"></a>4.5.5. Known Issues</h4>
+<h4 id="_known_issues_4"><a class="anchor" href="#_known_issues_4"></a>4.4.5. Known Issues</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_metrics_reporting_application"><a class="anchor" href="#_metrics_reporting_application"></a>4.6. Metrics Reporting Application</h3>
+<h3 id="_metrics_reporting_application"><a class="anchor" href="#_metrics_reporting_application"></a>4.5. Metrics Reporting Application</h3>
 <div class="paragraph">
 <p>The DDF Metrics Reporting application provides access to historical data in a graphic, a comma-separated values file, a spreadsheet, a PowerPoint file, XML, and JSON formats for system metrics collected while DDF is running.
 Aggregate reports (weekly, monthly, and yearly) are also provided where all collected metrics are included in the report.
 Aggregate reports are available in Excel and PowerPoint formats.</p>
 </div>
 <div class="sect3">
-<h4 id="_usage_3"><a class="anchor" href="#_usage_3"></a>4.6.1. Usage</h4>
+<h4 id="_usage_3"><a class="anchor" href="#_usage_3"></a>4.5.1. Usage</h4>
 <div class="paragraph">
-<p>The DDF Metrics Reporting application provides a web console plugin that adds a new tab to the Admin Console with the title of Metrics.
+<p>The DDF Metrics Reporting application provides a plugin that adds a new tab to the Admin Console with the title of Metrics.
 When selected, the Metrics tab displays a list of all of the metrics being collected by DDF, e.g., Catalog Queries, Catalog Queries Federated, Catalog Ingest Created, etc.</p>
 </div>
 <div class="paragraph">
@@ -5816,7 +5914,7 @@ _This parameter is only applicable for the metric&#8217;s graph display format.<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_metric_data_supported_formats"><a class="anchor" href="#_metric_data_supported_formats"></a>4.6.2. Metric Data Supported Formats</h4>
+<h4 id="_metric_data_supported_formats"><a class="anchor" href="#_metric_data_supported_formats"></a>4.5.2. Metric Data Supported Formats</h4>
 <div class="paragraph">
 <p>The metric&#8217;s historical data can be displayed in several formats, including PNG , a CSV file, an Excel .xls file, a PowerPoint .ppt file, an XML file, and a JSON file.
 The PNG, CSV, and XLS formats are accessed via hyperlinks provided in the Metrics tab web page.
@@ -6028,7 +6126,7 @@ The PPT, XML, and JSON formats are accessed by specifying the format in the cust
 </table>
 </div>
 <div class="sect3">
-<h4 id="_metrics_aggregate_reports"><a class="anchor" href="#_metrics_aggregate_reports"></a>4.6.3. Metrics Aggregate Reports</h4>
+<h4 id="_metrics_aggregate_reports"><a class="anchor" href="#_metrics_aggregate_reports"></a>4.5.3. Metrics Aggregate Reports</h4>
 <div class="paragraph">
 <p>The Metrics tab also provides aggregate reports for the collected metrics.
 These are reports that include data for all of the collected metrics for the specified time range.</p>
@@ -6127,7 +6225,7 @@ These are reports that include data for all of the collected metrics for the spe
 </table>
 </div>
 <div class="sect3">
-<h4 id="_add_custom_metrics_to_the_metrics_tab"><a class="anchor" href="#_add_custom_metrics_to_the_metrics_tab"></a>4.6.4. Add Custom Metrics to the Metrics Tab</h4>
+<h4 id="_add_custom_metrics_to_the_metrics_tab"><a class="anchor" href="#_add_custom_metrics_to_the_metrics_tab"></a>4.5.4. Add Custom Metrics to the Metrics Tab</h4>
 <div class="paragraph">
 <p>It is possible to add custom (or existing, but non-collected) metrics to the Metrics tab by writing an application.
 Refer to the SDK example source code for Sample Metrics located in the DDF source code at <code>sdk/sample-metrics</code> and <code>sdk/sdk-app</code>.</p>
@@ -6149,13 +6247,13 @@ Be aware that any custom code written may not work with future releases.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_install_and_uninstall_2"><a class="anchor" href="#_install_and_uninstall_2"></a>4.6.5. Install and Uninstall</h4>
+<h4 id="_install_and_uninstall_2"><a class="anchor" href="#_install_and_uninstall_2"></a>4.5.5. Install and Uninstall</h4>
 <div class="paragraph">
 <p>The Metrics Reporting application can be installed and uninstalled using the normal processes described in the Configuring DDF section.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_5"><a class="anchor" href="#_configuration_5"></a>4.6.6. Configuration</h4>
+<h4 id="_configuration_4"><a class="anchor" href="#_configuration_4"></a>4.5.6. Configuration</h4>
 <div class="paragraph">
 <p>No configuration can be made for the Metrics Reporting application.
 All of the metrics that it collects data on are pre-configured in DDF out of the box.</p>
@@ -6166,7 +6264,7 @@ It is installed by default.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_3"><a class="anchor" href="#_known_issues_3"></a>4.6.7. Known Issues</h4>
+<h4 id="_known_issues_5"><a class="anchor" href="#_known_issues_5"></a>4.5.7. Known Issues</h4>
 <div class="paragraph">
 <p>The Metrics Collecting Application uses a “round robin” database.
 It uses one that does not store individual values but, instead, stores the rate of change between values at different times. 
@@ -6177,25 +6275,25 @@ These are due to the averaging of data over time periods and should not impact t
 </div>
 </div>
 <div class="sect2">
-<h3 id="_security_core_api"><a class="anchor" href="#_security_core_api"></a>4.7. Security Core API</h3>
+<h3 id="_security_core_api"><a class="anchor" href="#_security_core_api"></a>4.6. Security Core API</h3>
 <div class="paragraph">
 <p>The Security Core API contains all of the DDF Security Framework APIs that are used to perform security operations within DDF.</p>
 </div>
 <div class="sect3">
-<h4 id="_install_and_uninstall_3"><a class="anchor" href="#_install_and_uninstall_3"></a>4.7.1. Install and Uninstall</h4>
+<h4 id="_install_and_uninstall_3"><a class="anchor" href="#_install_and_uninstall_3"></a>4.6.1. Install and Uninstall</h4>
 <div class="paragraph">
 <p>The Security Services App installs this bundle by default.
 Do not uninstall the Security Core API as it is integral to system function and all of the other security services depend upon it.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_6"><a class="anchor" href="#_configuration_6"></a>4.7.2. Configuration</h4>
+<h4 id="_configuration_5"><a class="anchor" href="#_configuration_5"></a>4.6.2. Configuration</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implementation_details_6"><a class="anchor" href="#_implementation_details_6"></a>4.7.3. Implementation Details</h4>
+<h4 id="_implementation_details_7"><a class="anchor" href="#_implementation_details_7"></a>4.6.3. Implementation Details</h4>
 <div class="sect4">
 <h5 id="_imported_services_4"><a class="anchor" href="#_imported_services_4"></a>Imported Services</h5>
 <div class="paragraph">
@@ -6211,12 +6309,12 @@ Do not uninstall the Security Core API as it is integral to system function and 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_compression_services"><a class="anchor" href="#_compression_services"></a>4.8. Compression Services</h3>
+<h3 id="_compression_services"><a class="anchor" href="#_compression_services"></a>4.7. Compression Services</h3>
 <div class="paragraph">
 <p>The compression services offer CXF-based message encoding that allows for compression of outgoing and incoming messages.</p>
 </div>
 <div class="sect3">
-<h4 id="_install_and_uninstall_4"><a class="anchor" href="#_install_and_uninstall_4"></a>4.8.1. Install and Uninstall</h4>
+<h4 id="_install_and_uninstall_4"><a class="anchor" href="#_install_and_uninstall_4"></a>4.7.1. Install and Uninstall</h4>
 <div class="paragraph">
 <p>The compression services are not installed by default within the platform application. Installing them can be done by doing:</p>
 </div>
@@ -6266,13 +6364,13 @@ Do not uninstall the Security Core API as it is integral to system function and 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_7"><a class="anchor" href="#_configuration_7"></a>4.8.2. Configuration</h4>
+<h4 id="_configuration_6"><a class="anchor" href="#_configuration_6"></a>4.7.2. Configuration</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implementation_details_7"><a class="anchor" href="#_implementation_details_7"></a>4.8.3. Implementation Details</h4>
+<h4 id="_implementation_details_8"><a class="anchor" href="#_implementation_details_8"></a>4.7.3. Implementation Details</h4>
 <div class="sect4">
 <h5 id="_imported_services_5"><a class="anchor" href="#_imported_services_5"></a>Imported Services</h5>
 <div class="paragraph">
@@ -6316,7 +6414,7 @@ Do not uninstall the Security Core API as it is integral to system function and 
 <h2 id="_integrating_ddf_security"><a class="anchor" href="#_integrating_ddf_security"></a>5. Integrating DDF Security</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports integration of this application with external frameworks.</p>
@@ -6431,7 +6529,7 @@ This includes setting up the CAS SSO servlet filters and starting a callback ser
 </table>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_8"><a class="anchor" href="#_implementation_details_8"></a>Implementation Details</h5>
+<h5 id="_implementation_details_9"><a class="anchor" href="#_implementation_details_9"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_6"><a class="anchor" href="#_imported_services_6"></a>Imported Services</h6>
 <div class="paragraph">
@@ -6472,13 +6570,13 @@ Inside this bundle is the <code>ddf.security.service.impl.cas.CasAuthenticationT
 It is an implementation of the <code>AuthenticationToken</code> class that is used to pass Authentication Credentials to the Security Framework.</p>
 </div>
 <div class="sect4">
-<h5 id="_configuring_8"><a class="anchor" href="#_configuring_8"></a>Configuring</h5>
+<h5 id="_configuring_10"><a class="anchor" href="#_configuring_10"></a>Configuring</h5>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_9"><a class="anchor" href="#_implementation_details_9"></a>Implementation Details</h5>
+<h5 id="_implementation_details_10"><a class="anchor" href="#_implementation_details_10"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_7"><a class="anchor" href="#_imported_services_7"></a>Imported Services</h6>
 <div class="paragraph">
@@ -6505,7 +6603,7 @@ It is an implementation of the <code>AuthenticationToken</code> class that is us
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_10"><a class="anchor" href="#_implementation_details_10"></a>Implementation Details</h5>
+<h5 id="_implementation_details_11"><a class="anchor" href="#_implementation_details_11"></a>Implementation Details</h5>
 <div class="paragraph">
 <p>N/A - Not a bundle</p>
 </div>
@@ -6523,7 +6621,7 @@ It is an implementation of the <code>AuthenticationToken</code> class that is us
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_9"><a class="anchor" href="#_configuring_9"></a>Configuring</h5>
+<h5 id="_configuring_11"><a class="anchor" href="#_configuring_11"></a>Configuring</h5>
 <div class="sect5">
 <h6 id="_settings"><a class="anchor" href="#_settings"></a>Settings</h6>
 <table class="tableblock frame-all grid-all spread">
@@ -6550,7 +6648,7 @@ It is an implementation of the <code>AuthenticationToken</code> class that is us
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_11"><a class="anchor" href="#_implementation_details_11"></a>Implementation Details</h5>
+<h5 id="_implementation_details_12"><a class="anchor" href="#_implementation_details_12"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_8"><a class="anchor" href="#_imported_services_8"></a>Imported Services</h6>
 <table class="tableblock frame-all grid-all spread">
@@ -6592,8 +6690,7 @@ It is an implementation of the <code>AuthenticationToken</code> class that is us
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ddf.catalog.util.DdfConfigurationWatcher</code>
-<code>org.apache.cxf.sts.token.validator.TokenValidator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.apache.cxf.sts.token.validator.TokenValidator</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ddf.security.cas.WebSSOTokenValidator</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">CAS Server URL and Encryption Service reference</p></td>
 </tr>
@@ -6615,7 +6712,7 @@ The servlet filters are defined by by the <code>security-cas-client</code> bundl
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_10"><a class="anchor" href="#_configuring_10"></a>Configuring</h5>
+<h5 id="_configuring_12"><a class="anchor" href="#_configuring_12"></a>Configuring</h5>
 <div class="sect5">
 <h6 id="_settings_2"><a class="anchor" href="#_settings_2"></a>Settings</h6>
 <table class="tableblock frame-all grid-all spread">
@@ -6658,7 +6755,7 @@ Federation from this site, however, will work normally.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_12"><a class="anchor" href="#_implementation_details_12"></a>Implementation Details</h5>
+<h5 id="_implementation_details_13"><a class="anchor" href="#_implementation_details_13"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_9"><a class="anchor" href="#_imported_services_9"></a>Imported Services</h6>
 <table class="tableblock frame-all grid-all spread">
@@ -6738,13 +6835,13 @@ Federation from this site, however, will work normally.</p>
 Most notably, this bundle contains the <code>ddf.security.common.audit.SecurityLogger</code> class that performs the security audit logging within DDF.</p>
 </div>
 <div class="sect4">
-<h5 id="_configuring_11"><a class="anchor" href="#_configuring_11"></a>Configuring</h5>
+<h5 id="_configuring_13"><a class="anchor" href="#_configuring_13"></a>Configuring</h5>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_13"><a class="anchor" href="#_implementation_details_13"></a>Implementation Details</h5>
+<h5 id="_implementation_details_14"><a class="anchor" href="#_implementation_details_14"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_10"><a class="anchor" href="#_imported_services_10"></a>Imported Services</h6>
 <div class="paragraph">
@@ -6765,7 +6862,7 @@ Most notably, this bundle contains the <code>ddf.security.common.audit.SecurityL
 <p>The Security Core Implementation contains the reference implementations for the Security Core API interfaces that come with the DDF distribution.</p>
 </div>
 <div class="sect4">
-<h5 id="_configuring_12"><a class="anchor" href="#_configuring_12"></a>Configuring</h5>
+<h5 id="_configuring_14"><a class="anchor" href="#_configuring_14"></a>Configuring</h5>
 <div class="paragraph">
 <p>None</p>
 </div>
@@ -6778,7 +6875,7 @@ It is recommended to use this bundle as it contains the reference implementati
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_14"><a class="anchor" href="#_implementation_details_14"></a>Implementation Details</h5>
+<h5 id="_implementation_details_15"><a class="anchor" href="#_implementation_details_15"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_11"><a class="anchor" href="#_imported_services_11"></a>Imported Services</h6>
 <table class="tableblock frame-all grid-all spread">
@@ -6885,13 +6982,13 @@ Many applications that come with DDF depend on this bundle and it should not be 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_13"><a class="anchor" href="#_configuring_13"></a>5.3.2. Configuring</h4>
+<h4 id="_configuring_15"><a class="anchor" href="#_configuring_15"></a>5.3.2. Configuring</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implementation_details_15"><a class="anchor" href="#_implementation_details_15"></a>5.3.3. Implementation Details</h4>
+<h4 id="_implementation_details_16"><a class="anchor" href="#_implementation_details_16"></a>5.3.3. Implementation Details</h4>
 <div class="sect4">
 <h5 id="_imported_services_12"><a class="anchor" href="#_imported_services_12"></a>Imported Services</h5>
 <div class="paragraph">
@@ -6920,13 +7017,13 @@ When uninstalled, however, administrators will not be able to encrypt and decryp
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_14"><a class="anchor" href="#_configuring_14"></a>Configuring</h5>
+<h5 id="_configuring_16"><a class="anchor" href="#_configuring_16"></a>Configuring</h5>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_16"><a class="anchor" href="#_implementation_details_16"></a>Implementation Details</h5>
+<h5 id="_implementation_details_17"><a class="anchor" href="#_implementation_details_17"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_13"><a class="anchor" href="#_imported_services_13"></a>Imported Services</h6>
 <div class="paragraph">
@@ -6954,13 +7051,13 @@ Other projects are dependent on the services this bundle exports and it should n
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_15"><a class="anchor" href="#_configuring_15"></a>Configuring</h5>
+<h5 id="_configuring_17"><a class="anchor" href="#_configuring_17"></a>Configuring</h5>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_17"><a class="anchor" href="#_implementation_details_17"></a>Implementation Details</h5>
+<h5 id="_implementation_details_18"><a class="anchor" href="#_implementation_details_18"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_14"><a class="anchor" href="#_imported_services_14"></a>Imported Services</h6>
 <div class="paragraph">
@@ -7053,7 +7150,7 @@ The provided features contain a default set of schemas and users loaded to help 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_8"><a class="anchor" href="#_configuration_8"></a>5.5.2. Configuration</h4>
+<h4 id="_configuration_7"><a class="anchor" href="#_configuration_7"></a>5.5.2. Configuration</h4>
 <div class="paragraph">
 <p>The configuration options are located on the Admin Console under <strong>Opendj Embedded &#8594; Configuration &#8594; LDAP Server</strong>. It currently contains three configuration options.</p>
 </div>
@@ -7358,7 +7455,7 @@ Complete the following procedure to provide your own keystore information for th
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_9"><a class="anchor" href="#_configuration_9"></a>5.5.7. Configuration</h4>
+<h4 id="_configuration_8"><a class="anchor" href="#_configuration_8"></a>5.5.7. Configuration</h4>
 <div class="sect4">
 <h5 id="_start_and_stop"><a class="anchor" href="#_start_and_stop"></a>Start and Stop</h5>
 <div class="paragraph">
@@ -7620,13 +7717,13 @@ This class uses CXF to intercept incoming SOAP messages and enforces service aut
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_16"><a class="anchor" href="#_configuring_16"></a>Configuring</h5>
+<h5 id="_configuring_18"><a class="anchor" href="#_configuring_18"></a>Configuring</h5>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_18"><a class="anchor" href="#_implementation_details_18"></a>Implementation Details</h5>
+<h5 id="_implementation_details_19"><a class="anchor" href="#_implementation_details_19"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_15"><a class="anchor" href="#_imported_services_15"></a>Imported Services</h6>
 <div class="paragraph">
@@ -7711,7 +7808,7 @@ Once a service is registered as a watcher of the configuration, it will be updat
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_17"><a class="anchor" href="#_configuring_17"></a>Configuring</h5>
+<h5 id="_configuring_19"><a class="anchor" href="#_configuring_19"></a>Configuring</h5>
 <div class="paragraph">
 <p>Settings can be found in the Admin Console under <strong>DDF Security &#8594; Configuration &#8594; Security STS Client</strong>.</p>
 </div>
@@ -7788,7 +7885,7 @@ Once a service is registered as a watcher of the configuration, it will be updat
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implementation_details_19"><a class="anchor" href="#_implementation_details_19"></a>5.7.3. Implementation Details</h4>
+<h4 id="_implementation_details_20"><a class="anchor" href="#_implementation_details_20"></a>5.7.3. Implementation Details</h4>
 <div class="sect4">
 <h5 id="_imported_services_16"><a class="anchor" href="#_imported_services_16"></a>Imported Services</h5>
 <table class="tableblock frame-all grid-all spread">
@@ -7805,11 +7902,6 @@ Once a service is registered as a watcher of the configuration, it will be updat
 </tr>
 </thead>
 <tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ddf.catalog.DdfConfigurationWatcher</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">required</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.osgi.service.cm.ConfigurationAdmin</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">required</p></td>
@@ -7872,7 +7964,7 @@ This means that two different users with the same username in different LDAP ser
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_18"><a class="anchor" href="#_configuring_18"></a>Configuring</h5>
+<h5 id="_configuring_20"><a class="anchor" href="#_configuring_20"></a>Configuring</h5>
 
 </div>
 <div class="sect4">
@@ -7895,15 +7987,21 @@ This means that two different users with the same username in different LDAP ser
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">LDAP URL
-`</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ldap://localhost:1389`</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"> </p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LDAP URL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ldaps://${org.codice.ddf.system.hostname}:1636</code></p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">StartTLS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ignored if the URL uses ldaps.
+ </p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LDAP Bind User DN</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>cn=admin</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"> </p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This user should have the ability to verify passwords and read attributes for any user.
+ </p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LDAP Bind User Password</p></td>
@@ -7944,7 +8042,7 @@ This means that two different users with the same username in different LDAP ser
 </table>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_20"><a class="anchor" href="#_implementation_details_20"></a>Implementation Details</h5>
+<h5 id="_implementation_details_21"><a class="anchor" href="#_implementation_details_21"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_17"><a class="anchor" href="#_imported_services_17"></a>Imported Services</h6>
 <table class="tableblock frame-all grid-all spread">
@@ -8012,7 +8110,7 @@ This means that two different users with the same username in different LDAP ser
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_19"><a class="anchor" href="#_configuring_19"></a>Configuring</h5>
+<h5 id="_configuring_21"><a class="anchor" href="#_configuring_21"></a>Configuring</h5>
 <div class="paragraph">
 <p>Configuration settings can be found in the Admin Console under <strong>DDF Security &#8594; Configuration &#8594; Security STS LDAP Login</strong>.</p>
 </div>
@@ -8032,13 +8130,20 @@ This means that two different users with the same username in different LDAP ser
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LDAP URL</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ldaps://localhost:1636</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"> </p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ldaps://${org.codice.ddf.system.hostname}:1636</code></p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">StartTLS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ignored if the URL uses ldaps.
+ </p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LDAP Bind User DN</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>cn=admin</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"> </p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This user should have the ability to verify passwords and read attributes for any user.
+ </p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LDAP Bind User Password</p></td>
@@ -8058,18 +8163,13 @@ This means that two different users with the same username in different LDAP ser
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LDAP Base Group DN</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ou=groups,dc=example,dc=com</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"> </p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">SSL Keystore Alias</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>localhost</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This alias is used when connecting to the LDAP using SSL/TLS (LDAPS) or startTLS.</p></td>
+<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_21"><a class="anchor" href="#_implementation_details_21"></a>Implementation Details</h5>
+<h5 id="_implementation_details_22"><a class="anchor" href="#_implementation_details_22"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_18"><a class="anchor" href="#_imported_services_18"></a>Imported Services</h6>
 <div class="paragraph">
@@ -8097,13 +8197,13 @@ This means that two different users with the same username in different LDAP ser
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_20"><a class="anchor" href="#_configuring_20"></a>Configuring</h5>
+<h5 id="_configuring_22"><a class="anchor" href="#_configuring_22"></a>Configuring</h5>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_implementation_details_22"><a class="anchor" href="#_implementation_details_22"></a>Implementation Details</h5>
+<h5 id="_implementation_details_23"><a class="anchor" href="#_implementation_details_23"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_19"><a class="anchor" href="#_imported_services_19"></a>Imported Services</h6>
 <table class="tableblock frame-all grid-all spread">
@@ -8145,8 +8245,7 @@ This means that two different users with the same username in different LDAP ser
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ddf.catalog.util.DdfConfigurationWatcher</code>
-<code>org.apache.shiro.realm.Realm</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.apache.shiro.realm.Realm</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ddf.security.realm.sts.StsRealm</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">None</p></td>
 </tr>
@@ -8183,7 +8282,7 @@ The various services that the STS Server imports are listed in the Implementatio
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_21"><a class="anchor" href="#_configuring_21"></a>5.8.6. Configuring</h4>
+<h4 id="_configuring_23"><a class="anchor" href="#_configuring_23"></a>5.8.6. Configuring</h4>
 <div class="sect4">
 <h5 id="_settings_5"><a class="anchor" href="#_settings_5"></a>Settings</h5>
 <div class="paragraph">
@@ -8228,7 +8327,7 @@ The various services that the STS Server imports are listed in the Implementatio
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implementation_details_23"><a class="anchor" href="#_implementation_details_23"></a>5.8.7. Implementation Details</h4>
+<h4 id="_implementation_details_24"><a class="anchor" href="#_implementation_details_24"></a>5.8.7. Implementation Details</h4>
 <div class="sect4">
 <h5 id="_imported_services_20"><a class="anchor" href="#_imported_services_20"></a>Imported Services</h5>
 <table class="tableblock frame-all grid-all spread">
@@ -8335,7 +8434,7 @@ The configuration below provides the mapping between user attributes and the att
 <p>This bundle is installed by default and can be added by installing the <code>security-pdp-authz</code> feature if it was uninstalled previously.</p>
 </div>
 <div class="sect3">
-<h4 id="_configuring_22"><a class="anchor" href="#_configuring_22"></a>5.10.1. Configuring</h4>
+<h4 id="_configuring_24"><a class="anchor" href="#_configuring_24"></a>5.10.1. Configuring</h4>
 <div class="paragraph">
 <p>Settings can be found in the Admin Console (<a href="https://localhost:8993/admin" class="bare">https://localhost:8993/admin</a>) under <strong>DDF Security &#8594; Configuration &#8594; Security AuthZ Realm</strong>.</p>
 </div>
@@ -8366,7 +8465,7 @@ The configuration below provides the mapping between user attributes and the att
 </tbody>
 </table>
 <div class="sect4">
-<h5 id="_implementation_details_24"><a class="anchor" href="#_implementation_details_24"></a>Implementation Details</h5>
+<h5 id="_implementation_details_25"><a class="anchor" href="#_implementation_details_25"></a>Implementation Details</h5>
 <div class="sect5">
 <h6 id="_imported_services_21"><a class="anchor" href="#_imported_services_21"></a>Imported Services</h6>
 <div class="paragraph">
@@ -8524,7 +8623,7 @@ Both secure and non-secure requests will be accepted by all secure DDF service e
 <h2 id="_integrating_ddf_solr"><a class="anchor" href="#_integrating_ddf_solr"></a>6. Integrating DDF Solr</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports integration of this application with external frameworks.</p>
@@ -8860,7 +8959,7 @@ Refer to the Standalone Solr Server recommended configuration.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implementation_details_25"><a class="anchor" href="#_implementation_details_25"></a>6.2.2. Implementation Details</h4>
+<h4 id="_implementation_details_26"><a class="anchor" href="#_implementation_details_26"></a>6.2.2. Implementation Details</h4>
 <div class="sect4">
 <h5 id="_indexing_text"><a class="anchor" href="#_indexing_text"></a>Indexing Text</h5>
 <div class="paragraph">
@@ -8878,7 +8977,7 @@ Concerning XML, the Solr Catalog Provider will analyze and tokenize XML CDATA se
 <h2 id="_integrating_ddf_spatial"><a class="anchor" href="#_integrating_ddf_spatial"></a>7. Integrating DDF Spatial</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.</p>
@@ -12824,14 +12923,14 @@ ConstraintLanguage=CQL_TEXT&amp;constraint=Text Like '%25'</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_10"><a class="anchor" href="#_configuration_10"></a>7.1.3. Configuration</h4>
+<h4 id="_configuration_9"><a class="anchor" href="#_configuration_9"></a>7.1.3. Configuration</h4>
 <div class="paragraph">
 <p>The CSW endpoint has no configurable properties.
 It can only be installed or uninstalled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_4"><a class="anchor" href="#_known_issues_4"></a>7.1.4. Known Issues</h4>
+<h4 id="_known_issues_6"><a class="anchor" href="#_known_issues_6"></a>7.1.4. Known Issues</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
@@ -12849,15 +12948,15 @@ It can only be installed or uninstalled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_and_uninstalling_6"><a class="anchor" href="#_installing_and_uninstalling_6"></a>7.2.2. Installing and Uninstalling</h4>
+<h4 id="_installing_and_uninstalling_7"><a class="anchor" href="#_installing_and_uninstalling_7"></a>7.2.2. Installing and Uninstalling</h4>
 <div class="paragraph">
 <p>The CSW source can be installed and uninstalled using the normal processes described in the Configuring DDF section.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_23"><a class="anchor" href="#_configuring_23"></a>7.2.3. Configuring</h4>
+<h4 id="_configuring_25"><a class="anchor" href="#_configuring_25"></a>7.2.3. Configuring</h4>
 <div class="paragraph">
-<p>The configurable properties for the CSW source are accessed from the CSW Federated Source Configuration in the Web Console or Admin Console.</p>
+<p>The configurable properties for the CSW source are accessed from the CSW Federated Source Configuration in the Admin Console.</p>
 </div>
 <div class="sect4">
 <h5 id="_configure_the_csw_source"><a class="anchor" href="#_configure_the_csw_source"></a>Configure the CSW Source</h5>
@@ -13035,7 +13134,7 @@ It can only be installed or uninstalled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_5"><a class="anchor" href="#_known_issues_5"></a>7.2.4. Known Issues</h4>
+<h4 id="_known_issues_7"><a class="anchor" href="#_known_issues_7"></a>7.2.4. Known Issues</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13066,15 +13165,15 @@ It can only be installed or uninstalled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_and_uninstalling_7"><a class="anchor" href="#_installing_and_uninstalling_7"></a>7.3.2. Installing and Uninstalling</h4>
+<h4 id="_installing_and_uninstalling_8"><a class="anchor" href="#_installing_and_uninstalling_8"></a>7.3.2. Installing and Uninstalling</h4>
 <div class="paragraph">
 <p>The GMD CSW source can be installed and uninstalled using the normal processes described in the Configuring DDF section.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_24"><a class="anchor" href="#_configuring_24"></a>7.3.3. Configuring</h4>
+<h4 id="_configuring_26"><a class="anchor" href="#_configuring_26"></a>7.3.3. Configuring</h4>
 <div class="paragraph">
-<p>The configurable properties for the GMD CSW source are accessed from the GMD CSW ISO Federated Source Configuration in the Web Console or Admin Console.</p>
+<p>The configurable properties for the GMD CSW source are accessed from the GMD CSW ISO Federated Source Configuration in the Admin Console.</p>
 </div>
 <div class="sect4">
 <h5 id="_configure_the_csw_source_2"><a class="anchor" href="#_configure_the_csw_source_2"></a>Configure the CSW Source</h5>
@@ -13350,13 +13449,13 @@ http://&lt;DDF_HOST&gt;:&lt;DDF_PORT&gt;/services/catalog/kml/icons?sample-icon.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_and_uninstalling_8"><a class="anchor" href="#_installing_and_uninstalling_8"></a>7.5.2. Installing and Uninstalling</h4>
+<h4 id="_installing_and_uninstalling_9"><a class="anchor" href="#_installing_and_uninstalling_9"></a>7.5.2. Installing and Uninstalling</h4>
 <div class="paragraph">
 <p>The <code>spatial-kml-networklinkendpoint</code> feature is installed by default with the Spatial App.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_25"><a class="anchor" href="#_configuring_25"></a>7.5.3. Configuring</h4>
+<h4 id="_configuring_27"><a class="anchor" href="#_configuring_27"></a>7.5.3. Configuring</h4>
 <div class="paragraph">
 <p>This KML Network Link endpoint has the ability to serve up custom KML style documents and Icons to be used within that document.
 The KML style document must be a valid XML document containing a KML style.
@@ -13365,7 +13464,7 @@ The Description will be displayed as a pop-up from the root network link on Goog
 This may contain the general purpose of the network and URLs to external resources.￼￼￼</p>
 </div>
 <div class="sect4">
-<h5 id="_configurable_properties_5"><a class="anchor" href="#_configurable_properties_5"></a>Configurable Properties</h5>
+<h5 id="_configurable_properties_4"><a class="anchor" href="#_configurable_properties_4"></a>Configurable Properties</h5>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 16%;">
@@ -13415,7 +13514,7 @@ This may contain the general purpose of the network and URLs to external resourc
 </div>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_6"><a class="anchor" href="#_known_issues_6"></a>7.5.4. Known Issues</h4>
+<h4 id="_known_issues_8"><a class="anchor" href="#_known_issues_8"></a>7.5.4. Known Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -13710,7 +13809,7 @@ The HTML contains links to the full metadata view as well as the product.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_and_uninstalling_9"><a class="anchor" href="#_installing_and_uninstalling_9"></a>7.6.2. Installing and Uninstalling</h4>
+<h4 id="_installing_and_uninstalling_10"><a class="anchor" href="#_installing_and_uninstalling_10"></a>7.6.2. Installing and Uninstalling</h4>
 <div class="paragraph">
 <p>The <code>spatial-kml-transformer</code> feature is installed by default with the Spatial App.</p>
 </div>
@@ -13721,13 +13820,13 @@ The HTML contains links to the full metadata view as well as the product.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_26"><a class="anchor" href="#_configuring_26"></a>7.6.3. Configuring</h4>
+<h4 id="_configuring_28"><a class="anchor" href="#_configuring_28"></a>7.6.3. Configuring</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implementation_details_26"><a class="anchor" href="#_implementation_details_26"></a>7.6.4. Implementation Details</h4>
+<h4 id="_implementation_details_27"><a class="anchor" href="#_implementation_details_27"></a>7.6.4. Implementation Details</h4>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 50%;">
@@ -13748,7 +13847,7 @@ The HTML contains links to the full metadata view as well as the product.</p>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_7"><a class="anchor" href="#_known_issues_7"></a>7.6.5. Known Issues</h4>
+<h4 id="_known_issues_9"><a class="anchor" href="#_known_issues_9"></a>7.6.5. Known Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -14016,19 +14115,19 @@ width=&quot;400&quot;<span class="entity">&amp;gt;</span>$[description]<span cla
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_and_uninstalling_10"><a class="anchor" href="#_installing_and_uninstalling_10"></a>7.7.2. Installing and Uninstalling</h4>
+<h4 id="_installing_and_uninstalling_11"><a class="anchor" href="#_installing_and_uninstalling_11"></a>7.7.2. Installing and Uninstalling</h4>
 <div class="paragraph">
 <p>The <code>spatial-kml-transformer</code> feature is installed by default with the Spatial App.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_27"><a class="anchor" href="#_configuring_27"></a>7.7.3. Configuring</h4>
+<h4 id="_configuring_29"><a class="anchor" href="#_configuring_29"></a>7.7.3. Configuring</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implementation_details_27"><a class="anchor" href="#_implementation_details_27"></a>7.7.4. Implementation Details</h4>
+<h4 id="_implementation_details_28"><a class="anchor" href="#_implementation_details_28"></a>7.7.4. Implementation Details</h4>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 50%;">
@@ -14049,7 +14148,7 @@ width=&quot;400&quot;<span class="entity">&amp;gt;</span>$[description]<span cla
 </table>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_8"><a class="anchor" href="#_known_issues_8"></a>7.7.5. Known Issues</h4>
+<h4 id="_known_issues_10"><a class="anchor" href="#_known_issues_10"></a>7.7.5. Known Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -14071,7 +14170,7 @@ For more information on style URL&#8217;s, refer to the <a href="https://develop
 When a style mapping is configured, the resulting transformed KML contain a <code>&lt;styleUrl&gt;</code> tag pointing to that style, rather than the default KML style supplied by the <code>KmlTransformer</code>.</p>
 </div>
 <div class="sect3">
-<h4 id="_configuring_28"><a class="anchor" href="#_configuring_28"></a>7.8.1. Configuring</h4>
+<h4 id="_configuring_30"><a class="anchor" href="#_configuring_30"></a>7.8.1. Configuring</h4>
 <div class="paragraph">
 <p>The properties below describe how to configure a Style Mapping.
 The configuration name is <code>Spatial KML Style Map Entry</code>.</p>
@@ -14299,13 +14398,13 @@ href=&quot;http://localhost:8181/services/catalog/sources/ddf.distribution/0103c
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_and_uninstalling_11"><a class="anchor" href="#_installing_and_uninstalling_11"></a>7.8.3. Installing and Uninstalling</h4>
+<h4 id="_installing_and_uninstalling_12"><a class="anchor" href="#_installing_and_uninstalling_12"></a>7.8.3. Installing and Uninstalling</h4>
 <div class="paragraph">
 <p>The KML Style Mapper is included in the <code>spatial-kml-transformer</code> feature and is installed by default with the Spatial App.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implementation_details_28"><a class="anchor" href="#_implementation_details_28"></a>7.8.4. Implementation Details</h4>
+<h4 id="_implementation_details_29"><a class="anchor" href="#_implementation_details_29"></a>7.8.4. Implementation Details</h4>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 50%;">
@@ -14326,7 +14425,7 @@ href=&quot;http://localhost:8181/services/catalog/sources/ddf.distribution/0103c
 </table>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_9"><a class="anchor" href="#_known_issues_9"></a>7.8.5. Known Issues</h4>
+<h4 id="_known_issues_11"><a class="anchor" href="#_known_issues_11"></a>7.8.5. Known Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -14497,20 +14596,20 @@ Additionally, a base class, <code>AbstractFeatureConverter</code>, has been crea
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_and_uninstalling_12"><a class="anchor" href="#_installing_and_uninstalling_12"></a>7.11.2. Installing and Uninstalling</h4>
+<h4 id="_installing_and_uninstalling_13"><a class="anchor" href="#_installing_and_uninstalling_13"></a>7.11.2. Installing and Uninstalling</h4>
 <div class="paragraph">
 <p>The WFS Source can be installed and uninstalled using the normal processes described in the Configuring DDF section.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_29"><a class="anchor" href="#_configuring_29"></a>7.11.3. Configuring</h4>
+<h4 id="_configuring_31"><a class="anchor" href="#_configuring_31"></a>7.11.3. Configuring</h4>
 <div class="paragraph">
 <p>The configurable properties for the WFS Source are accessed from the WFS Federated Source Configuration in the Admin Console.</p>
 </div>
 <div class="sect4">
 <h5 id="_configuring_wfs_source"><a class="anchor" href="#_configuring_wfs_source"></a>Configuring WFS Source</h5>
 <div class="sect5">
-<h6 id="_configurable_properties_6"><a class="anchor" href="#_configurable_properties_6"></a>Configurable Properties</h6>
+<h6 id="_configurable_properties_5"><a class="anchor" href="#_configurable_properties_5"></a>Configurable Properties</h6>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 16%;">
@@ -14568,6 +14667,14 @@ Additionally, a base class, <code>AbstractFeatureConverter</code>, has been crea
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password to log in to the WFS service.</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forced Feature Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>forcedFeatureType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Force only a specific FeatureType to be queried instead of all featureTypes</p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
 </tr>
@@ -14643,7 +14750,7 @@ However, in most cases, the syntax will be everything before the <code>?</code> 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_10"><a class="anchor" href="#_known_issues_10"></a>7.11.5. Known Issues</h4>
+<h4 id="_known_issues_12"><a class="anchor" href="#_known_issues_12"></a>7.11.5. Known Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -14661,20 +14768,20 @@ However, in most cases, the syntax will be everything before the <code>?</code> 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_and_uninstalling_13"><a class="anchor" href="#_installing_and_uninstalling_13"></a>7.12.2. Installing and Uninstalling</h4>
+<h4 id="_installing_and_uninstalling_14"><a class="anchor" href="#_installing_and_uninstalling_14"></a>7.12.2. Installing and Uninstalling</h4>
 <div class="paragraph">
 <p>The WFS Source can be installed and uninstalled using the normal processes described in the Configuring DDF section.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_30"><a class="anchor" href="#_configuring_30"></a>7.12.3. Configuring</h4>
+<h4 id="_configuring_32"><a class="anchor" href="#_configuring_32"></a>7.12.3. Configuring</h4>
 <div class="paragraph">
 <p>The configurable properties for the WFS 2.0.0 Source are accessed from the WFS 2.0.0 Federated Source Configuration in the Admin Console.</p>
 </div>
 <div class="sect4">
 <h5 id="_configuring_wfs_2_0_0_source"><a class="anchor" href="#_configuring_wfs_2_0_0_source"></a>Configuring WFS 2.0.0 Source</h5>
 <div class="sect5">
-<h6 id="_configurable_properties_7"><a class="anchor" href="#_configurable_properties_7"></a>Configurable Properties</h6>
+<h6 id="_configurable_properties_6"><a class="anchor" href="#_configurable_properties_6"></a>Configurable Properties</h6>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 16%;">
@@ -14753,6 +14860,14 @@ This should only be used if the remote source is unable to handle sorting even w
 <td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forced Feature Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>forcedFeatureType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Force only a specific FeatureType to be queried instead of all featureTypes</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Non Queryable Properties</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>nonQueryableProperties</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of Strings</p></td>
@@ -14824,7 +14939,7 @@ However, in most cases, the syntax will be everything before the <code>?</code> 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_known_issues_11"><a class="anchor" href="#_known_issues_11"></a>7.12.5. Known Issues</h4>
+<h4 id="_known_issues_13"><a class="anchor" href="#_known_issues_13"></a>7.12.5. Known Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -14847,13 +14962,13 @@ The <code>MetacardMapper</code> is set by creating a feature file configuration 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_and_uninstalling_14"><a class="anchor" href="#_installing_and_uninstalling_14"></a>7.12.8. Installing and Uninstalling</h4>
+<h4 id="_installing_and_uninstalling_15"><a class="anchor" href="#_installing_and_uninstalling_15"></a>7.12.8. Installing and Uninstalling</h4>
 <div class="paragraph">
 <p>The WFS <code>MetacardMapper</code> can be installed and uninstalled using the normal processes described in the Configuring DDF section.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_31"><a class="anchor" href="#_configuring_31"></a>7.12.9. Configuring</h4>
+<h4 id="_configuring_33"><a class="anchor" href="#_configuring_33"></a>7.12.9. Configuring</h4>
 <div class="paragraph">
 <p>This component can be configured using the normal processes described in the Configuring DDF section.</p>
 </div>
@@ -14863,7 +14978,7 @@ The <code>MetacardMapper</code> is set by creating a feature file configuration 
 <div class="sect4">
 <h5 id="_configuring_wfs_metacardmapper"><a class="anchor" href="#_configuring_wfs_metacardmapper"></a>Configuring WFS MetacardMapper</h5>
 <div class="sect5">
-<h6 id="_configurable_properties_8"><a class="anchor" href="#_configurable_properties_8"></a>Configurable Properties</h6>
+<h6 id="_configurable_properties_7"><a class="anchor" href="#_configurable_properties_7"></a>Configurable Properties</h6>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 16%;">
@@ -14952,7 +15067,7 @@ More mappings can be added to the <code>featurePropToMetacardAttrMap</code> line
 7
 8
 </pre></td>
-  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">geoserver-states</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.0</span><span class="delimiter">&quot;</span></span>
+  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">geoserver-states</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.1</span><span class="delimiter">&quot;</span></span>
     <span class="attribute-name">description</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;config</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
         featureType = {http://www.openplans.org/topp}states
@@ -14965,7 +15080,7 @@ More mappings can be added to the <code>featurePropToMetacardAttrMap</code> line
 </div>
 </div>
 <div class="sect4">
-<h5 id="_known_issues_12"><a class="anchor" href="#_known_issues_12"></a>Known Issues</h5>
+<h5 id="_known_issues_14"><a class="anchor" href="#_known_issues_14"></a>Known Issues</h5>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -14979,7 +15094,7 @@ More mappings can be added to the <code>featurePropToMetacardAttrMap</code> line
 <h2 id="_integrating_ddf_search_ui"><a class="anchor" href="#_integrating_ddf_search_ui"></a>8. Integrating DDF Search UI</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.0</span></p>
+<p><span class="small">Version: 2.9.1</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Search UI application allows a user to search for records in the local Catalog (provider) and federated sources.
@@ -15094,7 +15209,7 @@ This will return all existing notifications to the user.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-04-28 17:03:37 -07:00
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-06-30 22:27:37 -07:00
 </div>
 </div>
 </body>
