@@ -1,0 +1,48 @@
+==== Resource Download Endpoint
+
+The Resource Download Endpoint provides a REST API to trigger downloading resources to the ${branding} cache only. The resource is not returned to the client.
+
+===== Installing Resource Download Endpoint
+
+The Resource Download Endpoint is installed by default with a standard installation in the {app-name} application.
+The Resource Download Endpoint is not installed by default with a standard installation in the {app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring Resource Download Endpoint
+
+The Resource Download Endpoint has no configurable properties.
+
+===== Using Resource Download Endpoint
+
+.Resource Download Endpoint URL
+----
+http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/downloads
+----
+
+[NOTE]
+====
+If resource caching is not enabled in ${ddf-branding}, the endpoint will return a `400 BAD REQUEST` response.
+====
+
+.Resource Download Endpoint Configurable Properties
+[cols="2m,1,3,4", options="header"]
+|===
+|Operation
+|HTTP Request
+|Details
+|Example URL
+
+|cache only
+|HTTP GET
+|Resource caching must be enabled
+|\${secure_url}/services/catalog/downloads/<sourceId>/<metacardId>
+
+|===
+
+====== Resource Download Endpoint Known Issues
+
+None
+
+

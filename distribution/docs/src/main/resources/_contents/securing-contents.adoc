@@ -65,7 +65,7 @@ Any web context that allows or requires specific authentication types should be 
 
 |===
 
-==== Required Attributes
+===== Required Attributes
 
 The fields for required attributes allows configuring certain contexts to only be accessible to users with pre-defined attributes.
 For example, the default required attribute for the `/admin` context is `role=system-admin`, limiting access to the ${admin-console} to system administrators
@@ -75,7 +75,7 @@ For example, the default required attribute for the `/admin` context is `role=sy
 White listed contexts are trusted contexts which will bypass security.
 Any sub-contexts of a white listed context will be white listed as well, unless they are specifically assigned a policy.
 
-==== Limiting Access to the STS
+===== Limiting Access to the STS
 
 Be sure to limit the hosts that are allowed to connect to the STS:
 
@@ -152,11 +152,11 @@ The IdP client that interacts with the specified Identity Provider.
 </md:EntityDescriptor>
 ----
 
-==== Security IdP Server
+===== Security IdP Server
 
 An internal Identity Provider solution.
 
-===== Configuring IdP Server
+====== Configuring IdP Server
 
 . Navigate to ${admin-console} -> ${ddf-security} -> Configuration -> IdP Server
 . Click the + next to SP Metadata to add a new entry
@@ -213,7 +213,7 @@ If you have configured /search to use IDP, ensure to select the "External Authen
 
 The internal Identity Provider solution should be used in favor of any external solutions until the IdP Service Provider fully satisfies the SAML 2.0 Web SSO profile.
 
-===== CAS Authentication
+==== CAS Authentication
 
 [NOTE]
 ====
@@ -221,7 +221,7 @@ CAS Authentication Logging was obtained using a CAS war file deployed to a Tomca
 Tomcat allows configuration of the log file, but, by default, the logs below were stored in the `$TOMCAT_HOME/logs/catalina.out` file.
 ====
 
-====== Username and Password
+===== Username and Password
 
 .Sample – Successful login
 [source,bash]
@@ -309,7 +309,6 @@ SERVER IP ADDRESS: 127.0.0.1
 =============================================================
 >
 ----
-
 
 ===== STS Authentication
 
@@ -402,14 +401,14 @@ SAML ASSERTION WILL BE LOCATED HERE
 10:54:22,244 | INFO  | qtp995500086-618 | securityLogger                   | rity.common.audit.SecurityLogger  143 | 245 - security-core-commons - 2.2.0.ALPHA5-SNAPSHOT | Error requesting the security token from STS at: https://server:8993/services/SecurityTokenService.
 ----
 
-==== CAS SSO Configuration
+===== CAS SSO Configuration
 
 The Web Service Security (WSS) Implementation that comes with ${ddf-branding} was built to run independent of an SSO or authentication mechanism.
 Testing out the security functionality of ${branding} was performed by using the Central Authentication Server (CAS) software.
 This is a popular SSO appliance and allowed ${branding} to be tested using realistic use cases.
 This page contains configurations and settings that were used to help enable CAS to work within the ${branding} environment.
 
-===== General Server Setup and Configuration
+====== General Server Setup and Configuration
 
 [NOTE]
 ====
@@ -537,6 +536,7 @@ If this is not done correctly, CAS and/or ${branding} will throw certificate war
 ====
 
 ===== Configure CAS for ${branding}
+
 When configuring CAS to integrate with ${branding}, there are two main configurations that need to be modified.
 By default, ${branding} uses 'server' as the hostname for the local ${branding} instance and 'cas' as the hostname for the CAS server.
 
@@ -576,24 +576,24 @@ The following is a sample workflow hat shows how CAS integrates within the ${ddf
 
 From step 10 forward, the message is completely decoupled from CAS and will proceed through the framework properly using the SAML assertion that was created in step 8.
 
-==== Configuring CAS for LDAP
+===== Configuring CAS for LDAP
 
-===== Install and Configure LDAP
+====== Install and Configure LDAP
 
 ${ddf-branding} comes with an embedded LDAP instance that can be used for testing.
 During internal testing this LDAP was used extensively.
 
 More information on configuring the LDAP and a list of users and attributes can be found at the Embedded LDAP Configuration page.
 
-===== Add cas-server-support-ldap-3.3.1_1.jar to CAS
+====== Add cas-server-support-ldap-3.3.1_1.jar to CAS
 
 Copy `thirdparty/cas-server-support-ldap-3.3.1/target/cas-server-support-x509-3.3.1_1.jar` to `<OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/webapps/cas/WEB-INF/lib/cas-server-support-ldap-3.3.1_1.jar`.
 
-===== Add spring-ldap-1.2.1_1.jar to CAS
+====== Add spring-ldap-1.2.1_1.jar to CAS
 
 Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `<OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/webapps/cas/WEB-INF/lib/spring-ldap-1.2.1_1.jar`.
 
-===== Modify developerConfigContext.xml
+====== Modify developerConfigContext.xml
 
 . In `<OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the `FastBindLdapAuthenticationHandler` bean definition to the `<list>` in the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`:
 +
@@ -635,7 +635,7 @@ Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `<OZONE-WI
 </bean>
 ----
 
-===== Configure Ozone
+====== Configure Ozone
 
 Ozone is also set up to work in LDAP.
 This section is a reference when Ozone is being used in conjunction with CAS.
@@ -731,16 +731,16 @@ The following settings were used for internal testing and should only be used as
 </bean>
 ----
 
-==== Configuring CAS for X509 User Certificates
+===== Configuring CAS for X509 User Certificates
 
 The follow settings were tested with CAS version 3.3.1.
 If any issues occur while configuring for newer versions, check the External Links section at the bottom of this page for the CAS documentation, which explains setting up certification authentication.
 
-===== Add the `cas-server-support-x509-3.3.1.jar` to CAS
+====== Add the `cas-server-support-x509-3.3.1.jar` to CAS
 
 Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.3.1.jar` to `apache-tomcat-<VERSION>/webapps/cas/WEB-INF/lib/cas-server-support-x509-3.3.1.jar`.
 
-===== Configure Web Flow
+====== Configure Web Flow
 
 . In apache-tomcat-<VERSION>/webapps/cas/WEB-INF/login-workflow.xml, make the following modifications:
 .. Remove the XML comments around the action-state stanza with id `startAuthenticate`.
@@ -789,7 +789,7 @@ Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.
 </bean>
 ----
 
-===== Configure the Authentication Handler
+====== Configure the Authentication Handler
 
 In `apache-tomcat-<VERSION>/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
 
@@ -822,7 +822,7 @@ In `apache-tomcat-<VERSION>/webapps/cas/WEB-INF/deployerConfigContext.xml`, make
 </bean>
 ----
 
-===== Configure the Credentials to the Principal Resolver
+====== Configure the Credentials to the Principal Resolver
 
 In `apache-tomcat-<VERSION>/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
 
@@ -875,7 +875,7 @@ Different resolvers should be used depending on the use-case for the server.
 When performance external attribute lookup (e.g., attribute lookup via DIAS) it is necessary to have CAS return the full DN as the identifier and the class `X509CertificateCredentialsToDistinguishedNamePrincipalResolver` should be used.
 When using a local LDAP, however, the `X509CertificateCredentialsToIdentifierPrincipalResolver` class can be used to only return the username that maps directly to the LDAP username.
 
-===== Default Certificates
+====== Default Certificates
 
 To verify certificate authentication with the default CAS files you must make sure that the included testUser and testAdmin certificates are installed into your web browser.
 This has only been tested to work with Firefox.
@@ -886,7 +886,7 @@ These certificates were provided in the Ozone Widget Framework and can be used i
 * The sample certificate for testAdmin1 is <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/certs/testAdmin1.p12
 ** password: password
 
-===== External Links
+====== External Links
 
 For more information on CAS configuration options and what each setting means, refer to their https://wiki.jasig.org/display/CASUM/X.509+Certificates[documentation page].
 
@@ -1429,7 +1429,7 @@ Configuring a Java Keystore for Secure Communications
 Additional Pax-Web SSL configuration info: http://team.ops4j.org/wiki/display/paxweb/SSL+Configuration[SSL Configuration]
 ====
 
-==== Updating System Users
+===== Updating System Users
 
 By default, all system users are located in the `<DDF_INSTALL_DIR>/etc/users.properties` and `<DDF_INSTALL_DIR>/etc/users.attributes` files.
 The default users included in these two files are "admin" and "localhost".
@@ -1474,9 +1474,9 @@ If your data will contain security markings, and these markings are being parsed
 Failure to update the FQDN user with sufficient attributes will result in an error being returned for any ingest request.
 ====
 
-==== Encryption Service
+===== Encryption Service
 
-===== Encryption Command
+====== Encryption Command
 
 An encrypt security command is provided with ${branding} that allows plain text to be encrypted.
 This is useful when displaying password fields in a GUI.
@@ -1490,11 +1490,11 @@ ${branding-lowercase}${at-symbol}local>security:encrypt myPasswordToEncrypt
 ${branding-lowercase}${at-symbol}local>bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 ----
 
-==== Catalog Operation Authorization
+===== Catalog Operation Authorization
 
 All ${branding} Catalog operations can be restricted to users with certain attributes.
 
-===== Configuring Operation Authorization
+====== Configuring Operation Authorization
 
 . Open the ${admin-console} at \${secure_url}/admin
 . Click the ${ddf-catalog} application tile
@@ -1506,11 +1506,11 @@ Only users with the attributes listed on the *Catalog Policy Plugin* configurati
 By default, all operations only require a role of "guest" which every user has mixed into their attributes by way of the *Guest Claims Handler*.
 If the default Guest user role is changed to something other than "guest" this configuration will need to be updated to allow users to continue using ${branding} Catalog operations.
 
-==== Catalog Filtering
+===== Catalog Filtering
 
 Filtering is performed in an Access plugin, after a query or delete has been performed or before ingest has been performed.
 
-===== How Filtering Works
+====== How Filtering Works
 
 Each metacard result can contain security attributes that are pulled from the metadata record after being processed by a `PolicyPlugin` that populates this attribute.
 The security attribute is a Map containing a set of keys that map to lists of values.
@@ -1567,7 +1567,7 @@ Each of these user (or subject) claims will be converted to a `KeyValuePermissio
 These permission objects will be implied against the permission object generated from the metacard record.
 In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
 
-===== Filter Policies
+====== Filter Policies
 
 The procedure for setting up a policy differs depending on whether that policy is to be used internally or by the external XACML processing engine.
 Setting up an internal policy is as follows:
@@ -1590,7 +1590,7 @@ This is the directory in which the PDP will look for XACML policies every 60 sec
 A sample XACML policy is located at the end of this page.
 Information on specific bundle configurations and names can be found on the Security PDP application page.
 
-===== Catalog Filter Policy Plugins
+====== Catalog Filter Policy Plugins
 
 Several PolicyPlugins for catalog filtering exist currently: *Metacard Attribute Security Policy Plugin* and *XML Attribute Security Policy Plugin*.
 These PolicyPlugin implementations allow an administrator to easily add filtering capabilities to some standard Metacard types for all ${ddf-catalog} operations.
@@ -1613,7 +1613,7 @@ To configure these policy plugins:
 . Click the *Configuration* tab
 . Click on either the *Metacard Attribute Security Policy Plugin* or *XML Attribute Security Policy Plugin* configuration.
 
-===== Creating a XACML Policy
+====== Creating a XACML Policy
 
 This document assumes familiarity with the XACML schema and does not go into detail on the XACML language.
 When creating a policy, a target is used to indicate that a certain action should be run only for one type of request.
@@ -1735,6 +1735,7 @@ For a query, the user must be associated with the country code ATA (Antarctica),
 ====== Metacard Authorization
 
 ====== Subject Permitted
+
 All of the resource's `RESOURCE_ACCESS` attributes were matched with the Subject's `SUBJECT_ACCESS` attributes.
 
 .Request
@@ -1859,18 +1860,18 @@ The resource had an additional `RESOURCE_ACCESS` attribute 'C' that the subject 
 </Response>
 ----
 
-===== Using a XACML Policy
+====== Using a XACML Policy
 
 To use a XACML policy, do the following:
 
 * Copy the XACML policy into the `<INSTALL_DIRECTORY>/etc/pdp/policies` directory.
 
-==== Expansion Service
+===== Expansion Service
 
 The expansion service defines rulesets to map metacard attributes and user attributes to more complete sets of values.
 For example if a user has an attribute "alphabet" that contained the value "full", the expansion service can be configured to expand the "full" value out to ["a","b","c",...].
 
-===== Configuring Expansion Service
+====== Configuring Expansion Service
 
 To use the expansion service, modify the following two files within the `<INSTALLATION_HOME>/etc` directory:
 
@@ -1879,7 +1880,7 @@ To use the expansion service, modify the following two files within the `<INSTAL
 
 Within these files, the following configuration details will be defined.
 
-===== Expansion Service Instances and Configuration
+====== Expansion Service Instances and Configuration
 
 It is expected that multiple instances of the expansion service will be running at the same time.
 Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service.
@@ -2061,7 +2062,7 @@ The STS is installed by default in ${ddf-branding}.
 All of the authentication components should be running and configured at this point.
 The final step is to configure a ${branding} instance, so this authentication scheme is used.
 
-==== Configuring ${branding} Authentication Scheme
+===== Configuring ${branding} Authentication Scheme
 
 Once everything is configured and running, hooking up an existing ${ddf-branding} instance to the authentication scheme is performed by setting a few configuration properties:
 
@@ -2153,7 +2154,6 @@ To enable, sign into the ${admin-console}.
 . Select *${ddf-catalog}*
 . Select *Features* tab
 . Install both `catalog-security-logging` and `catalog-security-auditplugin` features.
-
 
 ==== Assuring Authenticity of Bundles and Applications
 

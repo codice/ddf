@@ -1,5 +1,5 @@
 
-=== Configuring ${branding}
+== Configuring ${branding}
 
 ${branding} can be configured in several ways, depending on need:
 
@@ -8,40 +8,40 @@ ${branding} can be configured in several ways, depending on need:
 While there are multiple ways to configure ${branding} for use, the recommended method is to use the ${admin-console}.
 ====
 
-* RECOMMENDED: Using the browser and the ${admin-console}. <<configuring_${branding-lowercase}_from_the_admin_console, Configuring ${branding} From the ${admin-console}>>
-* Using a terminal and the ${command-console}. <<configuring_${branding-lowercase}_from_the_command_console, Configuring ${branding} From the ${command-console}>>
-* Editing configuration files. <<configuring_${branding-lowercase}_from_configuration_files, Configuring ${branding} From Configuration Files>>
-* Importing the configurations from an existing ${branding} instance. <<importing_configurations, Importing Configurations>>
+* RECOMMENDED: Using the browser and the ${admin-console}. <<_configuring_${branding-lowercase}_from_the_admin_console, Configuring ${branding} From the ${admin-console}>>
+* Using a terminal and the ${command-console}. <<_configuring_${branding-lowercase}_from_the_command_console, Configuring ${branding} From the ${command-console}>>
+* Editing configuration files. <<_configuring_${branding-lowercase}_from_configuration_files, Configuring ${branding} From Configuration Files>>
+* Importing the configurations from an existing ${branding} instance. <<_importing_configurations, Importing Configurations>>
 
 ////
 ADMIN CONSOLE
 ////
 
-==== [[configuring_${branding-lowercase}_from_the_admin_console]]Configuring ${branding} From the ${admin-console}
+=== Configuring ${branding} From the ${admin-console}
 include::configuring-from-the-admin-console-contents.adoc[]
 
 ////
 COMMAND CONSOLE SECTION
 ////
 
-==== [[configuring_${branding-lowercase}_from_the_command_console]]Configuring ${branding} From the ${command-console}
+=== Configuring ${branding} From the ${command-console}
 include::configuring-from-the-command-console-contents.adoc[]
 
 ////
 CONFIGURATION FILES
 ////
 
-==== [[configuring_${branding-lowercase}_from_configuration_files]]Configuring ${branding} From Configuration Files
+=== Configuring ${branding} From Configuration Files
 include::configuring-from-configuration-files-contents.adoc[]
 
 ////
 IMPORTING / EXPORTING
 ////
 
-==== [[importing_configurations]]Importing Configurations
+=== Importing Configurations
 include::configuring-from-import-contents.adoc[]
 
-==== Managing Features
+=== Managing Features
 
 ${branding} includes many components, packaged as _features_, that can be installed and/or uninstalled without restarting the system.
 Features are collections of OSGi bundles, configuration data, and/or other features.
@@ -171,7 +171,7 @@ Assuming the ${branding} instance is providing these servcies, the configuration
 
 This can be changed during <<Initial Configuration>> or later by editing the `<INSTALL_HOME>/etc/system.properties` file. See <<Editing ${branding} Web Service Providers Configuration Files>>
 
-===== Creating and Installing Keys and Certificates
+==== Creating and Installing Keys and Certificates
 
 To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
 To use the scripts, run them out of the <INSTALL_HOME>/etc/certs directory. For *NIX, use the CertNew.sh script.
@@ -432,26 +432,13 @@ The maximum number of log events to store can be configured in the Admin Console
 
 ==== Managing Asynchronous Capabilities (Search & Retrieval)
 
-===== Installing the Asynchronous Capabilities Endpoint (CometD)
+The <<_cometd_endpoint,CometD endpoint>> enables asychronous search capabilties.
 
-The CometD endpoint enables asychronous search capabilties.
+==== Configuring the Product Cache
 
-It is installed by default with the Search UI application.
+All caching properties are part of the Catalog Framework Configuration.
 
-* The feature used is `search-ui`. To verify the following command may be used:
-
-`${branding-lowercase}${at-symbol}local>features:list | grep -i search-ui`
-
-* The bundle is the ${ddf-branding} SearchUI Endpoint
-
-----
-${ddf-branding} :: UI :: Search UI :: Endpoint
-----
-
-===== Configuring the Product Cache
-
-All caching properties are part of the Catalog Framework Configuration
-
+.Product Cache Configurable Properties
 [cols="1m,1,1,1,1" options="header"]
 |===
 |Property
@@ -504,7 +491,7 @@ It is recommended to enter an absolute directory path such as `/opt/productcache
 |Configure maximum directory size for product caching. Oldest product cached will be evicted when a new product pushes the size over the specified limit. Don't set this value to the available disk space because the cache will allow a new product to get cached and then check to see if the cache exceeds the maximum allowable size. A value of 0 disables the max limit.
 |===
 
-====== Invalidating the Product Cache
+===== Invalidating the Product Cache
 
 . The product cache directory can be administratively invalidated by turning off the product caching using the cacheEnabled property.
 . Alternatively, an administrator may manually invalidate products by removing them from the file system. Products are cached at the directory specified in the `productCacheDirectory` property. The following example assumes the

@@ -45,57 +45,8 @@ The following packages have been exported by the ${ddf-catalog} application and 
 * `org.codice.${ddf-branding-lowercase}.opensearch.query`
 * `org.codice.${ddf-branding-lowercase}.opensearch.query.filter`
 
-=== Catalog Architecture
 
-.Catalog Architecture
-[ditaa,catalog_architecture]
-....
 
-                /-=-----------------\
-                |      Clients      |
-                \-------------------/
-                          |
-                          v
-                /-------------------\
-                |cDEFEndpoints      |
-                +------------+------+
-                |cDEF        |cDEF  |
-                | Operations | Data |
-/---------------+------------+------+------------+---------\    +--------+
-|cDEF           |cDEF               |cDEF        |cDEF     |<-> |        |
-|  Transformers |                   | Federation | Sources |    |External|
-+---------------+ Catalog Framework +------------+---------+<-> |  Data  |
-|cDEF           |                   |cDEF   Eventing       |    |Holdings|
-|   Catalog     |                   +------------+---------+<-> |    {s} |
-|   Plugins     |                   |cDEF   Resources      |    +------=-+
-\---------------+-------------------+----------------------/
-                |cDEF               |
-                | Catalog Provider  |
-                \-------------------/
-                          ^
-                          |
-                          v                         Legend
-                  +---------------+                /---------------------\
-                  |{s}            |                |cDEF ${ddf-branding} Component   |
-                  |  Data Store   |                \---------------------/
-                  |               |                /---------------------\
-                  +------------=--+                | External Component  |
-                                                   \--------------------=/
-
-....
-
-=== Catalog Application Services
-
-As an OSGi system, ${branding} does Intra-module conversations via services. 
-The following summarizes ${branding} internal services within the Catalog application.
-
-==== Catalog Framework
-
-The `CatalogFramework` is the routing mechanism between catalog components that provides integration points for the Catalog Plugins.
-An endpoint invokes the active Catalog Framework, which calls any configured Pre-query or Pre-ingest plug-ins.
-The selected federation strategy calls the active Catalog Provider and any connected or federated sources.
-Then, any Post-query or Post-ingest plug-ins are invoked.
-Finally, the appropriate response is returned to the calling endpoint.
 
 ==== Sources
 

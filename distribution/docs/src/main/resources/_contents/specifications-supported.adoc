@@ -1,0 +1,57 @@
+.[[specifications_supported]]Specifications Supported
+[cols="2,1,3,1" options="header"]
+|===
+|Specification
+|Version
+|Usage
+|Implementation Status
+
+|https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-brokered-search[CDR IPT BrokeredSearch]
+|||
+
+|https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-search[CDR IPT OpenSearch]
+|||
+
+|http://www.iso.org/iso/catalogue_detail.htm?csnumber=32557[GMD specification]
+|
+|
+|
+
+|[OGC Filter Specification]
+|2.0
+|<<_working_with_filters, Filters>>
+|Partial
+
+|http://www.opengeospatial.org/standards/cat[OpenGIS® Catalogue Services Specification]
+|||
+
+|[OpenSearch]
+|||
+
+|[OpenSearch Geo]
+|||
+
+|[OSGi Framework]
+|
+|
+|
+
+|[OSGi Enterprise Specification]
+|
+|
+|
+
+|http://www.opengeospatial.org/standards/cat[CSW specification]
+|2.0.2
+||
+
+
+|[WFS OGC Specification]
+|1.0
+||
+
+|[WFS OGC Specification]
+|2.0
+||
+
+|===

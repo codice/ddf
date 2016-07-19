@@ -1,0 +1,26 @@
+==== IDP Endpoint
+
+{description}
+
+===== Installing IDP Endpoint
+
+The IDP Endpoint is installed by default with a standard installation in the {app-name} application.
+The IDP Endpoint is not installed by default with a standard installation in the {app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring IDP Endpoint
+
+* any applicable configurations
+
+===== Using IDP Endpoint
+
+.IDP Endpoint URL
+----
+${secure_url}/path/to/endpoint
+----
+
+====== Operations
+
+

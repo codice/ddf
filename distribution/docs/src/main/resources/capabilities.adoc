@@ -1,0 +1,8 @@
+= ${branding} Capabilities (draft)
+include::./_contents/config.adoc[]
+
+= Capabilities
+include::./_contents/capabilities-contents.adoc[]
+
+= Concepts
+include::./_contents/concepts-contents.adoc[]

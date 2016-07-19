@@ -1,13 +1,12 @@
 
 The Configuration Export/Import capability allows administrators to export the current ${branding} configuration and use it as a starting point for a new installation.
 
-
 [IMPORTANT]
 ====
 * Importing configuration files is only guaranteed to work when importing files from the same ${branding} version.
   Importing from a different version is not recommended as it may cause the new ${branding} instance to be incorrectly configured and become unusable.
 * All configurations editable in the Admin Console will be exported to `<${branding}_HOME>/etc/exported/etc`.
-* All other configuration files (system configurations) will be put under `etc/exported/<ID>` followed by their relative path from `${branding}_HOME`. 
+* All other configuration files (system configurations) will be put under `etc/exported/<ID>` followed by their relative path from `${branding}_HOME`.
   For instance, if a key store file was located under `<${branding}_HOME>/keystores/keystore.jks`, it will be exported to `<${branding}_HOME>/etc/exported/<ID>/keystore/keystore.jks`.
 * To keep the export/import process simple and consistent, all system configuration files are required to be under the `${branding}_HOME` directory.
 ====
@@ -36,14 +35,14 @@ cd  <${branding}_HOME>/etc/exported
 zip exportedFiles.zip *
 ----
 
-===== Troubleshooting Common Warnings or Failures
+==== Troubleshooting Common Warnings or Failures
 
-====== Insufficient Write Permissions
+===== Insufficient Write Permissions
 
 In the following case, the directory the user tried to export to had permissions set to read only.
 image:exporting_configuration_error.png[Exporting Error,${image.width}]
 
-====== Properties Set to Absolute File Paths
+===== Properties Set to Absolute File Paths
 
 In the following case, the user had a property set to an absolute file path.
 This is not allowed, and can be fixed by updating the property to a value that is relative to ${branding} home.

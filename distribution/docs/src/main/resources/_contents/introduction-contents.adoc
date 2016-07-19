@@ -8,7 +8,7 @@ ${ddf-branding} is:
 * built to "unzip and run" while having the ability to scale to large enterprise systems.
 * primarily focused on data integration, enabling clients to insert, query, and transform information from disparate data sources via the ${ddf-branding} Catalog.
 
-=== Applications
+== Applications
 
 ${branding} is comprised of several modular applications, to be installed or uninstalled as needed.
 

@@ -1,0 +1,23 @@
+==== Registry REST Endpoint
+
+{description}
+
+===== Installing Registry REST Endpoint
+
+The Registry REST Endpoint is installed by default with a standard installation in the ${ddf-registry} application.
+
+===== Configuring Registry REST Endpoint
+
+* any applicable configurations
+
+===== Using Registry REST Endpoint
+
+.Registry REST Endpoint URL
+----
+${secure_url}/path/to/endpoint
+----
+
+===== Registry REST Endpoint Known Issues
+
+None.
+

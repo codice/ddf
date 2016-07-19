@@ -1,0 +1,24 @@
+==== CometD Endpoint
+
+The CometD endpoint enables asychronous search capabilties.
+
+===== Installing CometD Endpoint
+
+The CometD Endpoint is installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring CometD Endpoint
+
+* any applicable configurations
+
+===== Using CometD Endpoint
+
+.{endpoint name} URL
+----
+${secure_url}/path/to/endpoint
+----
+
+{operations}
+
+===== CometD Endpoint Known Issues
+
+None.

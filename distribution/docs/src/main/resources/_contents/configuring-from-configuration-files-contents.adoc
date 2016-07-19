@@ -242,7 +242,7 @@ Only root can access ports < 1024 on Unix systems.
 For suggested ways to run ${branding} with ports < 1024 see <<How do I use port 80 as a non-root user?>>.
 ====
 
-===== Configuring ${branding} `.config` Files
+==== Configuring ${branding} `.config` Files
 
 The ${branding} is configured using `.config` files.
 Like the Karaf `.cfg` files, these configuration files must be located in the `<${ddf-branding}_HOME>/etc/` directory, have a name that matches the _configuration persistence ID_ (PID) they represent, and have a `service.pid` property set to the configuration PID.
@@ -272,7 +272,7 @@ Files that could not be processed are moved to the `<${branding}_HOME>/etc/faile
 ${branding} also monitors the `<${branding}_HOME>/etc` directory for any new `.config` file that gets added.
 As soon as a new file is detected, it is read, processed and moved to the appropriate directory based on whether it was successfully processed or not.
 
-===== Configuring Managed Service Factory Bundles
+==== Configuring Managed Service Factory Bundles
 
 Services that are created using a Managed Service Factory can be configured using `.config` files as well.
 The configuration files follow a different naming convention however.
@@ -286,7 +286,7 @@ Also, a new service will be created and configured every time a configuration fi
 These configuration files must also contain a `service.factoryPid` property set to the factory PID (without the sequential number).
 They should not however contain the `service.pid` property.
 
-====== File Format
+===== File Format
 
 The basic syntax of the `.config` configuration files is similar to the older `.cfg` files but introduces support for lists and types other than simple strings.
 The type associated with a property must match the `type` attribute used in the corresponding `metatype.xml` file when applicable.
@@ -364,7 +364,7 @@ requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identi
 whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
 ----
 
-====== Editing HTTP Ports for Multiple Local ${branding} Nodes
+===== Editing HTTP Ports for Multiple Local ${branding} Nodes
 
 Edit the port numbers in the files in the ${branding} install folder.
 
@@ -414,7 +414,7 @@ If the hostname is changed during the install to something other than `localhost
 When changing the hostname for testing or development purposes, the installer can be started with a `?dev=true` URL query parameter. This will cause the system to automatically generate self signed certificates for any hostname that is entered during the install process.
 ====
 
-===== Configuring Files in HOME Directory Hierarchy
+==== Configuring Files in HOME Directory Hierarchy
 
 [IMPORTANT]
 ====
@@ -454,6 +454,56 @@ org.codice.${ddf-branding-lowercase}.system.rootContext=/services
 https.cipherSuites=TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA
 https.protocols=TLSv1.1,TLSv1.2
 ----
+
+[NOTE]
+====
+Depending on the environment, it may be easier for integrators and administrators to configure ${branding} using the ${admin-console} prior to disabling it for hardening purposes.
+The ${admin-console} can be re-enabled for additional configuration changes.
+====
+
+In an environment hardened for security purposes, access to the ${ddf-branding} ${admin-console} might be denied.
+It is necessary to configure ${branding} (e.g., providers, Schematron rulesets, etc.) using `.config` files or the ${admin-console}.
+Configuration via the Karaf command line console is not supported and may result in configuration errors.
+The OSGi container detects the creation of `.config` files in the `etc/` directory.
+The following sections describe how to configure each ${branding} item using both of these mechanisms.
+A template file is provided for some configurable ${branding} items so that they can be copied/renamed then modified with the appropriate settings.
+
+[WARNING]
+====
+If at a later time the ${admin-console} is enabled again, all of the configuration done via `.config` files is loaded and displayed.
+However, note that the name of the `.config` file is not used in the ${admin-console}.
+Rather, OSGi assigns a universally unique identifier (UUID) when the ${branding} item was created and displays this UUID in the console (e.g., `OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b`)
+====
+
+Templates included with ${ddf-branding}:
+
+[cols="1,4,4,1" options="header"]
+|===
+
+|${ddf-branding} Service
+|Template File Name
+|Factory PID
+|Configurable Properties
+
+|${ddf-branding} Catalog Framework
+|`${ddf-branding-lowercase}.catalog.impl.service.CatalogFrameworkImpl.cfg`
+|`${ddf-branding-lowercase}.catalog.CatalogFrameworkImpl`
+|Standard Catalog Framework
+
+|===
+
+==== Configuring Using a `.cfg` File Template
+
+The following steps define the procedure for configuring a new source or feature using a `config` file.
+
+. Copy/rename the provided template file in the ``etc/templates` directory to the `etc` directory. (Refer to the table above to determine correct template.)
+.. *Mandatory*: The dash between the PID (e.g., `OpenSearchSource_site.cfg`) and the instance name (e.g., `OpenSearchSource_site.cfg`) is required. The dash is a reserved character used by OSGi that identifies instances of a managed service factory that should be created.
+.. Not required, but a good practice is to change the instance name (e.g., `federated_source`) of the file to something identifiable (`source1- ddf`).
+. Edit the copied file to etc with the settings for the configuration. (Refer to the table above to determine the configurable properties).
+.. This file is a Java properties file, hence the syntax is `<key>` = `<value>`.
+.. Consult the inline comments in the file for guidance on what to modify.
+
+The new service can now be used as if it was created using the ${admin-console}.
 
 ==== Configuring Notifications
 
@@ -518,14 +568,14 @@ This is used as a "type" or category of messages.
 
 |===
 
-====== Receive Notifications
+===== Receive Notifications
 
 * If interested in retrieve resource notifications, a client must subscribe to the CometD `channel/${ddf-branding-lowercase}/notification/catalog/downloads`.
 * If interested in all notification types, a client must subscribe to the CometD `channel/${ddf-branding-lowercase}/notification/**`
 * A client will only receive notifications for resources they have requested.
 * ${ddf-branding} Standard UI is subscribed to all notifications of interest to that `user/browser session: /${ddf-branding-lowercase}/notification/**`
 
-====== Publish Notifications
+===== Publish Notifications
 
 Any application running in ${branding} can publish notifications that can be viewed by the ${ddf-branding} Standard UI or received by another notifications client.
 . Set a properties map containing entries for each of the parameters listed above in the Usage section.
@@ -553,6 +603,7 @@ Event event = new Event("${ddf-branding-lowercase}/notification/catalog/download
 
 eventAdmin.postEvent(event);
 ----
+
 ==== Configuring Solr Catalog Provider Data Directory
 
 The Solr Catalog Provider writes index files to the file system.
@@ -568,7 +619,7 @@ In order to change the Data Directory, the `system.properties` file in `${brandi
 #solr.catalog.data.dir=/opt/solr/catalog/data
 ----
 
-===== Changing the Data Directory after ${branding} has ingested data
+==== Changing the Data Directory after ${branding} has ingested data
 
 . Shut down ${branding}.
 . Create the new directory to hold the indexes.
@@ -597,7 +648,7 @@ solr.catalog.data.dir=/path/to/new/data/dir
 +
 . Restart ${branding}.
 
-===== Configuring Thread Pools
+==== Configuring Thread Pools
 
 The `system.properties` file found under `${branding}_HOME/etc` contains properties that will be made available through system properties at the beginning of Karaf's boot process. The `org.codice.${ddf-branding-lowercase}.system.threadPoolSize` property can be used to specify the size of thread pools used by:
 * Federating requests between ${branding} systems

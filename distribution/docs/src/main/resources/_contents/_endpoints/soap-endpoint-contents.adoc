@@ -1,0 +1,29 @@
+==== SOAP Endpoint
+
+sample?
+
+===== Installing SOAP Endpoint
+
+The SOAP Endpoint is not installed by default with a standard installation.
+
+To Install:
+
+* Navigate to ${admin-console}.
+*
+
+===== Configuring SOAP Endpoint
+
+* any applicable configurations
+
+===== Using SOAP Endpoint
+
+.SOAP Endpoint URL
+----
+${secure_url}/path/to/endpoint
+----
+
+{operations}
+
+===== SOAP Endpoint Known Issues
+
+None.

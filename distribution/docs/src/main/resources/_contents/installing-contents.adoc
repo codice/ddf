@@ -1,18 +1,18 @@
 
-=== Installing ${branding}
+== Installing ${branding}
 
 [IMPORTANT]
 ====
 Although ${branding} can be installed by any user, it is recommended for security reasons to have a non-`root` user execute the ${branding} installation.
 ====
 
-==== Prerequisites
+=== Prerequisites
 
-===== Directory Permissions
+==== Directory Permissions
 
 Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.
 
-====== Directory Permissions on Windows
+===== Directory Permissions on Windows
 
 . Right-click on the file or directory noted below then select *Full Control → Administrators → System*.
 . Click *Properties → Security → Advanced* and select Creator Owner for `INSTALLATION_HOME` (e.g., `C:\ddf`).
@@ -78,7 +78,7 @@ For the change to take effect, a restart is required.
 init 6
 ----
 
-====== Directory Permissions on *NIX
+===== Directory Permissions on *NIX
 
 Protect the ${ddf-branding} from unauthorized access.
 
@@ -129,7 +129,7 @@ System administrators should perform the following steps when deploying bundles 
 . Do not assume the deployment is from a trusted source; verify its origination.
 . Use the source code to verify a deployment is required for ${branding} to prevent unnecessary/vulnerable deployments.
 
-==== Installing With the ${branding} Distribution Zip
+=== Installing With the ${branding} Distribution Zip
 
 * After the prerequisites have been met, as a root user if for *NIX, change the current directory to the desired install location.
 This will be referred to as `<INSTALL_DIRECTORY>`.
@@ -271,7 +271,7 @@ ${ddf-branding-lowercase}${at-symbol}local>app:tree
 
 ====
 
-===== Verifying Installation
+==== Verifying Installation
 
 At this point, ${branding} should be configured and running with a Solr Catalog Provider.
 New features (endpoints, services, and sites) can be added as needed.
@@ -299,7 +299,7 @@ Bundle fragments remain in the *Resolved* state and can never move to the *Activ
 215 | Resolved |  80 | ${project.version}     | DDF :: Platform :: Security :: Session, Hosts: 90
 ----
 
-===== ${branding} Directory Contents after Installation and Initial Startup
+==== ${branding} Directory Contents after Installation and Initial Startup
 
 During ${branding} installation, the major directories and files shown in the table below are created, modified, or replaced in the destination directory.
 
