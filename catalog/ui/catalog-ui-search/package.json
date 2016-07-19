@@ -12,7 +12,7 @@
     "postinstall": "bower install --offline",
     "start": "grunt start",
     "pretest": "webpack --config webpack/config/ci.js",
-    "test": "mocha-phantomjs ./target/test/index.html"
+    "test": "mocha-phantomjs --no-color ./target/test/index.html"
   },
   "repository": {
     "type": "git",
