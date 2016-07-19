@@ -24,9 +24,18 @@
     transform: translateX(0%);
   }
 
+  > .histogram-empty {
+    text-align: center;
+    display: none;
+  }
+
 }
 
 @{customElementNamespace}histogram.is-empty {
+
+  > .histogram-empty {
+    display: block;
+  }
 
   > .histogram-container,
   > .histogram-attribute {
