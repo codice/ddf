@@ -25,7 +25,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -81,13 +80,7 @@ public class AuthorizationFilter implements Filter {
 
             boolean permitted = true;
 
-            String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
-                    httpRequest.getContextPath() :
-                    httpRequest.getServletPath()
-                            + StringUtils.defaultString(httpRequest.getPathInfo());
-            if (StringUtils.isEmpty(path)) {
-                path = httpRequest.getRequestURI();
-            }
+            final String path = httpRequest.getRequestURI();
 
             ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
 

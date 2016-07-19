@@ -255,10 +255,6 @@ public class LoginFilter implements Filter {
         LOGGER.debug("Performing doFilter() on LoginFilter");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-        String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
-                httpRequest.getContextPath() :
-                httpRequest.getServletPath() + StringUtils.defaultString(httpRequest.getPathInfo());
-
         if (request.getAttribute(ContextPolicy.NO_AUTH_POLICY) != null) {
             LOGGER.debug("NO_AUTH_POLICY header was found, skipping login filter.");
             chain.doFilter(request, response);
