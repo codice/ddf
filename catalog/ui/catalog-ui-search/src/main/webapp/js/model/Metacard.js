@@ -19,7 +19,7 @@ define([
         'terraformer',
         'terraformer-wkt-parser',
         'backboneassociations',
-        'backbonepaginator'
+        'backbone.paginator'
     ],
     function (Backbone, _, wreqr, metacardDefinitions, Terraformer, TerraformerWKTParser) {
         "use strict";

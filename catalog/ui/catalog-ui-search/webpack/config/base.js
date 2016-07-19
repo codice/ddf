@@ -76,7 +76,6 @@ module.exports = {
             spectrum: 'spectrum/spectrum',
             // backbone
             backboneassociations: 'backbone-associations',
-            backbonepaginator: 'backbone.paginator/lib/backbone.paginator.min',
             backbonecometd: 'backbone-cometd/backbone.cometd.extension',
             backboneundo: 'Backbone.Undo.js/Backbone.Undo',
             poller: 'backbone-poller/backbone.poller',
