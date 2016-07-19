@@ -13,9 +13,8 @@
 define(['marionette',
         'cesium',
         'underscore',
-        'handlebars',
         'templates/clusteringMarker.handlebars'
-], function(Marionette, Cesium, _, Handlebars, clusteringMarker) {
+], function(Marionette, Cesium, _, clusteringMarker) {
 
     var DEFAULT_PIXEL_DISTANCE = 100;
 
@@ -201,7 +200,7 @@ define(['marionette',
             }
         },
         getSvgImage : function(value) {
-            var svg = Handlebars.compile(clusteringMarker)({
+            var svg = clusteringMarker({
               fill: value.color.toCssColorString(),
               count: value.points.length
             });

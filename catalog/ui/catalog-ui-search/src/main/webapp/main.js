@@ -20,7 +20,7 @@ require([
     'marionette',
     'application',
     'properties',
-    'handlebars',
+    'handlebars/dist/handlebars',
     './component/announcement',
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
