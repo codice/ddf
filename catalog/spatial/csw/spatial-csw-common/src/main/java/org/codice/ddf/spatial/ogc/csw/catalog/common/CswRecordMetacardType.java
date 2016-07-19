@@ -15,9 +15,11 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -392,7 +394,7 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
     }
 
     public CswRecordMetacardType() {
-        super(CSW_METACARD_TYPE_NAME, null);
+        super(CSW_METACARD_TYPE_NAME, (Set<AttributeDescriptor>) null);
 
         addDdfMetacardAttributes();
         addCswBriefRecordAttributes();
@@ -401,7 +403,7 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
     }
 
     public CswRecordMetacardType(String sourceId) {
-        super(sourceId + "." + CSW_METACARD_TYPE_NAME, null);
+        super(sourceId + "." + CSW_METACARD_TYPE_NAME, (Set<AttributeDescriptor>) null);
 
         addDdfMetacardAttributes();
         addCswBriefRecordAttributes();

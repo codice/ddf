@@ -18,9 +18,11 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -59,7 +61,8 @@ public class TestMetacardTypeAdapter {
 
     @Test
     public void testUnmarshalWithDdfMetacardTypeName() throws CatalogTransformerException {
-        MetacardType unknownMetacardType = new MetacardTypeImpl(KNOWN_TYPE_NAME, null);
+        MetacardType unknownMetacardType = new MetacardTypeImpl(KNOWN_TYPE_NAME,
+                (Set<AttributeDescriptor>) null);
         List<MetacardType> metacardTypes = new ArrayList<MetacardType>(1);
         metacardTypes.add(unknownMetacardType);
         MetacardTypeAdapter metacardTypeAdpater = new MetacardTypeAdapter(metacardTypes);
@@ -69,7 +72,8 @@ public class TestMetacardTypeAdapter {
 
     @Test
     public void testUnmarshalWithUnknownTypeName() throws CatalogTransformerException {
-        MetacardType unknownMetacardType = new MetacardTypeImpl(KNOWN_TYPE_NAME, null);
+        MetacardType unknownMetacardType = new MetacardTypeImpl(KNOWN_TYPE_NAME,
+                (Set<AttributeDescriptor>) null);
         List<MetacardType> metacardTypes = new ArrayList<MetacardType>(1);
         metacardTypes.add(unknownMetacardType);
         MetacardTypeAdapter metacardTypeAdpater = new MetacardTypeAdapter(metacardTypes);
@@ -94,7 +98,8 @@ public class TestMetacardTypeAdapter {
 
     @Test
     public void testUnmarshalWithKnownMetacardType() throws CatalogTransformerException {
-        MetacardType knownMetacardType = new MetacardTypeImpl(KNOWN_TYPE_NAME, null);
+        MetacardType knownMetacardType = new MetacardTypeImpl(KNOWN_TYPE_NAME,
+                (Set<AttributeDescriptor>) null);
         List<MetacardType> metacardTypes = new ArrayList<MetacardType>(1);
         metacardTypes.add(knownMetacardType);
         MetacardTypeAdapter metacardTypeAdpater = new MetacardTypeAdapter(metacardTypes);

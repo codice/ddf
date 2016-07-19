@@ -289,7 +289,7 @@
                         <Private-Package>
                             ddf.catalog.cache.impl,
                             ddf.catalog.cache.solr.impl,
-                            ddf.catalog.data.impl,
+                            ddf.catalog.data.impl.*,
                             ddf.catalog.event.retrievestatus,
                             ddf.catalog.federation.base,
                             ddf.catalog.filter.impl,

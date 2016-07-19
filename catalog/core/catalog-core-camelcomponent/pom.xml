@@ -110,7 +110,7 @@
                             platform-util
                         </Embed-Dependency>
                         <Private-Package>
-                            ddf.catalog.data.impl,
+                            ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl,
                             ddf.camel.component.catalog.converter,

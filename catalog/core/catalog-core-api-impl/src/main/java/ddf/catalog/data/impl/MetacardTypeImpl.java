@@ -19,8 +19,10 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -28,6 +30,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.types.CoreAttributes;
 
 /**
  * Default implementation of the {@link MetacardType}, used by {@link BasicTypes} to create the
@@ -105,6 +108,35 @@ public class MetacardTypeImpl implements MetacardType {
         this.name = name;
         descriptors.addAll(metacardType.getAttributeDescriptors());
         descriptors.addAll(additionalDescriptors);
+    }
+
+    /**
+     * Creates a {@code MetacardTypeImpl} with the provided {@code name} and
+     * {@link MetacardType}s.
+     *
+     * @param name          the name of this {@code MetacardTypeImpl}
+     * @param metacardTypes the set of {@link MetacardType}s to compose this {@code MetacardTypeImpl}
+     */
+    public MetacardTypeImpl(String name, List<MetacardType> metacardTypes) {
+        this.name = name;
+        List<String> attributeNames = new ArrayList<>();
+        addAttributeDescriptors(attributeNames, new CoreAttributes().getAttributeDescriptors());
+
+        if (metacardTypes != null) {
+            metacardTypes.forEach(metacardType -> addAttributeDescriptors(attributeNames,
+                    metacardType.getAttributeDescriptors()));
+        }
+    }
+
+    private List<String> addAttributeDescriptors(List<String> attributeNames,
+            Set<AttributeDescriptor> attributeDescriptors) {
+        attributeDescriptors.forEach(attributeDescriptor -> {
+            if (!attributeNames.contains(attributeDescriptor.getName())) {
+                descriptors.add(attributeDescriptor);
+                attributeNames.add(attributeDescriptor.getName());
+            }
+        });
+        return attributeNames;
     }
 
     @Override

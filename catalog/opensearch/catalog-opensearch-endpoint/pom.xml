@@ -151,7 +151,7 @@
                             org.objectweb.asm.tree,
                             org.objectweb.asm.tree.analysis,
                             org.objectweb.asm.util,
-                            ddf.catalog.data.impl,
+                            ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl,
                             ddf.catalog.endpoint.impl

@@ -104,7 +104,7 @@
                         <Private-Package>
                             ddf.catalog.transformer.xml,
                             ddf.catalog.transformer.xml.adapter,
-                            ddf.catalog.data.impl,
+                            ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl
                         </Private-Package>

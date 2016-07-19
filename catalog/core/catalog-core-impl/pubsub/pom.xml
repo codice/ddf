@@ -117,7 +117,7 @@
                             ddf.catalog.pubsub.criteria.*,
                             ddf.catalog.pubsub.predicate,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.data.impl,
+                            ddf.catalog.data.impl.*,
                             ddf.catalog.util.impl,
                             org.codice.ddf.platform.util
                         </Private-Package>

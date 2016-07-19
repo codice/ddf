@@ -95,7 +95,7 @@
                         <!-- Package uses conflict if we do not embed this -->
                         <Private-Package>
                             ddf.catalog.source.solr;version="${project.version}",
-                            ddf.catalog.data.impl,
+                            ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl
                         </Private-Package>

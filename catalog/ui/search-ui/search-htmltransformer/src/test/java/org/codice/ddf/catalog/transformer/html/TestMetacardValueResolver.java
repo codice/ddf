@@ -15,12 +15,15 @@ package org.codice.ddf.catalog.transformer.html;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Set;
+
 import javax.xml.bind.DatatypeConverter;
 
 import org.junit.Test;
 
 import com.github.jknack.handlebars.ValueResolver;
 
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -67,7 +70,7 @@ public class TestMetacardValueResolver {
     public void testResolveType() {
         MetacardImpl mc = new MetacardImpl();
         String expected = "feature";
-        MetacardType expectedType = new MetacardTypeImpl(expected, null);
+        MetacardType expectedType = new MetacardTypeImpl(expected, (Set<AttributeDescriptor>) null);
         mc.setType(expectedType);
 
         MetacardValueResolver mvr = new MetacardValueResolver();

@@ -107,7 +107,7 @@
                         <Private-Package>
                             ddf.catalog.resource.impl,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.data.impl,
+                            ddf.catalog.data.impl.*,
                             ddf.catalog.util.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
