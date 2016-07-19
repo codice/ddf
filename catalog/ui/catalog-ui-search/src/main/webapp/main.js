@@ -11,7 +11,7 @@
  **/
 /*global require, window */
 /*jslint nomen:false, -W064 */
-window.CESIUM_BASE_URL = './lib/cesiumjs/Cesium/';
+window.CESIUM_BASE_URL = './cesium/';
 
 require([
     'underscore',

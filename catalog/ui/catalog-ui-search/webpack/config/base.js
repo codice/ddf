@@ -1,8 +1,9 @@
-var path = require('path')
+var path = require('path');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 var resolve = function (place) {
   return path.resolve(__dirname, '../../', place)
-}
+};
 
 module.exports = {
     devtool: 'source-map',
@@ -14,6 +15,15 @@ module.exports = {
         path: resolve('./target/webapp'),
         filename: 'bundle.js'
     },
+    plugins: [
+        new CopyWebpackPlugin([
+            {
+                from: resolve('node_modules/cesium/Build/Cesium'),
+                to: resolve('target/webapp/cesium'),
+                force: true
+            }
+        ])
+    ],
     module: {
         loaders: [
             {
@@ -101,8 +111,8 @@ module.exports = {
             // pnotify
             pnotify: 'pnotify/jquery.pnotify.min',
             // map
-            cesium$: 'cesiumjs/Cesium/Cesium.js',
-            'cesium.css': 'cesiumjs/Cesium/Widgets/widgets.css',
+            cesium$: 'cesium/Build/Cesium/Cesium.js',
+            'cesium.css': 'cesium/Build/Cesium/Widgets/widgets.css',
             drawHelper: 'cesium-drawhelper/DrawHelper',
             usngs: 'usng.js/usng',
             wellknown: 'wellknown/wellknown'
