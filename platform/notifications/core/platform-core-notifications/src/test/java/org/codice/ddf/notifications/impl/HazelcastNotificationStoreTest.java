@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -47,6 +48,11 @@ public class HazelcastNotificationStoreTest {
     private static final String TEST_PATH = "/src/main/resources/";
 
     private static final String PERSISTENT_CACHE_NAME = "persistentNotifications";
+
+    @BeforeClass
+    public static void beforeTests() {
+        System.setProperty("ddf.home", System.getProperty("java.io.tmpdir"));
+    }
 
     @Test
     public void testCreateCacheWithXmlConfigFile() throws Exception {

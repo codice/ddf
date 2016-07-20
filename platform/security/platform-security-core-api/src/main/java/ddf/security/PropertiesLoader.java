@@ -143,8 +143,8 @@ public final class PropertiesLoader {
                 }
                 properties = new Properties();
 
-                try (InputStreamReader reader = new InputStreamReader(new FileInputStream(
-                        propertiesFile), StandardCharsets.UTF_8)) {
+                try (InputStreamReader reader = new InputStreamReader(new FileInputStream(propFile),
+                        StandardCharsets.UTF_8)) {
                     properties.load(reader);
                 } catch (FileNotFoundException e) {
                     error = true;

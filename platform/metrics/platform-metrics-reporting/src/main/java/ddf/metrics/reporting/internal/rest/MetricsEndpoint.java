@@ -48,6 +48,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.joda.time.format.DateTimeFormatter;
@@ -72,7 +73,7 @@ import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
  */
 @Path("/")
 public class MetricsEndpoint {
-    public static final String DEFAULT_METRICS_DIR = "data/metrics/";
+    public static final String DEFAULT_METRICS_DIR = new AbsolutePathResolver("data/metrics/").getPath();
 
     static final Map<String, Long> TIME_RANGES = new HashMap<String, Long>();
 

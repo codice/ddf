@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,7 @@ public class FileSystemPersistenceProvider
      * @return the path to root directory where serialized objects will be persisted
      */
     String getPersistencePath() {
-        return "data/";
+        return new AbsolutePathResolver("data/").getPath();
     }
 
     /**

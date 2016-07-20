@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class FileSystemPersistenceProvider
 
     private static final String SER_REGEX = "\\.ser";
 
-    private static final String PERSISTENCE_PATH = "data/";
+    private static final String PERSISTENCE_PATH = new AbsolutePathResolver("data/").getPath();
 
     private String mapName = "default";
 

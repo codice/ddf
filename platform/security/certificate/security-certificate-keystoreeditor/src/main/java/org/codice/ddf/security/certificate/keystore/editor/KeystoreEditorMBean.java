@@ -13,16 +13,8 @@
  **/
 package org.codice.ddf.security.certificate.keystore.editor;
 
-import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Map;
-
-import org.bouncycastle.cms.CMSException;
 
 public interface KeystoreEditorMBean {
 
@@ -32,15 +24,11 @@ public interface KeystoreEditorMBean {
 
     void addPrivateKey(String alias, String keyPassword, String storePassword, String data,
             String type, String fileName)
-            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
-            KeyStoreException, IOException, NoSuchProviderException, CMSException,
-            KeystoreEditor.KeystoreEditorException;
+            throws KeystoreEditor.KeystoreEditorException;
 
     void addTrustedCertificate(String alias, String keyPassword, String storePassword, String data,
             String type, String fileName)
-            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
-            KeyStoreException, IOException, NoSuchProviderException, CMSException,
-            KeystoreEditor.KeystoreEditorException;
+            throws KeystoreEditor.KeystoreEditorException;
 
     /**
      * Replaces the system stores (keystore and truststore) with the passed in stores. All entries
@@ -57,21 +45,12 @@ public interface KeystoreEditorMBean {
      * @param truststoreFileName truststore filename
      * @return Returns a list containing any error messages. If call was successfull this will be an
      * empty list.
-     * @throws CertificateException
-     * @throws UnrecoverableKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws KeyStoreException
-     * @throws IOException
-     * @throws NoSuchProviderException
-     * @throws CMSException
      * @throws KeystoreEditor.KeystoreEditorException
      */
     List<String> replaceSystemStores(String fqdn, String keyPassword, String keystorePassword,
             String keystoreData, String keystoreFileName, String truststorePassword,
             String truststoreData, String truststoreFileName)
-            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
-            KeyStoreException, IOException, NoSuchProviderException, CMSException,
-            KeystoreEditor.KeystoreEditorException;
+            throws KeystoreEditor.KeystoreEditorException;
 
     void deletePrivateKey(String alias);
 

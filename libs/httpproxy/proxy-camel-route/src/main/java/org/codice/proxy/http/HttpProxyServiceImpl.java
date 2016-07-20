@@ -24,6 +24,7 @@ import org.apache.camel.component.servlet.ServletComponent;
 import org.apache.commons.httpclient.contrib.ssl.AuthSSLProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,8 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     public static final String GENERIC_ENDPOINT_NAME = "endpoint";
 
-    public static final String TRUSTSTORE_VALUE_DEFAULT = "etc/keystores/serverTruststore.jks";
+    public static final String TRUSTSTORE_VALUE_DEFAULT = new AbsolutePathResolver(
+            "etc/keystores/serverTruststore.jks").getPath();
 
     public static final String TRUSTSTORE_PASSWORD_VALUE = "changeit";
 

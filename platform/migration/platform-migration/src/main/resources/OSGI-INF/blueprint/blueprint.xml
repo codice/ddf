@@ -57,13 +57,13 @@
     <!-- Processed Directory Path ${ddf.home}/etc/processed -->
     <bean id="processedDirectoryPath" class="java.nio.file.Path" factory-ref="ddfHome"
           factory-method="resolve">
-        <argument value="etc/processed"/>
+        <argument value="${ddf.home}/etc/processed"/>
     </bean>
 
     <!-- Failed Directory Path ${ddf.home}/etc/failed -->
     <bean id="failedDirectoryPath" class="java.nio.file.Path" factory-ref="ddfHome"
           factory-method="resolve">
-        <argument value="etc/failed"/>
+        <argument value="${ddf.home}/etc/failed"/>
     </bean>
 
     <bean id="configurationFileFactory"
