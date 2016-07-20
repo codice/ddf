@@ -173,7 +173,7 @@ class PdfInputTransformerSpecTest extends Specification {
                 [new AttributeDescriptorImpl('attr1', false, false, false, false, BasicTypes.OBJECT_TYPE),
                  new AttributeDescriptorImpl('attr2', false, false, false, false, BasicTypes.OBJECT_TYPE)]
 
-        metacard.metacardType.name != BasicTypes.BASIC_METACARD.name
+        metacard.metacardType.name == BasicTypes.BASIC_METACARD.name
         def attrNames = metacard.metacardType.attributeDescriptors*.name
         attrNames.containsAll(['attr1', 'attr2'])
     }

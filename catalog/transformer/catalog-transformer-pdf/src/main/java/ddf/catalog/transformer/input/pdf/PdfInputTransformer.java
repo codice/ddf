@@ -174,16 +174,7 @@ public class PdfInputTransformer implements InputTransformer {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
 
-            // TODO RAP 14 Jun 16: Might need to add service method to extract
-            // name/id type info from the extractor. Those would then be
-            // concatted together to form a name for the metacardtype.
-            String typeName = contentMetadataExtractors.values()
-                    .stream()
-                    .map(v -> v.getClass()
-                            .getName())
-                    .collect(Collectors.joining("_"));
-
-            metacard = new MetacardImpl(new MetacardTypeImpl(typeName,
+            metacard = new MetacardImpl(new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
                     Sets.union(BasicTypes.BASIC_METACARD.getAttributeDescriptors(), attributes)));
             for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
                 contentMetadataExtractor.process(contentInput, metacard);
@@ -269,8 +260,11 @@ public class PdfInputTransformer implements InputTransformer {
 
     private void addXmlElement(String name, String value, StringBuilder metadata) {
         if (StringUtils.isNotBlank(value)) {
-            metadata.append(String.format("<%s>%s</%s>", name, HtmlEscapers.htmlEscaper()
-                    .escape(value), name));
+            metadata.append(String.format("<%s>%s</%s>",
+                    name,
+                    HtmlEscapers.htmlEscaper()
+                            .escape(value),
+                    name));
         }
     }
 
@@ -297,7 +291,8 @@ public class PdfInputTransformer implements InputTransformer {
         int scaledHeight = (int) (image.getHeight() * scalingFactor);
         int scaledWidth = (int) (image.getWidth() * scalingFactor);
 
-        BufferedImage scaledImage = new BufferedImage(scaledWidth, scaledHeight,
+        BufferedImage scaledImage = new BufferedImage(scaledWidth,
+                scaledHeight,
                 BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = scaledImage.createGraphics();
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
@@ -306,7 +301,10 @@ public class PdfInputTransformer implements InputTransformer {
         graphics.dispose();
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ImageIOUtil.writeImage(scaledImage, FORMAT_NAME, outputStream, RESOLUTION_DPI,
+            ImageIOUtil.writeImage(scaledImage,
+                    FORMAT_NAME,
+                    outputStream,
+                    RESOLUTION_DPI,
                     IMAGE_QUALITY);
             return outputStream.toByteArray();
         }
