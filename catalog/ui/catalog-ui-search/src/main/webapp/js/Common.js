@@ -17,7 +17,6 @@ define([
     'js/requestAnimationFramePolyfill'
 ], function ($, moment) {
 
-
     return {
         generateUUID: function(){
             var d = new Date().getTime();

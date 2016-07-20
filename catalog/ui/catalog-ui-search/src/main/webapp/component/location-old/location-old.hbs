@@ -12,20 +12,24 @@
  **/
  --}}
 <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+    <label id="locationLine" class="btn location {{#if line}}active{{/if}}" data-target="#lineTab{{cid}}" data-toggle="tab">
+        <input type="radio" name="lineButton">
+        <i class="fa fa-circle"></i>
+        <i class="fa fa-circle-o"></i>
+        Line
+    </label>
     <label id="locationPolygon" class="btn location {{#if polygon}}active{{/if}}" data-target="#polygonTab{{cid}}" data-toggle="tab">
         <input type="radio" name="polygonButton">
         <i class="fa fa-circle"></i>
         <i class="fa fa-circle-o"></i>
         Polygon
     </label>
-    {{#unless is2D}}
-        <label id="locationPoint" class="btn location {{#if radius}}active{{/if}}" data-target="#pointradius{{cid}}" data-toggle="tab">
-            <input type="radio" name="pointRadiusButton">
-            <i class="fa fa-circle"></i>
-            <i class="fa fa-circle-o"></i>
-            Point-Radius
-        </label>
-    {{/unless}}
+    <label id="locationPoint" class="btn location {{#if radius}}active{{/if}}" data-target="#pointradius{{cid}}" data-toggle="tab">
+        <input type="radio" name="pointRadiusButton">
+        <i class="fa fa-circle"></i>
+        <i class="fa fa-circle-o"></i>
+        Point-Radius
+    </label>
 
     <label id="locationBbox" class="btn location {{#if bbox}}active{{/if}}" data-target="#boundingbox{{cid}}" data-toggle="tab">
         <input type="radio" name="bboxButton">
@@ -35,7 +39,7 @@
     </label>
 </div>
 <div class="tab-content form-group clearfix">
-    <div id="nogeo" class="tab-pane {{#ifNotOr radius bbox polygon}}active{{/ifNotOr}}"></div>
+    <div id="nogeo" class="tab-pane {{#ifNotOr line radius bbox polygon}}active{{/ifNotOr}}"></div>
     <div class="geo-types col-lg-10">
         <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
             <label id="latlon" class="btn {{#is locationType 'latlon'}}active{{/is}}">
@@ -52,6 +56,33 @@
             </label>
         </div>
     </div>
+
+    <div id="lineTab{{cid}}" class="tab-pane {{#if line}}active{{/if}}">
+        <input type="hidden" name="line" value="">
+        <input type="hidden" name="lineWidth" value="">
+
+        <div class="col-lg-10">
+            <div id="linediv" class="input-group input-group-sm">
+                <span class="input-group-addon">Line&nbsp;</span>
+                <input class="form-control" id="line" name="line" type="text" placeholder=""/>
+            </div>
+
+            <div class="input-group input-group-sm for-line">
+                <span class="input-group-addon">Width&nbsp;</span>
+                <input class="form-control" id="lineWidthValue" type="number" min="0" step="any" placeholder=""/>
+                            <span class="input-group-btn">
+                                <select id="lineUnits" name="lineUnits" class="input-group-addon">
+                                    <option value="meters" selected="selected">meters</option>
+                                    <option value="kilometers">kilometers</option>
+                                    <option value="feet">feet</option>
+                                    <option value="yards">yards</option>
+                                    <option value="miles">miles</option>
+                                </select>
+                            </span>
+            </div>
+        </div>
+    </div>
+
     <div id="pointradius{{cid}}" class="tab-pane {{#if radius}}active{{/if}}">
         <input type="hidden" name="radius" value="">
 

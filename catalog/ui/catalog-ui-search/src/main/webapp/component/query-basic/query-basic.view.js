@@ -26,89 +26,16 @@ define([
     'component/property/property',
     'js/cql',
     'component/singletons/metacard-definitions',
-    'component/singletons/sources-instance'
+    'component/singletons/sources-instance',
+    'js/CQLUtils'
 ], function (Marionette, _, $, template, CustomElements, store, DropdownModel,
-             QuerySrcView, PropertyView, Property, cql, metacardDefinitions, sources) {
-
-    function sanitizeForCql(text){
-        return text.split('[').join('(').split(']').join(')').split("'").join('').split('"').join('');
-    }
-
-    function bboxToCQLPolygon(model){
-        return [
-            model.west + ' ' + model.south,
-            model.west + ' ' + model.north,
-            model.east + ' ' + model.north,
-            model.east + ' ' + model.south,
-            model.west + ' ' + model.south
-        ];
-    }
-
-    function polygonToCQLPolygon(model){
-        var cqlPolygon = model.map(function(point){
-            return point[0] + ' ' + point[1];
-        });
-        cqlPolygon.push(cqlPolygon[0]);
-        return cqlPolygon;
-    }
-
-    function generateAnyGeoFilter(property, model){
-        switch(model.type){
-            case 'POLYGON':
-                return {
-                    type: 'INTERSECTS',
-                    property: property,
-                    value: 'POLYGON('+sanitizeForCql(JSON.stringify(polygonToCQLPolygon(model.polygon)))+')'
-                };
-                break;
-            case 'BBOX':
-                return {
-                    type: 'INTERSECTS',
-                    property: property,
-                    value: 'POLYGON('+sanitizeForCql(JSON.stringify(bboxToCQLPolygon(model)))+')'
-                };
-                break;
-            case 'POINTRADIUS':
-                return {
-                    type: 'DWITHIN',
-                    property: property,
-                    value: 'POINT(' + model.lon + ' ' + model.lat + ')',
-                    distance: Number(model.radius)
-                };
-                break;
-        }
-    }
-
-    function generateFilter(type, property, value) {
-        switch (metacardDefinitions.metacardTypes[property].type) {
-            case 'LOCATION':
-            case 'GEOMETRY':
-                return generateAnyGeoFilter(property, value);
-                break;
-            default:
-                return {
-                    type: type,
-                    property: '"' + property + '"',
-                    value: value
-                };
-                break;
-        }
-    }
-
-    //we should probably regex this or find a better way, but for now this works
-    function sanitizeGeometryCql(cqlString){
-        return cqlString.split("'POLYGON((").join("POLYGON((").split("))'").join("))")
-            .split("'POINT(").join("POINT(").split(")'").join(")");
-    }
-
-    function getProperty(filter){
-        return filter.property.split('"').join('');
-    }
+             QuerySrcView, PropertyView, Property, cql, metacardDefinitions, sources,
+            CQLUtils) {
 
     function isTypeLimiter(filter){
         var typesFound = {};
         filter.filters.forEach(function(subfilter){
-            typesFound[getProperty(subfilter)] = true;
+            typesFound[CQLUtils.getProperty(subfilter)] = true;
         });
         typesFound = Object.keys(typesFound);
         return typesFound.length === 1 && (typesFound[0] === 'metadata-content-type');
@@ -120,7 +47,7 @@ define([
         if (filter.filters.length === 3){
             filter.filters.forEach(function(subfilter){
                 typesFound[subfilter.type] = true;
-                var indexOfType = propertiesToCheck.indexOf(getProperty(subfilter));
+                var indexOfType = propertiesToCheck.indexOf(CQLUtils.getProperty(subfilter));
                 if (indexOfType >= 0){
                     propertiesToCheck.splice(indexOfType, 1);
                 }
@@ -135,11 +62,11 @@ define([
         if (filter.filters){
             filter.filters.forEach(function(filter){
                if (!filter.filters){
-                   propertyValueMap[getProperty(filter)] = propertyValueMap[getProperty(filter)] || [];
-                   if (propertyValueMap[getProperty(filter)].filter(function(existingFilter){
+                   propertyValueMap[CQLUtils.getProperty(filter)] = propertyValueMap[CQLUtils.getProperty(filter)] || [];
+                   if (propertyValueMap[CQLUtils.getProperty(filter)].filter(function(existingFilter){
                            return existingFilter.type === filter.type;
                        }).length === 0) {
-                       propertyValueMap[getProperty(filter)].push(filter);
+                       propertyValueMap[CQLUtils.getProperty(filter)].push(filter);
                    }
                } else if (isAnyDate(filter)) {
                    propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || [];
@@ -149,15 +76,15 @@ define([
                        propertyValueMap['anyDate'].push(filter.filters[0]);
                    }
                } else if (isTypeLimiter(filter)){
-                   propertyValueMap[getProperty(filter.filters[0])] = propertyValueMap[getProperty(filter.filters[0])] || [];
+                   propertyValueMap[CQLUtils.getProperty(filter.filters[0])] = propertyValueMap[CQLUtils.getProperty(filter.filters[0])] || [];
                    filter.filters.forEach(function(subfilter){
-                       propertyValueMap[getProperty(filter.filters[0])].push(subfilter);
+                       propertyValueMap[CQLUtils.getProperty(filter.filters[0])].push(subfilter);
                    });
                }
             });
         } else {
-            propertyValueMap[getProperty(filter)] = propertyValueMap[getProperty(filter)] || [];
-            propertyValueMap[getProperty(filter)].push(filter);
+            propertyValueMap[CQLUtils.getProperty(filter)] = propertyValueMap[CQLUtils.getProperty(filter)] || [];
+            propertyValueMap[CQLUtils.getProperty(filter)].push(filter);
         }
         return propertyValueMap;
     }
@@ -528,7 +455,7 @@ define([
             });
 
             var filter = this.constructFilter();
-            var generatedCQL = sanitizeGeometryCql("(" + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ")");
+            var generatedCQL = CQLUtils.transformFilterToCQL(filter);
             this.model.set({
                 cql: generatedCQL
             });
@@ -540,7 +467,7 @@ define([
             var text = this.basicText.currentView.getCurrentValue()[0];
             text = text === "" ? '%' : text;
             var matchCase = this.basicTextMatch.currentView.getCurrentValue()[0];
-            filters.push(generateFilter(matchCase, 'anyText', text));
+            filters.push(CQLUtils.generateFilter(matchCase, 'anyText', text));
 
             var timeRange = this.basicTime.currentView.getCurrentValue()[0];
             var timeBefore, timeAfter;
@@ -560,9 +487,9 @@ define([
                 var timeFilter = {
                     type: 'OR',
                     filters: [
-                        generateFilter('BEFORE', 'created', timeBefore),
-                        generateFilter('BEFORE', 'modified', timeBefore),
-                        generateFilter('BEFORE', 'effective', timeBefore)
+                        CQLUtils.generateFilter('BEFORE', 'created', timeBefore),
+                        CQLUtils.generateFilter('BEFORE', 'modified', timeBefore),
+                        CQLUtils.generateFilter('BEFORE', 'effective', timeBefore)
                     ]
                 };
                 filters.push(timeFilter);
@@ -571,9 +498,9 @@ define([
                 var timeFilter = {
                     type: 'OR',
                     filters: [
-                        generateFilter('AFTER', 'created', timeAfter),
-                        generateFilter('AFTER', 'modified', timeAfter),
-                        generateFilter('AFTER', 'effective', timeAfter)
+                        CQLUtils.generateFilter('AFTER', 'created', timeAfter),
+                        CQLUtils.generateFilter('AFTER', 'modified', timeAfter),
+                        CQLUtils.generateFilter('AFTER', 'effective', timeAfter)
                     ]
                 };
                 filters.push(timeFilter);
@@ -581,7 +508,7 @@ define([
 
             var locationSpecific = this.basicLocation.currentView.getCurrentValue()[0];
             var location = this.basicLocationSpecific.currentView.getCurrentValue()[0];
-            var locationFilter = generateFilter(undefined, 'anyGeo', location);
+            var locationFilter = CQLUtils.generateFilter(undefined, 'anyGeo', location);
             if (locationSpecific === 'specific' && locationFilter){
                 filters.push(locationFilter);
             }
@@ -592,7 +519,7 @@ define([
                 var typeFilter = {
                     type: 'OR',
                     filters: typesSpecific.map(function(specificType){
-                        return generateFilter('=', 'metadata-content-type', specificType);
+                        return CQLUtils.generateFilter('=', 'metadata-content-type', specificType);
                     })
                 };
                 filters.push(typeFilter)

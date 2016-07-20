@@ -26,16 +26,11 @@ define([
     'component/dropdown/dropdown',
     'component/filter/filter.view',
     'js/cql',
-    'component/dropdown/dropdown.view'
+    'component/dropdown/dropdown.view',
+    'js/CQLUtils'
 ], function (Marionette, Backbone, _, $, template, CustomElements, FilterBuilderModel, FilterModel,
              FilterCollectionView, DropdownModel, FilterView,
-            cql, DropdownView) {
-
-    //we should probably regex this or find a better way, but for now this works
-    function sanitizeGeometryCql(cqlString){
-        return cqlString.split("'POLYGON((").join("POLYGON((").split("))'").join("))")
-            .split("'POINT(").join("POINT(").split(")'").join(")");
-    }
+            cql, DropdownView, CQLUtils) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -119,7 +114,7 @@ define([
             if (filter.filters.length === 0){
                 return "(\"anyText\" ILIKE '%')";
             } else {
-                return sanitizeGeometryCql("(" + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ")");
+                return CQLUtils.transformFilterToCQL(filter);
             }
         },
         getFilters: function(){

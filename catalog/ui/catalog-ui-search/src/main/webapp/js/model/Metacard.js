@@ -18,13 +18,18 @@ define([
         'component/singletons/metacard-definitions',
         'terraformer',
         'terraformer-wkt-parser',
+        'js/CQLUtils',
+        'jsts',
+        'js/DistanceUtils',
         'backboneassociations',
         'backbone.paginator'
     ],
-    function (Backbone, _, wreqr, metacardDefinitions, Terraformer, TerraformerWKTParser) {
+    function (Backbone, _, wreqr, metacardDefinitions, Terraformer, TerraformerWKTParser, CQLUtils,
+              jsts, DistanceUtils) {
         "use strict";
 
         var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags'];
+        var parser = new jsts.io.GeoJSONReader();
 
         function matchesILIKE(value, filter){
             var valueToCheckFor = filter.value.toLowerCase();
@@ -78,6 +83,33 @@ define([
             var circleToCheck = new Terraformer.Circle(points, filter.distance, 64);
             var polygonCircleToCheck = new Terraformer.Polygon(circleToCheck.geometry);
             if (polygonCircleToCheck.contains(value)){
+                return true;
+            }
+            return false;
+        }
+
+        function matchesLINESTRING(value, filter){
+            var pointText = filter.value.value.substring(11);
+            pointText = pointText.substring(0, pointText.length - 1);
+            var lineWidth = filter.distance || 0;
+            var line = pointText.split(',').map(function (coordinate) {
+                return coordinate.split(' ').map(function (value) {
+                    return Number(value);
+                });
+            });
+            var lineString = parser.read({
+                type: 'LineString',
+                coordinates: line
+            });
+            var bufferedLineString = lineString.buffer(DistanceUtils.distToDegrees(lineWidth));
+            var coordinates = bufferedLineString.getCoordinates().map(function(coord){
+                return [coord.x, coord.y];
+            });
+            var polygonToCheck = new Terraformer.Polygon({
+                type: 'Polygon',
+                coordinates: [coordinates]
+            });
+            if (polygonToCheck.contains(value)){
                 return true;
             }
             return false;
@@ -166,7 +198,9 @@ define([
                             }
                             break;
                         case 'DWITHIN':
-                            if (matchesCIRCLE(valuesToCheck[i], filter)) {
+                            if (CQLUtils.isPointRadiusFilter(filter) && matchesCIRCLE(valuesToCheck[i], filter)){
+                                return true;
+                            } else if (matchesLINESTRING(valuesToCheck[i], filter)) {
                                 return true;
                             }
                             break;

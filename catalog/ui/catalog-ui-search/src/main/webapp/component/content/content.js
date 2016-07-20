@@ -61,6 +61,7 @@ define([
             drawing: false
         },
         initialize: function(){
+            this.listenTo(wreqr.vent, 'search:drawline', this.turnOnDrawing);
             this.listenTo(wreqr.vent, 'search:drawcircle', this.turnOnDrawing);
             this.listenTo(wreqr.vent, 'search:drawpoly', this.turnOnDrawing);
             this.listenTo(wreqr.vent, 'search:drawbbox', this.turnOnDrawing);

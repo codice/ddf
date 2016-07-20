@@ -39,11 +39,13 @@ define([
             bbox: undefined,
             usngbb: undefined,
             usng: undefined,
-            color: undefined
+            color: undefined,
+            line: undefined,
+            lineWidth: 1,
+            lineUnits: 'meters'
         },
         initialize: function(){
             this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
-            this.listenTo(this, 'change:scheduled change:scheduleValue change:scheduleUnits', this.startScheduledSearch);
             this.listenTo(this, 'change:bbox', this.setBboxLatLon);
             this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon);
             this.listenTo(this, 'change:usngbb', this.setBboxUsng);

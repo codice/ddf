@@ -35,8 +35,9 @@ define([
                 'js/widgets/cesium.bbox',
                 'js/widgets/cesium.circle',
                 'js/widgets/cesium.polygon',
+                'js/widgets/cesium.line',
                 'js/widgets/filter.cesium.geometry.group'
-            ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, FilterCesiumGeometryGroup) {
+            ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, DrawLine, FilterCesiumGeometryGroup) {
                 var geoController = new GeoController({
                     element: this.el.querySelector('#cesiumContainer'),
                     selectionInterface: this.options.selectionInterface
@@ -54,6 +55,12 @@ define([
                     notificationEl: this.mapDrawingPopup.el
                 });
                 new DrawPolygon.Controller({
+                    scene: geoController.scene,
+                    notificationEl: this.mapDrawingPopup.el,
+                    drawHelper: geoController.drawHelper,
+                    geoController: geoController
+                });
+                new DrawLine.Controller({
                     scene: geoController.scene,
                     notificationEl: this.mapDrawingPopup.el,
                     drawHelper: geoController.drawHelper,

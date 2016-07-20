@@ -24,78 +24,11 @@ define([
     'component/singletons/metacard-definitions',
     'component/property/property',
     'component/dropdown/dropdown',
-    'component/dropdown/dropdown.view'
+    'component/dropdown/dropdown.view',
+    'js/CQLUtils'
 ], function (Marionette, _, $, template, CustomElements, FilterComparatorDropdownView,
-             MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView) {
-
-    function isGeoFilter(type){
-        return (type === 'DWITHIN' || type === 'INTERSECTS');
-    }
-
-    function sanitizeForCql(text){
-           return text.split('[').join('(').split(']').join(')').split("'").join('').split('"').join('');
-    }
-
-    function bboxToCQLPolygon(model){
-        return [
-            model.west + ' ' + model.south,
-            model.west + ' ' + model.north,
-            model.east + ' ' + model.north,
-            model.east + ' ' + model.south,
-            model.west + ' ' + model.south
-        ];
-    }
-
-    function polygonToCQLPolygon(model){
-        var cqlPolygon = model.map(function(point){
-            return point[0] + ' ' + point[1];
-        });
-        cqlPolygon.push(cqlPolygon[0]);
-        return cqlPolygon;
-    }
-
-    function generateAnyGeoFilter(property, model){
-        switch(model.type){
-            case 'POLYGON':
-                return {
-                    type: 'INTERSECTS',
-                    property: property,
-                    value: 'POLYGON('+sanitizeForCql(JSON.stringify(polygonToCQLPolygon(model.polygon)))+')'
-                };
-                break;
-            case 'BBOX':
-                return {
-                    type: 'INTERSECTS',
-                    property: property,
-                    value: 'POLYGON('+sanitizeForCql(JSON.stringify(bboxToCQLPolygon(model)))+')'
-                };
-                break;
-            case 'POINTRADIUS':
-                return {
-                    type: 'DWITHIN',
-                    property: property,
-                    value: 'POINT(' + model.lon + ' ' + model.lat + ')',
-                    distance: Number(model.radius)
-                };
-                break;
-        }
-    }
-
-    function generateFilter(type, property, value) {
-        switch (metacardDefinitions.metacardTypes[property].type) {
-            case 'LOCATION':
-            case 'GEOMETRY':
-                return generateAnyGeoFilter(property, value);
-                break;
-            default:
-                return {
-                    type: type,
-                    property: '"' + property + '"',
-                    value: value
-                };
-                break;
-        }
-    }
+             MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView,
+            CQLUtils) {
 
     var comparatorToCQL = {
         BEFORE: 'BEFORE',
@@ -110,8 +43,6 @@ define([
     for (var key in comparatorToCQL){
         CQLtoComparator[comparatorToCQL[key]] = key;
     }
-
-
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -216,11 +147,11 @@ define([
                 return {
                     type: 'AND',
                     filters: this.filterInput.currentView.getCurrentValue().map(function(currentValue){
-                        return generateFilter(type, property, currentValue);
+                        return CQLUtils.generateFilter(type, property, currentValue);
                     })
                 }
             } else {
-                return generateFilter(type, property, this.filterInput.currentView.getCurrentValue()[0]);
+                return CQLUtils.generateFilter(type, property, this.filterInput.currentView.getCurrentValue()[0]);
             }
         },
         deleteInvalidFilters: function(){
@@ -231,7 +162,7 @@ define([
         },
         setFilter: function(filter){
             setTimeout(function(){
-                if (isGeoFilter(filter.type)){
+                if (CQLUtils.isGeoFilter(filter.type)){
                     filter.value = _.clone(filter);
                 }
                 this.model.set({
