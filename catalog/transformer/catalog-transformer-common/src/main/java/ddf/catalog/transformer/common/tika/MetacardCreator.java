@@ -22,8 +22,6 @@ import org.apache.tika.metadata.TikaCoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -62,17 +60,15 @@ public class MetacardCreator {
      *                           generated {@code Metacard}, may be null
      * @param metadataXml        the XML for the {@link Metacard#METADATA} attribute that should be set in
      *                           the generated {@code Metacard}, may be null
-     * @param typeName           the name to give to the dynamically created {@link MetacardType}
      * @param extendedAttributes the extra attributes (on top of those already present in
      *                           {@link BasicTypes#BASIC_METACARD}) that will be available in the metacard
      * @return a new {@code Metacard}
      */
     public static Metacard createEnhancedMetacard(final Metadata metadata, final String id,
-            final String metadataXml, final String typeName,
-            final Set<AttributeDescriptor> extendedAttributes) {
-        MetacardTypeImpl metacardType = new MetacardTypeImpl(typeName,
-                Sets.union(BasicTypes.BASIC_METACARD.getAttributeDescriptors(),
-                        extendedAttributes));
+            final String metadataXml, final Set<AttributeDescriptor> extendedAttributes) {
+        MetacardTypeImpl metacardType = new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
+                BasicTypes.BASIC_METACARD,
+                extendedAttributes);
         return createMetacard(metadata, id, metadataXml, metacardType);
     }
 

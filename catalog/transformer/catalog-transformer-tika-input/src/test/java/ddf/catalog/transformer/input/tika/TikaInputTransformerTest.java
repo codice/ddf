@@ -16,7 +16,6 @@ package ddf.catalog.transformer.input.tika;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -56,12 +55,12 @@ public class TikaInputTransformerTest {
         BundleContext mockBundleContext = mock(BundleContext.class);
         TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(mockBundleContext);
         verify(mockBundleContext).registerService(eq(InputTransformer.class),
-                eq(tikaInputTransformer), any(Hashtable.class));
+                eq(tikaInputTransformer),
+                any(Hashtable.class));
     }
 
     @Test
-    public void testTransformWithContentExtractor()
-            throws Exception {
+    public void testTransformWithContentExtractor() throws Exception {
         InputStream stream = Thread.currentThread()
                 .getContextClassLoader()
                 .getResourceAsStream("testPDF.pdf");
@@ -73,11 +72,19 @@ public class TikaInputTransformerTest {
 
         when(bundleMock.getBundleContext()).thenReturn(bundleCtx);
         when(bundleCtx.getService(any())).thenReturn(cme);
-        ImmutableSet<AttributeDescriptor> attributeDescriptors = ImmutableSet.of(
-                new AttributeDescriptorImpl("attr1", false, false, false, false,
-                        BasicTypes.OBJECT_TYPE),
-                new AttributeDescriptorImpl("attr2", false, false, false, false,
-                        BasicTypes.OBJECT_TYPE));
+        ImmutableSet<AttributeDescriptor> attributeDescriptors =
+                ImmutableSet.of(new AttributeDescriptorImpl("attr1",
+                                false,
+                                false,
+                                false,
+                                false,
+                                BasicTypes.OBJECT_TYPE),
+                        new AttributeDescriptorImpl("attr2",
+                                false,
+                                false,
+                                false,
+                                false,
+                                BasicTypes.OBJECT_TYPE));
         when(cme.getMetacardAttributes()).thenReturn(attributeDescriptors);
 
         TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx) {
@@ -89,7 +96,8 @@ public class TikaInputTransformerTest {
         tikaInputTransformer.addContentMetadataExtractors(serviceRef);
         Metacard metacard = tikaInputTransformer.transform(stream);
 
-        assertThat(metacard.getMetacardType().getName(), not(BasicTypes.BASIC_METACARD.getName()));
+        assertThat(metacard.getMetacardType()
+                .getName(), is(BasicTypes.BASIC_METACARD.getName()));
         int matchedAttrs = (int) metacard.getMetacardType()
                 .getAttributeDescriptors()
                 .stream()
@@ -100,8 +108,7 @@ public class TikaInputTransformerTest {
     }
 
     @Test
-    public void testContentExtractorRemoval()
-        throws Exception {
+    public void testContentExtractorRemoval() throws Exception {
         InputStream stream = Thread.currentThread()
                 .getContextClassLoader()
                 .getResourceAsStream("testPDF.pdf");
@@ -113,11 +120,19 @@ public class TikaInputTransformerTest {
 
         when(bundleMock.getBundleContext()).thenReturn(bundleCtx);
         when(bundleCtx.getService(any())).thenReturn(cme);
-        ImmutableSet<AttributeDescriptor> attributeDescriptors = ImmutableSet.of(
-                new AttributeDescriptorImpl("attr1", false, false, false, false,
-                        BasicTypes.OBJECT_TYPE),
-                new AttributeDescriptorImpl("attr2", false, false, false, false,
-                        BasicTypes.OBJECT_TYPE));
+        ImmutableSet<AttributeDescriptor> attributeDescriptors =
+                ImmutableSet.of(new AttributeDescriptorImpl("attr1",
+                                false,
+                                false,
+                                false,
+                                false,
+                                BasicTypes.OBJECT_TYPE),
+                        new AttributeDescriptorImpl("attr2",
+                                false,
+                                false,
+                                false,
+                                false,
+                                BasicTypes.OBJECT_TYPE));
         when(cme.getMetacardAttributes()).thenReturn(attributeDescriptors);
 
         TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx) {
@@ -130,7 +145,8 @@ public class TikaInputTransformerTest {
         tikaInputTransformer.removeContentMetadataExtractor(serviceRef);
         Metacard metacard = tikaInputTransformer.transform(stream);
 
-        assertThat(metacard.getMetacardType().getName(), is(BasicTypes.BASIC_METACARD.getName()));
+        assertThat(metacard.getMetacardType()
+                .getName(), is(BasicTypes.BASIC_METACARD.getName()));
         int matchedAttrs = (int) metacard.getMetacardType()
                 .getAttributeDescriptors()
                 .stream()
@@ -263,8 +279,8 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
+        assertThat(metacard.getMetadata(),
+                containsString("<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/x-ms-bmp"));
     }
 
@@ -453,8 +469,8 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2010-05-04 06:43:54 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2010-06-29 06:34:35 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "content as every other file being tested for tika content parsing"));
+        assertThat(metacard.getMetadata(),
+                containsString("content as every other file being tested for tika content parsing"));
         assertThat(metacard.getContentTypeName(),
                 is("application/vnd.openxmlformats-officedocument.presentationml.presentation"));
     }
@@ -470,8 +486,8 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-10-01 16:13:56 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2007-10-01 16:31:43 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "Written and saved in Microsoft Excel X for Mac Service Release 1."));
+        assertThat(metacard.getMetadata(),
+                containsString("Written and saved in Microsoft Excel X for Mac Service Release 1."));
         assertThat(metacard.getContentTypeName(), is("application/vnd.ms-excel"));
     }
 
@@ -512,8 +528,8 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 11:06:08 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2013-02-13 06:52:10 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "This is a sample Open Office document, written in NeoOffice 2.2.1"));
+        assertThat(metacard.getMetadata(),
+                containsString("This is a sample Open Office document, written in NeoOffice 2.2.1"));
         assertThat(metacard.getContentTypeName(), is("application/vnd.oasis.opendocument.text"));
 
         // Reset timezone back to local time zone.
