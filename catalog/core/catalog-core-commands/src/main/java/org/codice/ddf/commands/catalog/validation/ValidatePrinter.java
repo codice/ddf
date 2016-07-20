@@ -40,8 +40,8 @@ public class ValidatePrinter {
     }
 
     private static void printEntry(ValidateReportEntry entry) {
-        if (entry.getWarnings()
-                .isEmpty() || entry.getErrors()
+        if (!entry.getWarnings()
+                .isEmpty() || !entry.getErrors()
                 .isEmpty()) {
             CONSOLE.println("  " + entry.getValidatorName());
             entry.getErrors()
