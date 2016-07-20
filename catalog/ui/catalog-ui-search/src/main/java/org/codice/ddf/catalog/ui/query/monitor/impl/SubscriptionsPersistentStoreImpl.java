@@ -60,16 +60,20 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
         this.persistentStore = persistentStore;
     }
 
-    private List<Map<String, Object>> get(String id) throws PersistenceException {
+    private List<Map<String, Object>> query(String q) throws PersistenceException {
         LOCK.lock();
         try {
             List<Map<String, Object>> results =
-                    persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, query(id));
+                    persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, q);
             assert results.size() <= 1;
             return results;
         } finally {
             LOCK.unlock();
         }
+    }
+
+    private List<Map<String, Object>> get(String id) throws PersistenceException {
+        return query(queryId(id));
     }
 
     @SuppressWarnings("unchecked")
@@ -119,7 +123,11 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
         }
     }
 
-    private String query(String id) {
+    private String queryEmail(String email) {
+        return "\"" + EMAIL_PROPERTY + "\"=" + quote(email);
+    }
+
+    private String queryId(String id) {
         return ID + "=" + quote(id);
     }
 
@@ -146,6 +154,8 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
                         currentEmails.removeAll(emails);
                         if (currentEmails.isEmpty()) {
                             item.remove(EMAIL_PROPERTY + PersistentItem.TEXT_SUFFIX);
+                        } else {
+                            item.put(EMAIL_PROPERTY + PersistentItem.TEXT_SUFFIX, currentEmails);
                         }
                     }
                 });
@@ -201,6 +211,39 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
     private boolean isEmail(Map.Entry<String, Object> entry) {
         return entry.getKey()
                 .equals(EMAIL_PROPERTY);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Set<String> getSubscriptions(String email) {
+        notBlank(email, "email must be non-blank");
+
+        LOCK.lock();
+        try {
+
+            List<Map<String, Object>> results = query(queryEmail(email));
+
+            List<Object> mapValues = results.stream()
+                    .map(PersistentItem::stripSuffixes)
+                    .filter(result -> result.containsKey(ID))
+                    .map(result -> result.get(ID))
+                    .collect(Collectors.toList());
+
+            Set<String> emailsFromSet = streamToStrings(mapValues.stream()
+                    .filter(Set.class::isInstance)
+                    .map(Set.class::cast)
+                    .flatMap(Set::stream));
+
+            Set<String> emailsFromString = streamToStrings(mapValues.stream());
+
+            return merge(emailsFromSet, emailsFromString);
+        } catch (PersistenceException e) {
+            LOGGER.warn("unable to get workspace ids: email={}", email, e);
+        } finally {
+            LOCK.unlock();
+        }
+
+        return Collections.emptySet();
     }
 
     @SuppressWarnings("unchecked")

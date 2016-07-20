@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.metacard;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
 import static spark.Spark.get;
@@ -50,6 +51,7 @@ import org.codice.ddf.catalog.ui.metacard.history.HistoryResponse;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
@@ -101,15 +103,23 @@ public class MetacardApplication implements SparkApplication {
 
     private final ExperimentalEnumerationExtractor enumExtractor;
 
+    private final SubscriptionsPersistentStore subscriptions;
+
     public MetacardApplication(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
             EndpointUtil endpointUtil, Validator validator, WorkspaceTransformer transformer,
-            ExperimentalEnumerationExtractor enumExtractor) {
+            ExperimentalEnumerationExtractor enumExtractor,
+            SubscriptionsPersistentStore subscriptions) {
         this.catalogFramework = catalogFramework;
         this.filterBuilder = filterBuilder;
         this.util = endpointUtil;
         this.validator = validator;
         this.transformer = transformer;
         this.enumExtractor = enumExtractor;
+        this.subscriptions = subscriptions;
+    }
+
+    private String getSubjectEmail() {
+        return SubjectUtils.getEmailAddress(SecurityUtils.getSubject());
     }
 
     @Override
@@ -300,23 +310,66 @@ public class MetacardApplication implements SparkApplication {
             return req.body();
         });
 
+        post("/subscribe/:id", (req, res) -> {
+            String email = getSubjectEmail();
+            if (isEmpty(email)) {
+                throw new NotFoundException("Login to subscribe to workspace.");
+            }
+            String id = req.params(":id");
+            subscriptions.addEmail(id, email);
+            return ImmutableMap.of("message",
+                    String.format("Successfully subscribed to id = %s.", id));
+        }, util::getJson);
+
+        post("/unsubscribe/:id", (req, res) -> {
+            String email = getSubjectEmail();
+            if (isEmpty(email)) {
+                throw new NotFoundException("Login to un-subscribe from workspace.");
+            }
+            String id = req.params(":id");
+            subscriptions.removeEmail(id, email);
+            return ImmutableMap.of("message",
+                    String.format("Successfully un-subscribed to id = %s.", id));
+        }, util::getJson);
+
         get("/workspaces/:id", (req, res) -> {
             String id = req.params(":id");
+            String email = getSubjectEmail();
             Metacard metacard = util.getMetacard(id);
-            return util.getJson(transformer.transform(metacard));
-        });
+
+            // NOTE: the isEmpty is to guard against users with no email (such as guest).
+            boolean isSubscribed = !isEmpty(email) && subscriptions.getEmails(metacard.getId())
+                    .contains(email);
+
+            return ImmutableMap.builder()
+                    .putAll(transformer.transform(metacard))
+                    .put("subscribed", isSubscribed)
+                    .build();
+        }, util::getJson);
 
         get("/workspaces", (req, res) -> {
+            String email = getSubjectEmail();
             Map<String, Result> workspaceMetacards = util.getMetacardsByFilter(
                     WorkspaceMetacardTypeImpl.WORKSPACE_TAG);
-            List<Metacard> workspaceList = workspaceMetacards.entrySet()
+
+            // NOTE: the isEmpty is to guard against users with no email (such as guest).
+            Set<String> ids =
+                    isEmpty(email) ? Collections.emptySet() : subscriptions.getSubscriptions(email);
+
+            return workspaceMetacards.entrySet()
                     .stream()
                     .map(Map.Entry::getValue)
                     .map(Result::getMetacard)
-                    .collect(Collectors.toList());
+                    .map(metacard -> {
+                        boolean isSubscribed = ids.contains(metacard.getId());
 
-            return util.getJson(transformer.transform(workspaceList));
-        });
+                        return ImmutableMap.builder()
+                                .putAll(transformer.transform(metacard))
+                                .put("subscribed", isSubscribed)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+        }, util::getJson);
 
         post("/workspaces", APPLICATION_JSON, (req, res) -> {
             Map<String, Object> incoming = JsonFactory.create()

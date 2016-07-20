@@ -44,6 +44,11 @@ public class TrivialSubscriptionsPersistentStore implements SubscriptionsPersist
     }
 
     @Override
+    public Set<String> getSubscriptions(String email) {
+        return null;
+    }
+
+    @Override
     public final void addEmail(String id, String email) {
         notBlank(id, "id must be non-blank");
         notBlank(email, "email must be non-blank");

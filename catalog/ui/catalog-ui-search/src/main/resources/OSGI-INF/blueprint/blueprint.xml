@@ -166,6 +166,7 @@
         <argument ref="validator"/>
         <argument ref="workspaceTransformer"/>
         <argument ref="enumerationExtractor"/>
+        <argument ref="workspacePersistentStore"/>
         <!--todo (RCZ) - Add the enumeration extractor to here and make the endpoint-->
     </bean>
 
