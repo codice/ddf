@@ -391,7 +391,7 @@ public class SolrCache implements SolrCacheMBean {
         @Override
         protected SolrQuery postAdapt(QueryRequest request, SolrFilterDelegate filterDelegate,
                 SolrQuery query) throws UnsupportedQueryException {
-            if (!request.isEnterprise()) {
+            if (request.getSourceIds() != null) {
                 List<SolrQuery> sourceQueries = new ArrayList<>();
                 for (String source : request.getSourceIds()) {
                     sourceQueries.add(filterDelegate.propertyIsEqualTo(StringUtils.removeEnd(
