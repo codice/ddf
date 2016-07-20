@@ -27,8 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.groomer.AbstractMetacardGroomerPlugin;
@@ -72,6 +74,15 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
             aMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
                     Collections.singletonList(Metacard.DEFAULT_TAG)));
         }
+
+        if (isDateAttributeEmpty(aMetacard, Core.METACARD_CREATED)) {
+            aMetacard.setAttribute(new AttributeImpl(Core.METACARD_CREATED, now));
+            logMetacardAttributeUpdate(aMetacard, Core.METACARD_CREATED, now);
+        }
+
+        aMetacard.setAttribute(new AttributeImpl(Core.METACARD_MODIFIED, now));
+        logMetacardAttributeUpdate(aMetacard, Core.METACARD_MODIFIED, now);
+
     }
 
     private boolean isCatalogResourceUri(URI uri) {
@@ -109,6 +120,13 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
             aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));
         }
 
+        if (isDateAttributeEmpty(aMetacard, Core.METACARD_CREATED)) {
+            aMetacard.setAttribute(new AttributeImpl(Core.METACARD_CREATED, now));
+            LOGGER.debug(
+                    "{} date should not be null on an update operation. Changing date to current timestamp so it is at least not null.",
+                    Core.METACARD_CREATED);
+        }
+
         if (aMetacard.getModifiedDate() == null) {
             aMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, now));
         }
@@ -122,6 +140,19 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
                     Collections.singletonList(Metacard.DEFAULT_TAG)));
         }
 
+        // upon an update operation, the metacard modified time should be updated
+        aMetacard.setAttribute(new AttributeImpl(Core.METACARD_MODIFIED, now));
+        logMetacardAttributeUpdate(aMetacard, Core.METACARD_MODIFIED, now);
+    }
+
+    private void logMetacardAttributeUpdate(Metacard metacard, String attribute, Object value) {
+        LOGGER.debug("Applying {} attribute with value {} to metacard [{}].",
+                attribute, value, metacard.getId());
+    }
+    
+    private boolean isDateAttributeEmpty(Metacard metacard, String attribute) {
+        Attribute origAttribute = metacard.getAttribute(attribute);
+        return (origAttribute == null || !(origAttribute.getValue() instanceof Date));
     }
 
 }
