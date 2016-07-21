@@ -95,6 +95,7 @@ import com.google.common.collect.Maps;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
@@ -1720,15 +1721,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         return tmpFile.toFile();
     }
 
-    private void ingestDefinitionJsonWithWaitCondition(String filename,
+    private File ingestDefinitionJsonWithWaitCondition(String filename,
             Callable<Void> waitCondition) throws Exception {
         File definitionFile = copyFileToDefinitionsDir(filename);
+        waitCondition.call();
+        return definitionFile;
+    }
 
-        try {
-            waitCondition.call();
-        } finally {
-            FileUtils.deleteQuietly(definitionFile);
-        }
+    private void uninstallDefinitionJson(File definitionFile, Callable<Void> waitCondition)
+            throws Exception {
+        FileUtils.deleteQuietly(definitionFile);
+        waitCondition.call();
     }
 
     @Test
@@ -1736,7 +1739,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
 
         final String newMetacardTypeName = "new.metacard.type";
-        ingestDefinitionJsonWithWaitCondition("definitions.json", () -> {
+        File file = ingestDefinitionJsonWithWaitCondition("definitions.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(10,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
@@ -1770,6 +1773,14 @@ public class TestCatalog extends AbstractIntegrationTest {
                             is("\" + uri + \"")));
         } finally {
             deleteMetacard(id);
+            uninstallDefinitionJson(file, () -> {
+                AttributeRegistry attributeRegistry = getServiceManager().getService(
+                        AttributeRegistry.class);
+                expect("Attributes to be unregistered").within(10, TimeUnit.SECONDS)
+                        .until(() -> attributeRegistry.lookup("new-attribute-required-2")
+                                .isPresent());
+                return null;
+            });
             getServiceManager().stopFeature(true, "catalog-core-validationparser");
             configureShowInvalidMetacards("false", "false");
         }
@@ -1790,17 +1801,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         return format.format(defaultExpiration);
     }
 
-    private void deregisterDefaults(String metacardType) {
-        DefaultAttributeValueRegistry registry = getServiceManager().getService(
-                DefaultAttributeValueRegistry.class);
-
-        registry.removeDefaultValues(metacardType);
-
-        registry.removeDefaultValue(Metacard.TITLE);
-        registry.removeDefaultValue(Metacard.DESCRIPTION);
-        registry.removeDefaultValue(Metacard.EXPIRATION);
-    }
-
     private void verifyMetacardDoesNotContainAttribute(String metacardXml, String attribute) {
         assertThat(metacardXml, not(containsString(attribute)));
     }
@@ -1810,7 +1810,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
 
         final String customMetacardTypeName = "custom";
-        ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
+        File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(10,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
@@ -1862,7 +1862,15 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            deregisterDefaults(customMetacardTypeName);
+            uninstallDefinitionJson(file, () -> {
+                DefaultAttributeValueRegistry defaultsRegistry = getServiceManager().getService(
+                        DefaultAttributeValueRegistry.class);
+                expect("Defaults to be unregistered").within(10, TimeUnit.SECONDS)
+                        .until(() -> !defaultsRegistry.getDefaultValue(customMetacardTypeName,
+                                Metacard.DESCRIPTION)
+                                .isPresent());
+                return null;
+            });
             getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }
@@ -1872,7 +1880,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
 
         final String customMetacardTypeName = "custom";
-        ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
+        File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(10,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
@@ -1931,7 +1939,15 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            deregisterDefaults(customMetacardTypeName);
+            uninstallDefinitionJson(file, () -> {
+                DefaultAttributeValueRegistry defaultsRegistry = getServiceManager().getService(
+                        DefaultAttributeValueRegistry.class);
+                expect("Defaults to be unregistered").within(10, TimeUnit.SECONDS)
+                        .until(() -> !defaultsRegistry.getDefaultValue(customMetacardTypeName,
+                                Metacard.DESCRIPTION)
+                                .isPresent());
+                return null;
+            });
             getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }
@@ -1940,7 +1956,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testInjectAttributesOnCreate() throws Exception {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
 
-        ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
+        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
             expect("Injectable attributes to be registered").within(10, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(2));
@@ -1977,6 +1993,12 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id);
             deleteMetacard(id2);
+            uninstallDefinitionJson(file, () -> {
+                expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
+                        .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                                null), is(empty()));
+                return null;
+            });
             getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }
@@ -1985,7 +2007,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testInjectAttributesOnUpdate() throws Exception {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
 
-        ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
+        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
             expect("Injectable attributes to be registered").within(10, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(2));
@@ -2024,6 +2046,12 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id);
             deleteMetacard(id2);
+            uninstallDefinitionJson(file, () -> {
+                expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
+                        .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                                null), is(empty()));
+                return null;
+            });
             getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }
