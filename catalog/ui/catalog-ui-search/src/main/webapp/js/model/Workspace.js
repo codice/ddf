@@ -13,6 +13,7 @@
 
 define([
         'jquery',
+        'underscore',
         'wreqr',
         'backbone',
         'js/model/Query',
@@ -23,7 +24,7 @@ define([
         'moment',
         'backboneassociations'
     ],
-    function ($, wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, user, moment) {
+    function ($, _, wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, user, moment) {
 
         var Workspace = {};
 
@@ -195,9 +196,7 @@ define([
                 }).get('queries').first().startSearch();
             },
             duplicateWorkspace: function(workspace){
-                var workspaceToDuplicate = workspace.toJSON();
-                delete workspaceToDuplicate.id;
-                this.create(workspaceToDuplicate);
+                this.create(_.omit(workspace.toJSON(), 'id', 'owner', 'metacard.sharing'));
             },
             saveLocal: function () {
                 var localWorkspaces = this.chain()
