@@ -302,17 +302,18 @@ Bundle fragments remain in the *Resolved* state and can never move to the *Activ
 
 During ${branding} installation, the major directories and files shown in the table below are created, modified, or replaced in the destination directory.
 
-[cols="1,1,8" options="header"]
+.${branding} Directory Contents
+[cols="1,4" options="header"]
 |===
 
 |Directory Name
-2+|Description
+|Description
 
 |`bin`
-2+|Scripts to start and stop ${branding}
+|Scripts to start and stop ${branding}
 
-.4+|`data`
-2+|The working directory of the system – installed bundles and their data
+|`data`
+|The working directory of the system – installed bundles and their data
 
 |`data/log/${branding}.log`
 |Log file for ${branding}, logging all errors, warnings, and (optionally) debug statements. This log rolls up to 10 times, frequency based on a configurable setting (default=1 MB)
@@ -324,13 +325,13 @@ During ${branding} installation, the major directories and files shown in the ta
 |Log file that records user interactions with the system for auditing purposes.
 
 |`deploy`
-2+|Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon ${branding} installation)
+|Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon ${branding} installation)
 
 |`documentation`
-2+|HTML and PDF copies of ${branding} documentation.
+|HTML and PDF copies of ${branding} documentation.
 
-.4+|`etc`
-2+|Directory monitored for addition/modification/deletion of `.config` configuration files or third party `.cfg` configuration files.
+|`etc`
+|Directory monitored for addition/modification/deletion of `.config` configuration files or third party `.cfg` configuration files.
 
 |`etc/failed`
 |If there is a problem with any of the `.config` files, such as bad syntax or missing tokens, they will be moved here.
@@ -342,13 +343,13 @@ During ${branding} installation, the major directories and files shown in the ta
 |Template `.config` files for use in configuring ${branding} sources, settings, etc., by copying to the etc directory.
 
 |`lib`
-2+|The system's bootstrap libraries. Includes the `${branding-lowercase}-branding.jar` file which is used to brand the system console with the ${branding} logo.
+|The system's bootstrap libraries. Includes the `${branding-lowercase}-branding.jar` file which is used to brand the system console with the ${branding} logo.
 
 |`licenses`
-2+|Licensing information related to the system.
+|Licensing information related to the system.
 
 |`system`
-2+|Local bundle repository. Contains all of the JARs required by ${branding}, including third-party JARs.
+|Local bundle repository. Contains all of the JARs required by ${branding}, including third-party JARs.
 
 |===
 
