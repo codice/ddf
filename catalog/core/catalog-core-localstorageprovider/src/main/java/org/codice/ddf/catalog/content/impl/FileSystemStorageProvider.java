@@ -512,7 +512,11 @@ public class FileSystemStorageProvider implements StorageProvider {
         Path contentItemPath = Paths.get(contentDirectory.toAbsolutePath()
                 .toString(), item.getFilename());
 
-        long copy = Files.copy(item.getInputStream(), contentItemPath);
+        long copy;
+
+        try (InputStream inputStream = item.getInputStream()) {
+            copy = Files.copy(inputStream, contentItemPath);
+        }
 
         if (copy != item.getSize()) {
             LOGGER.warn("Created content item {} size {} does not match expected size {}",
