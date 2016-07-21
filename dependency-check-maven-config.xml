@@ -148,15 +148,14 @@
         <cve>CVE-2014-0114</cve>
     </suppress>
 
-    <!--DDF-2235 addresses this remove this to ascertain what issues remain -->
     <suppress>
         <notes><![CDATA[
-   file name: ffmpeg-2.8.4_2-bin.zip: ffmpeg.exe
+   file name: ffmpeg-3.1.1_1-bin.zip: ffmpeg.exe
+   Reported CVE's are vulnerabilities in earlier versions of FFmpeg
    ]]></notes>
-        <sha1>63C7050695FAD278BC07EDFAC8E4C9C72FA2D754</sha1>
+        <sha1>6EECC43A0883EF7C2A8E4BAF3AD45E24D8119ECC</sha1>
         <cpe>cpe:/a:ffmpeg:ffmpeg:-</cpe>
     </suppress>
-
 
     <suppress>
         <notes><![CDATA[
