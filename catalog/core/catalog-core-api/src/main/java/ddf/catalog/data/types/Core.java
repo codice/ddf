@@ -118,4 +118,29 @@ public interface Core {
      * {@link ddf.catalog.data.Attribute} name for accessing the title of the {@link ddf.catalog.data.Metacard}. <br/>
      */
     String TITLE = "title";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the creation date of the {@link Metacard}. <br/>
+     */
+    String METACARD_CREATED = "metacard.created";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the modified date of the {@link Metacard}. <br/>
+     */
+    String METACARD_MODIFIED = "metacard.modified";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the owner of the {@link Metacard}. <br/>
+     */
+    String METACARD_OWNER = "metacard.owner";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the tags of the {@link Metacard}. <br/>
+     */
+    String METACARD_TAGS = "metacard.tags";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the security permissions of the {@link Metacard}. <br/>
+     */
+    String METACARD_PERMISSIONS = "metacard.permissions";
 }
