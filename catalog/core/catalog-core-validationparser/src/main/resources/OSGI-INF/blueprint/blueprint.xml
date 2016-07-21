@@ -21,9 +21,6 @@
         <argument>
             <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
         </argument>
-        <argument>
-            <reference interface="ddf.catalog.data.DefaultAttributeValueRegistry"/>
-        </argument>
     </bean>
 
     <service ref="validationDeployer" interface="org.apache.felix.fileinstall.ArtifactInstaller"/>

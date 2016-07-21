@@ -95,7 +95,6 @@ import com.google.common.collect.Maps;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
-import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -1745,7 +1744,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         });
 
         String ddfMetacardXml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard1.xml"), UTF_8.name());
+                .getResourceAsStream("metacard2.xml"), UTF_8.name());
 
         String modifiedMetacardXml = ddfMetacardXml.replaceFirst("ddf\\.metacard",
                 newMetacardTypeName)
@@ -1790,17 +1789,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         return format.format(defaultExpiration);
     }
 
-    private void deregisterDefaults(String metacardType) {
-        DefaultAttributeValueRegistry registry = getServiceManager().getService(
-                DefaultAttributeValueRegistry.class);
-
-        registry.removeDefaultValues(metacardType);
-
-        registry.removeDefaultValue(Metacard.TITLE);
-        registry.removeDefaultValue(Metacard.DESCRIPTION);
-        registry.removeDefaultValue(Metacard.EXPIRATION);
-    }
-
     private void verifyMetacardDoesNotContainAttribute(String metacardXml, String attribute) {
         assertThat(metacardXml, not(containsString(attribute)));
     }
@@ -1808,131 +1796,153 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testDefaultValuesCreate() throws Exception {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
-
-        final String customMetacardTypeName = "custom";
-        ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(10,
-                    TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
-                            "(name=" + customMetacardTypeName + ")"), not(empty()));
-            return null;
-        });
-
-        String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard1.xml"), UTF_8.name());
-
-        String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard2.xml"), UTF_8.name());
-
-        metacard2Xml = metacard2Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
-
-        verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.DESCRIPTION);
-        verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.EXPIRATION);
-        verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.DESCRIPTION);
-        verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.EXPIRATION);
-
-        final String id1 = ingest(metacard1Xml, MediaType.APPLICATION_XML);
-        final String id2 = ingest(metacard2Xml, MediaType.APPLICATION_XML);
+        getServiceManager().startFeature(true, "catalog-plugin-defaultsecurityattributevalues");
 
         try {
-            final String defaultDescription = "Default description";
-            final String defaultCustomMetacardDescription = "Default custom description";
-            final String defaultExpiration = getDefaultExpirationAsString();
+            final String customMetacardTypeName = "custom";
+            ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
+                expect("Service to be available: " + MetacardType.class.getName()).within(10,
+                        TimeUnit.SECONDS)
+                        .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
+                                "(name=" + customMetacardTypeName + ")"), not(empty()));
+                return null;
+            });
 
-            final String metacard1XPath = String.format(METACARD_X_PATH, id1);
-            final String metacard2XPath = String.format(METACARD_X_PATH, id2);
+            String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard1.xml"), UTF_8.name());
 
-            executeOpenSearch("xml", "q=*").log()
-                    .all()
-                    .assertThat()
-                    // The metacard had a title, so it should not have been set to the default
-                    .body(hasXPath(metacard1XPath + "/string[@name='title']/value",
-                            is("Metacard-1")))
-                    .body(hasXPath(metacard1XPath + "/string[@name='description']/value",
-                            is(defaultDescription)))
-                    .body(hasXPath(metacard1XPath + "/dateTime[@name='expiration']/value",
-                            is(defaultExpiration)))
-                    // The metacard had a title, so it should not have been set to the default
-                    .body(hasXPath(metacard2XPath + "/string[@name='title']/value",
-                            is("Metacard-2")))
-                    .body(hasXPath(metacard2XPath + "/string[@name='description']/value",
-                            is(defaultCustomMetacardDescription)))
-                    .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value",
-                            is(defaultExpiration)));
+            String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard2.xml"), UTF_8.name());
+
+            metacard2Xml = metacard2Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
+
+            verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.DESCRIPTION);
+            verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.EXPIRATION);
+            verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.DESCRIPTION);
+            verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.EXPIRATION);
+            verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.POINT_OF_CONTACT);
+
+            final String id1 = ingest(metacard1Xml, MediaType.APPLICATION_XML);
+            final String id2 = ingest(metacard2Xml, MediaType.APPLICATION_XML);
+
+            try {
+                final String defaultDescription = "Default description";
+                final String defaultCustomMetacardDescription = "Default custom description";
+                final String defaultExpiration = getDefaultExpirationAsString();
+
+                final String metacard1XPath = String.format(METACARD_X_PATH, id1);
+                final String metacard2XPath = String.format(METACARD_X_PATH, id2);
+
+                executeOpenSearch("xml", "q=*").log()
+                        .all()
+                        .assertThat()
+                        // The metacard had a title, so it should not have been set to the default
+                        .body(hasXPath(metacard1XPath + "/string[@name='title']/value",
+                                is("Metacard-1")))
+                        .body(hasXPath(metacard1XPath + "/string[@name='point-of-contact']/value",
+                                is("mypoc@email.com")))
+                        .body(hasXPath(metacard1XPath + "/string[@name='description']/value",
+                                is(defaultDescription)))
+                        .body(hasXPath(metacard1XPath + "/dateTime[@name='expiration']/value",
+                                is(defaultExpiration)))
+                        // The metacard had a title, so it should not have been set to the default
+                        .body(hasXPath(metacard2XPath + "/string[@name='title']/value",
+                                is("Metacard-2")))
+                        .body(hasXPath(metacard2XPath + "/string[@name='description']/value",
+                                is(defaultCustomMetacardDescription)))
+                        .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value",
+                                is(defaultExpiration)))
+                        .body(hasXPath(metacard2XPath + "/string[@name='point-of-contact']/value",
+                                is("system@localhost.local")));
+
+            } finally {
+                deleteMetacard(id1);
+                deleteMetacard(id2);
+            }
         } finally {
-            deleteMetacard(id1);
-            deleteMetacard(id2);
-            deregisterDefaults(customMetacardTypeName);
             getServiceManager().stopFeature(true, "catalog-core-validationparser");
+            getServiceManager().stopFeature(true, "catalog-plugin-defaultsecurityattributevalues");
         }
     }
 
     @Test
     public void testDefaultValuesUpdate() throws Exception {
         getServiceManager().startFeature(true, "catalog-core-validationparser");
-
-        final String customMetacardTypeName = "custom";
-        ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(10,
-                    TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
-                            "(name=" + customMetacardTypeName + ")"), not(empty()));
-            return null;
-        });
-
-        String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard1.xml"), UTF_8.name());
-
-        final String id1 = ingest(metacard1Xml, MediaType.APPLICATION_XML);
-
-        String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard2.xml"), UTF_8.name());
-
-        metacard2Xml = metacard2Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
-
-        final String id2 = ingest(metacard2Xml, MediaType.APPLICATION_XML);
+        getServiceManager().startFeature(true, "catalog-plugin-defaultsecurityattributevalues");
 
         try {
-            final String updatedTitle1 = "Metacard-1 (Updated)";
-            final String updatedTitle2 = "Metacard-2 (Updated)";
-            metacard1Xml = metacard1Xml.replaceFirst("Metacard\\-1", updatedTitle1);
-            metacard2Xml = metacard2Xml.replaceFirst("Metacard\\-2", updatedTitle2);
 
-            verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.DESCRIPTION);
-            verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.EXPIRATION);
-            verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.DESCRIPTION);
-            verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.EXPIRATION);
+            final String customMetacardTypeName = "custom";
+            ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
+                expect("Service to be available: " + MetacardType.class.getName()).within(10,
+                        TimeUnit.SECONDS)
+                        .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
+                                "(name=" + customMetacardTypeName + ")"), not(empty()));
+                return null;
+            });
 
-            update(id1, metacard1Xml, MediaType.APPLICATION_XML);
-            update(id2, metacard2Xml, MediaType.APPLICATION_XML);
+            String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard1.xml"), UTF_8.name());
 
-            final String defaultDescription = "Default description";
-            final String defaultCustomMetacardDescription = "Default custom description";
-            final String defaultExpiration = getDefaultExpirationAsString();
+            final String id1 = ingest(metacard1Xml, MediaType.APPLICATION_XML);
 
-            final String metacard1XPath = String.format(METACARD_X_PATH, id1);
-            final String metacard2XPath = String.format(METACARD_X_PATH, id2);
+            String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard2.xml"), UTF_8.name());
 
-            executeOpenSearch("xml", "q=*").log()
-                    .all()
-                    .assertThat()
-                    .body(hasXPath(metacard1XPath + "/string[@name='title']/value",
-                            is(updatedTitle1)))
-                    .body(hasXPath(metacard1XPath + "/string[@name='description']/value",
-                            is(defaultDescription)))
-                    .body(hasXPath(metacard1XPath + "/dateTime[@name='expiration']/value",
-                            is(defaultExpiration)))
-                    .body(hasXPath(metacard2XPath + "/string[@name='title']/value",
-                            is(updatedTitle2)))
-                    .body(hasXPath(metacard2XPath + "/string[@name='description']/value",
-                            is(defaultCustomMetacardDescription)))
-                    .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value",
-                            is(defaultExpiration)));
+            metacard2Xml = metacard2Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
+
+            final String id2 = ingest(metacard2Xml, MediaType.APPLICATION_XML);
+
+            try {
+                final String updatedTitle1 = "Metacard-1 (Updated)";
+                final String updatedTitle2 = "Metacard-2 (Updated)";
+                metacard1Xml = metacard1Xml.replaceFirst("Metacard\\-1", updatedTitle1);
+                metacard2Xml = metacard2Xml.replaceFirst("Metacard\\-2", updatedTitle2);
+
+                verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.DESCRIPTION);
+                verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.EXPIRATION);
+                verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.DESCRIPTION);
+                verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.EXPIRATION);
+                verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.POINT_OF_CONTACT);
+
+                update(id1, metacard1Xml, MediaType.APPLICATION_XML);
+                update(id2, metacard2Xml, MediaType.APPLICATION_XML);
+
+                final String defaultDescription = "Default description";
+                final String defaultCustomMetacardDescription = "Default custom description";
+                final String defaultExpiration = getDefaultExpirationAsString();
+
+                final String metacard1XPath = String.format(METACARD_X_PATH, id1);
+                final String metacard2XPath = String.format(METACARD_X_PATH, id2);
+
+                executeOpenSearch("xml", "q=*").log()
+                        .all()
+                        .assertThat()
+                        .body(hasXPath(metacard1XPath + "/string[@name='title']/value",
+                                is(updatedTitle1)))
+                        .body(hasXPath(metacard1XPath + "/string[@name='point-of-contact']/value",
+                                is("mypoc@email.com")))
+                        .body(hasXPath(metacard1XPath + "/string[@name='description']/value",
+                                is(defaultDescription)))
+                        .body(hasXPath(metacard1XPath + "/dateTime[@name='expiration']/value",
+                                is(defaultExpiration)))
+                        .body(hasXPath(metacard2XPath + "/string[@name='title']/value",
+                                is(updatedTitle2)))
+                        .body(hasXPath(metacard2XPath + "/string[@name='description']/value",
+                                is(defaultCustomMetacardDescription)))
+                        .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value",
+                                is(defaultExpiration)))
+                        .body(hasXPath(metacard2XPath + "/string[@name='point-of-contact']/value",
+                                is("system@localhost.local")));
+
+            } finally {
+                deleteMetacard(id1);
+                deleteMetacard(id2);
+            }
         } finally {
-            deleteMetacard(id1);
-            deleteMetacard(id2);
-            deregisterDefaults(customMetacardTypeName);
+
             getServiceManager().stopFeature(true, "catalog-core-validationparser");
+            getServiceManager().stopFeature(true, "catalog-plugin-defaultsecurityattributevalues");
         }
     }
 

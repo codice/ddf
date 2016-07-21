@@ -495,5 +495,10 @@
             <artifactId>catalog-core-tagsfilterplugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-defaultsecurityattributevalues</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

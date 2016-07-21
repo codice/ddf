@@ -31,5 +31,6 @@
         <module>catalog-plugin-videothumbnail</module>
         <module>catalog-plugin-versioning</module>
         <module>catalog-plugin-duplication</module>
+        <module>catalog-plugin-defaultsecurityattributevalues</module>
     </modules>
 </project>

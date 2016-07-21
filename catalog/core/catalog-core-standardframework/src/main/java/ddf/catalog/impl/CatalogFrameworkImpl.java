@@ -92,11 +92,9 @@ import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
-import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
@@ -144,6 +142,7 @@ import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.operation.impl.UpdateResponseImpl;
 import ddf.catalog.plugin.AccessPlugin;
+import ddf.catalog.plugin.DefaultMetacardAttributePlugin;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
@@ -1036,6 +1035,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             Map<String, Serializable> unmodifiablePropertiesMap = Collections.unmodifiableMap(
                     createRequest.getProperties());
+
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
             for (Metacard metacard : createRequest.getMetacards()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
@@ -1244,25 +1244,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 .forEach(this::setDefaultValues);
     }
 
-    private boolean hasNoValue(Attribute attribute) {
-        return attribute == null || attribute.getValue() == null;
-    }
-
     private void setDefaultValues(Metacard metacard) {
-        MetacardType metacardType = metacard.getMetacardType();
-        DefaultAttributeValueRegistry registry =
-                frameworkProperties.getDefaultAttributeValueRegistry();
-
-        metacardType.getAttributeDescriptors()
-                .stream()
-                .map(AttributeDescriptor::getName)
-                .filter(attributeName -> hasNoValue(metacard.getAttribute(attributeName)))
-                .forEach(attributeName -> {
-                    registry.getDefaultValue(metacardType.getName(), attributeName)
-                            .ifPresent(defaultValue -> metacard.setAttribute(new AttributeImpl(
-                                    attributeName,
-                                    defaultValue)));
-                });
+        for (DefaultMetacardAttributePlugin defaultMetacardAttributePlugin : frameworkProperties.getDefaultMetacardAttributePlugin()) {
+            metacard = defaultMetacardAttributePlugin.addDefaults(metacard);
+        }
     }
 
     @Override

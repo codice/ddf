@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+	<OCD  name="Default Security Attribute Values Plugin" id="ddf.catalog.metacard.security.defaultsecurityattributevaluesplugin" description="Mapping of System High-Water attributes to use in case metacards are ingested without any security markings.">
+		<AD name="Metacard Marking Mappings" id="metacardMarkingMappings"
+			required="true"
+			type="String" cardinality="100"
+			default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=point-of-contact"
+			description="Mappings of system attributes to metacard markings.">
+		</AD>
+
+	</OCD>
+
+	<Designate pid="ddf.catalog.metacard.security.defaultsecurityattributevaluesplugin">
+	    <Object ocdref="ddf.catalog.metacard.security.defaultsecurityattributevaluesplugin" />
+  	</Designate>
+
+
+</metatype:MetaData>
