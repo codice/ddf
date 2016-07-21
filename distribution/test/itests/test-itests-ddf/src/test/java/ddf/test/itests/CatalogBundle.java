@@ -44,6 +44,8 @@ public class CatalogBundle {
 
     public static final String RESOURCE_DOWNLOAD_MANAGER_PID = "ddf.catalog.resource.download.ReliableResourceDownloadManager";
 
+    private static final String CACHE_ENABLED_KEY = "cacheEnabled";
+
     private final ServiceManager serviceManager;
 
     private final AdminConfig adminConfig;
@@ -168,12 +170,53 @@ public class CatalogBundle {
         Hashtable<String, Object> updatedProperties = new Hashtable<>();
         updatedProperties.putAll(existingProperties);
         if (cachingEnabled) {
-            updatedProperties.put("cacheEnabled", "True");
+            updatedProperties.put(CACHE_ENABLED_KEY, Boolean.TRUE);
         } else {
-            updatedProperties.put("cacheEnabled", "False");
+            updatedProperties.put(CACHE_ENABLED_KEY, Boolean.FALSE);
         }
 
         Configuration configuration = adminConfig.getConfiguration(RESOURCE_DOWNLOAD_MANAGER_PID, null);
         configuration.update(updatedProperties);
+    }
+
+    public boolean isCacheEnabled() throws Exception {
+        Map<String, Object> existingProperties = adminConfig.getDdfConfigAdmin()
+                .getProperties(RESOURCE_DOWNLOAD_MANAGER_PID);
+
+        if (existingProperties != null) {
+            LOGGER.debug("Properties for PID [{}] are {}", RESOURCE_DOWNLOAD_MANAGER_PID,
+                    existingProperties);
+
+            if (!existingProperties.containsKey(CACHE_ENABLED_KEY)) {
+                String message = String.format("Properties for PID [%s] do not contain key [%s]",
+                        RESOURCE_DOWNLOAD_MANAGER_PID, CACHE_ENABLED_KEY);
+                LOGGER.error(message);
+                fail(message);
+            }
+
+            if (existingProperties.get(CACHE_ENABLED_KEY) == null) {
+                String message = String.format("Value of property [%s] for PID [%s] is null",
+                        CACHE_ENABLED_KEY, RESOURCE_DOWNLOAD_MANAGER_PID);
+                LOGGER.error(message);
+                fail(message);
+            }
+
+            if (existingProperties.get(CACHE_ENABLED_KEY) instanceof Boolean) {
+                return (Boolean) existingProperties.get(CACHE_ENABLED_KEY);
+            }
+
+            String message = String.format(
+                    "Unable to process [%s] property. [%s] type is: %s.  It must be of type %s",
+                    CACHE_ENABLED_KEY, CACHE_ENABLED_KEY,
+                    existingProperties.get(CACHE_ENABLED_KEY).getClass(), Boolean.class.getName());
+            LOGGER.error(message);
+            fail(message);
+        }
+
+        String message = String.format("Properties for PID [%s] are null.",
+                RESOURCE_DOWNLOAD_MANAGER_PID);
+        LOGGER.error(message);
+        fail(message);
+        return false;
     }
 }

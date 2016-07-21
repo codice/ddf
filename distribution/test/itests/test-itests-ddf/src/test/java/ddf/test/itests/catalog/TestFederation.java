@@ -1549,8 +1549,11 @@ public class TestFederation extends AbstractIntegrationTest {
         assertThat((List<String>) download.get("users"), contains("Guest@Guest@127.0.0.1"));
     }
 
-    @Ignore
+    @Test
     public void testFederatedDownloadProductToCacheOnlyCacheEnabled() throws Exception {
+        getCatalogBundle().setupCaching(true);
+        expect("Cache Enabled").within(10, SECONDS)
+                .until(() -> getCatalogBundle().isCacheEnabled());
         /**
          * Setup Add productDirectory to the URLResourceReader's set of valid root resource
          * directories.
@@ -1563,8 +1566,6 @@ public class TestFederation extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS,
                 productDirectory);
-
-        getCatalogBundle().setupCaching(true);
 
         String resourceDownloadEndpoint =
                 RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID + "/" + metacardId;
@@ -1576,6 +1577,12 @@ public class TestFederation extends AbstractIntegrationTest {
         // TODO - Need to update assertion when test is re-enabled
         // @formatter:on
 
+        expect("Cached file exists").within(10, SECONDS).until(() -> Files.exists(Paths.get(ddfHome)
+                .resolve(PRODUCT_CACHE).resolve(CSW_SOURCE_ID + "-" + metacardId)));
+        expect("Cached metacard exists").within(10, SECONDS)
+                .until(() -> Files.exists(Paths.get(ddfHome).resolve(PRODUCT_CACHE)
+                        .resolve(CSW_SOURCE_ID + "-" + metacardId + ".ser")));
+
         assertThat(Files.exists(Paths.get(ddfHome)
                 .resolve(PRODUCT_CACHE)
                 .resolve(CSW_SOURCE_ID + "-" + metacardId)), is(true));
@@ -1586,6 +1593,9 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Ignore
     public void testFederatedDownloadProductToCacheOnlyCacheDisabled() throws Exception {
+        getCatalogBundle().setupCaching(false);
+        expect("Cache Disabled").within(10, SECONDS)
+                .until(() -> !getCatalogBundle().isCacheEnabled());
         /**
          * Setup Add productDirectory to the URLResourceReader's set of valid root resource
          * directories.
@@ -1599,8 +1609,6 @@ public class TestFederation extends AbstractIntegrationTest {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS,
                 productDirectory);
 
-        getCatalogBundle().setupCaching(false);
-
         String resourceDownloadEndpoint =
                 RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID + "/" + metacardId;
 
@@ -1609,6 +1617,9 @@ public class TestFederation extends AbstractIntegrationTest {
         when().get(resourceDownloadEndpoint).then().log().all().assertThat().contentType("text/plain")
                 .body(is("Caching of products is not enabled."));
         // @formatter:on
+
+        // Wait 1 seconds so we can verify that the product never gets written to the cache.
+        sleep(1000);
 
         assertThat(Files.exists(Paths.get(ddfHome)
                 .resolve(PRODUCT_CACHE)
