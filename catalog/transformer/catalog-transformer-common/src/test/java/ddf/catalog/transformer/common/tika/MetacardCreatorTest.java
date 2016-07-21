@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.junit.Test;
@@ -54,16 +55,16 @@ public class MetacardCreatorTest {
 
     @Test
     public void testBasicMetacard() {
-        Metacard metacard = testMetacard(null, null);
+        Metacard metacard = testMetacard(null);
         assertThat(metacard.getMetacardType(), is(BasicTypes.BASIC_METACARD));
     }
 
     @Test
     public void testMetacardExtended() {
-        Metacard metacard = testMetacard("test_metacard1",
-                ImmutableSet.of(createObjectAttr("attr1"), createObjectAttr("attr2")));
+        Metacard metacard = testMetacard(ImmutableSet.of(createObjectAttr("attr1"),
+                createObjectAttr("attr2")));
         assertThat(metacard.getMetacardType()
-                .getName(), is("test_metacard1"));
+                .getName(), is(BasicTypes.BASIC_METACARD.getName()));
 
         ImmutableSet<String> attrNames = ImmutableSet.of("attr1", "attr2");
         int count = (int) metacard.getMetacardType()
@@ -76,11 +77,15 @@ public class MetacardCreatorTest {
     }
 
     private AttributeDescriptorImpl createObjectAttr(String name) {
-        return new AttributeDescriptorImpl(name, false, false, false, false,
+        return new AttributeDescriptorImpl(name,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.OBJECT_TYPE);
     }
 
-    private Metacard testMetacard(String typeName, Set<AttributeDescriptor> extraAttributes) {
+    private Metacard testMetacard(Set<AttributeDescriptor> extraAttributes) {
         final Metadata metadata = new Metadata();
 
         final String title = "title";
@@ -101,10 +106,12 @@ public class MetacardCreatorTest {
         final String metadataXml = "<xml>test</xml>";
 
         final Metacard metacard;
-        if (typeName == null) {
+        if (CollectionUtils.isEmpty(extraAttributes)) {
             metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataXml);
         } else {
-            metacard = MetacardCreator.createEnhancedMetacard(metadata, id, metadataXml, typeName,
+            metacard = MetacardCreator.createEnhancedMetacard(metadata,
+                    id,
+                    metadataXml,
                     extraAttributes);
         }
 
