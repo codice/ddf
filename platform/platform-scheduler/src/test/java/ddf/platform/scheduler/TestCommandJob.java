@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,11 +24,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
 
-import org.apache.felix.service.command.CommandProcessor;
-import org.apache.felix.service.command.CommandSession;
+import org.apache.karaf.shell.api.console.Session;
+import org.apache.karaf.shell.api.console.SessionFactory;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -47,7 +47,12 @@ import ddf.security.Subject;
 public class TestCommandJob {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCommandJob.class);
 
-    private static CommandProcessor mockCmdProcessor = mock(CommandProcessor.class);
+    private SessionFactory sessionFactory;
+
+    @Before
+    public void setup() {
+        sessionFactory = mock(SessionFactory.class);
+    }
 
     /**
      * Do no execution when no command processor available
@@ -74,6 +79,7 @@ public class TestCommandJob {
      *
      * @throws Exception
      */
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void testNullCommand() throws Exception {
 
@@ -82,9 +88,9 @@ public class TestCommandJob {
 
         FirstArgumentAnswer captureInput = new FirstArgumentAnswer();
 
-        CommandSession session = getSession(captureInput);
+        Session session = getSession(captureInput);
 
-        when(mockCmdProcessor.createSession(any(), any(), any())).thenReturn(session);
+        when(sessionFactory.create(any(), any(), any())).thenReturn(session);
 
         CommandJob job = getCommandJob();
 
@@ -108,9 +114,9 @@ public class TestCommandJob {
 
         FirstArgumentAnswer captureInput = new FirstArgumentAnswer();
 
-        CommandSession session = getSession(captureInput);
+        Session session = getSession(captureInput);
 
-        when(mockCmdProcessor.createSession(any(), any(), any())).thenReturn(session);
+        when(sessionFactory.create(any(), any(), any())).thenReturn(session);
 
         CommandJob job = getCommandJob();
 
@@ -136,9 +142,9 @@ public class TestCommandJob {
 
         FirstArgumentAnswer captureInput = new FirstArgumentAnswer();
 
-        CommandSession session = getSession(captureInput);
+        Session session = getSession(captureInput);
 
-        when(mockCmdProcessor.createSession(any(), any(), any())).thenReturn(session);
+        when(sessionFactory.create(any(), any(), any())).thenReturn(session);
 
         CommandJob job = getCommandJob();
 
@@ -170,50 +176,42 @@ public class TestCommandJob {
     }
 
     private CommandJob getCommandJob() {
-        CommandJob job = new CommandJob() {
+        return new CommandJob() {
+            @SuppressWarnings("unchecked")
             @Override
             public Subject getSystemSubject() {
                 Subject subject = mock(Subject.class);
-                when(subject.execute(Matchers.<Callable<Object>>any())).thenAnswer(new Answer<Object>() {
-                    @Override
-                    public Object answer(InvocationOnMock invocation) throws Throwable {
-                        Callable<Object> callable = (Callable<Object>) invocation.getArguments()[0];
-                        return callable.call();
-                    }
+                when(subject.execute(Matchers.<Callable<Object>>any())).thenAnswer(invocation -> {
+                    Callable<Object> callable = (Callable<Object>) invocation.getArguments()[0];
+                    return callable.call();
                 });
                 return subject;
             }
 
             @Override
-            protected CommandProcessor createCommandProcessor() {
-                return mockCmdProcessor;
+            protected SessionFactory getSessionFactory() {
+                return sessionFactory;
             }
+
         };
-        return job;
     }
 
-    /**
-     * @param command
-     * @param session
-     * @param expectedAmountOfCalls
-     * @param expectedTimesToClose  TODO
-     * @throws Exception
-     */
-    void verifySessionCalls(String command, CommandSession session, int expectedAmountOfCalls,
+    void verifySessionCalls(String command, Session session, int expectedAmountOfCalls,
             int expectedTimesToClose) throws Exception {
         verify(session, times(expectedAmountOfCalls)).execute(command);
         verify(session, times(expectedTimesToClose)).close();
     }
 
-    private CommandSession getSession(Answer<String> captureInput) {
-        CommandSession session = mock(CommandSession.class);
+    private Session getSession(Answer<String> captureInput) {
+
+        Session session = mock(Session.class);
 
         try {
             when(session.execute(isA(CharSequence.class))).then(captureInput);
-
         } catch (Exception e) {
             LOGGER.error("Exception occurred during command session", e);
         }
+
         return session;
     }
 
