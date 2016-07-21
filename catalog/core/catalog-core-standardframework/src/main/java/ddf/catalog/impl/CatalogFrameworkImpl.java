@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -52,7 +52,6 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tika.detect.DefaultProbDetector;
@@ -792,25 +791,24 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 try {
                     String sanitizedFilename =
                             InputValidation.sanitizeFilename(contentItem.getFilename());
-                    if (contentItem.getInputStream() != null) {
-                        tmpPath = Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
-                                FilenameUtils.getExtension(sanitizedFilename));
-                        Files.copy(contentItem.getInputStream(),
-                                tmpPath,
-                                StandardCopyOption.REPLACE_EXISTING);
-                        size = Files.size(tmpPath);
-                        tmpContentPaths.put(contentItem.getId(), tmpPath);
-                    } else {
-                        throw new IngestException(
-                                "Could not copy bytes of content message.  Message was NULL.");
+                    try (InputStream inputStream = contentItem.getInputStream()) {
+                        if (inputStream != null) {
+                            tmpPath = Files.createTempFile(FilenameUtils.getBaseName(
+                                    sanitizedFilename),
+                                    FilenameUtils.getExtension(sanitizedFilename));
+                            Files.copy(inputStream, tmpPath, StandardCopyOption.REPLACE_EXISTING);
+                            size = Files.size(tmpPath);
+                            tmpContentPaths.put(contentItem.getId(), tmpPath);
+                        } else {
+                            throw new IngestException(
+                                    "Could not copy bytes of content message.  Message was NULL.");
+                        }
                     }
                 } catch (IOException e) {
                     if (tmpPath != null) {
                         FileUtils.deleteQuietly(tmpPath.toFile());
                     }
                     throw new IngestException("Could not copy bytes of content message.", e);
-                } finally {
-                    IOUtils.closeQuietly(contentItem.getInputStream());
                 }
                 String mimeTypeRaw = contentItem.getMimeTypeRawData();
                 mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(), tmpPath);
