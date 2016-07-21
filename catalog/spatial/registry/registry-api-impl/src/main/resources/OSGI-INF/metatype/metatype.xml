@@ -14,7 +14,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Registry Store" id="Csw_Registry_Store" description="Registry CSW Store">
+    <OCD name="CSW Registry Store" id="Csw_Registry_Store" description="Registry CSW Store">
 
         <AD description="The unique name of the store" name="Registry ID" id="id" required="true"
             type="String"/>
