@@ -79,9 +79,8 @@ define([
             this.checkIfBlacklisted();
         },
         onBeforeShow: function(){
-            this._resultActions = new DropdownModel();
             this.resultActions.show(new MetacardInteractionsDropdownView({
-                model: this._resultActions,
+                model: new DropdownModel(),
                 modelForComponent: new Backbone.Collection([this.model])
             }));
             this.resultIndicator.show(new ResultIndicatorView({

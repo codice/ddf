@@ -1,0 +1,44 @@
+@{customElementNamespace}workspace-interactions {
+
+  .workspace-interaction,
+  .interaction-icon,
+  .interaction-text {
+    line-height: @minimumButtonSize;
+    height: @minimumButtonSize;
+  }
+
+  .workspace-interaction {
+    white-space: nowrap;
+    padding: 0px 10px;
+    cursor: pointer;
+  }
+
+  .interaction-icon {
+    text-align: center;
+    width: @minimumButtonSize;
+  }
+
+  .interaction-icon,
+  .interaction-text {
+    display: inline-block;
+  }
+
+  .workspace-interaction:hover {
+    background: @dropdownHoverBackground;
+  }
+
+  .interaction-unsubscribe {
+    display: none;
+  }
+
+}
+
+@{customElementNamespace}workspace-interactions.is-subscribed {
+  .interaction-unsubscribe {
+    display: block;
+  }
+
+  .interaction-subscribe {
+    display: none;
+  }
+}

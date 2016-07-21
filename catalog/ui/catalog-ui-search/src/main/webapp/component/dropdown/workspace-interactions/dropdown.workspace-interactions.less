@@ -1,0 +1,25 @@
+@{customElementNamespace}dropdown.is-workspaceInteractions {
+  cursor: not-allowed;
+  display: block;
+
+  > div {
+    position: relative;
+    top: ~'calc(50% - 10px)';
+  }
+
+  .dropdown-text {
+    display: inline-block;
+  }
+
+  .dropdown-icon {
+    display: none;
+  }
+}
+
+@{customElementNamespace}dropdown.is-workspaceInteractions.is-editing {
+  cursor: pointer;
+
+  .dropdown-icon {
+    display: inline-block;
+  }
+}

@@ -23,12 +23,18 @@ define([
     'js/store',
     'component/menu-vertical/popout/menu-vertical.popout.view',
     'component/content-toolbar/content-toolbar',
-    'moment'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, MenuView, ContentToolbar, moment) {
+    'moment',
+    'component/dropdown/dropdown',
+    'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
+], function (wreqr, Marionette, _, $, template, CustomElements, store, MenuView, ContentToolbar, moment, DropdownModel, WorkspaceInteractionsDropdownView) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('workspace-item'),
+        regions: {
+            gridWorkspaceActions: '.as-grid .choice-actions',
+            listWorkspaceActions: '.as-list .choice-actions'
+        },
         modelEvents: {
         },
         events: {
@@ -66,6 +72,14 @@ define([
                 this.firstRender = false;
                 this.initializeMenus();
             }
+            this.gridWorkspaceActions.show(new WorkspaceInteractionsDropdownView({
+                model: new DropdownModel(),
+                modelForComponent: this.model
+            }));
+            this.listWorkspaceActions.show(new WorkspaceInteractionsDropdownView({
+                model: new DropdownModel(),
+                modelForComponent: this.model
+            }));
         },
         handleChoice: function(event){
             var workspaceId = $(event.currentTarget).attr('data-workspaceId');

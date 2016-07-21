@@ -12,6 +12,7 @@
 /*global define,window*/
 
 define([
+        'jquery',
         'wreqr',
         'backbone',
         'js/model/Query',
@@ -22,7 +23,7 @@ define([
         'moment',
         'backboneassociations'
     ],
-    function (wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, user, moment) {
+    function ($, wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, user, moment) {
 
         var Workspace = {};
 
@@ -92,6 +93,22 @@ define([
                 } else {
                     return Backbone.AssociatedModel.prototype.destroy.apply(this, arguments);
                 }
+            },
+            subscribe: function () {
+                $.ajax({
+                    type: 'post',
+                    url: '/search/catalog/internal/subscribe/' + this.get('id'),
+                }).then(function () {
+                    this.set('subscribed', true);
+                }.bind(this));
+            },
+            unsubscribe: function () {
+                $.ajax({
+                    type: 'post',
+                    url: '/search/catalog/internal/unsubscribe/' + this.get('id'),
+                }).then(function () {
+                    this.set('subscribed', false);
+                }.bind(this));
             }
         });
 
