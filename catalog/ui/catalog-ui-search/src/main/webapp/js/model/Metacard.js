@@ -19,17 +19,15 @@ define([
         'terraformer',
         'terraformer-wkt-parser',
         'js/CQLUtils',
-        'jsts',
-        'js/DistanceUtils',
+        '@turf/turf',
         'backboneassociations',
         'backbone.paginator'
     ],
     function (Backbone, _, wreqr, metacardDefinitions, Terraformer, TerraformerWKTParser, CQLUtils,
-              jsts, DistanceUtils) {
+              Turf) {
         "use strict";
 
         var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags'];
-        var parser = new jsts.io.GeoJSONReader();
 
         function matchesILIKE(value, filter){
             var valueToCheckFor = filter.value.toLowerCase();
@@ -97,17 +95,11 @@ define([
                     return Number(value);
                 });
             });
-            var lineString = parser.read({
-                type: 'LineString',
-                coordinates: line
-            });
-            var bufferedLineString = lineString.buffer(DistanceUtils.distToDegrees(lineWidth));
-            var coordinates = bufferedLineString.getCoordinates().map(function(coord){
-                return [coord.x, coord.y];
-            });
+            var turfLine = Turf.lineString(line);
+            var bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters');
             var polygonToCheck = new Terraformer.Polygon({
                 type: 'Polygon',
-                coordinates: [coordinates]
+                coordinates: bufferedLine.geometry.coordinates
             });
             if (polygonToCheck.contains(value)){
                 return true;
@@ -173,47 +165,24 @@ define([
                 for (var i = 0; i <= valuesToCheck.length - 1; i++) {
                     switch (filter.type) {
                         case 'ILIKE':
-                            if (matchesILIKE(valuesToCheck[i], filter)) {
-                                return true;
-                            }
-                            break;
+                            return matchesILIKE(valuesToCheck[i], filter);
                         case 'LIKE':
-                            if (matchesLIKE(valuesToCheck[i], filter)) {
-                                return true;
-                            }
-                            break;
+                            return matchesLIKE(valuesToCheck[i], filter);
                         case '=':
-                            if (matchesEQUALS(valuesToCheck[i], filter)) {
-                                return true;
-                            }
-                            break;
+                            return matchesEQUALS(valuesToCheck[i], filter);
                         case '!=':
-                            if (matchesNOTEQUALS(valuesToCheck[i], filter)) {
-                                return true;
-                            }
-                            break;
+                            return matchesNOTEQUALS(valuesToCheck[i], filter);
                         case 'INTERSECTS':
-                            if (matchesPOLYGON(valuesToCheck[i], filter)) {
-                                return true;
-                            }
-                            break;
+                            return matchesPOLYGON(valuesToCheck[i], filter);
                         case 'DWITHIN':
-                            if (CQLUtils.isPointRadiusFilter(filter) && matchesCIRCLE(valuesToCheck[i], filter)){
-                                return true;
-                            } else if (matchesLINESTRING(valuesToCheck[i], filter)) {
-                                return true;
+                            if (CQLUtils.isPointRadiusFilter(filter)){
+                                return matchesCIRCLE(valuesToCheck[i], filter);
                             }
-                            break;
+                            return matchesLINESTRING(valuesToCheck[i], filter);
                         case 'AFTER':
-                            if (matchesAFTER(valuesToCheck[i], filter)) {
-                                return true;
-                            }
-                            break;
+                            return matchesAFTER(valuesToCheck[i], filter);
                         case 'BEFORE':
-                            if (matchesBEFORE(valuesToCheck[i], filter)) {
-                                return true;
-                            }
-                            break;
+                            return matchesBEFORE(valuesToCheck[i], filter);
                     }
                 }
                 return false;

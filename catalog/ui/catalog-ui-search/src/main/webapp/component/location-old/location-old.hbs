@@ -59,7 +59,7 @@
 
     <div id="lineTab{{cid}}" class="tab-pane {{#if line}}active{{/if}}">
         <input type="hidden" name="line" value="">
-        <input type="hidden" name="lineWidth" value="">
+        <input type="hidden" name="lineWidth" value="{{lineWidth}}">
 
         <div class="col-lg-10">
             <div id="linediv" class="input-group input-group-sm">
@@ -69,7 +69,7 @@
 
             <div class="input-group input-group-sm for-line">
                 <span class="input-group-addon">Width&nbsp;</span>
-                <input class="form-control" id="lineWidthValue" type="number" min="0" step="any" placeholder=""/>
+                <input class="form-control" id="lineWidthValue" type="number" min="0" step="any" placeholder="" value="{{lineWidth}}"/>
                             <span class="input-group-btn">
                                 <select id="lineUnits" name="lineUnits" class="input-group-addon">
                                     <option value="meters" selected="selected">meters</option>
@@ -84,7 +84,7 @@
     </div>
 
     <div id="pointradius{{cid}}" class="tab-pane {{#if radius}}active{{/if}}">
-        <input type="hidden" name="radius" value="">
+        <input type="hidden" name="radius" value="{{radius}}">
 
         <div class="col-lg-10">
             <div id="latdiv" class="input-group input-group-sm">
@@ -105,7 +105,7 @@
 
             <div class="input-group input-group-sm for-radius">
                 <span class="input-group-addon">Radius&nbsp;</span>
-                <input class="form-control" id="radiusValue" type="number" min="0" step="any" placeholder=""/>
+                <input class="form-control" id="radiusValue" type="number" min="0" step="any" placeholder="" value="{{radius}}"/>
                             <span class="input-group-btn">
                                 <select id="radiusUnits" name="radiusUnits" class="input-group-addon">
                                     <option value="meters" selected="selected">meters</option>

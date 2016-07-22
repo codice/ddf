@@ -50,7 +50,8 @@ define(['underscore',
             var mapConfig = {
                 layers: layers,
                 target: options.element,
-                view: view
+                view: view,
+                interactions: ol.interaction.defaults({doubleClickZoom: false})
             };
             if (options.controls !== undefined) {
                 mapConfig.controls = options.controls;

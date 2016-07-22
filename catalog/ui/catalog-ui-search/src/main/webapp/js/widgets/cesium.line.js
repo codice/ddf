@@ -18,10 +18,9 @@ define([
         'maptype',
         './notification.view',
         'js/store',
-        'jsts',
-        'js/DistanceUtils'
+        '@turf/turf'
     ],
-    function (Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, store, jsts, DistanceUtils) {
+    function (Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, store, Turf) {
         "use strict";
         var Draw = {};
 
@@ -48,15 +47,8 @@ define([
                     return;
                 }
 
-                var parser = new jsts.io.GeoJSONReader();
-                var lineString = parser.read({
-                    type: 'LineString',
-                    coordinates: setArr
-                });
-                var bufferedLineString = lineString.buffer(DistanceUtils.distToDegrees(lineWidth));
-                var coordinates = bufferedLineString.getCoordinates().map(function(coord){
-                    return [coord.x, coord.y];
-                });
+                var turfLine = Turf.lineString(setArr);
+                var bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters');
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
@@ -71,7 +63,7 @@ define([
                         new Cesium.GeometryInstance({
                             geometry: new Cesium.PolygonOutlineGeometry({
                                 polygonHierarchy: {
-                                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(coordinates)),
+                                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(bufferedLine.geometry.coordinates)),
                                     perPositionHeight: true
                                 }
                             }),
@@ -198,11 +190,6 @@ define([
                                 return [ toDeg(latLon.longitude),toDeg(latLon.latitude)];
                             });
 
-                            // get rid of the points drawhelper added when the user double clicks.
-                            // this addresses the known issue of https://github.com/leforthomas/cesium-drawhelper/issues/7
-                            if (latLonRadPoints.length > 0) {
-                                latLonRadPoints.pop();
-                            }
                             //this shouldn't ever get hit because the draw library should protect against it, but just in case it does, remove the point
                             if (latLonRadPoints.length > 3 && latLonRadPoints[latLonRadPoints.length - 1][0] === latLonRadPoints[latLonRadPoints.length - 2][0] &&
                                 latLonRadPoints[latLonRadPoints.length - 1][1] === latLonRadPoints[latLonRadPoints.length - 2][1]) {

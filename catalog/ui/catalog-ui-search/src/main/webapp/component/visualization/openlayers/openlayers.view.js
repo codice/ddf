@@ -31,8 +31,10 @@ define([
                 'js/controllers/openlayers.controller',
                 'js/widgets/openlayers.bbox',
                 'js/widgets/openlayers.polygon',
+                'js/widgets/openlayers.line',
+                'js/widgets/openlayers.circle',
                 'js/widgets/filter.openlayers.geometry.group'
-            ], function (GeoController, DrawBbox, DrawPolygon, FilterCesiumGeometryGroup) {
+            ], function (GeoController, DrawBbox, DrawPolygon, DrawLine, DrawCircle, FilterCesiumGeometryGroup) {
                 var geoController = new GeoController({
                     element: this.el.querySelector('#cesiumContainer'),
                     selectionInterface: this.options.selectionInterface
@@ -46,6 +48,14 @@ define([
                     notificationEl: this.mapDrawingPopup.el
                 });
                 new DrawPolygon.Controller({
+                    map: geoController.mapViewer,
+                    notificationEl: this.mapDrawingPopup.el
+                });
+                new DrawLine.Controller({
+                    map: geoController.mapViewer,
+                    notificationEl: this.mapDrawingPopup.el
+                });
+                new DrawCircle.Controller({
                     map: geoController.mapViewer,
                     notificationEl: this.mapDrawingPopup.el
                 });

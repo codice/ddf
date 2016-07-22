@@ -41,7 +41,7 @@ define([
             usng: undefined,
             color: undefined,
             line: undefined,
-            lineWidth: 1,
+            lineWidth: 0,
             lineUnits: 'meters'
         },
         initialize: function(){

@@ -145,14 +145,14 @@ define([
                 south: undefined,
                 lat: undefined,
                 lon: undefined,
-                radius: undefined,
+                radius: 0,
                 bbox: undefined,
                 polygon: undefined,
                 usng: undefined,
                 usngbb: undefined,
                 line: undefined,
-                lineWidth: undefined
-            }, {unset: true});
+                lineWidth: 0
+            });
             //wreqr.vent.trigger('search:drawstop');
             wreqr.vent.trigger('search:drawend', this.model);
             this.$el.trigger('change');
@@ -355,9 +355,9 @@ define([
                 type = 'BBOX';
             } else if (modelJSON.polygon) {
                 type = 'POLYGON';
-            } else if (modelJSON.lat && modelJSON.lon && modelJSON.radius) {
+            } else if (modelJSON.lat && modelJSON.lon && (modelJSON.radius !== undefined)) {
                 type = 'POINTRADIUS'
-            } else if (modelJSON.line && modelJSON.lineWidth) {
+            } else if (modelJSON.line && (modelJSON.lineWidth !== undefined)) {
                 type = 'LINE';
             }
 

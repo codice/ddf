@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, window*/
 
 define([
         'marionette',
@@ -134,16 +134,27 @@ define([
                     type: 'Polygon',
                     style: new ol.style.Style({
                         stroke: new ol.style.Stroke({
-                            color: [0,0,255,1]
+                            color: [0,0,255,0]
                         })
                     })
                 });
 
                 this.map.addInteraction(this.primitive);
                 this.primitive.on('drawend', function(sketchFeature){
+                    window.cancelAnimationFrame(that.accuratePolygonId);
                     that.handleRegionStop(sketchFeature);
                     that.map.removeInteraction(that.primitive);
                 });
+                this.primitive.on('drawstart', function (sketchFeature) {
+                    that.showAccuratePolygon(sketchFeature);
+                });
+            },
+            accuratePolygonId: undefined,
+            showAccuratePolygon: function(sketchFeature){
+                this.accuratePolygonId = window.requestAnimationFrame(function(){
+                    this.drawBorderedPolygon(sketchFeature.feature.getGeometry());
+                    this.showAccuratePolygon(sketchFeature);
+                }.bind(this));
             },
 
 
