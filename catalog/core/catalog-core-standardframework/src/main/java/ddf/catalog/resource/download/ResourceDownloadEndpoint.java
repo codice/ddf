@@ -182,8 +182,6 @@ public class ResourceDownloadEndpoint {
      * @return response object containing the list of all the currently active downloads
      * @throws DownloadToCacheOnlyException thrown if the product download couldn't be started
      */
-    @GET
-    @Produces(APPLICATION_JSON)
     public Response getDownloadList() throws DownloadToCacheOnlyException {
         try {
             List<DownloadInfo> downloadsInProgress = downloadManager.getDownloadsInProgress();
