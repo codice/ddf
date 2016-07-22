@@ -52,8 +52,8 @@ define([
 
     var SharingByEmailView = Marionette.LayoutView.extend({
         className: 'row',
-        template: '<div class="col-md-8 email"></div>' +
-                  '<div class="col-md-4 action"></div>',
+        template: '<div class="email"></div>' +
+                  '<div class="action"></div>',
         regions: {
             email: '.email',
             action: '.action'
@@ -90,8 +90,8 @@ define([
 
     var SharingByRoleView = Marionette.LayoutView.extend({
         className: 'row',
-        template: '<div class="col-md-8 role">{{value}}</div>' +
-                  '<div class="col-md-4 action"></div>',
+        template: '<div class="role">{{value}}</div>' +
+                  '<div class="action"></div>',
         regions: {
             role: '.role',
             action: '.action'

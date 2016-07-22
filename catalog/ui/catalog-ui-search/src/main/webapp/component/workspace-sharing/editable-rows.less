@@ -1,4 +1,7 @@
 @{customElementNamespace}editable-rows {
+    display: block;
+    overflow: hidden;
+    height: 100%;
 
     .editable-rows-item {
         position: relative;
@@ -11,13 +14,13 @@
     }
 
     .embed {
-        width: ~'calc(100% - 50px - 10px)';
+        width: ~'calc(100% - 50px - 40px)';
     }
 
     .remove {
         width: 50px;
         position: absolute;
-        right: 0;
+        right: 10px;
         top: 0;
 
         button {
@@ -26,8 +29,24 @@
     }
 
     .add-row {
-        width: 50px;
-        float: right;
+        width: 100%;
+        margin-top: 10px;
     }
 
+    .rows {
+        max-height: ~'calc(100% - @{minimumButtonSize} - 10px)';
+        overflow: auto;
+    }
+
+}
+
+@{customElementNamespace}editable-rows.is-empty {
+
+    .add-row {
+        margin: 0px;
+    }
+
+    .rows {
+        max-height: ~'calc(100% - @{minimumButtonSize})';
+    }
 }

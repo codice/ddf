@@ -16,19 +16,77 @@ padding-left: 8px;
   }
 
   overflow: auto;
-  padding: 20px 20px;
 
   .sharing-buttons {
-    text-align: right;
     position: absolute;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
+    width: ~'calc(100% - 40px)';
+    white-space: nowrap;
 
     button {
-      min-width: 100px;
+      width: 50%;
+      vertical-align: top;
     }
   }
 
+  .workspace-sharing-by-role {
+    .role {
+      line-height: @minimumButtonSize;
+      height: @minimumButtonSize;
+      text-align: center;
+    }
+    .row {
+      white-space: nowrap;
+      margin: 0px 0px 10px 0px;
+      padding: 0px 10px;
+    }
+
+    .role,
+    .action {
+      vertical-align: top;
+      display: inline-block;
+      width: 50%;
+    }
+  }
+
+  .workspace-sharing-by-email {
+    input {
+      color: black;
+      height: @minimumButtonSize;
+    }
+
+    height: ~'calc(100% - @{minimumButtonSize})';
+    overflow: auto;
+
+    .email,
+    .action {
+      vertical-align: top;
+      display: inline-block;
+      width: 50%;
+      padding: 0px 10px;
+    }
+  }
+
+  .workspace-sharing-by-role {
+    height: ~'calc(100% - @{minimumButtonSize})';
+    overflow: auto;
+  }
+
+  .information-role,
+  .information-email {
+    width: 50%;
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+    padding: 10px;
+  }
+
+  .sharing-information {
+    height: ~'calc(100% - 2*@{minimumButtonSize})';
+    overflow: hidden;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: @smallScreenSize) {

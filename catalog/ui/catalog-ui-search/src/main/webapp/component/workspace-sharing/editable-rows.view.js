@@ -24,7 +24,7 @@ define([
     var RowView = Marionette.LayoutView.extend({
         className: 'editable-rows-item',
         template: '<div class="embed"></div>' +
-                  '<div class="remove"><button class="is-negative">-</button></div>',
+                  '<div class="remove"><button class="is-negative"><span class="fa fa-minus"></span></button></div>',
         events:  { 'click .remove': 'removeRow' },
         regions: { embed: '.embed' },
         removeRow: function () {
@@ -47,9 +47,15 @@ define([
 
     var EditableRowsView = Marionette.LayoutView.extend({
         tagName: CustomElements.register('editable-rows'),
-        template: '<div class="rows"></div><button class="add-row is-primary">+</button>',
+        template: '<div class="rows"></div><button class="add-row is-positive"><span class="fa fa-plus"></span></button>',
         events:      { 'click .add-row': 'addRow' },
         regions:     { rows: '.rows' },
+        initialize: function(){
+            this.listenTo(this.collection, 'add remove update reset', this.checkEmpty);
+        },
+        checkEmpty: function(){
+            this.$el.toggleClass('is-empty', this.collection.isEmpty());
+        },
         addRow: function () {
             this.collection.add({});
         },
@@ -62,7 +68,8 @@ define([
                 embed: this.embed,
                 embedOptions: this.options
             }));
-        },
+            this.checkEmpty();
+        }
     });
 
     return EditableRowsView;
