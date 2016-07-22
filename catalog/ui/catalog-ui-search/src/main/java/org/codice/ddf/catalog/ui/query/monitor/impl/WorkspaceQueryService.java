@@ -70,6 +70,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.Subject;
 
 public class WorkspaceQueryService {
 
@@ -103,6 +104,8 @@ public class WorkspaceQueryService {
     private long queryTimeoutMinutes = DEFAULT_QUERY_TIMEOUT_MINUTES;
 
     private JobDetail jobDetail;
+
+    private Subject subject;
 
     /**
      * @param queryUpdateSubscriber must be non-null
@@ -172,37 +175,47 @@ public class WorkspaceQueryService {
         this.queryTimeoutMinutes = queryTimeoutMinutes;
     }
 
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
     /**
      * Main entry point, should be called by a scheduler.
      */
     public void run() {
 
-        Security.runAsAdmin(() -> Security.getInstance()
-                .getSystemSubject()
-                .execute(() -> {
+        Security.runAsAdmin(() -> {
 
-                    LOGGER.debug("running workspace query service");
+            Subject runSubject = subject != null ?
+                    subject :
+                    Security.getInstance()
+                            .getSystemSubject();
 
-                    Map<String, Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>>>
-                            queryMetacards = workspaceService.getQueryMetacards();
+            return runSubject.execute(() -> {
 
-                    LOGGER.debug("queryMetacards: size={}", queryMetacards.size());
+                LOGGER.debug("running workspace query service");
 
-                    List<WorkspaceTask> workspaceTasks = createWorkspaceTasks(queryMetacards);
+                Map<String, Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>>> queryMetacards =
+                        workspaceService.getQueryMetacards();
 
-                    LOGGER.debug("workspaceTasks: size={}", workspaceTasks.size());
+                LOGGER.debug("queryMetacards: size={}", queryMetacards.size());
 
-                    Map<String, Pair<WorkspaceMetacardImpl, Long>> results = executeWorkspaceTasks(
-                            workspaceTasks,
-                            queryTimeoutMinutes,
-                            TimeUnit.MINUTES);
+                List<WorkspaceTask> workspaceTasks = createWorkspaceTasks(queryMetacards);
 
-                    LOGGER.debug("results: {}", results);
+                LOGGER.debug("workspaceTasks: size={}", workspaceTasks.size());
 
-                    queryUpdateSubscriber.notify(results);
+                Map<String, Pair<WorkspaceMetacardImpl, Long>> results = executeWorkspaceTasks(
+                        workspaceTasks,
+                        queryTimeoutMinutes,
+                        TimeUnit.MINUTES);
 
-                    return null;
-                }));
+                LOGGER.debug("results: {}", results);
+
+                queryUpdateSubscriber.notify(results);
+
+                return null;
+            });
+        });
 
     }
 

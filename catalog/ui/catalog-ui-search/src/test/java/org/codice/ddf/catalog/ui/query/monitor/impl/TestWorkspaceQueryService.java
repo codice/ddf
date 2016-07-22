@@ -22,14 +22,23 @@ import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.authz.Permission;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.ExecutionException;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
@@ -137,6 +146,180 @@ public class TestWorkspaceQueryService {
                 .thenReturn(hitCount2);
 
         when(catalogFramework.query(any())).thenReturn(queryResponse);
+
+        workspaceQueryService.setSubject(new Subject() {
+            @Override
+            public boolean isGuest() {
+                return false;
+            }
+
+            @Override
+            public Object getPrincipal() {
+                return null;
+            }
+
+            @Override
+            public PrincipalCollection getPrincipals() {
+                return null;
+            }
+
+            @Override
+            public boolean isPermitted(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean isPermitted(Permission permission) {
+                return false;
+            }
+
+            @Override
+            public boolean[] isPermitted(String... strings) {
+                return new boolean[0];
+            }
+
+            @Override
+            public boolean[] isPermitted(List<Permission> list) {
+                return new boolean[0];
+            }
+
+            @Override
+            public boolean isPermittedAll(String... strings) {
+                return false;
+            }
+
+            @Override
+            public boolean isPermittedAll(Collection<Permission> collection) {
+                return false;
+            }
+
+            @Override
+            public void checkPermission(String s) throws AuthorizationException {
+
+            }
+
+            @Override
+            public void checkPermission(Permission permission) throws AuthorizationException {
+
+            }
+
+            @Override
+            public void checkPermissions(String... strings) throws AuthorizationException {
+
+            }
+
+            @Override
+            public void checkPermissions(Collection<Permission> collection)
+                    throws AuthorizationException {
+
+            }
+
+            @Override
+            public boolean hasRole(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean[] hasRoles(List<String> list) {
+                return new boolean[0];
+            }
+
+            @Override
+            public boolean hasAllRoles(Collection<String> collection) {
+                return false;
+            }
+
+            @Override
+            public void checkRole(String s) throws AuthorizationException {
+
+            }
+
+            @Override
+            public void checkRoles(Collection<String> collection) throws AuthorizationException {
+
+            }
+
+            @Override
+            public void checkRoles(String... strings) throws AuthorizationException {
+
+            }
+
+            @Override
+            public void login(AuthenticationToken authenticationToken)
+                    throws AuthenticationException {
+
+            }
+
+            @Override
+            public boolean isAuthenticated() {
+                return false;
+            }
+
+            @Override
+            public boolean isRemembered() {
+                return false;
+            }
+
+            @Override
+            public Session getSession() {
+                return null;
+            }
+
+            @Override
+            public Session getSession(boolean b) {
+                return null;
+            }
+
+            @Override
+            public void logout() {
+
+            }
+
+            @Override
+            public <V> V execute(Callable<V> callable) throws ExecutionException {
+                try {
+                    return callable.call();
+                } catch (Exception e) {
+                    throw new ExecutionException(e);
+                }
+            }
+
+            @Override
+            public void execute(Runnable runnable) {
+
+            }
+
+            @Override
+            public <V> Callable<V> associateWith(Callable<V> callable) {
+                return null;
+            }
+
+            @Override
+            public Runnable associateWith(Runnable runnable) {
+                return null;
+            }
+
+            @Override
+            public void runAs(PrincipalCollection principalCollection)
+                    throws NullPointerException, IllegalStateException {
+
+            }
+
+            @Override
+            public boolean isRunAs() {
+                return false;
+            }
+
+            @Override
+            public PrincipalCollection getPreviousPrincipals() {
+                return null;
+            }
+
+            @Override
+            public PrincipalCollection releaseRunAs() {
+                return null;
+            }
+        });
 
         workspaceQueryService.run();
 
