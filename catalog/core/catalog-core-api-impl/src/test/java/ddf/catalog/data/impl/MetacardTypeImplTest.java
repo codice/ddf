@@ -39,7 +39,6 @@ import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.DateTimeAttributes;
 import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
-import ddf.catalog.data.impl.types.MetacardAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.data.impl.types.VersionAttributes;
@@ -67,8 +66,6 @@ public class MetacardTypeImplTest {
     private static final LocationAttributes LOCATION_ATTRIBUTES = new LocationAttributes();
 
     private static final MediaAttributes MEDIA_ATTRIBUTES = new MediaAttributes();
-
-    private static final MetacardAttributes METACARD_ATTRIBUTES = new MetacardAttributes();
 
     private static final TopicAttributes TOPIC_ATTRIBUTES = new TopicAttributes();
 
@@ -353,15 +350,6 @@ public class MetacardTypeImplTest {
     }
 
     @Test
-    public void testMetacardType() {
-        List<MetacardType> metacardTypeList = new ArrayList<>();
-        metacardTypeList.add(METACARD_ATTRIBUTES);
-        MetacardType metacardType = new MetacardTypeImpl(TEST_NAME, metacardTypeList);
-        assertMetacardAttributes(metacardType, CORE_ATTRIBUTES.getAttributeDescriptors());
-        assertMetacardAttributes(metacardType, METACARD_ATTRIBUTES.getAttributeDescriptors());
-    }
-
-    @Test
     public void testTopicType() {
         List<MetacardType> metacardTypeList = new ArrayList<>();
         metacardTypeList.add(TOPIC_ATTRIBUTES);
@@ -402,7 +390,6 @@ public class MetacardTypeImplTest {
         List<MetacardType> metacardTypeList = new ArrayList<>();
         metacardTypeList.add(DATE_TIME_ATTRIBUTES);
         metacardTypeList.add(MEDIA_ATTRIBUTES);
-        metacardTypeList.add(METACARD_ATTRIBUTES);
         metacardTypeList.add(LOCATION_ATTRIBUTES);
         metacardTypeList.add(CONTACT_ATTRIBUTES);
         metacardTypeList.add(TOPIC_ATTRIBUTES);
@@ -413,7 +400,6 @@ public class MetacardTypeImplTest {
         assertMetacardAttributes(metacardType, CORE_ATTRIBUTES.getAttributeDescriptors());
         assertMetacardAttributes(metacardType, DATE_TIME_ATTRIBUTES.getAttributeDescriptors());
         assertMetacardAttributes(metacardType, MEDIA_ATTRIBUTES.getAttributeDescriptors());
-        assertMetacardAttributes(metacardType, METACARD_ATTRIBUTES.getAttributeDescriptors());
         assertMetacardAttributes(metacardType, LOCATION_ATTRIBUTES.getAttributeDescriptors());
         assertMetacardAttributes(metacardType, CONTACT_ATTRIBUTES.getAttributeDescriptors());
         assertMetacardAttributes(metacardType, TOPIC_ATTRIBUTES.getAttributeDescriptors());

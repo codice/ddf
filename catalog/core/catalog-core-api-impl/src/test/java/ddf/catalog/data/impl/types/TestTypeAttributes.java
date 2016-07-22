@@ -26,14 +26,14 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.DateTime;
 import ddf.catalog.data.types.Location;
 import ddf.catalog.data.types.Media;
-import ddf.catalog.data.types.Metacard;
 import ddf.catalog.data.types.Topic;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.data.types.Version;
 
 public class TestTypeAttributes {
 
-    private static final AssociationsAttributes ASSOCIATIONS_ATTRIBUTES = new AssociationsAttributes();
+    private static final AssociationsAttributes ASSOCIATIONS_ATTRIBUTES =
+            new AssociationsAttributes();
 
     private static final ContactAttributes CONTACT_ATTRIBUTES = new ContactAttributes();
 
@@ -44,8 +44,6 @@ public class TestTypeAttributes {
     private static final LocationAttributes LOCATION_ATTRIBUTES = new LocationAttributes();
 
     private static final MediaAttributes MEDIA_ATTRIBUTES = new MediaAttributes();
-
-    private static final MetacardAttributes METACARD_ATTRIBUTES = new MetacardAttributes();
 
     private static final TopicAttributes TOPIC_ATTRIBUTES = new TopicAttributes();
 
@@ -87,13 +85,6 @@ public class TestTypeAttributes {
         assertThat(MEDIA_ATTRIBUTES.getName(), is("media"));
         assertThat(MEDIA_ATTRIBUTES.getAttributeDescriptor(Media.BITS_PER_SAMPLE), notNullValue());
         assertThat(MEDIA_ATTRIBUTES.getAttributeDescriptor(Version.ACTION), nullValue());
-    }
-
-    @Test
-    public void testMetacardAttributes() {
-        assertThat(METACARD_ATTRIBUTES.getName(), is("metacard"));
-        assertThat(METACARD_ATTRIBUTES.getAttributeDescriptor(Metacard.CREATED), notNullValue());
-        assertThat(METACARD_ATTRIBUTES.getAttributeDescriptor(Version.ACTION), nullValue());
     }
 
     @Test

@@ -77,7 +77,7 @@ public class CoreAttributes implements Core, MetacardType {
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
-                true /* multivalued */,
+                false /* multivalued */,
                 BasicTypes.GEO_TYPE));
         DESCRIPTORS.add(new AttributeDescriptorImpl(METADATA,
                 true /* indexed */,
@@ -139,6 +139,36 @@ public class CoreAttributes implements Core, MetacardType {
                 true /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
+        DESCRIPTORS.add(new AttributeDescriptorImpl(METACARD_CREATED,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.DATE_TYPE));
+        DESCRIPTORS.add(new AttributeDescriptorImpl(METACARD_MODIFIED,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.DATE_TYPE));
+        DESCRIPTORS.add(new AttributeDescriptorImpl(METACARD_OWNER,
+                true /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                true /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        DESCRIPTORS.add(new AttributeDescriptorImpl(METACARD_TAGS,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                BasicTypes.OBJECT_TYPE));
+        DESCRIPTORS.add(new AttributeDescriptorImpl(METACARD_PERMISSIONS,
+                true /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                true /* multivalued */,
+                BasicTypes.XML_TYPE));
     }
 
     @Override
