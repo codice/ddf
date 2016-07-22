@@ -1379,6 +1379,479 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 </csw:GetRecordByIdResponse>
 ----
 
+===== `Contextual Operation Examples`
+A distributed query for records with a property name of "AnyText" and a value containing a string like "T#xtToMatch".
+Note: The attribute value singleChar="#" indicates that '#' can be replaced by any other character for the string
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+                   <ogc:PropertyName>AnyText</ogc:PropertyName>
+                   <ogc:Literal>T#xtToMatch</ogc:Literal>
+               </ogc:PropertyIsLike>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query>
+<csw:DistributedSearch hopCount="2" /></csw:GetRecords>
+----
+A query for records with a property value equal to "TextToMatch".
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:PropertyIsEqualTo matchCase="true">
+                   <ogc:PropertyName>AnyText</ogc:PropertyName>
+                   <ogc:Literal>TextToMatch</ogc:Literal>
+               </ogc:PropertyIsEqualTo>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query>
+</csw:GetRecords>
+----
+A fuzzy search query for records with a property value similar to "FuzzyTextToMatch".
+Note: A fuzzy search will make a best effort matching unlike PropertyIsEqual and PropertyIsLike.
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+                xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+                xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+                xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+                xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+                outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+                startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+    <csw:Query typeNames="csw:Record">
+        <csw:ElementSetName>full</csw:ElementSetName>
+        <csw:Constraint version="1.1.0">
+            <ogc:Filter>
+                <ogc:PropertyIsFuzzy>
+                    <ogc:PropertyName>AnyText</ogc:PropertyName>
+                    <ogc:Literal>FuzzyTextToMatch</ogc:Literal>
+                </ogc:PropertyIsFuzzy>
+            </ogc:Filter>
+        </csw:Constraint>
+    </csw:Query>
+<csw:DistributedSearch hopCount="2" /></csw:GetRecords>
+----
+===== `Temporal Operation Examples`
+A query for records created after a specific date.
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:PropertyIsGreaterThan>
+                   <ogc:PropertyName>created</ogc:PropertyName>
+                   <ogc:Literal>2012-12-25T10:10:19.000-07:00</ogc:Literal>
+               </ogc:PropertyIsGreaterThan>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query>
+</csw:GetRecords>
+----
+A query for records created between two specific dates.
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:PropertyIsBetween>
+                   <ogc:PropertyName>created</ogc:PropertyName>
+                   <ogc:LowerBoundary>
+                       <ogc:Literal>2012-12-24T17:05:19.000-07:00</ogc:Literal>
+                   </ogc:LowerBoundary>
+                   <ogc:UpperBoundary>
+                       <ogc:Literal>2012-12-26T17:08:52.000-07:00</ogc:Literal>
+                   </ogc:UpperBoundary>
+               </ogc:PropertyIsBetween>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query>
+</csw:GetRecords>
+----
+A query for records created before a specific date.
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:PropertyIsLessThan>
+                   <ogc:PropertyName>created</ogc:PropertyName>
+                   <ogc:Literal>2012-12-26T10:10:19.000-07:00</ogc:Literal>
+               </ogc:PropertyIsLessThan>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query>
+</csw:GetRecords>
+----
+===== `Spatial Operation Examples`
+A query for records with a BoundingBox within 500 meters of the specified LinearRing
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:DWithin>
+                   <ogc:PropertyName>ows:BoundingBox</ogc:PropertyName>
+                   <gml:Polygon srsName="EPSG:4326">
+                       <gml:exterior>
+                           <gml:LinearRing>
+                               <gml:pos>69.31 33.2</gml:pos>
+                               <gml:pos>70.73 33.22</gml:pos>
+                               <gml:pos>69.66 34.29</gml:pos>
+                               <gml:pos>69.31 33.2</gml:pos>
+                           </gml:LinearRing>
+                       </gml:exterior>
+                   </gml:Polygon>
+                   <ogc:Distance units="METERS">500.0</ogc:Distance>
+               </ogc:DWithin>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query>
+</csw:GetRecords>
+----
+A query for records with a BoundingBox that intersects the specified LinearRing
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:Intersects>
+                   <ogc:PropertyName>ows:BoundingBox</ogc:PropertyName>
+                   <gml:Polygon srsName="EPSG:4326">
+                       <gml:exterior>
+                           <gml:LinearRing>
+                               <gml:pos>69.31 33.2</gml:pos>
+                               <gml:pos>70.73 33.22</gml:pos>
+                               <gml:pos>69.66 34.29</gml:pos>
+                               <gml:pos>69.31 33.2</gml:pos>
+                           </gml:LinearRing>
+                       </gml:exterior>
+                   </gml:Polygon>
+               </ogc:Intersects>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query>
+</csw:GetRecords>
+----
+A query for records with a BoundingBox that contains the specified Line
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:Contains>
+                   <ogc:PropertyName>ows:BoundingBox</ogc:PropertyName>
+                   <gml:LineString srsName="EPSG:4326">
+                       <ns2:pos>25 31</ns2:pos>
+                       <ns2:pos>27 32 </ns2:pos>
+                   </gml:LineString>
+               </ogc:Contains>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query>
+</csw:GetRecords>
+----
+===== `XPath Operation Example`
+An xpath query for records with an xpath property with a value like "LikeTextToMatch".
+Note: xpath expressions are evaluated against the internal document structure, NOT the outputSchema structure
+[source,xml,linenums]
+----
+ <csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+                   <ogc:PropertyName>/Record/title</ogc:PropertyName>
+                   <ogc:Literal>LikeTextToMatch</ogc:Literal>
+               </ogc:PropertyIsLike>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query>
+</csw:GetRecords>
+----
+===== `Logical Operation Example`
+A query for records which were created before a specific date AND contain a string like "LikeTextToMatch"
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+         xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+         xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.w3.org/2001/SMIL20/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ows="http://www.opengis.net/ows"
+         xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
+         resultType="results"  outputFormat="application/xml" outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+         startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+ <csw:Query typeNames="csw:Record">
+   <csw:ElementSetName>full</csw:ElementSetName>
+   <csw:Constraint version="1.1.0">
+     <ogc:Filter>
+       <ogc:And>
+         <ogc:PropertyIsLessThan>
+           <ogc:PropertyName>created</ogc:PropertyName>
+           <ogc:Literal>2012-12-26T10:10:19.000-07:00</ogc:Literal>
+         </ogc:PropertyIsLessThan>
+         <ogc:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+           <ogc:PropertyName>AnyText</ogc:PropertyName>
+           <ogc:Literal>LikeTextToMatch</ogc:Literal>
+         </ogc:PropertyIsLike>
+       </ogc:And>
+     </ogc:Filter>
+   </csw:Constraint>
+ </csw:Query>
+</csw:GetRecords>
+----
+A query for records with a property containing a value like "LikeTextToMatch" OR a property containing a value like "OtherLikeTextToMatch"
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="urn:catalog:metacard"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:Or>
+                       <ogc:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+                           <ogc:PropertyName>AnyText</ogc:PropertyName>
+                           <ogc:Literal>LikeTextToMatch</ogc:Literal>
+                       </ogc:PropertyIsLike>
+                       <ogc:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+                        <ogc:PropertyName>AnyText</ogc:PropertyName>
+                        <ogc:Literal>OtherLikeTextToMatch</ogc:Literal>
+                       </ogc:PropertyIsLike>
+               </ogc:Or>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query><csw:DistributedSearch hopCount="2" /></csw:GetRecords>
+----
+A query for records with a property NOT containing a value like "LikeTextToMatch"
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="urn:catalog:metacard"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+                   <ogc:Not>
+                       <ogc:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+                        <ogc:PropertyName>AnyText</ogc:PropertyName>
+                        <ogc:Literal>LikeTextToMatch</ogc:Literal>
+                       </ogc:PropertyIsLike>
+                   </ogc:Not>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query></csw:GetRecords>
+----
+A query for records with a property containing a value like "LikeTextToMatch" AND NOT another property containing a property with a value like "OtherLikeText"
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+               xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+               xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+               xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+               xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+               outputFormat="application/xml" outputSchema="urn:catalog:metacard"
+               startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+   <csw:Query typeNames="csw:Record">
+       <csw:ElementSetName>full</csw:ElementSetName>
+       <csw:Constraint version="1.1.0">
+           <ogc:Filter>
+               <ogc:And>
+                       <ogc:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+                           <ogc:PropertyName>AnyText</ogc:PropertyName>
+                           <ogc:Literal>LikeTextToMatch</ogc:Literal>
+                       </ogc:PropertyIsLike>
+                   <ogc:Not>
+                       <ogc:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+                        <ogc:PropertyName>AnyText</ogc:PropertyName>
+                        <ogc:Literal>OtherLikeText</ogc:Literal>
+                       </ogc:PropertyIsLike>
+                   </ogc:Not>
+               </ogc:And>
+           </ogc:Filter>
+       </csw:Constraint>
+   </csw:Query></csw:GetRecords>
+
+----
+===== `Output Format Examples`
+If an output type format is specified, the results will be transformed into the given format. The list of supported output formats can be found by doing a GetCapabilities request to the CSW endpoint. Supported output formats include:
+- application/xml
+- application/json
+- application/atom+xml
+- text/xml
+- application/zip
+Example query for records with a property name equal to "TextToMatch" and an output format of JSON.
+[source,xml,linenums]
+----
+<csw:GetRecords xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink"
+              xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"
+              xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+              xmlns:ns6="http://www.w3.org/2001/SMIL20/"
+              xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/"
+              xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" resultType="results"
+              outputFormat="application/json"
+              startPosition="1" maxRecords="20" service="CSW" version="2.0.2">
+  <csw:Query>
+      <csw:ElementSetName>full</csw:ElementSetName>
+      <csw:Constraint version="1.1.0">
+          <ogc:Filter>
+              <ogc:PropertyIsEqualTo matchCase="true">
+                  <ogc:PropertyName>AnyText</ogc:PropertyName>
+                  <ogc:Literal>TextToMatch</ogc:Literal>
+              </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+      </csw:Constraint>
+  </csw:Query>
+</csw:GetRecords>
+----
+Example Response:
+[source,xml,linenums]
+----
+{
+  "hits":1,
+  "results":[
+     {
+        "metacard":{
+           "geometry":{
+              "coordinates":[
+                 [
+                    25.0,
+                    31.0
+                 ],
+                 [
+                    27.0,
+                    32.0
+                 ]
+              ],
+              "type":"LineString"
+           },
+           "type":"Feature",
+           "properties":{
+              "metadata":"
+<xml>GeoJson far<\/xml>",
+              "thumbnail":"\/9j\/4AAQSkZJRgABAQAAAQABAAD\/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj\/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj\/wAARCAALAAgDASIAAhEBAxEB\/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH\/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP\/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf\/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv\/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ\/\/9k=",
+              "created":"2012-12-26T00:09:19.368+0000",
+              "resource-uri":"http:\/\/example.com",
+              "metacard-tags":[
+                 "resource"
+              ],
+              "checksum-algorithm":"Adler32",
+              "metadata-content-type":"myType",
+              "metacard-type":"ddf.metacard",
+              "title":"GeoJson far",
+              "resource-download-url":"https:\/\/localhost:8993\/services\/catalog\/sources\/ddf.distribution\/089000423b8444578519785564326818?transform=resource",
+              "source-id":"ddf.distribution",
+              "effective":"2012-12-26T00:09:19.368+0000",
+              "point-of-contact":"",
+              "resource.cached":false,
+              "checksum":"54a63622",
+              "modified":"2012-12-26T00:09:19.368+0000",
+              "id":"089000423b8444578519785564326818",
+              "metadata-content-type-version":"myVersion"
+           }
+        }
+     }
+  ]
+}
+----
+
 [cols="5*" options="header"]
 .CSW Record to Metacard Mapping
 |===
