@@ -369,7 +369,7 @@
         <feature>catalog-plugin-metacard-validation</feature>
     </feature>
 
-    <feature name="catalog-core-validationparser" install="manual" version="${project.version}"
+    <feature name="catalog-core-validationparser" install="auto" version="${project.version}"
              description="Provides the ability to define new metacard types, attributes, attribute validators, and default values via JSON files">
         <feature prerequisite="true">catalog-core-validator</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validationparser/${project.version}</bundle>
