@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -52,7 +52,6 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.tika.detect.DefaultProbDetector;
@@ -275,7 +274,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local catalog provider will be set to the first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework.
      *
@@ -297,7 +296,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local catalog provider will be reset to the new first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
      * currently empty, then the local catalog provider will be set to <code>null</code>.
@@ -326,7 +325,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local storage provider will be set to the first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework.
      *
@@ -344,7 +343,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local storage provider will be reset to the new first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework. If this list of storage providers is
      * currently empty, then the local storage provider will be set to <code>null</code>.
@@ -789,15 +788,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             try {
                 Path tmpPath = null;
                 long size;
-                try {
+                try (InputStream inputStream = contentItem.getInputStream()) {
                     String sanitizedFilename =
                             InputValidation.sanitizeFilename(contentItem.getFilename());
-                    if (contentItem.getInputStream() != null) {
+                    if (inputStream != null) {
                         tmpPath = Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
                                 FilenameUtils.getExtension(sanitizedFilename));
-                        Files.copy(contentItem.getInputStream(),
-                                tmpPath,
-                                StandardCopyOption.REPLACE_EXISTING);
+                        Files.copy(inputStream, tmpPath, StandardCopyOption.REPLACE_EXISTING);
                         size = Files.size(tmpPath);
                         tmpContentPaths.put(contentItem.getId(), tmpPath);
                     } else {
@@ -809,8 +806,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         FileUtils.deleteQuietly(tmpPath.toFile());
                     }
                     throw new IngestException("Could not copy bytes of content message.", e);
-                } finally {
-                    IOUtils.closeQuietly(contentItem.getInputStream());
                 }
                 String mimeTypeRaw = contentItem.getMimeTypeRawData();
                 mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(), tmpPath);
@@ -2591,7 +2586,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     /**
      * Retrieves a resource by URI.
-     * <p>
+     * <p/>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.
