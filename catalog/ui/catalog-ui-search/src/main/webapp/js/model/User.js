@@ -156,6 +156,7 @@ define([
             }
             this.listenTo(wreqr.vent, 'alerts:add', this.addAlert);
             this.listenTo(this.get('alerts'), 'remove', this.handleRemove);
+            this.listenTo(this, 'change:visualization', this.savePreferences);
         },
         handleRemove: function(){
             this.savePreferences();
