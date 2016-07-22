@@ -1,0 +1,20 @@
+==== Zip Compression Transformer
+
+{description}
+
+===== Installing Zip Compression Transformer
+
+The Zip Compression Transformer is installed by default with a standard installation in the ${app-name} application.
+The Zip Compression Transformer is not installed by default with a standard installation in the ${app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring Zip Compression Transformer
+
+* any applicable configurations
+
+===== Using Zip Compression Transformer
+
+{operations}
+

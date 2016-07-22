@@ -1,0 +1,20 @@
+==== XML Xslt Response Queue Transformer
+
+{description}
+
+===== Installing XML Xslt Response Queue Transformer
+
+The XML Xslt Response Queue Transformer is installed by default with a standard installation in the ${ddf-catalog} application.
+The XML Xslt Response Queue Transformer is not installed by default with a standard installation in the ${ddf-catalog} application.
+To install:
+
+* Install steps
+
+===== Configuring XML Xslt Response Queue Transformer
+
+* any applicable configurations
+
+===== Using XML Xslt Response Queue Transformer
+
+{operations}
+

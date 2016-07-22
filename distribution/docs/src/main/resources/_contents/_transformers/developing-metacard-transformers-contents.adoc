@@ -1,0 +1,52 @@
+==== Developing Metacard Transformers
+
+In general, a `MetacardTransformer` is used to transform a `Metacard` into some desired format useful to the end user or as input to another process.
+Programmatically, a `MetacardTransformer` transforms a `Metacard` into a `BinaryContent` instance, which contains the translated `Metacard` into the desired final format.
+Metacard transformers can be used through the Catalog Framework `transform` convenience method or requested from the OSGi Service Registry by endpoints or other bundles.
+
+===== Creating a New Metacard Transformer
+
+. Create a new Java class that implements `${ddf-branding}.catalog.transform.MetacardTransformer`. +
+`public class SampleMetacardTransformer implements ${ddf-branding}.catalog.transform.MetacardTransformer`
+. Implement the transform method. +
+`public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments) throws CatalogTransformerException`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.transform`
+. Create an OSGi descriptor file to communicate with the OSGi Service registry (described in the Working with OSGi section). Export the service to the OSGi registry and declare service properties.
+
+.Metacard Transformer Blueprint Descriptor Example
+[source,xml,linenums]
+----
+...
+<service ref="[[SampleMetacardTransformer]]" interface="${ddf-branding}.catalog.transform.MetacardTransformer">
+    <service-properties>
+        <entry key="shortname" value="[[sampletransform]]" />
+        <entry key="title" value="[[Sample Metacard Transformer]]" />
+        <entry key="description" value="[[A new transformer for metacards.]]" />
+    </service-properties>
+</service>
+...
+----
+
+Deploy OSGi Bundle to OSGi runtime.
+
+.Metacard Transformer Blueprint Service Properties / Variable Descriptions
+[cols="3" options="header"]
+|===
+|Key
+|Description of Value
+|Example
+
+|`shortname`
+|(Required) An abbreviation for the return type of the BinaryContent being sent to the user.
+|atom
+
+|`title`
+|(Optional) A user-readable title that describes (in greater detail than the shortname) the service.
+|Atom Entry Transformer Service
+
+|`description`
+|(Optional) A short, human-readable description that describes the functionality of the service and the output.
+|This service converts a single metacard xml document to an atom entry element.
+
+|===

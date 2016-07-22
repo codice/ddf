@@ -1,77 +1,12 @@
 == Catalog Architecture
 
-.Catalog Architecture
-[ditaa,catalog_architecture, png]
-....
+include::./catalog-architecture-contents.adoc[]
 
-                /-=-----------------\
-                |      Clients      |
-                \-------------------/
-                          |
-                          v
-                /-------------------\
-                |cDEFEndpoints      |
-                +------------+------+
-                |cDEF        |cDEF  |
-                | Operations | Data |
-/---------------+------------+------+------------+---------\    +--------+
-|cDEF           |cDEF               |cDEF        |cDEF     |<-> |        |
-|  Transformers |                   | Federation | Sources |    |External|
-+---------------+ Catalog Framework +------------+---------+<-> |  Data  |
-|cDEF           |                   |cDEF   Eventing       |    |Holdings|
-|   Catalog     |                   +------------+---------+<-> |    {s} |
-|   Plugins     |                   |cDEF   Resources      |    +------=-+
-\---------------+-------------------+----------------------/
-                |cDEF               |
-                | Catalog Provider  |
-                \-------------------/
-                          ^
-                          |
-                          v                         Legend
-                  +---------------+                /---------------------\
-                  |{s}            |                |cDEF ${ddf-branding} Component   |
-                  |  Data Store   |                \---------------------/
-                  |               |                /---------------------\
-                  +------------=--+                | External Component  |
-                                                   \--------------------=/
-
-....
-
-=== Catalog Framework
-
-The `CatalogFramework` is the routing mechanism between catalog components that provides integration points for the Catalog Plugins.
-An <<_endpoints, endpoint>> invokes the active Catalog Framework, which calls any configured <<_pre-query_plugins, Pre-query>> or <<_pre-ingest_plugins, Pre-ingest plug-ins>>.
-The selected <<_federation_strategies, federation strategy>> calls the active <<_catalog_providers, Catalog Provider>> and any connected or federated sources.
-Then, any Post-query or Post-ingest plug-ins are invoked.
-Finally, the appropriate response is returned to the calling endpoint.
-
-=== Endpoints
-
-Endpoints act as a proxy between the client and the <<_catalog_framework, Catalog Framework.>>
-
-Endpoints expose the Catalog Framework to clients using protocols and formats that the clients understand.
-
-Endpoint interface formats/protocols can include a variety of formats, including (but not limited to):
-
-* SOAP Web services
-* RESTful services
-* JMS
-* JSON
-* OpenSearch
-
-The endpoint may transform a client request into a compatible Catalog format and then transform the response into a compatible client format.
-Endpoints may use Transformers to perform these transformations.
-This allows an endpoint to interact with Source(s) that have different interfaces.
-For example, an OpenSearch Endpoint can send a query to the Catalog Framework, which could then query a federated source that has no OpenSearch interface.
-
-Endpoints are meant to be the only client-accessible components in the Catalog.
-
-==== Summary of Available Endpoints
-
-The following endpoints are available within ${branding}:
+// Endpoints
+include::./_endpoints/endpoints-intro-contents.adoc[]
 
 // summary list of endpoints
-include::./available-endpoints-contents.adoc[]
+include::./_endpoints/available-endpoints-contents.adoc[]
 
 // endpoint details
 include::./_endpoints/application-endpoint-contents.adoc[]
@@ -106,116 +41,119 @@ include::./_endpoints/wfs-endpoint-contents.adoc[]
 
 include::./_endpoints/who-am-i-endpoint-contents.adoc[]
 
-==== Developing a New Endpoint
-
-Complete the following procedure to create an endpoint. 
-
-. Create a Java class that implements the endpoint's business logic. Example: Creating a web service that external clients can invoke.
-
-. Add the endpoint's business logic, invoking `CatalogFramework` calls as needed.  
-
-. Import the ${branding} packages to the bundle's manifest for run-time (in addition to any other required packages): +
-`Import-Package: ddf.catalog, ddf.catalog.*`
-
-. Retrieve an instance of `CatalogFramework` from the OSGi registry. (Refer to <<_working_with_osgi_-_service_registry,Working with OSGi - Service Registry>> for examples.)
-
-Deploy the packaged service to ${branding}.
-(Refer to <<_working_with_osgi_-_bundles,Working with OSGi - Bundles>>.)
-
-[NOTE]
-====
-It is recommended to use the maven bundle plugin to create the Endpoint bundle's manifest as opposed to directly editing the manifest file.
-====
-
-[TIP]
-====
-*No implementation of an interface is required* +
-Unlike other ${branding} components that require you to implement a standard interface, no implementation of an interface is required in order to create an endpoint.
-====
-
-.Common Endpoint Business Logic
-[cols="1m,2", options="header"]
-|===
-|Methods
-|Use
-
-|Ingest
-|Add, modify, and remove metadata using the ingest-related `CatalogFramework` methods: 
-
-create, update, and delete. 
-
-|Query
-|Request metadata using the `query` method.
-
-|Source
-|Get available `Source` information.
-
-|Resource
-|Retrieve products referenced in Metacards from Sources.
-
-|Transform
-|Convert common Catalog Framework data types to and from other data formats.
-
-|===
+include::./_endpoints/developing-endpoints-contents.adoc[]
 
 === Transformers and Supported Formats
 
-////
-include::./available-transformers-contents.adoc[]
-////
-==== Available Transformers
+include::./_transformers/transformers-intro-contents.adoc[]
 
+include::./_transformers/input-transformers-contents.adoc[]
 
+include::./_transformers/geojson-input-transformer-contents.adoc[]
 
-==== Supported File Formats
+include::./_transformers/gmd-transformer-contents.adoc[]
+
+include::./_transformers/pdf-input-transformer-contents.adoc[]
+
+include::./_transformers/pptx-input-transformer-contents.adoc[]
+
+include::./_transformers/registry-transformer-contents.adoc[]
+
+include::./_transformers/tika-input-transformer-contents.adoc[]
+
+include::./_transformers/video-input-transformer-contents.adoc[]
+
+include::./_transformers/xml-input-transformer-contents.adoc[]
+
+include::./_transformers/developing-input-transformers-contents.adoc[]
+
+include::./_transformers/metacard-transformers-contents.adoc[]
+
+include::./_transformers/geojson-metacard-transformer-contents.adoc[]
+
+include::./_transformers/html-metacard-transformer-contents.adoc[]
+
+include::./_transformers/kml-metacard-transformer-contents.adoc[]
+
+include::./_transformers/kml-style-mapper-contents.adoc[]
+
+include::./_transformers/metadata-metacard-transformer-contents.adoc[]
+
+include::./_transformers/resource-metacard-transformer-contents.adoc[]
+
+include::./_transformers/thumbnail-metacard-transformer-contents.adoc[]
+
+include::./_transformers/xml-metacard-transformer-contents.adoc[]
+
+include::./_transformers/developing-metacard-transformers-contents.adoc[]
+
+include::./_transformers/query-response-transformers-contents.adoc[]
+
+include::./_transformers/atom-query-response-transformer-contents.adoc[]
+
+include::./_transformers/csw-query-response-transformer.adoc[]
+
+include::./_transformers/geojson-query-response-transformer-contents.adoc[]
+
+include::./_transformers/kml-query-response-transformer-contents.adoc[]
+
+include::./_transformers/query-response-transformer-consumer-contents.adoc[]
+
+include::./_transformers/searchui-transformer-contents.adoc[]
+
+include::./_transformers/xml-query-response-transformer-contents.adoc[]
+
+include::./_transformers/xml-response-queue-transformer-contents.adoc[]
+
+include::./_transformers/xslt-response-queue-transformer-contents.adoc[]
+
+include::./_transformers/zip-compression-contents.adoc[]
+
+include::./_transformers/developing-query-response-transformers-contents.adoc[]
 
 include::./file-types-supported-contents.adoc[]
 
 === Sources
 
-.[[default_sources]]Default Sources
-CachedSource:: _implements HTML5_. Description goes here.
+include::./_sources/sources-intro-contents.adoc[]
 
-ConnectedSource:: _implements X_. Description goes here.
+// Federated Sources
+include::./_sources/federated-sources-contents.adoc[]
 
-Federated Source:: _implements X and Y_. Description goes here.
+include::./_sources/csw-source-contents.adoc[]
 
-OpenSearch Source:: _implements Y_. Description yadda yadda.
+include::./_sources/gmd-csw-source-contents.adoc[]
 
-Remote Source:: _implements Z_. Description yadda yadda.
+include::./_sources/opensearch-source-contents.adoc[]
 
-Solr Cache Source:: _implements X, Y, and Z_. Description of some such.
+include::./_sources/twitter-source-contents.adoc[]
 
-Twitter Source:: _implements b_. Descriptions descriptions, descriptions.
+include::./_sources/wfs-10-source-contents.adoc[]
 
-WFS Source:: _implements WFS_. Description shmescription.
+include::./_sources/wfs-20-source-contents.adoc[]
 
-=== federated sources
+// Connected Sources
+include::./_sources/connected-sources-contents.adoc[]
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+//Catalog Providers
+include::./_sources/catalog-providers-contents.adoc[]
+
+include::./_sources/solr-catalog-provider-contents.adoc[]
+
+include::./_sources/solr-http-catalog-provider-contents.adoc[]
+
+//Catalog Stores
+include::./_sources/catalog-stores-contents.adoc[]
+
+include::./_sources/registry-store-contents.adoc[]
+
+include::./_sources/developing-sources-contents.adoc[]
 
 
-=== Provider(s)
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-=== Stores
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+//////////////
+
 
 == Metrics
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
@@ -253,9 +191,6 @@ cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
 proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 
-== Supported Standards and Formats
-
-include::./specifications-supported.adoc[]
 
 === Input Formats
 
@@ -264,15 +199,4 @@ ${branding} supports ingesting files of the following formats / mime types:
 include::./file-types-supported-contents.adoc[]
 
 
-=== Supported Protocols
-
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-.[[supported_protocols,Supported Protocols]]
-// list? table?
 

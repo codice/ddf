@@ -1,0 +1,119 @@
+==== SearchUI
+
+The SearchUI is a `QueryResponseTransformer` that not only provides results in html format but also provides a convenient, simple querying user interface.
+It is primarily used as a test tool and verification of configuration.
+The left pane of the SearchUI contains basic fields to query the Catalog and other Sources.
+The right pane consists of the results returned from the query.
+
+====== Installing and Uninstalling SearchUI
+
+This transformer is installed by default with a standard installation in the ${ddf-catalog} application.
+This transformer's feature, `catalog-transformer-ui`, can be uninstalled or installed.
+
+====== Configuring SearchUI
+
+From the ${admin-console}, the SearchUI can be configured under the *Catalog HTML Query Response Transformer*.
+
+.SearchUI Configurable Properties
+[cols="6" options="header"]
+|===
+
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Header
+|`header`
+|String
+|Specifies the header text to be rendered on the SearchUI
+|
+|yes
+
+|Footer
+|`footer`
+|String
+|Specifies the footer text to be rendered on the SearchUI
+|
+|yes
+
+|Template
+|`template`
+|String
+|Specifies the path to the Template
+|/templates/searchpage.ftl
+|`yes`
+
+|Text Color
+|`color`
+|String
+|Specifies the Text Color of the Header and Footer
+|yellow
+|yes
+
+|Background Color
+|`background`
+|String
+|Specifies the Background Color of the Header and Footer
+|green
+|yes
+
+|===
+
+===== Using SearchUI
+
+In order to obtain the SearchUI, a user must use the transformer with an endpoint that queries the Catalog such as the OpenSearch Endpoint.
+If a distribution is running locally, \${secure_url}/search/simple should bring up the Simple Search UI.
+After the page has loaded, enter the desired search criteria in the appropriate fields.
+Then click the "Search" button in order to execute the search on the Catalog.
+
+The "Clear" button will reset the query criteria specified.
+
+.SearchUI Query Response Result Mapping
+[cols="3" options="header"]
+|===
+
+|SearchUI Column Title
+|Catalog Result
+|Notes
+
+|Title
+|`Metacard.TITLE`
+|The title may be hyperlinked to view the full Metacard
+
+|Source
+|`Metacard.getSourceId()`
+|Source where the Metacard was discoved
+
+|Location
+|`Metacard.LOCATION`
+|Geographical location of the Metacard
+
+|Time
+|`Metacard.CREATED or Metacard.EFFECTIVE`
+|Time received/created
+
+|Thumbnail
+|`Metacard.THUMBNAIL`
+|No column shown if no results have thumbnail
+
+|Resource
+|`Metacard.RESOURCE_URI`
+|No column shown if no results have a resource
+
+|===
+
+====== Search Criteria
+
+The SearchUI allows for querying a Catalog in the following methods:
+
+* Keyword Search - searching with keywords using the grammar of the underlying endpoint/Catalog.
+* Temporal Search - searching based on relative or absolute time.
+* Spatial search - searching spatially with a Point-Radius or Bounding Box.
+* Content Type Search - searching for specific `Metacard.CONTENT_TYPE` values
+
+===== Known Issues with SearchUI
+
+If the SearchUI results do not provide usable links on the metacard results, verify that a valid host has been entered in the Platform Global Configuration.

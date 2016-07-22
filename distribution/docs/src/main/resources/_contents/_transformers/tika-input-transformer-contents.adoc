@@ -1,0 +1,61 @@
+==== Tika Input Transformer
+
+The Tika Input Transformer is the default input transformer responsible for translating Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into a Catalog Metacard.
+This input transformer utilizes Apache Tika to provide basic support for these mime types.
+As such, the metadata extracted from these types of documents is the metadata that is common across all of these document types, e.g., creation date, author, last modified date, etc.
+The Tika Input Transformer's main purpose is to ingest these types of content into the Metadata Catalog.
+
+The Tika input transformer is given a service ranking (prioity) of -1 so that it is guaranteed to be the last input transformer that is invoked.
+This allows any registered input transformer that are more specific for any of these document types to be invoked instead of this rudimentary default input transformer.
+
+===== Installing Tika Input Transformer
+
+This transformer is installed by default with a standard installation in the ${ddf-catalog}.
+
+===== Configuring Tika Input Transformer
+
+None
+
+===== Using Tika Input Transformer
+
+Use the Tika Input Transformer for ingesting Microsoft documents, OpenOffice documents, or PDF documents into the Catalog.
+
+.Tika Input Transformer Service Properties
+[cols="2,5a" options="header"]
+|===
+
+|Key
+|Value
+
+|mime-type
+|* application/pdf
+* application/vnd.openxmlformats-officedocument.wordprocessingml.document
+* application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+* application/vnd.openxmlformats-officedocument.presentationml.presentation
+* application/vnd.openxmlformats-officedocument.presentationml.presentation
+* application/vnd.ms-powerpoint.presentation.macroenabled.12
+* application/vnd.ms-powerpoint.slideshow.macroenabled.12
+* application/vnd.openxmlformats-officedocument.presentationml.slideshow
+* application/vnd.ms-powerpoint.template.macroenabled.12
+* application/vnd.oasis.opendocument.text
+
+|shortname
+|
+
+|id
+|tika
+
+|title
+|Tika Input Transformer
+
+|description
+|Default Input Transformer for all mime types.
+
+|`service.ranking`
+|-1
+
+|===
+
+===== Tika Input Transformer Implementation Details
+
+This input transformer maps the metadata common across all mime types to applicable metacard attributes in the default MetacardType.

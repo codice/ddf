@@ -1,0 +1,16 @@
+.[[input_transformers]]Input Transformers
+<<_geojson_input_transformer,GeoJSON Input Transformer>>:: The GeoJSON input transformer is responsible for translating specific GeoJSON into a Catalog metacard.
+
+<<_gmd_transformer,GmdTransformer>>:: _description_
+
+<<_pdf_input_transformer,PdfInputTransformer>>:: _description_
+
+<<_pptx_input_transformer,PPTX Input Transformer>>:: The PPTX Input Transformer is the input transformer responsible for translating Microsoft PowerPoint (OOXML only) documents into a Catalog Metacard.
+
+<<_registry_transformer,RegistryTransformer>>:: _description_
+
+<<_tika_input_transformer,Tika Input Transformer>>:: The Tika Input Transformer is the default input transformer responsible for translating Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into a Catalog Metacard.
+
+<<_video_input_transformer,Video Input Transformer>>:: The video input transformer is responsible for creating Catalog metacards from certain video file types.
+
+<<_xml_input_transformer,XmlInputTransformer>>:: _description_

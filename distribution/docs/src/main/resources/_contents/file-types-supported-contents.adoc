@@ -1,3 +1,7 @@
+==== Supported File Formats
+
+Using the various input transformers, ${branding} supports ingest of the following MIME types.
+
 .[[supported_file_types]]Supported File Types
 [cols="3"]
 |===

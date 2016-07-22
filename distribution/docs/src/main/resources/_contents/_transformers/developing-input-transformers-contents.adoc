@@ -1,0 +1,189 @@
+==== Developing Input Transformers
+
+===== Using Java
+
+. Create a new Java class that implements ${ddf-branding}.catalog.transform.InputTransformer. +
+`public class SampleInputTransformer implements ${ddf-branding}.catalog.transform.InputTransformer`
+. Implement the transform methods. +
+`public Metacard transform(InputStream input) throws IOException, CatalogTransformerException` +
+`public Metacard transform(InputStream input, String id) throws IOException, CatalogTransformerException`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.transform`
+. Create an OSGi descriptor file to communicate with the OSGi Service Registry (described in the Working with OSGi section). Export the service to the OSGi Registry and declare service properties.
+
+.Input Transformer Blueprint Descriptor Example
+[source,xml,linenums]
+----
+...
+<service ref="[[SampleInputTransformer]]" interface="${ddf-branding}.catalog.transform.InputTransformer">
+    <service-properties>
+        <entry key="shortname" value="[[sampletransform]]" />
+        <entry key="title" value="[[Sample Input Transformer]]" />
+        <entry key="description" value="[[A new transformer for metacard input.]]" />
+    </service-properties>
+</service>
+...
+----
+. Deploy OSGi Bundle to OSGi runtime.
+
+.Input Transformer Variable Descriptions / Blueprint Service Properties
+[cols="1,3,2" options="header"]
+|===
+
+|Key
+|Description of Value
+|Example
+
+|`shortname`
+|(Required) An abbreviation for the return-type of the BinaryContent being sent to the user.
+|_atom_
+
+|`title`
+|(Optional) A user-readable title that describes (in greater detail than the shortname) the service.
+|_Atom Entry Transformer Service_
+
+|`description`
+|(Optional) A short, human-readable description that describes the functionality of the service and the output.
+|_This service converts a single metacard xml document to an atom entry element._
+
+|===
+
+===== Create an XML Input Transformer using SaxEventHandlers [[saxEventHandlers]]
+
+If the transformer will transform XML, (as opposed to JSON or a Word document, for example) there is a simpler solution than fully implementing a MetacardValidator.
+DDF includes an extensible, configurable `XmlInputTransformer`. This transformer can be instantiated via blueprint as a managed service factory and configured via metatype.
+The `XmlInputTransformer` takes a configuration of `SaxEventHandlers`.
+A `SaxEventHandler` is a class that handles SAX Events (a very fast XML parser) to parse metadata and create metacards.
+As many `SaxEventHandlers` as needed can be implemented and included in the `XmlInputTransformer` configuration. See the `catalog-transformer-streaming-impl` bundle for examples (`XmlSaxEventHandlerImpl` which parses the DDF Metacard XML Metadata and the `GmlHandler` which parses GML 2.0)
+Each `SaxEventHandler` implementation has a `SaxEventHandlerFactory` associated with it.
+The `SaxEventHandlerFactory` is responsible for instantiating new `SaxEventHandlers` - each transform request gets a new instance of `XmlInputTransformer` and set of `SaxEventHandlers` to be thread- and state-safe.
+
+The following diagrams intend to clarify implementation details:
+
+The XmlInputTransformer Configuration diagram shows the XmlInputTransformer configuration, which is configured using the metatype and has the `SaxEventHandlerFactory` ids.
+Then, when a transform request is received, the `ManagedServiceFactory` instantiates a new `XmlInputTransformer`.
+This `XmlInputTransformer` then instantiates a new `SaxEventHandlerDelegate` with the configured `SaxEventHandlersFactory` ids.
+The factories all in turn instantiate a `SaxEventHandler`.
+Then, the `SaxEventHandlerDelegate` begins parsing the XML input document, handing the SAX Events off to each `SaxEventHandler`, which handle them if they can.
+After parsing is finished, each `SaxEventHandler` returns a list of `Attributes` to the `SaxEventHandlerDelegate` and `XmlInputTransformer` which add the attributes to the metacard and then return the fully constructed metacard.
+
+.XMLInputTransformer Configuration
+[ditaa, XmlInputTransformer_configuration, png]
+....
+XmlInputTransformer Configuration
+|
+|
+--- String value of SaxEventHandlerFactory1 id
+|
+|
+--- String value of SaxEventHandlerFactory2 id
+....
+
+.XMLInputTransformer SaxEventHandlerDelegate
+[ditaa, XmlInputTransformer_saxeventhandlerdelegate, png]
+....
+XmlInputTransformer
+|
+--- SaxEventHandlerDelegate
+    |
+    |
+    --- SaxEventHandlerFactory1 -> SaxEventHandler1
+    |
+    |
+    --- SaxEventHandlerFactory2 -> SaxEventHandler2
+....
+
+For more specific details, see the Javadoc for the `org.codice.ddf.transformer.xml.streaming.*` package.
+Additionally, see the source code for the `org.codice.ddf.transformer.xml.streaming.impl.GmlHandler.java`, `org.codice.ddf.transformer.xml.streaming.impl.GmlHandlerFactory`, `org.codice.ddf.transformer.xml.streaming.impl.XmlInputTransformerImpl`, and `org.codice.ddf.transformer.xml.streaming.impl.XmlInputTransformerImplFactory`.
+
+[NOTE]
+====
+1. The `XmlInputTransformer` & `SaxEventHandlerDelegate` create and configure themselves based on String matches of the configuration ids with the `SaxEventHandlerFactory` ids, so ensure these match.
+2. The `XmlInputTransformer` uses a `DynamicMetacardType`.
+This is pertinent because a metacards attributes are only stored in Solr if they are declared on the `MetacardType`.
+Since the `DynamicMetacardType` is constructed dynamically, attributes are declared by the `SaxEventHandlerFactory` that parses them, as opposed to the `MetacardType`. See `org.codice.ddf.transformer.xml.streaming.impl.XmlSaxEventHandlerFactoryImpl.java` vs `ddf.catalog.data.impl.BasicTypes.java`
+====
+
+===== Create an Input Transformer Using Apache Camel
+Alternatively, make an Apache Camel route in a blueprint file and deploy it using a feature file or via hot deploy.
+
+===== Design Pattern
+
+====== From
+
+When using *from* `catalog:inputtransformer?id=text/xml`, an Input Transformer will be created and registered in the OSGi registry with an id of `text/xml`.
+
+====== To
+
+When using *to* `catalog:inputtransformer?id=text/xml`, an Input Transformer with an id matching text/xml will be discovered from the OSGi registry and invoked.
+
+.InputTransformer Message Formats
+[cols="3,2,1" optiona="header"]
+|===
+
+|Exchange Type
+|Field
+|Type
+
+|Request (comes from `<from>` in the route)
+|body
+|java.io.InputStream
+
+|Response (returned after called via `<to>` in the route)
+|body
+|`${ddf-branding}.catalog.data.Metacard`
+
+|===
+
+.InputTransformer Creation Example
+[source,xml,linenums]
+----
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+        <route>
+            <from uri="catalog:inputtransformer?mimeType=RAW(id=text/xml;id=vehicle)"/>
+            <to uri="xslt:vehicle.xslt" /> <!-- must be on classpath for this bundle -->
+            <to uri="catalog:inputtransformer?mimeType=RAW(id=application/json;id=geojson)" />
+        </route>
+    </camelContext>
+</blueprint>
+----
+
+[TIP]
+====
+Its always a good idea to wrap the `mimeType` value with the RAW parameter as shown in the example above.
+This will ensure that the value is taken exactly as is, and is especially useful when you are using special characters.
+====
+
+.InputTransformer Creation Details
+[cols="1,8" options="header"]
+|===
+
+|Line Number
+|Description
+
+|1
+|Defines this as an Apache Aries blueprint file.
+
+|2
+|Defines the Apache Camel context that contains the route.
+
+|3
+|Defines start of an Apache Camel route.
+
+|4
+|Defines the endpoint/consumer for the route. In this case it is the ${branding} custom catalog component that is an InputTransformer registered with an id of text/xml;id=vehicle meaning it can transform an InputStream of vehicle data into a metacard.
+
+*Note that the specified XSL stylesheet must be on the classpath of the bundle that this blueprint file is packaged in.*
+
+|5
+|Defines the XSLT to be used to transform the vehicle input into GeoJSON format using the Apache Camel provided XSLT component.
+
+|6
+Defines the route node that accepts GeoJSON formatted input and transforms it into a Mmtacard, using the ${branding} custom catalog component that is an InputTransformer registered with an id of application/json;id=geojson.
+|===
+
+[NOTE]
+====
+An example of using an Apache Camel route to define an `InputTransformer` in a blueprint file and deploying it as a bundle to an OSGi container can be found in the ${branding} SDK examples at `${ddf-branding}/sdk/sample-transformers/xslt-identity-input-transformer`
+====
