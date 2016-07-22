@@ -35,7 +35,7 @@ define([
 
                 initialize: function(attributes) {
                         var geoJson = attributes.geo.toJSON();
-                        this.id = wellknown.stringify(geoJson);
+                        this.set(this.idAttribute, wellknown.stringify(geoJson));
                 }
             });
 
