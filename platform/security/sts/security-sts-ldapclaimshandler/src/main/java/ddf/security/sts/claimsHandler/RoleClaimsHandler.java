@@ -75,7 +75,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
         try {
             uri = new URI(roleClaimType);
         } catch (URISyntaxException e) {
-            LOGGER.warn("Unable to add role claim type.", e);
+            LOGGER.warn("Unable to add role claim type. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
+            LOGGER.debug("Unable to add role claim type.", e);
         }
         return uri;
     }
@@ -242,9 +243,11 @@ public class RoleClaimsHandler implements ClaimsHandler {
                 }
             }
         } catch (LdapException e) {
-            LOGGER.warn("Cannot connect to server, therefore unable to set role claims.", e);
+            LOGGER.warn("Cannot connect to server, therefore unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
+            LOGGER.debug("Cannot connect to server, therefore unable to set role claims.", e);
         } catch (SearchResultReferenceIOException e) {
-            LOGGER.error("Unable to set role claims.", e);
+            LOGGER.warn("Unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
+            LOGGER.debug("Unable to set role claims.", e);
         } finally {
             if (connection != null) {
                 connection.close();
