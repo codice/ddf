@@ -87,11 +87,28 @@ padding-left: 8px;
     overflow: hidden;
     white-space: nowrap;
   }
+
+  .information-email {
+    border-left: 1px solid grey;
+    padding: 10px;
+  }
 }
 
 @media (max-width: @smallScreenSize) {
   @{customElementNamespace}workspace-sharing {
+    .sharing-information {
+      white-space: normal;
+      overflow: auto;
+    }
 
+    .information-email{
+      border-left: none;
+    }
 
+    .information-role,
+    .information-email {
+      width: 100%;
+      height: 50%;
+    }
   }
 }
