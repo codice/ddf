@@ -274,7 +274,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local catalog provider will be set to the first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework.
      *
@@ -296,7 +296,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local catalog provider will be reset to the new first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
      * currently empty, then the local catalog provider will be set to <code>null</code>.
@@ -325,7 +325,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local storage provider will be set to the first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework.
      *
@@ -343,7 +343,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local storage provider will be reset to the new first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework. If this list of storage providers is
      * currently empty, then the local storage provider will be set to <code>null</code>.
@@ -788,21 +788,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             try {
                 Path tmpPath = null;
                 long size;
-                try {
+                try (InputStream inputStream = contentItem.getInputStream()) {
                     String sanitizedFilename =
                             InputValidation.sanitizeFilename(contentItem.getFilename());
-                    try (InputStream inputStream = contentItem.getInputStream()) {
-                        if (inputStream != null) {
-                            tmpPath = Files.createTempFile(FilenameUtils.getBaseName(
-                                    sanitizedFilename),
-                                    FilenameUtils.getExtension(sanitizedFilename));
-                            Files.copy(inputStream, tmpPath, StandardCopyOption.REPLACE_EXISTING);
-                            size = Files.size(tmpPath);
-                            tmpContentPaths.put(contentItem.getId(), tmpPath);
-                        } else {
-                            throw new IngestException(
-                                    "Could not copy bytes of content message.  Message was NULL.");
-                        }
+                    if (inputStream != null) {
+                        tmpPath = Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
+                                FilenameUtils.getExtension(sanitizedFilename));
+                        Files.copy(inputStream, tmpPath, StandardCopyOption.REPLACE_EXISTING);
+                        size = Files.size(tmpPath);
+                        tmpContentPaths.put(contentItem.getId(), tmpPath);
+                    } else {
+                        throw new IngestException(
+                                "Could not copy bytes of content message.  Message was NULL.");
                     }
                 } catch (IOException e) {
                     if (tmpPath != null) {
@@ -2589,7 +2586,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     /**
      * Retrieves a resource by URI.
-     * <p>
+     * <p/>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.
