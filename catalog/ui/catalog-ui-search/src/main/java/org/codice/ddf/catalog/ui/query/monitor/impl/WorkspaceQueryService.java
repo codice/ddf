@@ -48,6 +48,7 @@ import org.codice.ddf.catalog.ui.query.monitor.api.QueryUpdateSubscriber;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
 import org.codice.ddf.catalog.ui.query.monitor.impl.quartz.CronString;
+import org.codice.ddf.security.common.Security;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.And;
@@ -176,25 +177,32 @@ public class WorkspaceQueryService {
      */
     public void run() {
 
-        LOGGER.debug("running workspace query service");
+        Security.runAsAdmin(() -> Security.getInstance()
+                .getSystemSubject()
+                .execute(() -> {
 
-        Map<String, Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>>> queryMetacards =
-                workspaceService.getQueryMetacards();
+                    LOGGER.debug("running workspace query service");
 
-        LOGGER.debug("queryMetacards: size={}", queryMetacards.size());
+                    Map<String, Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>>>
+                            queryMetacards = workspaceService.getQueryMetacards();
 
-        List<WorkspaceTask> workspaceTasks = createWorkspaceTasks(queryMetacards);
+                    LOGGER.debug("queryMetacards: size={}", queryMetacards.size());
 
-        LOGGER.debug("workspaceTasks: size={}", workspaceTasks.size());
+                    List<WorkspaceTask> workspaceTasks = createWorkspaceTasks(queryMetacards);
 
-        Map<String, Pair<WorkspaceMetacardImpl, Long>> results = executeWorkspaceTasks(
-                workspaceTasks,
-                queryTimeoutMinutes,
-                TimeUnit.MINUTES);
+                    LOGGER.debug("workspaceTasks: size={}", workspaceTasks.size());
 
-        LOGGER.debug("results: {}", results);
+                    Map<String, Pair<WorkspaceMetacardImpl, Long>> results = executeWorkspaceTasks(
+                            workspaceTasks,
+                            queryTimeoutMinutes,
+                            TimeUnit.MINUTES);
 
-        queryUpdateSubscriber.notify(results);
+                    LOGGER.debug("results: {}", results);
+
+                    queryUpdateSubscriber.notify(results);
+
+                    return null;
+                }));
 
     }
 
