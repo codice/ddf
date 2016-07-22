@@ -23,6 +23,10 @@
 |${ddf-branding-lowercase}.catalog.CatalogFrameworkImpl
 |Configure settings for product retrieval through Catalog Standard Framework
 
+|<<expiration_date_pre-ingest_plugin, Expiration Date Pre-Ingest Plugin>>
+|org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin
+|Configure settings for the expiration date pre-ingest plugin
+
 |<<metacard_attribute_security_policy_plugin, Metacard Attribute Security Policy Plugin>>
 |org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin
 |Configure settings for Metacard security attributes.
@@ -251,6 +255,39 @@
 |Boolean
 |true
 |No
+
+|===
+
+.[[expiration_date_pre-ingest_plugin]]Expiration Date Pre-Ingest Plugin
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Offset from Created Date (in days)
+|offsetFromCreatedDate
+|Integer
+|A metacard's new expiration date is calculated by adding this value (in days) to its created date.
+|30
+|Yes
+
+|Overwrite If Empty
+|overwriteIfBlank
+|Boolean
+|If this is checked, overwrite all 'blank' expiration dates in metacards. If this is not checked, leave metacards with 'blank' expiration dates as-is.
+|false
+|Yes
+
+|Overwrite If Exists
+|overwriteIfExists
+|Boolean
+|If this is checked, overwrite all 'existing' non-empty expiration dates in metacards with a new date. If this is not checked, leave metacards with the existing expiration date as-is.
+|false
+|Yes
 
 |===
 

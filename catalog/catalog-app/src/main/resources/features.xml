@@ -134,6 +134,12 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-backupplugin/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-plugin-expirationdate" install="manual" version="${project.version}"
+                 description="Catalog pre-ingest plugin to set an expiration date on metacards.">
+        <feature prerequisite="true">catalog-core</feature>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-expirationdate/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-schematron-plugin" install="auto" version="${project.version}"
              description="Schematron pre-ingest validation plugin.">
         <feature prerequisite="true">catalog-app</feature>
