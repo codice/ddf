@@ -15,14 +15,15 @@
 
 var React = require('react');
 var actions = require('./actions');
+var $ = require('jquery');
 
 var Announcment = function (props) {
     return (
         <div className={"announcement " + props.type}>
             <div className="announcement-title">{props.title}</div>
             <div className="announcement-message">{props.message}</div>
-            <div className="announcement-action is-button">
-                <span onClick={props.onDismiss} className="fa fa-times dismiss"></span>
+            <div className="announcement-action is-button" onClick={props.onDismiss}>
+                <span className="fa fa-times dismiss"></span>
             </div>
         </div>
     );
@@ -39,8 +40,15 @@ var Announcments = React.createClass({
         var list = this.props.list.map(function (announcment) {
             return <Announcment {...announcment}
                                 key={announcment.id}
-                                onDismiss={function () {
-                                    dispatch(actions.remove(announcment.id));
+                                onDismiss={function (e) {
+                                    var announcementElement = $(e.currentTarget).parent();
+                                    announcementElement.css('height', announcementElement[0].getBoundingClientRect().height);
+                                    window.requestAnimationFrame(function(){
+                                        announcementElement.addClass('is-dismissed');
+                                    });
+                                    setTimeout(function(){
+                                        dispatch(actions.remove(announcment.id));
+                                    }, 250);
                                 }} />;
         });
 

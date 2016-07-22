@@ -2,6 +2,7 @@
     position: fixed;
     top: 80px;
     width: 600px;
+    max-width: 90%;
     z-index: 10000;
     left: 50%;
     transform: translateX(-50%);
@@ -13,9 +14,12 @@
         border-radius: 2px;
         background: @dropdownBackground;
         box-shadow: 0px 0px 2px 1px rgba(255,255,255,.4), 2px 2px 10px 2px rgba(0,0,0,.4);
+        margin-bottom: 10px;
+        opacity: 1;
+        animation: new-announcement .250s 1 ease-in-out;
+        transition: height @coreTransitionTime linear, padding @coreTransitionTime linear,
+            opacity @coreTransitionTime linear, margin @coreTransitionTime linear;
     }
-
-    @tab-width: 20px;
 
     .announcement.info {
         background: @positive-color;
@@ -44,7 +48,7 @@
 
     .announcement-message {
         max-height: 168px;
-        overflow-y: scroll;
+        overflow: auto;
         text-align: center;
     }
 
@@ -57,5 +61,23 @@
         height: @minimumButtonSize;
         line-height: @minimumButtonSize;
         width: @minimumButtonSize;
+    }
+
+    @keyframes new-announcement{
+        0% {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0%);
+        }
+    }
+
+    .announcement.is-dismissed {
+        height: 0px !important;
+        padding: 0px;
+        opacity: 0;
+        margin: 0px;
     }
 }
