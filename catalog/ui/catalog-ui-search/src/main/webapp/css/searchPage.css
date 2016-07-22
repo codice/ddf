@@ -1454,6 +1454,10 @@ div.modal-body div.preferenceTabButtons {
     text-align: right;
 }
 
+.layerPicker-row input {
+    background-color: #232323;
+}
+
 /* cesium, but not openlayers, requires a height set on container */
 .miniMap {
     height: 350px;
