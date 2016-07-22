@@ -21,12 +21,10 @@ define([
     './workspace-item.hbs',
     'js/CustomElements',
     'js/store',
-    'component/menu-vertical/popout/menu-vertical.popout.view',
-    'component/content-toolbar/content-toolbar',
     'moment',
     'component/dropdown/dropdown',
     'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
-], function (wreqr, Marionette, _, $, template, CustomElements, store, MenuView, ContentToolbar, moment, DropdownModel, WorkspaceInteractionsDropdownView) {
+], function (wreqr, Marionette, _, $, template, CustomElements, store, moment, DropdownModel, WorkspaceInteractionsDropdownView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -38,8 +36,7 @@ define([
         modelEvents: {
         },
         events: {
-            'click .choice': 'handleChoice',
-            'click .choice-actions': 'editWorkspaceDetails'
+            'click .choice': 'handleChoice'
         },
         ui: {
         },
@@ -49,29 +46,9 @@ define([
                     this.render();
                 }
             }.bind(this), 200));
-            this._workspaceMenuModel = new ContentToolbar();
-        },
-        initializeMenus: function(){
-            this._workspaceMenu = MenuView.getNewWorkspaceMenu(this._workspaceMenuModel,
-                function(){
-                    switch(this.displayType){
-                        case 'Grid':
-                            return this.el.querySelector('.choice.as-grid .actions-icon');
-                            break;
-                        case 'List':
-                            return this.el.querySelector('.choice.as-list .actions-icon');
-                            break;
-                    }
-                }.bind(this),
-                'workspace',
-                this.model);
         },
         firstRender: true,
         onRender: function(){
-            if (this.firstRender){
-                this.firstRender = false;
-                this.initializeMenus();
-            }
             this.gridWorkspaceActions.show(new WorkspaceInteractionsDropdownView({
                 model: new DropdownModel(),
                 modelForComponent: this.model
@@ -89,10 +66,6 @@ define([
                     trigger: true
                 }
             });
-        },
-        editWorkspaceDetails: function(event){
-            event.stopPropagation();
-            this._workspaceMenuModel.activate('workspace');
         },
         serializeData: function() {
             var workspacesJSON = this.model.toJSON();
