@@ -31,7 +31,7 @@ define([
 
         function matchesILIKE(value, filter){
             var valueToCheckFor = filter.value.toLowerCase();
-            value = value.toLowerCase();
+            value = value.toString().toLowerCase();
             var tokens = value.split(' ');
             for (var i = 0; i <= tokens.length - 1; i++){
                 if (tokens[i] === valueToCheckFor){
@@ -43,7 +43,7 @@ define([
 
         function matchesLIKE(value, filter){
             var valueToCheckFor = filter.value;
-            var tokens = value.split(' ');
+            var tokens = value.toString().split(' ');
             for (var i = 0; i <= tokens.length - 1; i++){
                 if (tokens[i] === valueToCheckFor){
                     return true;
@@ -54,7 +54,7 @@ define([
 
         function matchesEQUALS(value, filter) {
             var valueToCheckFor = filter.value;
-            if (value === valueToCheckFor) {
+            if (value.toString() === valueToCheckFor) {
                 return true;
             }
             return false;
@@ -62,7 +62,7 @@ define([
 
         function matchesNOTEQUALS(value, filter) {
             var valueToCheckFor = filter.value;
-            if (value !== valueToCheckFor) {
+            if (value.toString() !== valueToCheckFor) {
                 return true;
             }
             return false;
@@ -125,6 +125,10 @@ define([
             return false;
         }
 
+        function flattenMultivalueProperties(valuesToCheck){
+            return _.flatten(valuesToCheck, true);
+        }
+
         function matchesFilter(metacard, filter, metacardTypes) {
             if (!filter.filters) {
                 var valuesToCheck = [];
@@ -162,27 +166,54 @@ define([
                     return false;
                 }
 
+                valuesToCheck = flattenMultivalueProperties(valuesToCheck);
+
                 for (var i = 0; i <= valuesToCheck.length - 1; i++) {
                     switch (filter.type) {
                         case 'ILIKE':
-                            return matchesILIKE(valuesToCheck[i], filter);
+                            if (matchesILIKE(valuesToCheck[i], filter)){
+                                return true;
+                            }
+                            break;
                         case 'LIKE':
-                            return matchesLIKE(valuesToCheck[i], filter);
+                            if (matchesLIKE(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
                         case '=':
-                            return matchesEQUALS(valuesToCheck[i], filter);
+                            if (matchesEQUALS(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
                         case '!=':
-                            return matchesNOTEQUALS(valuesToCheck[i], filter);
+                            if (matchesNOTEQUALS(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
                         case 'INTERSECTS':
-                            return matchesPOLYGON(valuesToCheck[i], filter);
+                            if (matchesPOLYGON(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
                         case 'DWITHIN':
                             if (CQLUtils.isPointRadiusFilter(filter)){
-                                return matchesCIRCLE(valuesToCheck[i], filter);
+                                if (matchesCIRCLE(valuesToCheck[i], filter)){
+                                    return true;
+                                }
+                            } else if (matchesLINESTRING(valuesToCheck[i], filter)){
+                                return true;
                             }
-                            return matchesLINESTRING(valuesToCheck[i], filter);
+                            break;
                         case 'AFTER':
-                            return matchesAFTER(valuesToCheck[i], filter);
+                            if (matchesAFTER(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
                         case 'BEFORE':
-                            return matchesBEFORE(valuesToCheck[i], filter);
+                            if (matchesBEFORE(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
                     }
                 }
                 return false;
