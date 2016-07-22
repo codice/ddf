@@ -38,6 +38,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
@@ -442,7 +443,7 @@ public class TestExpirationDatePlugin {
             mockMetacard.setAttribute(id);
             Attribute title = new AttributeImpl(Metacard.TITLE, Integer.toString(i));
             mockMetacard.setAttribute(title);
-            Attribute createdDate = new AttributeImpl(ddf.catalog.data.types.Metacard.CREATED, CREATED_DATE.toDate());
+            Attribute createdDate = new AttributeImpl(Core.METACARD_CREATED, CREATED_DATE.toDate());
             mockMetacard.setAttribute(createdDate);
             mockMetacards.add(mockMetacard);
         }
@@ -460,7 +461,7 @@ public class TestExpirationDatePlugin {
             mockMetacard.setAttribute(id);
             Attribute title = new AttributeImpl(Metacard.TITLE, Integer.toString(i));
             mockMetacard.setAttribute(title);
-            Attribute createdDate = new AttributeImpl(ddf.catalog.data.types.Metacard.CREATED, CREATED_DATE.toDate());
+            Attribute createdDate = new AttributeImpl(Core.METACARD_CREATED, CREATED_DATE.toDate());
             mockMetacard.setAttribute(createdDate);
             Attribute expirationDate = new AttributeImpl(Metacard.EXPIRATION,
                     ORIG_EXPIRATION_DATE.toDate());

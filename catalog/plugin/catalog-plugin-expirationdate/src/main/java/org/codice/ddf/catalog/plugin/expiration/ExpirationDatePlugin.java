@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
@@ -154,9 +155,8 @@ public class ExpirationDatePlugin implements PreIngestPlugin {
         // or parsing fails
         Date createdDate = new Date();
 
-        Attribute metacardCreatedAttribute = metacard
-                .getAttribute(ddf.catalog.data.types.Metacard.CREATED);
-        if (metacardCreatedAttribute != null) {
+        Attribute metacardCreatedAttribute = metacard.getAttribute(Core.METACARD_CREATED);
+        if (metacardCreatedAttribute != null && (metacardCreatedAttribute.getValue() instanceof Date)) {
             createdDate = (Date) metacardCreatedAttribute.getValue();
         }
 
