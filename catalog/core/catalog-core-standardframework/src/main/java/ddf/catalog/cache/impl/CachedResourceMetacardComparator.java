@@ -72,8 +72,7 @@ class CachedResourceMetacardComparator {
             Metacard.EFFECTIVE,
             Metacard.CREATED,
             Metacard.EXPIRATION,
-            Metacard.CONTENT_TYPE,
-            Metacard.RESOURCE_CACHE_STATUS);
+            Metacard.CONTENT_TYPE);
 
     private CachedResourceMetacardComparator() {
     }

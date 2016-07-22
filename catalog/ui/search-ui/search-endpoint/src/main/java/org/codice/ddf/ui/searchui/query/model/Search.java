@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -101,6 +102,10 @@ public class Search {
     public static final String ELAPSED = "elapsed";
 
     public static final String CACHED = "cached";
+
+    private static final String INTERNAL_LOCAL_RESOURCE = "internal.local-resource";
+
+    private static final String IS_RESOURCE_LOCAL = "is-resource-local";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
 
@@ -360,6 +365,11 @@ public class Search {
         } else {
             metacard.put(CACHED, ISO_8601_DATE_FORMAT.print(new DateTime()));
         }
+
+        metacard.put(IS_RESOURCE_LOCAL, Optional.ofNullable(result.getMetacard()
+                .getAttribute(INTERNAL_LOCAL_RESOURCE))
+                .map(Attribute::getValue)
+                .orElse(Boolean.FALSE));
 
         addObject(transformedResult, METACARD, metacard);
 

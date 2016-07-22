@@ -237,12 +237,6 @@ public interface Metacard extends Serializable {
     String DERIVED_RESOURCE_DOWNLOAD_URL = "resource.derived-download-url";
 
     /**
-     * {@link Attribute} name for accessing the resources cache status for the products of this
-     * {@link Metacard}. <br/>
-     */
-    String RESOURCE_CACHE_STATUS = "resource.cached";
-
-    /**
      * Returns {@link Attribute} for given attribute name.
      *
      * @param name name of attribute

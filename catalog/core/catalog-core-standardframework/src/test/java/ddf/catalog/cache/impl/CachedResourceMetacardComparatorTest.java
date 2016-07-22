@@ -75,13 +75,6 @@ public class CachedResourceMetacardComparatorTest {
     }
 
     @Test
-    public void isSameMetacardWithDifferentResourceCacheStatus() {
-        updatedMetacard.setAttribute(Metacard.RESOURCE_CACHE_STATUS, Boolean.TRUE);
-
-        assertThat(isSame(cachedMetacard, updatedMetacard), is(true));
-    }
-
-    @Test
     public void isSameWhenBothMetacardTypesNull() {
         cachedMetacard.setType(null);
         updatedMetacard.setType(null);
@@ -293,7 +286,6 @@ public class CachedResourceMetacardComparatorTest {
                 deriverResourceUrl));
         metacard.setAttribute(new AttributeImpl(Metacard.DERIVED_RESOURCE_URI, derivedResourceUri));
         metacard.setAttribute(new AttributeImpl(Metacard.RELATED, "otherMetacardId"));
-        metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_CACHE_STATUS, Boolean.FALSE));
         return metacard;
     }
 }

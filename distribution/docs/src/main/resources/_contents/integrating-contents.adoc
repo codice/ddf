@@ -831,7 +831,7 @@ The response is returned as a data map that contains an internal map with the fo
 |GeoJson-formatted value
 |This format is defined by the GeoJSON Metacard Transformer.
 
-|results/metacard/properties/resource.cached
+|results/metacard/is-resource-local
 |A property indicating whether a metacard's associated resource is cached
 |Boolean
 |true, false
@@ -892,61 +892,70 @@ The response is returned as a data map that contains an internal map with the fo
 [source,json,xml]
 ----
 {
-    "data": {
-        "hits": 1,
-        "metacard-types": {
-            "ddf.metacard": {...}
-        },
-        "id": "857f76c0-da8c-72f5-09cd-536b69e427af",
-        "results": [
-           {
-                "metacard": {
-                    "cached": "2016-06-09T22:46:57.258+0000",
-                    "geometry": {
-                        "coordinates": [
-                            -97.03125,
-                            35.173808
-                        ],
-                        "type": "Point"
-                    },
-                    "type": "Feature",
-                    "actions": [ ... ],
-                    "properties": {
-                        "thumbnail": "..."
-                        "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><metadata> ... </metadata>",
-                        "resource-size": "92314",
-                        "created": "2016-06-09T22:46:37.707+0000",
-                        "metacard-tags": [
-                            "resource"
-                        ],
-                        "resource-uri": "content:1a83781dd56a4050afc420016d078e22",
-                        "checksum-algorithm": "Adler32",
-                        "metadata-content-type": "image/jpeg",
-                        "metacard-type": "ddf.metacard",
-                        "title": "fixTheBugs_geotagged.jpg",
-                        "resource-download-url": "${secure_url}services/catalog/sources/ddf.distribution/1a83781dd56a4050afc420016d078e22?transform=resource",
-                        "source-id": "ddf.distribution",
-                        "effective": "2016-06-09T22:46:37.707+0000",
-                        "point-of-contact": "",
-                        "checksum": "edfa1836",
-                        "modified": "2016-06-09T22:46:37.707+0000",
-                        "id": "1a83781dd56a4050afc420016d078e22"
-                    }
-                }
+   "data": {
+      "hits": 1,
+      "metacard-types": {
+         "ddf.metacard": {...}
+      },
+      "id": "6f0e04e9-acd1-4935-b9dd-c83e770a36d5",
+      "results": [
+         {
+            "metacard": {
+               "is-resource-local": false,
+               "cached": "2016-07-13T19:22:18.220+0000",
+               "geometry": {
+                  "coordinates": [
+                     -84.415337,
+                     42.729925
+                  ],
+                  "type": "Point"
+               },
+               "type": "Feature",
+               "actions": [...],
+               "properties": {
+                  "thumbnail": "...",
+                  "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><metadata>...</metadata>",
+                  "resource-size": "362417",
+                  "created": "2010-06-10T12:07:26.000+0000",
+                  "resource-uri": "content:faade630a2a247468ca9a9b57303b437",
+                  "metacard-tags": [
+                     "resource"
+                  ],
+                  "checksum-algorithm": "Adler32",
+                  "metadata-content-type": "image/jpeg",
+                  "metacard-type": "ddf.metacard",
+                  "resource-download-url": "${secure_url}services/catalog/sources/ddf.distribution/faade630a2a247468ca9a9b57303b437?transform=resource",
+                  "title": "example.jpg",
+                  "source-id": "ddf.distribution",
+                  "effective": "2016-07-13T19:22:06.966+0000",
+                  "point-of-contact": "",
+                  "checksum": "dc7337c5",
+                  "modified": "2010-06-10T12:07:26.000+0000",
+                  "id": "faade630a2a247468ca9a9b57303b437"
+               }
             }
-        ],
-        "status": [
-           {
-                "hits": 1,
-                "elapsed": 432,
-                "reasons": [],
-                "id": "ddf.distribution",
-                "state": "SUCCEEDED",
-                "results": 1
-            }
-        ],
-        "successful": true
-    },
-    "channel": "/857f76c0-da8c-72f5-09cd-536b69e427af"
+         }
+      ],
+      "status": [
+         {
+            "hits": 1,
+            "elapsed": 453,
+            "reasons": [],
+            "id": "ddf.distribution",
+            "state": "SUCCEEDED",
+            "results": 1
+         }
+      ],
+      "successful": true
+   },
+   "channel": "/6f0e04e9-acd1-4935-b9dd-c83e770a36d5"
+},
+{
+   "successful": true
+},
+{
+   "channel": "/service/query",
+   "id": "142",
+   "successful": true
 }
 ----
