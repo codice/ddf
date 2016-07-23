@@ -31,4 +31,6 @@
         <property name="filterBuilder" ref="filterBuilder"/>
     </bean>
 
+    <service ref="identificationPlugin" auto-export="interfaces" ranking="0"/>
+
 </blueprint>
