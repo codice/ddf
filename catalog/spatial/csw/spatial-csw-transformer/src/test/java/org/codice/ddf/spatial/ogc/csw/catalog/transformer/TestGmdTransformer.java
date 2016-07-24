@@ -45,6 +45,10 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Location;
+import ddf.catalog.data.types.Media;
+import ddf.catalog.data.types.Topic;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGmdTransformer {
@@ -98,7 +102,7 @@ public class TestGmdTransformer {
         assertThat(metacard.getModifiedDate(), is(expectedDate));
         assertThat(metacard.getCreatedDate(), is(expectedDate));
 
-        assertThat(metacard.getAttribute(GmdMetacardType.GMD_CRS)
+        assertThat(metacard.getAttribute(Location.COORDINATE_REFERENCE_SYSTEM_NAME)
                 .getValue(), is("urn:ogc:def:crs:World Geodetic System::WGS 84"));
 
         assertThat(metacard.getTitle(), is("VMAPLV0"));
@@ -107,7 +111,7 @@ public class TestGmdTransformer {
                 "Vector Map: a general purpose database design to support GIS applications"));
 
         TreeSet<String> subjectAttributes = new TreeSet<>();
-        metacard.getAttribute(GmdMetacardType.GMD_SUBJECT)
+        metacard.getAttribute(Topic.CATEGORY)
                 .getValues()
                 .forEach(subject -> subjectAttributes.add((String) subject));
         assertThat(subjectAttributes, is(SUBJECTS));
@@ -119,7 +123,7 @@ public class TestGmdTransformer {
 
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
                 .getValue(), is("example organization"));
-        assertThat(metacard.getAttribute(GmdMetacardType.GMD_PUBLISHER)
+        assertThat(metacard.getAttribute(Contact.POINT_OF_CONTACT_NAME)
                 .getValue(), is("example organization"));
 
     }
@@ -129,7 +133,7 @@ public class TestGmdTransformer {
         Metacard metacard = transform("/gmd/dataset2.xml");
         assertGmdMetacard(metacard);
 
-        assertThat(metacard.getAttribute(GmdMetacardType.GMD_FORMAT)
+        assertThat(metacard.getAttribute(Media.ENCODING)
                 .getValue(), is("shapefile"));
     }
 
