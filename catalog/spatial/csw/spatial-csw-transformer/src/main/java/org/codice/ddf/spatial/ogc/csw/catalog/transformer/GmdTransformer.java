@@ -67,6 +67,10 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Location;
+import ddf.catalog.data.types.Media;
+import ddf.catalog.data.types.Topic;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
@@ -274,7 +278,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
                 pathValueTracker.getFirstValue(toPath(GmdMetacardType.POINT_OF_CONTACT_PATH));
         if (StringUtils.isNotEmpty(pointOfContact)) {
             metacard.setPointOfContact(pointOfContact);
-            metacard.setAttribute(GmdMetacardType.GMD_PUBLISHER, pointOfContact);
+            metacard.setAttribute(Contact.POINT_OF_CONTACT_NAME, pointOfContact);
         }
 
     }
@@ -298,7 +302,8 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_VERSION_PATH))));
         crs.append(COLON);
         crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_CODE_PATH))));
-        metacard.setAttribute(GmdMetacardType.GMD_CRS, crs.toString());
+        // TODO should this be location.crs-code?
+        metacard.setAttribute(Location.COORDINATE_REFERENCE_SYSTEM_NAME, crs.toString());
 
     }
 
@@ -323,7 +328,8 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
             MetacardImpl metacard) {
         String format = pathValueTracker.getFirstValue(toPath(GmdMetacardType.FORMAT_PATH));
         if (StringUtils.isNotEmpty((format))) {
-            metacard.setAttribute(GmdMetacardType.GMD_FORMAT, format);
+            // TODO is media.format better? Dublin core makes media.format seem more like physical format
+            metacard.setAttribute(Media.ENCODING, format);
         }
     }
 
@@ -356,8 +362,8 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         }
 
         if (subjects.size() > 0) {
-            metacard.setAttribute(GmdMetacardType.GMD_SUBJECT, (Serializable) subjects);
-
+            // TODO topic.keyword or topic.category?
+            metacard.setAttribute(Topic.CATEGORY, (Serializable) subjects);
         }
     }
 
