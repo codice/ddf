@@ -34,6 +34,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -135,9 +136,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
                 GmdMetacardType.BBOX_SOUTH_LAT_PATH,
                 GmdMetacardType.BBOX_NORTH_LAT_PATH,
                 GmdMetacardType.POINT_OF_CONTACT_PATH)
-                .forEach(path -> {
-                    paths.add(toPath(path));
-                });
+                .forEach(path -> paths.add(toPath(path)));
 
         return paths;
     }
@@ -152,7 +151,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
     public Metacard transform(InputStream inputStream, String id)
             throws IOException, CatalogTransformerException {
 
-        String xml = null;
+        String xml;
         XstreamPathValueTracker pathValueTracker = null;
         xml = IOUtils.toString(inputStream);
 
@@ -301,16 +300,13 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
 
     private void addMetacardCrs(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
-        StringBuilder crs = new StringBuilder();
-        crs.append("urn:ogc:def:crs:");
-        crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_AUTHORITY_PATH))));
-        crs.append(COLON);
-        crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_VERSION_PATH))));
-        crs.append(COLON);
-        crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_CODE_PATH))));
-        // TODO should this be location.crs-code?
-        metacard.setAttribute(Location.COORDINATE_REFERENCE_SYSTEM_NAME, crs.toString());
 
+        String authority = StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(
+                GmdMetacardType.CRS_AUTHORITY_PATH)));
+        String code = StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(
+                GmdMetacardType.CRS_CODE_PATH)));
+
+        metacard.setAttribute(Location.COORDINATE_REFERENCE_SYSTEM_CODE, authority + COLON + code);
     }
 
     private void addMetacardTitle(final XstreamPathValueTracker pathValueTracker,
@@ -365,19 +361,20 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         List<String> topics =
                 pathValueTracker.getAllValues(toPath(GmdMetacardType.TOPIC_CATEGORY_PATH));
 
-        if (!keywords.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(keywords)) {
             metacard.setAttribute(new AttributeImpl(Topic.KEYWORD, toSerializableList(keywords)));
         }
 
-        if (!topics.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(topics)) {
             metacard.setAttribute(new AttributeImpl(Topic.CATEGORY, toSerializableList(topics)));
         }
 
     }
 
-    private void addLanguage(final XstreamPathValueTracker pathValueTracker, MetacardImpl metacard) {
+    private void addLanguage(final XstreamPathValueTracker pathValueTracker,
+            MetacardImpl metacard) {
         String language = pathValueTracker.getFirstValue(toPath(GmdMetacardType.LANGUAGE_PATH));
-        if(StringUtils.isNotEmpty(language)) {
+        if (StringUtils.isNotEmpty(language)) {
             metacard.setAttribute(Core.LANGUAGE, language);
         }
     }

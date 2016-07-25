@@ -28,7 +28,9 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -53,14 +55,10 @@ import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGmdTransformer {
 
-    private static GmdTransformer gmdTransformer;
-
     private static final String XML_DECLARATION =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
 
-    private static final TreeSet<String> SUBJECTS = new TreeSet<>(Arrays.asList("Geologie",
-            "World",
-            "boundaries",
+    private static final Set<String> CATEGORIES = new HashSet<>(Arrays.asList("boundaries",
             "elevation",
             "inlandWaters",
             "oceans",
@@ -69,14 +67,18 @@ public class TestGmdTransformer {
             "transportation",
             "utilitiesCommunication"));
 
-    private void assertGmdMetacard(Metacard metacard) {
-        assertThat(metacard.getMetacardType()
-                .getName(), is(GmdMetacardType.GMD_METACARD_TYPE_NAME));
-    }
+    private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList("Geologie", "World"));
+
+    private static GmdTransformer gmdTransformer;
 
     @BeforeClass
     public static void setUp() {
         gmdTransformer = new GmdTransformer();
+    }
+
+    private void assertGmdMetacard(Metacard metacard) {
+        assertThat(metacard.getMetacardType()
+                .getName(), is(GmdMetacardType.GMD_METACARD_TYPE_NAME));
     }
 
     @Test(expected = IOException.class)
@@ -102,24 +104,30 @@ public class TestGmdTransformer {
         assertThat(metacard.getModifiedDate(), is(expectedDate));
         assertThat(metacard.getCreatedDate(), is(expectedDate));
 
-        assertThat(metacard.getAttribute(Location.COORDINATE_REFERENCE_SYSTEM_NAME)
-                .getValue(), is("urn:ogc:def:crs:World Geodetic System::WGS 84"));
+        assertThat(metacard.getAttribute(Location.COORDINATE_REFERENCE_SYSTEM_CODE)
+                .getValue(), is("World Geodetic System:WGS 84"));
 
         assertThat(metacard.getTitle(), is("VMAPLV0"));
         assertThat(metacard.getAttribute(Metacard.DESCRIPTION)
-                .getValue(), is(
-                "Vector Map: a general purpose database design to support GIS applications"));
+                        .getValue(),
+                is("Vector Map: a general purpose database design to support GIS applications"));
 
-        TreeSet<String> subjectAttributes = new TreeSet<>();
+        Set<String> categoryAttributes = new TreeSet<>();
         metacard.getAttribute(Topic.CATEGORY)
                 .getValues()
-                .forEach(subject -> subjectAttributes.add((String) subject));
-        assertThat(subjectAttributes, is(SUBJECTS));
+                .forEach(subject -> categoryAttributes.add((String) subject));
+        assertThat(categoryAttributes, is(CATEGORIES));
+
+        Set<String> keywordAttributes = new TreeSet<>();
+        metacard.getAttribute(Topic.KEYWORD)
+                .getValues()
+                .forEach(subject -> keywordAttributes.add((String) subject));
+        assertThat(keywordAttributes, is(KEYWORDS));
 
         assertThat(metacard.getResourceURI()
                 .toASCIIString(), is("http:/example.com/linkage"));
-        assertThat(metacard.getLocation(), is(
-                "POLYGON ((6.9 -44.94, 6.9 61.61, 70.35 61.61, 70.35 -44.94, 6.9 -44.94))"));
+        assertThat(metacard.getLocation(),
+                is("POLYGON ((6.9 -44.94, 6.9 61.61, 70.35 61.61, 70.35 -44.94, 6.9 -44.94))"));
 
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
                 .getValue(), is("example organization"));
@@ -133,7 +141,7 @@ public class TestGmdTransformer {
         Metacard metacard = transform("/gmd/dataset2.xml");
         assertGmdMetacard(metacard);
 
-        assertThat(metacard.getAttribute(Media.ENCODING)
+        assertThat(metacard.getAttribute(Media.FORMAT)
                 .getValue(), is("shapefile"));
     }
 
