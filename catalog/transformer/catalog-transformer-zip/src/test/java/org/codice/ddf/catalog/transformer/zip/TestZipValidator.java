@@ -16,7 +16,6 @@ package org.codice.ddf.catalog.transformer.zip;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.io.File;
 import java.util.Properties;
 
 import org.junit.AfterClass;
@@ -34,44 +33,46 @@ public class TestZipValidator {
 
     private static final String UNSIGNED_ZIP = "unsigned.zip";
 
-    private static final String UNSIGNED_ZIP_PATH = TestZipCompression.class.getResource(
-            File.separator + UNSIGNED_ZIP)
+    private static final String UNSIGNED_ZIP_PATH = TestZipCompression.class.getClassLoader()
+            .getResource(UNSIGNED_ZIP)
             .getPath();
 
     private static final String SIGNED_ZIP = "signed.zip";
 
-    private static final String SIGNED_ZIP_PATH = TestZipCompression.class.getResource(
-            File.separator + SIGNED_ZIP)
+    private static final String SIGNED_ZIP_PATH = TestZipCompression.class.getClassLoader()
+            .getResource(SIGNED_ZIP)
             .getPath();
 
     private static final String NO_CERT_ZIP = "noCert.zip";
 
-    private static final String NO_CERT_ZIP_PATH = TestZipCompression.class.getResource(
-            File.separator + NO_CERT_ZIP)
+    private static final String NO_CERT_ZIP_PATH = TestZipCompression.class.getClassLoader()
+            .getResource(NO_CERT_ZIP)
             .getPath();
 
     private static final String BAD_CERT_ZIP = "badCert.zip";
 
-    private static final String BAD_CERT_ZIP_PATH = TestZipCompression.class.getResource(
-            File.separator + BAD_CERT_ZIP)
+    private static final String BAD_CERT_ZIP_PATH = TestZipCompression.class.getClassLoader()
+            .getResource(BAD_CERT_ZIP)
             .getPath();
 
     private static final String ALTERED_ZIP = "addedFile.zip";
 
-    private static final String ALTERED_ZIP_PATH = TestZipCompression.class.getResource(
-            File.separator + ALTERED_ZIP)
+    private static final String ALTERED_ZIP_PATH = TestZipCompression.class.getClassLoader()
+            .getResource(ALTERED_ZIP)
             .getPath();
 
     private static final String MODIFIED_MANIFEST_ZIP = "addedFile.zip";
 
-    private static final String MODIFIED_MANIFEST_ZIP_PATH = TestZipCompression.class.getResource(
-            File.separator + MODIFIED_MANIFEST_ZIP)
-            .getPath();
+    private static final String MODIFIED_MANIFEST_ZIP_PATH =
+            TestZipCompression.class.getClassLoader()
+                    .getResource(MODIFIED_MANIFEST_ZIP)
+                    .getPath();
 
     private static final String MODIFIED_EXISTING_FILE_ZIP = "addedFile.zip";
 
     private static final String MODIFIED_EXISTING_FILE_ZIP_PATH =
-            TestZipCompression.class.getResource(File.separator + MODIFIED_EXISTING_FILE_ZIP)
+            TestZipCompression.class.getClassLoader()
+                    .getResource(MODIFIED_EXISTING_FILE_ZIP)
                     .getPath();
 
     @BeforeClass

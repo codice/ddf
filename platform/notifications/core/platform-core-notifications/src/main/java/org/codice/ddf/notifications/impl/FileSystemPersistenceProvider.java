@@ -42,7 +42,6 @@ import com.hazelcast.core.MapStore;
 /**
  * Hazelcast persistence provider implementation of @MapLoader and @MapStore to serialize and
  * persist Java objects stored in Hazelcast cache to disk.
- *
  */
 public class FileSystemPersistenceProvider
         implements MapLoader<String, Object>, MapStore<String, Object> {
@@ -79,7 +78,7 @@ public class FileSystemPersistenceProvider
      * @return the path to root directory where serialized objects will be persisted
      */
     String getPersistencePath() {
-        return new AbsolutePathResolver("data/").getPath();
+        return new AbsolutePathResolver("data" + File.separator).getPath();
     }
 
     /**
@@ -88,7 +87,7 @@ public class FileSystemPersistenceProvider
      * @return
      */
     String getMapStorePath() {
-        return getPersistencePath() + mapName + "/";
+        return getPersistencePath() + mapName + File.separator;
     }
 
     @Override
