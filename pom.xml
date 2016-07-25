@@ -92,8 +92,8 @@
         <findbugs.version>3.0.1</findbugs.version>
         <commons-codec.version>1.10</commons-codec.version>
         <spring.version>3.2.14.RELEASE</spring.version>
-        <jetty.version>9.2.10.v20150310</jetty.version>
-        <pax.web.version>4.2.6</pax.web.version>
+        <jetty.version>9.2.17.v20160517</jetty.version>
+        <pax.web.version>4.2.7</pax.web.version>
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <validation.version>1.1.0.Final</validation.version>
         <commons-configuration.version>1.10</commons-configuration.version>

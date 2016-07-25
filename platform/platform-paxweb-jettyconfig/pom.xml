@@ -14,13 +14,13 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>security</artifactId>
-        <groupId>ddf.platform.security</groupId>
+        <artifactId>platform</artifactId>
+        <groupId>ddf.platform</groupId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>platform-security-session</artifactId>
-    <name>DDF :: Platform :: Security :: Session</name>
+    <artifactId>platform-paxweb-jettyconfig</artifactId>
+    <name>DDF :: Platform :: PaxWeb :: Jetty Config</name>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
@@ -30,6 +30,21 @@
         <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-access</artifactId>
+            <version>1.1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -42,8 +57,19 @@
                         <Fragment-Host>org.ops4j.pax.web.pax-web-jetty;bundle-version="[4,5)"</Fragment-Host>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util
+                            platform-util,
+                            logback-core,
+                            logback-access
                         </Embed-Dependency>
+                        <Import-Package>
+                            !org.apache.catalina,
+                            !org.apache.catalina.connector,
+                            !org.apache.catalina.valves,
+                            !org.apache.coyote,
+                            !org.codehaus.commons.compiler,
+                            !org.codehaus.janino,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -65,22 +91,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.58</minimum>
+                                            <minimum>0.54</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.44</minimum>
+                                            <minimum>0.40</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.26</minimum>
+                                            <minimum>0.23</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.63</minimum>
+                                            <minimum>0.57</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

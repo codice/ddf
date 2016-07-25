@@ -213,8 +213,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>platform-security-session</artifactId>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-paxweb-jettyconfig</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

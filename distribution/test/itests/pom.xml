@@ -87,6 +87,10 @@
                     <groupId>com.googlecode.pojosr</groupId>
                     <artifactId>de.kalpatec.pojosr.framework</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

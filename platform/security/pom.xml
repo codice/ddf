@@ -224,7 +224,6 @@
     <modules>
         <module>platform-security-core-api</module>
         <module>encryption</module>
-        <module>platform-security-session</module>
         <module>expansion</module>
         <module>common</module>
         <module>core</module>

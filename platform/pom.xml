@@ -352,6 +352,7 @@
         <module>platform-api</module>
         <module>branding-api</module>
         <module>util</module>
+        <module>platform-paxweb-jettyconfig</module>
         <module>platform-logging</module>
         <module>platform-configuration</module>
         <module>migration</module>
