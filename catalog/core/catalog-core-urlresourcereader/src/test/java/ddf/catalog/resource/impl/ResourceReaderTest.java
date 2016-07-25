@@ -47,7 +47,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.tika.metadata.HttpHeaders;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.net.HttpHeaders;
 
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
@@ -139,6 +139,15 @@ public class ResourceReaderTest {
         byte[] sampleBytes = {65, 66, 67, 68, 69};
 
         return new ByteArrayInputStream(sampleBytes);
+    }
+
+    private static InputStream getBinaryDataWithOffset(int offset) throws IOException {
+
+        byte[] sampleBytes = {65, 66, 67, 68, 69};
+        InputStream is = new ByteArrayInputStream(sampleBytes);
+        is.skip(offset);
+
+        return is;
     }
 
     @Before
@@ -379,15 +388,117 @@ public class ResourceReaderTest {
                         .getByteArray().length);
     }
 
+    /**
+     * Tests that a Partial Content response that has the same byte offset as what was requested
+     * returns an input stream starting at the requested byte offset.
+     * @throws Exception
+     */
     @Test
-    public void testRetrievingPartialContent() throws Exception {
+    public void testServerSupportsPartialContentResponseWithCorrectOffset() throws Exception {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
 
         Response mockResponse = mock(Response.class);
         when(mockWebClient.get()).thenReturn(mockResponse);
         MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
         map.put(HttpHeaders.CONTENT_DISPOSITION,
-                Arrays.<Object>asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+                Arrays.asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+        map.put(HttpHeaders.CONTENT_RANGE,
+                Arrays.asList("Bytes 2-4/5"));
+        when(mockResponse.getHeaders()).thenReturn(map);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.PARTIAL_CONTENT.getStatusCode());
+
+        when(mockResponse.getEntity()).thenReturn(getBinaryDataWithOffset(2));
+
+        String bytesToSkip = "2";
+
+        ResourceResponse response = verifyFileFromURLResourceReader(uri,
+                JPEG_FILE_NAME_1,
+                JPEG_MIME_TYPE,
+                bytesToSkip);
+
+        // verify that the requested bytes 3-5 were returned
+        assertEquals(3,
+                response.getResource()
+                        .getByteArray().length);
+    }
+
+    /**
+     * Tests that a Partial Content response that has a smaller byte offset than what was requested
+     * still returns an input stream starting at the requested byte offset by skipping ahead in the
+     * input stream.
+     * @throws Exception
+     */
+    @Test
+    public void testServerSupportsPartialContentResponseWithNotEnoughOffset() throws Exception {
+        URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        map.put(HttpHeaders.CONTENT_DISPOSITION,
+                Arrays.asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+        map.put(HttpHeaders.CONTENT_RANGE,
+                Arrays.asList("Bytes 1-4/5"));
+        when(mockResponse.getHeaders()).thenReturn(map);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.PARTIAL_CONTENT.getStatusCode());
+
+        when(mockResponse.getEntity()).thenReturn(getBinaryDataWithOffset(1));
+
+        String bytesToSkip = "2";
+
+        ResourceResponse response = verifyFileFromURLResourceReader(uri,
+                JPEG_FILE_NAME_1,
+                JPEG_MIME_TYPE,
+                bytesToSkip);
+
+        // verify that the requested bytes 3-5 were returned
+        assertEquals(3,
+                response.getResource()
+                        .getByteArray().length);
+    }
+
+    /**
+     * Tests that a Partial Content response that has a higher byte offset as what was requested
+     * throws an IOException in order to prevent data loss.
+     * @throws Exception
+     */
+    @Test(expected=ResourceNotFoundException.class)
+    public void testServerSupportsPartialContentResponseTooMuchOffset() throws Exception {
+        URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        map.put(HttpHeaders.CONTENT_DISPOSITION,
+                Arrays.asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+        map.put(HttpHeaders.CONTENT_RANGE,
+                Arrays.asList("Bytes 3-4/5"));
+        when(mockResponse.getHeaders()).thenReturn(map);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.PARTIAL_CONTENT.getStatusCode());
+
+        when(mockResponse.getEntity()).thenReturn(getBinaryDataWithOffset(3));
+
+        String bytesToSkip = "2";
+
+        // this should throw an IOException since more bytes were skipped than requested
+        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip);
+    }
+
+    /**
+     * Tests that if the server does not support range-header requests and responds with the entire
+     * product's contents (no Content-Range header and a 200 response), an input is still returned
+     * with the requested byte offset.
+     * @throws Exception
+     */
+    @Test
+    public void testServerDoesNotSupportPartialContent() throws Exception {
+        URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        map.put(HttpHeaders.CONTENT_DISPOSITION,
+                Arrays.asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
         when(mockResponse.getHeaders()).thenReturn(map);
         when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
@@ -400,11 +511,13 @@ public class ResourceReaderTest {
                 JPEG_MIME_TYPE,
                 bytesToSkip);
 
-        // verify that we got the entire resource
+        // verify that the requested bytes 3-5 were returned
         assertEquals(3,
                 response.getResource()
                         .getByteArray().length);
     }
+
+
 
     @Test
     public void testUnquotedNameInContentDisposition() throws Exception {
