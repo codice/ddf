@@ -22,29 +22,30 @@ define(['application',
         'js/view/cesium.metacard',
         'jquery',
         'drawHelper',
-        'js/controllers/cesium.layerCollection.controller'
+        'js/controllers/cesium.layerCollection.controller',
+        'js/model/user'
     ], function (Application, _, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper,
-                 LayerCollectionController) {
+                 LayerCollectionController, User) {
         "use strict";
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
 
         var CesiumLayerCollectionController = LayerCollectionController.extend({
             initialize: function () {
-                this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexAll);
+                this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexLayers);
 
                 // there is no automatic chaining of initialize.
                 LayerCollectionController.prototype.initialize.apply(this, arguments);
             }
         });
 
-        var Controller = Marionette.Controller.extend({
-            initialize: function () {
-                this.overlays = {};
+    var Controller = Marionette.Controller.extend({
+        initialize: function () {
+            this.overlays = {};
 
-                Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
-                this.mapViewer = this.createMap();
-                this.drawHelper = new DrawHelper(this.mapViewer);
+            Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
+            this.mapViewer = this.createMap();
+            this.drawHelper = new DrawHelper(this.mapViewer);
 
                 this.scene = this.mapViewer.scene;
                 this.ellipsoid = this.mapViewer.scene.globe.ellipsoid;
@@ -65,6 +66,10 @@ define(['application',
             },
             createMap: function () {
                 var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
+                var layersToRemove = [];
+                var index = 0;
+                User.updateMapLayers(layerPrefs, layersToRemove, index);
+
                 var layerCollectionController = new CesiumLayerCollectionController({
                     collection: layerPrefs
                 });
