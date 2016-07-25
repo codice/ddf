@@ -204,7 +204,7 @@ define([
                 this.viewMapLayers = new User.MapLayers(viewLayerModels);
 
                 // listen to any change on all models in collection.
-                this.viewMapLayers.on('change', this.onEdit, this);
+                this.listenTo(this.viewMapLayers, 'change', this.onEdit);
 
                 if (maptype.is3d()) {
                     this.widgetController = new PrefsModalView.CesiumLayersController({
@@ -260,14 +260,12 @@ define([
                         if (viewLayer.get('show') !== layer.get('show')) {
                             layer.set('show', viewLayer.get('show'));
                         }
-                        if (viewLayer.get('index') !== layer.get('index')) {
-                            layer.set('index', viewLayer.get('index'));
-                        }
                     });
-                    wreqr.vent.trigger('preferencesModal:reorder:bigMap');
+                    this.model.sort();
                     this.model.savePreferences();
                     this.isEdited = false;
                     this.layerButtons.ui.save.toggleClass('btn-default').toggleClass('btn-primary');
+                    wreqr.vent.trigger('preferencesModal:reorder:bigMap');
                 }
             },
             resetDefaults: function () {
@@ -319,70 +317,32 @@ define([
         PrefsModalView.LayerPickerTable = Marionette.CompositeView.extend({
             template: 'layerListTemplate',
             childViewContainer: '#pickerList',
-            /*
-             "reverse" the sort order of the picker rows, so that the lowest layer
-             is represented by the "lowest" row in the table, and "raising/lowering" rows
-             makes sense with raising/lowering map layers.
-             */
-            viewComparator: function (model) {
-                return this.getReverseIndex(model.get('index'));
-            },
-            getReverseIndex: function (index) {
-                return this.collection.length - 1 - index;
-            },
-            reorderOnSort: true, // do not override resortView(), else defeat default reorderOnSort.
             ui: {
                 tbody: 'tbody'
             },
-            onAttach: function () {
-                var pickerList = this;
-                this.ui.tbody.sortable({
-                    axis: 'y',
-                    containment: 'parent',
-                    handle: '.sortHandle',
-                    cursor: 'move',
-                    forceHelperSize: true,
-                    tolerance: 'pointer',
-                    forcePlaceholderSize: true,
-                    placeholder: 'sortable-placeholder',
-                    helper: function (e, tr) {
-                        var $originals = tr.children();
-                        var $helper = tr.clone();
-                        $helper.addClass('layerPickerHelper'); // color helper.
-
-                        // prevent "helper" resizing while dragging.
-                        $helper.children().each(function (index) {
-                            $(this).width($originals.eq(index).outerWidth());
-                        });
-                        return $helper;
-                    },
-                    update: function (event, ui) {
-                        // the ui index is the "reverse" of how the models are indexed.
-                        var layerPicker = ui.item.data('layerPicker');
-                        var viewIndex = ui.item.index();
-                        var newIndex = pickerList.getReverseIndex(viewIndex);
-                        layerPicker.changeIndex(newIndex);
-
-                        /*
-                            update the marionette composite view indexes so that it's
-                            reorder on sort works correctly.
-                         */
-                        pickerList.collection.forEach(function (model) {
-                            var view = this.children.findByModel(model);
-                            var viewIndex = pickerList.getReverseIndex(model.get('index'));
-                            view._index = viewIndex;
-                        }, pickerList);
-
-                        pickerList.collection.sort(); // triggers view reorder and layers reorder.
-                    },
-                    start: function (event, ui) {
-                        /*
-                         default placeholder height is too small.
-                         prevent visible widget resizing on drag/drop
-                         */
-                        ui.placeholder.height(ui.helper.outerHeight());
+            initialize: function() {
+                this.collection.each(function(model) {
+                    this.listenTo(model, 'change', this.updateSort);
+                }, this);
+            },
+            updateSort: function() {
+                var sort = false;
+                var prevAlpha = 0;
+                for (var index=0;index<this.collection.models.length;index++) {
+                    if (index !== 0) {
+                        if (this.collection.at(index).get('alpha') > prevAlpha) {
+                            sort = true;
+                            break;
+                        } else {
+                            prevAlpha = this.collection.at(index).get('alpha');
+                        }
+                    } else {
+                        prevAlpha = this.collection.at(index).get('alpha');
                     }
-                });
+                }
+                if (sort) {
+                    this.collection.sort();
+                }
             }
         });
 
@@ -408,10 +368,6 @@ define([
             },
             changeShow: function (model) {
                 this.ui.range.prop('disabled', !model.get('show'));
-            },
-            changeIndex: function (newIndex) {
-                this.model.set('index', newIndex);
-                this.widgetController.move(this.model);
             },
             onDestroy: function () {
                 this.modelBinder.unbind();

@@ -24,9 +24,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -66,11 +68,7 @@ public class ConfigurationStore {
 
     public static final String ENDPOINT_NAME = "standard";
 
-    public static final Factory NEW_SET_FACTORY = new Factory() {
-        public Object create() {
-            return new TreeSet();
-        }
-    };
+    public static final Factory NEW_SET_FACTORY = TreeSet::new;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
 
@@ -92,6 +90,10 @@ public class ConfigurationStore {
     private List<String> imageryProviders = new ArrayList<>();
 
     private List<Map<String, Object>> proxiedImageryProviders = new ArrayList<>();
+
+    private List<Map<String, Object>> imageryProviderMaps = new ArrayList<>();
+
+    private Map<String, String> urlToProxyMap = new HashMap<>();
 
     private String terrainProvider;
 
@@ -134,15 +136,7 @@ public class ConfigurationStore {
     }
 
     public void destroy() {
-        if (imageryEndpoints.size() > 0) {
-            for (String endpoint : imageryEndpoints) {
-                try {
-                    httpProxy.stop(endpoint);
-                } catch (Exception e) {
-                    LOGGER.error("Unable to stop proxy endpoint.", e);
-                }
-            }
-        }
+        stopImageryEndpoints(imageryEndpoints);
         if (terrainEndpoint != null) {
             try {
                 httpProxy.stop(terrainEndpoint);
@@ -265,22 +259,67 @@ public class ConfigurationStore {
         setProxyForTerrain(terrainProvider);
     }
 
-    private void setProxiesForImagery(List<String> imageryProviders) {
-        if (imageryEndpoints.size() > 0) {
-            for (String endpoint : imageryEndpoints) {
-                try {
-                    httpProxy.stop(endpoint);
-                } catch (Exception e) {
-                    LOGGER.error("Unable to stop proxy endpoint.", e);
-                }
+    private void setProxiesForImagery(List<String> proxiesForImagery) {
+        List<Map<String, Object>> newImageryProviders = proxiesForImagery.stream()
+                .map(this::getProviderConfigMap)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        List<Map<String, Object>> imageryProvidersToStop = new ArrayList<>();
+        List<Map<String, Object>> imageryProvidersToStart = new ArrayList<>();
+
+        findDifferences(imageryProviderMaps, newImageryProviders, imageryProvidersToStart);
+        findDifferences(newImageryProviders, imageryProviderMaps, imageryProvidersToStop);
+
+        List<String> proxiesToStop = imageryProvidersToStop.stream()
+                .map(provider -> urlToProxyMap.get(provider.get(URL)
+                        .toString()))
+                .collect(Collectors.toList());
+
+        stopImageryEndpoints(proxiesToStop);
+        for (Map<String, Object> providerToStop : imageryProvidersToStop) {
+            urlToProxyMap.remove(providerToStop.get(URL)
+                    .toString());
+        }
+        startImageryEndpoints(imageryProvidersToStart);
+        proxiedImageryProviders.clear();
+        for (Map<String, Object> newImageryProvider : newImageryProviders) {
+            HashMap<String, Object> map = new HashMap<>(newImageryProvider);
+            map.put(URL, SERVLET_PATH + "/" + urlToProxyMap.get(newImageryProvider.get(URL)
+                    .toString()));
+            proxiedImageryProviders.add(map);
+        }
+        imageryProviderMaps = newImageryProviders;
+    }
+
+    private void findDifferences(List<Map<String, Object>> innerList,
+            List<Map<String, Object>> outerList, List<Map<String, Object>> differences) {
+        differences.addAll(outerList);
+        differences.removeIf(innerList::contains);
+    }
+
+    private void stopImageryEndpoints(List<String> imageryEndpointsToStop) {
+        for (String endpoint : imageryEndpointsToStop) {
+            try {
+                httpProxy.stop(endpoint);
+                imageryEndpoints.remove(endpoint);
+            } catch (Exception e) {
+                LOGGER.error("Unable to stop proxy endpoint: {}", endpoint, e);
             }
         }
-        proxiedImageryProviders.clear();
+    }
 
-        for (String provider : imageryProviders) {
-            Map<String, Object> proxiedProvider = getProxiedProvider(provider, true);
-            if (proxiedProvider != null) {
-                proxiedImageryProviders.add(proxiedProvider);
+    private void startImageryEndpoints(List<Map<String, Object>> imageryProvidersToStart) {
+        for (Map<String, Object> provider : imageryProvidersToStart) {
+            String url = provider.get(URL)
+                    .toString();
+            try {
+                String endpointName = ENDPOINT_NAME + incrementer++;
+                endpointName = httpProxy.start(endpointName, url, timeout);
+                urlToProxyMap.put(url, endpointName);
+                imageryEndpoints.add(endpointName);
+            } catch (Exception e) {
+                LOGGER.error("Unable to configure proxy for: {}", url, e);
             }
         }
     }
@@ -294,14 +333,37 @@ public class ConfigurationStore {
             }
         }
 
-        proxiedTerrainProvider = getProxiedProvider(terrainProvider, false);
+        proxiedTerrainProvider = startTerrainEndpoint(terrainProvider);
     }
 
-    private Map<String, Object> getProxiedProvider(String provider, boolean imagery) {
+    private Map<String, Object> startTerrainEndpoint(String provider) {
         if (StringUtils.isBlank(provider)) {
             return null;
         }
 
+        Map<String, Object> config = getProviderConfigMap(provider);
+        if (config == null) {
+            return null;
+        }
+
+        if (config.containsKey(URL)) {
+            String url = config.get(URL)
+                    .toString();
+
+            try {
+                String endpointName = ENDPOINT_NAME + incrementer++;
+                endpointName = httpProxy.start(endpointName, url, timeout);
+                terrainEndpoint = endpointName;
+                config.put(URL, SERVLET_PATH + "/" + endpointName);
+            } catch (Exception e) {
+                LOGGER.error("Unable to configure proxy for: {}", url, e);
+            }
+        }
+
+        return config;
+    }
+
+    private Map<String, Object> getProviderConfigMap(String provider) {
         Parser parser = Parsers.newParser(defaultConfiguration());
         Map<String, Object> config;
         try {
@@ -319,26 +381,6 @@ public class ConfigurationStore {
             LOGGER.warn("Unable to parse provider configuration: " + provider, e);
             return null;
         }
-
-        if (config.containsKey(URL)) {
-            String url = config.get(URL)
-                    .toString();
-
-            try {
-                String endpointName = ENDPOINT_NAME + incrementer;
-                incrementer++;
-                endpointName = httpProxy.start(endpointName, url, timeout);
-                if (imagery) {
-                    imageryEndpoints.add(endpointName);
-                } else {
-                    terrainEndpoint = endpointName;
-                }
-                config.put(URL, SERVLET_PATH + "/" + endpointName);
-            } catch (Exception e) {
-                LOGGER.error("Unable to configure proxy for: {}", url, e);
-            }
-        }
-
         return config;
     }
 
