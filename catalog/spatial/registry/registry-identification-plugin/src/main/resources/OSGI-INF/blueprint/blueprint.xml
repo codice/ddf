@@ -35,6 +35,6 @@
         <property name="executorService" ref="executor"/>
     </bean>
 
-    <service ref="identificationPlugin" auto-export="interfaces" ranking="0"/>
+    <service ref="identificationPlugin" auto-export="interfaces" ranking="-1000"/>
 
 </blueprint>
