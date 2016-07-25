@@ -68,6 +68,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Location;
 import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Topic;
@@ -266,9 +267,12 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
             date = CswUnmarshallHelper.convertToDate(dateStr);
 
         }
+        // TODO should we be setting metacard.modified and metacard.created?
         metacard.setModifiedDate(date);
         metacard.setCreatedDate(date);
         metacard.setEffectiveDate(date);
+        metacard.setAttribute(Core.METACARD_MODIFIED, date);
+        metacard.setAttribute(Core.METACARD_CREATED, date);
     }
 
     private void setPointOfContact(final XstreamPathValueTracker pathValueTracker,
@@ -289,6 +293,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         String type = pathValueTracker.getFirstValue(toPath(GmdMetacardType.CODE_LIST_VALUE_PATH));
         if (StringUtils.isNotEmpty(type)) {
             metacard.setContentTypeName(type);
+            metacard.setAttribute(Media.TYPE, type);
         }
 
     }
