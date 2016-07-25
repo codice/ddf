@@ -13,26 +13,21 @@
  */
 package org.codice.ddf.registry.publication.manager;
 
-import java.security.Principal;
 import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.security.auth.Subject;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
+import org.codice.ddf.security.common.Security;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -44,6 +39,8 @@ import ddf.catalog.data.Metacard;
 public class RegistryPublicationManager implements EventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryPublicationManager.class);
+
+    private static final int RETRY_INTERVAL = 30;
 
     private static final String METACARD_PROPERTY = "ddf.catalog.event.metacard";
 
@@ -58,6 +55,8 @@ public class RegistryPublicationManager implements EventHandler {
     private Map<String, List<String>> publications = new ConcurrentHashMap<>();
 
     private FederationAdminService federationAdminService;
+
+    private ScheduledExecutorService executorService;
 
     @Override
     public void handleEvent(Event event) {
@@ -94,46 +93,46 @@ public class RegistryPublicationManager implements EventHandler {
         }
     }
 
-    public void init() throws FederationAdminException, PrivilegedActionException {
+    public void init() {
 
-        // Change from here
-        // Remove this subject stuff and change to use Security.runAsAdmin() once the PrivilegedException option has been implemented
-        Set<Principal> principals = new HashSet<>();
-        String localRoles = System.getProperty(KARAF_LOCAL_ROLES, "");
-        for (String role : localRoles.split(",")) {
-            principals.add(new RolePrincipal(role));
-        }
-        Subject subject = new Subject(true, principals, new HashSet(), new HashSet());
+        try {
+            List<Metacard> metacards =
+                    Security.runAsAdminWithException(() -> federationAdminService.getRegistryMetacards());
 
-        PrivilegedExceptionAction<List<Metacard>> federationAdminServiceAction =
-                () -> federationAdminService.getRegistryMetacards();
-        List<Metacard> metacards = subject.doAs(subject, federationAdminServiceAction);
-        // To here
+            for (Metacard metacard : metacards) {
+                Attribute registryIdAttribute =
+                        metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
+                if (registryIdAttribute == null
+                        || StringUtils.isBlank(registryIdAttribute.getValue()
+                        .toString())) {
+                    LOGGER.warn("Warning metacard (id: {}} did not contain a registry id.",
+                            metacard.getId());
+                    continue;
+                }
+                Attribute locations =
+                        metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
 
-        for (Metacard metacard : metacards) {
-            Attribute registryIdAttribute =
-                    metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
-            if (registryIdAttribute == null || StringUtils.isBlank(registryIdAttribute.getValue()
-                    .toString())) {
-                LOGGER.warn("Warning metacard (id: {}} did not contain a registry id.",
-                        metacard.getId());
-                continue;
+                String registryId = registryIdAttribute.getValue()
+                        .toString();
+                if (locations != null) {
+                    publications.put(registryId,
+                            Collections.unmodifiableList(locations.getValues()
+                                    .stream()
+                                    .map(Object::toString)
+                                    .collect(Collectors.toList())));
+                } else {
+                    publications.put(registryId, Collections.emptyList());
+                }
             }
-            Attribute locations =
-                    metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
-
-            String registryId = registryIdAttribute.getValue()
-                    .toString();
-            if (locations != null) {
-                publications.put(registryId,
-                        Collections.unmodifiableList(locations.getValues()
-                                .stream()
-                                .map(Object::toString)
-                                .collect(Collectors.toList())));
-            } else {
-                publications.put(registryId, Collections.emptyList());
-            }
+        } catch (PrivilegedActionException e) {
+            LOGGER.warn(
+                    "Error reading from local catalog. Catalog is probably not up yet. Will try again later");
+            executorService.schedule(this::init, RETRY_INTERVAL, TimeUnit.SECONDS);
         }
+    }
+
+    public void destroy() {
+        executorService.shutdown();
     }
 
     public Map<String, List<String>> getPublications() {
@@ -142,5 +141,9 @@ public class RegistryPublicationManager implements EventHandler {
 
     public void setFederationAdminService(FederationAdminService adminService) {
         this.federationAdminService = adminService;
+    }
+
+    public void setExecutorService(ScheduledExecutorService executorService) {
+        this.executorService = executorService;
     }
 }
