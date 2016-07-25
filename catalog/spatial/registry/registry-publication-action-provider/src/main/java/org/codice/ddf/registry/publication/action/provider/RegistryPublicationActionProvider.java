@@ -86,7 +86,7 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
         }
 
         List<String> currentPublications = registryPublicationManager.getPublications()
-                .get(registryIdToPublish);
+                .getOrDefault(registryIdToPublish, Collections.EMPTY_LIST);
 
         return registryStores.stream()
                 .filter((registryStore) -> shouldRegistryPublishToStore(registryIdToPublish,
