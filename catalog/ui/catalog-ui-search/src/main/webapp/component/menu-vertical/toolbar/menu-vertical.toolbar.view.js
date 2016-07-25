@@ -21,8 +21,9 @@ define([
     '../file/menu-vertical.file',
     '../tools/menu-vertical.tools',
     '../edit/menu-vertical.edit',
-    '../viewmenu/menu-vertical.viewmenu'
-], function (Marionette, _, $, MenuVerticalView, FileMenu, ToolsMenu, EditMenu, ViewMenu) {
+    '../viewmenu/menu-vertical.viewmenu',
+    '../help/menu-vertical.help.view'
+], function (Marionette, _, $, MenuVerticalView, FileMenu, ToolsMenu, EditMenu, ViewMenu, HelpMenu) {
 
     return MenuVerticalView.extend({
         className: 'is-toolbar'
@@ -46,6 +47,9 @@ define([
         },
         getNewViewMenu: function(linkedModel, targetElement, name){
             return this.getNewMenu(linkedModel, targetElement, name, ViewMenu.getNew());
+        },
+        getNewHelpMenu: function(linkedModel, targetElement, name){
+            return this.getNewMenu(linkedModel, targetElement, name, HelpMenu.getNew());
         }
     });
 });

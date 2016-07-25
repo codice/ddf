@@ -11,10 +11,12 @@
  *
  **/
  --}}
-<button class="filter-remove is-negative">
+<button class="filter-remove is-negative" data-help="Removes this branch.">
     <span class="fa fa-minus"></span>
 </button>
-<div class="filter-operator">
+<div class="filter-operator" data-help="If 'AND' is used,
+all the filters in the branch have to be true for this branch to be true.  If 'OR' is used, only one
+of the filters in this branch have to be true for this branch to be true.">
 
 </div>
 <div class="filter-contents">
@@ -22,7 +24,8 @@
 
     </div>
     <div class="contents-buttons">
-        <button class="add-filter is-primary">
+        <button class="add-filter is-primary" data-help="Adds a new filter at this current level
+         of the tree">
             <span class="fa fa-plus">
 
             </span>
@@ -30,7 +33,8 @@
                 Add Clause
             </span>
         </button>
-        <button class="add-filterBuilder is-primary">
+        <button class="add-filterBuilder is-primary" data-help="Adds a new branch at this current level
+        of the tree.">
             <span class="fa fa-plus">
             </span>
             <span>

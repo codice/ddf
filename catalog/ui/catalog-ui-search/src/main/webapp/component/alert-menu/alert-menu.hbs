@@ -12,11 +12,13 @@
  **/
  --}}
 {{#if this.workspace}}
-    <span class="menu-title workspace-title" data-workspaceid="{{this.workspace.id}}">
+    <span class="menu-title workspace-title" data-workspaceid="{{this.workspace.id}}" data-help="Click here to
+    navigate to this workspace.">
         {{this.workspace.title}}
     </span>
 {{else}}
-    <span class="menu-title">
+    <span class="menu-title" data-help="The workspace this alert belongs to has
+    either been deleted or you no longer have access to it.">
         Unknown Workspace
     </span>
 {{/if}}
@@ -24,11 +26,13 @@
 
 </span>
 {{#if this.query}}
-    <span class="menu-title query-title" data-workspaceid="{{this.query.id}}">
+    <span class="menu-title query-title" data-workspaceid="{{this.query.id}}" data-help="This the
+    name of the query that this alert was generated from.">
         {{this.query.title}}
     </span>
 {{else}}
-    <span class="menu-title" >
+    <span class="menu-title" data-help="The query this alert belongs to has either been deleted
+    or you no longer have access to the workspace it was part of.">
         Unknown Query
     </span>
 {{/if}}

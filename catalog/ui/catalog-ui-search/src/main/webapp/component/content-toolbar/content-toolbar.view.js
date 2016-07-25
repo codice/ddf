@@ -59,6 +59,11 @@ define([
                     return this.el.querySelector('.menu-view');
                 }.bind(this),
                 'view');
+            this._helpMenu = MenuView.getNewHelpMenu(this.model,
+                function () {
+                    return this.el.querySelector('.menu-help');
+                }.bind(this),
+                'help');
         },
         firstRender: true,
         onRender: function(){

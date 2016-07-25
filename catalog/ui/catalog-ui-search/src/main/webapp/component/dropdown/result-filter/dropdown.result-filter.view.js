@@ -25,6 +25,9 @@ define([
 ], function (Marionette, _, $, DropdownView, template, ComponentView, ResultFilterDropdownCompanion, user) {
 
     return DropdownView.extend({
+        attributes: {
+            'data-help': 'Used to setup a local filter of a result set.  It does not re-execute the query.'
+        },
         template: template,
         className: 'is-resultFilter',
         componentToShow: ComponentView,

@@ -24,9 +24,10 @@ define([
     'component/dropdown/login-form/dropdown.login-form.view',
     'component/dropdown/notifications/dropdown.notifications.view',
     'component/dropdown/alerts/dropdown.alerts.view',
-    'component/tasks/tasks.view'
+    'component/tasks/tasks.view',
+    'component/help/help.view'
 ], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, LoginForm, Notifications,
-             Alerts, Tasks) {
+             Alerts, Tasks, HelpView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -41,7 +42,9 @@ define([
         modelEvents: {
         },
         events: {
-            'click > .navigation-left > .navigation-home': 'navigateHome'
+            'click > .navigation-left > .navigation-home': 'navigateHome',
+            'click > .navigation-right > .item-help': 'toggleHelp',
+            'mousedown > .navigation-right > .item-help': 'preventPropagation'
         },
         ui: {
         },
@@ -73,6 +76,12 @@ define([
                     trigger: true
                 }
             });
+        },
+        toggleHelp: function(e){
+            HelpView.toggleHints();
+        },
+        preventPropagation: function(e){
+            e.stopPropagation();
         }
     });
 });

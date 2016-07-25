@@ -51,6 +51,14 @@ define([
             }
         },
         tagName: CustomElements.register('menu-item'),
+        attributes: function(){
+            var help = this.model.get('help');
+            if (help){
+                return {
+                    'data-help': help
+                };
+            }
+        },
         events: {
             'click': 'handleClick'
         },

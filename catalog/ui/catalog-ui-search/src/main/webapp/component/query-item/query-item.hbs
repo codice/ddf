@@ -12,15 +12,15 @@
  **/
  --}}
 <div class="query-container"  data-queryid="{{id}}">
-    <div class="query-color" style="background: {{color}}">
+    <div class="query-color" style="background: {{color}}" data-help="Color used to indicate a result came from this query.">
     </div>
     <div class="query-details">
-        <div class="details-title">
+        <div class="details-title" data-help="The name you've given to the query.">
             {{title}}
         </div>
-        <div class="details-feed">
+        <div class="details-feed" data-help="Shows the status of the query, such as the number of results.">
         </div>
     </div>
-    <div class="query-actions is-button">
+    <div class="query-actions is-button" data-help="Shows a list of actions to take on the query.">
     </div>
 </div>
