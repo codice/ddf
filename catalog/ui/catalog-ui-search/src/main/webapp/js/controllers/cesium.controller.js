@@ -12,8 +12,7 @@
 /*global define*/
 /*jshint newcap:false */
 
-define(['application',
-        'underscore',
+define(['underscore',
         'backbone',
         'marionette',
         'cesium',
@@ -26,9 +25,10 @@ define(['application',
         'imports?Cesium=cesium!exports?DrawHelper!drawHelper',
         'js/controllers/cesium.layerCollection.controller',
         'js/widgets/cesium.mapclustering',
-        'component/singletons/user-instance'
-    ], function (Application, _, Backbone, Marionette, Cesium, Q, wreqr, store, properties, CesiumMetacard,
-                 $, DrawHelper, LayerCollectionController, MapClustering, user) {
+        'component/singletons/user-instance',
+        'js/model/User'
+    ], function (_, Backbone, Marionette, Cesium, Q, wreqr, store, properties, CesiumMetacard,
+                 $, DrawHelper, LayerCollectionController, MapClustering, user, User) {
         "use strict";
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
@@ -37,7 +37,7 @@ define(['application',
 
         var CesiumLayerCollectionController = LayerCollectionController.extend({
             initialize: function () {
-                this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexAll);
+                this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexLayers);
 
                 // there is no automatic chaining of initialize.
                 LayerCollectionController.prototype.initialize.apply(this, arguments);
@@ -71,6 +71,9 @@ define(['application',
 
             createMap: function () {
                 var layerPrefs = user.get('user>preferences>mapLayers');
+                var layersToRemove = [];
+                var index = 0;
+                User.updateMapLayers(layerPrefs, layersToRemove, index);
                 var layerCollectionController = new CesiumLayerCollectionController({
                     collection: layerPrefs
                 });

@@ -80,9 +80,10 @@ define(['underscore',
              removing/re-adding the layers causes visible "re-render" of entire map;
              raising/lowering is smoother.
              */
-            this.collection.forEach(function (model) {
+            this.collection.forEach(function (model, index) {
                 var layer = this.layerForCid[model.cid];
-                var indexChange = model.get('index') - model.previous('index');
+                var prevIndex = this.map.imageryLayers.indexOf(layer);
+                var indexChange = index - prevIndex;
                 var count = Math.abs(indexChange);
                 var method = indexChange > 0 ? "raise" : "lower";
                 _.times(count, function () {

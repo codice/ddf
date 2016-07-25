@@ -9,7 +9,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window, parseFloat*/
+/*global define, window*/
+/*jslint bitwise: true */
 
 define([
     'underscore',
@@ -23,46 +24,45 @@ define([
 
     var User = {};
 
-    var mapLayerConfigForURL = {};
+    function generateId() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0,
+                v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
 
-    _.each(properties.imageryProviders, function (providerConfig, index) {
-        /*
-         - prefer configured 'index' value
-         - fallback to implicit order in admin ui.
-         - duplicate indexes sorted arbitrarily.
-         - allow semantic values like -1000 ~ "lowest", 1000 ~ "highest"
-         */
-        var configIndex;
-        if (providerConfig.index && !isNaN(Number(providerConfig.index))) {
-            configIndex = Number(providerConfig.index);
-        } else {
-            configIndex = index;
+    User.updateMapLayers = function(layerPrefs, layersToRemove, index) {
+        layerPrefs.each(function (layer) {
+            var found = false;
+            if (layer) {
+                for (var i = 0; i < properties.imageryProviders.length; i++) {
+                    var layerObj = _.omit(layer.toJSON(), ['id', 'show', 'label', 'alpha']);
+                    var propProvider = _.omit(properties.imageryProviders[i], 'alpha');
+                    if (_.isEqual(propProvider, layerObj)) {
+                        found = true;
+                    }
+                }
+            }
+            if (!found) {
+                layersToRemove[index++] = layer;
+            }
+        });
+        layerPrefs.remove(layersToRemove);
+        for (var i = 0; i < properties.imageryProviders.length; i++) {
+            var found = false;
+            for (var j = 0; j < layerPrefs.models.length; j++) {
+                var layerObj = _.omit(layerPrefs.at(j).toJSON(), ['id', 'show', 'label', 'alpha']);
+                var propProvider = _.omit(properties.imageryProviders[i], 'alpha');
+                if (_.isEqual(propProvider, layerObj)) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                layerPrefs.add(new User.MapLayer(properties.imageryProviders[i], {parse: true}));
+            }
         }
-
-        var label = providerConfig.label ? providerConfig.label : 'Layer ' + configIndex;
-        var alpha = providerConfig.alpha ? parseFloat(providerConfig.alpha) : 0.5;
-        var show = providerConfig.show ? providerConfig.show : true;
-
-        var defaultConfig = {
-            label: label,
-            show: show,
-            index: configIndex,
-            alpha: alpha
-        };
-        var layerConfig = _.extend(defaultConfig, providerConfig);
-
-        // index provider config by unique url; supports resetting defaults.
-        mapLayerConfigForURL[layerConfig.url] = layerConfig;
-    });
-
-    _.chain(_.values(mapLayerConfigForURL))
-        .sortBy(function (layerConfig) {
-            return layerConfig.index;
-        })
-        .each(function (layerConfig, index) {
-            // smooth config errors and semantic values.
-            layerConfig.index = index;
-        }).value();
+    };
 
     User.MapColors = Backbone.AssociatedModel.extend({
         defaults: {
@@ -79,13 +79,31 @@ define([
         }
     });
 
-    User.MapLayer = Backbone.AssociatedModel.extend({});
+    User.MapLayer = Backbone.AssociatedModel.extend({
+        defaults: function() {
+            return {
+                alpha: 0.5,
+                show: true,
+                id: generateId()
+            };
+        },
+        parse: function(resp) {
+            resp.label = 'Type: ' + resp.type;
+            if (resp.layer) {
+                resp.label += ' Layer: ' + resp.layer;
+            }
+            if (resp.layers) {
+                resp.label += ' Layers: ' + resp.layers.join(', ');
+            }
+            return resp;
+        }
+    });
 
     User.MapLayers = Backbone.Collection.extend({
         model: User.MapLayer,
         defaults: function () {
-            return _.map(_.values(mapLayerConfigForURL), function (layerConfig) {
-                return layerConfig;
+            return _.map(_.values(properties.imageryProviders), function (layerConfig) {
+                return new User.MapLayer(layerConfig, {parse: true});
             });
         },
         initialize: function (models) {
@@ -94,10 +112,10 @@ define([
             }
         },
         comparator: function (model) {
-            return model.get('index');
+            return 1 - model.get('alpha');
         },
         getMapLayerConfig: function (url) {
-            return mapLayerConfigForURL[url];
+            return this.findWhere({url: url});
         },
         savePreferences: function () {
             this.parents[0].savePreferences();
@@ -238,7 +256,7 @@ define([
                     }, body)
                 };
             }
-        },
+        }
     });
 
     return User;

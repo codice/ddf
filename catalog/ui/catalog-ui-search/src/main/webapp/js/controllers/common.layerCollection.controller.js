@@ -27,40 +27,6 @@ define([
 
             // subclasses must implement reIndexLayers()
             this.listenTo(this.collection, 'sort', this.reIndexLayers);
-        },
-        move: function (model) {
-            /*
-             moving a layer will move other layers, so re-index all models
-             then move all layers in batch. This logic supports moving a
-             model "anywhere" within the list of models.
-             */
-            var newIndex = model.get('index');
-            var oldIndex = model.previous('index');
-
-            if (newIndex < oldIndex) { // lower model, perhaps raise other models.
-                this.collection.each(function (otherModel) {
-                    if (otherModel.cid !== model.cid) {
-                        var otherIndex = otherModel.get('index');
-                        if (otherIndex < oldIndex && otherIndex >= newIndex) {
-                            otherModel.set('index', otherIndex + 1);
-                        }
-                    }
-                });
-            }
-            else if (newIndex > oldIndex) { // raise model, perhaps lower other models.
-                this.collection.each(function (otherModel) {
-                    if (otherModel.cid !== model.cid) {
-                        var otherIndex = otherModel.get('index');
-                        if (otherIndex > oldIndex && otherIndex <= newIndex) {
-                            otherModel.set('index', otherIndex - 1);
-                        }
-                    }
-                });
-            }
-        },
-        onBeforeDestroy: function () {
-            this.collection = null;
-            this.layerForCid = null;
         }
     });
 

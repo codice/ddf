@@ -26,14 +26,15 @@ define(['application',
         'jquery',
         'js/controllers/ol.layerCollection.controller',
         'js/view/openlayers.geocoder',
-        'component/singletons/user-instance'
+        'component/singletons/user-instance',
+        'js/model/User'
     ], function (Application, _, Backbone, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, store,
-                 Metacard, $, LayerCollectionController, geocoder, user) {
+                 Metacard, $, LayerCollectionController, geocoder, user, User) {
         "use strict";
 
         var OpenLayerCollectionController = LayerCollectionController.extend({
             initialize: function () {
-                this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexAll);
+                this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexLayers);
 
                 // there is no automatic chaining of initialize.
                 LayerCollectionController.prototype.initialize.apply(this, arguments);
@@ -54,6 +55,9 @@ define(['application',
                 }
 
                 var layerPrefs = user.get('user>preferences>mapLayers');
+                var layersToRemove = [];
+                var index = 0;
+                User.updateMapLayers(layerPrefs, layersToRemove, index);
                 var layerCollectionController = new OpenLayerCollectionController({collection: layerPrefs});
                 this.mapViewer = layerCollectionController.makeMap({
                     zoom: 3,

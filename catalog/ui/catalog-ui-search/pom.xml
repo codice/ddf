@@ -183,11 +183,6 @@
             <artifactId>ehcache</artifactId>
             <version>2.10.2.2.21</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.persistence.core</groupId>
-            <artifactId>persistence-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>

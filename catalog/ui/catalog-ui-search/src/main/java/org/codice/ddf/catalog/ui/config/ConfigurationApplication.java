@@ -50,11 +50,7 @@ public class ConfigurationApplication implements SparkApplication {
 
     public static final String ENDPOINT_NAME = "catalog";
 
-    public static final Factory NEW_SET_FACTORY = new Factory() {
-        public Object create() {
-            return new TreeSet();
-        }
-    };
+    public static final Factory NEW_SET_FACTORY = TreeSet::new;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationApplication.class);
 
@@ -63,6 +59,10 @@ public class ConfigurationApplication implements SparkApplication {
     private List imageryProviders = new ArrayList<>();
 
     private List<Map> proxiedImageryProviders = new ArrayList<>();
+
+    private List<Map<String, Object>> imageryProviderMaps = new ArrayList<>();
+
+    private Map<String, String> urlToProxyMap = new HashMap<>();
 
     private Map terrainProvider;
 
@@ -169,15 +169,7 @@ public class ConfigurationApplication implements SparkApplication {
     }
 
     public void destroy() {
-        if (imageryEndpoints.size() > 0) {
-            for (String endpoint : imageryEndpoints) {
-                try {
-                    httpProxy.stop(endpoint);
-                } catch (Exception e) {
-                    LOGGER.error("Unable to stop proxy endpoint.", e);
-                }
-            }
-        }
+        stopImageryEndpoints(imageryEndpoints);
         if (terrainEndpoint != null) {
             try {
                 httpProxy.stop(terrainEndpoint);
@@ -334,22 +326,62 @@ public class ConfigurationApplication implements SparkApplication {
         }
     }
 
-    private void setProxiesForImagery(List imageryProviders) {
-        if (imageryEndpoints.size() > 0) {
-            for (String endpoint : imageryEndpoints) {
-                try {
-                    httpProxy.stop(endpoint);
-                } catch (Exception e) {
-                    LOGGER.error("Unable to stop proxy endpoint.", e);
-                }
+    private void setProxiesForImagery(List<Map<String, Object>> newImageryProviders) {
+        List<Map<String, Object>> imageryProvidersToStop = new ArrayList<>();
+        List<Map<String, Object>> imageryProvidersToStart = new ArrayList<>();
+
+        findDifferences(imageryProviderMaps, newImageryProviders, imageryProvidersToStart);
+        findDifferences(newImageryProviders, imageryProviderMaps, imageryProvidersToStop);
+
+        List<String> proxiesToStop = imageryProvidersToStop.stream()
+                .map(provider -> urlToProxyMap.get(provider.get(URL)
+                        .toString()))
+                .collect(Collectors.toList());
+
+        stopImageryEndpoints(proxiesToStop);
+        for (Map<String, Object> providerToStop : imageryProvidersToStop) {
+            urlToProxyMap.remove(providerToStop.get(URL)
+                    .toString());
+        }
+        startImageryEndpoints(imageryProvidersToStart);
+        proxiedImageryProviders.clear();
+        for (Map<String, Object> newImageryProvider : newImageryProviders) {
+            HashMap<String, Object> map = new HashMap<>(newImageryProvider);
+            map.put(URL, SERVLET_PATH + "/" + urlToProxyMap.get(newImageryProvider.get(URL)
+                    .toString()));
+            proxiedImageryProviders.add(map);
+        }
+        imageryProviderMaps = newImageryProviders;
+    }
+
+    private void findDifferences(List<Map<String, Object>> innerList,
+            List<Map<String, Object>> outerList, List<Map<String, Object>> differences) {
+        differences.addAll(outerList);
+        differences.removeIf(innerList::contains);
+    }
+
+    private void stopImageryEndpoints(List<String> imageryEndpointsToStop) {
+        for (String endpoint : imageryEndpointsToStop) {
+            try {
+                httpProxy.stop(endpoint);
+                imageryEndpoints.remove(endpoint);
+            } catch (Exception e) {
+                LOGGER.error("Unable to stop proxy endpoint: {}", endpoint, e);
             }
         }
-        proxiedImageryProviders.clear();
+    }
 
-        for (Object provider : imageryProviders) {
-            Map proxiedProvider = getProxiedProvider((Map) provider, true);
-            if (proxiedProvider != null) {
-                proxiedImageryProviders.add(proxiedProvider);
+    private void startImageryEndpoints(List<Map<String, Object>> imageryProvidersToStart) {
+        for (Map<String, Object> provider : imageryProvidersToStart) {
+            String url = provider.get(URL)
+                    .toString();
+            try {
+                String endpointName = ENDPOINT_NAME + incrementer++;
+                endpointName = httpProxy.start(endpointName, url, timeout);
+                urlToProxyMap.put(url, endpointName);
+                imageryEndpoints.add(endpointName);
+            } catch (Exception e) {
+                LOGGER.error("Unable to configure proxy for: {}", url, e);
             }
         }
     }
@@ -363,10 +395,10 @@ public class ConfigurationApplication implements SparkApplication {
             }
         }
 
-        proxiedTerrainProvider = getProxiedProvider(terrainProvider, false);
+        proxiedTerrainProvider = startTerrainEndpoint(terrainProvider);
     }
 
-    private Map getProxiedProvider(Map config, boolean imagery) {
+    private Map<String, Object> startTerrainEndpoint(Map<String, Object> config) {
         if (config == null) {
             return null;
         }
@@ -376,14 +408,9 @@ public class ConfigurationApplication implements SparkApplication {
                     .toString();
 
             try {
-                String endpointName = ENDPOINT_NAME + incrementer;
-                incrementer++;
+                String endpointName = ENDPOINT_NAME + incrementer++;
                 endpointName = httpProxy.start(endpointName, url, timeout);
-                if (imagery) {
-                    imageryEndpoints.add(endpointName);
-                } else {
-                    terrainEndpoint = endpointName;
-                }
+                terrainEndpoint = endpointName;
                 config.put(URL, SERVLET_PATH + "/" + endpointName);
             } catch (Exception e) {
                 LOGGER.error("Unable to configure proxy for: {}", url, e);
