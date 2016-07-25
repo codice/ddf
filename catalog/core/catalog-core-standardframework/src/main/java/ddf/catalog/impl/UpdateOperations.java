@@ -82,8 +82,7 @@ public class UpdateOperations {
     private static final Logger INGEST_LOGGER =
             LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
-    private static final String PRE_INGEST_ERROR =
-            "Error during pre-ingest:\n\n";
+    private static final String PRE_INGEST_ERROR = "Error during pre-ingest:\n\n";
 
     private Supplier<CatalogProvider> catalogSupplier;
 
@@ -150,7 +149,8 @@ public class UpdateOperations {
 
             setDefaultValues(updateRequest);
 
-            List<Filter> idFilters = new ArrayList<>(updateRequest.getUpdates().size());
+            List<Filter> idFilters = new ArrayList<>(updateRequest.getUpdates()
+                    .size());
             for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
                 idFilters.add(frameworkProperties.getFilterBuilder()
                         .attribute(updateRequest.getAttributeName())
@@ -177,7 +177,12 @@ public class UpdateOperations {
                     query = queryOperations.doQuery(queryRequest,
                             frameworkProperties.getFederationStrategy(),
                             false);
-                    for (Result result : query.getResults()) {
+                    List<Result> results = query.getResults();
+                    if (results.size() != updateRequest.getUpdates()
+                            .size()) {
+                        throw new IngestException("Unable to find all metacards in update request.");
+                    }
+                    for (Result result : results) {
                         metacardMap.put(opsCrudSupport.getAttributeStringValue(result.getMetacard(),
                                 updateRequest.getAttributeName()), result.getMetacard());
                     }
