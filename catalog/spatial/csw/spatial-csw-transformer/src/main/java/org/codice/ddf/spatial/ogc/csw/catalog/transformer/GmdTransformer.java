@@ -22,19 +22,18 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -65,6 +64,7 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Contact;
@@ -242,6 +242,8 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
 
         addMetacardSubject(pathValueTracker, metacard);
 
+        addLanguage(pathValueTracker, metacard);
+
         setPointOfContact(pathValueTracker, metacard);
 
         return metacard;
@@ -267,7 +269,6 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
             date = CswUnmarshallHelper.convertToDate(dateStr);
 
         }
-        // TODO should we be setting metacard.modified and metacard.created?
         metacard.setModifiedDate(date);
         metacard.setCreatedDate(date);
         metacard.setEffectiveDate(date);
@@ -333,8 +334,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
             MetacardImpl metacard) {
         String format = pathValueTracker.getFirstValue(toPath(GmdMetacardType.FORMAT_PATH));
         if (StringUtils.isNotEmpty((format))) {
-            // TODO is media.format better? Dublin core makes media.format seem more like physical format
-            metacard.setAttribute(Media.ENCODING, format);
+            metacard.setAttribute(Media.FORMAT, format);
         }
     }
 
@@ -351,6 +351,13 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
 
     }
 
+    private List<Serializable> toSerializableList(List<String> in) {
+        return in.stream()
+                .filter(Serializable.class::isInstance)
+                .map(Serializable.class::cast)
+                .collect(Collectors.toList());
+    }
+
     private void addMetacardSubject(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
 
@@ -358,17 +365,20 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         List<String> topics =
                 pathValueTracker.getAllValues(toPath(GmdMetacardType.TOPIC_CATEGORY_PATH));
 
-        List<String> subjects = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(keywords)) {
-            subjects.addAll(keywords);
-        }
-        if (CollectionUtils.isNotEmpty(topics)) {
-            subjects.addAll(topics);
+        if (!keywords.isEmpty()) {
+            metacard.setAttribute(new AttributeImpl(Topic.KEYWORD, toSerializableList(keywords)));
         }
 
-        if (subjects.size() > 0) {
-            // TODO topic.keyword or topic.category?
-            metacard.setAttribute(Topic.CATEGORY, (Serializable) subjects);
+        if (!topics.isEmpty()) {
+            metacard.setAttribute(new AttributeImpl(Topic.CATEGORY, toSerializableList(topics)));
+        }
+
+    }
+
+    private void addLanguage(final XstreamPathValueTracker pathValueTracker, MetacardImpl metacard) {
+        String language = pathValueTracker.getFirstValue(toPath(GmdMetacardType.LANGUAGE_PATH));
+        if(StringUtils.isNotEmpty(language)) {
+            metacard.setAttribute(Core.LANGUAGE, language);
         }
     }
 
