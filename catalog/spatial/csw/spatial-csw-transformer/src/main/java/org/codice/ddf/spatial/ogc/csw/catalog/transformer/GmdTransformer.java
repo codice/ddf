@@ -136,7 +136,9 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
                 GmdMetacardType.BBOX_SOUTH_LAT_PATH,
                 GmdMetacardType.BBOX_NORTH_LAT_PATH,
                 GmdMetacardType.POINT_OF_CONTACT_PATH)
-                .forEach(path -> paths.add(toPath(path)));
+                .stream()
+                .map(this::toPath)
+                .forEach(paths::add);
 
         return paths;
     }
