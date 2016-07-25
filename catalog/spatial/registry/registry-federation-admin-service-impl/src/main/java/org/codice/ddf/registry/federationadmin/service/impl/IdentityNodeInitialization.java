@@ -22,6 +22,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.datatype.DatatypeConstants;
 
@@ -60,6 +62,8 @@ public class IdentityNodeInitialization {
 
     private static final String UNKNOWN_SITE_NAME = "Unknown Site Name";
 
+    private static final int RETRY_INTERVAL = 30;
+
     private FederationAdminService federationAdminService;
 
     private InputTransformer registryTransformer;
@@ -68,18 +72,27 @@ public class IdentityNodeInitialization {
 
     private SlotTypeHelper slotTypeHelper = new SlotTypeHelper();
 
+    private ScheduledExecutorService executorService;
+
     private InternationalStringTypeHelper internationalStringTypeHelper =
             new InternationalStringTypeHelper();
 
-    public void init() throws PrivilegedActionException {
-        Security.runAsAdminWithException(() -> {
-            if (!federationAdminService.getLocalRegistryIdentityMetacard()
-                    .isPresent()) {
-                createIdentityNode();
-            }
-            return null;
-        });
+    public void init() {
+        try {
+            Security.runAsAdminWithException(() -> {
+                if (!federationAdminService.getLocalRegistryIdentityMetacard().isPresent()) {
+                    createIdentityNode();
+                }
+                return null;
+            });
+        } catch (PrivilegedActionException e) {
+            LOGGER.warn("Error checking for local registry identity node. Will try again later");
+            executorService.schedule(this::init, RETRY_INTERVAL, TimeUnit.SECONDS);
+        }
+    }
 
+    public void destroy() {
+        executorService.shutdown();
     }
 
     private void createIdentityNode() throws FederationAdminException {
@@ -149,6 +162,7 @@ public class IdentityNodeInitialization {
 
             federationAdminService.addRegistryEntry(identityMetacard);
         }
+        LOGGER.info("Successfully created registry identity node: {}", registryPackageId);
     }
 
     private Metacard getRegistryMetacardFromRegistryPackage(RegistryPackageType registryPackage)
@@ -178,5 +192,9 @@ public class IdentityNodeInitialization {
 
     public void setFederationAdminService(FederationAdminService federationAdminService) {
         this.federationAdminService = federationAdminService;
+    }
+
+    public void setExecutorService(ScheduledExecutorService executorService) {
+        this.executorService = executorService;
     }
 }

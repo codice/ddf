@@ -16,6 +16,9 @@ package org.codice.ddf.registry.publication.manager;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -24,10 +27,13 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,12 +62,16 @@ public class RegistryPublicationManagerTest {
     @Mock
     private FederationAdminService federationAdmin;
 
+    @Mock
+    private ScheduledExecutorService executorService;
+
     private RegistryPublicationManager publicationManager;
 
     @Before
     public void setup() throws Exception {
         publicationManager = new RegistryPublicationManager();
         publicationManager.setFederationAdminService(federationAdmin);
+        publicationManager.setExecutorService(executorService);
     }
 
     @Test
@@ -84,6 +94,16 @@ public class RegistryPublicationManagerTest {
         assertThat(publications.get("regId1"), equalTo(locations));
         assertThat(publications.get("regId2")
                 .size(), is(0));
+    }
+
+    @Test
+    public void testInitFederationAdminException() throws Exception {
+        when(federationAdmin.getRegistryMetacards())
+                .thenThrow(new FederationAdminException("Test error"));
+        publicationManager.init();
+        verify(executorService).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
+        publicationManager.destroy();
+        verify(executorService).shutdown();
     }
 
     @Test
