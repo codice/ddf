@@ -18,19 +18,12 @@ define([
     'backbone',
     'properties',
     './Alert',
+    'js/Common',
     'backboneassociations'
-], function (_, wreqr, Backbone, properties, Alert) {
+], function (_, wreqr, Backbone, properties, Alert, Common) {
     'use strict';
 
     var User = {};
-
-    function generateId() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0,
-                v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
 
     User.updateMapLayers = function(layerPrefs, layersToRemove, index) {
         layerPrefs.each(function (layer) {
@@ -84,7 +77,7 @@ define([
             return {
                 alpha: 0.5,
                 show: true,
-                id: generateId()
+                id: Common.generateUUID()
             };
         },
         parse: function(resp) {
