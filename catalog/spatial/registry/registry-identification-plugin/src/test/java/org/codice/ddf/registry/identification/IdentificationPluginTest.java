@@ -51,6 +51,7 @@ import com.google.common.base.Charsets;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.OperationTransaction;
@@ -278,6 +279,7 @@ public class IdentificationPluginTest {
         MetacardImpl previousMetacard = new MetacardImpl();
         previousMetacard.setAttribute(Metacard.ID, "MetacardId");
         previousMetacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "MetacardId");
+        previousMetacard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         previousMetacard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
                 "Published Locations");
         previousMetacard.setAttribute(RegistryObjectMetacardType.LAST_PUBLISHED,
@@ -295,6 +297,7 @@ public class IdentificationPluginTest {
         MetacardImpl updateMetacard = new MetacardImpl();
         updateMetacard.setAttribute(Metacard.ID, "MetacardId");
         updateMetacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "MetacardId");
+        updateMetacard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         updateMetacard.setAttribute(Metacard.MODIFIED, new Date().from(Instant.now()));
         updateMetacard.setAttribute(Metacard.METADATA, xml);
         updatedEntries.add(new AbstractMap.SimpleEntry<>(updateMetacard.getId(), updateMetacard));

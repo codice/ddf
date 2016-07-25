@@ -24,14 +24,13 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.registry.api.RegistryStore;
-import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 
 /**
@@ -74,10 +73,9 @@ public class RefreshRegistrySubscriptions {
         for (Map.Entry<String, Metacard> remoteEntry : remoteRegistryMetacardsMap.entrySet()) {
             if (registryMetacardsMap.containsKey(remoteEntry.getKey())) {
                 Metacard existingMetacard = registryMetacardsMap.get(remoteEntry.getKey());
-                Attribute localNode =
-                        existingMetacard.getAttribute(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE);
+                boolean localNode = RegistryUtility.isLocalNode(existingMetacard);
 
-                if (localNode == null && remoteEntry.getValue()
+                if (!localNode && remoteEntry.getValue()
                         .getModifiedDate()
                         .after(existingMetacard.getModifiedDate())) {
                     remoteMetacardsToUpdate.add(remoteEntry.getValue());
@@ -100,9 +98,8 @@ public class RefreshRegistrySubscriptions {
                     Security.runAsAdminWithException(() -> federationAdminService.getRegistryMetacards());
 
             return registryMetacards.stream()
-                    .collect(Collectors.toMap(e -> e.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                            .getValue()
-                            .toString(), Function.identity()));
+                    .filter(RegistryUtility::isRegistryMetacard)
+                    .collect(Collectors.toMap(RegistryUtility::getRegistryId, Function.identity()));
         } catch (Exception e) {
             throw new FederationAdminException("Error querying for metacards ", e);
         }
@@ -126,9 +123,10 @@ public class RefreshRegistrySubscriptions {
                     Security.runAsAdminWithException(() -> federationAdminService.getRegistryMetacards(
                             sourceIds));
             for (Metacard metacard : fullList) {
-                String registryId = metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                        .getValue()
-                        .toString();
+                String registryId = RegistryUtility.getRegistryId(metacard);
+                if(registryId == null){
+                    continue;
+                }
                 if (remoteRegistryMetacards.containsKey(registryId)) {
                     Metacard currentMetacard = remoteRegistryMetacards.get(registryId);
                     if (currentMetacard.getModifiedDate()

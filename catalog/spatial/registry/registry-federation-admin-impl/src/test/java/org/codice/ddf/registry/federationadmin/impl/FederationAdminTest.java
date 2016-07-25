@@ -611,7 +611,9 @@ public class FederationAdminTest {
                 Collections.singletonList((RegistryPackageType) getRegistryObjectFromResource(
                         "/csw-full-registry-package.xml"));
         when(federationAdminService.getRegistryObjects()).thenReturn(regObjects);
-
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add(RegistryConstants.REGISTRY_TAG);
+        mcard.setAttribute(Metacard.TAGS, tags);
         mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         mcard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, "location1");

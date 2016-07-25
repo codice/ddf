@@ -59,6 +59,14 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            registry-common,
+                            catalog-core-api-impl
+                        </Embed-Dependency>
+                        <Import-Package>
+                            !org.codice.ddf.platform.util,
+                            *
+                        </Import-Package>
                         <Export-Package/>
                     </instructions>
                 </configuration>
@@ -81,22 +89,22 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
+                                            <minimum>0.78</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.77</minimum>
+                                            <minimum>0.76</minimum>
                                         </limit>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.78</minimum>
+                                            <minimum>0.77</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.76</minimum>
+                                            <minimum>0.72</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

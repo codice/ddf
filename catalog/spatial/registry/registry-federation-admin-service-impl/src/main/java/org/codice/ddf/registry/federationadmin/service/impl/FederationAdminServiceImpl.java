@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelper;
@@ -51,7 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
@@ -153,9 +153,8 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             }
             registryIds = createResponse.getCreatedMetacards()
                     .stream()
-                    .map(e -> e.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                            .getValue()
-                            .toString())
+                    .filter(RegistryUtility::isRegistryMetacard)
+                    .map(RegistryUtility::getRegistryId)
                     .collect(Collectors.toList());
         } catch (SecurityServiceException | InvocationTargetException e) {
             throw new FederationAdminException("Error adding local registry entry.", e);
@@ -197,9 +196,10 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     public void updateRegistryEntry(Metacard updateMetacard, Set<String> destinations)
             throws FederationAdminException {
         validateRegistryMetacards(Collections.singletonList(updateMetacard));
-        String registryId = updateMetacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                .getValue()
-                .toString();
+        String registryId = RegistryUtility.getRegistryId(updateMetacard);
+        if (registryId == null){
+            return;
+        }
 
         List<Metacard> existingMetacards =
                 this.getRegistryMetacardsByRegistryIds(Collections.singletonList(registryId));
@@ -220,9 +220,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             throw new FederationAdminException(message);
         }
 
-
         Map<String, Serializable> properties = new HashMap<>();
-
 
         List<Map.Entry<Serializable, Metacard>> updateList = new ArrayList<>();
         updateList.add(new AbstractMap.SimpleEntry<>(registryId, updateMetacard));
@@ -327,7 +325,8 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     }
 
     @Override
-    public List<Metacard> getRegistryMetacards(Set<String> destinations) throws FederationAdminException {
+    public List<Metacard> getRegistryMetacards(Set<String> destinations)
+            throws FederationAdminException {
         Filter filter = filterBuilder.allOf(getBasicFilter());
 
         return getRegistryMetacardsByFilter(filter, destinations);
@@ -495,16 +494,9 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             if (metacard == null) {
                 throw new FederationAdminException("ValidationError: Metacard was null.");
             }
-            Attribute registryId = metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
-            if (registryId == null) {
+            if (!RegistryUtility.isRegistryMetacard(metacard)) {
                 throw new FederationAdminException(
-                        "ValidationError: Metacard does not have a registry id.");
-            }
-
-            Set<String> tags = metacard.getTags();
-            if (!tags.contains(RegistryConstants.REGISTRY_TAG)) {
-                throw new FederationAdminException(
-                        "ValidationError: Metacard does not have a registry tag.");
+                        "ValidationError: Metacard does not have a registry tag and/or registry id.");
             }
         }
     }
