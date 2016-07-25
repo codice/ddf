@@ -15,10 +15,19 @@
 var uuid = require('uuid');
 var _ = require('underscore');
 
-var remove = exports.remove = function (id) {
-    return {
-        type: 'REMOVE_ANNOUNCEMENT',
-        id: id
+var remove = exports.remove = function (id, timeout) {
+    return function (dispatch) {
+        dispatch({
+            type: 'START_REMOVE_ANNOUNCEMENT',
+            id: id
+        });
+
+        setTimeout(function () {
+            dispatch({
+                type: 'REMOVE_ANNOUNCEMENT',
+                id: id
+            });
+        }, timeout || 250);
     };
 };
 
@@ -33,7 +42,7 @@ exports.announce = function (announcement, timeout) {
 
         if (announcement.type !== 'error') {
             setTimeout(function () {
-                dispatch(remove(id));
+                dispatch(remove(id, timeout));
             }, timeout || 5000);
         }
     };

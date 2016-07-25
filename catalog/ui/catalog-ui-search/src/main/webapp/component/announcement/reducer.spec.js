@@ -1,5 +1,5 @@
-var reducer = require('./reducer');
 var actions = require('./actions');
+var configureStore = require('./configureStore');
 
 var mock = function (type, message) {
     return {
@@ -17,37 +17,49 @@ var apply = function (fns) {
 
 describe('Announcement reducer', function () {
     it('should start empty', function () {
-        expect(reducer()).to.deep.equal([]);
+        var store = configureStore();
+        expect(store.getState()).to.deep.equal([]);
     });
 
-    it('should add a new announcement', function (done) {
-        var state = reducer();
-        var thunk = actions.announce(mock());
-        thunk(function (action) {
-            state = reducer(state, action);
-            expect(state).to.have.lengthOf(1);
-            done();
-        });
+    it('should add a new announcement', function () {
+        var store = configureStore();
+        store.dispatch(actions.announce(mock()));
+        var state = store.getState();
+        expect(state).to.have.lengthOf(1);
     });
 
     it('should dissmiss if not error', function (done) {
-        var state = reducer();
-        var m = mock('warn');
-        var thunk = actions.announce(m, 1);
+        var store = configureStore();
 
-        thunk(apply([function (action) {
-            state = reducer(state, action);
-            expect(state).to.have.lengthOf(1);
-        }, function (action) {
-            state = reducer(state, action);
-            expect(state).to.have.lengthOf(0);
-            done();
-        }]));
+        var events = [
+            function (action) {
+                expect(store.getState()).to.have.lengthOf(1);
+            }, function () {
+                expect(store.getState()).to.have.lengthOf(1);
+            }, function (action) {
+                expect(store.getState()).to.have.lengthOf(0);
+                done();
+            }
+        ];
+
+        store.subscribe(apply(events));
+        store.dispatch(actions.announce(mock('warn'), 1));
     });
 
-    it('should remove an announcement', function () {
-        var state = reducer();
-        var m = mock();
-        var thunk = actions.announce(m);
+    it('should remove an announcement', function (done) {
+        var store = configureStore([mock()]);
+
+        var events = [
+            function (action) {
+                expect(store.getState()).to.have.lengthOf(1);
+            },
+            function (action) {
+                expect(store.getState()).to.have.lengthOf(0);
+                done();
+            }
+        ];
+
+        store.subscribe(apply(events));
+        store.dispatch(actions.remove(store.getState()[0].id, 1));
     });
 });

@@ -16,6 +16,7 @@
 var React = require('react');
 var utils = require('react-addons-test-utils');
 
+var configureStore = require('./configureStore');
 var Announcements = require('./announcements.jsx');
 
 var mock = function (type, message) {
@@ -29,18 +30,9 @@ var mock = function (type, message) {
 
 describe('<Announcements/>', function () {
     it('should render correctly', function () {
-        var node = utils.renderIntoDocument(<Announcements list={[mock()]} dispatch={function () {}}/>);
+        var store = configureStore([mock()])
+        var node = utils.renderIntoDocument(<Announcements store={store} />);
         var found = utils.scryRenderedDOMComponentsWithClass(node, 'announcement');
         expect(found).to.have.lengthOf(1);
-    });
-
-    it('should dismiss on click', function (done) {
-        var dispatch = function (action) {
-            expect(action.type).to.equal('REMOVE_ANNOUNCEMENT');
-            done();
-        };
-        var node = utils.renderIntoDocument(<Announcements list={[mock()]} dispatch={dispatch}/>);
-        var dismiss = utils.findRenderedDOMComponentWithClass(node, 'dismiss');
-        utils.Simulate.click(dismiss);
     });
 });

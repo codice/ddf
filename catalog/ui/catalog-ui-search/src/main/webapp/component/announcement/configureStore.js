@@ -13,29 +13,11 @@
  *
  **/
 
-var $ = require('jquery');
-var React = require('react');
-var render = require('react-dom').render;
-var Provider = require('react-redux').Provider
+var redux = require('redux');
+var thunk = require('redux-thunk').default;
 
-var actions = require('./actions');
-var configureStore = require('./configureStore');
+var reducer = require('./reducer');
 
-var Announcments = require('./announcements');
-
-var region = $('<div id="announcments">').get(0);
-$(window.document.body).append(region);
-
-var store = configureStore();
-
-render(<Provider store={store}>
-            <Announcments />
-       </Provider>, region);
-
-exports.announce = function (announcement) {
-    store.dispatch(actions.announce(announcement));
+module.exports = function (prevState) {
+    return redux.createStore(reducer, prevState, redux.applyMiddleware(thunk));
 };
-
-if (process.env.NODE_ENV !== 'production') {
-    module.hot.accept();
-}
