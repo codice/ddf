@@ -13,7 +13,7 @@ It can only be installed or uninstalled.
 
 ===== Using CSW Endpoint
 
-The CSW endpoint is accessible from \http://<${secure_url}/services/csw.
+The CSW endpoint is accessible from ${secure_url}/services/csw.
 
 ====== CSW Endpoint Operations
 
@@ -24,7 +24,7 @@ The `HTTP GET` form of `GetCapabilities` uses query parameters via the following
 
 .`GetCapabilities` KVP Encoding
 ----
-http://${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
+${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
 ----
 
 .`GetCapabilities` HTTP POST
