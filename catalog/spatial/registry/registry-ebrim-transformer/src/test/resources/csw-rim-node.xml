@@ -26,8 +26,9 @@
                      xmlns:gml="http://www.opengis.net/gml">
 
     <!-- external identifiers are set by the framework to track the local metacard id and the origin-id. origin-id is the metacard id of the registry entry on the originating instance-->
-    <rim:ExternalIdentifier id="urn:mcard:local-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="someUUID"/>
-    <rim:ExternalIdentifier id="urn:mcard:origin-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="someUUID"/>
+    <rim:ExternalIdentifier id="urn:registry:metacard:local-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="someUUID"/>
+    <rim:ExternalIdentifier id="urn:registry:metacard:origin-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="someUUID"/>
+    <rim:ExternalIdentifier id="urn:registry:origin-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="RegistryId" value="someUUID"/>
 
     <!-- RegistryObjectList holds all the actual registry content-->
     <rim:RegistryObjectList>

@@ -35,6 +35,7 @@ import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.parser.xml.XmlParser;
+import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.schemabindings.converter.type.RegistryPackageTypeConverter;
 import org.codice.ddf.registry.schemabindings.converter.web.RegistryPackageWebConverter;
 import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelper;
@@ -189,7 +190,7 @@ public class RegistryPackageWebConverterTest {
 
     private ExternalIdentifierType getFirstExternalIdentifier() {
         ExternalIdentifierType externalIdentifier = RIM_FACTORY.createExternalIdentifierType();
-        externalIdentifier.setId("urn:mcard:local-id");
+        externalIdentifier.setId(RegistryConstants.REGISTRY_MCARD_ID_LOCAL);
         externalIdentifier.setRegistryObject("urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         externalIdentifier.setIdentificationScheme("MetacardId");
         externalIdentifier.setValue("someUUID");
@@ -199,7 +200,7 @@ public class RegistryPackageWebConverterTest {
 
     private ExternalIdentifierType getSecondExternalIdentifier() {
         ExternalIdentifierType externalIdentifier = RIM_FACTORY.createExternalIdentifierType();
-        externalIdentifier.setId("urn:mcard:origin-id");
+        externalIdentifier.setId(RegistryConstants.REGISTRY_MCARD_ID_ORIGIN);
         externalIdentifier.setRegistryObject("urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         externalIdentifier.setIdentificationScheme("MetacardId");
         externalIdentifier.setValue("someUUID");

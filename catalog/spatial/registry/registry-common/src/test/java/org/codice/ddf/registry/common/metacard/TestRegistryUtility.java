@@ -39,15 +39,17 @@ public class TestRegistryUtility {
 
     private Attribute tagsAttribute;
 
-    private Attribute blankRegistryIdAttribute = new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "");
+    private Attribute blankRegistryIdAttribute =
+            new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "");
 
-    private Attribute registryIdAttribute = new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
-            "validRegistryId");
+    private Attribute registryIdAttribute =
+            new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validRegistryId");
 
-    private Attribute identityAttribute = new AttributeImpl(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE,
-            true);
+    private Attribute identityAttribute =
+            new AttributeImpl(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, true);
 
-    private Attribute localAttribute = new AttributeImpl(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE, true);
+    private Attribute localAttribute =
+            new AttributeImpl(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE, true);
 
     @Before
     public void setup() {
@@ -73,6 +75,38 @@ public class TestRegistryUtility {
     public void testMetacardHasEmptyRegistryId() {
         metacard.setAttribute(blankRegistryIdAttribute);
         assertThat(RegistryUtility.isRegistryMetacard(metacard), is(false));
+    }
+
+    @Test
+    public void testInternalMetacardHasNoRegistryTag() {
+        metacard = new MetacardImpl();
+        assertThat(RegistryUtility.isInternalRegistryMetacard(metacard), is(false));
+    }
+
+    @Test
+    public void testInternalMetacardHasRegistryTagNoRegistryId() {
+        tags.clear();
+        tags.add(RegistryConstants.REGISTRY_TAG_INTERNAL);
+        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
+        assertThat(RegistryUtility.isInternalRegistryMetacard(metacard), is(false));
+    }
+
+    @Test
+    public void testInternalMetacardHasEmptyRegistryId() {
+        metacard.setAttribute(blankRegistryIdAttribute);
+        tags.clear();
+        tags.add(RegistryConstants.REGISTRY_TAG_INTERNAL);
+        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
+        assertThat(RegistryUtility.isInternalRegistryMetacard(metacard), is(false));
+    }
+
+    @Test
+    public void testInternalMetacardHasValidRegistryId() {
+        metacard.setAttribute(registryIdAttribute);
+        tags.clear();
+        tags.add(RegistryConstants.REGISTRY_TAG_INTERNAL);
+        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
+        assertThat(RegistryUtility.isInternalRegistryMetacard(metacard), is(true));
     }
 
     @Test
@@ -125,8 +159,8 @@ public class TestRegistryUtility {
 
     @Test
     public void testNullListAttribute() {
-        assertThat(RegistryUtility.getListOfStringAttribute(metacard, "MissingAttribute").size(),
-                is(0));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard, "MissingAttribute")
+                .size(), is(0));
     }
 
     @Test
@@ -134,5 +168,11 @@ public class TestRegistryUtility {
         List<String> values = RegistryUtility.getListOfStringAttribute(metacard, Metacard.TAGS);
         assertThat(values.size(), is(1));
         assertThat(values, contains(RegistryConstants.REGISTRY_TAG));
+    }
+
+    @Test
+    public void testHasAttribute() {
+        assertThat(RegistryUtility.hasAttribute(metacard, Metacard.TAGS), is(true));
+        assertThat(RegistryUtility.hasAttribute(metacard, "BadAttribute"), is(false));
     }
 }

@@ -32,8 +32,22 @@ public class RegistryUtility {
      * @return true if registryId is present in the metacard with the Registry_Tag, false otherwise
      */
     public static boolean isRegistryMetacard(Metacard metacard) {
+        return isRegistryMetacard(metacard, RegistryConstants.REGISTRY_TAG);
+    }
+
+    /**
+     * Checks that the metacard passed in has the internal Registry metacard tag and a valid RegistryId.
+     *
+     * @param metacard - will have tags and RegistryId evaluated
+     * @return true if registryId is present in the metacard with the Registry_Tag_Internal, false otherwise
+     */
+    public static boolean isInternalRegistryMetacard(Metacard metacard) {
+        return isRegistryMetacard(metacard, RegistryConstants.REGISTRY_TAG_INTERNAL);
+    }
+
+    private static boolean isRegistryMetacard(Metacard metacard, String tag) {
         if (!metacard.getTags()
-                .contains(RegistryConstants.REGISTRY_TAG)) {
+                .contains(tag)) {
             return false;
         }
 
@@ -138,5 +152,15 @@ public class RegistryUtility {
                 .stream()
                 .map(Object::toString)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    /**
+     * Simple method to just check for the existance of an attribute on a metacard
+     * @param metacard - metacard to check for attribute on
+     * @param attributeName - name of attribute to check
+     * @return
+     */
+    public static boolean hasAttribute(Metacard metacard, String attributeName) {
+        return metacard.getAttribute(attributeName) != null;
     }
 }

@@ -46,6 +46,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.Subject;
@@ -110,8 +111,10 @@ public class IdentityNodeInitializationTest {
 
     @Test
     public void initWithPreviousPrimaryEntry() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard())
-                .thenReturn(Optional.of(testMetacard));
+        testMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
+                "registryId"));
+        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.of(
+                testMetacard));
         identityNodeInitialization.init();
         verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
     }

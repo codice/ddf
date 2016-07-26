@@ -16,23 +16,14 @@
 
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
-    
-    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
-    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
     <bean id="metacardMarshaller" class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
         <argument ref="xmlParser"/>
     </bean>
 
-    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
-
     <bean id="identificationPlugin"
-          class="org.codice.ddf.registry.identification.IdentificationPlugin" init-method="init"
-          destroy-method="destroy">
+          class="org.codice.ddf.registry.identification.IdentificationPlugin">
         <property name="metacardMarshaller" ref="metacardMarshaller"/>
-        <property name="catalogFramework" ref="catalogFramework"/>
-        <property name="filterBuilder" ref="filterBuilder"/>
-        <property name="executorService" ref="executor"/>
     </bean>
 
     <service ref="identificationPlugin" auto-export="interfaces" ranking="-1000"/>

@@ -121,7 +121,7 @@ public class FederationAdminServiceImplTest {
     private static final String TEST_XML_STRING = "SomeValidStringVersionOfXml";
 
     @Mock
-    RefreshRegistrySubscriptions refreshRegistrySubscriptions;
+    RefreshRegistryEntries refreshRegistryEntries;
 
     private FederationAdminServiceImpl federationAdminServiceImpl;
 
@@ -456,7 +456,6 @@ public class FederationAdminServiceImplTest {
                 existingMetacard);
         when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
         federationAdminServiceImpl.updateRegistryEntry(metacard, destinations);
-        verify(catalogFramework).query(any(QueryRequest.class));
         verify(catalogFramework).update(any(UpdateRequest.class));
     }
 
@@ -540,7 +539,6 @@ public class FederationAdminServiceImplTest {
                 existingMetacard);
         when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
         federationAdminServiceImpl.updateRegistryEntry(metacard);
-        verify(catalogFramework).query(any(QueryRequest.class));
         verify(catalogFramework).update(any(UpdateRequest.class));
     }
 
@@ -582,7 +580,6 @@ public class FederationAdminServiceImplTest {
         when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
         federationAdminServiceImpl.updateRegistryEntry(TEST_XML_STRING);
         verify(registryTransformer).transform(any(InputStream.class));
-        verify(catalogFramework).query(any(QueryRequest.class));
         verify(catalogFramework).update(any(UpdateRequest.class));
     }
 
@@ -623,6 +620,9 @@ public class FederationAdminServiceImplTest {
         String destination = TEST_DESTINATION;
         Set<String> destinations = new HashSet<>();
         destinations.add(destination);
+        QueryResponse response = getPopulatedTestQueryResponse(getTestQueryRequest(),
+                testMetacard);
+        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
         federationAdminServiceImpl.deleteRegistryEntriesByRegistryIds(ids, destinations);
         verify(catalogFramework).delete(any(DeleteRequest.class));
     }
@@ -1145,5 +1145,11 @@ public class FederationAdminServiceImplTest {
         registryMetacard.setAttribute(new AttributeImpl(Metacard.ID, TEST_METACARD_ID));
         registryMetacard.setAttribute(new AttributeImpl(Metacard.METADATA, TEST_XML_STRING));
         return registryMetacard;
+    }
+
+    private Metacard getPopulatedRemoteTestRegistryMetacard() {
+        Metacard mcard = getPopulatedTestRegistryMetacard();
+        mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REMOTE_REGISTRY_ID, "RemoteRegId"));
+        return mcard;
     }
 }

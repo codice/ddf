@@ -1435,8 +1435,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
                 HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
-                Metacard oldMetacard = metacardMap.get(getAttributeStringValue(update.getValue(),
-                        updateRequest.getAttributeName()));
+                Metacard oldMetacard = metacardMap.get(update.getKey());
                 for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                     PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
                             Collections.unmodifiableMap(updateReq.getProperties()));

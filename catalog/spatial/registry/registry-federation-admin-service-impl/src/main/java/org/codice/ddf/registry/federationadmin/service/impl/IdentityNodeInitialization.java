@@ -14,6 +14,7 @@
 
 package org.codice.ddf.registry.federationadmin.service.impl;
 
+
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.security.PrivilegedActionException;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +35,7 @@ import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelper;
@@ -50,6 +53,7 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.VersionInfoType;
+
 
 /**
  * Creates a registry identity node when DDF Registry is first instantiated.
@@ -80,7 +84,10 @@ public class IdentityNodeInitialization {
     public void init() {
         try {
             Security.runAsAdminWithException(() -> {
-                if (!federationAdminService.getLocalRegistryIdentityMetacard().isPresent()) {
+                Optional<Metacard> optional = federationAdminService.getLocalRegistryIdentityMetacard();
+                optional.ifPresent(e -> System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY,
+                        RegistryUtility.getRegistryId(e)));
+                if (!optional.isPresent()) {
                     createIdentityNode();
                 }
                 return null;
@@ -159,7 +166,7 @@ public class IdentityNodeInitialization {
                     true));
             identityMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE,
                     true));
-
+            System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, registryPackageId);
             federationAdminService.addRegistryEntry(identityMetacard);
         }
         LOGGER.info("Successfully created registry identity node: {}", registryPackageId);
