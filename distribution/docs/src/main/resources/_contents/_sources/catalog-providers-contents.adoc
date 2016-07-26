@@ -1,0 +1,3 @@
+.[[_catalog_providers]]Included Catalog Providers
+<<_catalog_solr_embedded_provider,Solr Embedded Catalog Provider>>:: TThe Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+<<_catalog_solr_external_provider,Solr External Catalog Provider>>:: The Solr HTTP Catalog Provider is for use with a Standalone external (HTTP) Solr Server

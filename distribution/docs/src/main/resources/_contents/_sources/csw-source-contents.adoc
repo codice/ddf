@@ -1,0 +1,164 @@
+
+==== CSW Source
+
+The CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
+
+===== Installing the CSW Source
+
+The CSW Source is | is not installed by default with a standard installation in the ${ddf-spatial} application.
+
+===== Configuring the CSW Source
+
+* Navigate to the ${admin-console}
+* Navigate to the ${ddf-spatial} application
+* Select CSW Federated Source Configuration.
+
+.[[_csw_v2.0.2_source]]CSW Source Configurable Properties
+[cols="6*", options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+￼
+|Source ID
+|`id`
+|String
+|Unique Name of this Source.
+|CSW
+|Yes
+
+|CSW URL
+|`cswUrl`
+|String
+|URL to the Catalogue Services for the Web site that will be queried by this source
+|
+|Yes
+
+|Event Service Address
+|`eventServiceAddress`
+|String
+|DDF Event Service endpoint.
+|
+|No
+
+|Register for Events
+|`registerForEvents`
+|Boolean
+|Check to register for events from this source.
+|false
+|No
+
+|Username
+|`username`
+|String
+|Username to log into the CSW service
+|
+|No
+￼
+|Password
+|`password`
+|String
+|Password to log into the CSW service
+|
+|No
+￼
+|Disable CN Check
+|`disableCnCheck`
+|Boolean
+|Disable CN check for the server certificate. This should only be used when testing.
+|false
+|Yes
+
+|Force Longitude/Latitude coordinate order
+|`isLonLatOrder`
+|Boolean
+|Force Longitude/Latitude coordinate order
+|false
+|Yes
+
+|Use `posList` in `LinearRing`
+|`usePosList`
+|Boolean
+|Use a `<posList>` element rather that a series of `<pos>` elements when issuing geospatial queries containing a `LinearRing`
+|false
+|Yes
+
+|Metacard Mappings
+|`metacardMappings`
+|String
+|Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'.
+|`effective=created,created=dateSubmitted,modified=modified,thumbnail=references,content-type=type,id=identifier,resource-uri=source`
+|No
+
+|Poll Interval
+|pollInterval
+|Integer
+|Poll Interval to Check if the Source is available (in minutes - minimum 1)
+|5
+|Yes
+
+|Connection Timeout
+|`connectionTimeout`
+|Integer
+|Amount of time (in milliseconds) to attempt to establish a connection before timing out.
+|30000
+|Yes
+￼
+|Receive Timeout
+|`receiveTimeout`
+|Integer
+|Amount of time (in milliseconds) to attempt to establish a connection before timing out.
+|60000
+|Yes
+
+|Output schema
+|`outputSchema`
+|String
+|Output Schema
+|http://www.opengis.net/cat/csw/2.0.2
+|Yes
+
+|Query Type Name
+|`queryTypeName`
+|String
+|Qualified Name for the Query Type used in the CSW GetRecords request
+|csw:Record
+|Yes
+
+|Query Type Namespace
+|`queryTypeNamespace`
+|String
+|Namespace for the Query Type used in the CSW GetRecords request
+|http://www.opengis.net/cat/csw/2.0.2
+|Yes
+
+|Force CQL Text as the Query Language
+|`isCqlForced`
+|Boolean
+|Force CQL Text
+|false
+|Yes
+
+|Forced Spatial Filter Type
+|`forceSpatialFilter`
+|String
+|Force only the selected None No Spatial Filter Type as the only available Spatial Filter.
+|
+|
+
+|===
+
+===== Using the CSW Source
+
+Use the CSW source if querying a CSW version 2.0.2 compliant service.
+
+===== Known Issues with the CSW v.2.0.2 Source
+
+* The CSW Source does not support text path searches.
+* Nearest neighbor spatial searches are not supported.
+
+
+

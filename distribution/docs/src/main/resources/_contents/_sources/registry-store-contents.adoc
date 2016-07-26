@@ -1,0 +1,20 @@
+==== Registry Store
+
+[NOTE]
+====
+The Registry Store is currently marked *Experimental*. While functional and tested, it is subject to change or removal during the incubation period.
+====
+
+{description}
+
+===== Installing Registry Store
+
+The Registry Store is is not installed by default with a standard installation in the ${ddf-registry} application.
+
+===== Configuring Registry Store
+
+See <<_registry_store_configurable_properties,Registry Store Configurable Properties>> for a complete list of configurable properties
+
+===== Known Issues with Registry Store
+
+None.

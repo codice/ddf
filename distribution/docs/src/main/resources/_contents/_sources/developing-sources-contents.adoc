@@ -1,0 +1,113 @@
+==== Developing Sources
+
+Sources are components that enable ${branding} to talk to back-end services.
+They let ${branding} perform query and ingest operations on catalog stores and query operations on federated sources.
+
+===== Implement a Source Interface
+
+There are three types of sources that can be created.
+All of these types of sources can perform a query operation.
+Operating on queries is the foundation for all sources.
+All of these sources must also be able to return their availability and the list of content types currently stored in their back-end data stores.
+
+Catalog Provider:: `${ddf-branding}.catalog.source.CatalogProvider` _is used to communicate with back-end storage and allows for Query and Create/Update/Delete operations._
+Federated Source:: `${ddf-branding}.catalog.source.FederatedSource` _is used to communicate with remote systems and only allows query operations._
+Connected Source:: `${ddf-branding}.catalog.source.ConnectedSource` _is similar to a Federated Source with the following exceptions:_
+* _Queried on all local queries_
+* _`SiteName` is hidden (masked with the ${branding} sourceId) in query results_
+* _`SiteService` does not show this Source's information separate from ${branding}'s._
+Catalog Store:: `catalog.store.interface` is used to
+
+The procedure for implementing any of the source types follows a similar format:
+. Create a new class that implements the specified Source interface and `ConfiguredService`.
+. Implement the required methods.
+. Create an OSGi descriptor file to communicate with the OSGi registry. (Refer to <<_osgi_services,OSGi Services>>.)
+.. Import ${branding} packages.
+.. Register source class as service to the OSGi registry.
+. Deploy to ${branding}.
+[IMPORTANT]
+====
+The `factory-pid` property of the metatype must contain one of the following in the name: service, Service, source, Source
+====
+
+===== Developing Catalog Providers
+
+. Create a Java class that implements `CatalogProvider`. +
+`public class TestCatalogProvider implements ${ddf-branding}.catalog.source.CatalogProvider`
+. Implement the required methods from the `${ddf-branding}.catalog.source.CatalogProvider` interface. +
+`public CreateResponse create(CreateRequest createRequest) throws IngestException;`
+`public UpdateResponset update(UpdateRequest updateRequest) throws IngestException;`
+`public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException;`
+
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.source`
+. Export the service to the OSGi registry.
+
+.Catalog Provider Blueprint example
+[source,xml]
+----
+<service ref="[[TestCatalogProvider]]" interface="${ddf-branding}.catalog.source.CatalogProvider" />
+----
+
+See the <<_included_catalog_providers,existing Catalog Provider list>> for examples of Catalog Providers included in ${branding}.
+
+[NOTE]
+====
+A code example of a Catalog Provider delivered with ${branding} is the <<catalog_solr_embedded_provider,Catalog Solr Embedded Provider>>.
+====
+
+===== Developing Federated Sources
+
+. Create a Java class that implements `FederatedSource` and `ConfiguredService`. +
+`public class TestFederatedSource implements ${ddf-branding}.catalog.source.FederatedSource, ${ddf-branding}.catalog.service.ConfiguredService`
+. Implement the required methods of the `${ddf-branding}.catalog.source.FederatedSource` and `${ddf-branding}.catalog.service.ConfiguredService` interfaces.
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.source`
+. Export the service to the OSGi registry.
+
+.Federated Source Blueprint example
+[source,xml]
+----
+<service ref="[[TestFederatedSource]]" interface="${ddf-branding}.catalog.source.FederatedSource" />
+----
+
+[NOTE]
+====
+A code example of a Federated Source delivered with ${branding} can be found in <<_solr_cache_source,Solr Cache Source>>
+====
+
+===== Developing Connected Sources
+
+. Create a Java class that implements `ConnectedSource` and `ConfiguredService`. +
+`public class TestConnectedSource implements ${ddf-branding}.catalog.source.ConnectedSource, ${ddf-branding}.catalog.service.ConfiguredService`
+. Implement the required methods of the `${ddf-branding}.catalog.source.ConnectedSource` and `${ddf-branding}.catalog.service.ConfiguredService` interfaces.
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.source`
+. Export the service to the OSGi registry.
+
+.Connected Source Blueprint example
+[source,xml,linenums]
+----
+<service ref="[[TestConnectedSource]]" interface="${ddf-branding}.catalog.source.ConnectedSource" />
+----
+[IMPORTANT]
+====
+In some Providers that are created, there is a need to make Web Service calls through JAXB clients.
+It is best NOT to create your JAXB client as a global variable.
+There may be intermittent failures with the creation of Providers and federated sources when clients are created in this manner.
+Create your JAXB clients every single time within the methods that require it in order to avoid this issue.
+====
+
+===== Exception Handling
+
+In general, sources should only send information back related to the call, not implementation details.
+
+====== Exception Examples
+
+* "Site XYZ not found" message rather than the full stack trace with the original site not found exception.
+* The caller issues a malformed search request. Return an error describing the right form, or specifically what was not recognized in the request. Do not return the exception and stack trace where the parsing broke.
+* The caller leaves something out. Do not return the null pointer exception with a stack trace, rather return a generic exception with the message "xyz was missing."
+
+====== Additional Information for Developing Sources
+
+* http://today.java.net/pub/a/today/2003/12/04/exceptions.html[Three Rules for Effective Exception Handling]

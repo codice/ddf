@@ -1,0 +1,2 @@
+.[[_catalog_stores]]Included Catalog Stores
+<<_registry_store, Registry Store>>:: description

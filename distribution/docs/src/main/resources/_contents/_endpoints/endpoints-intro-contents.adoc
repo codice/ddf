@@ -1,5 +1,28 @@
 === Endpoints
 
+.Endpoints
+[ditaa, catalog_architecture_endpoints, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |c369Endpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
 Endpoints act as a proxy between the client and the <<_catalog_framework, Catalog Framework.>>
 
 Endpoints expose the Catalog Framework to clients using protocols and formats that the clients understand.

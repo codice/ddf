@@ -1,0 +1,71 @@
+
+A *source* is a system consisting of a catalog containing Metacards.
+
+Catalog sources are used to connect Catalog components to data sources, local and remote.
+Sources act as proxies to the actual external data sources, e.g., a RDBMS database or a NoSQL database.
+
+[ditaa, sources_architecture, png, ${image-width}]
+....
++----------------------------------------------------------------------------------------------+
+|                /-------------------\            /-----------------------------\    +-=------+|
+|                |cDEFEndpoints      |            |c369   Remote Sources        |    |External||
+|                +------------+------+            | /-------------------------\ |    | Data{s}||
+|                |cDEF        |cDEF  |            | |c369Federated Sources    |-+--->|Holdings||
+|                | Operations | Data |            | +-------------------------+ |    +--------+|
+|/---------------+------------+------+------------+ |c369Connected Sources    |-+--->          |
+||cDEF           |cDEF               |cDEF        | +-------------------------+ |    +-=------+|
+||               |                   |            | |c369 Catalog Stores      |-+--->|External||
+||  Transformers |                   | Federation | \-------------------------/ |    | Data{s}||
+|+---------------+ Catalog Framework +------------+-----------------------------+    |Holdings||
+||cDEF           |                   |cDEF           Eventing                   |    +--------+|
+||   Catalog     |                   +------------------------------------------+              |
+||   Plugins     |                   |cDEF           Resources                  |              |
+|\---------------+-------------------+------------------------------------------/              |
+|                |c369               |                                                         |
+|                | Catalog Provider  |              cFFF                                       |
+|                \-------------------/                                                         |
+|                          |                                                                   |
+|                          v                                                                   |
+|                  +-=-------------+                                                           |
+|                  |               |                                                           |
+|                  |{s}Data Store  |                                                           |
+|                  +---------------+                                                           |
++----------------------------------------------------------------------------------------------+
+....
+
+
+==== Types of Sources
+
+Remote Source:: read-only data sources that support query operations but cannot be used to create, update, or delete metacards.
+
+[NOTE]
+====
+Remote sources currently extend the `ResourceReader` interface.
+However, a `RemoteSource` is not treated as a `ResourceReader`.
+The `getSupportedSchemes()` method should never be called on a `RemoteSource`, thus the suggested implementation for a `RemoteSource` is to return an empty set.
+The `retrieveResource( ... )` and `getOptions( ... )` methods will be called and MUST be properly implemented by a `RemoteSource`.
+====
+
+<<_federated_sources,Federated Source>>:: A federated source is a remote source that can be included in federated queries by request or as part of an enterprise query. Federated sources support query and site information operations only. Catalog modification operations, such as create, update, and delete, are not allowed.
+Federated sources also expose an event service, which allows the Catalog Framework to subscribe to even notifications when metacards are created, updated, and deleted.
++
+${ddf-catalog} instances can also be federated to each other.
+Therefore, a ${ddf-catalog} can also act as a federated source to another ${ddf-catalog}.
+
+<<_connected_sources,Connected Source>>:: A Connected Source is a local or remote source that is always included in every local and enterprise query, but is hidden from being queried individually. A connected source's identifier is removed in all query results by replacing it with ${branding}'s source identifier. The Catalog Framework does not reveal a connected source as a separate source when returning source information responses.
+
+<<_catalog_providers,Catalog Provider>>:: A Catalog Provider is used to interact with data providers, such as files systems or databases, to query, create, update, or delete data. The provider also translates between ${branding} objects and native data formats.
++
+All sources, including federated source and connected source, support queries, but a Catalog provider also allows metacards to be created, updated, and deleted. A Catalog provider typically connects to an external application or a storage system (e.g., a database), acting as a proxy for all catalog operations.
++
+The <<_catalog_framework,Standard Catalog Framework>> uses only one Catalog provider, determined by the OSGi Framework as the service reference with the highest service ranking.
+In the case of a tie, the service with the lowest service ID (first created) is used.
++
+The <<_catalog_fanout_framework,Catalog Fanout Framework App>> does not use a Catalog provider and will fail any create/update/delete operations, even if there are active Catalog providers configured.
++
+The Catalog reference implementation comes with a <<_solr_catalog_provider,Solr Catalog Provider>> by default.
+
+<<_catalog_stores, Catalog Store>> :: A Catalog Store is
+
+
+
