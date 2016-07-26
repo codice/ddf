@@ -40,11 +40,13 @@ require([
             message = jqxhr.responseJSON.message;
         }
 
-        announcement.announce({
-            title: 'Server Error',
-            message: message || 'Unknown error.',
-            type: 'error'
-        });
+        if (!settings.customErrorHandling) {
+            announcement.announce({
+                title: 'Server Error',
+                message: message || 'Unknown error.',
+                type: 'error'
+            });
+        }
     });
 
     // Make lodash compatible with Backbone

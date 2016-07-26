@@ -56,6 +56,7 @@ define([
                 this.$('.fileupload').fileupload({
                     url: '/services/catalog',
                     maxFileSize: 5000000,
+                    customErrorHandling: true,
                     add: function (e, data) {
 // this overrides the add to use our own model to control when the upload actually happens.
                         var that = this;
