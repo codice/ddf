@@ -82,6 +82,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryResponse;
@@ -460,10 +461,16 @@ public class RESTEndpoint implements RESTService {
                 if (transformerParam != null) {
                     transformer = transformerParam;
                 }
-                Filter filter = getFilterBuilder().attribute(Metacard.ID)
+                Filter idFilter = getFilterBuilder().attribute(Metacard.ID)
                         .is()
                         .equalTo()
                         .text(id);
+                Filter tags = getFilterBuilder().attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(FilterDelegate.WILDCARD_CHAR);
+
+                Filter filter = getFilterBuilder().allOf(idFilter, tags);
 
                 Collection<String> sources = null;
                 if (encodedSourceId != null) {
