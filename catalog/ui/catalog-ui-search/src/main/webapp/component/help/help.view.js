@@ -21,67 +21,70 @@ define([
     'js/CustomElements',
     'component/dropdown/dropdown',
     'component/dropdown/hint/dropdown.hint.view',
-    'component/hint/hint',
-    'wreqr'
+    'component/hint/hint'
 ], function (Marionette, _, $, template, CustomElements, Dropdown,
-             DropdownHintView, Hint, wreqr) {
+             DropdownHintView, Hint) {
 
-    function findHighestAncestorTop(element){
+    function findHighestAncestorTop(element) {
         var parent = element.parentNode;
         var maxTop = parent.getBoundingClientRect().top;
         try {
-            while(parent !== null) {
+            while (parent !== null) {
                 maxTop = Math.max(maxTop, parent.getBoundingClientRect().top);
                 parent = parent.parentNode;
             }
         }
-        catch(err) {}
+        catch (err) {
+        }
         return maxTop;
     }
 
-    function findHighestAncestorLeft(element){
+    function findHighestAncestorLeft(element) {
         var parent = element.parentNode;
         var maxTop = parent.getBoundingClientRect().left;
         try {
-            while(parent !== null) {
+            while (parent !== null) {
                 maxTop = Math.max(maxTop, parent.getBoundingClientRect().left);
                 parent = parent.parentNode;
             }
         }
-        catch(err) {}
+        catch (err) {
+        }
         return maxTop;
     }
 
-    function findLowestAncestorBottom(element){
+    function findLowestAncestorBottom(element) {
         var parent = element.parentNode;
         var maxTop = parent.getBoundingClientRect().bottom;
         try {
-            while(parent !== null) {
+            while (parent !== null) {
                 maxTop = Math.min(maxTop, parent.getBoundingClientRect().bottom);
                 parent = parent.parentNode;
             }
         }
-        catch(err) {}
+        catch (err) {
+        }
         return maxTop;
     }
 
-    function findLowestAncestorRight(element){
+    function findLowestAncestorRight(element) {
         var parent = element.parentNode;
         var maxTop = parent.getBoundingClientRect().right;
         try {
-            while(parent !== null) {
+            while (parent !== null) {
                 maxTop = Math.min(maxTop, parent.getBoundingClientRect().right);
                 parent = parent.parentNode;
             }
         }
-        catch(err) {}
+        catch (err) {
+        }
         return maxTop;
     }
 
-    function findBlockers(){
+    function findBlockers() {
         var blockingElements = $(CustomElements.getNamespace() + 'dropdown-companion.is-open')
             .add(CustomElements.getNamespace() + 'menu-vertical.is-open');
-        return _.map(blockingElements, function(blockingElement){
+        return _.map(blockingElements, function (blockingElement) {
             return {
                 boundingRect: blockingElement.getBoundingClientRect(),
                 element: blockingElement
@@ -93,41 +96,39 @@ define([
         return (boundingRect.top + 1) >= findHighestAncestorTop(element);
     }
 
-    function hasScrolledToVertically(element, boundingRect){
-        return (boundingRect.bottom- 1) <= findLowestAncestorBottom(element);
+    function hasScrolledToVertically(element, boundingRect) {
+        return (boundingRect.bottom - 1) <= findLowestAncestorBottom(element);
     }
 
     function hasNotScrolledPastHorizontally(element, boundingRect) {
         return (boundingRect.left + 1) >= findHighestAncestorLeft(element);
     }
 
-    function hasScrolledToHorizontally(element, boundingRect){
+    function hasScrolledToHorizontally(element, boundingRect) {
         return (boundingRect.right - 1) <= findLowestAncestorRight(element);
     }
 
-    function withinScrollViewport(element, boundingRect){
+    function withinScrollViewport(element, boundingRect) {
         return hasNotScrolledPastVertically(element, boundingRect) && hasScrolledToVertically(element, boundingRect)
             && hasNotScrolledPastHorizontally(element, boundingRect) && hasScrolledToHorizontally(element, boundingRect);
     }
 
     function isBlocked(element, boundingRect) {
         var blocked = false;
-        _.forEach(findBlockers(), function(blocker){
-            if ($(blocker.element).find(element).length === 0){
+        _.forEach(findBlockers(), function (blocker) {
+            if ($(blocker.element).find(element).length === 0) {
                 if (((boundingRect.left > blocker.boundingRect.left)
                     && (boundingRect.left < blocker.boundingRect.right))
                     || ((boundingRect.right > blocker.boundingRect.left)
                     && (boundingRect.right < blocker.boundingRect.right))
                     || ((boundingRect.left < blocker.boundingRect.left)
-                    && (boundingRect.right > blocker.boundingRect.right)))
-                {
+                    && (boundingRect.right > blocker.boundingRect.right))) {
                     if ((boundingRect.top > blocker.boundingRect.top)
                         && (boundingRect.top < blocker.boundingRect.bottom)) {
                         blocked = true;
                     }
                     if ((boundingRect.bottom > blocker.boundingRect.top)
-                        && (boundingRect.bottom < blocker.boundingRect.bottom))
-                    {
+                        && (boundingRect.bottom < blocker.boundingRect.bottom)) {
                         blocked = true;
                     }
                 }
@@ -145,31 +146,35 @@ define([
         regions: {
             hints: '.help-hints'
         },
-        initialize: function(){
+        initialize: function () {
             $('body').append(this.el);
         },
         onRender: function () {
         },
         hintOn: false,
-        toggleHints: function(){
-            if (this.hintOn){
+        toggleHints: function () {
+            if (this.hintOn) {
                 this.hideHints();
                 this.stopListeningForResize();
+                this.stopListeningForTyping();
+                this.stopListeningForClick();
             } else {
                 this.showHints();
                 this.listenForResize();
+                this.listenForTyping();
+                this.listenForClick();
             }
         },
-        removeOldHints: function(){
+        removeOldHints: function () {
             this.el.innerHTML = '';
             $(CustomElements.getNamespace() + 'dropdown-companion.is-hint').remove();
         },
-        showHints: function(){
+        showHints: function () {
             this.removeOldHints();
             this.hintOn = true;
             this.$el.addClass('is-shown');
             var $elementsWithHints = $('[data-help]');
-            _.each($elementsWithHints, function(element){
+            _.each($elementsWithHints, function (element) {
                 var dropdownHintView = new DropdownHintView({
                     model: new Dropdown(),
                     modelForComponent: new Hint({
@@ -195,13 +200,13 @@ define([
             }.bind(this));
             this.addUntoggleElement();
         },
-        hideHints: function(){
+        hideHints: function () {
             this.hintOn = false;
             this.$el.removeClass('is-shown');
         },
-        addUntoggleElement: function(){
+        addUntoggleElement: function () {
             var $untoggleElement = $('.navigation-right > .item-help');
-            _.forEach($untoggleElement, function(element){
+            _.forEach($untoggleElement, function (element) {
                 var $untoggleElementClone = $(element).clone(true);
                 this.$el.append($untoggleElementClone);
                 var boundingRect = element.getBoundingClientRect();
@@ -213,16 +218,42 @@ define([
                     .on('click', this.toggleHints.bind(this));
             }.bind(this));
         },
-        preventPropagation: function(e){
+        preventPropagation: function (e) {
             e.stopPropagation();
         },
-        listenForResize: function(){
-            $(window).on('resize.'+this.cid, _.throttle(function(event){
+        listenForResize: function () {
+            $(window).on('resize.' + this.cid, _.throttle(function (event) {
                 this.showHints();
             }.bind(this), 16));
         },
-        stopListeningForResize: function(){
-            $(window).off('resize.'+this.cid);
+        stopListeningForResize: function () {
+            $(window).off('resize.' + this.cid);
+        },
+        listenForTyping: function () {
+            $(window).on('keydown.' + this.cid, function (event) {
+                var code = event.keyCode;
+                if (event.charCode && code == 0)
+                    code = event.charCode;
+                switch (code) {
+                    case 27:
+                        // Escape
+                        this.toggleHints();
+                        break;
+                    default:
+                        break;
+                }
+            }.bind(this));
+        },
+        stopListeningForTyping: function () {
+            $(window).off('keydown.' + this.cid);
+        },
+        listenForClick: function () {
+            this.$el.on('click.' + this.cid, function () {
+                this.toggleHints();
+            }.bind(this));
+        },
+        stopListeningForClick: function () {
+            this.$el.off('click.' + this.cid);
         }
     }))();
 });
