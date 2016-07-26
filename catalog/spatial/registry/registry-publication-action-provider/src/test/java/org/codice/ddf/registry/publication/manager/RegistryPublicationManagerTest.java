@@ -129,7 +129,7 @@ public class RegistryPublicationManagerTest {
     @Test
     public void testInitWithBlankMetacard() throws Exception {
         Metacard mcard1 = getRegistryMetacard("regId1");
-        Metacard mcard2 = getRegistryMetacard(" ");
+        Metacard mcard2 = getRegistryMetacard("");
         ArrayList<String> locations = new ArrayList<>();
         locations.add("location1");
         mcard1.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
@@ -180,7 +180,7 @@ public class RegistryPublicationManagerTest {
 
     @Test
     public void testHandleEventBlankRegistryId() throws Exception {
-        Metacard mcard = getRegistryMetacard(" ");
+        Metacard mcard = getRegistryMetacard("");
         Dictionary<String, Object> eventProperties = new Hashtable<>();
         eventProperties.put(METACARD_PROPERTY, mcard);
         Event event = new Event(CREATED_TOPIC, eventProperties);

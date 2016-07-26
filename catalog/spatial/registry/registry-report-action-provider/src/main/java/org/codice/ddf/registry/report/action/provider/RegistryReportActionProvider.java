@@ -26,8 +26,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -81,22 +81,18 @@ public class RegistryReportActionProvider implements MultiActionProvider {
 
     private List<Action> processSubject(Metacard metacard) {
 
-        if (metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID) == null
-                || StringUtils.isBlank(metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                .getValue()
-                .toString())) {
+        String registryId = RegistryUtility.getRegistryId(metacard);
+        if (registryId == null) {
             LOGGER.debug("No registry id given. No action to provide.");
             return Collections.emptyList();
         }
 
         try {
-            String registryId =
-                    URLEncoder.encode(metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                            .getValue()
-                            .toString(), (StandardCharsets.UTF_8).toString());
+            String urlRegistryId = URLEncoder.encode(registryId,
+                    (StandardCharsets.UTF_8).toString());
             String sourceId = URLEncoder.encode(getSource(metacard),
                     (StandardCharsets.UTF_8).toString());
-            Action action = getAction(registryId, sourceId);
+            Action action = getAction(urlRegistryId, sourceId);
 
             if (action == null) {
                 return Collections.emptyList();
@@ -166,7 +162,11 @@ public class RegistryReportActionProvider implements MultiActionProvider {
         try {
 
             URI uri = new URI(SystemBaseUrl.constructUrl(String.format("%s/%s%s%s%s",
-                    REGISTRY_PATH, metacardId, REPORT_PATH, FORMAT, sourceId), true));
+                    REGISTRY_PATH,
+                    metacardId,
+                    REPORT_PATH,
+                    FORMAT,
+                    sourceId), true));
             url = uri.toURL();
 
         } catch (MalformedURLException e) {
@@ -186,9 +186,10 @@ public class RegistryReportActionProvider implements MultiActionProvider {
 
     public <T> boolean canHandle(T subject) {
 
-        return (subject instanceof Metacard && ((Metacard) subject).getTags()
-                .contains(RegistryConstants.REGISTRY_TAG)) || subject instanceof Source || (
-                subject instanceof Configuration && ((Configuration) subject).getProperties()
+        return (subject instanceof Metacard
+                && RegistryUtility.isRegistryMetacard((Metacard) subject))
+                || subject instanceof Source || (subject instanceof Configuration &&
+                ((Configuration) subject).getProperties()
                         .get(RegistryObjectMetacardType.REGISTRY_ID) != null);
 
     }

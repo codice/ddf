@@ -30,6 +30,7 @@ import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.api.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswStore;
@@ -43,7 +44,6 @@ import org.slf4j.LoggerFactory;
 import com.thoughtworks.xstream.converters.Converter;
 
 import ddf.catalog.Constants;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
@@ -137,7 +137,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
         if (request.getMetacards()
                 .stream()
-                .map(this::getRegistryId)
+                .map(RegistryUtility::getRegistryId)
                 .anyMatch(Objects::isNull)) {
             throw new IngestException("One or more of the metacards is not a registry metacard");
         }
@@ -147,7 +147,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
                 .map(e -> filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_ID)
                         .is()
                         .equalTo()
-                        .text(getRegistryId(e)))
+                        .text(RegistryUtility.getRegistryId(e)))
                 .collect(Collectors.toList());
         Filter tagFilter = filterBuilder.attribute(Metacard.TAGS)
                 .is()
@@ -163,11 +163,11 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
             Map<String, Metacard> responseMap = queryResponse.getResults()
                     .stream()
-                    .collect(Collectors.toMap(e -> getRegistryId(e.getMetacard()),
-                            e -> e.getMetacard()));
+                    .collect(Collectors.toMap(e -> RegistryUtility.getRegistryId(e.getMetacard()),
+                            Result::getMetacard));
             List<Metacard> metacardsToCreate = request.getMetacards()
                     .stream()
-                    .filter(e -> !responseMap.containsKey(getRegistryId(e)))
+                    .filter(e -> !responseMap.containsKey(RegistryUtility.getRegistryId(e)))
                     .collect(Collectors.toList());
             List<Metacard> allMetacards = new ArrayList<>(responseMap.values());
             if (CollectionUtils.isNotEmpty(metacardsToCreate)) {
@@ -189,19 +189,20 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
         if (request.getUpdates()
                 .stream()
-                .map(e -> getRegistryId(e.getValue()))
+                .map(e -> RegistryUtility.getRegistryId(e.getValue()))
                 .anyMatch(Objects::isNull)) {
             throw new IngestException("One or more of the metacards is not a registry metacard");
         }
 
         Map<String, Metacard> updatedMetacards = request.getUpdates()
                 .stream()
-                .collect(Collectors.toMap(e -> getRegistryId(e.getValue()), Map.Entry::getValue));
+                .collect(Collectors.toMap(e -> RegistryUtility.getRegistryId(e.getValue()),
+                        Map.Entry::getValue));
 
         Map<String, Metacard> origMetacards = ((OperationTransaction) request.getPropertyValue(
                 Constants.OPERATION_TRANSACTION_KEY)).getPreviousStateMetacards()
                 .stream()
-                .collect(Collectors.toMap(this::getRegistryId, e -> e));
+                .collect(Collectors.toMap(RegistryUtility::getRegistryId, e -> e));
 
         //update the new metacards with the id from the orig so that they can be found on the remote system
         try {
@@ -226,7 +227,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         List<String> ids =
                 ((OperationTransaction) request.getPropertyValue(Constants.OPERATION_TRANSACTION_KEY)).getPreviousStateMetacards()
                         .stream()
-                        .map(e -> e.getId())
+                        .map(Metacard::getId)
                         .collect(Collectors.toList());
         DeleteRequest newRequest = new DeleteRequestImpl(ids.toArray(new String[ids.size()]),
                 request.getProperties());
@@ -246,11 +247,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
         SourceResponse registryQueryResponse = super.query(request);
         for (Result singleResult : registryQueryResponse.getResults()) {
-            if (singleResult.getMetacard()
-                    .getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                    .getValue()
-                    .toString()
-                    .equals(registryId)) {
+            if (registryId.equals(RegistryUtility.getRegistryId(singleResult.getMetacard()))) {
                 String metacardTitle = singleResult.getMetacard()
                         .getTitle();
                 if (metacardTitle != null && !remoteName.equals(metacardTitle)) {
@@ -281,14 +278,6 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
     public void setRemoteName(String remoteName) {
         this.remoteName = remoteName;
-    }
-
-    private String getRegistryId(Metacard mcard) {
-        Attribute attr = mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
-        if (attr != null && attr.getValue() instanceof String) {
-            return (String) attr.getValue();
-        }
-        return null;
     }
 
     private void setMetacardExtID(Metacard metacard, String newId) throws ParserException {
@@ -350,12 +339,9 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
                     .get(0)
                     .getMetacard()
                     .getTitle();
-            registryId = identityMetacard.getResults()
+            registryId = RegistryUtility.getRegistryId(identityMetacard.getResults()
                     .get(0)
-                    .getMetacard()
-                    .getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                    .getValue()
-                    .toString();
+                    .getMetacard());
         }
         updateConfiguration();
     }

@@ -13,7 +13,6 @@
  **/
 package org.codice.ddf.registry.federationadmin.service.impl;
 
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +27,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.registry.api.RegistryStore;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
@@ -36,7 +36,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 
@@ -54,13 +53,8 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
         Metacard metacard = getMetacard(registryId);
         String metacardId = metacard.getId();
 
-        List<Serializable> locations = new ArrayList<>();
-        Attribute locAttr = metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
-        if (locAttr != null) {
-            locations = new HashSet<>(locAttr.getValues()).stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toCollection(ArrayList::new));
-        }
+        List<String> locations = RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
 
         if (locations.contains(destinationRegistryId)) {
             return;
@@ -79,16 +73,12 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
         metacard.setAttribute(new AttributeImpl(Metacard.ID, metacardId));
 
         locations.add(destinationRegistryId);
-        if (locAttr != null) {
-            locAttr.getValues()
-                    .add(destinationRegistryId);
-        } else {
-            locAttr = new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS, locations);
-        }
+        locations.remove(NO_PUBLICATIONS);
 
-        locAttr.getValues()
-                .remove(NO_PUBLICATIONS);
-        metacard.setAttribute(locAttr);
+        ArrayList<String> locArr = new ArrayList<>(locations);
+
+        metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
+                locArr));
         metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED,
                 Date.from(ZonedDateTime.now()
                         .toInstant())));
@@ -102,19 +92,22 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
             throws FederationAdminException {
         Metacard metacard = getMetacard(registryId);
 
-        Attribute locAttr = metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
-        if (locAttr == null || !locAttr.getValues()
-                .contains(destinationRegistryId)) {
+        List<String> locations = RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
+        if (!locations.contains(destinationRegistryId)) {
             return;
         }
 
-        locAttr.getValues()
-                .remove(destinationRegistryId);
-        if (CollectionUtils.isEmpty(locAttr.getValues())) {
-            locAttr.getValues()
-                    .add(NO_PUBLICATIONS);
+        locations.remove(destinationRegistryId);
+        if (locations.isEmpty()) {
+            locations.add(NO_PUBLICATIONS);
         }
-        metacard.setAttribute(locAttr);
+
+        ArrayList<String> locArr = new ArrayList<>();
+        locArr.addAll(locations);
+
+        metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
+                locArr));
         metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED,
                 Date.from(ZonedDateTime.now()
                         .toInstant())));
@@ -135,15 +128,15 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
 
     @Override
     public void update(Metacard metacard) throws FederationAdminException {
-        Attribute publishedLocations =
-                metacard.getAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
-        if (publishedLocations == null) {
+
+        List<String> publishedLocations = RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.PUBLISHED_LOCATIONS);
+
+        if (publishedLocations.isEmpty()) {
             return;
         }
 
-        Set<String> locations = publishedLocations.getValues()
-                .stream()
-                .map(Object::toString)
+        Set<String> locations = publishedLocations.stream()
                 .map(registryId -> getSourceIdFromRegistryId(registryId))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(HashSet::new));

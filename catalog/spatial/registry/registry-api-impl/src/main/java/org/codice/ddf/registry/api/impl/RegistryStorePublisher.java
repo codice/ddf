@@ -19,7 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.registry.api.RegistryStore;
-import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
 import org.codice.ddf.security.common.Security;
@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.event.EventException;
 import ddf.catalog.source.SourceMonitor;
 
 /**
@@ -150,10 +151,10 @@ public class RegistryStorePublisher implements EventHandler {
 
                 if (registryIdentityMetacardOpt.isPresent()) {
                     Metacard registryIdentityMetacard = registryIdentityMetacardOpt.get();
-                    String localRegistryId = registryIdentityMetacard.getAttribute(
-                            RegistryObjectMetacardType.REGISTRY_ID)
-                            .getValue()
-                            .toString();
+                    String localRegistryId = RegistryUtility.getRegistryId(registryIdentityMetacard);
+                    if(localRegistryId == null){
+                        throw new EventException();
+                    }
                     Security.runAsAdminWithException(() -> {
                         if (publish.equals(PUBLISH)) {
                             registryPublicationService.publish(localRegistryId,

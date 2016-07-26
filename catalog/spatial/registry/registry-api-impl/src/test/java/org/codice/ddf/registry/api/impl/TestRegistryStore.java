@@ -143,7 +143,7 @@ public class TestRegistryStore {
             @Override
             protected SourceResponse query(QueryRequest queryRequest, ElementSetType elementSetName,
                     List<QName> elementNames, Csw csw) throws UnsupportedQueryException {
-                if(queryResults == null){
+                if (queryResults == null) {
                     throw new UnsupportedQueryException("Test - Bad Query");
                 }
                 return new SourceResponseImpl(queryRequest, queryResults);
@@ -180,7 +180,8 @@ public class TestRegistryStore {
         queryResults.add(new ResultImpl(mcard));
         CreateRequest request = new CreateRequestImpl(mcard);
         CreateResponse response = registryStore.create(request);
-        assertThat(response.getCreatedMetacards().get(0), is(mcard));
+        assertThat(response.getCreatedMetacards()
+                .get(0), is(mcard));
     }
 
     @Test
@@ -203,7 +204,8 @@ public class TestRegistryStore {
         queryResults.add(new ResultImpl(mcard));
         CreateRequest request = new CreateRequestImpl(mcard);
         CreateResponse response = registryStore.create(request);
-        assertThat(response.getCreatedMetacards().get(0), is(mcard));
+        assertThat(response.getCreatedMetacards()
+                .get(0), is(mcard));
     }
 
     @Test
