@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
@@ -40,6 +41,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 import ddf.action.Action;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.source.Source;
 
@@ -130,6 +132,9 @@ public class TestRegistryReportActionProvider {
 
     @Test
     public void testMetacardIdUrlEncodedAmpersand() {
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add(RegistryConstants.REGISTRY_TAG);
+        metacard.setAttribute(Metacard.TAGS, tags);
         metacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "abd&ef");
 
         configureActionProvider();

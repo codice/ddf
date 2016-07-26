@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.schemabindings.helper.RegistryPackageTypeHelper;
@@ -53,7 +54,6 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
@@ -198,8 +198,7 @@ public class SourceConfigurationHandler implements EventHandler {
      */
     private synchronized void updateRegistryConfigurations(Metacard metacard, boolean createEvent)
             throws IOException, InvalidSyntaxException, ParserException {
-        boolean identityNode =
-                metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE) != null;
+        boolean identityNode = RegistryUtility.isIdentityNode(metacard);
 
         boolean autoActivateConfigurations = activateConfigurations && !identityNode && (createEvent
                 || !preserveActiveConfigurations);
@@ -207,9 +206,7 @@ public class SourceConfigurationHandler implements EventHandler {
         List<ServiceBindingType> bindingTypes = registryTypeHelper.getBindingTypes(
                 metacardMarshaller.getRegistryPackageFromMetacard(metacard));
 
-        String registryId = metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                .getValue()
-                .toString();
+        String registryId = RegistryUtility.getRegistryId(metacard);
 
         String configId = getDeconflictedConfigId(metacard.getTitle(), registryId);
 
@@ -228,7 +225,7 @@ public class SourceConfigurationHandler implements EventHandler {
         for (ServiceBindingType bindingType : bindingTypes) {
             Map<String, Object> slotMap = this.getServiceBindingProperties(bindingType);
 
-            String factoryPidMask = (String)slotMap.get(BINDING_TYPE);
+            String factoryPidMask = (String) slotMap.get(BINDING_TYPE);
             if (factoryPidMask == null) {
                 continue;
             }
@@ -328,15 +325,7 @@ public class SourceConfigurationHandler implements EventHandler {
 
     private void deleteRegistryConfigurations(Metacard metacard)
             throws IOException, InvalidSyntaxException {
-        String registryId = null;
-        Attribute registryIdAttribute =
-                metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID);
-        if (registryIdAttribute != null) {
-            registryId = registryIdAttribute.getValue()
-                    .toString();
-        }
-
-        //This case shouldn't ever happen but we check to make sure
+        String registryId = RegistryUtility.getRegistryId(metacard);
         if (registryId == null) {
             return;
         }

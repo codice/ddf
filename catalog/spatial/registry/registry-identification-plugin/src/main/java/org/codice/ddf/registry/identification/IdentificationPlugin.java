@@ -24,9 +24,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
@@ -88,12 +90,11 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
             throws PluginExecutionException, StopProcessingException {
         if (Requests.isLocal(input)) {
             for (Metacard metacard : input.getMetacards()) {
-                if (metacard.getTags()
-                        .contains(RegistryConstants.REGISTRY_TAG)) {
-                    if (registryIds.contains(getRegistryId(metacard))) {
+                if (RegistryUtility.isRegistryMetacard(metacard)) {
+                    if (registryIds.contains(RegistryUtility.getRegistryId(metacard))) {
                         throw new StopProcessingException(String.format(
                                 "Duplication error. Can not create metacard with registry-id %s since it already exists",
-                                getRegistryId(metacard)));
+                                RegistryUtility.getRegistryId(metacard)));
                     }
                     setMetacardExtID(metacard);
                 }
@@ -118,19 +119,20 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
             List<Metacard> previousMetacards = operationTransaction.getPreviousStateMetacards();
 
             Map<String, Metacard> previousMetacardsMap = previousMetacards.stream()
-                    .filter(e -> getRegistryId(e) != null)
-                    .collect(Collectors.toMap(this::getRegistryId, Function.identity()));
+                    .filter(RegistryUtility::isRegistryMetacard)
+                    .collect(Collectors.toMap(RegistryUtility::getRegistryId, Function.identity()));
 
             ArrayList<Map.Entry<Serializable, Metacard>> entriesToRemove = new ArrayList<>();
 
             List<Map.Entry<Serializable, Metacard>> registryUpdates = input.getUpdates()
                     .stream()
-                    .filter(e -> getRegistryId(e.getValue()) != null)
+                    .filter(e -> RegistryUtility.isRegistryMetacard(e.getValue()))
                     .collect(Collectors.toList());
 
             for (Map.Entry<Serializable, Metacard> entry : registryUpdates) {
                 Metacard updateMetacard = entry.getValue();
-                Metacard existingMetacard = previousMetacardsMap.get(getRegistryId(updateMetacard));
+                Metacard existingMetacard = previousMetacardsMap.get(RegistryUtility.getRegistryId(
+                        updateMetacard));
 
                 if (existingMetacard != null) {
                     updateMetacard.setAttribute(existingMetacard.getAttribute(Metacard.ID));
@@ -174,9 +176,8 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
         if (Requests.isLocal(input.getRequest())) {
             registryIds.addAll(input.getCreatedMetacards()
                     .stream()
-                    .filter(metacard -> metacard.getTags()
-                            .contains(RegistryConstants.REGISTRY_TAG))
-                    .map(this::getRegistryId)
+                    .filter(RegistryUtility::isRegistryMetacard)
+                    .map(RegistryUtility::getRegistryId)
                     .collect(Collectors.toList()));
         }
         return input;
@@ -190,12 +191,10 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
         if (Requests.isLocal(input.getRequest())) {
-            for (Metacard metacard : input.getDeletedMetacards()) {
-                if (metacard.getTags()
-                        .contains(RegistryConstants.REGISTRY_TAG)) {
-                    registryIds.remove(getRegistryId(metacard));
-                }
-            }
+            input.getDeletedMetacards()
+                    .stream()
+                    .filter(RegistryUtility::isRegistryMetacard)
+                    .forEach(metacard -> registryIds.remove(RegistryUtility.getRegistryId(metacard)));
         }
         return input;
     }
@@ -204,7 +203,10 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
 
         boolean extOriginFound = false;
         String metacardID = metacard.getId();
-        String registryID = getRegistryId(metacard);
+        if (!RegistryUtility.isRegistryMetacard(metacard)) {
+            return;
+        }
+        String registryID = RegistryUtility.getRegistryId(metacard);
 
         try {
             RegistryPackageType registryPackage = metacardMarshaller.getRegistryPackageFromMetacard(
@@ -270,15 +272,6 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
         }
     }
 
-    private String getRegistryId(Metacard mcard) {
-        if (mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID) == null) {
-            return null;
-        }
-        return mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                .getValue()
-                .toString();
-    }
-
     public void init() {
         try {
             List<Metacard> registryMetacards;
@@ -307,7 +300,8 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
                     .map(Result::getMetacard)
                     .collect(Collectors.toList());
             registryIds.addAll(registryMetacards.stream()
-                    .map(this::getRegistryId)
+                    .map(RegistryUtility::getRegistryId)
+                    .filter(e -> !StringUtils.isEmpty(e))
                     .collect(Collectors.toList()));
         } catch (UnsupportedQueryException | SourceUnavailableException | FederationException | PluginExecutionException e) {
             LOGGER.warn("Error getting registry metacards. Will try again later");

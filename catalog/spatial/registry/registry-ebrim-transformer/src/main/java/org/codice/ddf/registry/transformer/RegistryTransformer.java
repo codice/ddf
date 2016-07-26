@@ -29,6 +29,7 @@ import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.registry.common.RegistryConstants;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.converter.RegistryConversionException;
 import org.codice.ddf.registry.converter.RegistryPackageConverter;
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
@@ -115,8 +116,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
-        if (metacard.getTags()
-                .contains(RegistryConstants.REGISTRY_TAG)) {
+        if (RegistryUtility.isRegistryMetacard(metacard)) {
             String metadata = metacard.getMetadata();
             return new BinaryContentImpl(IOUtils.toInputStream(metadata));
         } else {
