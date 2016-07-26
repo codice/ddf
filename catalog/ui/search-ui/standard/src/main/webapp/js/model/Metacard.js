@@ -51,9 +51,13 @@ define([
                 }
 
                 if (this.isMultiPolygon()) {
-                    return _.flatten(_.map(coordinates, function (instance) {
-                        return instance[0];
-                    }), true);
+                    var result = [];
+                    _.each(coordinates, function(polygon) {
+                        _.each(polygon, function(points) {
+                            result = result.concat(points);
+                        });
+                    });
+                    return result;
                 }
 
                 if (this.isGeometryCollection()) {
