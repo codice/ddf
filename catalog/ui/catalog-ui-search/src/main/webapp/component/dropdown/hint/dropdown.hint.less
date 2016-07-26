@@ -1,7 +1,11 @@
 @{customElementNamespace}dropdown.is-hint {
   display: block;
   position: absolute;
-  background: rgba(255, 255, 255, .1);
+  background: rgba(255, 255, 255, .3);
   border: 1px solid rgba(255, 255, 255, .3);
   cursor: pointer;
+}
+@{customElementNamespace}dropdown.is-hint:hover {
+  border: 1px solid rgba(255, 255, 255, 1);
+  transition: border @coreTransitionTime linear;
 }
