@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define,window*/
 
 define([
     'jquery',
@@ -25,6 +25,24 @@ define([
         initialize: function () {
             this.set('content', new Content());
             this.set('workspaces', new Workspace.Collection());
+
+            window.onbeforeunload = function () {
+                var unsaved = this.get('workspaces').chain()
+                    .map(function (workspace) {
+                        if (workspace.dirty()) {
+                            return workspace.get('title');
+                        }
+                    })
+                    .filter(function (title) {
+                        return title !== undefined;
+                    })
+                    .value();
+
+                if (unsaved.length > 0) {
+                    return 'Do you really want to close? Unsaved workspaces: ' + unsaved.join(', ');
+                }
+            }.bind(this);
+
             this.set('selected', new Selected());
             this.listenTo(this.get('workspaces'), 'remove', function(){
                 var currentWorkspace = this.getCurrentWorkspace();
