@@ -287,7 +287,7 @@ public class CswQueryFactory {
             return queryRequest;
         }
         Query origQuery = queryRequest.getQuery();
-        if (!adapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate(tags))) {
+        if (!adapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate(tags, true))) {
             List<Filter> filters = new ArrayList<>(tags.size());
             for (String tag : tags) {
                 filters.add(builder.attribute(Metacard.TAGS)
