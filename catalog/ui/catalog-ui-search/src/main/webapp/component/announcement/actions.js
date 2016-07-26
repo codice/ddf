@@ -34,7 +34,19 @@ var remove = exports.remove = function (id, timeout) {
 exports.announce = function (announcement, timeout) {
     var id = uuid.v4();
 
-    return function (dispatch) {
+    return function (dispatch, getState) {
+        getState()
+            .filter(function (a) {
+                return a.title === announcement.title && a.message === announcement.message && a.type === announcement.type
+            })
+            .map(function (a) {
+                return a.id;
+            })
+            .forEach(function (id) {
+                dispatch(remove(id));
+            });
+
+
         dispatch({
             type: 'ADD_ANNOUNCEMENT',
             announcement: _.extend({ id: id }, announcement)

@@ -33,6 +33,8 @@ module.exports = function (state, action) {
             return state.filter(function (announcement) {
                 return announcement.id !== action.id;
             });
+        case 'DEDUPE_ANNOUNCEMENT':
+            return
         default:
             return state;
     }
