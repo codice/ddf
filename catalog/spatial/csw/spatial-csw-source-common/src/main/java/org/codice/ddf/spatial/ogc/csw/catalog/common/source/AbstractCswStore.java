@@ -93,7 +93,8 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
      * @param factory                client factory already configured for this source
      */
     public AbstractCswStore(BundleContext context, CswSourceConfiguration cswSourceConfiguration,
-            Converter provider, SecureCxfClientFactory factory, EncryptionService encryptionService) {
+            Converter provider, SecureCxfClientFactory factory,
+            EncryptionService encryptionService) {
         super(context, cswSourceConfiguration, provider, factory, encryptionService);
     }
 
@@ -211,8 +212,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
             updatedMetacardFilters.add(filterBuilder.attribute(updateRequest.getAttributeName())
                     .is()
                     .equalTo()
-                    .text(metacard.getAttribute(updateRequest.getAttributeName())
-                            .getValue()
+                    .text(update.getKey()
                             .toString()));
             transactionRequest.getUpdateActions()
                     .add(new UpdateAction(metacard, insertTypeName, null));
@@ -291,7 +291,14 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         }
 
         try {
-            csw.transaction(transactionRequest);
+            TransactionResponseType response = csw.transaction(transactionRequest);
+            if (response.getTransactionSummary()
+                    .getTotalDeleted()
+                    .intValue() != deleteRequest.getAttributeValues()
+                    .size()) {
+                throw new IngestException(
+                        "Csw Transaction Failed. Number of metacards deleted did not match number requested.");
+            }
         } catch (CswException e) {
             throw new IngestException("Csw Transaction Failed", e);
         }
