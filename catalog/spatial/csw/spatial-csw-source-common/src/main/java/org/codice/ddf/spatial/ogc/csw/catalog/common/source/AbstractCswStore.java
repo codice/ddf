@@ -208,12 +208,9 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
             Metacard metacard = update.getValue();
             properties.put(metacard.getId(), metacard);
-            updatedMetacardFilters.add(filterBuilder.attribute(updateRequest.getAttributeName())
-                    .is()
-                    .equalTo()
-                    .text(metacard.getAttribute(updateRequest.getAttributeName())
-                            .getValue()
-                            .toString()));
+            updatedMetacardFilters
+                    .add(filterBuilder.attribute(updateRequest.getAttributeName()).is().equalTo()
+                            .text(update.getKey().toString()));
             transactionRequest.getUpdateActions()
                     .add(new UpdateAction(metacard, insertTypeName, null));
         }
@@ -291,7 +288,12 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         }
 
         try {
-            csw.transaction(transactionRequest);
+            TransactionResponseType response = csw.transaction(transactionRequest);
+            if (response.getTransactionSummary().getTotalDeleted().intValue() != deleteRequest
+                    .getAttributeValues().size()) {
+                throw new IngestException(
+                        "Csw Transaction Failed. Not all metacards were deleted.");
+            }
         } catch (CswException e) {
             throw new IngestException("Csw Transaction Failed", e);
         }
