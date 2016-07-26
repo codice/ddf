@@ -21,6 +21,8 @@
 
     <reference-list id="registryStores" interface="org.codice.ddf.registry.api.RegistryStore" availability="optional"/>
 
+    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+
     <bean id="registryActionProvider"
           class="org.codice.ddf.registry.publication.action.provider.RegistryPublicationActionProvider">
         <property name="registryPublicationManager" ref="registryPublicationManager"/>
@@ -29,8 +31,11 @@
         <property name="registryStores" ref="registryStores"/>
     </bean>
 
-    <bean id="registryPublicationManager" class="org.codice.ddf.registry.publication.manager.RegistryPublicationManager" init-method="init">
+    <bean id="registryPublicationManager"
+          class="org.codice.ddf.registry.publication.manager.RegistryPublicationManager"
+          init-method="init" destroy-method="destroy">
         <property name="federationAdminService" ref="federationAdminService"/>
+        <property name="executorService" ref="executor"/>
     </bean>
 
     <service ref="registryActionProvider" interface="ddf.action.MultiActionProvider">
