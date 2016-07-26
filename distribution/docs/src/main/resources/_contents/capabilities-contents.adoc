@@ -156,8 +156,9 @@ include::./_sources/developing-sources-contents.adoc[]
 == Plugins
 
 //////
-== Metrics
+=== Metrics
 
+include::./_sources/metrics-intro-contents.adoc[]
 
 
 
@@ -165,6 +166,8 @@ include::./_sources/developing-sources-contents.adoc[]
 //////////
 
 == Actions
+
+include::./_actions/developing-action-components.adoc[]
 
 == Data Validation and Integrity
 
