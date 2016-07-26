@@ -71,7 +71,6 @@ public abstract class AbstractEventController implements EventHandler {
 
     ConcurrentHashMap<String, ServerSession> userSessionMap = new ConcurrentHashMap<>();
 
-
     /**
      * Establishes {@code AbstractEventController} as a listener to events published by the OSGi
      * eventing framework on the event's root topic
@@ -111,7 +110,8 @@ public abstract class AbstractEventController implements EventHandler {
      */
     public ServerSession getSessionBySessionId(String sessionId) {
         return userSessionMap.searchValues(1, value -> {
-            if (value.getId().equals(sessionId)) {
+            if (value.getId()
+                    .equals(sessionId)) {
                 return value;
             }
             return null;
@@ -127,7 +127,7 @@ public abstract class AbstractEventController implements EventHandler {
      */
     public ServerSession getSessionById(String userId, String sessionId) {
         ServerSession session = null;
-        if (userId != null){
+        if (userId != null) {
             session = getSessionByUserId(userId);
         }
         if (session == null && sessionId != null) {
@@ -230,7 +230,9 @@ public abstract class AbstractEventController implements EventHandler {
 
         userSessionMap.put(userId, serverSession);
 
-        LOGGER.debug("Added ServerSession to userSessionMap - New map: {}", userSessionMap);
+        LOGGER.debug("Added ServerSession for user {} to userSessionMap - New map: {}",
+                userId,
+                userSessionMap);
     }
 
     protected void queuePersistedMessages(final ServerSession serverSession,

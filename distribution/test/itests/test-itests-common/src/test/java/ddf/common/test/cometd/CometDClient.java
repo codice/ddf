@@ -14,6 +14,7 @@
 package ddf.common.test.cometd;
 
 import java.net.ConnectException;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -44,6 +45,7 @@ import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
 import org.cometd.client.transport.LongPollingTransport;
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.util.BasicAuthentication;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,28 +54,26 @@ import com.jayway.restassured.path.json.JsonPath;
 
 /**
  * CometD client used to listen for messages on CometD channels.
- * 
+ * <p>
  * Below is an example on how to listen for messages on the notifications channel:
- *
+ * <p>
  * <pre>
- * @code
- * // Creates a CometDClient that will connect to the CometD Server at the specifiec URL.
+ * // Creates a CometDClient that will connect to the CometD Server at the specified URL.
  * CometDClient cometDClient = new CometDClient(cometDEndpointUrl);
- * 
+ *
  * // Starts the cometDClient and performs the initial handshake with the CometD server
  * cometDClient.start();
- * 
+ *
  * // Subscribes to the notifications channel
  * cometDClient.subscribe("/ddf/notifications/**"));
- * 
+ *
  * // Retrieves messages on all subscribed channels (in this example, receives messages on
  * // on the notifications channel).
  * List<String> messages = cometDClient.getAllMessages();
- * 
- * // Shutdown the cometD Client and unsubscribes from all channels
+ *
+ * // Shutdown the cometD Client and un-subscribes from all channels
  * cometDClient.shutdown();
  * </pre>
- *
  */
 public class CometDClient {
 
@@ -87,6 +87,12 @@ public class CometDClient {
 
     private final List<MessageListener> messageListeners = new ArrayList<>();
 
+    /**
+     * Creates a CometD client without authentication.
+     *
+     * @param url CometD endpoint
+     * @throws Exception thrown if client setup fails
+     */
     public CometDClient(String url) throws Exception {
         SslContextFactory sslContextFactory = new SslContextFactory(true);
         httpClient = new HttpClient(sslContextFactory);
@@ -95,22 +101,52 @@ public class CometDClient {
         bayeuxClient = new BayeuxClient(url, transport);
     }
 
+    /**
+     * Creates a CometD client with authentication.
+     *
+     * @param url      CometD endpoint
+     * @param realm    security realm
+     * @param username user name
+     * @param password password
+     * @throws Exception thrown if client setup fails
+     */
+    public CometDClient(String url, String realm, String username, String password)
+            throws Exception {
+        this(url);
+        URI uri = new URI(url);
+        httpClient.getAuthenticationStore()
+                .addAuthentication(new BasicAuthentication(uri, realm, username, password));
+    }
+
+    /**
+     * Starts the client.
+     *
+     * @throws Exception thrown if the client fails to start
+     */
     public void start() throws Exception {
         httpClient.start();
         LOGGER.debug("HTTP client started: {}", httpClient.isStarted());
         MessageListener handshakeListener = new MessageListener(Channel.META_HANDSHAKE);
-        bayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(handshakeListener);
+        bayeuxClient.getChannel(Channel.META_HANDSHAKE)
+                .addListener(handshakeListener);
         bayeuxClient.handshake();
         boolean connected = bayeuxClient.waitFor(TIMEOUT, BayeuxClient.State.CONNECTED);
-        if(!connected) {
+        if (!connected) {
             shutdownHttpClient();
             String message = String.format("%s failed to connect to the server at %s",
-                    this.getClass().getName(), bayeuxClient.getURL());
+                    this.getClass()
+                            .getName(),
+                    bayeuxClient.getURL());
             LOGGER.error(message);
             throw new ConnectException(message);
         }
     }
 
+    /**
+     * Subscribes to a channel. Subscribing to the same channel multiple times has no effect.
+     *
+     * @param channel channel name
+     */
     public void subscribe(String channel) {
         verifyConnected();
         if (!alreadySubscribed(channel)) {
@@ -123,51 +159,93 @@ public class CometDClient {
         }
     }
 
+    /**
+     * Gets the list of messages received on a given channel.
+     *
+     * @param channel channel name
+     * @return list of message received since the client was started
+     */
     public List<String> getMessages(String channel) {
         verifyConnected();
         verifySubscribed();
         return messageListeners.stream()
-                .filter(l -> l.getChannel().equals(channel))
-                .flatMap(l -> l.getMessages().stream())
+                .filter(l -> l.getChannel()
+                        .equals(channel))
+                .flatMap(l -> l.getMessages()
+                        .stream())
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets the list of messages received on a given channel in time ascending order, i.e., from
+     * oldest to most recent.
+     *
+     * @param channel channel name
+     * @return list of message received since the client was started
+     */
     public List<String> getMessagesInAscOrder(String channel) {
         List<String> messages = getMessages(channel);
         Collections.sort(messages, new AscendingTimestampComparator());
         return messages;
     }
 
+    /**
+     * Gets the CometD client ID.
+     *
+     * @return CometD client ID
+     */
     public String getClientId() {
         verifyConnected();
         return bayeuxClient.getId();
     }
 
+    /**
+     * Gets the list of messages received on all channels.
+     *
+     * @return list of message received since the client was started
+     */
     public List<String> getAllMessages() {
         verifyConnected();
         verifySubscribed();
         return messageListeners.stream()
-                .flatMap(l -> l.getMessages().stream())
+                .flatMap(l -> l.getMessages()
+                        .stream())
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets the list of messages received on all channels in time ascending order, i.e., from
+     * oldest to most recent.
+     *
+     * @return list of message received since the client was started
+     */
     public List<String> getAllMessagesInAscOrder() {
         List<String> messages = getAllMessages();
         Collections.sort(messages, new AscendingTimestampComparator());
         return messages;
     }
 
+    /**
+     * Un-subscribes from a channel. Un-subscribing from the same channel multiple has no effect.
+     *
+     * @param channel channel name
+     */
     public void unsubscribe(String channel) {
         verifyConnected();
-        org.cometd.bayeux.client.ClientSessionChannel.MessageListener messageListener = messageListeners
-                .stream()
-                .filter(l -> l.getChannel().equals(channel))
-                .findFirst()
-                .get();
-        bayeuxClient.getChannel(channel).unsubscribe(messageListener);
+        org.cometd.bayeux.client.ClientSessionChannel.MessageListener messageListener =
+                messageListeners.stream()
+                        .filter(l -> l.getChannel()
+                                .equals(channel))
+                        .findFirst()
+                        .get();
+        bayeuxClient.getChannel(channel)
+                .unsubscribe(messageListener);
         messageListeners.remove(messageListener);
     }
 
+    /**
+     * Un-subscribes from all channels.
+     */
     public void unsubscribeFromAllChannels() {
         verifyConnected();
         messageListeners.stream()
@@ -176,9 +254,16 @@ public class CometDClient {
         messageListeners.clear();
     }
 
+    /**
+     * Shuts down the client.
+     *
+     * @throws Exception thrown if the shutdown fails
+     */
     public void shutdown() throws Exception {
         verifyConnected();
-        LOGGER.debug("{} is shutting down!", this.getClass().getName());
+        LOGGER.debug("{} is shutting down!",
+                this.getClass()
+                        .getName());
         unsubscribeFromAllChannels();
         httpClient.stop();
         bayeuxClient.disconnect();
@@ -188,7 +273,9 @@ public class CometDClient {
     private void verifyConnected() {
         if (!bayeuxClient.isConnected()) {
             String message = String.format("%s has not connected to the server at %s",
-                    this.getClass().getName(), bayeuxClient.getURL());
+                    this.getClass()
+                            .getName(),
+                    bayeuxClient.getURL());
             LOGGER.error(message);
             throw new IllegalStateException(message);
         }
@@ -197,7 +284,8 @@ public class CometDClient {
     private void verifySubscribed() {
         if (CollectionUtils.isEmpty(messageListeners)) {
             String message = String.format("%s is not subscribed to any channels",
-                    this.getClass().getName());
+                    this.getClass()
+                            .getName());
             throw new IllegalStateException(message);
         }
     }
@@ -213,13 +301,13 @@ public class CometDClient {
         TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
             @Override
             public void checkClientTrusted(X509Certificate[] x509Certificates, String s)
-                throws CertificateException {
+                    throws CertificateException {
                 return;
             }
 
             @Override
             public void checkServerTrusted(X509Certificate[] x509Certificates, String s)
-                throws CertificateException {
+                    throws CertificateException {
                 return;
             }
 
@@ -227,18 +315,21 @@ public class CometDClient {
             public X509Certificate[] getAcceptedIssuers() {
                 return null;
             }
-        } };
+        }};
 
         SSLContext sslContext = SSLContext.getInstance("SSL");
         sslContext.init(null, trustAllCerts, new SecureRandom());
         HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-        HostnameVerifier hostnameVerifier = (s, sslSession) -> s
-                .equalsIgnoreCase(sslSession.getPeerHost());
+        HostnameVerifier hostnameVerifier =
+                (s, sslSession) -> s.equalsIgnoreCase(sslSession.getPeerHost());
         HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);
     }
 
     private boolean alreadySubscribed(String channel) {
-        return messageListeners.stream().filter(l -> l.getChannel().equals(channel)).count() == 1;
+        return messageListeners.stream()
+                .filter(l -> l.getChannel()
+                        .equals(channel))
+                .count() == 1;
     }
 
     private class MessageListener
@@ -256,7 +347,9 @@ public class CometDClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             LOGGER.debug("On channel {} received message {} at {}", channel, message.getJSON());
-            LOGGER.debug("timestamp of message: {}", message.getDataAsMap().get("timestamp"));
+            LOGGER.debug("timestamp of message: {}",
+                    message.getDataAsMap()
+                            .get("timestamp"));
             messages.add(message.getJSON());
         }
 
