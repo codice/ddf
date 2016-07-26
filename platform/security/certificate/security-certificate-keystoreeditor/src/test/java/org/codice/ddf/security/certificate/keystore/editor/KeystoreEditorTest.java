@@ -13,14 +13,28 @@
  **/
 package org.codice.ddf.security.certificate.keystore.editor;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.core.AnyOf;
@@ -176,6 +190,81 @@ public class KeystoreEditorTest {
         System.setProperty(SecurityConstants.TRUSTSTORE_PATH, trustStoreFile.getAbsolutePath());
         System.setProperty(SecurityConstants.KEYSTORE_PASSWORD, password);
         System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, password);
+    }
+
+    @Test
+    public void testShowCertificateFromUrl()
+            throws IOException, KeystoreEditor.KeystoreEditorException {
+        KeystoreEditor keystoreEditor = getNonVerifyingKeystoreEditor();
+        addCannedCertificatesToTruststore(keystoreEditor);
+        byte[] encoded = Base64.getEncoder()
+                .encode("https://doesnotexist.codice.org".getBytes());
+        List<Map<String, Object>> mapList = keystoreEditor.certificateDetails(
+                new String(encoded, "UTF-8"));
+        Assert.assertThat(mapList.size(), Is.is(2));
+        Assert.assertThat(((Principal) mapList.get(0).get("subjectDn")).getName(), Is.is("EMAILADDRESS=asdf@example.com, CN=asdf, O=Example, L=Phoenix, ST=Arizona, C=US"));
+        Assert.assertThat(((Principal) mapList.get(1).get("subjectDn")).getName(), Is.is("EMAILADDRESS=localhost@example.org, CN=localhost, OU=Dev, O=DDF, ST=AZ, C=US"));
+    }
+
+    @Test
+    public void testAddCertificateFromUrl()
+            throws IOException, KeystoreEditor.KeystoreEditorException {
+        KeystoreEditor keystoreEditor = getNonVerifyingKeystoreEditor();
+        addCannedCertificatesToTruststore(keystoreEditor);
+        byte[] encoded = Base64.getEncoder()
+                .encode("https://notarealurlatall.com".getBytes());
+        List<Map<String, Object>> mapList = keystoreEditor.addTrustedCertificateFromUrl(
+                new String(encoded, "UTF-8"));
+        Assert.assertThat(mapList.size(), Is.is(2));
+        Assert.assertThat(mapList.get(0).get("success"), Is.is(true));
+        Assert.assertThat(mapList.get(1).get("success"), Is.is(true));
+    }
+
+    private void addCannedCertificatesToTruststore(KeystoreEditor keystoreEditor)
+            throws IOException, KeystoreEditor.KeystoreEditorException {
+        FileInputStream fileInputStream = new FileInputStream(crtFile);
+        byte[] crtBytes = IOUtils.toByteArray(fileInputStream);
+        IOUtils.closeQuietly(fileInputStream);
+        keystoreEditor.addTrustedCertificate("asdf",
+                password,
+                "",
+                new String(Base64.getEncoder()
+                        .encode(crtBytes)),
+                KeystoreEditor.PEM_TYPE,
+                crtFile.toString());
+        fileInputStream = new FileInputStream(localhostCrtFile);
+        crtBytes = IOUtils.toByteArray(fileInputStream);
+        IOUtils.closeQuietly(fileInputStream);
+        keystoreEditor.addTrustedCertificate("localhost",
+                password,
+                "",
+                new String(Base64.getEncoder()
+                        .encode(crtBytes)),
+                KeystoreEditor.PEM_TYPE,
+                crtFile.toString());
+    }
+
+    private KeystoreEditor getNonVerifyingKeystoreEditor() {
+        return new KeystoreEditor() {
+            SSLSocket createNonVerifyingSslSocket(String decodedUrl)
+                    throws IOException, KeyStoreException {
+                SSLSession sslSession = mock(SSLSession.class);
+                SSLSocket sslSocket = mock(SSLSocket.class);
+                when(sslSocket.getSession()).thenReturn(sslSession);
+                KeyStore trustStore = SecurityConstants.newTruststore();
+                String trustStorePassword = SecurityConstants.getTruststorePassword();
+                try (InputStream tfis = Files.newInputStream(Paths.get(trustStoreFile.getAbsolutePath()))) {
+                    trustStore.load(tfis, trustStorePassword.toCharArray());
+                } catch (CertificateException | NoSuchAlgorithmException e) {
+                    //ignore
+                }
+                X509Certificate[] certificates = new X509Certificate[2];
+                certificates[0] = (X509Certificate) trustStore.getCertificate("asdf");
+                certificates[1] = (X509Certificate) trustStore.getCertificate("localhost");
+                when(sslSession.getPeerCertificates()).thenReturn(certificates);
+                return sslSocket;
+            }
+        };
     }
 
     @Test

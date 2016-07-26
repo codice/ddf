@@ -30,6 +30,10 @@ public interface KeystoreEditorMBean {
             String type, String fileName)
             throws KeystoreEditor.KeystoreEditorException;
 
+    List<Map<String, Object>> addTrustedCertificateFromUrl(String url);
+
+    List<Map<String, Object>> certificateDetails(String url);
+
     /**
      * Replaces the system stores (keystore and truststore) with the passed in stores. All entries
      * in the current stores will be lost.

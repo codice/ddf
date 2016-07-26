@@ -23,12 +23,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
+import java.net.InetSocketAddress;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.security.KeyManagementException;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -36,6 +39,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -43,6 +47,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -52,9 +57,18 @@ import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.ssl.PKCS8Key;
+import org.apache.http.HttpHost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Primitive;
@@ -263,6 +277,96 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 trustStoreFile.toString(),
                 trustStorePassword,
                 trustStore);
+    }
+
+    @Override
+    public List<Map<String, Object>> addTrustedCertificateFromUrl(String url) {
+        SSLSocket socket = null;
+        String decodedUrl = null;
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        try {
+            decodedUrl = new String(Base64.getDecoder()
+                    .decode(url), "UTF-8");
+            socket = createNonVerifyingSslSocket(decodedUrl);
+            socket.startHandshake();
+            X509Certificate[] peerCertificateChain = (X509Certificate[]) socket.getSession()
+                    .getPeerCertificates();
+            for (X509Certificate certificate : peerCertificateChain) {
+                try {
+                    X500Name x500name = new JcaX509CertificateHolder(certificate).getSubject();
+                    RDN cn = x500name.getRDNs(BCStyle.CN)[0];
+                    String cnStr = IETFUtils.valueToString(cn.getFirst()
+                            .getValue());
+                    trustStore.setCertificateEntry(cnStr, certificate);
+                    resultList.add(Collections.singletonMap("success", true));
+                } catch (CertificateEncodingException e) {
+                    resultList.add(Collections.singletonMap("success", false));
+                    LOGGER.error("Unable to store certificate: {}", certificate.toString(), e);
+                }
+            }
+            Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
+            if (!trustStoreFile.isAbsolute()) {
+                Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+                trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
+            }
+            String keyStorePassword = SecurityConstants.getTruststorePassword();
+            OutputStream fos = Files.newOutputStream(trustStoreFile);
+            trustStore.store(fos, keyStorePassword.toCharArray());
+        } catch (IOException | GeneralSecurityException e) {
+            LOGGER.error("Unable to add certificate(s) to trust store from URL: {}",
+                    (decodedUrl != null) ? decodedUrl : url, e);
+        } finally {
+            IOUtils.closeQuietly(socket);
+        }
+        return resultList;
+    }
+
+    @Override
+    public List<Map<String, Object>> certificateDetails(String url) {
+        List<Map<String, Object>> certificates = new ArrayList<>();
+        SSLSocket socket = null;
+        String decodedUrl = null;
+        try {
+            decodedUrl = new String(Base64.getDecoder()
+                    .decode(url), "UTF-8");
+            socket = createNonVerifyingSslSocket(decodedUrl);
+            socket.startHandshake();
+            X509Certificate[] peerCertificateChain = (X509Certificate[]) socket.getSession()
+                    .getPeerCertificates();
+            for (X509Certificate certificate : peerCertificateChain) {
+                Map<String, Object> certMap = new HashMap<>();
+                certMap.put("type", certificate.getType());
+                certMap.put("issuerDn", certificate.getIssuerDN());
+                certMap.put("subjectDn", certificate.getSubjectDN());
+                certMap.put("extendedKeyUsage", certificate.getExtendedKeyUsage());
+                certMap.put("notAfter", certificate.getNotAfter()
+                        .toString());
+                certMap.put("notBefore", certificate.getNotBefore()
+                        .toString());
+                certMap.put("thumbprint", DigestUtils.sha1Hex(certificate.getEncoded()));
+                certificates.add(certMap);
+            }
+        } catch (IOException | GeneralSecurityException e) {
+            LOGGER.error("Unable to parse certificate from URL: {}",
+                    (decodedUrl != null) ? decodedUrl : url, e);
+        } finally {
+            IOUtils.closeQuietly(socket);
+        }
+
+        return certificates;
+    }
+
+    SSLSocket createNonVerifyingSslSocket(String decodedUrl)
+            throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException,
+            UnrecoverableKeyException, IOException {
+        URL httpsUrl = new URL(decodedUrl);
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        TrustManager tm = new NonVerifyingTrustManager();
+        sslContext.init(null, new TrustManager[] {tm}, null);
+        SSLConnectionSocketFactory sslSocketFactory = new NonVerifyingSslSocketFactory(sslContext);
+        return (SSLSocket) sslSocketFactory.connectSocket(30000, null,
+                new HttpHost(httpsUrl.getHost()),
+                new InetSocketAddress(httpsUrl.getHost(), httpsUrl.getPort()), null, null);
     }
 
     @Override
@@ -658,6 +762,29 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         aliases = trustStore.aliases();
         while (aliases.hasMoreElements()) {
             deleteTrustedCertificate(aliases.nextElement());
+        }
+    }
+
+    private static class NonVerifyingSslSocketFactory extends SSLConnectionSocketFactory {
+
+        NonVerifyingSslSocketFactory(SSLContext sslContext)
+                throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException,
+                UnrecoverableKeyException {
+            super(sslContext, new NoopHostnameVerifier());
+        }
+    }
+
+    private static class NonVerifyingTrustManager implements X509TrustManager {
+        public void checkClientTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+
+        public void checkServerTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
         }
     }
 
