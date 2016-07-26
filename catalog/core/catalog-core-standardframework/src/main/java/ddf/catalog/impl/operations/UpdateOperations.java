@@ -180,9 +180,7 @@ public class UpdateOperations {
             for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
                 HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
-                Metacard oldMetacard =
-                        metacardMap.get(opsCrudSupport.getAttributeStringValue(update.getValue(),
-                                updateRequest.getAttributeName()));
+                Metacard oldMetacard = metacardMap.get(update.getKey());
                 for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                     PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
                             Collections.unmodifiableMap(updateRequest.getProperties()));

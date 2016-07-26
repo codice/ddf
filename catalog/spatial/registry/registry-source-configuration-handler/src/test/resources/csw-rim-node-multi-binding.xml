@@ -17,8 +17,8 @@
                      xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
                      xmlns:gml="http://www.opengis.net/gml">
 
-    <rim:ExternalIdentifier id="urn:mcard:local-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="2014ca7f59ac46f495e32b4a67a51276"/>
-    <rim:ExternalIdentifier id="urn:mcard:origin-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="2014ca7f59ac46f495e32b4a67a51276"/>
+    <rim:ExternalIdentifier id="urn:registry:metacard:local-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="2014ca7f59ac46f495e32b4a67a51276"/>
+    <rim:ExternalIdentifier id="urn:registry:metacard:origin-id" registryObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" identificationScheme="MetacardId" value="2014ca7f59ac46f495e32b4a67a51276"/>
 
     <rim:RegistryObjectList>
         <rim:ExtrinsicObject id="urn:registry:node" objectType="urn:registry:federation:node">

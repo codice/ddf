@@ -181,29 +181,29 @@ public final class Library {
     }
 
     public static String getRegistryNode(String id) throws IOException {
-        return getRegistryNode(id, "Node Name", "2016-01-26T17:16:34.996Z", "someUUID");
+        return getRegistryNode("someMcardId", id, id, "Node Name", "2016-01-26T17:16:34.996Z");
     }
 
-    public static String getRegistryNode(String id, String nodeName, String date)
-            throws IOException {
-        return getRegistryNode(id, nodeName, date, "someUUID");
+    public static String getRegistryNode(String id, String regId, String remoteRegId) throws IOException {
+        return getRegistryNode(id, regId, remoteRegId, "Node Name", "2016-01-26T17:16:34.996Z");
     }
 
-    public static String getRegistryNode(String id, String nodeName, String date, String uuid)
-            throws IOException {
+    public static String getRegistryNode(String mcardId, String regId, String remoteReg, String nodeName, String date) throws IOException {
         return getFileContent("/csw-rim-node.xml",
-                ImmutableMap.of("id",
-                        id,
+                ImmutableMap.of("mcardId",
+                        mcardId,
                         "nodeName",
                         nodeName,
                         "lastUpdated",
                         date,
-                        "someUUID",
-                        uuid));
+                        "regId",
+                        regId,
+                        "remoteReg",
+                        remoteReg));
     }
 
-    public static String getCswRegistryInsert(String id) throws IOException {
-        return Library.getCswInsert("rim:RegistryPackage", getRegistryNode(id));
+    public static String getCswRegistryInsert(String id, String regId) throws IOException {
+        return Library.getCswInsert("rim:RegistryPackage", getRegistryNode(id, regId, regId));
     }
 
     public static String getCswRegistryUpdate(String id, String nodeName, String date, String uuid)
@@ -212,9 +212,10 @@ public final class Library {
                 + "    verboseResponse=\"true\"\n"
                 + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
                 + "    <csw:Update typeName=\"rim:RegistryPackage\">\n" + getRegistryNode(id,
+                uuid,
+                uuid,
                 nodeName,
-                date,
-                uuid) + "\n" + "    </csw:Update>\n" + "</csw:Transaction>";
+                date) + "\n" + "    </csw:Update>\n" + "</csw:Transaction>";
     }
 
     public static String getCswRegistryDelete(String id) throws IOException {
@@ -224,7 +225,7 @@ public final class Library {
                 + "  <csw:Delete typeName=\"rim:RegistryPackage\" handle=\"something\">\n"
                 + "    <csw:Constraint version=\"2.0.0\">\n" + "      <ogc:Filter>\n"
                 + "        <ogc:PropertyIsEqualTo>\n"
-                + "            <ogc:PropertyName>registry-id</ogc:PropertyName>\n"
+                + "            <ogc:PropertyName>remote-metacard-id</ogc:PropertyName>\n"
                 + "            <ogc:Literal>" + id + "</ogc:Literal>\n"
                 + "        </ogc:PropertyIsEqualTo>\n" + "      </ogc:Filter>\n"
                 + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";

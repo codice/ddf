@@ -24,9 +24,12 @@
         <property name="registryTransformer" ref="inputTransformer"/>
     </bean>
 
-    <bean id="refreshRegistrySubscriptions"
-          class="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistrySubscriptions">
+    <bean id="refreshRegistryEntries"
+          class="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries">
+        <cm:managed-properties persistent-id="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries"
+                               update-strategy="container-managed" />
         <property name="federationAdminService" ref="federationAdminService"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
         <property name="registryStores" ref="registryStore"/>
     </bean>
 
@@ -91,7 +94,7 @@
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="ctxRegistrySubPoller">
         <route>
             <from uri="timer://registrySubTimer?fixedRate=true&amp;period={{registrySubPollerInterval}}s"/>
-            <to uri="bean:refreshRegistrySubscriptions?method=refreshRegistrySubscriptions"/>
+            <to uri="bean:refreshRegistryEntries?method=refreshRegistryEntries"/>
         </route>
     </camelContext>
 

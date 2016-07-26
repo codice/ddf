@@ -89,21 +89,23 @@ public class TestRegistry extends AbstractIntegrationTest {
 
     @Test
     public void testCswRegistryIngest() throws Exception {
-        createRegistryEntry("urn:uuid:2014ca7f59ac46f495e32b4a67a51279");
+        createRegistryEntry("2014ca7f59ac46f495e32b4a67a51279",
+                "urn:uuid:2014ca7f59ac46f495e32b4a67a51279");
     }
 
     @Test
     public void testCswRegistryUpdate() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51285";
-        String id = createRegistryEntry(regID);
+        String mcardId = "2014ca7f59ac46f495e32b4a67a51285";
+        String id = createRegistryEntry(mcardId, regID);
 
         Response response = given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)
-                .body(Library.getCswRegistryUpdate(regID,
+                .body(Library.getCswRegistryUpdate(id,
                         "New Node Name",
                         "2018-02-26T17:16:34.996Z",
-                        id))
+                        regID))
                 .header("Content-Type", "text/xml")
                 .expect()
                 .log()
@@ -125,7 +127,8 @@ public class TestRegistry extends AbstractIntegrationTest {
     @Test
     public void testCswRegistryUpdateFailure() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51280";
-        String id = createRegistryEntry(regID);
+        String mcardId = "2014ca7f59ac46f495e32b4a67a51280";
+        String id = createRegistryEntry(mcardId, regID);
         given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)
@@ -148,12 +151,13 @@ public class TestRegistry extends AbstractIntegrationTest {
     @Test
     public void testCswRegistryDelete() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51281";
-        createRegistryEntry(regID);
+        String mcardId = "2014ca7f59ac46f495e32b4a67a51281";
+        createRegistryEntry(mcardId, regID);
 
         Response response = given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)
-                .body(Library.getCswRegistryDelete(regID))
+                .body(Library.getCswRegistryDelete(mcardId))
                 .header("Content-Type", "text/xml")
                 .expect()
                 .log()
@@ -173,32 +177,14 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCswRegistryCreateDup() throws Exception {
-        String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51282";
-        createRegistryEntry(regID);
-
-        given().auth()
-                .preemptive()
-                .basic(ADMIN, ADMIN)
-                .body(Library.getCswRegistryInsert(regID))
-                .header("Content-Type", "text/xml")
-                .when()
-                .post(CSW_PATH.getUrl())
-                .then()
-                .log()
-                .all()
-                .assertThat()
-                .statusCode(400);
-    }
-
-    @Test
     public void testCswRegistryStoreCreate() throws Exception {
 
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51277";
+        String mcardId = "2014ca7f59ac46f495e32b4a67a51277";
         try {
             Security.runAsAdminWithException(() -> {
 
-                createRegistryStoreEntry(regID);
+                createRegistryStoreEntry(mcardId, regID, regID);
                 return null;
             });
         } catch (PrivilegedActionException e) {
@@ -211,14 +197,18 @@ public class TestRegistry extends AbstractIntegrationTest {
     @Test
     public void testCswRegistryStoreUpdate() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51290";
+        String mcardId = "2014ca7f59ac46f495e32b4a67a51290";
 
         try {
             Security.runAsAdminWithException(() -> {
 
-                createRegistryStoreEntry(regID);
+                createRegistryStoreEntry(mcardId, regID, regID);
+
                 FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                         FederationAdminService.class);
-                federationAdminServiceImpl.updateRegistryEntry(Library.getRegistryNode(regID,
+                federationAdminServiceImpl.updateRegistryEntry(Library.getRegistryNode(mcardId,
+                        regID,
+                        regID,
                         "New Node Name",
                         "2016-02-26T17:16:34.996Z"), destinations);
 
@@ -241,10 +231,11 @@ public class TestRegistry extends AbstractIntegrationTest {
     @Test
     public void testCswRegistryStoreDelete() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51291";
+        String mcardId = "2014ca7f59ac46f495e32b4a67a51291";
         try {
             Security.runAsAdminWithException(() -> {
 
-                createRegistryStoreEntry(regID);
+                createRegistryStoreEntry(mcardId, regID, regID);
                 FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                         FederationAdminService.class);
 
@@ -273,7 +264,8 @@ public class TestRegistry extends AbstractIntegrationTest {
     @Test
     public void testRestEndpoint() throws Exception {
         final String regId = "urn:uuid:2014ca7f59ac46f495e32b4a67a51292";
-        createRegistryEntry(regId);
+        final String mcardId = "2014ca7f59ac46f495e32b4a67a51292";
+        createRegistryEntry(mcardId, regId);
 
         final String restUrl = SERVICE_ROOT.getUrl() + "/registries/" + regId + "/report";
 
@@ -290,11 +282,11 @@ public class TestRegistry extends AbstractIntegrationTest {
                 hasXPath(xPathServices + "[2]", CoreMatchers.is("Soap Federation Method")));
     }
 
-    private String createRegistryEntry(String id) throws Exception {
+    private String createRegistryEntry(String id, String regId) throws Exception {
         Response response = given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)
-                .body(Library.getCswRegistryInsert(id))
+                .body(Library.getCswRegistryInsert(id, regId))
                 .header("Content-Type", "text/xml")
                 .expect()
                 .log()
@@ -320,16 +312,18 @@ public class TestRegistry extends AbstractIntegrationTest {
                 .evaluate(xml);
     }
 
-    private void createRegistryStoreEntry(String id) throws Exception {
+    private void createRegistryStoreEntry(String id, String regId, String remoteRegId)
+            throws Exception {
         FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                 FederationAdminService.class);
-        federationAdminServiceImpl.addRegistryEntry(Library.getRegistryNode(id), destinations);
+        federationAdminServiceImpl.addRegistryEntry(Library.getRegistryNode(id, regId, remoteRegId),
+                destinations);
 
-        ValidatableResponse validatableResponse = getCswRegistryResponse("registry-id", id);
+        ValidatableResponse validatableResponse = getCswRegistryResponse("registry-id", regId);
 
         final String xPathRegistryID =
                 "string(//GetRecordsResponse/SearchResults/RegistryPackage/ExternalIdentifier/@registryObject)";
-        validatableResponse.body(hasXPath(xPathRegistryID, CoreMatchers.is(id)));
+        validatableResponse.body(hasXPath(xPathRegistryID, CoreMatchers.is(regId)));
     }
 
     private ValidatableResponse getCswRegistryResponse(String attr, String value) {
@@ -337,7 +331,6 @@ public class TestRegistry extends AbstractIntegrationTest {
                 value,
                 "application/xml",
                 "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0");
-        LOGGER.error("##### {}", regQuery);
         Response response = given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)

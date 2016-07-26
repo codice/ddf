@@ -34,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.xml.XmlParser;
+import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.junit.Before;
@@ -65,6 +66,7 @@ public class RegistryTransformerTest {
         registryTransformer = new RegistryTransformer();
         parser = new XmlParser();
         registryTransformer.setParser(parser);
+        System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, "identityRegistryId");
 
     }
 
