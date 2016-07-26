@@ -180,6 +180,22 @@ public interface FederationAdminService {
     List<Metacard> getRegistryMetacards() throws FederationAdminException;
 
     /**
+     * Get a list of internal registry metacards.
+     *
+     * @return List<Metacard>
+     * @throws FederationAdminException If any exception was thrown by the call to CatalogFramework.query()
+     */
+    List<Metacard> getInternalRegistryMetacards() throws FederationAdminException;
+
+    /**
+     * Gets a list of internal registry metacards with the matching registry-id
+     * @param registryId registry-id to match
+     * @return List<Metacard>
+     * @throws FederationAdminException
+     */
+    List<Metacard> getInternalRegistryMetacardsByRegistryId(String registryId) throws FederationAdminException;
+
+    /**
      * Get a list of registry metacards
      *
      * @param destinations Set of destinations to query from

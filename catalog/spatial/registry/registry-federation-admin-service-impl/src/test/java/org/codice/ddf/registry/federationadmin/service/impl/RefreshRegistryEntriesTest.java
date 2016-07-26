@@ -41,7 +41,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RefreshRegistrySubscriptionsTest {
+public class RefreshRegistryEntriesTest {
 
     private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 
@@ -58,7 +58,7 @@ public class RefreshRegistrySubscriptionsTest {
     @Mock
     private FederationAdminServiceImpl federationAdminService;
 
-    private RefreshRegistrySubscriptions refreshRegistrySubscriptions;
+    private RefreshRegistryEntries refreshRegistryEntries;
 
 
     @Mock
@@ -66,14 +66,14 @@ public class RefreshRegistrySubscriptionsTest {
 
     @Before
     public void setUp() throws Exception {
-        refreshRegistrySubscriptions = spy(new RefreshRegistrySubscriptions());
-        refreshRegistrySubscriptions.setFederationAdminService(federationAdminService);
-        refreshRegistrySubscriptions.setRegistryStores(Collections.emptyList());
+        refreshRegistryEntries = spy(new RefreshRegistryEntries());
+        refreshRegistryEntries.setFederationAdminService(federationAdminService);
+        refreshRegistryEntries.setRegistryStores(Collections.emptyList());
     }
 
     @Test
     public void testRefreshRegistrySubscriptionsWhenPollableSourceIdsIAreEmpty() throws Exception {
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+        refreshRegistryEntries.refreshRegistryEntries();
         verify(federationAdminService, never()).getRegistryMetacards();
     }
 
@@ -84,12 +84,12 @@ public class RefreshRegistrySubscriptionsTest {
         when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
                 remoteMetacard));
 
-        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+        refreshRegistryEntries.refreshRegistryEntries();
 
         verify(federationAdminService).addRegistryEntries(Collections.singletonList(remoteMetacard),
                 null);
@@ -102,12 +102,12 @@ public class RefreshRegistrySubscriptionsTest {
         when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
                 remoteMetacard));
 
-        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(false);
 
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+        refreshRegistryEntries.refreshRegistryEntries();
 
         verify(federationAdminService, never()).addRegistryEntries(Collections.singletonList(
                 remoteMetacard), null);
@@ -120,12 +120,12 @@ public class RefreshRegistrySubscriptionsTest {
         when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
                 remoteMetacard));
 
-        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(false);
         when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+        refreshRegistryEntries.refreshRegistryEntries();
 
         verify(federationAdminService, never()).addRegistryEntries(Collections.singletonList(
                 remoteMetacard), null);
@@ -142,12 +142,12 @@ public class RefreshRegistrySubscriptionsTest {
         when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
                 remoteMcard));
 
-        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+        refreshRegistryEntries.refreshRegistryEntries();
 
         verify(federationAdminService).updateRegistryEntry(remoteMcard);
     }
@@ -164,12 +164,12 @@ public class RefreshRegistrySubscriptionsTest {
         when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
                 remoteMcard));
 
-        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+        refreshRegistryEntries.refreshRegistryEntries();
 
         verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
     }
@@ -185,12 +185,12 @@ public class RefreshRegistrySubscriptionsTest {
         when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(Collections.singletonList(
                 remoteMcard));
 
-        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+        refreshRegistryEntries.refreshRegistryEntries();
 
         verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
     }
@@ -206,12 +206,12 @@ public class RefreshRegistrySubscriptionsTest {
         when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.emptyList());
         when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(mcards);
 
-        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+        refreshRegistryEntries.refreshRegistryEntries();
 
         verify(federationAdminService).addRegistryEntries(Collections.singletonList(remoteMcard1),
                 null);
@@ -229,12 +229,12 @@ public class RefreshRegistrySubscriptionsTest {
         when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.emptyList());
         when(federationAdminService.getRegistryMetacards(any(Set.class))).thenReturn(mcards);
 
-        refreshRegistrySubscriptions.setRegistryStores(Collections.singletonList(registryStore));
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
         when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
-        refreshRegistrySubscriptions.refreshRegistrySubscriptions();
+        refreshRegistryEntries.refreshRegistryEntries();
 
         verify(federationAdminService).addRegistryEntries(Collections.singletonList(remoteMcard2),
                 null);

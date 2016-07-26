@@ -56,13 +56,9 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.operation.impl.CreateResponseImpl;
-import ddf.catalog.operation.impl.DeleteRequestImpl;
-import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.StopProcessingException;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -203,30 +199,6 @@ public class IdentificationPluginTest {
         assertThat(result.getMetacards()
                 .get(0)
                 .getMetadata(), equalTo(xml));
-    }
-
-    @Test(expected = StopProcessingException.class)
-    public void testDuplicateChecking() throws Exception {
-        String xml = convert("/registry-both-extid.xml");
-        sampleData.setAttribute(Metacard.METADATA, xml);
-        identificationPlugin.process(new CreateResponseImpl(new CreateRequestImpl(sampleData),
-                null,
-                Collections.singletonList(sampleData)));
-        identificationPlugin.process(new CreateRequestImpl(sampleData));
-    }
-
-    @Test
-    public void testDuplicateCheckingAfterDelete() throws Exception {
-        String xml = convert("/registry-both-extid.xml");
-        sampleData.setAttribute(Metacard.METADATA, xml);
-        identificationPlugin.process(new CreateResponseImpl(new CreateRequestImpl(sampleData),
-                null,
-                Collections.singletonList(sampleData)));
-        identificationPlugin.process(new DeleteResponseImpl(new DeleteRequestImpl(Collections.singletonList(
-                "abc123"), RegistryObjectMetacardType.REGISTRY_ID, null),
-                null,
-                Collections.singletonList(sampleData)));
-        identificationPlugin.process(new CreateRequestImpl(sampleData));
     }
 
     private String convert(String path) throws Exception {

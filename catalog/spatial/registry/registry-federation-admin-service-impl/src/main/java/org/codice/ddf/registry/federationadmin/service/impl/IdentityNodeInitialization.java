@@ -14,6 +14,7 @@
 
 package org.codice.ddf.registry.federationadmin.service.impl;
 
+
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.security.PrivilegedActionException;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +53,7 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.VersionInfoType;
 
+
 /**
  * Creates a registry identity node when DDF Registry is first instantiated.
  * If a previous registry node is not already found, then a registry identity metacard and its
@@ -80,7 +83,10 @@ public class IdentityNodeInitialization {
     public void init() {
         try {
             Security.runAsAdminWithException(() -> {
-                if (!federationAdminService.getLocalRegistryIdentityMetacard().isPresent()) {
+                Optional<Metacard> optional = federationAdminService.getLocalRegistryIdentityMetacard();
+                optional.ifPresent(e -> System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY,
+                        e.getAttribute(RegistryObjectMetacardType.REGISTRY_ID).getValue().toString()));
+                if (!optional.isPresent()) {
                     createIdentityNode();
                 }
                 return null;
@@ -159,7 +165,7 @@ public class IdentityNodeInitialization {
                     true));
             identityMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE,
                     true));
-
+            System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, registryPackageId);
             federationAdminService.addRegistryEntry(identityMetacard);
         }
         LOGGER.info("Successfully created registry identity node: {}", registryPackageId);

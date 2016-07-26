@@ -16,11 +16,24 @@
 
     <OCD description="Registry Federation Admin Service" name="Registry Federation Admin Service"
          id="Registry_Federation_Admin_Service">
-        <AD name="Registry Sub Poller Interval" id="registrySubPollerInterval" required="true"
+        <AD name="Registry Refresh Interval" id="registrySubPollerInterval" required="true"
             type="String" default="30"
-            description="The polling interval for the registry subscriptions. In seconds."/>
+            description="The refresh interval for the registry subscriptions/updates. In seconds."/>
+
+        <AD name="Enable Registry Cleanup" id="enableDelete" required="true"
+            type="Boolean" default="false"
+            description="If enabled, registry entries that are no longer available from subscriptions or publications will be removed from the registry."/>
     </OCD>
+    <!--<OCD description="Registry Refresh Configuration" name="Registry Refresh Configuration"-->
+         <!--id="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries">-->
+        <!--<AD name="Enable Registry Cleanup" id="enableDelete" required="true"-->
+            <!--type="Boolean" default="false"-->
+            <!--description="If enabled, registry entries that are no longer available from subscriptions or publications will be removed from the registry."/>-->
+    <!--</OCD>-->
     <Designate pid="Registry_Federation_Admin_Service">
         <Object ocdref="Registry_Federation_Admin_Service"/>
     </Designate>
+    <!--<Designate pid="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries">-->
+        <!--<Object ocdref="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries"/>-->
+    <!--</Designate>-->
 </metatype:MetaData>

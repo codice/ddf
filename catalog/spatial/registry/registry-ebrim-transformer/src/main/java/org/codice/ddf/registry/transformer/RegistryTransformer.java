@@ -115,8 +115,8 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
-        if (metacard.getTags()
-                .contains(RegistryConstants.REGISTRY_TAG)) {
+        if (metacard.getTags().contains(RegistryConstants.REGISTRY_TAG) || metacard.getTags()
+                .contains(RegistryConstants.REGISTRY_TAG_INTERNAL)) {
             String metadata = metacard.getMetadata();
             return new BinaryContentImpl(IOUtils.toInputStream(metadata));
         } else {

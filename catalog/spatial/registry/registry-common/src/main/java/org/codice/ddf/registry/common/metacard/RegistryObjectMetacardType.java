@@ -77,6 +77,12 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     public static final String REGISTRY_LOCAL_NODE = "registry-local-node";
 
+    public static final String REMOTE_REGISTRY_ID = "remote-registry-id";
+
+    public static final String REMOTE_METACARD_ID = "remote-metacard-id";
+
+    public static final String PRESERVE_TAGS = "preserve-tags";
+
     public static final Set<String> TRANSIENT_ATTRIBUTES;
 
     static {
@@ -85,6 +91,8 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
         transientAttributes.add(REGISTRY_LOCAL_NODE);
         transientAttributes.add(PUBLISHED_LOCATIONS);
         transientAttributes.add(LAST_PUBLISHED);
+        transientAttributes.add(REMOTE_REGISTRY_ID);
+        transientAttributes.add(REMOTE_METACARD_ID);
         TRANSIENT_ATTRIBUTES = Collections.unmodifiableSet(transientAttributes);
     }
 
@@ -131,6 +139,8 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
         addQueryableString(REGISTRY_BASE_URL, false);
         addQueryableString(PUBLISHED_LOCATIONS, true);
         addQueryableDate(LAST_PUBLISHED);
+        addQueryableString(REMOTE_REGISTRY_ID, false);
+        addQueryableString(REMOTE_METACARD_ID, false);
     }
 
     /**
@@ -158,7 +168,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
      * Method to add a queryable boolean to the descriptors of this metacard type. Can be used to
      * dynamically add additional descriptors to the base set.
      *
-     * @param name Name of the descriptor
+     * @param name        Name of the descriptor
      * @param multivalued Whether or not this descriptor represents several values (true) or one value (false)
      */
     public void addQueryableBoolean(String name, boolean multivalued) {
@@ -182,11 +192,8 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     protected void addDescriptor(String name, boolean queryable, boolean multivalued,
             AttributeType<?> type) {
-        descriptors.add(new AttributeDescriptorImpl(name,
-                queryable /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                multivalued /* multivalued */,
-                type));
+        descriptors
+                .add(new AttributeDescriptorImpl(name, queryable /* indexed */, true /* stored */,
+                        false /* tokenized */, multivalued /* multivalued */, type));
     }
 }

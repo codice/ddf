@@ -121,7 +121,7 @@ public class FederationAdminServiceImplTest {
     private static final String TEST_XML_STRING = "SomeValidStringVersionOfXml";
 
     @Mock
-    RefreshRegistrySubscriptions refreshRegistrySubscriptions;
+    RefreshRegistryEntries refreshRegistryEntries;
 
     private FederationAdminServiceImpl federationAdminServiceImpl;
 

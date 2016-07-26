@@ -414,8 +414,17 @@ public class RegistryPackageConverter {
                 if (extId.getId()
                         .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID)) {
                     metacard.setId(extId.getValue());
-                    break;
+                } else if (extId.getId().equals(RegistryConstants.REGISTRY_ORIGIN_REG_ID)) {
+                    if (!System.getProperty(RegistryConstants.REGISTRY_ID_PROPERTY)
+                            .equals(extId.getValue())) {
+                        setMetacardStringAttribute(extId.getValue(),
+                                RegistryObjectMetacardType.REMOTE_REGISTRY_ID, metacard);
+                    }
                 }
+            }
+            if (metacard.getAttribute(RegistryObjectMetacardType.REMOTE_REGISTRY_ID) != null) {
+                setMetacardStringAttribute(metacard.getId(),
+                        RegistryObjectMetacardType.REMOTE_METACARD_ID, metacard);
             }
         }
 

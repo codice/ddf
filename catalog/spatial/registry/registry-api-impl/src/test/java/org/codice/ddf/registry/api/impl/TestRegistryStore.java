@@ -37,11 +37,8 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 import org.codice.ddf.cxf.SecureCxfClientFactory;
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
@@ -95,8 +92,6 @@ public class TestRegistryStore {
 
     private RegistryStoreImpl registryStore;
 
-    private Parser parser;
-
     private BundleContext context;
 
     private Converter provider;
@@ -121,7 +116,6 @@ public class TestRegistryStore {
 
     @Before
     public void setup() throws Exception {
-        parser = new XmlParser();
         context = mock(BundleContext.class);
         provider = mock(Converter.class);
         configuration = mock(CswSourceConfiguration.class);
@@ -158,7 +152,6 @@ public class TestRegistryStore {
         registryStore.setFilterBuilder(filterBuilder);
         registryStore.setFilterAdapter(filterAdapter);
         registryStore.setConfigAdmin(configAdmin);
-        registryStore.setMetacardMarshaller(new MetacardMarshaller(parser));
         registryStore.setSchemaTransformerManager(transformer);
         registryStore.setAutoPush(true);
 
