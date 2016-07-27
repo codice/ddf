@@ -159,7 +159,7 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
 
     private PolicyResponse getWritePolicy(Metacard input, Map<String, Serializable> properties) {
         HashMap<String, Set<String>> operationPolicy = new HashMap<>();
-        if (Requests.isLocal(properties) && RegistryUtility.isRegistryMetacard(input)) {
+        if (Requests.isLocal(properties) && input != null && RegistryUtility.isRegistryMetacard(input)) {
             String registryBaseUrl = RegistryUtility.getStringAttribute(input,
                     RegistryObjectMetacardType.REGISTRY_BASE_URL,
                     null);
