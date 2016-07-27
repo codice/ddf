@@ -1,0 +1,22 @@
+
+==== Post-Resource Plugin
+
+Post-resource plugins are invoked after a resource has been retrieved, but before it is returned to the endpoint. 
+This is an opportunity to take any action on the response, including but not limited to:
+
+* logging
+* auditing
+* security filtering/redaction
+
+===== Post-Resource Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown. 
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Post-Resource Plugins
+
+Post-get resource plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+
+The output of the first plugin is sent to the next plugin, until all have executed and the response is returned to the requesting endpoint.

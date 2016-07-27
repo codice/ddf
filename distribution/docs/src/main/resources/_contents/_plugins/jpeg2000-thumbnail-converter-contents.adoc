@@ -1,0 +1,16 @@
+==== JPEG2000 Thumbnail Converter
+
+{description}
+
+===== Installing JPEG2000 Thumbnail Converter
+
+The JPEG2000 Thumbnail Converter is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring JPEG2000 Thumbnail Converter
+
+{configuration}
+
+===== Known Issues with JPEG2000 Thumbnail Converter
+
+None.
+

@@ -1,0 +1,15 @@
+==== Catalog Metrics Plugin
+
+The Catalog Metrics Plugin captures metrics on catalog operations.
+
+===== Installing the Catalog Metrics Plugin
+
+The Catalog Metrics Plugin is is not installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Catalog Metrics Plugin
+
+{configuration}
+
+===== Known Issues with the Catalog Metrics Plugin
+
+None.

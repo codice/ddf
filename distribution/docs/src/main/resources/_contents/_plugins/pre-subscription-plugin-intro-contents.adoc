@@ -1,0 +1,24 @@
+
+==== Pre-Subscription Plugins
+
+Pre-subscription plugins are invoked before a Subscription is activated by an Event Processor. 
+This is an opportunity to take any action on the Subscription, including but not limited to:
+
+* validation
+* logging
+* auditing
+* optimization
+* security filtering
+
+===== Pre-Subscription Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+===== Invoking Pre-Subscription Plugin
+
+Pre-subscription plugins are invoked serially, prioritized by descending OSGi service ranking. 
+That is, the plugin with the highest service ranking will be executed first. 
+
+The output of a pre-subscription plugin is sent to the next pre-subscription plugin, until all have executed and the create Subscription operation is sent to the Event Processor.

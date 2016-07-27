@@ -1,0 +1,6 @@
+
+.[[_included_post-resource_plugins]]Post-Resource Plugins
+<<_catalog_metrics_plugin,Catalog Metrics Plugin>>:: The Catalog Metrics Plugin captures metrics on catalog operations.
+<<_resource_usage_plugin,Resource Usage Plugin>>:: description
+<<_security_logging_plugin,Security Logging Plugin>>:: The Security Logging Plugin logs operations to the security log.
+

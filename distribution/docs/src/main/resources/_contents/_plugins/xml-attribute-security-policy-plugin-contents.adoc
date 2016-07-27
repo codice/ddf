@@ -1,0 +1,17 @@
+
+==== XML Attribute Security Policy Plugin
+
+{description}
+
+===== Installing XML Attribute Security Policy Plugin
+
+The XML Attribute Security Policy Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring XML Attribute Security Policy Plugin
+
+{configuration}
+
+===== Known Issues with XML Attribute Security Policy Plugin
+
+None.
+

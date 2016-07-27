@@ -1,0 +1,11 @@
+
+.[[_included_post-query_plugins]]Included Post-Resource Plugins
+<<_catalog_metrics_plugin,Catalog Metrics Plugin>>:: The Catalog Metrics Plugin captures metrics on catalog operations.
+<<_resource_usage_plugin,Resource Usage Plugin>>:: description
+<<_security_logging_plugin,Security Logging Plugin>>:: The Security Logging Plugin logs operations to the security log.
+<<_jpeg2000_thumbnail_converter,Jpeg2000 Thumbnail Converter>>:: description
+<<_metacard_resource_size_plugin,Metacard Resource Size Plugin>>:: The Metacard Resource Size Plugin post-query plugin updates the resource size attribute of each metacard in the query results.
+<<_metacard_resource_status,Metacard Resource Status>>:: description
+<<_dummy_validation_post_query_plugin,Dummy Validation Post Query Plugin>>:: *Example* implementation in the <<_sdk,SDK>>.
+
+

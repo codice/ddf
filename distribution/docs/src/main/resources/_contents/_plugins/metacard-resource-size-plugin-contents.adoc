@@ -1,0 +1,17 @@
+==== Metacard Resource Size Plugin
+
+This post-query plugin updates the resource size attribute of each metacard in the query results if there is a cached file for the product and it has a size greater than zero; otherwise, the resource size is unmodified and the original result is returned.
+
+Use this post-query plugin as a convenience to return query results with accurate resource sizes for cached products. 
+
+===== Installing the Metacard Resource Size Plugin
+
+This feature can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
+
+===== Configuring the Metacard Resource Size Plugin
+
+None.
+
+===== Known Issues with the Metacard Resource Size Plugin
+
+None.

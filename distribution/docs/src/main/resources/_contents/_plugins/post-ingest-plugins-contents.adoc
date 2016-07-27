@@ -1,0 +1,9 @@
+.[[_included_post-ingest_plugins]]Included Post-Ingest Plugins
+<<_caching_federation_strategy,Caching Federation Strategy>>:: description
+<<_catalog_backup_plugin,Catalog Backup Plugin>>:: description
+<<_catalog_metrics_plugin,Catalog Metrics Plugin>>:: The Catalog Metrics Plugin captures metrics on catalog operations.
+<<_event_processor,Event Processor>>:: description
+<<_fanout_event_processor,Fanout Event Processor>>:: description
+<<_identification_plugin,Identification Plugin>>:: The Identification Plugin assigns IDs to a metacard as it is added to the catalog.
+<<_rest_replicator_plugin,REST Replicator Plugin>>:: description
+<<_security_logging_plugin,Security Logging Plugin>>:: The Security Logging Plugin logs operations to the security log.

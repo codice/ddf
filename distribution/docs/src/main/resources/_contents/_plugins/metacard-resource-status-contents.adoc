@@ -1,0 +1,16 @@
+==== Metacard Resource Status Plugin
+
+{description}
+
+===== Installing Metacard Resource Status Plugin
+
+The Metacard Resource Status Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Metacard Resource Status Plugin
+
+{configuration}
+
+===== Known Issues with Metacard Resource Status Plugin
+
+None.
+

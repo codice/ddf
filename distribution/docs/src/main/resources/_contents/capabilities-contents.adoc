@@ -150,15 +150,132 @@ include::./_sources/registry-store-contents.adoc[]
 //Developing Sources
 include::./_sources/developing-sources-contents.adoc[]
 
-//////
-== Security
+=== Plugins
 
-== Plugins
+include::./_plugins/plugins-intro-contents.adoc[]
+//pre-ingest
+include::./_plugins/pre-ingest-plugin-intro-contents.adoc[]
+
+include::./_plugins/pre-ingest-plugins-contents.adoc[]
+
+include::./_plugins/metacard-groomer-contents.adoc[]
+
+include::./_plugins/metacard-validity-marker-contents.adoc[]
+
+include::./_plugins/expiration-date-pre-ingest-plugin-contents.adoc[]
+
+include::./_plugins/identification-plugin-contents.adoc[]
+
+include::./_plugins/security-logging-plugin-contents.adoc[]
+
+include::./_plugins/dummy-pre-ingest-plugin-contents.adoc[]
+//pre-query
+include::./_plugins/pre-query-plugin-intro-contents.adoc[]
+
+include::./_plugins/pre-query-plugins-contents.adoc[]
+
+include::./_plugins/catalog-metrics-plugin-contents.adoc[]
+
+include::./_plugins/sample-metrics-plugin-contents.adoc[]
+
+include::./_plugins/dummy-pre-query-plugin-contents.adoc[]
+
+//pre-resource
+include::./_plugins/pre-resource-plugin-intro-contents.adoc[]
+
+include::./_plugins/pre-resource-plugins-contents.adoc[]
+
+include::./_plugins/resource-usage-plugin-contents.adoc[]
+
+include::./_plugins/dummy-pre-resource-plugin-contents.adoc[]
+
+//pre-subscription
+include::./_plugins/pre-subscription-plugin-intro-contents.adoc[]
+
+include::./_plugins/pre-subscription-plugins-contents.adoc[]
+
+include::./_plugins/dummy-pre-subscription-plugin-contents.adoc[]
+//pre-delivery
+include::./_plugins/pre-delivery-plugin-intro-contents.adoc[]
+
+include::./_plugins/pre-delivery-plugins-contents.adoc[]
+
+include::./_plugins/dummy-pre-delivery-plugin-contents.adoc[]
+
+//post-ingest
+include::./_plugins/post-ingest-plugin-intro-contents.adoc[]
+
+include::./_plugins/post-ingest-plugins-contents.adoc[]
+
+include::./_plugins/caching-federation-strategy-contents.adoc[]
+
+include::./_plugins/catalog-backup-plugin-contents.adoc[]
+
+include::./_plugins/event-processor-contents.adoc[]
+
+include::./_plugins/fanout-event-processor-contents.adoc[]
+
+include::./_plugins/rest-replicator-plugin-contents.adoc[]
+//post-query
+include::./_plugins/post-query-plugin-intro-contents.adoc[]
+
+include::./_plugins/post-query-plugins-contents.adoc[]
+
+include::./_plugins/jpeg2000-thumbnail-converter-contents.adoc[]
+
+include::./_plugins/metacard-resource-size-plugin-contents.adoc[]
+
+include::./_plugins/metacard-resource-status-contents.adoc[]
+
+include::./_plugins/dummy-validation-post-query-plugin-contents.adoc[]
+//post-resource
+include::./_plugins/post-resource-plugin-intro-contents.adoc[]
+
+include::./_plugins/post-resource-plugins-contents.adoc[]
+//Policy
+include::./_plugins/policy-plugin-intro-contents.adoc[]
+
+include::./_plugins/policy-plugins-contents.adoc[]
+
+include::./_plugins/catalog-policy-plugin-contents.adoc[]
+
+include::./_plugins/filter-post-query-plugin-contents.adoc[]
+
+include::./_plugins/historian-policy-plugin-contents.adoc[]
+
+include::./_plugins/metacard-attribute-security-policy-plugin-contents.adoc[]
+
+include::./_plugins/metacard-validity-filter-plugin-contents.adoc[]
+
+include::./_plugins/registry-policy-plugin-contents.adoc[]
+
+include::./_plugins/xml-attribute-security-policy-plugin-contents.adoc[]
+//Access
+include::./_plugins/access-plugin-intro-contents.adoc[]
+
+include::./_plugins/access-plugins-contents.adoc[]
+
+include::./_plugins/filter-plugin-contents.adoc[]
+
+include::./_plugins/operation-plugin-contents.adoc[]
+
+include::./_plugins/security-plugin-contents.adoc[]
+//developing
+include::./_plugins/developing-plugins-contents.adoc[]
 
 //////
+=== Security
 === Metrics
 
-include::./_sources/metrics-intro-contents.adoc[]
+include::./_metrics/metrics-intro-contents.adoc[]
+
+include::./_metrics/metrics-collection-contents.adoc[]
+
+include::./_metrics/metrics-reporting-contents.adoc[]
+
+include::./_metrics/catalog-metrics-contents.adoc[]
+
+include::./_metrics/source-metrics-contents.adoc[]
 
 
 

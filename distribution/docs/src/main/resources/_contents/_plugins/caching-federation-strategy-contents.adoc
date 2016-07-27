@@ -1,0 +1,16 @@
+==== Caching Federation Strategy
+
+{description}
+
+===== Installing Caching Federation Strategy
+
+The Caching Federation Strategy is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Caching Federation Strategy
+
+{configuration}
+
+===== Known Issues with Caching Federation Strategy
+
+None.
+

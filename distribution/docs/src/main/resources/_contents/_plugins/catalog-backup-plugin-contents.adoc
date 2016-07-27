@@ -1,0 +1,16 @@
+==== Catalog Backup Plugin
+
+{description}
+
+===== Installing Catalog Backup Plugin
+
+The Catalog Backup Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Catalog Backup Plugin
+
+{configuration}
+
+===== Known Issues with Catalog Backup Plugin
+
+None.
+

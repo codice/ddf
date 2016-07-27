@@ -1,0 +1,41 @@
+
+==== Post-Ingest Plugin
+
+.Query Plugin Flow
+[ditaa,query-plugin-flow,png]
+....
+/------\
+|Client|
+|cDEF  |
+\------/
+    ^
+    |
++-------------------------------------------\
+|DDF|                                  cCCC |
+|   v                                       |
+|/--------\   /-----------------\   /------\|
+||Endpoint|<->|Catalog Framework|<->|Source||
+|| cDEF   |   | cDEF            |   | cDEF ||
+|\--------/   \-----------------/   \------/|
+|                     | |                   |
+|          /----------/ \--------\          |
+|          |                     |          |
+|          v                     v          |
+|/------------------\  /-------------------\|
+|| PreQuery Plugins |  | PostQuery Plugins ||
+||  cDEF            |  |  cDEF             ||
+|\------------------/  \-------------------/|
+\-------------------------------------------/
+....
+
+Post-ingest plugins are invoked after data has been created, updated, or deleted in a Catalog Provider.
+
+====== Post-Ingest Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+
+====== Invoking a Post-Ingest Plugin
+
+Because the event has already occurred and changes from one post-ingest plugin cannot affect others, all Post-Ingest plugins are invoked in parallel and no priority is enforced.
+
+

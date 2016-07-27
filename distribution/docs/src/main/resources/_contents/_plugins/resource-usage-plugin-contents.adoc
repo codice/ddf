@@ -1,0 +1,15 @@
+==== Resource Usage Plugin
+
+{description}
+
+===== Installing Resource Usage Plugin
+
+The Resource Usage Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Resource Usage Plugin
+
+{configuration}
+
+===== Known Issues with Resource Usage Plugin
+
+None.

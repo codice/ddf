@@ -1,0 +1,16 @@
+==== Fanout Event Processor
+
+{description}
+
+===== Installing Fanout Event Processor
+
+The Fanout Event Processor is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Fanout Event Processor
+
+{configuration}
+
+===== Known Issues with Fanout Event Processor
+
+None.
+

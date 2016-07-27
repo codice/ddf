@@ -1,0 +1,58 @@
+
+[ditaa, catalog_architecture_plugins, png,${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||c369           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+Plugins are additional tools to use to add additional business logic at certain points, depending on the type of plugin.
+
+The Catalog Framework calls Catalog Plugins to process requests and responses as they enter and leave the Framework. 
+
+==== Types of Plugins
+
+Plugins can be designed to run before or after certain processes.
+They are often used for validation, optimization, or logging.
+
+."Pre-" Plugins
+These plugins are executed before an action is taken.
+
+<<_pre_ingest_plugins,Pre-Ingest Plugins>>:: Perform any changes to a resource prior to ingesting it.
+
+<<_pre_query_plugins,Pre-Query Plugins>>:: Perform any changes to query before executing.
+
+<<_pre_resource_plugins,Pre-Resource Plugins>>:: Perform any changes to a resource associated with a metacard prior to download.
+
+<<_pre_subscription_plugins,Pre-Subscription Plugins>>:: Perform any changes before creating a subscription.
+
+<<_pre_delivery_plugins,Pre-Delivery Plugins>>:: Perform any changes before delivered a subscribed event.
+
+."Post-" Plugins
+These plugins execute after an action is taken.
+
+<<_post_ingest_plugins,Post-Ingest Plugins>>:: Perform actions after ingest is completed.
+
+<<_post_query_plugins,Post-Query Plugins>>:: Perform any changes to response after query completes.
+
+<<_post_resource_plugins,Post-Resource Plugins>>:: Perform any changes to a resource after download
+
+.Other Plugins
+<<_policy_plugin,Policy Plugins>>:: used to build policy information for requests.
+
+<<_access_plugin,Access Plugins>>:: allows or denies access to the Catalog operation or response.

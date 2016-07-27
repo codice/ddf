@@ -1,0 +1,29 @@
+==== Metacard Groomer
+
+The Metacard Groomer Pre-Ingest plugin makes modifications to `CreateRequest` and `UpdateRequest` metacards.
+
+Use this pre-ingest plugin as a convenience to apply basic rules for your metacards. 
+
+This plugin makes the following modifications when metacards are in a `CreateRequest`:
+
+* Overwrites the `Metacard.ID` field with a generated, unique, 32 character hexadecimal value
+* Overwrites the `Metacard.CREATED` date with a current time stamp
+* Overwrites the `Metacard.MODIFIED` date with a current time stamp
+
+The plugin also makes the following modifications when metacards are in an `UpdateRequest`:
+
+* If no value is provided for `Metacard.ID` in the new metacard, it will be set using the `UpdateRequest` ID if applicable.
+* If no value is provided, sets the `Metacard.CREATED` date with the `Metacard.MODIFIED` date so that the `Metacard.CREATED` date is not null.
+* Overwrites the `Metacard.MODIFIED` date with a current time stamp.
+
+====== Installing the Metacard Groomer
+
+The Metacard Groomer is is not installed by default with a standard installation in the ${ddf-catalog} application.
+
+====== Configuring the Metacard Groomer
+
+None. 
+
+====== Known Issues with the Metacard Groomer
+
+None.

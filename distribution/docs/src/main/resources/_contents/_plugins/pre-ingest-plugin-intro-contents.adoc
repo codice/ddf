@@ -1,0 +1,52 @@
+
+==== Pre-Ingest Plugins
+
+.Ingest Plugin Flow
+[ditaa,ingest-plugin-flow,png, ${image-width}]
+....
+/------\
+|Client|
+|cDEF  |
+\------/
+    ^
+    |
++-------------------------------------------\
+|DDF|                                  cCCC |
+|   v                                       |
+|/--------\   /-----------------\   /------\|
+||Endpoint|<->|Catalog Framework|<->|Source||
+|| cDEF   |   | cDEF            |   | cDEF ||
+|\--------/   \-----------------/   \------/|
+|                     | |                   |
+|          /----------/ \--------\          |
+|          |                     |          |
+|          v                     v          |
+|/------------------\  /-------------------\|
+||PreIngest Plugins |  |PostIngest Plugins ||
+|| cDEF             |  | cDEF              ||
+|\------------------/  \-------------------/|
+\-------------------------------------------/
+....
+
+Pre-Ingest plugins are invoked before an ingest operation is sent to the catalog.
+They are not run on a query.
+This is an opportunity to take any action on the ingest request, including but not limited to:
+
+* validation
+* logging
+* auditing
+* optimization
+* security filtering
+
+===== Pre-Ingest Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+===== Invoking Pre-Ingest Plugins
+
+Pre-Ingest plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+
+The output of a Pre-Ingest plugin is sent to the next Pre-Ingest plugin, until all have executed and the ingest operation is sent to the requested Source.

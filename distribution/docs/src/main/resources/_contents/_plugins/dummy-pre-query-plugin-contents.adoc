@@ -1,0 +1,17 @@
+==== Dummy Pre-Query Plugin
+
+*Example* implementation in the <<_sdk,SDK>> for demonstration purposes.
+
+===== Installing Dummy Pre-Query Plugin
+
+The Dummy Pre-Query Plugin is not installed by default with a standard installation in the ${app-name} application.
+
+{sdk} instructions
+
+===== Configuring Dummy Pre-Query Plugin
+
+None.
+
+===== Known Issues with Dummy Pre-Query Plugin
+
+None.

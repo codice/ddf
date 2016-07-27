@@ -1,0 +1,16 @@
+==== REST Replicator Plugin
+
+{description}
+
+===== Installing REST Replicator Plugin
+
+The REST Replicator is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring REST Replicator Plugin
+
+{configuration}
+
+===== Known Issues with REST Replicator Plugin
+
+None.
+

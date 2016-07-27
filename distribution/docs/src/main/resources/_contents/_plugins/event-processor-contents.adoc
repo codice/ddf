@@ -1,0 +1,16 @@
+==== Event Processor
+
+{description}
+
+===== Installing Event Processor
+
+The Event Processor is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Event Processor
+
+{configuration}
+
+===== Known Issues with Event Processor
+
+None.
+

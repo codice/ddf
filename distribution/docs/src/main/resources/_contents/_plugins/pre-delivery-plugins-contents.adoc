@@ -1,0 +1,3 @@
+
+.[[_included_pre-delivery_plugins]]Included Pre-Delivery Plugins
+<<_dummy_pre_delivery_plugin,Dummy Pre-Delivery Plugin>>:: *Example* implementation in the <<_sdk,SDK>>.

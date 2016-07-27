@@ -1,0 +1,17 @@
+
+==== Metacard Validity Filter Plugin
+
+{description}
+
+===== Installing Metacard Validity Filter Plugin
+
+The Metacard Validity Filter Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Metacard Validity Filter Plugin
+
+{configuration}
+
+===== Known Issues with Metacard Validity Filter Plugin
+
+None.
+

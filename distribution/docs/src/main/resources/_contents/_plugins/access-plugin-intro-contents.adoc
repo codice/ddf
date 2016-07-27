@@ -1,0 +1,8 @@
+
+==== Access Plugin
+
+Access plugins are invoked directly after the <<_policy_plugin,Policy plugins>> have been successfully executed.  This is an opportunity to either stop processing or modify the request/response based on policy information.
+
+===== Access Plugins Failure Behavior
+
+All failure cases should be handled internally to the plugin with the exception of the `StopProcessingException`. If the exception encountered should stop/block the request then a `StopProcessingException` should be thrown.
