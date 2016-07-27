@@ -83,6 +83,7 @@ module.exports = {
             marionette: 'backbone.marionette',
             // TODO test combining
             modelbinder: 'backbone.modelbinder/Backbone.ModelBinder',
+            'Backbone.ModelBinder': 'backbone.modelbinder/Backbone.ModelBinder',
             collectionbinder: 'backbone.modelbinder/Backbone.CollectionBinder',
             // application
             application: 'js/application',
