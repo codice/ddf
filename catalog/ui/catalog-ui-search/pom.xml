@@ -200,7 +200,6 @@
                             <arguments>install --ignore-scripts</arguments>
                         </configuration>
                     </execution>
-                    <!--
                     <execution>
                         <id>npm test</id>
                         <goals>
@@ -212,7 +211,6 @@
                             <arguments>test</arguments>
                         </configuration>
                     </execution>
-                    -->
                 </executions>
             </plugin>
             <plugin>
