@@ -1,0 +1,4 @@
+
+==== Catalog API
+
+The Catalog API is an OSGi bundle (`catalog-core-api`) that contains the Java interfaces for the Catalog components and implementation classes for the Catalog Framework, Operations, and Data components.

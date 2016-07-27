@@ -1,0 +1,213 @@
+
+==== Standard Catalog Framework
+
+The Standard Catalog Framework provides the reference implementation of a Catalog Framework that implements all requirements of the ${ddf-catalog}API. 
+`CatalogFrameworkImpl` is the implementation of the ${branding} Standard Catalog Framework.
+
+The Standard Catalog Framework is the core class of ${branding}.
+It provides the methods for query, create, update, delete, and resource retrieval (QCRUD) operations on the `Sources`.
+By contrast, the Fanout Catalog Framework only allows for query and resource retrieval operations, no catalog modifications, and all queries are enterprise-wide.
+
+Use this framework if:
+
+* access to a catalog provider to create, update, and delete catalog entries are required.
+* queries to specific sites are required.
+* queries to only the local provider are required.
+
+It is possible to have only remote Sources configured with no local `CatalogProvider` configured and be able to execute queries to specific remote sources by specifying the site name(s) in the query request.
+
+The Standard Catalog Framework also maintains a list of `ResourceReaders` for resource retrieval operations.
+A resource reader is matched to the scheme (i.e., protocol, such as `file://`) in the URI of the resource specified in the request to be retrieved.
+
+Site information about the catalog provider and/or any federated source(s) can be retrieved using the Standard Catalog Framework.
+Site information includes the source's name, version, availability, and the list of unique content types currently stored in the source (e.g., NITF).
+If no local catalog provider is configured, the site information returned includes site info for the catalog framework with no content types included.
+
+===== Installing the Standard Catalog Framework
+
+The Standard Catalog Framework is bundled as the `catalog-core-standardframework` feature and can be installed and uninstalled using the normal processes described in Configuration.
+
+When this feature is installed, the Catalog Fanout Framework App feature `catalog-core-fanoutframework` should be uninstalled, as both catalog frameworks should not be installed simultaneously.
+
+===== Configuring the Standard Catalog Framework
+
+.Standard Catalog Framework Configurable Properties
+[cols="2,1,3,1,1", options="header"]
+|===
+
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|`fanoutEnabled`
+|Boolean
+|When enabled the Framework acts as a proxy, federating requests to all available sources. All requests are executed as federated queries and resource retrievals, allowing the framework to be the sole component exposing the functionality of all of its Federated Sources.
+|false
+|yes
+
+|`productCacheDirectory`
+|String
+|Directory where retrieved products will be cached for faster, future retrieval. If a directory path is specified with directories that do not exist, Catalog Framework will attempt to create those directories. Out of the box (without configuration), the product cache directory is `<INSTALL_DIR>/data/product-cache`. If a relative path is provided it will be relative to the `<INSTALL_DIR>`.
+
+It is recommended to enter an absolute directory path such as `/opt/product-cache`in Linux or `C:\product-cache` in Windows."
+|`(empty)`
+|no
+
+|`cacheEnabled`
+|Boolean
+|Check to enable caching of retrieved products to provide faster retrieval for subsequent requests for the same product.
+|false
+|no
+
+|`delayBetweenRetryAttempts`
+|Integer
+|The time to wait (in seconds) between each attempt to retry retrieving a product from the Source.
+|10
+|no
+
+|`maxRetryAttempts`
+|Integer
+|The maximum number of attempts to try and retrieve a product from the Source.
+|3
+|no
+
+|`cachingMonitorPeriod`
+|Integer
+|The number of seconds allowed for no data to be read from the product data before determining that the network connection to the Source where the product is located is considered to be down.
+|5
+|no
+
+|`cacheWhenCanceled`
+|Boolean
+|Check to enable caching of retrieved products even if client cancels the download.
+|false
+|no
+
+|===
+
+[cols="2*", options="header"]
+|===
+
+|Managed Service PID
+|`${ddf-branding}.catalog.CatalogFrameworkImpl`
+|Managed Service Factory PID
+|N/A
+|===
+
+.Standard Catalog Framework Exported Services
+[cols="3,1,2", options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+|`${ddf-branding}.catalog.federation.FederationStrategy`
+|shortname
+|sorted
+
+|`org.osgi.service.event.EventHandler`
+|event.topics
+|`${ddf-branding}/catalog/event/CREATED`, `${ddf-branding}/catalog/event/UPDATED`, d`df/catalog/event/DELETED`
+
+|`${ddf-branding}.catalog.CatalogFramework`
+|
+|
+
+|`${ddf-branding}.catalog.event.EventProcessor`
+|
+|
+
+|`${ddf-branding}.catalog.plugin.PostIngestPlugin`
+|
+|
+
+|===
+
+.Standard Catalog Framwork Imported Services
+[cols="3,1,1" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`${ddf-branding}.catalog.plugin.PostFederatedQueryPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PostIngestPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PostQueryPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PostResourcePlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PreDeliveryPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PreFederatedQueryPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PreIngestPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PreQueryPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PreResourcePlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PreSubscriptionPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.PolicyPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.plugin.AccessPlugin`
+|optional
+|true
+
+|`${ddf-branding}.catalog.resource.ResourceReader`
+|optional
+|true
+
+|`${ddf-branding}.catalog.source.CatalogProvider`
+|optional
+|true
+
+|`${ddf-branding}.catalog.source.ConnectedSource`
+|optional
+|true
+
+|`${ddf-branding}.catalog.source.FederatedSource`
+|optional
+|true
+
+|`${ddf-branding}.cache.CacheManager`
+| 
+|false
+
+|`org.osgi.service.event.EventAdmin`
+| 
+|false
+
+|===
+
+===== Known Issues with Standard Catalog Framework
+
+None
