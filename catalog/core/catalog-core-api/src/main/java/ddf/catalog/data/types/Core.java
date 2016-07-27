@@ -13,6 +13,8 @@
  */
 package ddf.catalog.data.types;
 
+import ddf.catalog.data.Metacard;
+
 /**
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
@@ -76,8 +78,9 @@ public interface Core {
     /**
      * {@link ddf.catalog.data.Attribute} name for accessing the derived resource download URL for the derived
      * products of this {@link ddf.catalog.data.Metacard}. <br/>
+     * Uses original taxonomy to preserve backwards compatibility.
      */
-    String DERIVED_RESOURCE_DOWNLOAD_URL = "resource-derived-download-url";
+    String DERIVED_RESOURCE_DOWNLOAD_URL = Metacard.DERIVED_RESOURCE_DOWNLOAD_URL;
 
     /**
      * {@link ddf.catalog.data.Attribute} that provides URIs for derived formats of the {@literal ddf.catalog.data.Metacard.RESOURCE_URI}
@@ -136,8 +139,9 @@ public interface Core {
 
     /**
      * {@link ddf.catalog.data.Attribute} name for accessing the tags of the {@link Metacard}. <br/>
+     * Uses original taxonomy to preserve backwards compatibility.
      */
-    String METACARD_TAGS = "metacard.tags";
+    String METACARD_TAGS = Metacard.TAGS;
 
     /**
      * {@link ddf.catalog.data.Attribute} name for accessing the security permissions of the {@link Metacard}. <br/>

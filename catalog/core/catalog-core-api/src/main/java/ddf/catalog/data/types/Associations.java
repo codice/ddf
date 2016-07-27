@@ -13,6 +13,8 @@
  */
 package ddf.catalog.data.types;
 
+import ddf.catalog.data.Metacard;
+
 /**
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
@@ -22,11 +24,13 @@ package ddf.catalog.data.types;
 public interface Associations {
     /**
      * {@link ddf.catalog.data.Attribute} name for accessing the related associations of the {@link Metacard}. <br/>
+     * Uses original taxonomy to preserve backwards compatibility.
      */
-    String RELATED = "associations.related";
+    String RELATED = Metacard.RELATED;
 
     /**
      * {@link ddf.catalog.data.Attribute} name for accessing the derived associations of the {@link Metacard}. <br/>
+     * Uses original taxonomy to preserve backwards compatibility.
      */
-    String DERIVED = "associations.derived";
+    String DERIVED = Metacard.DERIVED;
 }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,8 +18,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +33,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 
@@ -138,9 +137,9 @@ public class MetacardValidityFilterPluginTest {
 
     private MetacardImpl getInvalidMetacard() {
         MetacardImpl returnMetacard = new MetacardImpl();
-        returnMetacard.setAttribute(new AttributeImpl(VALIDATION_ERRORS,
+        returnMetacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
                 Collections.singletonList("sample-validator")));
-        returnMetacard.setAttribute(new AttributeImpl(VALIDATION_WARNINGS,
+        returnMetacard.setAttribute(new AttributeImpl(Validation.VALIDATION_WARNINGS,
                 Collections.singletonList("sample-validator")));
         return returnMetacard;
     }

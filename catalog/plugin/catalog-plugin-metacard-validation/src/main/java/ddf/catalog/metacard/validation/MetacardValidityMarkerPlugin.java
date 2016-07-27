@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -12,9 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.metacard.validation;
-
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
@@ -89,8 +87,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 .collect(Collectors.toList());
 
         INGEST_LOGGER.info("Validation results: {} had warnings and {} had errors.",
-                counter.getOrDefault(VALIDATION_WARNINGS, 0),
-                counter.getOrDefault(VALIDATION_ERRORS, 0));
+                counter.getOrDefault(Validation.VALIDATION_WARNINGS, 0),
+                counter.getOrDefault(Validation.VALIDATION_ERRORS, 0));
 
         return validated;
     }
@@ -119,9 +117,9 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             }
         }
 
-        metacard.setAttribute(new AttributeImpl(VALIDATION_ERRORS,
+        metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
                 (List<Serializable>) new ArrayList<Serializable>(errors)));
-        metacard.setAttribute(new AttributeImpl(VALIDATION_WARNINGS,
+        metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_WARNINGS,
                 (List<Serializable>) new ArrayList<Serializable>(warnings)));
 
         return item;
@@ -134,11 +132,11 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
         if (validationErrorsExist || validationWarningsExist) {
             if (validationErrorsExist) {
                 errors.addAll(e.getErrors());
-                counter.merge(VALIDATION_ERRORS, 1, Integer::sum);
+                counter.merge(Validation.VALIDATION_ERRORS, 1, Integer::sum);
             }
             if (validationWarningsExist) {
                 warnings.addAll(e.getWarnings());
-                counter.merge(VALIDATION_WARNINGS, 1, Integer::sum);
+                counter.merge(Validation.VALIDATION_WARNINGS, 1, Integer::sum);
             }
         } else {
             LOGGER.warn(
@@ -155,12 +153,16 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
         return input;
     }
 
+    public List<String> getEnforcedMetacardValidators() {
+        return enforcedMetacardValidators;
+    }
+
     public void setEnforcedMetacardValidators(List<String> enforcedMetacardValidators) {
         this.enforcedMetacardValidators = enforcedMetacardValidators;
     }
 
-    public List<String> getEnforcedMetacardValidators() {
-        return enforcedMetacardValidators;
+    public List<MetacardValidator> getMetacardValidators() {
+        return metacardValidators;
     }
 
     public void setMetacardValidators(List<MetacardValidator> metacardValidators) {
@@ -175,10 +177,6 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             LOGGER.warn("Metacard validators SHOULD implement Describable. Validators in error: {}",
                     validatorsNoDescribable);
         }
-    }
-
-    public List<MetacardValidator> getMetacardValidators() {
-        return metacardValidators;
     }
 
     private boolean isValidatorEnforced(String validatorName) {

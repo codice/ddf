@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -41,6 +41,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
 
 /**
@@ -50,11 +51,11 @@ import ddf.catalog.transform.CatalogTransformerException;
  */
 public class SaxEventHandlerDelegate extends DefaultHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
+
     private XMLReader parser;
 
     private List<SaxEventHandler> eventHandlers = new ArrayList<>();
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
 
     private MetacardType metacardType = BasicTypes.BASIC_METACARD;
 
@@ -114,11 +115,11 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
                 LOGGER.warn((String) errorsAndWarnings.get(0));
                 Attribute attr;
                 List<Serializable> values;
-                if ((attr = metacard.getAttribute(BasicTypes.VALIDATION_ERRORS)) != null
+                if ((attr = metacard.getAttribute(Validation.VALIDATION_ERRORS)) != null
                         && (values = attr.getValues()) != null) {
                     errorsAndWarnings.addAll(values);
                 }
-                metacard.setAttribute(new AttributeImpl(BasicTypes.VALIDATION_ERRORS,
+                metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
                         errorsAndWarnings));
             }
 
