@@ -28,8 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
@@ -49,6 +52,7 @@ import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "seed", description =
         "Seeds the local metacard and product caches from the enterprise or from specific federated sources.\n\n"
                 + "\tThis command will query the enterprise or the specified sources for metacards in increments "
@@ -59,7 +63,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
                 + "\tNote that this command will begin the product downloads and some may still be in progress "
                 + "by the time it completes. Also, product caching must be enabled in the catalog framework for "
                 + "this command to seed the product cache.")
-public class SeedCommand extends SubjectCommands {
+public class SeedCommand extends SubjectCommands implements Action {
     private static final Logger LOGGER = LoggerFactory.getLogger(SeedCommand.class);
 
     private static final Map<String, Serializable> CACHE_UPDATE_PROPERTIES =
@@ -84,6 +88,12 @@ public class SeedCommand extends SubjectCommands {
                     + "products.")
     int productLimit = 20;
 
+    @Reference
+    CatalogFramework framework;
+
+    @Reference
+    FilterBuilder filterBuilder;
+
     private final Predicate<Metacard> isNonCachedResource = metacard -> {
         Attribute cached = metacard.getAttribute(RESOURCE_CACHE_STATUS);
         return cached == null || !((Boolean) cached.getValue());
@@ -93,16 +103,16 @@ public class SeedCommand extends SubjectCommands {
         if (isNotBlank(cql)) {
             return CQL.toFilter(cql);
         } else {
-            final FilterBuilder builder = getService(FilterBuilder.class);
-            if (builder != null) {
-                return builder.attribute(ANY_TEXT)
-                        .is()
-                        .like()
-                        .text(WILDCARD_CHAR);
-            } else {
-                throw new RuntimeException("Could not retrieve the FilterBuilder service.");
-            }
+            return filterBuilder.attribute(ANY_TEXT)
+                    .is()
+                    .like()
+                    .text(WILDCARD_CHAR);
         }
+    }
+
+    @Override
+    public Object execute() throws Exception {
+        return doExecute();
     }
 
     @Override
@@ -134,14 +144,7 @@ public class SeedCommand extends SubjectCommands {
             }
             queryRequest.setProperties(new HashMap<>(CACHE_UPDATE_PROPERTIES));
 
-            final CatalogFramework framework = getService(CatalogFramework.class);
-
-            final QueryResponse queryResponse;
-            if (framework != null) {
-                queryResponse = framework.query(queryRequest);
-            } else {
-                throw new RuntimeException("Could not retrieve the CatalogFramework service.");
-            }
+            final QueryResponse queryResponse = framework.query(queryRequest);
 
             if (queryResponse.getResults()
                     .isEmpty()) {

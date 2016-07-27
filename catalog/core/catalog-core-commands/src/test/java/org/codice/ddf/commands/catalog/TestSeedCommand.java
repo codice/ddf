@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doReturn;
@@ -47,7 +46,6 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -66,21 +64,12 @@ public class TestSeedCommand extends TestAbstractCommand {
         consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
 
-        framework = mock(CatalogFramework.class);
+        seedCommand = new SeedCommand();
 
-        seedCommand = new SeedCommand() {
-            @Override
-            protected <T> T getService(Class<T> clazz) {
-                if (clazz.equals(CatalogFramework.class)) {
-                    return clazz.cast(framework);
-                } else if (clazz.equals(FilterBuilder.class)) {
-                    return clazz.cast(new GeotoolsFilterBuilder());
-                } else {
-                    fail("getService() should not have been called with " + clazz.getName());
-                    return null;
-                }
-            }
-        };
+        framework = mock(CatalogFramework.class);
+        seedCommand.framework = framework;
+
+        seedCommand.filterBuilder = new GeotoolsFilterBuilder();
     }
 
     @After
