@@ -90,32 +90,32 @@ public class FilterPlugin implements AccessPlugin {
         List<Metacard> metacards = input.getMetacards();
         Subject subject = getSubject(input);
         Subject systemSubject = getSystemSubject();
-        List<String> userNotPermittedIds = new ArrayList<>();
-        List<String> systemNotPermittedIds = new ArrayList<>();
+        List<String> userNotPermittedTitles = new ArrayList<>();
+        List<String> systemNotPermittedTitles = new ArrayList<>();
         for (Metacard metacard : metacards) {
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
             if (!checkPermissions(attr,
                     securityPermission,
                     subject,
                     CollectionPermission.CREATE_ACTION)) {
-                userNotPermittedIds.add(metacard.getId());
+                userNotPermittedTitles.add(metacard.getTitle());
             }
             if (!checkPermissions(attr,
                     securityPermission,
                     systemSubject,
                     CollectionPermission.CREATE_ACTION)) {
-                systemNotPermittedIds.add(metacard.getId());
+                systemNotPermittedTitles.add(metacard.getTitle());
             }
         }
-        if (!userNotPermittedIds.isEmpty()) {
+        if (!userNotPermittedTitles.isEmpty()) {
             throw new StopProcessingException(
                     "Metacard creation not permitted for" + SubjectUtils.getName(subject) + ": [ "
-                            + listToString(userNotPermittedIds) + " ]");
+                            + listToString(userNotPermittedTitles) + " ]");
         }
-        if (!systemNotPermittedIds.isEmpty()) {
+        if (!systemNotPermittedTitles.isEmpty()) {
             throw new StopProcessingException(
                     "Metacard creation not permitted for this system: [ " + listToString(
-                            systemNotPermittedIds) + " ]");
+                            systemNotPermittedTitles) + " ]");
         }
 
         return input;
