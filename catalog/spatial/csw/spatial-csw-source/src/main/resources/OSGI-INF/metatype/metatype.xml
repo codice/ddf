@@ -54,7 +54,7 @@
             name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"
             default="false"/>
 
-        <AD description="Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'."
+        <AD description="Mapping of the Metacard Attribute names to their CSW property names. The format should be 'title=dc:title'."
             name="Metacard Mappings" id="metacardMappings" required="false" type="String"
             cardinality="100"
             default="effective=created,created=dateSubmitted,modified=modified,thumbnail=references,content-type=type,id=identifier,resource-uri=source">
@@ -165,7 +165,7 @@
             name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"
             default="false"/>
 
-        <AD description="Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'."
+        <AD description="Mapping of the Metacard Attribute names to their CSW property names. The format should be 'title=dc:title'."
             name="Metacard Mappings" id="metacardMappings" required="false" type="String"
             cardinality="100"
             default="id=apiso:Identifier,effective=apiso:PublicationDate,created=apiso:CreationDate,modified=apiso:RevisionDate,title=apiso:AlternateTitle,AnyText=apiso:AnyText,ows:BoundingBox=apiso:BoundingBox">
