@@ -104,30 +104,30 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     private void addRegistryAttributes() {
         descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-        addQueryableString(SECURITY_LEVEL, true); //securityLevel
-        addQueryableString(METACARD_TYPE, false);
-        addQueryableString(ENTRY_TYPE, false);  //objectType
-        addQueryableString(ORGANIZATION_NAME, false);
-        addQueryableString(ORGANIZATION_ADDRESS, false);
-        addQueryableString(ORGANIZATION_PHONE_NUMBER, true);
-        addQueryableString(ORGANIZATION_EMAIL, true);
-        addQueryableDate(LIVE_DATE);
-        addQueryableDate(DATA_START_DATE);
-        addQueryableDate(DATA_END_DATE);
-        addQueryableString(LINKS, true);
-        addQueryableString(REGION, false);
-        addQueryableString(DATA_SOURCES, true);
-        addQueryableString(DATA_TYPES, true);
-        addQueryableString(SERVICE_BINDINGS, true);
-        addQueryableString(SERVICE_BINDING_TYPES, true);
-        addQueryableString(REGISTRY_ID, false);
         addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
         addQueryableBoolean(REGISTRY_LOCAL_NODE, false);
-        addQueryableString(REGISTRY_BASE_URL, false);
-        addQueryableString(PUBLISHED_LOCATIONS, true);
+        addQueryableDate(DATA_END_DATE);
+        addQueryableDate(DATA_START_DATE);
         addQueryableDate(LAST_PUBLISHED);
-        addQueryableString(REMOTE_REGISTRY_ID, false);
+        addQueryableDate(LIVE_DATE);
+        addQueryableString(DATA_SOURCES, true);
+        addQueryableString(DATA_TYPES, true);
+        addQueryableString(ENTRY_TYPE, false);  //objectType
+        addQueryableString(LINKS, true);
+        addQueryableString(METACARD_TYPE, false);
+        addQueryableString(ORGANIZATION_ADDRESS, false);
+        addQueryableString(ORGANIZATION_EMAIL, true);
+        addQueryableString(ORGANIZATION_NAME, false);
+        addQueryableString(ORGANIZATION_PHONE_NUMBER, true);
+        addQueryableString(PUBLISHED_LOCATIONS, true);
+        addQueryableString(REGION, false);
+        addQueryableString(REGISTRY_BASE_URL, false);
+        addQueryableString(REGISTRY_ID, false);
         addQueryableString(REMOTE_METACARD_ID, false);
+        addQueryableString(REMOTE_REGISTRY_ID, false);
+        addQueryableString(SECURITY_LEVEL, true); //securityLevel
+        addQueryableString(SERVICE_BINDING_TYPES, true);
+        addQueryableString(SERVICE_BINDINGS, true);
     }
 
     /**
