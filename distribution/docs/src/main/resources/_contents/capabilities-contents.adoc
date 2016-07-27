@@ -2,6 +2,23 @@
 
 include::./catalog-architecture-contents.adoc[]
 
+//Catalog Frameworks
+
+=== Catalog Framework
+include::./_catalog-frameworks/catalog-framework-intro-contents.adoc[]
+
+include::./_catalog-frameworks/catalog-frameworks-contents.adoc[]
+
+include::./_catalog-frameworks/catalog-api-contents.adoc[]
+
+include::./_catalog-frameworks/standard-catalog-framework-contents.adoc[]
+
+include::./_catalog-frameworks/catalog-fanout-framework-contents.adoc[]
+
+include::./_catalog-frameworks/catalog-framework-camel-component-contents.adoc[]
+
+include::./_catalog-frameworks/developing-catalog-frameworks-contents.adoc[]
+
 // Endpoints
 include::./_endpoints/endpoints-intro-contents.adoc[]
 
@@ -262,6 +279,16 @@ include::./_plugins/operation-plugin-contents.adoc[]
 include::./_plugins/security-plugin-contents.adoc[]
 //developing
 include::./_plugins/developing-plugins-contents.adoc[]
+
+=== Operations
+
+include::./_plugins/operations-intro-contents.adoc[]
+
+=== Data and Metadata
+
+include::./_data/data-intro-contents.adocp[]
+
+
 
 //////
 === Security

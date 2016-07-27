@@ -1,5 +1,5 @@
 
-==== Pre-Delivery Plugin
+==== Pre-Delivery Plugins
 
 Pre-delivery plugins are invoked before a Delivery Method is invoked on a Subscription. 
 This is an opportunity to take any action before notification, including but not limited to:

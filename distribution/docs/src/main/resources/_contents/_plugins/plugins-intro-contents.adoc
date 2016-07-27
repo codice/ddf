@@ -53,6 +53,6 @@ These plugins execute after an action is taken.
 <<_post_resource_plugins,Post-Resource Plugins>>:: Perform any changes to a resource after download
 
 .Other Plugins
-<<_policy_plugin,Policy Plugins>>:: used to build policy information for requests.
+<<_policy_plugins,Policy Plugins>>:: used to build policy information for requests.
 
-<<_access_plugin,Access Plugins>>:: allows or denies access to the Catalog operation or response.
+<<_access_plugins,Access Plugins>>:: allows or denies access to the Catalog operation or response.
