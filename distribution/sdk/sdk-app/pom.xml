@@ -21,7 +21,7 @@
     </parent>
     <artifactId>sdk-app</artifactId>
     <name>DDF :: SDK :: App</name>
-    <packaging>kar</packaging>
+    <packaging>pom</packaging>
     <build>
         <plugins>
             <plugin>
