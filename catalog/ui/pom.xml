@@ -27,8 +27,9 @@
     <groupId>ddf.ui</groupId>
     <packaging>pom</packaging>
     <modules>
-        <module>catalog-ui-search</module>
         <module>search-ui</module>
+        <module>catalog-ui-search</module>
+        <module>catalog-ui-app</module>
     </modules>
     <properties>
         <cometd.version>3.0.9</cometd.version>

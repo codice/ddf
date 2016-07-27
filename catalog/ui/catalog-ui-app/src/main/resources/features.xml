@@ -1,0 +1,64 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+
+<features name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <feature name="catalog-ui" install="auto" version="${project.version}" description="Catalog UI">
+        <feature prerequisite="true">camel-http</feature>
+        <feature prerequisite="true">catalog-ui-app</feature>
+
+        <!-- setup subscriptions store -->
+        <configfile finalname="/data/solr/subscriptions/conf/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/data/solr/subscriptions/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/subscriptions/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/subscriptions/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/subscriptions/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/subscriptions/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/subscriptions/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
+
+        <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
+        <configfile finalname="/etc/ddf.security.pdp.realm.AuthzRealm.config">
+            mvn:ddf.ui/catalog-ui-search/${project.version}/config/workspace-roles
+        </configfile>
+        <configfile finalname="/etc/org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin.config">
+            mvn:ddf.ui/catalog-ui-search/${project.version}/config/workspace-metacard-security-attributes
+        </configfile>
+
+    </feature>
+    <feature name="catalog-ui-app" install="auto" version="${project.version}"
+             description="The Catalog UI application provides a metadata search and discovery, resource retrieval and workspace management with a 3d or optional 2d map visualization..::Catalog UI">
+        <feature prerequisite="true">catalog-app</feature>
+        <feature prerequisite="true">catalog-versioning-plugin</feature>
+        <feature prerequisite="true">catalog-core-validator</feature>
+        <feature prerequisite="true">search-ui-app</feature>
+    </feature>
+
+</features>

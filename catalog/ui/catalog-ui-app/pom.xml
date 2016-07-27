@@ -15,13 +15,13 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>ddf.ui.search</groupId>
-        <artifactId>search-ui</artifactId>
+        <groupId>ddf.ui</groupId>
+        <artifactId>ui</artifactId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <name>DDF :: UI :: Search UI :: App</name>
-    <artifactId>search-ui-app</artifactId>
+    <artifactId>catalog-ui-app</artifactId>
+    <name>DDF :: Catalog :: UI :: Catalog UI App</name>
     <packaging>pom</packaging>
     <build>
         <plugins>
@@ -82,11 +82,6 @@
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                 </artifact>
-                                <artifact>
-                                    <file>src/main/resources/org.codice.ddf.ui.searchui.filter.RedirectServlet.config</file>
-                                    <type>config</type>
-                                    <classifier>redirect</classifier>
-                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
@@ -96,28 +91,8 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>ddf.ui.search</groupId>
-            <artifactId>simple</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui.search</groupId>
-            <artifactId>standard</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui.search</groupId>
-            <artifactId>search-redirect</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui.search</groupId>
-            <artifactId>search-htmltransformer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui.search</groupId>
-            <artifactId>search-endpoint</artifactId>
+            <groupId>ddf.ui</groupId>
+            <artifactId>catalog-ui-search</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
