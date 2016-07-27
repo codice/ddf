@@ -98,28 +98,18 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
     }
 
     private void addRegistryAttributes() {
-        addQueryableString(Metacard.TAGS, true);
-        addQueryableString(Metacard.ID, false);
-        addQueryableString(Metacard.CONTENT_TYPE, false);
-        addXml(Metacard.METADATA, true);
-        addQueryableDate(Metacard.CREATED);
-        addQueryableDate(Metacard.MODIFIED);
-        addQueryableString(Metacard.TITLE, false); //name
-        addQueryableString(Metacard.DESCRIPTION, false);
+        descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
         addQueryableString(SECURITY_LEVEL, true); //securityLevel
         addQueryableString(METACARD_TYPE, false);
         addQueryableString(ENTRY_TYPE, false);  //objectType
-        addQueryableString(Metacard.CONTENT_TYPE_VERSION, false); // version
         addQueryableString(ORGANIZATION_NAME, false);
         addQueryableString(ORGANIZATION_ADDRESS, false);
         addQueryableString(ORGANIZATION_PHONE_NUMBER, true);
         addQueryableString(ORGANIZATION_EMAIL, true);
-        addQueryableString(Metacard.POINT_OF_CONTACT, false);
         addQueryableDate(LIVE_DATE);
         addQueryableDate(DATA_START_DATE);
         addQueryableDate(DATA_END_DATE);
         addQueryableString(LINKS, true);
-        addQueryableGeo(Metacard.GEOGRAPHY, false);
         addQueryableString(REGION, false);
         addQueryableString(DATA_SOURCES, true);
         addQueryableString(DATA_TYPES, true);
