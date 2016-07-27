@@ -53,14 +53,14 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 
 @Service
-@Command(scope = CatalogCommands.NAMESPACE, name = "seed", description =
-        "Seeds the local metacard and product caches from the enterprise or from specific federated sources.\n\n"
-                + "\tThis command will query the enterprise or the specified sources for metacards in increments "
+@Command(scope = CatalogCommands.NAMESPACE, name = "seed", description = "Seeds the local metacard "
+        + "and product caches from the enterprise or from specific federated sources.", detailedDescription =
+        "This command will query the enterprise or the specified sources for metacards in increments "
                 + "the size of the `--product-limit` argument (default 20) until that number of product downloads "
                 + "have started or until there are no more results. Local products will not be added to the cache. "
                 + "This command will not re-download products that are up-to-date in the cache, so subsequent runs "
                 + "of the command will attempt to cache metacards and products that have not already been cached.\n\n"
-                + "\tNote that this command will begin the product downloads and some may still be in progress "
+                + "Note that this command will begin the product downloads and some may still be in progress "
                 + "by the time it completes. Also, product caching must be enabled in the catalog framework for "
                 + "this command to seed the product cache.")
 public class SeedCommand extends SubjectCommands implements Action {
