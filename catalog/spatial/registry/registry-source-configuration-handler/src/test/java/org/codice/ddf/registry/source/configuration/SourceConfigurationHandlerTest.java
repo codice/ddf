@@ -20,6 +20,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -196,6 +197,8 @@ public class SourceConfigurationHandlerTest {
 
         ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
         setupSerialExecutor();
+        doReturn(new Hashtable<String, Object>()).when(config)
+                .getProperties();
         sch.handleEvent(createEvent);
 
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled",
@@ -213,6 +216,8 @@ public class SourceConfigurationHandlerTest {
         ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
         mcard.setAttribute(Metacard.TITLE, null);
         setupSerialExecutor();
+        doReturn(new Hashtable<String, Object>()).when(config)
+                .getProperties();
         sch.handleEvent(createEvent);
 
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled",
@@ -244,13 +249,18 @@ public class SourceConfigurationHandlerTest {
         ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
 
         mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, null);
+        Configuration newDisabledConfig = mock(Configuration.class);
+        doReturn(newDisabledConfig).when(configAdmin)
+                .createFactoryConfiguration("Csw_Federated_Source_disabled", null);
+        doReturn(new Hashtable<String, Object>()).when(newDisabledConfig)
+                .getProperties();
 
         setupSerialExecutor();
         sch.handleEvent(createEvent);
 
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled",
                 null);
-        verify(config).update(captor.capture());
+        verify(newDisabledConfig).update(captor.capture());
         Dictionary passedValues = captor.getValue();
         assertThat(passedValues.get("attId"), equalTo("attValue"));
         assertCswProperties(passedValues);
@@ -264,6 +274,9 @@ public class SourceConfigurationHandlerTest {
         mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, null);
         sch.setActivateConfigurations(true);
         setupSerialExecutor();
+
+        doReturn(new Hashtable<String, Object>()).when(config)
+                .getProperties();
         sch.handleEvent(createEvent);
 
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source", null);
@@ -285,6 +298,7 @@ public class SourceConfigurationHandlerTest {
         props.put("origConfig", "origConfigValue");
         props.put(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
+        props.put("bindingType", "CSW_2.0.2");
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Csw_Federated_Source_disabled");
         sch.setActivateConfigurations(true);
@@ -311,6 +325,7 @@ public class SourceConfigurationHandlerTest {
         props.put("origConfig", "origConfigValue");
         props.put(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
+        props.put("bindingType", "CSW_2.0.2");
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Csw_Federated_Source");
         sch.setActivateConfigurations(true);
@@ -336,18 +351,25 @@ public class SourceConfigurationHandlerTest {
         props.put("origConfig", "origConfigValue");
         props.put(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
-        Configuration newConfig = mock(Configuration.class);
-        when(newConfig.getFactoryPid()).thenReturn("Some_Other_Source_disabled");
+        props.put("bindingType", "SomeOtherBindingType");
+        Configuration newDisabledConfig = mock(Configuration.class);
+        when(newDisabledConfig.getFactoryPid()).thenReturn("Some_Other_Source_disabled");
         when(configAdmin.createFactoryConfiguration("Some_Other_Source_disabled", null)).thenReturn(
-                newConfig);
+                newDisabledConfig);
+        doReturn(props).when(newDisabledConfig)
+                .getProperties();
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Some_Other_Source");
+        Configuration newActiveConfig = mock(Configuration.class);
+        doReturn(newActiveConfig).when(configAdmin).createFactoryConfiguration("Csw_Federated_Source", null);
+        doReturn("Csw_Federated_Source").when(newActiveConfig).getFactoryPid();
+        doReturn(new Hashtable<String, Object>()).when(newActiveConfig).getProperties();
         sch.setActivateConfigurations(true);
         setupSerialExecutor();
         sch.handleEvent(createEvent);
         verify(config, times(1)).delete();
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source", null);
-        verify(config).update(captor.capture());
+        verify(newActiveConfig).update(captor.capture());
         List<Dictionary> values = captor.getAllValues();
         assertThat(values.size(), equalTo(1));
         Dictionary passedValues = values.get(0);
@@ -378,14 +400,20 @@ public class SourceConfigurationHandlerTest {
         props.put("origConfig", "origConfigValue");
         props.put(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
+        props.put("bindingType", "SomeOtherBindingType");
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Some_Other_Source");
+        Configuration newConfig = mock(Configuration.class);
+        doReturn(newConfig).when(configAdmin)
+                .createFactoryConfiguration("Csw_Federated_Source_disabled", null);
+        doReturn(new Hashtable<String, Object>()).when(newConfig)
+                .getProperties();
         sch.setActivateConfigurations(true);
         setupSerialExecutor();
         sch.handleEvent(updateEvent);
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled",
                 null);
-        verify(config).update(captor.capture());
+        verify(newConfig).update(captor.capture());
         List<Dictionary> values = captor.getAllValues();
         assertThat(values.size(), equalTo(1));
         Dictionary passedValues = values.get(0);
@@ -404,22 +432,31 @@ public class SourceConfigurationHandlerTest {
         props.put("origConfig", "origConfigValue");
         props.put(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
-        Configuration newConfig = mock(Configuration.class);
-        when(newConfig.getFactoryPid()).thenReturn("Some_Other_Source_disabled");
+        props.put("bindingType", "SomeOtherBindingType");
+        Configuration newDisabledConfig = mock(Configuration.class);
+        when(newDisabledConfig.getFactoryPid()).thenReturn("Some_Other_Source_disabled");
+        doReturn(props).when(newDisabledConfig)
+                .getProperties();
         when(configAdmin.createFactoryConfiguration("Some_Other_Source_disabled", null)).thenReturn(
-                newConfig);
+                newDisabledConfig);
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Some_Other_Source");
+        Configuration newActiveConfig = mock(Configuration.class);
+        doReturn(newActiveConfig).when(configAdmin)
+                .createFactoryConfiguration("Csw_Federated_Source", null);
+        doReturn(new Hashtable<String, Object>()).when(newActiveConfig)
+                .getProperties();
         sch.setPreserveActiveConfigurations(false);
         sch.setActivateConfigurations(true);
         setupSerialExecutor();
         sch.handleEvent(updateEvent);
         verify(config, times(1)).delete();
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source", null);
-        verify(config).update(captor.capture());
+        verify(newActiveConfig).update(captor.capture());
         List<Dictionary> values = captor.getAllValues();
         assertThat(values.size(), equalTo(1));
         Dictionary passedValues = values.get(0);
+        assertThat(passedValues.get("attId"), equalTo("attValue"));
         assertCswProperties(passedValues);
     }
 
@@ -434,10 +471,13 @@ public class SourceConfigurationHandlerTest {
         props.put("origConfig", "origConfigValue");
         props.put(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
+        props.put("bindingType", "SomeOtherBindingType");
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Some_Other_Source");
         Configuration newConfig = mock(Configuration.class);
         when(newConfig.getFactoryPid()).thenReturn("Some_Other_Source_disabled");
+        doReturn(new Hashtable<String, Object>()).when(newConfig)
+                .getProperties();
         when(configAdmin.createFactoryConfiguration("Some_Other_Source_disabled", null)).thenReturn(
                 newConfig);
         List<String> priority = new ArrayList();
@@ -449,6 +489,8 @@ public class SourceConfigurationHandlerTest {
         setupSerialExecutor();
         sch.handleEvent(updateEvent);
         verify(config, times(1)).delete();
+        verify(configAdmin, times(1)).createFactoryConfiguration("Some_Other_Source_disabled",
+                null);
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source", null);
         verify(configAdmin, times(1)).createFactoryConfiguration("Some_Other_Source_disabled",
                 null);
@@ -456,6 +498,7 @@ public class SourceConfigurationHandlerTest {
         List<Dictionary> values = captor.getAllValues();
         assertThat(values.size(), equalTo(1));
         Dictionary passedValues = values.get(0);
+        assertThat(passedValues.get("attId"), equalTo("attValue"));
         assertCswProperties(passedValues);
     }
 
@@ -470,10 +513,20 @@ public class SourceConfigurationHandlerTest {
         props.put("origConfig", "origConfigValue");
         props.put(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
-        Configuration newConfig = mock(Configuration.class);
-        when(newConfig.getFactoryPid()).thenReturn("Some_Other_Source_disabled");
+        props.put("bindingType", "Some_Other_Binding_Type");
+        Configuration newDisabledConfig = mock(Configuration.class);
+        when(newDisabledConfig.getFactoryPid()).thenReturn("Some_Other_Source_disabled");
         when(configAdmin.createFactoryConfiguration("Some_Other_Source_disabled", null)).thenReturn(
-                newConfig);
+                newDisabledConfig);
+        doReturn(props).when(newDisabledConfig)
+                .getProperties();
+
+        Configuration newActiveConfig = mock(Configuration.class);
+        when(configAdmin.createFactoryConfiguration("Csw_Federated_Source", null)).thenReturn(
+                newActiveConfig);
+        doReturn(new Hashtable<String, Object>()).when(newActiveConfig)
+                .getProperties();
+
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Some_Other_Source");
         List<String> priority = new ArrayList<>();
@@ -489,11 +542,14 @@ public class SourceConfigurationHandlerTest {
         setupSerialExecutor();
         sch.handleEvent(updateEvent);
         verify(config, times(1)).delete();
+        verify(configAdmin, times(1)).createFactoryConfiguration("Some_Other_Source_disabled",
+                null);
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source", null);
-        verify(config).update(captor.capture());
+        verify(newActiveConfig).update(captor.capture());
         List<Dictionary> values = captor.getAllValues();
         assertThat(values.size(), equalTo(1));
         Dictionary passedValues = values.get(0);
+        assertThat(passedValues.get("attId"), equalTo("attValue"));
         assertCswProperties(passedValues);
     }
 
@@ -507,6 +563,7 @@ public class SourceConfigurationHandlerTest {
         props.put("id", "TestRegNode");
         props.put(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
+        props.put("bindingType", "CSW_2.0.2");
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Csw_Federated_Source_disabled");
 
@@ -529,6 +586,7 @@ public class SourceConfigurationHandlerTest {
         props.put("id", "TestRegNode");
         props.put(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
+        props.put("bindingType", "CSW2_2.0.2");
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Csw_Federated_Source2");
 
@@ -558,12 +616,15 @@ public class SourceConfigurationHandlerTest {
 
         ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
 
-        when(configAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {config}, null);
+        when(configAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {config},
+                null);
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Csw_Federated_Source");
         Configuration newConfig = mock(Configuration.class);
+        doReturn(new Hashtable<String, Object>()).when(newConfig)
+                .getProperties();
         when(configAdmin.createFactoryConfiguration("Csw_Federated_Source_disabled",
                 null)).thenReturn(newConfig);
         setupSerialExecutor();
