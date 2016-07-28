@@ -1,0 +1,166 @@
+
+.Federation
+[ditaa, catalog_architecture_federation, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |c369        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+Federation provides the capability to extend the ${branding} enterprise to include <<_sources,Remote Sources>>, which may include other instances of ${branding}. 
+The Catalog handles all aspects of federated queries as they are sent to the Catalog Provider and Remote Sources, processed, and the query results are returned.
+Queries can be scoped to include only the local Catalog Provider (and any Connected Sources), only specific Federated Sources, or the
+entire enterprise (which includes all local and Remote Sources).
+If the query is supposed to be federated, the Catalog Framework passes the query to a Federation Strategy, which is responsible for querying each federated source that is specified.
+The Catalog Framework is also responsible for receiving the query results from each federated source and returning them to the client in the order specified by the particular federation strategy used.
+After the federation strategy handles the results, the Catalog returns them to the client through the Endpoint.
+Query results returned from a federated query are a list of metacards.
+The source ID in each metacard identifies the Source from which the metacard originated.
+
+The Catalog normalizes the incoming query into an OGC Filter format.
+When the query is disseminated by the Catalog Framework to the sources, each source is responsible for denormalizing the OGC Filter formatted query into the format understood by the external store that the source is acting as a proxy.
+This normalization/denormalization is what allows any endpoint to interface with any type of source.
+For example, a query received by the OpenSearch Endpoint can be executed against an OpenSearch Source.
+
+.Federation Data Flow
+[ditaa, federation-data-flow, png, ${image-width}]
+....
+           /------\
+           |Client|
+           |cDEF  |
+           \------/
+              ^
+              |
++-------------|------------------------------------------------------------\
+|DDF          |                                                       cCCC |
+|             v                                                            |
+|         /--------\   /-----------------\   /-------------------\         |
+|         |Endpoint|<->|Catalog Framework|<->|Federation Strategy|         |
+|         | cDEF   |   | cDEF            |   | cDEF              |         |
+|         \--------/   \-----------------/   \-------------------/         |
+|                                                     ^ ^                  |
+|                                                     | |                  |
+|                                          /----------/ \---------\        |
+|                                          |                      |        |
+| +----------------------------------------|----------------------|------+ |
+| |Enterprise Query                        v                      v      | |
+| |+--------------------------------------------+ +---------------------+| |
+| ||Local Query                                 | |Federated Query      || |
+| ||/------------------\ /---------------------\| |/-------------------\|| |
+| ||| Catalog Provider | | Connected Source(s) || ||Federated Source(s)||| |
+| |||  cDEF            | |  cDEF               || || cDEF              ||| |
+| ||\------------------/ \---------------------/| |\-------------------/|| |
+| |+-------^----------------------^-------------+ +----^----------^-----+| |
+| +--------|----------------------|--------------------|----------|------+ |
+\----------|----------------------|--------------------|----------|--------/
+           |                      |                    |          \-------------------\
+           |                      |                    |                              |
+           v                      v                    v                              v
+/=-------------------\ /----------------------\ /---------=------------\     /----------------------\
+|  Oracle Database   | |       Source A       | |       Source B       | ... |       Source X       |
+\--------------------/ \--------------------=-/ \----------------------/     \-------=--------------/
+....
+
+==== Federation Strategy
+
+A federation strategy federates a query to all of the Remote Sources in the query's list, processes the results in a unique way, then returns the results to the client. 
+For example, implementations can choose to block until all results return then perform a mass sort or return the results back to the client as soon as they are received back from a Federated Source.
+
+An endpoint can optionally specify the federation strategy to use when it invokes the query operation.
+Otherwise, the Catalog provides a default federation strategy that will be used.
+
+===== Catalog Federation Strategy [[catalogFederationStrategy]]
+
+The Catalog Federation Strategy is the default federation strategy and is based on sorting metacards by the sorting parameter specified in the federated query.
+
+The possible sorting values are:
+
+* metacard's effective date/time
+* temporal data in the query result
+* distance data in the query result
+* relevance of the query result
+
+The supported sorting orders are ascending and descending.
+
+The default sorting value/order automatically used is relevance descending.
+
+[WARNING]
+====
+The Catalog Federation Strategy expects the results returned from the Source to be sorted based on whatever sorting criteria were specified.
+If a metadata record in the query results contains null values for the sorting criteria elements, the Catalog Federation Strategy expects that result to come at the end of the result list.
+====
+
+===== Configuring Federation Strategy
+
+The Catalog Federation Strategy configuration can be found in the ${admin-console} under *Configuration -> Catalog Federation Strategy*.
+
+.Catalog Federation Strategy Configurable Properties
+[cols="1,1,4a,1,1" options="header"]
+|===
+
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|`maxStartIndex`
+|Integer
+|The maximum query offset number (any number from 1 to unlimited). Setting the number too high would allow offset queries that could result in an out of memory error because the ${branding} will cycle through all records in memory. Things to consider when setting this value are:
+
+* How much memory is allocated to the ${branding} Server
+* How many sites are being federated with.
+
+|50000
+|yes
+
+|`expirationIntervalInMinutes`
+|Long
+|Interval that Solr Cache checks for expired documents to remove.
+|10
+|yes
+
+|`expirationAgeInMinutes`
+|Long
+|The number of minutes a document will remain in the cache before it will expire. Default is 7 days.
+|10080
+|yes
+
+|`url`
+|String
+|HTTP URL of Solr Server
+|${secure_url}/solr
+|yes
+
+|`cachingEverything`
+|Boolean
+|Cache all results unless configured as native
+|false
+|yes
+
+|===
+
+[cols="2" options="header"]
+|===
+
+|Managed Service PID
+|`${ddf-branding}.catalog.federation.impl.CachingFederationStrategy`
+
+|Managed Service Factory PID
+|N/A
+|===
