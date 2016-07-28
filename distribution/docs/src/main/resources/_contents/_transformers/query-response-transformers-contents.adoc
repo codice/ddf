@@ -1,4 +1,5 @@
-.[[query_response_transformers]]Query Response Transformers
+
+=== Included Query Response Transformers
 <<_atom_query_response_transformer_,Atom Query Response Transformer>>:: The Atom Query Response Transformer transforms a query response into an http://tools.ietf.org/html/rfc4287[Atom 1.0] feed.
 <<_csw_query_response_transformer, Query Response Transformer>>:: description
 <<_geojson_query_response_transformer_,GeoJSON Query Response Transformer>>:: description

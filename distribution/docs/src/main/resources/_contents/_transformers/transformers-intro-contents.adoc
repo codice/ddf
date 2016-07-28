@@ -1,3 +1,4 @@
+
 .Transformers
 [ditaa, catalog_architecture_transformers, png, ${image-width}]
 ....
@@ -64,18 +65,12 @@ It is recommend not to use international character sets as they may not be displ
 \-------------------------------------------/
 ....
 
-==== Available Transformers
 
-Transformers are used to alter the format of a resource or its metadata to or from the catalog’s metacard format
+Transformers are used to alter the format of a resource or its metadata to or from the catalog’s metacard format.
 
-The `${ddf-branding}.catalog.transform` package includes the `InputTransformer`, `MetacardTransformer`, and `QueryResponseTransformer` interfaces.
-All implementations can be accessed using the Catalog Framework or OSGi Service Registry, as long as the implementations have been registered with the Service Registry.
-
-===== Types of Transformers
-
+.Types of Transformers
 <<input_transformers,Input Transformers>>:: Input Transformers create metacards from input. An input transformer transforms raw data (text/binary) into a Metacard. Once converted to a Metacard, the data can be used in a variety of ways, such as in an `UpdateRequest`, `CreateResponse`, or within Catalog Endpoints or Sources. For instance, an input transformer could be used to receive and translate XML into a Metacard so that it can be placed within a `CreateRequest` in order to be ingested within the Catalog. Input transformers should be registered within the Service Registry with the interface `${ddf-branding}.catalog.transform.InputTransformer` in order to notify some Catalog components of any new transformers.
 
 <<metacard_transformers,Metacard Transformers>>:: Metacard Transformers translate a metacard from catalog metadata to a specific data format.
 
 <<query_response_transformers,Query Response Transformers>>:: Query Response transformers convert query responses into other data formats.
-<<<

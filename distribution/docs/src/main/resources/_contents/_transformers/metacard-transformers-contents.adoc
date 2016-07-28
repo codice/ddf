@@ -1,4 +1,5 @@
-.[[metacard_transformers]]Metacard Transformers
+
+=== Included Metacard Transformers
 <<_geojson_metacard_transformer,GeoJSON Metacard Transformer>>:: The GeoJSON Metacard Transformer translates a Metacard into GeoJSON.
 <<_gmd_transformer,GmdTransformer>>:: _description_
 <<_html_metacard_transformer,HTML Metacard Transformer>>:: The HTML metacard transformer is responsible for translating a metacard into an HTML formatted document.

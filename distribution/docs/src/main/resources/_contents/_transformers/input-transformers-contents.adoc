@@ -1,4 +1,5 @@
-.[[input_transformers]]Input Transformers
+
+=== Included Input Transformers
 <<_geojson_input_transformer,GeoJSON Input Transformer>>:: The GeoJSON input transformer is responsible for translating specific GeoJSON into a Catalog metacard.
 
 <<_gmd_transformer,GmdTransformer>>:: _description_

@@ -81,6 +81,6 @@ ${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=geojso
 
 |===
 
-==== Known Issues with the GeoJSON Metacard Transformer
+===== Known Issues with the GeoJSON Metacard Transformer
 
 None.

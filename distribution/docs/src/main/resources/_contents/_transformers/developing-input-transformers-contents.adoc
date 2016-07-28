@@ -1,6 +1,6 @@
-==== Developing Input Transformers
+=== Developing Input Transformers
 
-===== Using Java
+==== Using Java
 
 . Create a new Java class that implements ${ddf-branding}.catalog.transform.InputTransformer. +
 `public class SampleInputTransformer implements ${ddf-branding}.catalog.transform.InputTransformer`
