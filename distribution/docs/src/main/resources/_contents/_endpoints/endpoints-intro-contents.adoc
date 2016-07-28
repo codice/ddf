@@ -1,4 +1,3 @@
-=== Endpoints
 
 .Endpoints
 [ditaa, catalog_architecture_endpoints, png, ${image-width}]
@@ -42,7 +41,4 @@ For example, an OpenSearch Endpoint can send a query to the Catalog Framework
 
 Endpoints are meant to be the only client-accessible components in the Catalog.
 
-==== Summary of Available Endpoints
-
 The following endpoints are available within ${branding}:
-

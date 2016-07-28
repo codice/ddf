@@ -1,4 +1,6 @@
-.[[default_endpoints]]Default Endpoints
+
+=== Included Endpoints
+
 <<_application_upload_endpoint,Application Upload Endpoint>>:: This endpoint uploads new/upgraded applications to the system. The Application endpoint is available at \https://<${secure_url}/services/application.
 
 <<_catalog_endpoint,Catalog Endpoint>>:: _implements_.

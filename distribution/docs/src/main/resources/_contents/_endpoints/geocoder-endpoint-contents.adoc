@@ -21,5 +21,4 @@ To install:
 ${secure_url}/path/to/endpoint
 ----
 
-====== Operations
 

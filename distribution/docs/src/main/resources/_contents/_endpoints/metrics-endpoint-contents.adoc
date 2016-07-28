@@ -31,11 +31,9 @@ All of the metrics that it collects data on are pre-configured in ${branding}.
 ${secure_url}/services/internal/metrics/catalogQueries.png?startDate=2013-03-31T06:00:00-07:00&endDate=2013-04-01T11:00:00-07:00
 ----
 
-====== Operations
-
-
 The table below lists all of the options for the Metrics endpoint URL to execute custom metrics data requests:
 
+.Metrics Endpoint URL Options
 [cols="1m,5,3" options="header"]
 |===
 

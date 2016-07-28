@@ -1,4 +1,5 @@
-==== Developing Endpoints
+
+=== Developing Endpoints
 
 Complete the following procedure to create an endpoint. 
 
