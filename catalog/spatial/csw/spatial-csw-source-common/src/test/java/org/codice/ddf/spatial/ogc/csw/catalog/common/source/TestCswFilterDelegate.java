@@ -57,7 +57,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
@@ -76,6 +75,13 @@ import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.TopicAttributes;
+
 import net.opengis.filter.v_1_1_0.AbstractIdType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
@@ -1403,7 +1409,7 @@ public class TestCswFilterDelegate {
 
         String contentType = "myContentType";
         CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration,
-                new GmdMetacardType());
+                getGmdMetacardType());
 
         // Perform Test
         /**
@@ -3400,4 +3406,11 @@ public class TestCswFilterDelegate {
         }
     }
 
+    private static MetacardType getGmdMetacardType() {
+        return new MetacardTypeImpl("gmdMetacardType", Arrays.asList(new ContactAttributes(),
+                new LocationAttributes(),
+                new MediaAttributes(),
+                new TopicAttributes(),
+                new AssociationsAttributes()));
+    }
 }

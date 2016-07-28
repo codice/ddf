@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.geotools.filter.FilterFactoryImpl;
@@ -139,7 +139,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
         if (CswConstants.BBOX_PROP.equals(propertyName)
                 || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName) ||
-                GmdMetacardType.APISO_BOUNDING_BOX.equals(propertyName)) {
+                GmdConstants.APISO_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
             NamespaceSupport namespaceSupport = expression.getNamespaceContext();

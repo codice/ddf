@@ -14,6 +14,20 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <bean id="metacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="gmdMetacardType" />
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.LocationAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
     <service interface="ddf.catalog.data.MetacardType" >
         <service-properties>
             <entry key="name" value="csw:Record" />
@@ -21,11 +35,10 @@
         <bean class="org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType" />
     </service>
 
-    <service interface="ddf.catalog.data.MetacardType" >
+    <service ref="metacardType" interface="ddf.catalog.data.MetacardType" >
         <service-properties>
             <entry key="name" value="gmd:MD_Metadata" />
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType" />
     </service>
 
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider"
@@ -74,7 +87,9 @@
             </entry>
             <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer"/>
+        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer">
+            <argument ref="metacardType" />
+        </bean>
     </service>
     <service interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
@@ -82,8 +97,14 @@
             <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer"/>
+        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer">
+            <argument ref="metacardType" />
+        </bean>
     </service>
+
+    <bean id="gmdInputTransformerTranformer" class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer" destroy-method="destroy">
+        <argument ref="metacardType" />
+    </bean>
 
     <bean id="getRecordsResponseConverter"
           class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
