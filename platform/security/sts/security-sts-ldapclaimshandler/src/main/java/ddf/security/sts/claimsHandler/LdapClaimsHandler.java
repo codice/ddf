@@ -121,7 +121,9 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                             filter.toString());
 
                     ConnectionEntryReader entryReader = connection.search(baseDN,
-                            SearchScope.WHOLE_SUBTREE, filter.toString(), searchAttributes);
+                            SearchScope.WHOLE_SUBTREE,
+                            filter.toString(),
+                            searchAttributes);
 
                     SearchResultEntry entry;
                     while (entryReader.hasNext()) {
@@ -167,9 +169,12 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
             }
         } catch (LdapException e) {
-            LOGGER.error("Cannot connect to server, therefore unable to set user attributes.", e);
+            LOGGER.warn(
+                    "Cannot connect to server, therefore unable to set user attributes. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information");
+            LOGGER.debug("Cannot connect to server, therefore unable to set user attributes.", e);
         } catch (SearchResultReferenceIOException e) {
-            LOGGER.error("Unable to set user attributes.", e);
+            LOGGER.warn("Unable to set user attributes. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information");
+            LOGGER.debug("Unable to set user attributes.", e);
         } finally {
             if (connection != null) {
                 connection.close();

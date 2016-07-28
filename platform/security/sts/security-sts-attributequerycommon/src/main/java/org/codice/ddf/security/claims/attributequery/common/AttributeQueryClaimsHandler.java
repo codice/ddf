@@ -52,7 +52,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeQueryClaimsHandler.class);
 
-    protected static final String ERROR_RETRIEVING_ATTRIBUTES = "Error retrieving attributes from external attribute store [{}] for DN [{}]. ";
+    protected static final String ERROR_RETRIEVING_ATTRIBUTES =
+            "Error retrieving attributes from external attribute store [{}] for DN [{}]. ";
 
     private Object signatureProperties;
 
@@ -128,7 +129,11 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                 }
             }
         } catch (URISyntaxException e) {
-            LOGGER.error(ERROR_RETRIEVING_ATTRIBUTES, externalAttributeStoreUrl, nameId, e);
+            LOGGER.warn(
+                    ERROR_RETRIEVING_ATTRIBUTES + "Set log level to DEBUG for more information.",
+                    externalAttributeStoreUrl,
+                    nameId);
+            LOGGER.debug(ERROR_RETRIEVING_ATTRIBUTES, externalAttributeStoreUrl, nameId, e);
         }
         return claimCollection;
     }
@@ -159,8 +164,10 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
         AttributeQueryClient attributeQueryClient;
         Assertion assertion;
         try {
-            attributeQueryClient = createAttributeQueryClient(simpleSign, externalAttributeStoreUrl,
-                    issuer, destination);
+            attributeQueryClient = createAttributeQueryClient(simpleSign,
+                    externalAttributeStoreUrl,
+                    issuer,
+                    destination);
             if (attributeQueryClient == null) {
                 return null;
             }
@@ -169,7 +176,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                 createClaims(claimCollection, assertion);
             }
         } catch (AttributeQueryException ex) {
-            LOGGER.error("Error occurred in AttributeQueryClient, did not retrieve response.", ex);
+            LOGGER.warn("Error occurred in AttributeQueryClient, did not retrieve response. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
+            LOGGER.debug("Error occurred in AttributeQueryClient, did not retrieve response.", ex);
         }
 
         return claimCollection;
@@ -200,8 +208,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                     String claimValue = attribute.getDOM()
                             .getTextContent();
                     if (attributeMap.containsKey(claimValue)) {
-                        claimsCollection.add(
-                                createSingleValuedClaim(claimType, attributeMap.get(claimValue)));
+                        claimsCollection.add(createSingleValuedClaim(claimType,
+                                attributeMap.get(claimValue)));
                     } else {
                         claimsCollection.add(createSingleValuedClaim(claimType, claimValue));
                     }
@@ -247,7 +255,10 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
         if (dispatcher == null) {
             return null;
         }
-        return new AttributeQueryClient(dispatcher, simpleSign, externalAttributeStoreUrl, issuer,
+        return new AttributeQueryClient(dispatcher,
+                simpleSign,
+                externalAttributeStoreUrl,
+                issuer,
                 destination);
     }
 
@@ -264,6 +275,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                 wsdlURL = uriResolver.isResolved() ? uriResolver.getURL() : new URL(wsdlLocation);
                 service = Service.create(wsdlURL, QName.valueOf(serviceName));
             } catch (Exception e) {
+                LOGGER.warn("Unable to create service from WSDL location. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
                 LOGGER.error("Unable to create service from WSDL location.", e);
             }
         }
@@ -276,7 +288,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     protected Dispatch<StreamSource> createDispatcher(Service service) {
         Dispatch<StreamSource> dispatch = null;
         if (service != null) {
-            dispatch = service.createDispatch(QName.valueOf(portName), StreamSource.class,
+            dispatch = service.createDispatch(QName.valueOf(portName),
+                    StreamSource.class,
                     Service.Mode.MESSAGE);
             dispatch.getRequestContext()
                     .put(Dispatch.ENDPOINT_ADDRESS_PROPERTY, externalAttributeStoreUrl);
@@ -333,10 +346,10 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     }
 
     public void setAttributeMapLocation(String attributeMapLocation) {
-        if (StringUtils.isNotBlank(attributeMapLocation) && !attributeMapLocation.equals(
-                this.attributeMapLocation)) {
-            attributeMap = PropertiesLoader.toMap(
-                    PropertiesLoader.loadProperties(attributeMapLocation));
+        if (StringUtils.isNotBlank(attributeMapLocation)
+                && !attributeMapLocation.equals(this.attributeMapLocation)) {
+            attributeMap = PropertiesLoader.toMap(PropertiesLoader.loadProperties(
+                    attributeMapLocation));
             this.attributeMapLocation = attributeMapLocation;
         }
     }
