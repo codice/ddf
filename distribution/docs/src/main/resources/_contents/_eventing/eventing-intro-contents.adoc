@@ -1,0 +1,322 @@
+
+.Eventing Architecture
+[ditaa, catalog_architecture_eventing, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |c369   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+The Eventing capability of the Catalog allows endpoints (and thus external users) to create a "standing query" and be notified when a matching metacard is created, updated, or deleted.
+
+Notably, the Catalog allows event evaluation on both the previous value (if available) and new value of a Metacard when an update occurs.
+
+To better understand why this would be useful, suppose that there has been increased pirating activity off the coast of Somalia. 
+Because of these events, a group of intelligence analysts is interested in determining the reason for the heightened activity and discovering its cause.
+To do this, analysts need to monitor interesting events occurring in that area. 
+Without ${branding} Eventing, the analysts would need to repeatedly query for any records of events or intelligence gathered in that area. 
+Analysts would have to monitor changes or anything of interest. 
+However, with ${branding} Eventing, the analysts can create a subscription indicating criteria for the types of intelligence of interest. 
+In this scenario, analysts could specify interest in metacards added, updated, or deleted that describe data obtained around the coast of Somalia. 
+Through this subscription, ${branding} will send event notifications back to the team of analysts containing metadata of interest. 
+Furthermore, they could filter the records not only spatially, but by any other criteria that would zero in on the most interesting records. 
+For example, a fishing company that has operated ships peacefully in the same region for a long time may not be interesting. 
+To exclude metadata about that company, analysts may add contextual criteria indicating to return only records containing the keyword "pirate." 
+With the subscription in place, analysts will only be notified of metadata related to the pirating activity, giving them better situational awareness.
+
+The key components of ${branding} Eventing include:
+
+* Subscription
+* Delivery Method
+* Event Processor
+
+After reading this section, you will be able to:
+
+* Create new subscriptions
+* Register subscriptions
+* Perform operations on event notification
+* Remove a subscription
+
+==== Subscription
+
+Subscriptions represent "standing queries" in the Catalog.
+Like a query, subscriptions are based on the OGC Filter specification.
+
+===== Subscription Lifecycle
+
+====== Creation
+
+* Subscriptions are created directly with the Event Processor or declaratively through use of the Whiteboard Design Pattern.
+* The Event Processor will invoke each Pre-Subscription Plugin and, if the subscription is not rejected, the subscription will be activated.
+
+====== Evaluation
+
+* When a metacard matching the subscription is created, updated, or deleted in any Source, each Pre-Delivery Plugin will be invoked.
+
+* If the delivery is not rejected, the associated Delivery Method callback will be invoked.
+
+====== Update Evaluation
+
+Notably, the Catalog allows event evaluation on both the previous value (if available) and new value of a Metacard when an update occurs.
+
+====== Durability
+
+Subscription durability is not provided by the Event Processor.
+Thus, all subscriptions are transient and will not be recreated in the event of a system restart.
+It is the responsibility of Endpoints using subscriptions to persist and re-establish the subscription on startup.
+This decision was made for the sake of simplicity, flexibility, and the inability of the Event Processor to recreate a fully-configured Delivery Method without being overly restrictive.
+
+[IMPORTANT]
+====
+*Subscriptions are not persisted by the Catalog itself.* +
+Subscriptions must be explicitly persisted by an endpoint and are not persisted by the Catalog.
+The Catalog Framework, or more specifically the Event Processor itself, does not persist subscriptions.
+Certain endpoints, however, can persist the subscriptions on their own and recreate them on system startup.
+====
+
+==== Creating a Subscription
+
+Currently, the Catalog reference implementation does not contain a subscription endpoint.
+Nevertheless, an endpoint that exposes a web service interface to create, update, and delete subscriptions would provide a client's subscription's filtering criteria to be used by Catalog's Event Processor to determine which create, update, and delete events are of interest to the client.
+The endpoint client also provides the callback URL of the event consumer to be called when an event matching the subscription's criteria is found.
+This callback to the event consumer is made by a Delivery Method implementation that the client provides when the subscription is created. 
+Whenever an event occurs in the Catalog matching the subscription, the Delivery Method implementation will be called by the Event Processor. 
+The Delivery Method will, in turn, send the event notification out to the event consumer. 
+As part of the subscription creation process, the Catalog verifies that the event consumer at the specified callback URL is available to receive callbacks.
+Therefore, the client must ensure the event consumer is running prior to creating the subscription.
+The Catalog completes the subscription creation by executing any pre-subscription Catalog Plugins, and then registering the subscription with the OSGi Service Registry.
+The Catalog does not persist subscriptions by default.
+
+===== Delivery Method
+
+A Delivery Method provides the operation (created, updated, deleted) for how an event's metacard can be delivered.
+
+A Delivery Method is associated with a subscription and contains the callback URL of the event consumer to be notified of events.
+The Delivery Method encapsulates the operations to be invoked by the Event Processor when an event matches the criteria for the subscription.
+The Delivery Method's operations are responsible for invoking the corresponding operations on the event consumer associated with the callback URL.
+
+==== Event Processor
+
+The Event Processor provides an engine that creates, updates, and deletes subscriptions for event notification.
+These subscriptions optionally specify a filter criteria so that only events of interest to the subscriber are posted for notification.
+
+An internal subscription tracker monitors the OSGi registry, looking for subscriptions to be added (or deleted).
+When it detects a subscription being added, it informs the Event Processor, which sets up the subscription's filtering and is responsible for posting event notifications to the subscriber when events satisfying their criteria are met.
+
+===== Event Processing and Notification
+
+As metacards are created, updated, and deleted, the Catalog's Event Processor is invoked (as a post-ingest plugin) for each of these events.
+TheEvent Processor applies the filter criteria for each registered subscription to each of these ingest events to determine if they match the criteria.
+If an event matches a subscription's criteria, any pre-delivery plugins that are installed are invoked, the subscription's Delivery Method is retrieved, and its operation corresponding to the type of ingest event is invoked. 
+For example, the DeliveryMethod's `created()` function is called when a metacard is created.
+The Delivery Method's operations subsequently invoke the corresponding operation in the client's event consumer service, which is specified by the callback URL provided when the Delivery Method was created.
+
+====== Using ${branding} Implementation
+
+If applicable, the implementation of `Subscription` that comes with ${branding} should be used.
+It is available at `${ddf-branding}.catalog.event.impl.SubscriptionImpl` and offers a constructor that takes in all of the necessary objects.
+Specifically, all that is needed is a `Filter`, `DeliveryMethod`, `Set<String>` of source IDs, and a `boolean` for enterprise.
+
+The following is an example code stub showing how to create a new instance of Subscription using the ${branding} implementation. 
+
+[source,java,linenums]
+----
+// Create a new filter using an imported FilterBuilder
+Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text("*");
+ 
+// Create a implementation of Delivery Method
+DeliveryMethod deliveryMethod = new MyCustomDeliveryMethod();
+ 
+// Create a set of source ids
+// This set is empty as the subscription is not specific to any sources
+Set<String> sourceIds = new HashSet<String>();
+ 
+// Set the isEnterprise boolean value
+// This subscription example should notifications from all sources (not just local)
+boolean isEnterprise = true;
+
+Subscription subscription = new SubscriptionImpl(filter, deliveryMethod, sourceIds,isEnterprise);
+----
+
+====== Creating a Custom Implementation
+
+To create a subscription in ${branding} the developer needs to implement the `${ddf-branding}.catalog.event.Subscription` interface. 
+This interface extends `org.opengis.filter.Filter` in order to represent the subscription's filter criteria. 
+Furthermore, the `Subscription` interface contains a `DeliveryMethod` implementation.  
+
+When implementing `Subscription`, the developer will need to override the methods `accept` and `evaluate` from the `Filter`. 
+The `accept` method allows the visitor pattern to be applied to the `Subscription`. 
+A `FilterVisitor` can be passed into this method in order to process the `Subscription's Filter`.
+In ${branding}, this method is used to convert the `Subscription's Filter` into a predicate format that is understood by the Event Processor. 
+The second method inherited from `Filter` is `evaluate`. 
+This method is used to evaluate an object against the `Filter`'s criteria in order to determine if it matches the criteria. 
+
+[TIP]
+====
+The functionality of these overridden methods is typically delegated to the `Filter` implementation that the `Subscription` is using.
+====
+
+The developer must also define `getDeliveryMethod`. 
+This class is called when the an event occurs that matches the filter of the subscription.
+
+The other two methods required because `Subscription` implements `Federatable` are `isEnterprise` and `getSourceIds`, which indicate that the subscription should watch for events occurring on all sources in the enterprise or on specified sources. 
+
+The following is an implementation stub of `Subscription` that comes with ${branding} and is available at `${ddf-branding}.catalog.event.impl.SubscriptionImpl`.
+
+.SubscriptionImpl
+[source,java,linenums]
+----
+public class SubscriptionImpl implements Subscription {
+    private Filter filter;
+
+    private DeliveryMethod dm;
+
+    private Set<String> sourceIds;
+
+    private boolean enterprise;
+
+    public SubscriptionImpl(Filter filter, DeliveryMethod dm, Set<String> sourceIds,
+            boolean enterprise) {
+        this.filter = filter;
+        this.dm = dm;
+        this.sourceIds = sourceIds;
+        this.enterprise = enterprise;
+    }
+
+    @Override
+    public boolean evaluate(Object object) {
+        return filter.evaluate(object);
+    }
+
+    @Override
+    public Object accept(FilterVisitor visitor, Object extraData) {
+        return filter.accept(visitor, extraData);
+    }
+
+    @Override
+    public Set<String> getSourceIds() {
+        return sourceIds;
+    }
+
+    @Override
+    public boolean isEnterprise() {
+        return enterprise;
+    }
+
+    @Override
+    public DeliveryMethod getDeliveryMethod() {
+        return dm;
+    }
+}
+----
+
+==== Registering a Subscription
+
+Once a `Subscription` is created, it needs to be registered in the OSGi Service Registry as a `${ddf-branding}.catalog.event.Subscription` service. 
+This is necessary for the `Subscription` to be discovered by the Event Processor. 
+Typically, this is done in code after the `Subscription` is instantiated. 
+When the `Subscription` is registered, a unique ID will need to be specified using the key `subscription-id`.
+This will be used to delete the `Subscription` from the OSGi Service Registry. 
+Furthermore, the `ServiceRegistration`, which is the return value from registering a `Subscription`, should be monitored in order to remove the `Subscription` later.
+The following code shows how to correctly register a `Subscription` implementation in the registry using the above `SubscriptionImpl` for clarity:
+
+.Registering a Subscription
+[source,java,linenums]
+----
+// Map to keep track of registered Subscriptions.  Used for unregistering Subscriptions.
+Map<String, ServiceRegistration<Subscription>> subscriptions = new HashMap<String, ServiceRegistration<Subscription>>();
+
+// New subscription using the ${branding} Implementation of subscription
+Subscription subscription = new SubscriptionImpl(filter, deliveryMethod, sourceIds,isEnterprise);
+
+// Specify the subscription-id to uniquely identify the Subscription
+String subscriptionId = "0123456789abcdef0123456789abcdef";
+Dictionary<String, String> properties = new Hashtable<String, String>();
+properties.put("subscription-id", subscriptionId);
+
+// Service registration requires an instance of the OSGi bundle context
+// Register subscription and keep track of the service registration
+ServiceRegistration<Subscription> serviceRegistration = context.registerService(${ddf-branding}.catalog.event.Subscription.class, subscription, properties );
+subscriptions.put(subscriptionId, serviceRegistration);
+----
+
+==== Creating a Delivery Method
+
+The Event Processor obtains the subscription's `DeliveryMethod` and invokes one of its four methods when an event occurs. 
+The `DeliveryMethod` then handles that invocation and communicates an event to a specified consumer service outside of ${branding}.
+
+The Event Processor calls the `DeliveryMethod`'s`created` method when a new metacard matching the filter criteria is added to the Catalog. 
+It calls the `deleted` method when a metacard that matched the filter criteria is removed from the Catalog. 
+`updatedHit` is called when a metacard is updated and the new metacard matches the subscription. 
+`updatedMiss` is different in that it is only called if the old metacard matched the filter but the new metacard no longer does. 
+An example of this would be if the filter contains spatial criteria consisting of Arizona. 
+If a plane is flying over Arizona, the Event Processor will repeatedly call `updatedHit` as the plane flies from one side to the other while updating its position in the Catalog.
+This happens because the updated records continually match the specified criteria. 
+If the plane crosses into New Mexico, the previous metacard will have matched the filter, but the new metacard will not. 
+Thus, `updatedMiss` gets called.  
+
+The following is an implementation stub for `DeliveryMethod`:
+
+.DeliveryMethodImpl
+[source,java,linenums]
+----
+public class DeliveryMethodImpl implements DeliveryMethod {
+
+    @Override
+    public void created(Metacard newMetacard) {
+        // Perform custom code on create
+    }
+
+    @Override
+    public void updatedHit(Metacard newMetacard, Metacard oldMetacard) {
+		// Perform custom code on update (where both new and old metacards matched filter)
+    }
+
+    @Override
+    public void updatedMiss(Metacard newMetacard, Metacard oldMetacard) {
+		// Perform custom code on update (where one of the two metacards did not match the filter)
+    }
+
+    @Override
+    public void deleted(Metacard oldMetacard) {
+     // Perform custom code on delete
+    }
+}
+----
+
+==== Deleting a Subscription
+
+To remove a subscription from ${branding}, the subscription ID is required.
+Once this is provided, the `ServiceRegistration` for the indicated `Subscription` should be obtained from the `Subscriptions` Map.
+Then the `Subscription` can be removed by unregistering the service.
+The following code demonstrates how this is done:
+
+.Delete Subscription
+[source,java,linenums]
+----
+String subscriptionId = "0123456789abcdef0123456789abcdef";
+
+//Obtain service registration from subscriptions Map based on subscription ID
+ServiceRegistration<Subscription> sr = subscriptions.get(subscriptionId);
+
+//Unregister Subscription from OSGi Service Registry
+sr.unregister();
+
+//Remove Subscription from Map keeping track of registered Subscriptions.
+subscriptions.remove(subscriptionId);
+----
