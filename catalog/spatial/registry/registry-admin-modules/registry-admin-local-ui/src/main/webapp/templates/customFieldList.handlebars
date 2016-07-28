@@ -15,17 +15,19 @@
 <div class="customizable-fields">
     <div class="customizable-header">
         <label class="nested-label2">Custom Fields</label>
-        <input type="text" class="field-name" name="customName"
-               placeholder="Field Name">
-        <select class="field-type-selector">
-            <option value="string">string</option>
-            <option value="boolean">boolean</option>
-            <option value="number">number</option>
-            <option value="date">date</option>
-            <option value="point">point</option>
-            <option value="bounds">bounds</option>
-        </select>
-        <a href="#" class="add-custom-field fa fa-plus-square fa-lg plus-button"></a>
+        {{#unless readOnly}}
+            <input type="text" class="field-name" name="customName"
+                   placeholder="Field Name">
+            <select class="field-type-selector">
+                <option value="string">string</option>
+                <option value="boolean">boolean</option>
+                <option value="number">number</option>
+                <option value="date">date</option>
+                <option value="point">point</option>
+                <option value="bounds">bounds</option>
+            </select>
+            <a href="#" class="add-custom-field fa fa-plus-square fa-lg plus-button"></a>
+        {{/unless}}
     </div>
     {{#if customFieldError}}
         <div>

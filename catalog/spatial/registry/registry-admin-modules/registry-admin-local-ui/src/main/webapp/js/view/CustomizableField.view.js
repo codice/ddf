@@ -37,7 +37,8 @@ define([
             events: {
                 "click .add-custom-field": 'addField'
             },
-            initialize: function () {
+            initialize: function (options) {
+                this.readOnly = options.readOnly;
                 this.listenTo(wreqr.vent, 'removeField:' + this.model.get('segmentId'), this.removeField);
             },
             onRender: function () {
@@ -47,7 +48,8 @@ define([
                     });
                 this.customFieldsRegion.show(new Field.FieldCollectionView({
                     collection: new Backbone.Collection(customFields),
-                    parentId: this.model.get("segmentId")
+                    parentId: this.model.get("segmentId"),
+                    readOnly: this.readOnly
                 }));
             },
             addField: function (event) {
@@ -88,6 +90,7 @@ define([
                     data = this.model.toJSON();
                 }
                 data.customFieldError = this.customFieldError;
+                data.readOnly = this.readOnly;
                 return data;
             }
         });
