@@ -35,10 +35,4 @@
 
 ....
 
-=== Catalog Framework
 
-The `CatalogFramework` is the routing mechanism between catalog components that provides integration points for the Catalog Plugins.
-An <<_endpoints, endpoint>> invokes the active Catalog Framework, which calls any configured <<_pre-query_plugins, Pre-query>> or <<_pre-ingest_plugins, Pre-ingest plug-ins>>.
-The selected <<_federation_strategies, federation strategy>> calls the active <<_catalog_providers, Catalog Provider>> and any connected or federated sources.
-Then, any Post-query or Post-ingest plug-ins are invoked.
-Finally, the appropriate response is returned to the calling endpoint.

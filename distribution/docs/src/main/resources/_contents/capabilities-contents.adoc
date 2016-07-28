@@ -4,7 +4,7 @@ include::./catalog-architecture-contents.adoc[]
 
 //Catalog Frameworks
 
-=== Catalog Framework
+== The Catalog Framework
 include::./_catalog-frameworks/catalog-framework-intro-contents.adoc[]
 
 include::./_catalog-frameworks/catalog-frameworks-contents.adoc[]
@@ -19,7 +19,7 @@ include::./_catalog-frameworks/catalog-framework-camel-component-contents.adoc[]
 
 include::./_catalog-frameworks/developing-catalog-frameworks-contents.adoc[]
 
-// Endpoints
+== Endpoints
 include::./_endpoints/endpoints-intro-contents.adoc[]
 
 // summary list of endpoints
@@ -60,7 +60,7 @@ include::./_endpoints/who-am-i-endpoint-contents.adoc[]
 
 include::./_endpoints/developing-endpoints-contents.adoc[]
 
-=== Transformers and Supported Formats
+== Transformers and Supported Formats
 
 include::./_transformers/transformers-intro-contents.adoc[]
 
@@ -127,10 +127,14 @@ include::./_transformers/xslt-response-queue-transformer-contents.adoc[]
 include::./_transformers/zip-compression-contents.adoc[]
 
 include::./_transformers/developing-query-response-transformers-contents.adoc[]
-
+////
 include::./file-types-supported-contents.adoc[]
+////
+== Federation
 
-=== Sources
+include::./_federation/federation-intro-contents.adoc[]
+
+== Sources
 
 include::./_sources/sources-intro-contents.adoc[]
 
@@ -167,7 +171,7 @@ include::./_sources/registry-store-contents.adoc[]
 //Developing Sources
 include::./_sources/developing-sources-contents.adoc[]
 
-=== Plugins
+== Plugins
 
 include::./_plugins/plugins-intro-contents.adoc[]
 //pre-ingest
@@ -280,19 +284,27 @@ include::./_plugins/security-plugin-contents.adoc[]
 //developing
 include::./_plugins/developing-plugins-contents.adoc[]
 
-=== Operations
+== Operations
 
-include::./_plugins/operations-intro-contents.adoc[]
+include::./_operations/operations-intro-contents.adoc[]
 
-=== Data and Metadata
+== Data and Metadata
 
-include::./_data/data-intro-contents.adocp[]
+include::./_data/data-intro-contents.adoc[]
 
+== Eventing
 
+include::./_eventing/eventing-intro-contents.adoc[]
+
+/////////////////////////////////
+== Resources
+
+include::./_resources/resources-intro-contents.adoc[]
 
 //////
-=== Security
-=== Metrics
+== Security
+//////
+== Metrics
 
 include::./_metrics/metrics-intro-contents.adoc[]
 
@@ -303,7 +315,6 @@ include::./_metrics/metrics-reporting-contents.adoc[]
 include::./_metrics/catalog-metrics-contents.adoc[]
 
 include::./_metrics/source-metrics-contents.adoc[]
-
 
 
 
