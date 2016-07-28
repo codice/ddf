@@ -32,6 +32,7 @@ define([
 
     return Marionette.CollectionView.extend({
         tagName: CustomElements.register('workspace-item-collection'),
+        className: 'is-list has-list-highlighting',
         childView: WorkspaceItemView,
         filter: function (workspace) {
             var localStorage = workspace.get('localStorage') || false;
@@ -62,6 +63,12 @@ define([
             this.listenTo(getPrefs(), 'change:homeFilter', this.render);
             this.listenTo(getPrefs(), 'change:homeSort', this.render);
         },
+        onRender: function(){
+            this.handleGridDisplay();
+        },
+        handleGridDisplay: function(){
+            this.$el.toggleClass('is-inline', getPrefs().get('homeDisplay') === 'Grid');
+        },
         onBeforeAddChild: function(childView){
             switch(getPrefs().get('homeDisplay')){
                 case 'List':
@@ -83,6 +90,7 @@ define([
             });
         },
         switchDisplay: function(model, displayType){
+            this.handleGridDisplay();
             switch(displayType){
                 case 'List':
                     this.activateListDisplay();

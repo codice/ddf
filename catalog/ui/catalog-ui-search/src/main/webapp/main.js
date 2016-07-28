@@ -21,7 +21,7 @@ require([
     'application',
     'properties',
     'handlebars/dist/handlebars',
-    './component/announcement',
+    'component/announcement',
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
     'cesium.css'

@@ -1,10 +1,11 @@
 @{customElementNamespace}navigation {
   .customElement;
-  background: @background-color;
+  background: @navigation-background-color;
   vertical-align: top;
-  color: white;
+  color: @text-color;
   height: 60px;
   overflow: hidden;
+  .vertical-borders(1px, @heavily-lighten-inherited-background-color);
 
   > .navigation-left,
   > .navigation-middle,

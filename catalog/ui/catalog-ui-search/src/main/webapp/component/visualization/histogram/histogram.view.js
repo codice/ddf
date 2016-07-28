@@ -192,7 +192,11 @@ define([
                     type: 'histogram',
                     name: 'Hits        ',
                     marker: {
-                        color: 'rgb(128, 128, 128)'
+                        color: 'rgba(255, 255, 255, .05)',
+                        line: {
+                            color: 'rgba(255,255,255,.2)',
+                            width: '2'
+                        }
                     }
                 }, {
                     x: calculateAttributeArray(selectedResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
@@ -200,7 +204,7 @@ define([
                     type: 'histogram',
                     name: 'Selected',
                     marker: {
-                        color: 'rgb(66, 133, 244)'
+                        color: 'rgba(255, 255, 255, .2)'
                     }
                 }
             ]

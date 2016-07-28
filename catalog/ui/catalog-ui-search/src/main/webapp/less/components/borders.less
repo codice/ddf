@@ -1,0 +1,16 @@
+.vertical-borders(@shadowStrength, @border-color) {
+  box-shadow: inset 0px @shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%),
+  inset 0px -@shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%);
+}
+
+.horizontal-borders(@shadowStrength, @border-color) {
+  box-shadow: inset @shadowStrength 0px @shadowStrength -@shadowStrength lighten(@border-color, 20%),
+    inset -@shadowStrength 0px @shadowStrength -@shadowStrength lighten(@border-color, 20%);
+}
+
+.both-borders(@shadowStrength, @border-color) {
+  box-shadow: inset 0px @shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%),
+  inset 0px -@shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%),
+  inset @shadowStrength 0px @shadowStrength -@shadowStrength lighten(@border-color, 20%),
+    inset -@shadowStrength 0px @shadowStrength -@shadowStrength lighten(@border-color, 20%);
+}

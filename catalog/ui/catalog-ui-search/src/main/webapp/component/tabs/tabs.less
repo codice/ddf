@@ -1,6 +1,5 @@
 @{customElementNamespace}tabs {
   @tabHeight: 44px;
-  @tabColor: lighten(@primary-color, 20%);
 
   .customElement;
   .tabs-list {
@@ -37,11 +36,6 @@
           color: @text-color;
           width: 100%;
           padding: 10px;
-
-          &:hover {
-            background: @background-color;
-            color: @tabColor;
-          }
         }
         > div.is-merged.is-active {
           display: none;
@@ -55,7 +49,7 @@
 
     .tabs-collapsed {
       display: none;
-      background: @background-color;
+      background: @dropdown-background-color;
       > div {
         display: none;
       }
@@ -76,9 +70,10 @@
       padding: 10px;
 
       &.has-activeTab {
-        color: @tabColor;
-        border-bottom: 1px solid @tabColor;
 
+        opacity: 1;
+        font-weight: bold;
+        border-bottom: 1px solid @text-color;
         .hint {
           display: none;
         }
@@ -93,24 +88,20 @@
       }
     }
 
-    .tabs-tab + .tabs-tab,
-    .tabs-tab + .tabs-dropdown{
-      //border-left: 1px solid @border-color;
-    }
-
     .tabs-tab {
       padding: 10px 10px;
       display: inline-block;
       height: 100%;
 
       &.is-active {
-        color: @tabColor;
-        border-bottom: 1px solid @tabColor;
+        opacity: 1;
+        font-weight: bold;
+        border-bottom: 1px solid @text-color;
       }
 
       &:hover {
-        background: none;
-        color: @tabColor;
+        opacity: 1;
+        border-bottom: 1px solid @text-color;
       }
 
       &.is-merged {
@@ -137,7 +128,7 @@
           top: 0px;
           width: 100%;
           text-align: center;
-          background: @within-background-color;
+          background: @background-color;
           color: white;
           z-index: @zIndexContent;
         }

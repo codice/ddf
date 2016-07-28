@@ -48,7 +48,7 @@ define([
         },
         onBeforeShow: function(){
             this.queryCollection.show(new QueryItemCollectionView());
-            this.queryCollection.currentView.$el.addClass('is-list');
+            this.queryCollection.currentView.$el.addClass('is-list').addClass('has-list-highlighting');
         },
         initialize: function(options){
             if (options.model === undefined){

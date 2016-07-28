@@ -38,21 +38,22 @@ button.is-primary {
 }
 
 button.is-negative {
-  color: @text-color;
+  color: @button-text-color;
   .button-mixin(@negative-color);
 }
 
 button.is-positive {
-  color: @text-color;
+  color: @button-text-color;
   .button-mixin(@positive-color);
 }
 
 button.is-neutral {
-  .button-mixin(@neutral-color);
+  color: @text-color;
+  .button-mixin(@lighten-inherited-background-color);
 }
 
 button.is-primary {
-  color: @text-color;
+  color: @button-text-color;
   .button-mixin(@primary-color);
 }
 

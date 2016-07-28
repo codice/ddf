@@ -33,7 +33,7 @@ define([
                 return childView;
             }
         },
-        className: 'is-list',
+        className: 'is-list has-list-highlighting',
         selectionInterface: store,
         initialize: function(options){
             this.selectionInterface = options.selectionInterface || store;

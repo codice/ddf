@@ -1,11 +1,23 @@
 .is-list {
-  @shadowStrength: 1px;
   > * {
-    box-shadow: inset 0px @shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%),
-    inset 0px -@shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%);
+    .vertical-borders(2px, @medium-lighten-inherited-background-color);
   }
+}
 
-  > *:nth-child(even):not(.is-selected){
-    background: rgba(100,100,100,.2);
+.is-list.has-list-highlighting {
+  > *:hover {
+    .vertical-borders(2px, @completely-lighten-inherited-background-color);
+  }
+}
+
+.is-list.is-inline {
+  > * {
+    .horizontal-borders(1px, @medium-lighten-inherited-background-color);
+  }
+}
+
+.is-list.is-inline.has-list-highlighting {
+  > *:hover {
+    .horizontal-borders(1px, @completely-lighten-inherited-background-color);
   }
 }

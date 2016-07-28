@@ -24,7 +24,7 @@
   }
 
   .content-panelOne {
-    background: @niceBlack;
+    background: @background-color;
     width: @panelOneWidth;
     position: relative;
     transition: width @coreTransitionTime ease-in-out;
@@ -33,13 +33,14 @@
   .content-panel.content-panelTwo {
     width: @panelTwoWidth;
     position: relative;
-    background: @niceBlack;
+    background: @dropdown-background-color;
     transition: width @coreTransitionTime ease-in-out;
   }
 
   .content-panelThree {
     width: ~'calc(100% - @{panelOneWidth} - @{panelTwoWidth})';
     transition: width @coreTransitionTime ease-in-out;
+    background: @card-background-color;
   }
 
   .content-panel {
