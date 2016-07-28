@@ -23,6 +23,13 @@
     <artifactId>catalog-ui-app</artifactId>
     <name>DDF :: Catalog :: UI :: Catalog UI App</name>
     <packaging>pom</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.ui</groupId>
+            <artifactId>catalog-ui-search</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -89,11 +96,4 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-search</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 </project>
