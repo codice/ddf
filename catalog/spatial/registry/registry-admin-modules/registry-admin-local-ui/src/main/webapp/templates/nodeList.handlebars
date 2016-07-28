@@ -16,9 +16,12 @@
     <th class="name">Name</th>
     <th class="created">Created On</th>
     <th class="modified">Last Modified</th>
+    <th/>
     <th>
         {{#if multiValued}}
-            <a href="#" class="button-icon add-node-link fa fa-plus"></a>
+            {{#unless readOnly}}
+                <a href="#" class="button-icon add-node-link fa fa-plus"></a>
+            {{/unless}}
             <a href="#" class="button-icon refresh-button fa fa-refresh"></a>
         {{/if}}
     </th>

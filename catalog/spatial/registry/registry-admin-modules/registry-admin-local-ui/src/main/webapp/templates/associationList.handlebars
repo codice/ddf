@@ -18,14 +18,16 @@
            data-content="Associations link different parts of the registry together. This is usually done to associate a particular organization or contact with a certain service, collection, or endpoint but is not limited to just those.">
             <i class='fa fa-question-circle fa-lg'></i>
         </a>
-        <select class="association-selector" {{#lt availableAssociation.length 1}}disabled{{/lt}}>
-            {{#each availableAssociation}}
-                <option name="{{this.segmentId}}"
-                        value="{{this.segmentName}}">{{this.segmentName}}</option>
-            {{/each}}
-        </select>
-        <a href="#"
-           class="add-association fa fa-plus-square fa-lg plus-button {{#lt availableAssociation.length 1}}disabled-link{{/lt}}"></a>
+        {{#unless readOnly}}
+            <select class="association-selector" {{#lt availableAssociation.length 1}}disabled{{/lt}}>
+                {{#each availableAssociation}}
+                    <option name="{{this.segmentId}}"
+                            value="{{this.segmentName}}">{{this.segmentName}}</option>
+                {{/each}}
+            </select>
+            <a href="#"
+               class="add-association fa fa-plus-square fa-lg plus-button {{#lt availableAssociation.length 1}}disabled-link{{/lt}}"></a>
+        {{/unless}}
     </div>
     <label>The following entities are associated with this entity:</label>
     <table class='association-table table align-middle'>

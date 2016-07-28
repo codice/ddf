@@ -42,7 +42,8 @@ define([
                 "change:error": "showHideError",
                 "change": "fieldChanged"
             },
-            initialize: function () {
+            initialize: function (options) {
+                this.readOnly = options.readOnly;
                 this.modelBinder = new Backbone.ModelBinder();
                 if(this.model.get('inlineGroup')){
                     this.$el.css('display','inline-block');
@@ -81,6 +82,9 @@ define([
                     data = this.model.toJSON();
                     data.validationError = this.model.get('error');
                     data.errorIndices = this.model.errorIndices;
+                    if (this.readOnly) {
+                        data.editable = false;
+                    }
                 }
                 return data;
             },
@@ -93,6 +97,7 @@ define([
             itemView: Field.FieldView,
             tagName: 'tr',
             initialize: function (options) {
+                this.readOnly = options.readOnly;
                 this.listenTo(wreqr.vent, 'addedField:' + options.parentId, this.addedField);
                 this.listenTo(wreqr.vent, 'removedField:' + options.parentId, this.removedField);
 
@@ -100,7 +105,8 @@ define([
             buildItemView: function (item, ItemViewType, itemViewOptions) {
                 var options = _.extend({
                     model: item,
-                    parentId: this.options.parentId
+                    parentId: this.options.parentId,
+                    readOnly: this.readOnly
                 }, itemViewOptions);
                 return new ItemViewType(options);
             },

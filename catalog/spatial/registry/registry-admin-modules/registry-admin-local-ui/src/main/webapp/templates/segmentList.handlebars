@@ -5,6 +5,7 @@
             <td>
                 <label class="nested-label{{nestedLevel}}">{{segmentName}}</label>
             </td>
+            {{#unless readOnly}}
             {{#if multiValued}}
                 <td>
                     {{#if autoValues}}
@@ -15,9 +16,10 @@
                             {{/each}}
                         </select>
                     {{/if}}
-                    <a href="#" class="button-icon add-segment fa fa-lg fa-plus-square" aria-hidden="true"></a>
+                        <a href="#" class="button-icon add-segment fa fa-lg fa-plus-square" aria-hidden="true"></a>
                 </td>
             {{/if}}
+            {{/unless}}
         </tr>
     </table>
 </div>

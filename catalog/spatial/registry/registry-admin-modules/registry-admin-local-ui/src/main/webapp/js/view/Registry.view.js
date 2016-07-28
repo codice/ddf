@@ -47,6 +47,7 @@ define([
             },
             initialize: function () {
                 this.listenTo(wreqr.vent, 'editNode', this.showEditNode);
+                this.listenTo(wreqr.vent, 'readOnlyNode', this.showReadOnlyNode);
                 this.listenTo(wreqr.vent, "deleteNodes", this.deleteNodes);
                 this.listenTo(wreqr.vent, "nodeUpdated", this.onRender);
                 this.listenTo(wreqr.vent, "nodeAdded", this.addDeleteNode);
@@ -59,11 +60,13 @@ define([
             regions: {
                 identityRegion: '#localIdentityNodeRegion',
                 additionalRegion: '#localAdditionalNodeRegion',
+                remoteNodeRegion: '#remoteNodeRegion',
                 modalRegion: '#registry-modal'
             },
             onRender: function() {
                 this.identityRegion.show(new RegistryView.NodeTable({collection: new Backbone.Collection(this.model.getIdentityNode())}));
                 this.additionalRegion.show(new RegistryView.NodeTable({collection: new Backbone.Collection(this.model.getSecondaryNodes()), multiValued: true}));
+                this.remoteNodeRegion.show(new RegistryView.NodeTable({collection: new Backbone.Collection(this.model.getRemoteNodes()), multiValued:true, readOnly:true}));
             },
             showEditNode: function(node) {
                 wreqr.vent.trigger("showModal",
@@ -79,6 +82,17 @@ define([
                         new NodeModal.View({
                             model: new Node.Model(),
                             mode: 'add'
+                        })
+                    );
+                }
+            },
+            showReadOnlyNode: function(node) {
+                if(this.model) {
+                    wreqr.vent.trigger("showModal",
+                        new NodeModal.View({
+                            model: node,
+                            mode: 'readOnly',
+                            readOnly: true
                         })
                     );
                 }
@@ -144,7 +158,11 @@ define([
             editNode: function(evt) {
                 evt.stopPropagation();
                 var node = this.model;
-                wreqr.vent.trigger('editNode', node);
+                if (this.options.readOnly) {
+                    wreqr.vent.trigger('readOnlyNode', node);
+                } else {
+                    wreqr.vent.trigger('editNode', node);
+                }
             },
             removeNode: function(evt) {
                 evt.stopPropagation();
@@ -177,8 +195,16 @@ define([
                     data = this.model.toJSON();
                 }
                 data.multiValued = this.options.multiValued;
+                data.readOnly = this.options.readOnly;
 
                 return data;
+            },
+            buildItemView: function (item, ItemViewType, itemViewOptions) {
+                var options = _.extend({
+                    model: item,
+                    readOnly: this.options.readOnly
+                }, itemViewOptions);
+                return new ItemViewType(options);
             }
         });
 

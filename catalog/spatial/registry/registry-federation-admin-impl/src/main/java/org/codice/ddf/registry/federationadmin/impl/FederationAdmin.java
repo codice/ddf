@@ -248,7 +248,7 @@ public class FederationAdmin implements FederationAdminMBean {
         }
 
         List<Metacard> localMetacards =
-                federationAdminService.getLocalRegistryMetacardsByRegistryIds(ids);
+                federationAdminService.getRegistryMetacardsByRegistryIds(ids);
         List<String> metacardIds = new ArrayList<>();
 
         metacardIds.addAll(localMetacards.stream()

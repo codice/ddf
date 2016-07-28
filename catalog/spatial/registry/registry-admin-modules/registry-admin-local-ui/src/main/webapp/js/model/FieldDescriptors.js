@@ -66,10 +66,10 @@ define(['underscore'], function (_) {
             _.each(custom, function(field){
                     base[field.key] = field;
                     base[field.key].isSlot = _.isUndefined(field.isSlot)? true : field.isSlot;
-                    if(field.constructTitle){
+                    if(field.constructTitle &&  typeof field.constructTitle !== 'function' ){
                         base[field.key].constructTitle = that[field.constructTitle];
                     }
-                    if(field.autoPopulateFunction){
+                    if(field.autoPopulateFunction &&  typeof field.autoPopulateFunction !== 'function'){
                         base[field.key].autoPopulateFunction = that[field.autoPopulateFunction];
                     }
 

@@ -223,7 +223,7 @@ define([
 
     Node.Models = Backbone.Collection.extend({
         model: Node.Model,
-        url: '/admin/jolokia/read/org.codice.ddf.registry:type=FederationAdminMBean/LocalNodes',
+        url: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/allRegistryMetacards',
         deleteUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/deleteLocalEntry',
 
         parse: function (raw) {
@@ -246,6 +246,12 @@ define([
                 return array[0];
             }
             return undefined;
+        },
+        getRemoteNodes: function(){
+            return this.models.filter(function(model){
+                var transValues = model.get('TransientValues');
+                return !transValues || !transValues['registry-local-node'];
+            });
         },
         deleteNodes: function (nodes) {
             var mbean = 'org.codice.ddf.registry:type=FederationAdminMBean';

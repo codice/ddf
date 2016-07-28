@@ -38,8 +38,21 @@ define([
             events: {
                 "click .remove-association": 'removeAssociation'
             },
+            initialize: function(options) {
+                this.readOnly = options.readOnly;
+            },
             removeAssociation: function () {
                 wreqr.vent.trigger('removeAssociation:' + this.model.get('sourceId'), this.model.get('id'));
+            },
+            serializeData: function() {
+                var data = {};
+
+                if (this.model) {
+                    data = this.model.toJSON();
+                }
+                data.readOnly = this.readOnly;
+
+                return data;
             }
         });
         Association.AssociationCollectionView = Marionette.CompositeView.extend({
@@ -50,6 +63,7 @@ define([
                 "click .add-association": 'addAssociation'
             },
             initialize: function (options) {
+                this.readOnly = options.readOnly;
                 this.parentId = options.parentId;
                 this.simpleId = this.parentId.split(':').join('-');
                 this.listenTo(wreqr.vent, 'removeAssociation:' + this.parentId, this.removeAssociation);
@@ -66,6 +80,7 @@ define([
                 var data = {};
                 data.availableAssociation = this.model.getAvailableAssociationSegments(this.parentId);
                 data.simpleId = this.simpleId;
+                data.readOnly = this.readOnly;
                 return data;
             },
             removeAssociation: function (associationId) {
@@ -98,6 +113,13 @@ define([
                     trigger: 'hover'
                 };
                 view.$(selector).popover(options);
+            },
+            buildItemView: function (item, ItemViewType, itemViewOptions) {
+                var options = _.extend({
+                    model: item,
+                    readOnly: this.readOnly
+                }, itemViewOptions);
+                return new ItemViewType(options);
             }
 
 
