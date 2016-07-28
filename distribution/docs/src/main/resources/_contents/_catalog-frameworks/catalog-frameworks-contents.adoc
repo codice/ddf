@@ -1,5 +1,5 @@
 
-.[[_included_catalog_framworks]]Included Catalog Frameworks
+=== Included Catalog Frameworks
 <<_catalog_api_contents,Catalog Api>>:: description
 <<_catalog_fanout_framework_contents,Catalog Fanout Framework>>:: description
 <<_catalog_framework_camel_component_contents,Catalog Framework Camel Component>>:: description

@@ -1,3 +1,4 @@
+.Catalog Framework Architecture
 [ditaa, catalog_architecture_framework, png, ${image-width}]
 ....
 +------------------------------------------------------------+
@@ -20,9 +21,12 @@
 +------------------------------------------------------------+
 ....
 
-==== The Catalog Framework
+The `CatalogFramework` is the routing mechanism between catalog components that provides integration points for the Catalog Plugins.
+An <<_endpoints, endpoint>> invokes the active Catalog Framework, which calls any configured <<_pre-query_plugins, Pre-query>> or <<_pre-ingest_plugins, Pre-ingest plug-ins>>.
+The selected <<_federation_strategies, federation strategy>> calls the active <<_catalog_providers, Catalog Provider>> and any connected or federated sources.
+Then, any Post-query or Post-ingest plug-ins are invoked.
+Finally, the appropriate response is returned to the calling endpoint.
 
-This section describes the core components of the Catalog app and Catalog Framework. 
 The Catalog Framework wires all Catalog components together.
 
 It is responsible for routing Catalog requests and responses to the appropriate target. 
@@ -32,87 +36,3 @@ The Catalog Framework then invokes <<_plugins,Catalog Plugins>>, <<_transforme
 
 The Catalog Framework functions as the routing mechanisms between all catalog components.
 It decouples clients from service implementations and provides integration points for Catalog Plugins and convenience methods for Endpoint developers.
-
-===== Catalog Framework Reference
-
-The Catalog Framework can be requested from the OSGi registry.
-
-.Blueprint Service Reference
-[source,xml]
-----
-<reference id="catalogFramework" interface="${ddf-branding}.catalog.CatalogFramework" />
-----
-
-===== Methods
-
-The `CatalogFramework` provides convenient methods to transform `Metacards` and `QueryResponses` using a reference to the `CatalogFramework`.
-
-====== Create, Update, and Delete Methods
-
-Create, Update, and Delete (CUD) methods add, change, or remove stored metadata in the local Catalog Provider.
-
-.Example Create, Update, Delete Methods
-[source,java,linenums]
-----
-public CreateResponse create(CreateRequest createRequest) throws IngestException, SourceUnavailableException;
-public UpdateResponse update(UpdateRequest updateRequest) throws IngestException, SourceUnavailableException;
-public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException, SourceUnavailableException;
-----
-
-CUD operations process `PolicyPlugin`, `AccessPlugin`, and `PreIngestPlugin` instances before execution and `PostIngestPlugin` instances after execution.
-
-====== Query Methods
-
-Query methods search metadata from available Sources based on the `QueryRequest` properties and Federation Strategy.
-Sources could include Catalog Provider, Connected Sources, and Federated Sources.
-
-.Example Query Methods
-[source,java,linenums]
-----
-public QueryResponse query(QueryRequest query) throws UnsupportedQueryException,SourceUnavailableException, FederationException;
-public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy) throws SourceUnavailableException, UnsupportedQueryException, FederationException;
-----
-Query requests process  `PolicyPlugin`, `AccessPlugin`, and `PreQueryPlugin` instances before execution and  `PolicyPlugin`, `AccessPlugin`, and `PostQueryPlugin` instances after execution.
-
-====== Resource Methods
-
-Resource methods retrieve products from Sources.
-
-.Example Resource Methods
-[source,java,linenums]
-----
-public ResourceResponse getEnterpriseResource(ResourceRequest request) throwsIOException, ResourceNotFoundException, ResourceNotSupportedException;
-public ResourceResponse getLocalResource(ResourceRequest request) throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
-public ResourceResponse getResource(ResourceRequest request, String resourceSiteName) throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
-----
-Resource requests process `PreResourcePlugin`s before execution and `PostResourcePlugin`s after execution.
-
-====== Source Methods
-
-Source methods can get a list of Source identifiers or request descriptions about Sources.
-
-.Example Source Methods
-[source,java,linenums]
-----
-public Set<String> getSourceIds();
-public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest) throws SourceUnavailableException;
-----
-
-====== Transform Methods
-
-Transform methods provide convenience methods for using Metacard Transformers and Query Response Transformers.
-
-.Transform Methods
-[source,java,linenums]
-----
-// Metacard Transformer
-public BinaryContent transform(Metacard metacard, String transformerId, Map<String,Serializable> requestProperties) throws CatalogTransformerException;
-
-// Query Response Transformer
-public BinaryContent transform(SourceResponse response, String transformerId, Map<String, Serializable> requestProperties) throws CatalogTransformerException;
-----
-
-.[[_included_catalog_frameworks]]Included Catalog Frameworks
-<<_catalog_api,Catalog API>>:: description
-
-
