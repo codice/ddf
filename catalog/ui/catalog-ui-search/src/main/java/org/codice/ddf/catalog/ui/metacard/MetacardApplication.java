@@ -174,11 +174,11 @@ public class MetacardApplication implements SparkApplication {
                     && !deleteResponse.getProcessingErrors()
                     .isEmpty()) {
                 res.status(500);
-                return "";
+                return ImmutableMap.of("message", "Unable to archive metacards.");
             }
-            // TODO (RCZ) - wat do.
-            return "";
-        });
+
+            return ImmutableMap.of("message", "Successfully archived metacards.");
+        }, util::getJson);
 
         patch("/metacards", APPLICATION_JSON, (req, res) -> {
             List<MetacardChanges> metacardChanges = JsonFactory.create()
