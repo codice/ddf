@@ -1,11 +1,9 @@
 
-==== Developing Catalog Plugins
+=== Developing Catalog Plugins
 
 Plugins extend the functionality of the Catalog Framework by performing actions at specified times during a transaction. 
 
 By implementing a plugin interface, actions can be performed at the desired time. 
-
-===== Implement Plugin Interface
 
 The following types of plugins can be created:
 
@@ -70,7 +68,7 @@ The following types of plugins can be created:
 
 |===
 
-===== Implement Plugins
+==== Implement Plugins
 
 The procedure for implementing any of the plugins follows a similar format:
 
@@ -108,6 +106,19 @@ Refer to the Javadoc for more information on all Requests and Responses in the `
 *Blueprint descriptor example*
 `<service ref="[[SamplePreIngestPlugin ]]"interface="${ddf-branding}.catalog.plugin.PreIngestPlugin" />`
 
+====== Pre-Ingest Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Pre-Ingest Plugins
+
+Pre-Ingest plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+
+The output of a Pre-Ingest plugin is sent to the next Pre-Ingest plugin, until all have executed and the ingest operation is sent to the requested Source.
+
 ===== Implementing Post-Ingest Plugins
 
 . Create a Java class that implements `PostIngestPlugin`. +
@@ -125,6 +136,14 @@ Refer to the Javadoc for more information on all Requests and Responses in the `
 *Blueprint descriptor example*
 `<service ref="[[SamplePostIngestPlugin ]]"interface="${ddf-branding}.catalog.plugin.PostIngestPlugin" />`
 
+====== Post-Ingest Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+
+====== Invoking a Post-Ingest Plugin
+
+Because the event has already occurred and changes from one post-ingest plugin cannot affect others, all Post-Ingest plugins are invoked in parallel and no priority is enforced.
+
 ===== Implementing Pre-Query Plugins
 
 . Create a Java class that implements `PreQueryPlugin`. +
@@ -137,6 +156,18 @@ Refer to the Javadoc for more information on all Requests and Responses in the `
 
 . Export the service to the OSGi registry. +
 `<service ref="[[SamplePreQueryPlugin]]"interface="${ddf-branding}.catalog.plugin.PreQueryPlugin" />`
+
+=====  Pre-Query Plugins Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+===== Invoking Pre-Query Plugins
+
+Pre-query plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+The output of a pre-query plugin is sent to the next pre-query plugin, until all have executed and the query operation is sent to the requested Source.
 
 ===== Implementing Post-Query Plugins
 
@@ -151,6 +182,18 @@ Refer to the Javadoc for more information on all Requests and Responses in the `
 
 . Export the service to the OSGi registry. +
 `<service ref="[[SamplePostQueryPlugin]]"interface="${ddf-branding}.catalog.plugin.PostQueryPlugin" />`
+
+====== Post-Query Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Post-Query Plugins
+
+Post-query plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+The output of the first plugin is sent to the next plugin, until all have executed and the response is returned to the requesting endpoint.
 
 ===== Implementing Pre-Delivery Plugins
 
@@ -171,6 +214,19 @@ StopProcessingException;`
 *Blueprint descriptor example* +
 `<service ref="[[SamplePreDeliveryPlugin]]"interface="${ddf-branding}.catalog.plugin.PreDeliveryPlugin" />`
 
+====== Pre-Delivery Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Pre-Delivery Plugins
+
+Pre-delivery plugins are invoked serially, prioritized by descending OSGi service ranking.
+The plugin with the highest service ranking will be executed first. 
+
+The output of a pre-delivery plugin is sent to the next pre-delivery plugin, until all have executed and the Delivery Method is invoked on the associated Subscription.
+
 ===== Implementing Pre-Subscription Plugins
 
 . Create a Java class that implements `PreSubscriptionPlugin`. +
@@ -178,6 +234,19 @@ StopProcessingException;`
 
 . Implement the required method.
  * `public Subscription process(Subscription input) *throws* PluginExecutionException, StopProcessingException;`
+
+====== Pre-Subscription Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Pre-Subscription Plugin
+
+Pre-subscription plugins are invoked serially, prioritized by descending OSGi service ranking. 
+That is, the plugin with the highest service ranking will be executed first. 
+
+The output of a pre-subscription plugin is sent to the next pre-subscription plugin, until all have executed and the create Subscription operation is sent to the Event Processor.
 
 ===== Implementing Pre-Resource Plugins
 
@@ -196,6 +265,19 @@ StopProcessingException;`
 ----
 <service ref="[[SamplePreResourcePlugin]]" interface="${ddf-branding}.catalog.plugin.PreResourcePlugin" />
 ----
+
+===== Pre-Resource Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled. 
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+===== Invoking Pre-Resource Plugins
+
+Pre-Resource plugins are invoked serially, prioritized by descending OSGi service ranking. 
+That is, the plugin with the highest service ranking will be executed first. 
+
+The output of the first plugin is sent to the next plugin, until all have executed and the request is sent to the targeted Source.
 
 ===== Implementing Post-Resource Plugins
 
@@ -216,6 +298,19 @@ StopProcessingException;`
 <service ref="[[SamplePostResourcePlugin]]" interface="${ddf-branding}.catalog.plugin.PostResourcePlugin" />
 ----
 
+===== Post-Resource Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown. 
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Post-Resource Plugins
+
+Post-get resource plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+
+The output of the first plugin is sent to the next plugin, until all have executed and the response is returned to the requesting endpoint.
+
 ===== Implementing Policy Plugins
 
 . Create a Java class that implements `PolicyPlugin`. +
@@ -235,6 +330,9 @@ StopProcessingException;`
 *Blueprint descriptor example* +
 `<service ref="[[SamplePolicyPlugin]]" interface="${ddf-branding}.catalog.plugin.PolicyPlugin" />`
 
+====== Failure Behavior
+
+All failure cases should be handled internally to the plugin with the exception of the StopProcessingException. If the exception encountered should stop/block the request then a StopProcessingException should be thrown.
 
 ===== Implementing Access Plugins
 
@@ -255,3 +353,6 @@ StopProcessingException;`
 *Blueprint descriptor example* +
 `<service ref="[[SampleAccessPlugin]]" interface="${ddf-branding}.catalog.plugin.AccessPlugin" />`
 
+===== Access Plugins Failure Behavior
+
+All failure cases should be handled internally to the plugin with the exception of the `StopProcessingException`. If the exception encountered should stop/block the request then a `StopProcessingException` should be thrown.

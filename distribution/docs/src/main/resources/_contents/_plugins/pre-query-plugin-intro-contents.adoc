@@ -1,5 +1,5 @@
 
-==== Pre-Query Plugins
+=== Pre-Query Plugins
 
 Pre-query plugins are invoked before a query operation is sent to any of the Sources. 
 This is an opportunity to take any action on the query, including but not limited to:
@@ -9,16 +9,3 @@ This is an opportunity to take any action on the query, including but not limite
 * auditing
 * optimization
 * security filtering
-
-=====  Pre-Query Plugins Failure Behavior
-
-In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
-For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
-If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
-
-===== Invoking Pre-Query Plugins
-
-Pre-query plugins are invoked serially, prioritized by descending OSGi service ranking. 
-The plugin with the highest service ranking will be executed first. 
-The output of a pre-query plugin is sent to the next pre-query plugin, until all have executed and the query operation is sent to the requested Source.
-

@@ -1,5 +1,5 @@
 
-==== Pre-Delivery Plugins
+=== Pre-Delivery Plugins
 
 Pre-delivery plugins are invoked before a Delivery Method is invoked on a Subscription. 
 This is an opportunity to take any action before notification, including but not limited to:
@@ -7,16 +7,3 @@ This is an opportunity to take any action before notification, including but not
 * logging
 * auditing
 * security filtering/redaction
-
-===== Pre-Delivery Plugin Failure Behavior
-
-In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
-For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
-If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
-
-===== Invoking Pre-Delivery Plugins
-
-Pre-delivery plugins are invoked serially, prioritized by descending OSGi service ranking.
-The plugin with the highest service ranking will be executed first. 
-
-The output of a pre-delivery plugin is sent to the next pre-delivery plugin, until all have executed and the Delivery Method is invoked on the associated Subscription.

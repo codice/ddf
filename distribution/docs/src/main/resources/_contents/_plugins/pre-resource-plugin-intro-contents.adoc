@@ -1,5 +1,5 @@
 
-==== Pre-Resource Plugins
+=== Pre-Resource Plugins
 
 Pre-Resource plugins are invoked before a request to retrieve a resource is sent to a Source. 
 This is an opportunity to take any action on the request, including but not limited to:
@@ -9,16 +9,3 @@ This is an opportunity to take any action on the request, including but not limi
 * auditing
 * optimization
 * security filtering
-
-===== Pre-Resource Plugin Failure Behavior
-
-In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
-For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled. 
-If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
-
-===== Invoking Pre-Resource Plugins
-
-Pre-Resource plugins are invoked serially, prioritized by descending OSGi service ranking. 
-That is, the plugin with the highest service ranking will be executed first. 
-
-The output of the first plugin is sent to the next plugin, until all have executed and the request is sent to the targeted Source.

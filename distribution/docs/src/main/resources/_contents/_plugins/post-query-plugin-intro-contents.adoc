@@ -1,5 +1,5 @@
 
-==== Post-Query Plugins
+=== Post-Query Plugins
 
 Post-query plugins are invoked after a query has been executed successfully, but before the response is returned to the endpoint. 
 This is an opportunity to take any action on the query response, including but not limited to:
@@ -9,14 +9,3 @@ This is an opportunity to take any action on the query response, including but n
 * security filtering/redaction
 * deduplication
 
-====== Post-Query Plugin Failure Behavior
-
-In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
-For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
-If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
-
-====== Invoking Post-Query Plugins
-
-Post-query plugins are invoked serially, prioritized by descending OSGi service ranking. 
-The plugin with the highest service ranking will be executed first. 
-The output of the first plugin is sent to the next plugin, until all have executed and the response is returned to the requesting endpoint.

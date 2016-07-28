@@ -1,5 +1,5 @@
 
-==== Pre-Ingest Plugins
+=== Pre-Ingest Plugins
 
 .Ingest Plugin Flow
 [ditaa,ingest-plugin-flow,png, ${image-width}]
@@ -37,16 +37,3 @@ This is an opportunity to take any action on the ingest request, including but n
 * auditing
 * optimization
 * security filtering
-
-===== Pre-Ingest Plugin Failure Behavior
-
-In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
-For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
-If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
-
-===== Invoking Pre-Ingest Plugins
-
-Pre-Ingest plugins are invoked serially, prioritized by descending OSGi service ranking. 
-The plugin with the highest service ranking will be executed first. 
-
-The output of a Pre-Ingest plugin is sent to the next Pre-Ingest plugin, until all have executed and the ingest operation is sent to the requested Source.
