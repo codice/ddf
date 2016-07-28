@@ -268,7 +268,7 @@ A result object consists of the following:
 * a relevance score if included
 * distance in meters if included
 
-===== Creating Metacards
+==== Creating Metacards
 
 The quickest way to create a `Metacard` is to extend or construct the `MetacardImpl` object. 
 `MetacardImpl` is the most commonly used and extended `Metacard` implementation in the system because it provides a convenient way for developers to retrieve and set `Attribute`s without having to create a new `MetacardType` (see below).
