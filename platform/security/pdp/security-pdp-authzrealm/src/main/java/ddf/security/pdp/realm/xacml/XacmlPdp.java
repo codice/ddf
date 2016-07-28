@@ -263,7 +263,6 @@ public class XacmlPdp {
                     for (String curPermValue : ((KeyValuePermission) curPermission).getValues()) {
                         AttributeValueType subjAttrValue = new AttributeValueType();
                         subjAttrValue.setDataType(getXacmlDataType(curPermValue));
-
                         LOGGER.trace("Adding permission: {}:{} for subject: {}",
                                 ((KeyValuePermission) curPermission).getKey(),
                                 curPermValue,
@@ -319,7 +318,7 @@ public class XacmlPdp {
             return XACMLConstants.RFC822_NAME_DATA_TYPE;
         } else if (new UrlValidator().isValid(curPermValue)) {
             return XACMLConstants.URI_DATA_TYPE;
-        } else if (InetAddresses.isInetAddress(curPermValue)) {
+        } else if (InetAddresses.isUriInetAddress(curPermValue)) {
             return XACMLConstants.IP_ADDRESS_DATA_TYPE;
         } else {
 
