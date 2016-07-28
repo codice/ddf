@@ -86,7 +86,7 @@
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="catalogProviderSortedList"/>
         <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="ddf"/>
+                            unbind-method="unbind" ref="catalogFramework"/>
     </reference-list>
     <!-- STORAGEPROVIDER REFERENCE -->
     <reference-list id="storage" interface="ddf.catalog.content.StorageProvider"
@@ -94,7 +94,7 @@
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="storageProviderSortedList"/>
         <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="ddf"/>
+                            unbind-method="unbind" ref="catalogFramework"/>
     </reference-list>
     <!-- CATALOG STORE REFERENCE -->
     <reference-list id="catalogStore" interface="ddf.catalog.source.CatalogStore"
@@ -370,49 +370,122 @@
         </reference-listener>
     </reference-list>
 
-    <!-- create the ddf bean -->
-    <bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">
+    <!--
+        Framework properties bean
+    -->
+    <bean id="frameworkProperties" class="ddf.catalog.impl.FrameworkProperties">
+        <property name="catalogProviders" ref="catalogProviderSortedList"/>
+        <property name="storageProviders" ref="storageProviderSortedList"/>
+        <property name="catalogStoresMap" ref="catalogStoreMap"/>
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+        <property name="preCreateStoragePlugins" ref="preCreateStorageSortedList"/>
+        <property name="postCreateStoragePlugins" ref="postCreateStorageSortedList"/>
+        <property name="preUpdateStoragePlugins" ref="preUpdateStorageSortedList"/>
+        <property name="postUpdateStoragePlugins" ref="postUpdateStorageSortedList"/>
+        <property name="preIngest" ref="preIngestSortedList"/>
+        <property name="postIngest" ref="postIngestSortedList"/>
+        <property name="preQuery" ref="preQuerySortedList"/>
+        <property name="postQuery" ref="postQuerySortedList"/>
+        <property name="preResource" ref="preResourceSortedList"/>
+        <property name="postResource" ref="postResourceSortedList"/>
+        <property name="connectedSources" ref="connectedSources"/>
+        <property name="federatedSources" ref="federatedSourceMap"/>
+        <property name="resourceReaders" ref="resourceReaderSortedList"/>
+        <property name="federationStrategy" ref="federationStrategy"/>
+        <property name="pool" ref="queryThreadPool"/>
+        <property name="queryResponsePostProcessor" ref="queryResponsePostProcessor"/>
+        <property name="sourcePoller" ref="sourcePoller"/>
+        <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
+        <property name="reliableResourceDownloadManager"
+                  ref="reliableResourceDownloadManager"/>
+        <property name="policyPlugins" ref="policySortedList"/>
+        <property name="accessPlugins" ref="accessSortedList"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
+        <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+        <property name="validationQueryFactory" ref="validationQueryFactory"/>
+        <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
+        <property name="attributeInjectors" ref="attributeInjectors"/>
+    </bean>
+
+    <!--
+        Create the CatalogFrameworkImpl bean and its delegation beans
+    -->
+    <bean id="cfOpsSecurity" class="ddf.catalog.impl.OperationsSecuritySupport"/>
+
+    <bean id="cfOpsMetacard" class="ddf.catalog.impl.OperationsMetacardSupport"/>
+
+    <bean id="cfOpsCrud" class="ddf.catalog.impl.OperationsCrudSupport">
+        <argument ref="frameworkProperties"/>
+        <argument ref="cfQueryOps"/>
+        <argument ref="cfSourceOps"/>
+        <property name="historian" ref="historian"/>
+    </bean>
+
+    <bean id="cfCreateOps" class="ddf.catalog.impl.CreateOperations">
+        <argument ref="frameworkProperties"/>
+        <argument ref="cfQueryOps"/>
+        <argument ref="cfSourceOps"/>
+        <argument ref="cfOpsSecurity"/>
+        <argument ref="cfOpsMetacard"/>
+        <argument ref="cfOpsCrud"/>
+        <property name="historian" ref="historian"/>
+    </bean>
+
+    <bean id="cfUpdateOps" class="ddf.catalog.impl.UpdateOperations">
+        <argument ref="frameworkProperties"/>
+        <argument ref="cfQueryOps"/>
+        <argument ref="cfSourceOps"/>
+        <argument ref="cfOpsSecurity"/>
+        <argument ref="cfOpsMetacard"/>
+        <argument ref="cfOpsCrud"/>
+        <property name="historian" ref="historian"/>
+    </bean>
+
+    <bean id="cfDeleteOps" class="ddf.catalog.impl.DeleteOperations">
+        <argument ref="frameworkProperties"/>
+        <argument ref="cfQueryOps"/>
+        <argument ref="cfSourceOps"/>
+        <argument ref="cfOpsSecurity"/>
+        <argument ref="cfOpsMetacard"/>
+        <argument ref="cfOpsCrud"/>
+        <property name="historian" ref="historian"/>
+    </bean>
+
+    <bean id="cfQueryOps" class="ddf.catalog.impl.QueryOperations">
+        <argument ref="frameworkProperties"/>
+        <argument ref="cfSourceOps"/>
+        <argument ref="cfOpsSecurity"/>
+        <argument ref="cfOpsMetacard"/>
+    </bean>
+
+    <bean id="cfResourceOps" class="ddf.catalog.impl.ResourceOperations">
+        <argument ref="frameworkProperties"/>
+        <argument ref="cfQueryOps"/>
+        <argument ref="cfOpsSecurity"/>
+    </bean>
+
+    <bean id="cfSourceOps" class="ddf.catalog.impl.SourceOperations">
+        <argument ref="frameworkProperties"/>
+    </bean>
+
+    <bean id="cfTransformOps" class="ddf.catalog.impl.TransformOperations">
+        <argument ref="frameworkProperties"/>
+    </bean>
+
+    <bean id="catalogFramework" class="ddf.catalog.impl.CatalogFrameworkImpl">
         <cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
                                update-strategy="container-managed"/>
-        <argument>
-            <bean class="ddf.catalog.impl.FrameworkProperties">
-                <property name="catalogProviders" ref="catalogProviderSortedList"/>
-                <property name="storageProviders" ref="storageProviderSortedList"/>
-                <property name="catalogStoresMap" ref="catalogStoreMap"/>
-                <property name="bundleContext" ref="blueprintBundleContext"/>
-                <property name="preCreateStoragePlugins" ref="preCreateStorageSortedList"/>
-                <property name="postCreateStoragePlugins" ref="postCreateStorageSortedList"/>
-                <property name="preUpdateStoragePlugins" ref="preUpdateStorageSortedList"/>
-                <property name="postUpdateStoragePlugins" ref="postUpdateStorageSortedList"/>
-                <property name="preIngest" ref="preIngestSortedList"/>
-                <property name="postIngest" ref="postIngestSortedList"/>
-                <property name="preQuery" ref="preQuerySortedList"/>
-                <property name="postQuery" ref="postQuerySortedList"/>
-                <property name="preResource" ref="preResourceSortedList"/>
-                <property name="postResource" ref="postResourceSortedList"/>
-                <property name="connectedSources" ref="connectedSources"/>
-                <property name="federatedSources" ref="federatedSourceMap"/>
-                <property name="resourceReaders" ref="resourceReaderSortedList"/>
-                <property name="federationStrategy" ref="federationStrategy"/>
-                <property name="pool" ref="queryThreadPool"/>
-                <property name="queryResponsePostProcessor" ref="queryResponsePostProcessor"/>
-                <property name="sourcePoller" ref="sourcePoller"/>
-                <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
-                <property name="reliableResourceDownloadManager"
-                          ref="reliableResourceDownloadManager"/>
-                <property name="policyPlugins" ref="policySortedList"/>
-                <property name="accessPlugins" ref="accessSortedList"/>
-                <property name="filterBuilder" ref="filterBuilder"/>
-                <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
-                <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-                <property name="validationQueryFactory" ref="validationQueryFactory"/>
-                <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
-                <property name="attributeInjectors" ref="attributeInjectors"/>
-            </bean>
-        </argument>
-        <property name="historian" ref="historian"/>
+        <argument ref="frameworkProperties"/>
+        <argument ref="cfOpsCrud"/>
+        <argument ref="cfCreateOps"/>
+        <argument ref="cfUpdateOps"/>
+        <argument ref="cfDeleteOps"/>
+        <argument ref="cfQueryOps"/>
+        <argument ref="cfResourceOps"/>
+        <argument ref="cfSourceOps"/>
+        <argument ref="cfTransformOps"/>
         <property name="masker" ref="sourceListener"/>
-        <property name="notificationEnabled" value="true"/>
     </bean>
 
     <bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
@@ -424,7 +497,7 @@
     </bean>
 
     <!-- export the bean on the service registry -->
-    <service ref="ddf" interface="ddf.catalog.CatalogFramework">
+    <service ref="catalogFramework" interface="ddf.catalog.CatalogFramework">
         <registration-listener ref="sourcePoller"
                                registration-method="start" unregistration-method="cancel"/>
     </service>
@@ -444,7 +517,7 @@
         <argument ref="eventAdmin"/>
         <argument ref="preSubscription"/>
         <argument ref="preDelivery"/>
-        <argument ref="ddf"/>
+        <argument ref="catalogFramework"/>
     </bean>
 
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
@@ -466,7 +539,7 @@
     <bean id="objectMapper" class="org.boon.json.JsonFactory" factory-method="create"/>
 
     <bean id="resourceDownloadBean" class="ddf.catalog.resource.download.ResourceDownloadEndpoint">
-        <argument ref="ddf"/>
+        <argument ref="catalogFramework"/>
         <argument ref="reliableResourceDownloadManager"/>
         <argument ref="objectMapper"/>
     </bean>

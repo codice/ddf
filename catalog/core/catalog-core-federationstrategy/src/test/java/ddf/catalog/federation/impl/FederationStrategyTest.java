@@ -61,9 +61,17 @@ import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.CatalogFrameworkImpl;
+import ddf.catalog.impl.CreateOperations;
+import ddf.catalog.impl.DeleteOperations;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.impl.MockDelayProvider;
+import ddf.catalog.impl.OperationsCrudSupport;
+import ddf.catalog.impl.OperationsMetacardSupport;
+import ddf.catalog.impl.OperationsSecuritySupport;
+import ddf.catalog.impl.QueryOperations;
 import ddf.catalog.impl.QueryResponsePostProcessor;
+import ddf.catalog.impl.SourceOperations;
+import ddf.catalog.impl.UpdateOperations;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -134,21 +142,68 @@ public class FederationStrategyTest {
 
         // Must have more than one thread or sleeps will block the monitor
         SortedFederationStrategy fedStrategy = new SortedFederationStrategy(executor,
-                new ArrayList<PreFederatedQueryPlugin>(),
-                new ArrayList<PostFederatedQueryPlugin>());
+                new ArrayList<>(),
+                new ArrayList<>());
 
         FrameworkProperties props = new FrameworkProperties();
-        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
+        props.setCatalogProviders(Collections.singletonList(provider));
         props.setFederationStrategy(fedStrategy);
         props.setSourcePoller(poller);
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
-        framework.bind(provider);
+
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport();
+
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
-        framework.setHistorian(historian);
+
+        SourceOperations sourceOperations = new SourceOperations(props);
+
+        QueryOperations queryOperations = new QueryOperations(props,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+
+        OperationsCrudSupport opsCrud = new OperationsCrudSupport(props,
+                queryOperations,
+                sourceOperations);
+
+        CreateOperations createOperations = new CreateOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+        UpdateOperations updateOperations = new UpdateOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+        DeleteOperations deleteOperations = new DeleteOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+
+        opsCrud.setHistorian(historian);
+        createOperations.setHistorian(historian);
+        updateOperations.setHistorian(historian);
+        deleteOperations.setHistorian(historian);
+
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props,
+                opsCrud,
+                createOperations,
+                updateOperations,
+                deleteOperations,
+                queryOperations,
+                null,
+                null,
+                null);
+        framework.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();
 

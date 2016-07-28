@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
 import org.geotools.filter.FilterFactoryImpl;
@@ -341,13 +342,46 @@ public class CatalogFrameworkImplTest {
         attributeInjector = spy(new AttributeInjectorImpl(new AttributeRegistryImpl()));
         frameworkProperties.setAttributeInjectors(Collections.singletonList(attributeInjector));
 
-        framework = new CatalogFrameworkImpl(frameworkProperties);
-        resourceFramework = new CatalogFrameworkImpl(frameworkProperties) {
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport();
+        SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+        TransformOperations transformOperations = new TransformOperations(frameworkProperties);
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
 
+        QueryOperations queryOperations = new QueryOperations(frameworkProperties,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+        OperationsCrudSupport opsCrud = new OperationsCrudSupport(frameworkProperties,
+                queryOperations,
+                sourceOperations);
+        CreateOperations createOperations = new CreateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+        UpdateOperations updateOperations = new UpdateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+        DeleteOperations deleteOperations = new DeleteOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+
+        ResourceOperations resOps = new ResourceOperations(frameworkProperties,
+                queryOperations,
+                opsSecurity) {
             @Override
             protected ResourceInfo getResourceInfo(ResourceRequest resourceRequest, String site,
                     boolean isEnterprise, StringBuilder federatedSite,
-                    Map<String, Serializable> requestProperties)
+                    Map<String, Serializable> requestProperties, boolean fanoutEnabled)
                     throws ResourceNotSupportedException, ResourceNotFoundException {
                 URI uri = null;
                 Metacard metacard = new MetacardImpl();
@@ -359,14 +393,42 @@ public class CatalogFrameworkImplTest {
 
                 return new ResourceInfo(metacard, uri);
             }
-
         };
-        framework.bind(provider);
+
+        opsCrud.setHistorian(historian);
+        createOperations.setHistorian(historian);
+        updateOperations.setHistorian(historian);
+        deleteOperations.setHistorian(historian);
+
+        framework = new CatalogFrameworkImpl(frameworkProperties,
+                opsCrud,
+                createOperations,
+                updateOperations,
+                deleteOperations,
+                queryOperations,
+                resOps,
+                sourceOperations,
+                transformOperations);
+        // Conditionally bind objects if framework properties are setup
+        if (!CollectionUtils.isEmpty(frameworkProperties.getCatalogProviders())) {
+            framework.bind(provider);
+        }
         framework.bind(storageProvider);
-        Historian historian = new Historian();
-        historian.setHistoryEnabled(false);
-        framework.setHistorian(historian);
-        resourceFramework.setHistorian(historian);
+
+        resourceFramework = new CatalogFrameworkImpl(frameworkProperties,
+                opsCrud,
+                createOperations,
+                updateOperations,
+                deleteOperations,
+                queryOperations,
+                resOps,
+                sourceOperations,
+                transformOperations);
+        // Conditionally bind objects if framework properties are setup
+        if (!CollectionUtils.isEmpty(frameworkProperties.getCatalogProviders())) {
+            resourceFramework.bind(provider);
+        }
+        resourceFramework.bind(storageProvider);
 
         ThreadContext.bind(mock(Subject.class));
     }
@@ -1048,7 +1110,8 @@ public class CatalogFrameworkImplTest {
     }
 
     @Test(expected = FederationException.class)
-    public void testPreQueryStopExecution() throws UnsupportedQueryException, FederationException {
+    public void testPreQueryStopExecution()
+            throws UnsupportedQueryException, FederationException, SourceUnavailableException {
 
         SourcePoller poller = mock(SourcePoller.class);
         when(poller.getCachedSource(isA(Source.class))).thenReturn(null);
@@ -1082,14 +1145,75 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setFederationStrategy(federationStrategy);
         frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
-
-        framework.bind(provider);
+        CatalogFrameworkImpl framework = createFramework(frameworkProperties);
         framework.query(request);
     }
 
+    private CatalogFrameworkImpl createFramework(FrameworkProperties frameworkProperties) {
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport();
+        SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+        QueryOperations queryOperations = new QueryOperations(frameworkProperties,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+        OperationsCrudSupport opsCrud = new OperationsCrudSupport(frameworkProperties,
+                queryOperations,
+                sourceOperations);
+        CreateOperations createOperations = new CreateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+        UpdateOperations updateOperations = new UpdateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+        DeleteOperations deleteOperations = new DeleteOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+        ResourceOperations resourceOperations = new ResourceOperations(frameworkProperties,
+                queryOperations,
+                opsSecurity);
+        TransformOperations transformOperations = new TransformOperations(frameworkProperties);
+
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+
+        opsCrud.setHistorian(historian);
+        createOperations.setHistorian(historian);
+        updateOperations.setHistorian(historian);
+        deleteOperations.setHistorian(historian);
+
+        CatalogFrameworkImpl catalogFramework = new CatalogFrameworkImpl(frameworkProperties,
+                opsCrud,
+                createOperations,
+                updateOperations,
+                deleteOperations,
+                queryOperations,
+                resourceOperations,
+                sourceOperations,
+                transformOperations);
+
+        // Conditionally bind objects if framework properties are setup
+        if (CollectionUtils.isNotEmpty(frameworkProperties.getCatalogProviders())) {
+            catalogFramework.bind(provider);
+        }
+        if (CollectionUtils.isNotEmpty(frameworkProperties.getStorageProviders())) {
+            catalogFramework.bind(storageProvider);
+        }
+        return catalogFramework;
+    }
+
     @Test(expected = FederationException.class)
-    public void testPostQueryStopExecution() throws UnsupportedQueryException, FederationException {
+    public void testPostQueryStopExecution()
+            throws UnsupportedQueryException, FederationException, SourceUnavailableException {
 
         SourcePoller poller = mock(SourcePoller.class);
 
@@ -1139,9 +1263,8 @@ public class CatalogFrameworkImplTest {
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setSourcePoller(poller);
         props.setFilterBuilder(new GeotoolsFilterBuilder());
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
 
-        framework.bind(provider);
+        CatalogFrameworkImpl framework = createFramework(props);
         framework.query(request);
     }
 
@@ -1355,8 +1478,9 @@ public class CatalogFrameworkImplTest {
 
     @Test
     public void testGetSites() {
-        framework.bind(provider);
         framework.setId("ddf");
+        framework.getSourceOperations()
+                .setId("ddf");
 
         Set<String> ids = new HashSet<String>();
         for (FederatedSource source : federatedSources) {
@@ -1388,7 +1512,6 @@ public class CatalogFrameworkImplTest {
         String[] expectedOrdering = {"A", "B", "C", framework.getId()};
 
         assertArrayEquals(expectedOrdering, siteNames.toArray(new String[siteNames.size()]));
-
     }
 
     @Test
@@ -1428,7 +1551,7 @@ public class CatalogFrameworkImplTest {
             sources.put(federatedSource.getId(), federatedSource);
         }
         frameworkProperties.setFederatedSources(sources);
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
+        CatalogFrameworkImpl framework = createFramework(frameworkProperties);
 
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
         SourceInfoResponse response = null;
@@ -1483,7 +1606,7 @@ public class CatalogFrameworkImplTest {
             sources.put(federatedSource.getId(), federatedSource);
         }
         frameworkProperties.setFederatedSources(sources);
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
+        CatalogFrameworkImpl framework = createFramework(frameworkProperties);
 
         // Returned Sites
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
@@ -1536,8 +1659,7 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setFederatedSources(sources);
         frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
-        framework.bind(provider);
+        CatalogFrameworkImpl framework = createFramework(frameworkProperties);
         framework.setId(frameworkName);
 
         // Returned Set of Names
@@ -2175,8 +2297,7 @@ public class CatalogFrameworkImplTest {
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
-        framework.bind(provider);
+        CatalogFrameworkImpl framework = createFramework(props);
         framework.setId("ddf");
 
         Set<String> ids = new HashSet<String>();
@@ -2546,7 +2667,6 @@ public class CatalogFrameworkImplTest {
     public void testGetResourceToTestSecondResourceReaderWithSameSchemeGetsCalledIfFirstDoesNotReturnAnything()
             throws Exception {
         String localProviderName = "ddf";
-        String metacardId = "123";
         final String EXPECTED = "result from mockResourceResponse2";
         final String DDF = "ddf";
 
@@ -2621,11 +2741,11 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setFederationStrategy(strategy);
         frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
-        framework.bind(provider);
-        framework.setId(DDF);
+        ResourceOperations resOps = new ResourceOperations(frameworkProperties, null, null);
+        resOps.setId(DDF);
 
-        ResourceResponse response = framework.getResource(mockResourceRequest, false, DDF);
+        resOps.setCatalogSupplier(() -> provider);
+        ResourceResponse response = resOps.getResource(mockResourceRequest, false, DDF, false);
 
         // Verify that the Response is as expected
         org.junit.Assert.assertEquals(EXPECTED,
@@ -2735,14 +2855,7 @@ public class CatalogFrameworkImplTest {
                 new GeotoolsFilterBuilder()));
         frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
-        framework.bind(provider);
-        framework.bind(storageProvider);
-        Historian historian = new Historian();
-        historian.setHistoryEnabled(false);
-        framework.setHistorian(historian);
-        return framework;
-
+        return createFramework(frameworkProperties);
     }
 
     private CatalogFramework createDummyCatalogFramework(CatalogProvider provider,
@@ -2771,11 +2884,7 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setBundleContext(context);
         frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
-        framework.bind(provider);
-        framework.bind(storageProvider);
-
-        return framework;
+        return createFramework(frameworkProperties);
     }
 
     public static class MockCatalogStore extends MockMemoryProvider implements CatalogStore {
