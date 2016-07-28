@@ -98,14 +98,16 @@ define([
              var propertyCollection = new PropertyCollection();
              var propertyArray = [];
              this.summaryWhiteList.forEach(function(property){
-                 propertyArray.push({
-                     enum: metacardDefinitions.enums[property],
-                     label: properties.attributeAliases[property],
-                     id: property,
-                     type: types[0][property].format,
-                     values: {},
-                     multivalued: types[0][property].multivalued
-                 });
+                 if (Boolean(types[0][property])) {
+                     propertyArray.push({
+                         enum: metacardDefinitions.enums[property],
+                         label: properties.attributeAliases[property],
+                         id: property,
+                         type: types[0][property].format,
+                         values: {},
+                         multivalued: types[0][property].multivalued
+                     });
+                 }
              });
              properties.summaryShow.filter(function(property){
                  return types[0][property] !== undefined;

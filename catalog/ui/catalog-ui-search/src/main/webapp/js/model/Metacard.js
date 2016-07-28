@@ -27,7 +27,7 @@ define([
               Turf) {
         "use strict";
 
-        var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags'];
+        var blacklist = [];
 
         function matchesILIKE(value, filter){
             var valueToCheckFor = filter.value.toLowerCase();
@@ -137,7 +137,7 @@ define([
                         valuesToCheck = Object.keys(metacard.properties).filter(function (property) {
                             return blacklist.indexOf(property) === -1;
                         }).filter(function (property) {
-                            return (metacardTypes[property].type === 'STRING');
+                            return Boolean(metacardTypes[property]) && (metacardTypes[property].type === 'STRING');
                         }).map(function (property) {
                             return metacard.properties[property];
                         });
@@ -146,7 +146,7 @@ define([
                         valuesToCheck = Object.keys(metacard.properties).filter(function (property) {
                             return blacklist.indexOf(property) === -1;
                         }).filter(function (property) {
-                            return (metacardTypes[property].type === 'GEOMETRY');
+                            return Boolean(metacardTypes[property]) && (metacardTypes[property].type === 'GEOMETRY');
                         }).map(function (property) {
                             return new Terraformer.Primitive(metacard.properties[property]);
                         });

@@ -75,6 +75,26 @@ define([
                 id: 'anyGeo',
                 type: 'LOCATION',
                 multivalued: false
+            },
+            'metacard-type': {
+                id: 'metacard-type',
+                type: 'STRING',
+                multivalued: false
+            },
+            'source-id': {
+                id: 'source-id',
+                type: 'STRING',
+                multivalued: false
+            },
+            cached: {
+                id: 'cached',
+                type: 'STRING',
+                multivalued: false
+            },
+            'metacard-tags': {
+                id: 'metacard-tags',
+                type: 'STRING',
+                multivalued: true
             }
         },
         enums: {
