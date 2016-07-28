@@ -1,2 +1,3 @@
-.[[_catalog_stores]]Included Catalog Stores
+
+=== Included Catalog Stores
 <<_registry_store, Registry Store>>:: description

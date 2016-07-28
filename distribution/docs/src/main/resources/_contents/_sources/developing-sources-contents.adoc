@@ -1,9 +1,9 @@
-==== Developing Sources
+=== Developing Sources
 
 Sources are components that enable ${branding} to talk to back-end services.
 They let ${branding} perform query and ingest operations on catalog stores and query operations on federated sources.
 
-===== Implement a Source Interface
+==== Implement a Source Interface
 
 There are three types of sources that can be created.
 All of these types of sources can perform a query operation.

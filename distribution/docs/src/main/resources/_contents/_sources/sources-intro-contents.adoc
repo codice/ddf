@@ -4,6 +4,7 @@ A *source* is a system consisting of a catalog containing Metacards.
 Catalog sources are used to connect Catalog components to data sources, local and remote.
 Sources act as proxies to the actual external data sources, e.g., a RDBMS database or a NoSQL database.
 
+.Source Architecture
 [ditaa, sources_architecture, png, ${image-width}]
 ....
 +----------------------------------------------------------------------------------------------+
@@ -34,7 +35,7 @@ Sources act as proxies to the actual external data sources, e.g., a RDBMS databa
 ....
 
 
-==== Types of Sources
+=== Types of Sources
 
 Remote Source:: read-only data sources that support query operations but cannot be used to create, update, or delete metacards.
 
