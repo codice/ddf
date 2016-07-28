@@ -33,10 +33,12 @@
                     </div>
                 </td>
                 <td>
+                {{#unless readOnly}}
                     <div class="segment-delete">
                         <a href="#"
                            class="button-icon remove-segment minus-button fa fa-lg fa-trash-o"></a>
                     </div>
+                {{/unless}}
                 </td>
         </table>
     {{/if}}

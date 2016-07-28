@@ -45,7 +45,8 @@ define([
                 "click .remove-segment": 'removeSegment',
                 "click .add-segment": 'addSegment'
             },
-            initialize: function () {
+            initialize: function (options) {
+                this.readOnly = options.readOnly;
                 this.listenTo(wreqr.vent, 'fieldChange:' + this.model.get('segmentId'), this.updateTitle);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.get('segmentId'), this.updateTitleError);
                 this.listenTo(wreqr.vent, 'valueAdded:' + this.model.get('segmentId'), this.setupPopOvers);
@@ -70,24 +71,27 @@ define([
                         this.addvancedFields = true;
                     }
                 });
-                this.formFieldsView = new Field.FieldCollectionView({collection: new Backbone.Collection(standardFields)});
+                this.formFieldsView = new Field.FieldCollectionView({collection: new Backbone.Collection(standardFields), readOnly: this.readOnly});
                 this.formSegmentsView = new Segment.SegmentCollectionView({
                     model: this.model,
                     collection: this.model.get('segments'),
-                    showHeader: standardFields.length > 0 ? false : true
+                    showHeader: standardFields.length > 0 ? false : true,
+                    readOnly: this.readOnly
                 });
-                this.formAdvancedFieldsView = new Field.FieldCollectionView({collection: new Backbone.Collection(advancedFields)});
+                this.formAdvancedFieldsView = new Field.FieldCollectionView({collection: new Backbone.Collection(advancedFields), readOnly: this.readOnly});
 
                 if (FieldDescriptors.isCustomizableSegment(this.model.get('segmentType'))) {
                     this.customizableView = new Customizable.CustomizableCollectionView({
-                        model: this.model
+                        model: this.model,
+                        readOnly: this.readOnly
                     });
                     if (this.model.get('fields').models.length > 0) {
                         var associationModel = this.model.get('associationModel');
                         this.associationsView = new Association.AssociationCollectionView({
                             parentId: this.model.get("segmentId"),
                             model: associationModel,
-                            collection: new Backbone.Collection(associationModel.getAssociationsForId(this.model.get('segmentId')))
+                            collection: new Backbone.Collection(associationModel.getAssociationsForId(this.model.get('segmentId'))),
+                            readOnly: this.readOnly
                         });
                     }
                 }
@@ -117,7 +121,8 @@ define([
             removeSegment: function () {
                 wreqr.vent.trigger('removeSegment:' + this.model.get('parentId'), this.model.get('segmentId'));
             },
-            addSegment: function () {
+            addSegment: function (event) {
+                event.stopPropagation();
                 this.model.addSegment();
                 this.render();
             },
@@ -166,6 +171,7 @@ define([
                 data.showFields = this.model.get('fields').models.length > 0;
                 data.showAssociations = FieldDescriptors.isCustomizableSegment(this.model.get('segmentType')) && this.model.get('fields').models.length > 0;
                 data.showAdvanced = (data.associationsAreAdvanced || data.customFieldsAreAdvanced || this.addvancedFields)&&(data.customizable);
+                data.readOnly = this.readOnly;
                 return data;
             },
             toggleCheveron: function() {
@@ -200,17 +206,20 @@ define([
             modelEvents: {
                 "change:segments": "render"
             },
-            initialize: function () {
+            initialize: function (options) {
+                this.readOnly = options.readOnly;
                 this.listenTo(wreqr.vent, 'removeSegment:' + this.model.get('segmentId'), this.removeSegment);
             },
             buildItemView: function (item, ItemViewType, itemViewOptions) {
                 item.set('editableSegment', this.model.get('multiValued'));
                 var options = _.extend({
-                    model: item
+                    model: item,
+                    readOnly: this.readOnly
                 }, itemViewOptions);
                 return new ItemViewType(options);
             },
-            addSegment: function () {
+            addSegment: function (event) {
+                event.stopPropagation();
                 var selector = this.$('.auto-populate-selector');
                 var prePopulateId;
                 if (selector) {
@@ -235,6 +244,7 @@ define([
                 data.autoValues = autoValues;
                 data.showHeader = this.options.showHeader;
                 data.segmentName = this.model.get('segmentName');
+                data.readOnly = this.readOnly;
                 return data;
             }
         });

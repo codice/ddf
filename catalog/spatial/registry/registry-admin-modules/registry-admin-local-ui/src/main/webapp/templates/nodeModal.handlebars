@@ -18,11 +18,15 @@
             <button type="button" class="close" data-dismiss="modal"
                     aria-hidden="true">&times;</button>
             <h4 class="modal-title">
-                {{#is mode 'edit'}}
-                    Edit {{name}}
+                {{#unless readOnly}}
+                    {{#is mode 'edit'}}
+                        Edit: {{name}}
+                    {{else}}
+                        Add Local Node
+                    {{/is}}
                 {{else}}
-                    Add Local Node
-                {{/is}}
+                    {{name}} (Read Only)
+                {{/unless}}
             </h4>
         </div>
         <div class="modal-body">
@@ -75,14 +79,20 @@
                 </div>
             {{/if}}
             <div class="btn-group">
-                {{#is mode 'edit'}}
-                    <button type="button" class="btn btn-primary submit-button">Save</button>
-                {{else}}
-                    <button type="button" class="btn btn-primary submit-button">Add</button>
-                {{/is}}
-                <button type="button" class="btn btn-default cancel-button" data-dismiss="modal">
-                    Cancel
-                </button>
+                {{#unless readOnly}}
+                    {{#is mode 'edit'}}
+                        <button type="button" class="btn btn-primary submit-button">Save</button>
+                    {{else}}
+                        <button type="button" class="btn btn-primary submit-button">Add</button>
+                    {{/is}}
+                {{/unless}}
+                    <button type="button" class="btn btn-default cancel-button" data-dismiss="modal">
+                        {{#unless readOnly}}
+                            Cancel
+                        {{else}}
+                            Close
+                        {{/unless}}
+                    </button>
             </div>
         </div>
     </div><!-- /.modal-content -->

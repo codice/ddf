@@ -58,6 +58,7 @@ define([
              */
             initialize: function (options) {
                 this.mode = options.mode;
+                this.readOnly = options.readOnly;
                 this.model.refreshData();
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.generalInfo.get('segmentId'), this.updateGeneralTabError);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.organizationInfo.get('segmentId'), this.updateOrgTabError);
@@ -68,27 +69,32 @@ define([
                 this.generalInfoView = new Segment.SegmentCollectionView({
                     model: this.model.generalInfo,
                     collection: this.model.generalInfo.get('segments'),
-                    showHeader: true
+                    showHeader: true,
+                    readOnly: this.readOnly
                 });
                 this.organizationInfoView = new Segment.SegmentCollectionView({
                     model: this.model.organizationInfo,
                     collection: this.model.organizationInfo.get('segments'),
-                    showHeader: true
+                    showHeader: true,
+                    readOnly: this.readOnly
                 });
                 this.contactInfoView = new Segment.SegmentCollectionView({
                     model: this.model.contactInfo,
                     collection: this.model.contactInfo.get('segments'),
-                    showHeader: true
+                    showHeader: true,
+                    readOnly: this.readOnly
                 });
                 this.serviceInfoView = new Segment.SegmentCollectionView({
                     model: this.model.serviceInfo,
                     collection: this.model.serviceInfo.get('segments'),
-                    showHeader: true
+                    showHeader: true,
+                    readOnly: this.readOnly
                 });
                 this.contentInfoView = new Segment.SegmentCollectionView({
                     model: this.model.contentInfo,
                     collection: this.model.contentInfo.get('segments'),
-                    showHeader: true
+                    showHeader: true,
+                    readOnly: this.readOnly
                 });
 
             },
@@ -106,8 +112,18 @@ define([
                 data.saveErrors = this.saveErrors;
                 data.validationErrors = this.model.validationError;
                 data.mode = this.mode;
+                data.readOnly = this.readOnly;
+
+                data.name = this.getNodeName();
 
                 return data;
+            },
+            getNodeName: function() {
+                var node = this.model.get("RegistryObjectList").ExtrinsicObject.find(function(extObj) {
+                    return extObj.objectType === "urn:registry:federation:node";
+                });
+
+                return node.Name;
             },
             onRender: function () {
                 this.$el.attr('role', "dialog");
