@@ -28,7 +28,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-<feature name="registry-core-api" install="manual" version="${project.version}" >
+<feature name="registry-core-api" install="auto" version="${project.version}" >
     <bundle>mvn:org.codice.ddf.registry/registry-api/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-api/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-service/${project.version}</bundle>
