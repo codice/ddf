@@ -19,6 +19,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -29,6 +31,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +54,8 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
 
 public class TestSeedCommand extends TestAbstractCommand {
     private SeedCommand seedCommand;
@@ -60,13 +65,17 @@ public class TestSeedCommand extends TestAbstractCommand {
     private CatalogFramework framework;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
 
         seedCommand = new SeedCommand();
 
         framework = mock(CatalogFramework.class);
+
+        doReturn(mockResourceResponse()).when(framework)
+                .getResource(any(ResourceRequest.class), anyString());
+
         seedCommand.framework = framework;
 
         seedCommand.filterBuilder = new GeotoolsFilterBuilder();
@@ -79,8 +88,8 @@ public class TestSeedCommand extends TestAbstractCommand {
     }
 
     @Test
-    public void testBadProductLimit() throws Exception {
-        seedCommand.productLimit = 0;
+    public void testBadResourceLimit() throws Exception {
+        seedCommand.resourceLimit = 0;
         seedCommand.executeWithSubject();
         assertThat(consoleOutput.getOutput(), containsString("The limit must be greater than 0."));
     }
@@ -148,9 +157,9 @@ public class TestSeedCommand extends TestAbstractCommand {
     }
 
     @Test
-    public void testProductLimit() throws Exception {
+    public void testResourceLimit() throws Exception {
         final int limit = 2;
-        seedCommand.productLimit = limit;
+        seedCommand.resourceLimit = limit;
 
         final String id1 = "1";
         final String id2 = "2";
@@ -166,9 +175,9 @@ public class TestSeedCommand extends TestAbstractCommand {
     }
 
     @Test
-    public void testFewerProductsThanLimit() throws Exception {
+    public void testFewerResourcesThanLimit() throws Exception {
         final int limit = 10;
-        seedCommand.productLimit = limit;
+        seedCommand.resourceLimit = limit;
 
         final String id1 = "1";
         final String id2 = "2";
@@ -189,9 +198,9 @@ public class TestSeedCommand extends TestAbstractCommand {
     }
 
     @Test
-    public void testDoesNotDownloadCachedProduct() throws Exception {
+    public void testDoesNotDownloadCachedResource() throws Exception {
         final int limit = 3;
-        seedCommand.productLimit = limit;
+        seedCommand.resourceLimit = limit;
 
         final String id1 = "1";
         final String id2 = "2";
@@ -246,24 +255,24 @@ public class TestSeedCommand extends TestAbstractCommand {
         QueryResponse response = mock(QueryResponse.class);
         when(response.getResults()).thenReturn(results);
         doReturn(response).when(framework)
-                .query(argThat(isQueryWithStartIndex(request -> request.getQuery()
-                        .getStartIndex() < stopReturningResultsAtIndex)));
+                .query(argThat(is(queryWithStartIndex(request -> request.getQuery()
+                        .getStartIndex() < stopReturningResultsAtIndex))));
 
         QueryResponse noResults = mock(QueryResponse.class);
         when(noResults.getResults()).thenReturn(Collections.emptyList());
         doReturn(noResults).when(framework)
-                .query(argThat(isQueryWithStartIndex(request -> request.getQuery()
-                        .getStartIndex() >= stopReturningResultsAtIndex)));
+                .query(argThat(is(queryWithStartIndex(request -> request.getQuery()
+                        .getStartIndex() >= stopReturningResultsAtIndex))));
     }
 
-    private IsQueryWithStartIndex isQueryWithStartIndex(Predicate<QueryRequest> test) {
-        return new IsQueryWithStartIndex(test);
+    private QueryWithStartIndex queryWithStartIndex(Predicate<QueryRequest> test) {
+        return new QueryWithStartIndex(test);
     }
 
-    private class IsQueryWithStartIndex extends ArgumentMatcher<QueryRequest> {
+    private class QueryWithStartIndex extends ArgumentMatcher<QueryRequest> {
         private final Predicate<QueryRequest> test;
 
-        private IsQueryWithStartIndex(Predicate<QueryRequest> test) {
+        private QueryWithStartIndex(Predicate<QueryRequest> test) {
             this.test = test;
         }
 
@@ -276,5 +285,18 @@ public class TestSeedCommand extends TestAbstractCommand {
     private void verifyResourceRequest(ResourceRequest request, String expectedAttributeValue) {
         assertThat(request.getAttributeName(), is(Metacard.ID));
         assertThat(request.getAttributeValue(), is(expectedAttributeValue));
+    }
+
+    private ResourceResponse mockResourceResponse() throws IOException {
+        InputStream mockInputStream = mock(InputStream.class);
+        doReturn(-1).when(mockInputStream)
+                .read(any(byte[].class), anyInt(), anyInt());
+
+        Resource mockResource = mock(Resource.class);
+        when(mockResource.getInputStream()).thenReturn(mockInputStream);
+
+        ResourceResponse mockResponse = mock(ResourceResponse.class);
+        when(mockResponse.getResource()).thenReturn(mockResource);
+        return mockResponse;
     }
 }

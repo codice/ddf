@@ -16,16 +16,21 @@ package org.codice.ddf.commands.catalog;
 import static java.util.AbstractMap.SimpleEntry;
 import static java.util.Map.Entry;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static ddf.catalog.data.Metacard.ANY_TEXT;
 import static ddf.catalog.filter.FilterDelegate.WILDCARD_CHAR;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import org.apache.karaf.shell.api.action.Action;
@@ -33,7 +38,6 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -46,23 +50,28 @@ import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 
+//@formatter:off
 @Service
-@Command(scope = CatalogCommands.NAMESPACE, name = "seed", description = "Seeds the local metacard "
-        + "and product caches from the enterprise or from specific federated sources.", detailedDescription =
-        "This command will query the enterprise or the specified sources for metacards in increments "
-                + "the size of the `--product-limit` argument (default 20) until that number of product downloads "
-                + "have started or until there are no more results. Local products will not be added to the cache. "
-                + "This command will not re-download products that are up-to-date in the cache, so subsequent runs "
-                + "of the command will attempt to cache metacards and products that have not already been cached.\n\n"
-                + "Note that this command will begin the product downloads and some may still be in progress "
-                + "by the time it completes. Also, product caching must be enabled in the catalog framework for "
-                + "this command to seed the product cache.")
+@Command(
+        scope = CatalogCommands.NAMESPACE,
+        name = "seed",
+        description = "Seeds the local metacard and resource caches from the enterprise or from specific federated sources.",
+        detailedDescription = "This command will query the enterprise or the specified sources for metacards in increments "
+                + "the size of the `--resource-limit` argument (default 20) until that number of resource downloads "
+                + "have started or until there are no more results. Local resources will not be added to the cache. "
+                + "This command will not re-download resources that are up-to-date in the cache, so subsequent runs "
+                + "of the command will attempt to cache metacards and resources that have not already been cached.\n\n"
+                + "Note: this command will trigger resource downloads in the background and they may continue after "
+                + "control is returned to the console. Also, resource caching must be enabled in the catalog framework "
+                + "for this command to seed the resource cache.")
+//@formatter:on
 public class SeedCommand extends SubjectCommands implements Action {
     private static final Logger LOGGER = LoggerFactory.getLogger(SeedCommand.class);
 
@@ -70,6 +79,17 @@ public class SeedCommand extends SubjectCommands implements Action {
             Collections.singletonMap("mode", "update");
 
     private static final String RESOURCE_CACHE_STATUS = "internal.local-resource";
+
+    private static final ThreadPoolExecutor EXECUTOR;
+
+    static {
+        EXECUTOR = new ThreadPoolExecutor(20,
+                20,
+                30,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>());
+        EXECUTOR.allowCoreThreadTimeOut(true);
+    }
 
     @Option(name = "--source", multiValued = true, aliases = {
             "-s"}, description = "Source(s) to query (e.g., -s source1 -s source2). Default is to query the entire enterprise.")
@@ -82,11 +102,11 @@ public class SeedCommand extends SubjectCommands implements Action {
             + "\tComplex:   seed --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cql;
 
-    @Option(name = "--product-limit", aliases = {"-pl"}, description =
-            "The maximum number of products to download to the cache. The number of metacards cached "
+    @Option(name = "--resource-limit", aliases = {"-rl"}, description =
+            "The maximum number of resources to download to the cache. The number of metacards cached "
                     + "might not be equal to this number because some metacards may not have associated "
-                    + "products.")
-    int productLimit = 20;
+                    + "resources.")
+    int resourceLimit = 20;
 
     @Reference
     CatalogFramework framework;
@@ -117,8 +137,8 @@ public class SeedCommand extends SubjectCommands implements Action {
 
     @Override
     protected Object executeWithSubject() throws Exception {
-        if (productLimit <= 0) {
-            printErrorMessage("A limit of " + productLimit
+        if (resourceLimit <= 0) {
+            printErrorMessage("A limit of " + resourceLimit
                     + " was supplied. The limit must be greater than 0.");
             return null;
         }
@@ -126,18 +146,18 @@ public class SeedCommand extends SubjectCommands implements Action {
         final Filter filter = createFilter();
 
         final long start = System.currentTimeMillis();
-        int productDownloads = 0;
+        int resourceDownloads = 0;
         int downloadErrors = 0;
         int pageCount = 0;
 
-        while (productDownloads < productLimit) {
+        while (resourceDownloads < resourceLimit) {
             final QueryImpl query = new QueryImpl(filter);
-            query.setPageSize(productLimit);
-            query.setStartIndex(pageCount * productLimit + 1);
+            query.setPageSize(resourceLimit);
+            query.setStartIndex(pageCount * resourceLimit + 1);
             ++pageCount;
 
             final QueryRequestImpl queryRequest;
-            if (sources != null && !sources.isEmpty()) {
+            if (isNotEmpty(sources)) {
                 queryRequest = new QueryRequestImpl(query, sources);
             } else {
                 queryRequest = new QueryRequestImpl(query, true);
@@ -163,33 +183,59 @@ public class SeedCommand extends SubjectCommands implements Action {
             for (Entry<? extends ResourceRequest, String> requestAndSourceId : resourceRequests) {
                 final ResourceRequest request = requestAndSourceId.getKey();
                 try {
-                    framework.getResource(request, requestAndSourceId.getValue());
-                    ++productDownloads;
+                    ResourceResponse response = framework.getResource(request,
+                            requestAndSourceId.getValue());
+                    ++resourceDownloads;
+                    EXECUTOR.execute(new ResourceCloseHandler(response));
                 } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
                     ++downloadErrors;
-                    LOGGER.warn("Could not download product for metacard [id={}]",
+                    LOGGER.warn("Could not download resource for metacard [id={}]",
                             request.getAttributeValue(),
                             e);
                 }
 
-                printProgressAndFlush(start, productLimit, productDownloads);
+                printProgressAndFlush(start, resourceLimit, resourceDownloads);
 
-                if (productDownloads == productLimit) {
+                if (resourceDownloads == resourceLimit) {
                     break;
                 }
             }
         }
 
-        printProgressAndFlush(start, productDownloads, productDownloads);
+        printProgressAndFlush(start, resourceDownloads, resourceDownloads);
 
         console.println();
         if (downloadErrors > 0) {
-            printColor(Ansi.Color.YELLOW,
-                    downloadErrors
-                            + " product download(s) had errors. Check the logs for details.");
+            printErrorMessage(downloadErrors
+                    + " resource download(s) had errors. Check the logs for details.");
         }
-        printSuccessMessage("Done seeding. " + productDownloads + " product download(s) started.");
+        printSuccessMessage(
+                "Done seeding. " + resourceDownloads + " resource download(s) started.");
 
         return null;
+    }
+
+    private static class ResourceCloseHandler implements Runnable {
+        private final InputStream resourceStream;
+
+        private ResourceCloseHandler(ResourceResponse response) {
+            resourceStream = response.getResource()
+                    .getInputStream();
+        }
+
+        @Override
+        public void run() {
+            byte[] buffer = new byte[4096];
+            try {
+                while (resourceStream.read(buffer, 0, buffer.length) != -1) {
+                    if (Thread.interrupted()) {
+                        return;
+                    }
+                }
+                resourceStream.close();
+            } catch (IOException e) {
+                LOGGER.debug("Error reading resource input stream.", e);
+            }
+        }
     }
 }
