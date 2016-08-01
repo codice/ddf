@@ -43,10 +43,6 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
         return attributeMap;
     }
 
-    public void setAttributeMap(Map<String, List<String>> attributeMap) {
-        MetacardValidityFilterPlugin.attributeMap = attributeMap;
-    }
-
     public void setAttributeMap(List<String> attributeMappings) {
         if (CollectionUtils.isEmpty(attributeMappings) || (attributeMappings.size() == 1
                 && attributeMappings.get(0)
@@ -62,6 +58,10 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
                             .map(String::trim)
                             .collect(Collectors.toList()));
         }
+    }
+
+    public void setAttributeMap(Map<String, List<String>> attributeMap) {
+        MetacardValidityFilterPlugin.attributeMap = attributeMap;
     }
 
     @Override

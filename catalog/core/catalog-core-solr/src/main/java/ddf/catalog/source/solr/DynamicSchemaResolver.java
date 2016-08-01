@@ -165,8 +165,7 @@ public class DynamicSchemaResolver {
      * Adds the fields that are already in Solr to the cache. This method should be called
      * once the SolrClient is up to ensure the cache is synchronized with Solr.
      *
-     * @param client
-     *            the SolrClient we are working with
+     * @param client the SolrClient we are working with
      */
     public void addFieldsFromClient(SolrClient client) {
         if (client == null) {
@@ -387,7 +386,7 @@ public class DynamicSchemaResolver {
 
     /**
      * PRE-CONDITION is that fieldname cannot be null.
-     * <p>
+     * <p/>
      * The convention is that we add a suffix starting with an underscore, so if we find the last
      * underscore, then we can return the original field name.
      *
