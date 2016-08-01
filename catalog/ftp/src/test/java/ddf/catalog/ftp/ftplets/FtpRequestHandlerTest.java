@@ -15,6 +15,7 @@ package ddf.catalog.ftp.ftplets;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Callable;
 
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
@@ -57,9 +59,9 @@ public class FtpRequestHandlerTest {
 
     private FtpRequest request;
 
-    private static CatalogFramework catalogFramework;
+    private CatalogFramework catalogFramework;
 
-    private static MimeTypeMapper mimeTypeMapper;
+    private MimeTypeMapper mimeTypeMapper;
 
     @Before
     public void setUp() {
@@ -139,15 +141,14 @@ public class FtpRequestHandlerTest {
                 .getFile(FILE_NAME)).thenReturn(ftpFile);
         when(ftpFile.isWritable()).thenReturn(true);
         when(ftpFile.getAbsolutePath()).thenReturn(FILE_NAME);
+        when(subject.execute(any(Callable.class))).thenAnswer(invocationOnMock -> ((Callable)invocationOnMock.getArguments()[0]).call());
         when(catalogFramework.create(any(CreateStorageRequest.class))).thenReturn(null);
 
         ftplet.onUploadStart(session, request);
     }
 
     @Test(expected = FtpException.class)
-    public void testCreateStorageRequestFail()
-            throws FtpException, IOException, MimeTypeResolutionException,
-            SourceUnavailableException, IngestException {
+    public void testCreateStorageRequestFail() throws Exception {
         Subject subject = mock(Subject.class);
         FtpFile ftpFile = mock(FtpFile.class);
 
@@ -157,7 +158,8 @@ public class FtpRequestHandlerTest {
                 .getFile(FILE_NAME)).thenReturn(ftpFile);
         when(ftpFile.isWritable()).thenReturn(true);
         when(ftpFile.getAbsolutePath()).thenReturn(FILE_NAME);
-        when(catalogFramework.create(any(CreateStorageRequest.class))).thenThrow(new IngestException());
+        when(subject.execute(any(Callable.class))).thenAnswer(invocationOnMock -> ((Callable)invocationOnMock.getArguments()[0]).call());
+        when(catalogFramework.create((CreateStorageRequest) anyObject())).thenThrow(new IngestException());
 
         ftplet.onUploadStart(session, request);
     }

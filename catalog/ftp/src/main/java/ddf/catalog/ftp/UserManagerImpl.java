@@ -111,6 +111,7 @@ public class UserManagerImpl implements UserManager {
                         user = createUser(username, subject);
                     } else {
                         user = getUserByName(username);
+                        updateUserSubject(user, subject);
                     }
                     return user;
                 }
@@ -121,6 +122,11 @@ public class UserManagerImpl implements UserManager {
         }
 
         throw new AuthenticationFailedException("Authentication failed");
+    }
+
+    private User updateUserSubject(User user, Subject subject) {
+        ((FtpUser) user).setSubject(subject);
+        return user;
     }
 
     @Override
