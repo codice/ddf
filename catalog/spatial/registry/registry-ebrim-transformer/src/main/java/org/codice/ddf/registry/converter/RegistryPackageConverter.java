@@ -75,7 +75,8 @@ public class RegistryPackageConverter {
 
     private static final Map<String, String> METACARD_XML_NAME_MAP;
 
-    private static final InternationalStringTypeHelper INTERNATIONAL_STRING_TYPE_HELPER = new InternationalStringTypeHelper();
+    private static final InternationalStringTypeHelper INTERNATIONAL_STRING_TYPE_HELPER =
+            new InternationalStringTypeHelper();
 
     private static final SlotTypeHelper SLOT_TYPE_HELPER = new SlotTypeHelper();
 
@@ -262,7 +263,7 @@ public class RegistryPackageConverter {
         if (person.isSetTelephoneNumber()) {
             List<TelephoneNumberType> phoneNumbers = person.getTelephoneNumber();
             if (CollectionUtils.isNotEmpty(phoneNumbers)) {
-                phone = getPhoneNumberString(phoneNumbers.get(0));
+                phone = getPhoneNumber(phoneNumbers.get(0));
             }
         }
 
@@ -437,36 +438,38 @@ public class RegistryPackageConverter {
         return multiValued;
     }
 
-    private static String getPhoneNumberString(TelephoneNumberType digits) {
-        String phoneNumber;
-        if (StringUtils.isBlank(digits.getExtension())) {
-            phoneNumber = String.format("(%s) %s", digits.getAreaCode(), digits.getNumber());
-        } else {
-            phoneNumber = String.format("(%s) %s extension %s",
-                    digits.getAreaCode(),
-                    digits.getNumber(),
-                    digits.getExtension());
-        }
+    private static String getPhoneNumber(TelephoneNumberType digits) {
+        StringBuilder phoneNumberBuilder = new StringBuilder();
 
-        return phoneNumber;
+        phoneNumberBuilder = buildNonNullString(phoneNumberBuilder,
+                digits.getAreaCode(),
+                "(%s)",
+                "");
+        phoneNumberBuilder = buildNonNullString(phoneNumberBuilder, digits.getNumber(), " ");
+        phoneNumberBuilder = buildNonNullString(phoneNumberBuilder,
+                digits.getExtension(),
+                "extension %s",
+                " ");
+        return phoneNumberBuilder.toString();
     }
 
     private static void setMetacardAddressAttribute(List<PostalAddressType> addresses,
             String metacardAttribute, MetacardImpl metacard) {
+
         if (CollectionUtils.isNotEmpty(addresses)) {
+            StringBuilder addressString = new StringBuilder();
             PostalAddressType address = addresses.get(0);
 
-            String metacardAddress = String.format("%s, %s, %s %s, %s",
-                    address.getStreet(),
-                    address.getCity(),
-                    address.getStateOrProvince(),
-                    address.getPostalCode(),
-                    address.getCountry());
-
-            if (StringUtils.isNotBlank(metacardAddress)) {
-                metacard.setAttribute(metacardAttribute, metacardAddress);
+            addressString = buildNonNullString(addressString, address.getStreet(), " ");
+            addressString = buildNonNullString(addressString, address.getCity(), ", ");
+            addressString = buildNonNullString(addressString, address.getStateOrProvince(), ", ");
+            addressString = buildNonNullString(addressString, address.getPostalCode(), " ");
+            addressString = buildNonNullString(addressString, address.getCountry(), ", ");
+            if (StringUtils.isNotBlank(addressString.toString())) {
+                metacard.setAttribute(metacardAttribute, addressString.toString());
             }
         }
+
     }
 
     private static void setMetacardStringAttribute(String value, String metacardAttribute,
@@ -490,24 +493,39 @@ public class RegistryPackageConverter {
 
     private static void setMetacardPhoneNumberAttribute(List<TelephoneNumberType> phoneNumbers,
             String metacardAttribute, MetacardImpl metacard) {
+
         List<String> metacardPhoneNumbers = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(phoneNumbers)) {
+            for (TelephoneNumberType digits : phoneNumbers) {
+                metacardPhoneNumbers.add(getPhoneNumber(digits));
 
-        for (TelephoneNumberType digits : phoneNumbers) {
-
-            if (StringUtils.isBlank(digits.getExtension())) {
-                metacardPhoneNumbers.add(String.format("(%s) %s",
-                        digits.getAreaCode(),
-                        digits.getNumber()));
-            } else {
-                metacardPhoneNumbers.add(String.format("(%s) %s extension %s",
-                        digits.getAreaCode(),
-                        digits.getNumber(),
-                        digits.getExtension()));
+                if (CollectionUtils.isNotEmpty(metacardPhoneNumbers)) {
+                    metacard.setAttribute(metacardAttribute, (Serializable) metacardPhoneNumbers);
+                }
             }
         }
-        if (CollectionUtils.isNotEmpty(metacardPhoneNumbers)) {
-            metacard.setAttribute(metacardAttribute, (Serializable) metacardPhoneNumbers);
+    }
+
+    private static StringBuilder buildNonNullString(StringBuilder stringBuilder,
+            String attributeValue, String format, String delimiterBefore) {
+        if (StringUtils.isNotBlank(attributeValue)) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append(delimiterBefore);
+            }
+            if (StringUtils.isNotEmpty(format)) {
+                stringBuilder.append(String.format(format, attributeValue));
+            } else {
+                stringBuilder.append(attributeValue);
+            }
         }
+        return stringBuilder;
+    }
+
+    private static StringBuilder buildNonNullString(StringBuilder stringBuilder,
+            String attributeValue, String delimiterBefore) {
+
+        return (buildNonNullString(stringBuilder, attributeValue, "", delimiterBefore));
+
     }
 
     private static void setAttributeFromMap(String metacardAttributeName,
