@@ -3,23 +3,13 @@
 .bootstrap-datetimepicker-widget table td.hour:hover,
 .bootstrap-datetimepicker-widget table td.minute:hover,
 .bootstrap-datetimepicker-widget table td.second:hover,
-.bootstrap-datetimepicker-widget table td span:hover{
-  background: rgba(100,100,100,.4);
+.bootstrap-datetimepicker-widget table td span:hover,
+.bootstrap-datetimepicker-widget {
+  background: @dropdown-background-color;
 }
 
 .bootstrap-datetimepicker-widget.dropdown-menu {
   min-width: 19em;
-}
-
-.input-group > input[type=text]{
-  border-radius: @border-radius;
-  color: black;
-}
-
-&.is-editing {
-  .input-group > input[type=text] {
-    background: white;
-  }
 }
 
 .input-group > span.input-group-addon {
