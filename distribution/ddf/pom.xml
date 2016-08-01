@@ -91,6 +91,9 @@
                                     mvn:ddf.ui.search/search-ui-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
+                                    mvn:ddf.ui/catalog-ui-app/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
                                     mvn:ddf.admin/admin-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
@@ -327,6 +330,13 @@
         <dependency>
             <groupId>ddf.ui.search</groupId>
             <artifactId>search-ui-app</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui</groupId>
+            <artifactId>catalog-ui-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>

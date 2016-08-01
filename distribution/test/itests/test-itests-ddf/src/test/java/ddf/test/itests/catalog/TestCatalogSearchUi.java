@@ -61,7 +61,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
             getServiceManager().waitForRequiredApps("catalog-app", "solr-app");
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
-            getServiceManager().startFeature(true, "search-ui");
+            getServiceManager().startFeature(true, "catalog-ui");
             getServiceManager().waitForHttpEndpoint(API_PATH.getUrl());
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
