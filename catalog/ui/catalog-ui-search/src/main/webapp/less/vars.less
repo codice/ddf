@@ -17,20 +17,18 @@
 @fiftyGrey: shade(@baseGrey, 50%);
 
 //color usage
-@border-color: rgba(104, 104, 104, .8);
 @navigation-background-color: @fiftyGrey;
 @background-color: @fortyGrey;
 @dropdown-background-color: @thirtyGrey;
 @card-background-color: @twentyGrey;
-@text-color: white;
+@text-color: contrast(@fortyGrey);
 @button-text-color: white;
-@header-color: #4285f4;
 
 //relative coloring
-@lighten-inherited-background-color: rgba(255,255,255,.05);
-@medium-lighten-inherited-background-color: rgba(255, 255, 255, .20);
-@heavily-lighten-inherited-background-color: rgba(255,255,255,.4);
-@completely-lighten-inherited-background-color: rgba(255, 255, 255, .9);
+@lighten-inherited-background-color: fade(@text-color, 5%);
+@medium-lighten-inherited-background-color: fade(@text-color, 20%);
+@heavily-lighten-inherited-background-color: fade(@text-color, 40%);
+@completely-lighten-inherited-background-color: fade(@text-color, 90%);
 @darken-inherited-background-color: rgba(0,0,0,.05);
 @medium-darken-inherited-background-color: rgba(0, 0, 0, .20);
 @heavily-darken-inherited-background-color: rgba(0,0,0,.4);
@@ -40,8 +38,6 @@
 @minimumButtonSize: 44px;
 @minimumLineSize: 30px;
 @border-radius: 1px;
-
-@confirmationIndicator: rgba(0,0,0,.5);
 
 @smallScreenSize: 940px;
 @mediumScreenSize: 1200px;
