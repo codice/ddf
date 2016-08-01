@@ -66,6 +66,7 @@ public class RegistryTransformerTest {
         registryTransformer = new RegistryTransformer();
         parser = new XmlParser();
         registryTransformer.setParser(parser);
+        registryTransformer.setParser(parser);
         System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, "identityRegistryId");
 
     }
@@ -141,7 +142,7 @@ public class RegistryTransformerTest {
                 hasItem("1234 Some Street, Phoenix, AZ 85037, USA"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
                 RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER),
-                hasItem("(555) 555-5555 extension 1234"));
+                hasItem("(555) 555-5555 ext 1234"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
                 RegistryObjectMetacardType.ORGANIZATION_EMAIL),
                 hasItem("emailaddress@something.com"));
@@ -160,7 +161,7 @@ public class RegistryTransformerTest {
                 hasItem("1234 Some Street, AZ 85037, USA"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
                 RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER),
-                hasItem("555-5555 extension 1234"));
+                hasItem("555-5555 ext 1234"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
                 RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER), hasItem("123-4567"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
@@ -258,7 +259,7 @@ public class RegistryTransformerTest {
     }
 
     @Test
-    public void testPersonNoExtension() throws Exception {
+    public void testPersonNoext() throws Exception {
         MetacardImpl metacard = convert("/csw-person-info.xml");
 
         assertThat(RegistryUtility.getStringAttribute(metacard, Metacard.POINT_OF_CONTACT, null),
@@ -356,12 +357,12 @@ public class RegistryTransformerTest {
                 hasItem("1234 Some Street, Phoenix, AZ 85037, USA"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
                 RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER),
-                hasItem("(555) 555-5555 extension 1234"));
+                hasItem("(555) 555-5555 ext 1234"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
                 RegistryObjectMetacardType.ORGANIZATION_EMAIL),
                 hasItem("emailaddress@something.com"));
         assertThat(RegistryUtility.getStringAttribute(metacard, Metacard.POINT_OF_CONTACT, null),
-                is("john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
+                is("john doe, (111) 111-1111 ext 1234, emailaddress@something.com"));
     }
 
     @Test
