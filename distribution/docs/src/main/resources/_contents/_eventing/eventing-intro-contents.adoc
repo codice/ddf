@@ -126,6 +126,10 @@ If an event matches a subscription's criteria, any pre-delivery plugins that are
 For example, the DeliveryMethod's `created()` function is called when a metacard is created.
 The Delivery Method's operations subsequently invoke the corresponding operation in the client's event consumer service, which is specified by the callback URL provided when the Delivery Method was created.
 
+.Available Event Processors
+* <<_event_processor,Standard Event Processor>>
+* <<_fanout_event_processor,Fanout Event Processor>>
+
 ====== Using ${branding} Implementation
 
 If applicable, the implementation of `Subscription` that comes with ${branding} should be used.
@@ -134,6 +138,7 @@ Specifically, all that is needed is a `Filter`, `DeliveryMethod`, `Set<String
 
 The following is an example code stub showing how to create a new instance of Subscription using the ${branding} implementation. 
 
+.Creating a Subscription
 [source,java,linenums]
 ----
 // Create a new filter using an imported FilterBuilder

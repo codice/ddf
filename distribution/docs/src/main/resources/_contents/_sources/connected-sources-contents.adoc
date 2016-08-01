@@ -1,5 +1,5 @@
 
 === Included Connected Sources
 <<_csw_source,CSW Source>>:: _implements http://www.opengeospatial.org/standards/cat[CSW]_. The CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
-<<_wfs_v100_source,WFS Source>>:: _implements http://www.opengeospatial.org/standards/wfs[WFS v.1.0.0]_. The WFS Source allows for requests for geographical features across the web using platform-independent calls.
-<<_wfs_v200_source,WFS Source>>:: _implements http://www.opengeospatial.org/standards/wfs[WFS v.2.0.0]_. Use the WFS 2.0.0 Source if querying a WFS version 2.0.0 compliant service.
+<<_wfs_v100_source,WFS Source v1.0.0>>:: _implements http://www.opengeospatial.org/standards/wfs[WFS v.1.0.0]_. The WFS Source allows for requests for geographical features across the web using platform-independent calls.
+<<_wfs_v200_source,WFS Source v2.0.0>>:: _implements http://www.opengeospatial.org/standards/wfs[WFS v.2.0.0]_. Use the WFS 2.0.0 Source if querying a WFS version 2.0.0 compliant service.

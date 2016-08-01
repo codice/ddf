@@ -153,7 +153,7 @@ The `MetacardMapper` is set by creating a feature file configuration which speci
 
 The WFS `MetacardMapper` is is not installed by default with a standard application in the ${ddf-spatial} application.
 
-==== Configuring the WFS `MetacardMapper`
+===== Configuring the WFS `MetacardMapper`
 
 .WFS MetacardMapper Configurable Properties
 [cols="6*", options="header"]
