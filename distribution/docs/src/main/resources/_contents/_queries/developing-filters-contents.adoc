@@ -1,0 +1,722 @@
+
+==== Creating Filters
+
+The common way to create a `Filter` is to use the Geotools `FilterFactoryImpl` object, which provides Java implementations for the various types of filters in the Filter Specification.
+Examples are the easiest way to understand how to properly create a `Filter` and a `Query`. 
+
+[NOTE]
+====
+Refer to the http://docs.geotools.org/latest/javadocs/[Geotools javadoc] for more information on `FilterFactoryImpl`.
+====
+
+The example below illustrates creating a query, and thus an OGC Filter, that does a case-insensitive search for the phrase "mission" in the entire metacard's text.
+Note that the OGC `PropertyIsLike` Filter is used for this simple contextual query.
+
+.Simple Contextual Search
+[source,java,linenums]
+----
+org.opengis.filter.FilterFactory filterFactory = new FilterFactoryImpl() ;
+boolean isCaseSensitive = false ;
+
+String wildcardChar = "*" ; // used to match zero or more characters
+String singleChar = "?" ; // used to match exactly one character
+String escapeChar = "\\" ; // used to escape the meaning of the wildCard, singleChar,
+and the escapeChar itself
+
+String searchPhrase = "mission" ;
+org.opengis.filter.Filter propertyIsLikeFilter =
+    filterFactory.like(filterFactory.property(Metacard.ANY_TEXT), searchPhrase, wildcardChar, singleChar, escapeChar, isCaseSensitive);
+${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl( propertyIsLikeFilter );
+----
+
+The example below illustrates creating an absolute temporal query, meaning the query is searching for Metacards whose modified timestamp occurred during a specific time range.
+Note that this query uses the `During` OGC Filter for an absolute temporal query.
+
+.Absolute Temporal Search
+[source,java,linenums]
+----
+org.opengis.filter.FilterFactory filterFactory = new FilterFactoryImpl() ;
+org.opengis.temporal.Instant startInstant = new org.geotools.temporal.object.DefaultInstant(new DefaultPosition(start));
+
+org.opengis.temporal.Instant endInstant = new org.geotools.temporal.object.DefaultInstant(new DefaultPosition(end));
+
+org.opengis.temporal.Period period =  new org.geotools.temporal.object.DefaultPeriod(startInstant, endInstant);
+
+String property = Metacard.MODIFIED ; // modified date of a metacard
+
+org.opengis.filter.Filter filter = filterFactory.during( filterFactory.property(property), filterFactory.literal(period)  );
+
+${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl(filter) ;
+----
+
+===== Contextual Searches
+
+Most contextual searches can be expressed using the `PropertyIsLike` filter. The special haracters that have meaning in a `PropertyIsLike` filter are the wildcard, single wildcard, and escape characters (see Example Creating-Filters-1).
+
+.`PropertyIsLike` Special Characters
+[cols="2*", options="header"]
+|===
+|Character
+|Description
+
+|Wildcard
+|Matches zero or more characters.
+
+|Single Wildcard
+|Matches exactly one character.
+
+|Escape
+|Escapes the meaning of the Wildcard, Single Wildcard, and the Escape character itself
+|===
+
+Characters and words, such as `AND`, `&`, `and`, `OR`, `|`, `or`, `NOT`, `~`, `not`, `{`, and `}`, are treated as literals in a `PropertyIsLike` filter. In order to create equivalent logical queries, a developer must instead use the Logical Operator filters {`AND`, `OR`, `NOT`}. The Logical Operator filters can be combined together with `PropertyIsLike` filters to create a tree that represents the search phrase expression. 
+
+.Creating the search phrase "mission and planning"
+[source,java,linenums]
+----
+org.opengis.filter.FilterFactory filterFactory = new FilterFactoryImpl() ;
+
+boolean isCaseSensitive = false ;
+
+String wildcardChar = "*" ; // used to match zero or more characters
+String singleChar = "?" ; // used to match exactly one character
+String escapeChar = "\\" ; // used to escape the meaning of the wildCard, singleChar, and the escapeChar itself
+
+Filter filter =
+    filterFactory.and(
+       filterFactory.like(filterFactory.property(Metacard.METADATA), "mission" ,
+wildcardChar, singleChar, escapeChar, isCaseSensitive),
+       filterFactory.like(filterFactory.property(Metacard.METADATA), "planning" ,
+wildcardChar, singleChar, escapeChar, isCaseSensitive)
+    );
+
+${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl( filter );
+----
+
+====== Tree View of Creating Filters 
+
+Filters used in ${branding} can always be represented in a tree diagram.
+
+.Filter Example Tree Diagram
+[ditaa,filter-example-tree, png,600]
+....
++--------------------\
+|cEEE /-------\      |
+|     |  And  |      |
+|     \-+---+-/      |
+|       |   |        |
+|     +-+   +-+      |
+|     |       |      |
+|     v       v      |
+|/-------\ /--------\|
+||mission| |planning||
+|\-------/ \--------/|
+\--------------------/
+....
+
+====== XML View of Creating Filters
+
+Another way to view this type of Filter is through an XML model, which is shown below.
+
+.Pseudo XML of Example Creating-Filters-3
+[source,xml,linenums]
+----
+<Filter>
+   <And>
+      <PropertyIsLike wildCard="*" singleChar="?" escapeChar="\">
+           <PropertyName>metadata</PropertyName>
+           <Literal>mission</Literal>
+      </PropertyIsLike>
+      <PropertyIsLike wildCard="*" singleChar="?" escapeChar="\">
+           <PropertyName>metadata</PropertyName>
+           <Literal>planning</Literal>
+      </PropertyIsLike>
+   <And>
+</Filter>
+----
+
+Using the Logical Operators and `PropertyIsLike` filters, a developer can create a whole language of search phrase expressions.
+
+===== Fuzzy Operations
+
+${branding} only supports one custom function.
+The Filter specification does not include a fuzzy operator, so a Filter function was created to represent a fuzzy operation.
+The function and class is called `FuzzyFunction`, which is used by clients to notify the Sources to perform a fuzzy search.
+The syntax expected by providers is similar to the Fuzzy Function.
+Refer to the example below.
+
+[source,java,linenums]
+----
+String wildcardChar = "*" ; // used to match zero or more characters
+String singleChar = "?" ; // used to match exactly one character
+String escapeChar = "\\" ; // used to escape the meaning of the wildCard, singleChar
+
+boolean isCaseSensitive = false ;
+
+Filter fuzzyFilter = filterFactory.like(
+     new ${ddf-branding}.catalog.impl.filter.FuzzyFunction(
+          Arrays.asList((Expression) (filterFactory.property(Metacard.ANY_TEXT))),
+          filterFactory.literal("")),
+     searchPhrase,
+     wildcardChar,
+     singleChar,
+     escapeChar,
+     isCaseSensitive);
+
+QueryImpl query = new QueryImpl(fuzzyFilter);
+----
+
+==== Parsing Filters
+
+According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specification 04-095]: a "(filter expression) representation can be ... parsed and then transformed into whatever target language is required to retrieve or modify object instances stored in some persistent object store."
+Filters can be thought of as the `WHERE` clause for a SQL SELECT statement to "fetch data stored in a SQL-based relational database." 
+
+Sources can parse OGC Filters using the `FilterAdapter` and `FilterDelegate`.
+See Developing a Filter Delegate for more details on implementing a new `FilterDelegate`.
+This is the preferred way to handle OGC Filters in a consistent manner.
+
+Alternately, `org.opengis.filter.Filter` implementations can be parsed using implementations of the interface `org.opengis.filter.FilterVisitor`. 
+The `FilterVisitor` uses the http://www.oodesign.com/visitor-pattern.html[Visitor pattern]. Essentially, `FilterVisitor` instances "visit" each part of the `Filter` tree allowing developers to implement logic to handle the filter's operations. 
+Geotools 8 includes implementations of the `FilterVisitor` interface.
+The `DefaultFilterVisitor`, as an example, provides only business logic to visit every node in the `Filter` tree.
+The `DefaultFilterVisitor` methods are meant to be overwritten with the correct business logic. 
+The simplest approach when using `FilterVisitor` instances is to build the appropriate query syntax for a target language as each part of the `Filter` is visited.
+For instance, when given an incoming `Filter` object to be evaluated against a RDBMS, a `CatalogProvider instance could use a `FilterVisitor` to interpret each filter operation on the `Filter` object and translate those operations into SQL.
+The `FilterVisitor` may be needed to support `Filter` functionality not currently handled by the `FilterAdapter` and `FilterDelegate` reference implementation.
+
+===== Interpreting a Filter to Create SQL
+
+If the `FilterAdapter` encountered or "visited" a `PropertyIsLike` filter with its property assigned as `title` and its literal expression assigned as `mission`, the `FilterDelegate` could create the proper SQL syntax similar to title `LIKE` mission.
+
+.Parsing Filters Tree Diagram
+[ditaa,parsing-filters,png]
+....
++-------------------------\
+|    /----------------\   |
+|    | PropertyIsLike |   |
+|    \----------------/   |
+| cEEE      |  |          |
+|      /----/  \----\     |
+|      |            |     |
+|      v            v     |
+|/----------\  /---------\|
+||Property- |  |Literal- ||
+|| title    |  | mission ||
+|\----------/  \---------/|
+\-------------------------/
+....
+
+===== Interpreting a Filter to Create XQuery
+
+If the `FilterAdapter` encountered an `OR` filter, such as in Figure Parsing-Filters2 and the target language was XQuery, the `FilterDelegate` could yield an expression such as 
+
+[source]
+----
+ft:query(//inventory:book/@subject,'math') union
+ft:query(//inventory:book/@subject,'science').
+----
+
+.Parsing Filters XQuery
+[ditaa, parsing-filters-xquery, png]
+....
++---------------------------------------------------\
+|                       /----\                      |
+|  cEEE                 | OR |                      |
+|                       \----/                      |
+|                        |  |                       |
+|             /----------/  \----------\            |
+|             |                        |            |
+|             v                        v            |
+|    /----------------\        /----------------\   |
+|    | PropertyIsLike |        | PropertyIsLike |   |
+|    \----------------/        \----------------/   |
+|           |  |                      |  |          |
+|      /----/  \----\            /----/  \----\     |
+|      |            |            |            |     |
+|      v            v            v            v     |
+|/----------\  /---------\  /---------\  /---------\|
+||Property- |  |Literal- |  |Property-|  |Literal- ||
+|| title    |  | mission |  | Subject |  | science ||
+|\----------/  \---------/  \---------/  \---------/|
+\---------------------------------------------------/
+....
+
+
+====== FilterAdapter/Delegate Process for Figure Parsing
+
+. `FilterAdapter` visits the `OR` filter first.
+. `OR` filter visits its children in a loop. 
+. The first child in the loop that is encountered is the LHS `PropertyIsLike`.
+. The `FilterAdapter` will call the `FilterDelegate` `PropertyIsLike`method with the LHS property and literal.
+. The LHS `PropertyIsLike` delegate method builds the XQuery syntax that makes sense for this particular underlying object store. In this case, the _subject_ property is specific to this XML database, and the business logic maps the _subject_ property to its index at `//inventory:book/@subject` Note that `ft:query` in this instance is a custom XQuery module for this specific XML database that does full text searches.
+. The `FilterAdapter` then moves back to the `OR` filter, which visits its second child.
+. The `FilterAdapter` will call the `FilterDelegate` `PropertyIsLike` method with the RHS property and literal.
+. The RHS `PropertyIsLike` delegate method builds the XQuery syntax that makes sense for this particular underlying object store. In this case, the _subject_ property is specific to this XML database, and the business logic maps the _subject_ property to its index at `//inventory:book/@subject` Note that `ft:query` in this instance is a custom XQuery module for this specific XML database that does full text searches.
+. The `FilterAdapter` then moves back to its `OR Filter which is now done with its children.
+. It then collects the output of each child and sends the list of results to the `FilterDelegate OR` method.
+. The final result object will be returned from the `FilterAdapter` adapt method.
+
+====== FilterVisitor Process for Figure Parsing
+
+. FilterVisitor visits the `OR` filter first.
+. `OR` filter visits its children in a loop. 
+. The first child in the loop that is encountered is the LHS `PropertyIsLike`.
+. The LHS `PropertyIsLike` builds the XQuery syntax that makes sense for this particular underlying object store. In this case, the _subject_ property is specific to this XML database, and the business logic maps the _subject_ property to its index at `//inventory:book/@subject`. Note that `ft:query` in this instance is a custom XQuery module for this specific XML database that does full text searches.
+. The FilterVisitor then moves back to the `OR` filter, which visits its second child.
+. The RHS `PropertyIsLike` builds the XQuery syntax that makes sense for this particular underlying object store. In this case, the _subject_ property is specific to this XML database, and the business logic maps the _subject_ property to its index at `//inventory:book/@subject`. Note that `ft:query` in this instance is a custom XQuery module for this specific XML database that does full text searches.
+. The FilterVisitor then moves back to its `OR` filter, which is now done with its children. It then collects the output of each child and could potentially execute the following code to produce the above expression.
+
+[source,java,linenums]
+----
+public visit( Or filter, Object data) {
+...
+   /* the equivalent statement for the OR filter in this domain (XQuery) */
+   xQuery = childFilter1Output + " union " + childFilter2Output;
+...
+}
+----
+
+==== Filter Profile
+
+===== Role of the OGC Filter
+
+Both Queries and Subscriptions extend the OGC GeoAPI Filter interface.
+
+The Filter Builder and Adapter do not fully implement the OGC Filter Specification.
+The filter support profile contains suggested filter to metacard type mappings.
+For example, even though a Source could support a `PropertyIsGreaterThan` filter on `XML_TYPE`, it would not likely be useful.
+
+===== Catalog Filter Profile
+
+The filter profile maps filters to metacard types.
+The following table displays the common metacard attributes with their respective types for reference.
+
+.Metacard Attribute To Type Mapping
+[cols="2*", options="header"]
+|===
+
+|Metacard Attribute
+|Metacard Type
+
+|ANY_DATE
+|DATE_TYPE
+
+|ANY_GEO
+|GEO_TYPE
+
+|ANY_TEXT
+|STRING_TYPE
+
+|CONTENT_TYPE
+|STRING_TYPE
+
+|CONTENT_TYPE_VERSION
+|STRING_TYPE
+
+|CREATED
+|DATE_TYPE
+
+|EFFECTIVE
+|DATE_TYPE
+
+|GEOGRAPHY
+|GEO_TYPE
+
+|ID
+|STRING_TYPE
+
+|METADATA
+|XML_TYPE
+
+|MODIFIED
+|DATE_TYPE
+
+|RESOURCE_SIZE
+|STRING_TYPE
+
+|RESOURCE_URI
+|STRING_TYPE
+
+|SOURCE_ID
+|STRING_TYPE
+
+|TARGET_NAMESPACE
+|STRING_TYPE
+
+|THUMBNAIL
+|BINARY_TYPE
+
+|TITLE
+|STRING_TYPE
+
+|===
+
+====== Comparison Operators
+
+Comparison operators compare the value associated with a property name with a given Literal value.
+Endpoints and sources should try to use metacard types other than the object type.
+The object type only supports backwards compatibility with `java.net.URI`.  
+Endpoints that send other objects will not be supported by standard sources.
+The following table maps the metacard types to supported comparison operators.
+
+.Metacard Types to Comparison Operators
+[cols="12*", options="header"]
+|===
+
+|PropertyIs
+|Between
+|EqualTo
+|GreaterThan
+|GreaterThan
+|OrEqualTo
+|LessThan
+|LessThan
+|OrEqualTo
+|Like
+|NotEqualTo
+|Null
+
+|BINARY_TYPE
+|
+|*X*
+|
+|
+|
+|
+|
+|
+|
+|
+|
+
+|BOOLEAN_TYPE
+|
+|*X*
+|
+|
+|
+|
+|
+|
+|
+|
+|
+
+|DATE_TYPE
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|
+|*X*
+|*X*
+
+|DOUBLE_TYPE
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|
+|*X*
+|*X*
+
+|FLOAT_TYPE
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|
+|*X*
+|*X*
+
+ 
+
+|GEO_TYPE
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|*X*
+
+|INTEGER_TYPE
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|
+|*X*
+|*X*
+
+|LONG_TYPE
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|
+|*X*
+|*X*
+
+|OBJECT_TYPE
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|
+|*X*
+|*X*
+
+|SHORT_TYPE
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|
+|*X*
+|*X*
+
+|STRING_TYPE
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+
+|XML_TYPE
+|
+|*X*
+|
+|
+|
+|
+|
+|
+|*X*
+|
+|*X*
+ 
+|===
+
+.Comparison Operators
+[cols="2*", options="header"]
+|===
+
+|Operator
+|Description
+
+|PropertyIsBetween
+|Lower <= Property <= Upper
+
+|PropertyIsEqualTo
+|Property == Literal
+
+|PropertyIsGreaterThan
+|Property > Literal
+
+|PropertyIsGreaterThanOrEqualTo
+|Property >= Literal
+
+|PropertyIsLessThan
+|Property < Literal
+
+|PropertyIsLessThanOrEqualTo
+|Property <= Literal
+
+|PropertyIsLike
+|Property LIKE Literal
+
+Equivalent to SQL "like" 
+
+|PropertyIsNotEqualTo
+|Property != Literal
+
+|PropertyIsNull
+|Property == null
+
+|===
+
+====== Logical Operators
+
+Logical operators apply Boolean logic to one or more child filters.
+
+.Supported Logical Operators
+[cols="4*", options="header"]
+|===
+
+|
+|And
+|Not
+|Or
+
+|Supported Filters
+|*X*
+|*X*
+|*X*
+
+|===
+
+====== Temporal Operators
+
+Temporal operators compare a date associated with a property name to a given Literal date or date range.
+
+.Supported Temporal Operators
+[cols="12*", options="header"]
+|===
+|
+|After
+|AnyInteracts
+|Before
+|Begins
+|BegunBy
+|During
+|EndedBy
+|Meets
+|MetBy
+|OverlappedBy
+|TContains
+
+|DATE_TYPE
+|*X*
+|
+|*X*
+|
+|
+|*X*
+|
+|
+|
+|
+|
+
+|===
+
+Literal values can be either date instants or date periods.
+
+.Temporal Operator Descriptions
+[cols="2*", options="header"]
+|===
+
+|Operator
+|Description
+
+|After
+|Property > (Literal \|\| Literal.end)
+
+|Before
+|Property < (Literal \|\| Literal.start)
+
+|During
+|Literal.start < Property < Literal.end
+
+|===
+
+====== Spatial Operators
+
+Spatial operators compare a geometry associated with a property name to a given Literal geometry. 
+
+.Supported Spatial Operators.
+[cols="11*", options="headers"]
+|===
+
+|BBox
+|Beyond
+|Contains
+|Crosses
+|Disjoint
+|Equals
+|DWithin
+|Intersects
+|Overlaps
+|Touches
+|Within
+
+|GEO_TYPE
+|
+|*X*
+|*X*
+|*X*
+|*X*
+|
+|*X*
+|*X*
+|*X*
+|
+
+|===
+
+Geometries are usually represented as Well-Known Text (_WKT_).
+
+.Spatial Operator Descriptions
+[cols="2*", options="header"]
+|===
+
+|Operator
+|Description
+
+|Beyond
+|Property geometries beyond given distance of Literal geometry
+
+|Contains
+|Property geometry contains Literal geometry
+
+|Crosses
+|Property geometry crosses Literal geometry
+
+|Disjoint
+|Property geometry direct positions are not interior to Literal geometry
+
+|DWithin
+|Property geometry lies within distance to Literal geometry
+
+|Intersects
+|Property geometry intersects Literal geometry; opposite to the Disjoint operator 
+
+|Overlaps
+|Property geometry interior somewhere overlaps Literal geometry interior
+
+|Touches
+|Property geometry touches but does not overlap Literal geometry
+
+|Within
+|Property geometry completely contains Literal geometry
+
+|===
