@@ -296,10 +296,23 @@ include::./_data/data-intro-contents.adoc[]
 
 include::./_eventing/eventing-intro-contents.adoc[]
 
-/////////////////////////////////
 == Resources
 
 include::./_resources/resources-intro-contents.adoc[]
+
+include::./_resources/resource-components-intro-contents.adoc[]
+//resource readers
+include::./_resources/resource-readers-intro-contents.adoc[]
+
+include::./_resources/url-resource-reader-contents.adoc[]
+
+include::./_resources/developing-resource-readers-contents.adoc[]
+//resources writers
+include::./_resources/resource-writers-intro-contents.adoc[]
+
+include::./_resources/developing-resource-writers-contents.adoc[]
+
+include::./_resources/developing-registry-clients-contents.adoc[]
 
 //////
 == Security
@@ -317,6 +330,7 @@ include::./_metrics/catalog-metrics-contents.adoc[]
 include::./_metrics/source-metrics-contents.adoc[]
 
 
+/////////////////////////////////
 
 //////////
 

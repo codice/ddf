@@ -1,0 +1,132 @@
+==== Developing Resource Readers
+
+A `ResourceReader` is a class that retrieves a resource or product from a native/external source and returns it to ${branding}.
+A simple example is that of a File `ResourceReader`.
+It takes a file from the local file system and passes it back to ${branding}.
+New implementations can be created in order to support obtaining Resources from various Resource data stores. 
+
+===== Creating a New `ResourceReader`
+
+Complete the following procedure to create a `ResourceReader`.
+
+. Create a Java class that implements the `${ddf-branding}.catalog.resource.ResourceReader` interface.
+. Deploy the OSGi bundled packaged service to the ${branding} run-time.
+
+===== Implementing the `ResourceReader` Interface
+
+[source,java,linenums]
+----
+public class TestResourceReader implements ${ddf-branding}.catalog.resource.ResourceReader
+----
+
+`ResourceReader` has a couple of key methods where most of the work is performed.
+
+[NOTE]
+====
+*URI* +
+It is recommended to become familiar with the Java API URI class in order to properly build a `ResourceReader`. 
+Furthermore, a URI should be used according to its http://www.w3.org/Addressing/URL/uri-spec.html[specification].
+====
+
+===== retrieveResource
+
+[source,java,linenums]
+----
+public ResourceResponse retrieveResource( URI uri, Map<String, Serializable> arguments )throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
+----
+
+This method is the main entry to the `ResourceReader`.
+It is used to retrieve a `Resource` and send it back to the caller (generally the `CatalogFramework`).
+Information needed to obtain the entry is contained in the `URI` reference.
+The URI Scheme will need to match a scheme specified in the `getSupportedSchemes` method.
+This is how the CatalogFramework determines which `ResourceReader` implementation to use. 
+If there are multiple `ResourceReaders` supporting the same scheme, these `ResourceReaders` will be invoked iteratively. 
+Invocation of the `ResourceReaders` stops once one of them returns a `Resource`.
+
+Arguments are also passed in.
+These can be used by the `ResourceReader` to perform additional operations on the resource.
+
+An example of how `URLResourceReader` (located in the source code at `/trunk/${ddf-branding}/catalog/resource/URLResourceReader.java`) implements the `getResource` method.
+This `ResourceReader` simply reads a file from a URI.
+
+[NOTE]
+====
+The `Map<String, Serializable> arguments` parameter is passed in to support any options or additional information associated with retrieving the resource.
+====
+
+===== Implement `retrieveResource()`
+
+. Define supported schemes (e.g., file, http, etc.).
+. Check if the incoming URI matches a supported scheme. If it does not, throw `ResourceNotSupportedException`.
+
+.Example:
+[source,java,linenums]
+----
+if ( !uri.getScheme().equals("http") )
+ {
+   throw new ResourceNotSupportedException("Unsupported scheme received, was expecting http")
+ }
+----
+
+. Implement the business logic.
+. For example, the `URLResourceReader` will obtain the resource through a connection:
+
+[source,java,linenums]
+----
+URL url = uri.toURL();
+URLConnection conn = url.openConnection();
+String mimeType = conn.getContentType();
+if ( mimeType == null ) {
+    mimeType = URLConnection.guessContentTypeFromName( url.getFile() );
+}
+InputStream is = conn.getInputStream();
+----
+
+[NOTE]
+====
+The `Resource` needs to be accessible from the ${branding} installation (see the rootResourceDirectories property of the `URLResourceReader`). 
+This includes being able to find a file locally or reach out to a remote URI. 
+This may require Internet access, and ${branding} may need to be configured to use a proxy (`http.proxyHost` and `http.proxyPort` can be added to the system properties on the command line script).
+====
+
+. Return `Resource` in `ResourceResponse`.
+
+For example:
+[source,java,linenums]
+----
+return ResourceResponseImpl( new ResourceImpl( new BufferedInputStream( is ), new MimeType( mimeType ), url.getFile() ) );
+----
+
+If the Resource cannot be found, throw a `ResourceNotFoundException`.  
+
+===== `getSupportedSchemes`
+
+[source,java]
+----
+public Set<String> getSupportedSchemes();
+----
+
+This method lets the `ResourceReader` inform the CatalogFramework about the type of URI scheme that it accepts and should be passed.
+For single-use ResourceReaders (like a URLResourceReader), there may be only one scheme that it can accept while others may understand more than one.
+A ResourceReader must, at minimum, accept one qualifier. 
+As mentioned before, this method is used by the `CatalogFramework` to determine which `ResourceReader` to invoke. 
+
+[NOTE]
+====
+*`ResourceReader` extends `Describable`* +
+Additionally, there are other methods that are used to uniquely describe a `ResourceReader`.
+ The `describe` methods are straight-forward and can be implemented with guidance from the Javadoc.
+====
+
+===== Export to OSGi Service Registry
+
+In order for the `ResourceReader` to be used by the `CatalogFramework`, it should be exported to the OSGi Service Registry as a `${ddf-branding}.catalog.resource.ResourceReader`.
+
+See the XML below for an example:
+
+.Blueprint example
+[source,xml,linenums]
+----
+<bean id="[[customResourceReaderId]]" class="[[example.resource.reader.impl.CustomResourceReader]]" />
+<service ref="[[customResourceReaderId]]" interface="${ddf-branding}.catalog.source.ResourceReader" />
+----

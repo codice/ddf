@@ -1,0 +1,122 @@
+.Resources Architecture
+[ditaa, catalog_architecture_resources, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |c369   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+Resources are the data that is represented by the cataloged metadata in ${branding}.
+
+Metacards are used to describe those resources through metadata. 
+This metadata includes the time the resource was created, the location where the resource was created, etc. 
+A ${branding} `Metacard` contains the `getResourceUri` method, which is used to locate and retrieve its corresponding resource.
+
+=== Retrieving Resources
+
+When a client attempts to retrieve a resource, it must provide a metacard ID or URI corresponding to a unique resource. 
+As mentioned above, the resource URI is obtained from a `Metacard`'s `getResourceUri` method. 
+The `CatalogFramework` has three methods that can be used by clients to obtain a resource: `getEnterpriseResource`, `getResource`, and `getLocalResource`.
+The `getEnterpriseResource` method invokes the `retrieveResource` method on a local `ResourceReader` as well as all the `Federated` and `Connected` Sources inthe ${branding} enterprise. 
+The second method, `getResource`, takes in a source ID as a parameter and only invokes `retrieveResource` on the specified `Source`. 
+The third method invokes `retrieveResource` on a local `ResourceReader`. 
+
+The parameter for each of these methods in the `CatalogFramework` is a 	`ResourceRequest`. 
+${branding} includes two implementations of `ResourceRequest`: `ResourceRequestById` and `ResourceRequestByProductUri`. 
+Since these implementations extend `OperationImpl`, they can pass a `Map` of generic properties through the `CatalogFramework` to customize how the resource request is carried out. 
+One example of this is explained in the Options section below. 
+The following is a basic example of how to create a `ResourceRequest` and invoke the `CatalogFramework` resource retrieval methods to process the request.   
+
+.Retrieve Resource Example
+[source,java,linenums]
+----
+Map<String, Serializable> properties = new HashMap<String, Serializable>();
+properties.put("PropertyKey1", "propertyA"); //properties to customize Resource retrieval
+ResourceRequestById resourceRequest = new ResourceRequestById("0123456789abcdef0123456789abcdef", properties); //object containing ID of Resource to be retrieved
+String sourceName = "LOCAL_SOURCE"; //the Source ID or name of the local Catalog or a Federated Source
+ResourceResponse resourceResponse; //object containing the retrieved Resource and the request that was made to get it.
+resourceResponse = catalogFramework.getResource(resourceRequest, sourceName); //Source-based retrieve Resource request
+Resource resource = resourceResponse.getResource(); //actual Resource object containing InputStream, mime type, and Resource name
+----
+
+`${ddf-branding}.catalog.resource.ResourceReader` instances can be discovered via the OSGi Service Registry.
+The system can contain multiple `ResourceReaders`. 
+The `CatalogFramework` determines which one to call based on the scheme of the resource's URI and what schemes the `ResourceReader` supports. 
+The supported schemes are obtained by a `ResourceReader`'s `getSupportedSchemes` method. 
+As an example, one `ResourceReader` may know how to handle file-based URIs with the scheme 	`file`, whereas another `ResourceReader` may support HTTP-based URIs with the scheme `http`.
+
+The `ResourceReader` or `Source` is responsible for locating the resource, reading its bytes, adding the binary data to a `Resource` implementation, then returning that `Resource` in a `ResourceResponse`. 
+The `ResourceReader` or `Source` is also responsible for determining the `Resource`'s name and mime type, which it sends back in the `Resource` implementation.  
+ 
+==== Options
+
+Options can be specified on a retrieve resource request made through any of the supporting endpoint. 
+To specify an option for a retrieve resource request, the endpoint needs to first instantiate a `ResourceRequestByProductUri` or a `ResourceRequestById`. 
+Both of these `ResourceRequest` implementations allow a `Map` of properties to be specified. 
+Put the specified option into the `Map` under the key `RESOURCE_OPTION`.  
+
+.Retrieve Resource with Options
+[source,java,linenums]
+----
+Map<String, Serializable> properties = new HashMap<String, Serializable>();
+properties.put("RESOURCE_OPTION", "OptionA");
+ResourceRequestById resourceRequest = new ResourceRequestById("0123456789abcdef0123456789abcdef", properties);
+----
+
+Depending on the support that the `ResourceReader` or `Source` provides for options, the `properties``Map` will be checked for the `RESOURCE_OPTION` entry. 
+If that entry is found, the option will be handled; however, the `ResourceReader` or `Source` supports options. 
+If the `ResourceReader` or `Source` does not support options, that entry will be ignored.
+
+A new `ResourceReader` or `Source` implementation can be created to support options in a way that is most appropriate. 
+Since the option is passed through the catalog framework as a property, the `ResourceReader` or `Source` will have access to that option as long as the endpoint supports options.       
+
+=== Storing Resources
+
+Resources are saved using a `ResourceWriter`. 
+`${ddf-branding}.catalog.resource.ResourceWriter` instances can be discovered via the OSGi Service Registry.
+Once retrieved, the `ResourceWriter` instance provides clients a way to store resources and get a corresponding URI that can be used to subsequently retrieve the resource via a `ResourceReader`. 
+Simply invoke either of the `storeResource` methods with a resource and any potential arguments.
+ 
+The `ResourceWriter` implementation is responsible for determining where the resource is saved and how it is saved. 
+This allows flexibility for a resource to be saved in any one of  a variety of data stores or file systems. 
+The following is an example of how to use a generic implementation of `ResourceWriter`.
+
+.Using a ResourceWriter
+[source,java,linenums]
+----
+InputStream inputStream = <Video_Input_Stream>; //InputStream of raw Resource data
+MimeType mimeType = new MimeType("video/mpeg"); //Mime Type or content type of Resource
+String name = "Facility_Video";  //Descriptive Resource name
+Resource resource = new ResourceImpl(inputStream, mimeType, name);
+Map<String, Object> optionalArguments = new HashMap<String, Object>();
+ResourceWriter writer = new ResourceWriterImpl();
+URI resourceUri; //URI that can be used to retrieve Resource
+resourceUri = writer.storeResource(resource, optionalArguments); //Null can be passed in here
+----
+
+==== BinaryContent
+
+`BinaryContent` is an object used as a container to store translated or transformed ${branding} components. 
+`Resource` extends `BinaryContent` andincludes a `getName` method.  `
+BinaryContent` has methods to get the `InputStream`, `byte` array, MIME type, and size of the represented binary data.
+An implementation of `BinaryContent` (`BinaryContentImpl`) can be found in the Catalog API in the `${ddf-branding}.catalog.data` package.
+
+===== Additional Information on URIs
+
+* URI on Wikipedia (http://en.wikipedia.org/wiki/Uniform_resource_identifier)
+* URI Javadoc (http://docs.oracle.com/javase/6/docs/api/java/net/URI.html)
