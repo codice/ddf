@@ -222,6 +222,19 @@ include::./_plugins/pre-delivery-plugin-intro-contents.adoc[]
 include::./_plugins/pre-delivery-plugins-contents.adoc[]
 
 include::./_plugins/dummy-pre-delivery-plugin-contents.adoc[]
+//pre-create-storage
+include::./_plugins/pre-create-storage-plugin-intro-contents.adoc[]
+
+include::./_plugins/pre-create-storage-plugins-contents.adoc[]
+
+include::./_plugins/checksum-plugin-contents.adoc[]
+
+include::./_plugins/preview-storage-plugin-contents.adoc[]
+
+//pre-update-storage
+include::./_plugins/pre-update-storage-plugin-intro-contents.adoc[]
+
+include::./_plugins/pre-update-storage-plugins-contents.adoc[]
 
 //post-ingest
 include::./_plugins/post-ingest-plugin-intro-contents.adoc[]
@@ -253,6 +266,16 @@ include::./_plugins/dummy-validation-post-query-plugin-contents.adoc[]
 include::./_plugins/post-resource-plugin-intro-contents.adoc[]
 
 include::./_plugins/post-resource-plugins-contents.adoc[]
+//post-create-storage
+include::./_plugins/post-create-storage-plugin-intro-contents.adoc[]
+
+include::./_plugins/post-create-storage-plugins-contents.adoc[]
+
+include::./_plugins/video-thumbnail-plugin-contents.adoc[]
+//post-update-storage
+include::./_plugins/update-storage-plugin-intro-contents.adoc[]
+
+include::./_plugins/update-storage-plugins-contents.adoc[]
 //Policy
 include::./_plugins/policy-plugin-intro-contents.adoc[]
 
@@ -307,12 +330,28 @@ include::./_resources/resource-readers-intro-contents.adoc[]
 include::./_resources/url-resource-reader-contents.adoc[]
 
 include::./_resources/developing-resource-readers-contents.adoc[]
-//resources writers
+//resource writers
 include::./_resources/resource-writers-intro-contents.adoc[]
 
 include::./_resources/developing-resource-writers-contents.adoc[]
-
+//registry clients
 include::./_resources/developing-registry-clients-contents.adoc[]
+//content directory monitor
+include::./_resources/content-directory-monitor-contents.adoc[]
+
+== Queries
+
+include::./_queries/queries-intro-contents.adoc[]
+
+include::./_queries/filter-intro-contents.adoc[]
+
+include::./_queries/developing-filters-contents.adoc[]
+
+include::./_queries/query-option-intro-contents.adoc[]
+
+include::./_queries/developing-query-options-intro-contents.adoc[]
+
+include::./_queries/developing-filter-delegates-contents.adoc[]
 
 //////
 == Security
@@ -330,23 +369,9 @@ include::./_metrics/catalog-metrics-contents.adoc[]
 include::./_metrics/source-metrics-contents.adoc[]
 
 
-/////////////////////////////////
-
-//////////
-
 == Actions
 
 include::./_actions/developing-action-components.adoc[]
-
-== Data Validation and Integrity
-
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
 
 
 === Input Formats

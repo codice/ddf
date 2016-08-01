@@ -27,7 +27,60 @@ Metacards are used to describe those resources through metadata. 
 This metadata includes the time the resource was created, the location where the resource was created, etc. 
 A ${branding} `Metacard` contains the `getResourceUri` method, which is used to locate and retrieve its corresponding resource.
 
-=== Retrieving Resources
+The Catalog Framework can interface with Storage providers to provide storage of resources to specific types of  storage, e.g., file system, relational database, XML database.
+A default file system provider is provided by default.
+Storage plugins provide pluggable functionality that can be executed either immediately before or immediately after content has been stored or updated.
+Storage providers act as a proxy between the Catalog Framework and the mechanism storing the content, e.g., file system, relational database.
+Storage providers expose the storage mechanism to the Catalog Framework.
+
+Storage providers provide the capability to the Catalog Framework to create, read, update, and delete content in the content repository.
+
+.Content Data Component Architecture
+[ditaa, content_data_components, png,${image.width}]
+....
++------------------------------------------------------------------------------+
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |cDEF Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | cDEF       | c369 |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | cDEF              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Catalog Framework |cDEFStorage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |                                        |
+|                 +-------------------|                                        |
+|                 |cDEF               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEF${branding} Component   |    |
+|                   |  Repository   |                \--------------------/    |
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
+....
+
+=== Content Item
+
+ContentItem is the domain object populated by the Storage Provider that represents the information about the content to be stored or content that has been stored in the Storage Provider.
+A ContentItem encapsulates the content's globally unique ID, mime type, and input stream (i.e., the actual content).
+The unique ID of a ContentItem will always correspond to a Metacard ID.
+
+
+==== Retrieving Resources
 
 When a client attempts to retrieve a resource, it must provide a metacard ID or URI corresponding to a unique resource. 
 As mentioned above, the resource URI is obtained from a `Metacard`'s `getResourceUri` method. 
@@ -85,7 +138,7 @@ If the `ResourceReader` or `Source` does not support options, that entry wil
 A new `ResourceReader` or `Source` implementation can be created to support options in a way that is most appropriate. 
 Since the option is passed through the catalog framework as a property, the `ResourceReader` or `Source` will have access to that option as long as the endpoint supports options.       
 
-=== Storing Resources
+==== Storing Resources
 
 Resources are saved using a `ResourceWriter`. 
 `${ddf-branding}.catalog.resource.ResourceWriter` instances can be discovered via the OSGi Service Registry.

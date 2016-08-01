@@ -1,0 +1,6 @@
+
+.[[_included_pre-update_storage_plugins]]Included Pre-Update Storage Plugins
+<<_checksum,Checksum Plugin>>:: description.
+<<_preview_storage_plugin,Preview Storage>>:: description.
+<<_security_logging_plugin,Security Logging Plugin>>:: description.
+

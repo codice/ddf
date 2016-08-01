@@ -1,0 +1,22 @@
+==== Video Thumbnail Plugin
+
+The Video Thumbnail Plugin provides the ability to generate thumbnails for video files stored in the Content Repository.
+
+It is an implementation of both the `PostCreateStoragePlugin` and `PostUpdateStoragePlugin` interfaces. When installed, it is invoked by the Catalog Framework immediately after a content item has been created or updated by the Storage Provider.
+
+This plugin uses a custom 32-bit LGPL build of https://ffmpeg.org/[FFmpeg] (a video processing program) to generate thumbnails. When this plugin is installed, it places the FFmpeg executable appropriate for the current operating system in `<${branding}_INSTALL_DIR>/bin_third_party/ffmpeg`. When invoked, this plugin runs the FFmpeg binary in a separate process to generate the thumbnail. The `<${branding}_INSTALL_DIR>/bin_third_party/ffmpeg` directory is deleted when the plugin is uninstalled.
+
+NOTE: Prebuilt FFmpeg binaries are provided for Linux, Mac, and Windows only.
+
+===== Installing the Video Thumbnail Plugin
+
+The the Video Thumbnail Plugin is is not installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Video Thumbnail Plugin
+
+None.
+
+===== Known Issues with the Video Thumbnail Plugin
+
+None.
+

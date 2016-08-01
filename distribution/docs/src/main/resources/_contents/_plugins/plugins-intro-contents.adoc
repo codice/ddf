@@ -43,6 +43,10 @@ These plugins are executed before an action is taken.
 
 <<_pre_delivery_plugins,Pre-Delivery Plugins>>:: Perform any changes before delivered a subscribed event.
 
+<<_pre_create_storage_plugins,Pre-Create Storage Plugins>> Perform any changes before creating a resource.
+
+<<_pre_update_storage_plugins,Pre-Update Storage Plugins>> Perform any changes before updating a resource.
+
 ."Post-" Plugins
 These plugins execute after an action is taken.
 
@@ -51,6 +55,10 @@ These plugins execute after an action is taken.
 <<_post_query_plugins,Post-Query Plugins>>:: Perform any changes to response after query completes.
 
 <<_post_resource_plugins,Post-Resource Plugins>>:: Perform any changes to a resource after download
+
+<<_post_create_storage_plugins,Post-Create Storage Plugins>> Perform any changes after creating a resource.
+
+<<_post_update_storage_plugins,Post-Update Storage Plugins>> Perform any changes after updating a resource.
 
 .Other Plugins
 <<_policy_plugins,Policy Plugins>>:: used to build policy information for requests.
