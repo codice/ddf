@@ -370,12 +370,13 @@ include::./_queries/developing-filter-delegates-contents.adoc[]
 
 include::./_console-commands/developing-console-commands-contents.adoc[]
 
-
 == Security Framework
 
 include::./_security-framework/security-framework-intro-contents.adoc[]
 
 include::./_security-framework/security-core-intro-contents.adoc[]
+
+include::./_security-framework/security-core-api-contents.adoc[]
 
 include::./_security-framework/security-core-implementation-contents.adoc[]
 
@@ -444,11 +445,28 @@ include::./_metrics/metrics-reporting-contents.adoc[]
 include::./_metrics/catalog-metrics-contents.adoc[]
 
 include::./_metrics/source-metrics-contents.adoc[]
+
+== Action Framework
+
+include::./_action-framework/action-framework-intro-contents.adoc[]
+
+include::./_action-framework/action-intro-contents.adoc[]
+
+include::./_action-framework/action-provider-intro-contents.adoc[]
+
+include::./_action-framework/action-providers-contents.adoc[]
+
+include::./_action-framework/developing-action-components-contents.adoc[]
+
+== Migratables
+
+include::./_migratables/migratables-intro-contents.adoc[]
+
+== Web Contexts
+
+include::./_contexts/landing-page-intro-contents.adoc[]
+
 /////////
-== Actions
-
-include::./_actions/developing-action-components.adoc
-
 == Development Recommendations
 
 include::./developing-intro-contents.adoc

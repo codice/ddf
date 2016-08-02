@@ -2,7 +2,6 @@
 The ${ddf-ui} application allows a user to search for records in the local Catalog (provider) and federated sources.
 Results of the search are displayed on a globe, providing a visual representation of where the records were found.
 
-This page supports integration of this application with external frameworks.
 
 === CometD
 

@@ -1,0 +1,30 @@
+=== ${ddf-platform} Whitelist
+
+The following packages have been exported by the ${ddf-platform} application and are approved for use by third parties:
+
+* `${ddf-branding-lowercase}.action`
+* `${ddf-branding-lowercase}.security`
+* `${ddf-branding-lowercase}.security.assertion`
+* `${ddf-branding-lowercase}.security.common.audit`
+* `${ddf-branding-lowercase}.security.http`
+* `${ddf-branding-lowercase}.security.permission`
+* `${ddf-branding-lowercase}.security.policy.extension`
+* `${ddf-branding-lowercase}.security.principal`
+* `${ddf-branding-lowercase}.security.samlp`
+* `${ddf-branding-lowercase}.security.service`
+* `${ddf-branding-lowercase}.security.settings`
+* `${ddf-branding-lowercase}.security.sts.client.configuration`
+* `${ddf-branding-lowercase}.security.ws.policy`
+* `${ddf-branding-lowercase}.security.ws.proxy`
+* `org.codice.${ddf-branding-lowercase}.branding`
+* `org.codice.${ddf-branding-lowercase}.configuration`
+* `org.codice.${ddf-branding-lowercase}.configuration.admin`
+* `org.codice.${ddf-branding-lowercase}.configuration.migration`
+* `org.codice.${ddf-branding-lowercase}.configuration.persistence`
+* `org.codice.${ddf-branding-lowercase}.configuration.persistence.felix`
+* `org.codice.${ddf-branding-lowercase}.configuration.status`
+* `org.codice.${ddf-branding-lowercase}.notifications.store`
+* `org.codice.${ddf-branding-lowercase}.parser`
+* `org.codice.${ddf-branding-lowercase}.parser.xml`
+* `org.codice.${ddf-branding-lowercase}.platform.error.handler`
+* `org.codice.${ddf-branding-lowercase}.platform.util`

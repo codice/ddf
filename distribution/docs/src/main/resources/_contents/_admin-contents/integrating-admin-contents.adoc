@@ -33,7 +33,7 @@ To minimize the chance of accidentally installing and uninstalling applications,
 The only way to change what applications are active on startup is to use the console commands.
 Operations can also be done with the administrator web console that comes with ${branding} using the Features tab and installing the main feature for the desired application.
 
-The application list file is located at `${ddf-branding}_HOME/etc/org.codice.${ddf-branding-lowercase}.admin.applicationlist.properties`
+The application list file is located at `${ddf-branding}_HOME/etc/org.codice.ddf.admin.applicationlist.properties`
 
 Applications should be defined in a `<name>=<format>` syntax where location may be empty for applications that have already been added to ${branding} or were prepackaged with the distribution.
 
