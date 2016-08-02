@@ -14,11 +14,11 @@
 <configuration>
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>data/log/%d{yyyy-MM-dd}.request.log</fileNamePattern>
+      <fileNamePattern>data/log/%d{yyyy_MM_dd}.request.log</fileNamePattern>
     </rollingPolicy>
     <append>true</append>
     <encoder>
-      <pattern>clf</pattern>
+      <pattern>combined</pattern>
     </encoder>
   </appender>
   <appender-ref ref="FILE" />
