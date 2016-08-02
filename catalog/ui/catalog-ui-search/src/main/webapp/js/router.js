@@ -208,6 +208,7 @@ define([
                     break;
                 case 'openRecent':
                     $.get('/search/catalog/internal/metacards/recent').then(function(response){
+                        response.push('Invalid Id');
                         var queryForMetacards = new Query.Model({
                             cql: cql.write({
                                 type: 'OR',
