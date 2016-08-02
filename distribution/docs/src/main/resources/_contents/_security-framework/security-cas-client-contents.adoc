@@ -1,0 +1,58 @@
+
+==== Security CAS Client
+
+The Security CAS client bundle contains client files needed by components that are performing authentication with CAS.
+This includes setting up the CAS SSO servlet filters and starting a callback service that is needed to request proxy tickets from CAS.
+
+===== Installing CAS Client
+
+This bundle is not installed by default but can be added by installing the `security-cas-client` feature.
+
+===== Configuring CAS Client
+
+.CAS Client Settings
+[cols="1,1,3" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Description
+
+|Server Name
+|\https://server:8993
+|This is the name of the server that is calling CAS. The URL is used during CAS redirection to redirect back to the calling server.
+
+|CAS Server URL
+|\https://cas:8443/cas
+|The main URL to the CAS Web application.
+
+|CAS Server Login URL
+|\https://cas:8443/cas/login
+|URL to the login page of CAS (generally ends in /login)
+
+|Proxy Callback URL
+|\https://server:8993/sso
+|Full URL of the callback service that CAS hits to create proxy tickets.
+
+|Proxy Receptor URL
+|`/sso`
+|
+ 
+|===
+
+.Security CAS Client Imported Services
+None
+
+.Security CAS Client Exported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Implementation Class
+|Properties Set
+
+|`javax.servlet.Filter`
+|`ddf.security.cas.client.ProxyFilter`
+|CAS Filters
+
+|===

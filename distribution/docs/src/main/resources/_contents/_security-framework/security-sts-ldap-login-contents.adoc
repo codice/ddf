@@ -1,0 +1,59 @@
+
+==== Security STS LDAP Login
+
+The ${ddf-security} STS LDAP Login bundle enables functionality within the STS that allows it to use an LDAP to perform authentication when passed a `UsernameToken` in a `RequestSecurityToken` SOAP request.
+
+===== Installing Security STS LDAP Claims Handler
+
+This bundle is not installed by default but can be added by installing the `security-sts-ldaplogin` feature.
+
+===== Configuring Security STS LDAP Claims Handler
+
+* Navigate to the ${admin-console}.
+* Select *${ddf-security} Application*.
+* Select *Configuration* tab
+* Select *Security STS LDAP Login*.
+
+.Security STS LDAP Claims Handler Settings
+[cols="3" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Information
+
+|LDAP URL
+|`ldaps://${org.codice.ddf.system.hostname}:1636`
+|
+
+|StartTLS
+|`false`
+|Ignored if the URL uses ldaps.
+ 
+|LDAP Bind User DN
+|`cn=admin`
+|This user should have the ability to verify passwords and read attributes for any user.
+ 
+|LDAP Bind User Password
+|`secret`
+|This password value is encrypted by default using the Security Encryption application.
+
+|LDAP Username Attribute
+|`uid`
+|
+ 
+|LDAP Base User DN
+|`ou=users,dc=example,dc=com`
+|
+ 
+|LDAP Base Group DN
+|`ou=groups,dc=example,dc=com`
+|
+
+|===
+
+.Security STS LDAP Claims Handler Imported Services
+None.
+
+.Security STS LDAP Claims Handler Exported Services
+None.

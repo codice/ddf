@@ -1,0 +1,8 @@
+
+==== Security CAS Server
+
+The Security CAS Server project creates a web application (.war) file that is configured to be deployed to a tomcat application server.
+
+===== Configuring Security CAS Server
+
+None.

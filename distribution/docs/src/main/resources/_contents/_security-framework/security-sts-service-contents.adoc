@@ -1,0 +1,39 @@
+
+==== Security STS Service
+
+The ${ddf-security} STS Service performs authentication of a user by delegating the authentication request to an STS. This is different than the services located within the Security PDP application as those ones only perform authorization and not authentication.
+
+===== Installing Security STS Realm
+
+This bundle is installed by default and should not be uninstalled.
+
+===== Configuring Security STS Realm
+
+None.
+
+.Security STS Realm Imported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`ddf.security.encryption.EncryptionService`
+|optional
+|false
+
+|===
+
+.Security STS Realm Exported Services
+[cols="3" options="header"]
+|===
+|Registered Interfaces
+|Implementation Class
+|Properties Set
+
+|`org.apache.shiro.realm.Realm`
+|`ddf.security.realm.sts.StsRealm`
+|None
+
+|===

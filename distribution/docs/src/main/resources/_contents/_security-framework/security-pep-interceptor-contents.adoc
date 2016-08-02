@@ -1,0 +1,24 @@
+
+==== Security PEP Interceptor
+
+The Security PEP Interceptor bundle contains the `ddf.security.pep.interceptor.EPAuthorizingInterceptor` class.
+This class uses CXF to intercept incoming SOAP messages and enforces service authorization policies by sending the service request to the security framework.
+
+===== Installing Security PEP Interceptor
+
+This bundle is not installed by default but can be added by installing the `security-pep-serviceauthz` feature.
+
+[WARNING]
+====
+To perform service authorization within a default install of ${branding}, this bundle MUST be installed.
+====
+
+===== Configuring Security PEP Interceptor
+
+None.
+
+.Security PEP Interceptor Imported Services
+None.
+
+.Security PEP Interceptor Exported Services
+None.
