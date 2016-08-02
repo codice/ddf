@@ -1,0 +1,52 @@
+
+The `Migratable` API provides a mechanism for bundles to handle exporting data required to clone a ${branding} system.
+The migration process is meant to be flexible, so an implementation of `org.codice.ddf.migration.Migratable` can handle exporting data for a single bundle or groups of bundles such as applications.
+For example, the `org.codice.ddf.platform.migratable.impl.PlatformMigratable` handles exporting core system files for the ${ddf-platform} Application.
+Exporting configurations stored in `org.osgi.service.cm.ConfigurationAdmin` does not need to be handled by implementations of `org.codice.ddf.migration.Migratable` as all `ConfigurationAdmin` configurations are exported by `org.codice.ddf.configuration.admin.ConfigurationAminMigration`.
+
+=== The Migratable API Interfaces
+
+. `org.codice.ddf.migration.Migratable`
+. `org.codice.ddf.migration.AbstractMigratable`
+. `org.codice.ddf.migration.MigrationException`
+. `org.codice.ddf.migration.MigrationMetadata`
+. `org.codice.ddf.migration.MigrationWarning`
+
+==== Using the Migratable API
+
+The `org.codice.ddf.migration.Migratable` interface defines these methods:
+
+.`MigrationMetadata export(Path exportPath) throws MigrationException`
+.`String getDescription()`
+.`boolean isOptional()`
+
+The `exportPath` in `export(Path exportPath)` is the path where all of the exportable data is copied. It is provided via an argument
+to the `migration:export` console command or via the Export Dialog in the Admin Console. The default value is `<DISTRIBUTION HOME>/etc/exported`.
+It is the responsibility of a `Migratable` to prevent naming collisions upon export. For example, if a `Migratable` writes files for its export, it
+must namespace the files. The `getDescription()` operation returns a short description of the type of data exported by the `Migratable`.
+The `isOptional()` operation returns whether the exported data for the `Migratable` is optional or required. The description and optional flag are
+for display purposes in the Admin Console.
+
+A `org.codice.ddf.migration.MigrationException` should be thrown when an unrecoverable exception occurs that prevents required data from exporting.
+The exception message is displayed to the admin.
+
+A `org.codice.ddf.migration.MigrationWarning` should be used when a `Migratable` wants to warn an admin that certain aspects of the export may
+cause problems upon import. For example, if an absolute path is encountered, that path may not exist on the target system and cause
+the installation to fail. All migration warnings are displayed to the admin.
+
+In order to create a `Migratable` for a module of the system, the `org.codice.ddf.migration.Migratable` interface must be implemented
+and the implementation must be registered under the `org.codice.ddf.migration.Migratable` interface as an OSGI service in
+the OSGI service registry. Creating an OSGI service allows for the `org.codice.ddf.configuration.migration.ConfigurationMigrationManager`
+to lookup all implementations of `org.codice.ddf.migration.Migratable` and command them to export.
+
+The abstract base class `org.codice.ddf.migration.AbstractMigratable` in the `platform-migratable-api` implements common boilerplate code required
+when implementing `org.codice.ddf.migration.Migratable` and should be extended when creating a `org.codice.ddf.migration.Migratable`.
+
+.Do Not Use FileBackedOutputStream
+[WARNING]
+====
+It is recommended to avoid using `com.google.common.io.FileBackedOutputStream` (FBOS).
+FBOS can create temporary files that are not automatically removed when FBOS is closed.
+Use `org.codice.ddf.platform.util.TemporaryFileBackedOutputStream` (TFBOS).
+TFBOS provides the same method calls as FBOS, but will remove temporary files when it is closed.
+====
