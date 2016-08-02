@@ -1,0 +1,45 @@
+=== ${branding} Data Migration
+
+Data migration is the process of moving metadata from one catalog provider to another.
+It is also the process of translating metadata from one format to another. 
+Data migration is necessary when a user decides to use metadata from one catalog provider in another catalog provider.
+The following steps define the procedure for transferring metadata from one catalog provider to another catalog provider.
+In addition, the procedures define the steps for converting metadata to different data formats.
+
+==== Data Migration Setup
+
+Set up ${branding} as instructed in <<_starting_${branding-lowercase},Starting ${branding}>> section.
+
+==== Moving Metadata from One Catalog Provider to Another
+
+===== Exporting Metadata Out of a Catalog Provider
+
+. Configure a desired catalog provider.
+. From the command line of ${branding} console, use the command to export all metadata from the catalog provider into serialized data files dump. The following example shows a command for running on Linux and a command for running on Windows.
+
+.${branding-lowercase}${at-symbol}local
+----
+dump "/myDirectory/exportFolder"
+or
+dump "C:/myDirectory/exportFolder"
+----
+
+===== Ingesting Exported Metadata into a Catalog Provider
+
+. Configure a different catalog provider.
+
+. From the command line of ${branding} console, use the *ingest* command to import exported metadata from serialized data files into catalog provider. The following example shows a command for running on Linux and a command for running on Windows.
+
+.${branding-lowercase}${at-symbol}local
+----
+ingest -p "/myDirectory/exportFolder"
+or
+ingest -p "C:/myDirectory/exportFolder"
+----
+
+===== Translating Metadata from One Format to Another
+
+Metadata can be converted from one data format to another format. 
+Only the data format changes, but the content of the metadata does not, as long as `option -p` is used with the ingest command.
+The process for converting metadata is performed by ingesting a data file into a catalog provider in one format and dumping it out into a file in another format. 
+
