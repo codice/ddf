@@ -57,7 +57,7 @@ define([
     };
 
     Backbone.sync = function (method, model, options) {
-        if (options.useAjaxSync || model.useAjaxSync) {
+        if ((options && options.useAjaxSync) || model.useAjaxSync) {
             return origSync.apply(model, arguments);
         } else {
             var deferred = $.Deferred();

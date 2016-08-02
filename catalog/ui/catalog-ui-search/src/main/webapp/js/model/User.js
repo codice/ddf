@@ -176,11 +176,11 @@ define([
             this.get('alerts').add(alertDetails);
             this.savePreferences();
         },
-        savePreferences: function (options) {
+        savePreferences: function () {
             if (this.parents[0].isGuestUser()) {
                 window.localStorage.setItem('preferences', JSON.stringify(this.toJSON()));
             } else {
-                this.sync('update', this, options || {});
+                this.save();
             }
         },
         resetBlacklist: function(){
