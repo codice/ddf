@@ -36,7 +36,6 @@ import com.google.common.base.Preconditions;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.types.Validation;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
