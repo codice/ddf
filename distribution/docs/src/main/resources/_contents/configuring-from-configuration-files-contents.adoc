@@ -71,7 +71,7 @@ These properties can be manually set by editing this file or set via the initial
 |String
 |The hostname or IP address used to advertise the system. Do not enter `localhost`. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment.
 
-NOTE: Does not change the address the system runs on.
+NOTE: This setting will take effect after a system restart.
 |`localhost`
 |Yes
 
@@ -98,7 +98,7 @@ NOTE: This *DOES* change the port the system runs on.
 |String
 |The default port used to advertise the system. This should match either the http or https port.
 
-NOTE: Does not change the port the system runs on.
+NOTE: This setting will take effect after a system restart.
 |`8993`
 |Yes
 
