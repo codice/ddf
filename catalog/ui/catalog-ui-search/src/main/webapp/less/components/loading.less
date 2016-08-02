@@ -24,11 +24,39 @@
   background: @background-color;
   position: fixed;
   transform: translateX(-100%);
-  transition: transform .5s ease-in-out;
+  transition: transform .75s ease-in-out;
   z-index: 1000;
 
   &.is-open {
     transform: translateX(0%);
+  }
+
+  .loader {
+    opacity: 1;
+    transition: opacity @coreTransitionTime linear;
+  }
+
+  .loading-welcome {
+    display: inline-block;
+    vertical-align: middle;
+    height: auto;
+    line-height: 10em;
+    position: relative;
+    top: -100vh;
+    margin-bottom: 150px;
+    width: 100%;
+    text-align: center;
+    opacity: 0;
+    transition: opacity @coreTransitionTime linear;
+  }
+
+  &.show-welcome {
+    .loader {
+        opacity: .1;
+    }
+    .loading-welcome {
+      opacity: 1;
+    }
   }
 }
 
@@ -59,10 +87,11 @@
   animation: load2 2s infinite ease 1.5s;
 }
 .loader {
+  vertical-align: middle;
+  line-height: 10em;
   color: @text-color;
   font-size: 11px;
-  text-indent: -99999em;
-  margin: 55px auto;
+  margin: 0px auto 150px auto;
   position: relative;
   width: 10em;
   height: 10em;

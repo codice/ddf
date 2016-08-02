@@ -76,18 +76,19 @@ define([
         }
     });
 
+    Application.App.loadingRegion.$el.find('.welcome-branding').html(properties.branding);
+    Application.App.loadingRegion.$el.addClass('show-welcome');
+
     //load all modules
     Application.App.addInitializer(function () {
         require([
             'js/module/Notification.module',
             'js/module/Tasks.module',
-            //'js/module/Content.module',
-            //'js/module/Home.module',
             'js/router'
         ], function(){
             setTimeout(function(){
                 Application.App.loadingRegion.$el.removeClass('is-open');
-            }, 1000);
+            }, 0);
         });
     });
 

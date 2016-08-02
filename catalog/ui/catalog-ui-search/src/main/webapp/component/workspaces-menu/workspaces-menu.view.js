@@ -19,8 +19,9 @@ define([
     'underscore',
     'jquery',
     './workspaces-menu.hbs',
-    'js/CustomElements'
-], function (wreqr, Marionette, _, $, template, CustomElements) {
+    'js/CustomElements',
+    'properties'
+], function (wreqr, Marionette, _, $, template, CustomElements, properties) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -32,6 +33,9 @@ define([
         ui: {
         },
         initialize: function(){
+        },
+        serializeData: function(){
+            return properties;
         }
     });
 });

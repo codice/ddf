@@ -17,8 +17,9 @@ define([
     'wreqr',
     'marionette',
     'js/CustomElements',
-    './cesium.hbs'
-], function (wreqr, Marionette, CustomElements, template) {
+    './cesium.hbs',
+    'component/loading-companion/loading-companion.view'
+], function (wreqr, Marionette, CustomElements, template, LoadingCompanionView) {
 
     return Marionette.LayoutView.extend({
         tagName: CustomElements.register('cesium'),
@@ -30,44 +31,48 @@ define([
             'click .cluster-results': 'toggleClustering'
         },
         onShow: function () {
-            require([
-                'js/controllers/cesium.controller',
-                'js/widgets/cesium.bbox',
-                'js/widgets/cesium.circle',
-                'js/widgets/cesium.polygon',
-                'js/widgets/cesium.line',
-                'js/widgets/filter.cesium.geometry.group'
-            ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, DrawLine, FilterCesiumGeometryGroup) {
-                var geoController = new GeoController({
-                    element: this.el.querySelector('#cesiumContainer'),
-                    selectionInterface: this.options.selectionInterface
-                });
-                geoController._billboardPromise.then(function() {
-                    this.setupListeners(geoController);
+            LoadingCompanionView.beginLoading(this);
+            setTimeout(function() {
+                require([
+                    'js/controllers/cesium.controller',
+                    'js/widgets/cesium.bbox',
+                    'js/widgets/cesium.circle',
+                    'js/widgets/cesium.polygon',
+                    'js/widgets/cesium.line',
+                    'js/widgets/filter.cesium.geometry.group'
+                ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, DrawLine, FilterCesiumGeometryGroup) {
+                    var geoController = new GeoController({
+                        element: this.el.querySelector('#cesiumContainer'),
+                        selectionInterface: this.options.selectionInterface
+                    });
+                    geoController._billboardPromise.then(function () {
+                        this.setupListeners(geoController);
+                        LoadingCompanionView.endLoading(this);
+                    }.bind(this));
+                    new FilterCesiumGeometryGroup.Controller({geoController: geoController});
+                    new DrawBbox.Controller({
+                        scene: geoController.scene,
+                        notificationEl: this.mapDrawingPopup.el
+                    });
+                    new DrawCircle.Controller({
+                        scene: geoController.scene,
+                        notificationEl: this.mapDrawingPopup.el
+                    });
+                    new DrawPolygon.Controller({
+                        scene: geoController.scene,
+                        notificationEl: this.mapDrawingPopup.el,
+                        drawHelper: geoController.drawHelper,
+                        geoController: geoController
+                    });
+                    new DrawLine.Controller({
+                        scene: geoController.scene,
+                        notificationEl: this.mapDrawingPopup.el,
+                        drawHelper: geoController.drawHelper,
+                        geoController: geoController
+                    });
+                    this.geoController = geoController;
                 }.bind(this));
-                new FilterCesiumGeometryGroup.Controller({ geoController: geoController });
-                new DrawBbox.Controller({
-                    scene: geoController.scene,
-                    notificationEl: this.mapDrawingPopup.el
-                });
-                new DrawCircle.Controller({
-                    scene: geoController.scene,
-                    notificationEl: this.mapDrawingPopup.el
-                });
-                new DrawPolygon.Controller({
-                    scene: geoController.scene,
-                    notificationEl: this.mapDrawingPopup.el,
-                    drawHelper: geoController.drawHelper,
-                    geoController: geoController
-                });
-                new DrawLine.Controller({
-                    scene: geoController.scene,
-                    notificationEl: this.mapDrawingPopup.el,
-                    drawHelper: geoController.drawHelper,
-                    geoController: geoController
-                });
-                this.geoController = geoController;
-            }.bind(this));
+            }.bind(this), 1000);
         },
         toggleClustering: function () {
             this.geoController.toggleClustering();
