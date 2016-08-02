@@ -1140,7 +1140,7 @@ public class ApplicationServiceImplTest {
 
     /**
      * Tests the {@link ApplicationServiceImpl#startApplication(Application)} method
-     * for the case where there a main feature exists
+     * for the case where a main feature exists.
      *
      * @throws Exception
      */
@@ -1170,6 +1170,37 @@ public class ApplicationServiceImplTest {
 
         verify(featuresService, atLeastOnce()).installFeatures(featureNames,
                 EnumSet.of(Option.NoAutoRefreshBundles));
+    }
+
+    /**
+     * Tests the {@link ApplicationServiceImpl#startApplication(Application)} method
+     * for the case where a main feature exists, but does not have an auto install property.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testStartApplicationMainFeatureNoAutoInstall() throws Exception {
+        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+                noMainFeatureRepo1,
+                noMainFeatureRepo2));
+        FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
+        when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
+
+        Application testApp = mock(ApplicationImpl.class);
+        Feature testFeature = mock(Feature.class);
+        when(testFeature.getName()).thenReturn(TEST_FEATURE_1_NAME);
+        when(testApp.getMainFeature()).thenReturn(testFeature);
+
+        appService.startApplication(testApp);
+
+        verify(featuresService, times(1)).installFeature(testApp.getMainFeature()
+                .getName(), EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1317,6 +1348,7 @@ public class ApplicationServiceImplTest {
         when(testFeature1.getName()).thenReturn(TEST_FEATURE_1_NAME);
         when(testApp1.getMainFeature()).thenReturn(testFeature1);
         when(testApp1.getFeatures()).thenReturn(featureSet1);
+        when(testApp1.getAutoInstallFeatures()).thenReturn(featureSet1);
         when(featuresService.isInstalled(testFeature1)).thenReturn(true);
         when(testFeature1.getDependencies()).thenReturn(dependencyList1);
         when(testDependency1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
@@ -1325,6 +1357,44 @@ public class ApplicationServiceImplTest {
         appService.stopApplication(testApp1);
 
         verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_1_NAME,
+                TEST_FEATURE_VERSION,
+                EnumSet.of(Option.NoAutoRefreshBundles));
+    }
+
+    /**
+     * Tests the {@link ApplicationServiceImpl#stopApplication(Application)} method
+     * for the case where a main feature exists, but no auto install features.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testStopApplicationMainFeatureNoAutoInstall() throws Exception {
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
+                noMainFeatureRepo1,
+                noMainFeatureRepo2));
+        FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
+        when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
+
+        Application testApp1 = mock(ApplicationImpl.class);
+        Feature testFeature1 = mock(Feature.class);
+        Set<Feature> featureSet1 = new HashSet<>();
+        featureSet1.add(testFeature1);
+
+        when(testFeature1.getName()).thenReturn(TEST_FEATURE_1_NAME);
+        when(testApp1.getMainFeature()).thenReturn(testFeature1);
+        when(testApp1.getFeatures()).thenReturn(featureSet1);
+        when(featuresService.isInstalled(testFeature1)).thenReturn(true);
+        when(testFeature1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
+
+        appService.stopApplication(testApp1);
+
+        verify(featuresService, times(1)).uninstallFeature(TEST_FEATURE_1_NAME,
                 TEST_FEATURE_VERSION,
                 EnumSet.of(Option.NoAutoRefreshBundles));
     }
@@ -1489,8 +1559,11 @@ public class ApplicationServiceImplTest {
             }
         };
 
+        Set<Feature> featureSet = new HashSet<>();
+        featureSet.add(mainFeatureRepo.getFeatures()[1]);
         Application testApp = mock(ApplicationImpl.class);
         when(testApp.getMainFeature()).thenReturn(mainFeatureRepo.getFeatures()[1]);
+        when(testApp.getAutoInstallFeatures()).thenReturn(featureSet);
         doThrow(new NullPointerException()).when(testApp)
                 .getFeatures();
 

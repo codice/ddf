@@ -64,10 +64,12 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     public ApplicationImpl(Repository repo) {
         location = repo.getURI();
         try {
-            String[] parts = repo.getName().split("-[0-9]");
-            if (parts.length != 0){
+            String[] parts = repo.getName()
+                    .split("-[0-9]");
+            if (parts.length != 0) {
                 name = parts[0];
-                version = repo.getName().substring(name.length()+1);
+                version = repo.getName()
+                        .substring(name.length() + 1);
             } else {
                 name = repo.getName();
                 version = "0.0.0";
@@ -95,6 +97,19 @@ public class ApplicationImpl implements Application, Comparable<Application> {
             name = mainFeature.getName();
             version = mainFeature.getVersion();
             description = mainFeature.getDescription();
+        } else if (autoInstallFeatures.size() == 0) {
+            // If the app's features file does not contain any auto install features, set
+            // mainFeature to the feature with the same name as the repo.
+            Optional<Feature> first = features.stream()
+                    .filter(f -> name.equals(f.getName()))
+                    .findFirst();
+            if (first.isPresent()) {
+                mainFeature = first.get();
+                name = mainFeature.getName();
+                version = mainFeature.getVersion();
+                description = first.get()
+                        .getDescription();
+            }
         } else {
             Optional<Feature> first = autoInstallFeatures.stream()
                     .filter(f -> name.equals(f.getName()))
@@ -105,15 +120,12 @@ public class ApplicationImpl implements Application, Comparable<Application> {
                 version = mainFeature.getVersion();
                 description = mainFeature.getDescription();
             }
-        }
 
+        }
         if (mainFeature == null) {
-            logger.debug(
-                    "Could not determine main feature in {}, using defaults. Each application "
-                            + "should have 1 feature with the same name as the repository or 1 auto"
-                            + " install feature. This Application will take no action when started"
-                            + " or stopped.",
-                    name);
+            logger.debug("Could not determine main feature in {}, using defaults. Each application "
+                    + "should have 1 feature with the same name as the repository. This Application"
+                    + " will take no action when started or stopped.", name);
         }
     }
 
