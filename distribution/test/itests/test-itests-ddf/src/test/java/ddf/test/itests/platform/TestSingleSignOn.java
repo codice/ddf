@@ -508,7 +508,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         given().
         expect().
                 statusCode(200).
-                body(containsString("Successfully logged out")).
+                body(containsString("You are now signed out.")).
         when().
                 get(createLogoutHelper.get("url"));
         // @formatter:on

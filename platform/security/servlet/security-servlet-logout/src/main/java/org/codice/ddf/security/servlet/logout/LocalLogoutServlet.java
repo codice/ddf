@@ -65,7 +65,7 @@ public class LocalLogoutServlet extends HttpServlet {
                     boolean hasSecurityAuditRole = Arrays.stream(System.getProperty(
                             "security.audit.roles")
                             .split(","))
-                            .filter(role -> subject.hasRole(role))
+                            .filter(subject::hasRole)
                             .findFirst()
                             .isPresent();
                     if (hasSecurityAuditRole) {

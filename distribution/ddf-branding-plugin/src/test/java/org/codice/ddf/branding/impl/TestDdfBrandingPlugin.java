@@ -37,7 +37,7 @@ public class TestDdfBrandingPlugin {
 
     private static String productURL = "http://codice.org/ddf";
 
-    private static String productImage = "/ddf/ddf.jpg";
+    private static String productImage = "/ddf/ddf.png";
 
     private static String vendorName = "Codice";
 
