@@ -13,6 +13,7 @@
  */
 package ddf.catalog.data.impl.types;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,53 +27,55 @@ import ddf.catalog.data.types.Version;
  * This class provides attributes that describe the history/versioning of the metacard
  */
 public class VersionAttributes implements Version, MetacardType {
-    private static final Set<AttributeDescriptor> DESCRIPTORS = new HashSet<>();
+    private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     private static final String NAME = "history";
 
     static {
-        DESCRIPTORS.add(new AttributeDescriptorImpl(ACTION,
+        Set<AttributeDescriptor> descriptors = new HashSet<>();
+        descriptors.add(new AttributeDescriptorImpl(ACTION,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(EDITED_BY,
+        descriptors.add(new AttributeDescriptorImpl(EDITED_BY,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(ID,
+        descriptors.add(new AttributeDescriptorImpl(ID,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(TAGS,
+        descriptors.add(new AttributeDescriptorImpl(TAGS,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
-                BasicTypes.DATE_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(TYPE,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(TYPE,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
-                BasicTypes.DATE_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(TYPE_BINARY,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(TYPE_BINARY,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.BINARY_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(VERSIONED_BY,
+        descriptors.add(new AttributeDescriptorImpl(VERSIONED_BY,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
-                BasicTypes.DATE_TYPE));
+                BasicTypes.STRING_TYPE));
+        DESCRIPTORS = Collections.unmodifiableSet(descriptors);
     }
 
     @Override

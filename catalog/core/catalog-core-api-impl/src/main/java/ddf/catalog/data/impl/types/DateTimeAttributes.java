@@ -13,6 +13,7 @@
  */
 package ddf.catalog.data.impl.types;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,29 +30,31 @@ import ddf.catalog.data.types.DateTime;
  */
 public class DateTimeAttributes implements DateTime, MetacardType {
 
-    private static final Set<AttributeDescriptor> DESCRIPTORS = new HashSet<>();
+    private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     private static final String NAME = "datetime";
 
     static {
-        DESCRIPTORS.add(new AttributeDescriptorImpl(START,
+        Set<AttributeDescriptor> descriptors = new HashSet<>();
+        descriptors.add(new AttributeDescriptorImpl(START,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.DATE_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(END,
+        descriptors.add(new AttributeDescriptorImpl(END,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.DATE_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(DateTime.NAME,
+        descriptors.add(new AttributeDescriptorImpl(DateTime.NAME,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
+        DESCRIPTORS = Collections.unmodifiableSet(descriptors);
     }
 
     @Override

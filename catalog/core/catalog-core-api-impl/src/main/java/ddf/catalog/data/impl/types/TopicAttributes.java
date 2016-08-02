@@ -13,6 +13,7 @@
  */
 package ddf.catalog.data.impl.types;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,29 +28,31 @@ import ddf.catalog.data.types.Topic;
  */
 public class TopicAttributes implements Topic, MetacardType {
 
-    private static final Set<AttributeDescriptor> DESCRIPTORS = new HashSet<>();
+    private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     private static final String NAME = "topic";
 
     static {
-        DESCRIPTORS.add(new AttributeDescriptorImpl(CATEGORY,
+        Set<AttributeDescriptor> descriptors = new HashSet<>();
+        descriptors.add(new AttributeDescriptorImpl(CATEGORY,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(KEYWORD,
+        descriptors.add(new AttributeDescriptorImpl(KEYWORD,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(VOCABULARY,
+        descriptors.add(new AttributeDescriptorImpl(VOCABULARY,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
+        DESCRIPTORS = Collections.unmodifiableSet(descriptors);
     }
 
     @Override

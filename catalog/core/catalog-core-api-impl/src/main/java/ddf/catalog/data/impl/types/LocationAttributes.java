@@ -13,6 +13,7 @@
  */
 package ddf.catalog.data.impl.types;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,35 +29,37 @@ import ddf.catalog.data.types.Location;
  */
 public class LocationAttributes implements Location, MetacardType {
 
-    private static final Set<AttributeDescriptor> DESCRIPTORS = new HashSet<>();
+    private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     private static final String NAME = "location";
 
     static {
-        DESCRIPTORS.add(new AttributeDescriptorImpl(ALTITUDE,
+        Set<AttributeDescriptor> descriptors = new HashSet<>();
+        descriptors.add(new AttributeDescriptorImpl(ALTITUDE,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.DOUBLE_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(COUNTRY_CODE,
+        descriptors.add(new AttributeDescriptorImpl(COUNTRY_CODE,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(COORDINATE_REFERENCE_SYSTEM_CODE,
+        descriptors.add(new AttributeDescriptorImpl(COORDINATE_REFERENCE_SYSTEM_CODE,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(COORDINATE_REFERENCE_SYSTEM_NAME,
+        descriptors.add(new AttributeDescriptorImpl(COORDINATE_REFERENCE_SYSTEM_NAME,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
+        DESCRIPTORS = Collections.unmodifiableSet(descriptors);
     }
 
     @Override
