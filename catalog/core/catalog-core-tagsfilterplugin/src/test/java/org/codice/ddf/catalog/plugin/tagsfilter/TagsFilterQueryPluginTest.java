@@ -41,6 +41,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceCache;
 
 public class TagsFilterQueryPluginTest {
     private TagsFilterQueryPlugin plugin;
@@ -48,6 +49,8 @@ public class TagsFilterQueryPluginTest {
     private QueryRequest queryRequest;
 
     private Source source;
+
+    private SourceCache cache;
 
     private FilterAdapter filterAdapter;
 
@@ -75,6 +78,9 @@ public class TagsFilterQueryPluginTest {
         source = mock(Source.class);
         when(source.getId()).thenReturn("cat2");
 
+        cache = mock(SourceCache.class);
+        when(cache.getId()).thenReturn("cache");
+
         queryRequest = mock(QueryRequest.class);
         query = mock(Query.class);
         when(queryRequest.getQuery()).thenReturn(query);
@@ -99,7 +105,7 @@ public class TagsFilterQueryPluginTest {
     }
 
     @Test
-    public void addTags() throws Exception {
+    public void addTagsToCatalogProvider() throws Exception {
         AttributeBuilder attributeBuilder = mock(AttributeBuilder.class);
         ExpressionBuilder expressionBuilder = mock(ExpressionBuilder.class);
         ContextualExpressionBuilder contextualExpressionBuilder =
@@ -112,7 +118,8 @@ public class TagsFilterQueryPluginTest {
         when(expressionBuilder.like()).thenReturn(contextualExpressionBuilder);
         when(contextualExpressionBuilder.text(Metacard.DEFAULT_TAG)).thenReturn(defaultTagFilter);
         Or anyOf = mock(Or.class);
-        when(filterBuilder.anyOf(ImmutableList.of(defaultTagFilter, emptyFilter))).thenReturn(anyOf);
+        when(filterBuilder.anyOf(ImmutableList.of(defaultTagFilter,
+                emptyFilter))).thenReturn(anyOf);
         when(filterBuilder.allOf(anyOf, query)).thenReturn(mock(And.class));
 
         when(filterAdapter.adapt(any(), any())).thenReturn(false);
@@ -121,4 +128,30 @@ public class TagsFilterQueryPluginTest {
 
         assertThat(process, not(queryRequest));
     }
+
+    @Test
+    public void addTagsToCacheSource() throws Exception {
+        AttributeBuilder attributeBuilder = mock(AttributeBuilder.class);
+        ExpressionBuilder expressionBuilder = mock(ExpressionBuilder.class);
+        ContextualExpressionBuilder contextualExpressionBuilder =
+                mock(ContextualExpressionBuilder.class);
+        Filter emptyFilter = mock(Filter.class);
+        Filter defaultTagFilter = mock(Filter.class);
+
+        when(attributeBuilder.empty()).thenReturn(emptyFilter);
+        when(attributeBuilder.is()).thenReturn(expressionBuilder);
+        when(expressionBuilder.like()).thenReturn(contextualExpressionBuilder);
+        when(contextualExpressionBuilder.text(Metacard.DEFAULT_TAG)).thenReturn(defaultTagFilter);
+        Or anyOf = mock(Or.class);
+        when(filterBuilder.anyOf(ImmutableList.of(defaultTagFilter,
+                emptyFilter))).thenReturn(anyOf);
+        when(filterBuilder.allOf(anyOf, query)).thenReturn(mock(And.class));
+
+        when(filterAdapter.adapt(any(), any())).thenReturn(false);
+        when(filterBuilder.attribute(Metacard.TAGS)).thenReturn(attributeBuilder);
+        QueryRequest process = plugin.process(cache, queryRequest);
+
+        assertThat(process, not(queryRequest));
+    }
+
 }

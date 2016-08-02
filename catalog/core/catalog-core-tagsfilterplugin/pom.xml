@@ -85,12 +85,12 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.98</minimum>
+                                            <minimum>0.91</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.98</minimum>
+                                            <minimum>0.91</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
