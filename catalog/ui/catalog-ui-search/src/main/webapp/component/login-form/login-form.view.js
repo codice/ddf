@@ -22,11 +22,18 @@ define([
 
     return Marionette.LayoutView.extend({
         events: {
-            'submit .login-form' : 'login',
+            'submit .login-form': 'login',
+            'keyup .login-form': 'checkSubmit',
             'click #sign-out': 'logout'
         },
         template: template,
         tagName: CustomElements.register('login-form'),
+        checkSubmit: function (e) {
+          // check if the enter key was pressed
+          if (e.which === 13) {
+            this.login();
+          }
+        },
         logout: function () {
             //this function is only here to handle clearing basic auth credentials
             //if you aren't using basic auth, this shouldn't do anything
@@ -43,7 +50,6 @@ define([
         login: function (e) {
             var view = this;
             this.deleteCookie();
-            e.preventDefault(); // prevent form submission
 
             $.ajax({
                 type: 'GET',
