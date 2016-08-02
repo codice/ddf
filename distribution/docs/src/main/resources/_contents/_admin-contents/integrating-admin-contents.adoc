@@ -2,7 +2,7 @@
 The ${ddf-admin} Application is a service that allows components to perform operations on applications.
 This includes adding, removing, starting, stopping, and viewing status.
 
-=== API
+=== Application Service API
 
 The Application service has multiple interfaces which are exposed on to the OSGi runtime for other applications to use.
 For more information on these interfaces, see Application Service Interfaces.
@@ -53,7 +53,7 @@ opendj-embedded=file:/location/to/opendj-embedded-app-1.0.1-SNAPSHOT.kar
 Applications will be started in the order they are listed in the file.
 If an application is listed, ${branding} will also attempt to install all dependencies for that application.
 
-==== Interface Details
+==== Application Service Interface Details
 
 The Application Service comes with several interfaces to use. 
 
@@ -92,16 +92,13 @@ The ApplicationService interface is the main class that is used to operate on ap
 `getParent`:: Returns the parent of the application.
 `getChildren`:: Returns the children of this application. That is, the applications that depend on this application
 
-=== Implementation Details
-
 [NOTE]
 ====
 A client of this service is provided as an extension to the administrative console.
 Information about how to use it is available on the Application Commands page.
 ====
 
-==== Imported Services
-
+.Imported Services
 [cols="3,1,1,1", options="header"]
 |===
 |Registered Interface
@@ -120,8 +117,7 @@ Information about how to use it is available on the Application Commands page.
 |Installed as part of Platform Status feature.
 |===
 
-==== Exported Services
-
+.Exported Services
 [cols="3*", options="header"]
 |===
 |Registered Interface

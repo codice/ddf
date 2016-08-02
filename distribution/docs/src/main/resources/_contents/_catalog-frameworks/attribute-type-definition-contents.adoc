@@ -1,0 +1,68 @@
+
+==== Attribute Type Definition File
+
+To define Attribute Types, the definition file must have an `attributeTypes` key in the root object.
+
+[source,json]
+----
+{
+    "attributeTypes": {...}
+}
+----
+
+The value of `attributeTypes` must be a map where each key is the attribute type's name and each value is a map that includes the data type and whether the attribute type is stored, indexed, tokenized, or multi-valued.
+
+[source,json]
+----
+{
+    "attributeTypes": {
+        "temperature": {
+            "type": "DOUBLE_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        }
+    }
+}
+----
+
+The attributes `stored`, `indexed`, `tokenized`, and `multivalued` must be included and must have a boolean value. The `type` attribute must also be included and must have one of the following values:
+
+ - `DATE_TYPE`
+ - `STRING_TYPE`
+ - `XML_TYPE`
+ - `LONG_TYPE`
+ - `BINARY_TYPE`
+ - `GEO_TYPE`
+ - `BOOLEAN_TYPE`
+ - `DOUBLE_TYPE`
+ - `FLOAT_TYPE`
+ - `INTEGER_TYPE`
+ - `OBJECT_TYPE`
+ - `SHORT_TYPE`
+
+An example with multiple attributes defined:
+
+[source,json]
+----
+{
+    "attributeTypes": {
+        "resolution": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        },
+        "target-areas": {
+            "type": "GEO_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": true
+        }
+    }
+}
+----
+

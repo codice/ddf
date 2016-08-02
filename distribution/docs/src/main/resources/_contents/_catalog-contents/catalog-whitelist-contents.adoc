@@ -1,0 +1,39 @@
+=== ${ddf-catalog} Whitelist
+
+The following packages have been exported by the ${ddf-catalog} application and are approved for use by third parties:
+
+* `${ddf-branding-lowercase}.camel.component.catalog`
+* `${ddf-branding-lowercase}.catalog`
+* `${ddf-branding-lowercase}.catalog.cache`
+* `${ddf-branding-lowercase}.catalog.data`
+* `${ddf-branding-lowercase}.catalog.data.metacardtype`
+* `${ddf-branding-lowercase}.catalog.event`
+* `${ddf-branding-lowercase}.catalog.federation`
+* `${ddf-branding-lowercase}.catalog.federation.impl`
+* `${ddf-branding-lowercase}.catalog.filter`
+* `${ddf-branding-lowercase}.catalog.filter.delegate`
+* `${ddf-branding-lowercase}.catalog.impl.filter`
+* `${ddf-branding-lowercase}.catalog.operation`
+* `${ddf-branding-lowercase}.catalog.plugin`
+* `${ddf-branding-lowercase}.catalog.plugin.groomer`
+* `${ddf-branding-lowercase}.catalog.pubsub`
+* `${ddf-branding-lowercase}.catalog.pubsub.tracker`
+* `${ddf-branding-lowercase}.catalog.resource`
+* `${ddf-branding-lowercase}.catalog.resource.data`
+* `${ddf-branding-lowercase}.catalog.resource.impl`
+* `${ddf-branding-lowercase}.catalog.resourceretriever`
+* `${ddf-branding-lowercase}.catalog.service`
+* `${ddf-branding-lowercase}.catalog.source`
+* `${ddf-branding-lowercase}.catalog.transform`
+* `${ddf-branding-lowercase}.catalog.transformer.api`
+* `${ddf-branding-lowercase}.catalog.transformer.metacard.geojson`
+* `${ddf-branding-lowercase}.catalog.util`
+* `${ddf-branding-lowercase}.catalog.validation`
+* `${ddf-branding-lowercase}.common`
+* `${ddf-branding-lowercase}.geo.formatter`
+* `${ddf-branding-lowercase}.util`
+* `org.codice.${ddf-branding-lowercase}.endpoints`
+* `org.codice.${ddf-branding-lowercase}.endpoints.rest`
+* `org.codice.${ddf-branding-lowercase}.endpoints.rest.action`
+* `org.codice.${ddf-branding-lowercase}.opensearch.query`
+* `org.codice.${ddf-branding-lowercase}.opensearch.query.filter`

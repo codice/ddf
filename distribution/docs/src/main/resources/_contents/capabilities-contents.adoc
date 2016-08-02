@@ -1,10 +1,9 @@
-== Catalog Architecture
 
-include::./catalog-architecture-contents.adoc[]
 
 //Catalog Frameworks
-
 == The Catalog Framework
+include::./catalog-architecture-contents.adoc[]
+
 include::./_catalog-frameworks/catalog-framework-intro-contents.adoc[]
 
 include::./_catalog-frameworks/catalog-frameworks-contents.adoc[]
@@ -18,6 +17,18 @@ include::./_catalog-frameworks/catalog-fanout-framework-contents.adoc[]
 include::./_catalog-frameworks/catalog-framework-camel-component-contents.adoc[]
 
 include::./_catalog-frameworks/developing-catalog-frameworks-contents.adoc[]
+
+include::./_catalog-frameworks/json-definition-intro-contents.adoc[]
+
+include::./_catalog-frameworks/attribute-type-definition-contents.adoc[]
+
+include::./_catalog-frameworks/metacard-type-definition-contents.adoc[]
+
+include::./_catalog-frameworks/global-attribute-validators-definition-contents.adoc[]
+
+include::./_catalog-frameworks/default-attribute-values-contents.adoc[]
+
+include::./_catalog-frameworks/attribute-injection-definition-contents.adoc[]
 
 == Endpoints
 include::./_endpoints/endpoints-intro-contents.adoc[]
@@ -315,6 +326,8 @@ include::./_operations/operations-intro-contents.adoc[]
 
 include::./_data/data-intro-contents.adoc[]
 
+include::./_data/data-migration-contents.adoc[]
+
 == Eventing
 
 include::./_eventing/eventing-intro-contents.adoc[]
@@ -353,9 +366,73 @@ include::./_queries/developing-query-options-intro-contents.adoc[]
 
 include::./_queries/developing-filter-delegates-contents.adoc[]
 
-//////
-== Security
-//////
+== Console Commands
+
+include::./_console-commands/developing-console-commands-contents.adoc[]
+
+
+== Security Framework
+
+include::./_security-framework/security-framework-intro-contents.adoc[]
+
+include::./_security-framework/security-core-intro-contents.adoc[]
+
+include::./_security-framework/security-core-implementation-contents.adoc[]
+
+include::./_security-framework/security-core-commons-contents.adoc[]
+
+include::./_security-framework/security-idp-intro-contents.adoc[]
+
+include::./_security-framework/security-encryption-intro-contents.adoc[]
+
+include::./_security-framework/security-encryption-api-contents.adoc[]
+
+include::./_security-framework/security-encryption-implementation-contents.adoc[]
+
+include::./_security-framework/security-encryption-commands-contents.adoc[]
+
+include::./_security-framework/security-ldap-intro-contents.adoc[]
+
+include::./_security-framework/security-ldap-embedded-server-contents.adoc[]
+
+include::./_security-framework/security-pdp-intro-contents.adoc[]
+
+include::./_security-framework/security-pdp-authz-realm-contents.adoc[]
+
+include::./_security-framework/guest-interceptor-contents.adoc[]
+
+include::./_security-framework/security-sts-intro-contents.adoc[]
+
+include::./_security-framework/security-sts-client-config-contents.adoc[]
+
+include::./_security-framework/external-ws-s-sts-support-contents.adoc[]
+
+include::./_security-framework/security-sts-ldap-login-contents.adoc[]
+
+include::./_security-framework/security-sts-ldap-claims-handler-contents.adoc[]
+
+include::./_security-framework/security-sts-server-contents.adoc[]
+
+include::./_security-framework/security-sts-service-contents.adoc[]
+
+include::./_security-framework/developing-token-validators-contents.adoc[]
+
+include::./_security-framework/security-pep-intro-contents.adoc[]
+
+include::./_security-framework/security-pep-interceptor-contents.adoc[]
+
+include::./_security-framework/security-cas-intro-contents.adoc[]
+
+include::./_security-framework/security-cas-client-contents.adoc[]
+
+include::./_security-framework/security-cas-implementation-contents.adoc[]
+
+include::./_security-framework/security-cas-token-validator-contents.adoc[]
+
+include::./_security-framework/security-cas-cxf-servlet-filter-contents.adoc[]
+
+include::./_security-framework/security-cas-server-contents.adoc[]
+
 == Metrics
 
 include::./_metrics/metrics-intro-contents.adoc[]
@@ -367,11 +444,14 @@ include::./_metrics/metrics-reporting-contents.adoc[]
 include::./_metrics/catalog-metrics-contents.adoc[]
 
 include::./_metrics/source-metrics-contents.adoc[]
-
-
+/////////
 == Actions
 
-include::./_actions/developing-action-components.adoc[]
+include::./_actions/developing-action-components.adoc
+
+== Development Recommendations
+
+include::./developing-intro-contents.adoc
 
 
 === Input Formats
