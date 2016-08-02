@@ -25,8 +25,6 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.datatype.DatatypeConstants;
-
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
@@ -39,6 +37,7 @@ import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelp
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
 import org.codice.ddf.security.common.Security;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +61,9 @@ public class IdentityNodeInitialization {
 
     private static final String UNKNOWN_SITE_NAME = "Unknown Site Name";
 
+    private static final String DATE_TIME = CswConstants.XML_SCHEMA_NAMESPACE_PREFIX.concat(
+            ":dateTime");
+
     private static final int RETRY_INTERVAL = 30;
 
     private FederationAdminService federationAdminService;
@@ -80,7 +82,8 @@ public class IdentityNodeInitialization {
     public void init() {
         try {
             Security.runAsAdminWithException(() -> {
-                if (!federationAdminService.getLocalRegistryIdentityMetacard().isPresent()) {
+                if (!federationAdminService.getLocalRegistryIdentityMetacard()
+                        .isPresent()) {
                     createIdentityNode();
                 }
                 return null;
@@ -135,13 +138,13 @@ public class IdentityNodeInitialization {
 
         SlotType1 lastUpdated = slotTypeHelper.create(RegistryConstants.XML_LAST_UPDATED_NAME,
                 rightNow,
-                DatatypeConstants.DATETIME.toString());
+                DATE_TIME);
         extrinsicObject.getSlot()
                 .add(lastUpdated);
 
         SlotType1 liveDate = slotTypeHelper.create(RegistryConstants.XML_LIVE_DATE_NAME,
                 rightNow,
-                DatatypeConstants.DATETIME.toString());
+                DATE_TIME);
         extrinsicObject.getSlot()
                 .add(liveDate);
 
