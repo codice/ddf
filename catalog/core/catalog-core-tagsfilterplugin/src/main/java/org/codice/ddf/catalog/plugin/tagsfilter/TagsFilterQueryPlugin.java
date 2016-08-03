@@ -33,6 +33,7 @@ import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceCache;
 import ddf.catalog.source.UnsupportedQueryException;
 
 /**
@@ -56,12 +57,27 @@ public class TagsFilterQueryPlugin implements PreFederatedQueryPlugin {
         this.filterBuilder = filterBuilder;
     }
 
+    private boolean isCacheSource(Source source) {
+        return source instanceof SourceCache;
+    }
+
+    private boolean isCatalogProvider(String id) {
+        return id != null && catalogProviders.stream()
+                .map(CatalogProvider::getId)
+                .anyMatch(id::equals);
+    }
+
+    /**
+     * Given a source, determine if it is a registered catalog provider or a cache.
+     */
+    private boolean isLocalSource(Source source) {
+        return isCacheSource(source) || isCatalogProvider(source.getId());
+    }
+
     @Override
     public QueryRequest process(Source source, QueryRequest input)
             throws PluginExecutionException, StopProcessingException {
-        if (catalogProviders.stream()
-                .noneMatch(cp -> cp.getId()
-                        .equals(source.getId()))) {
+        if (!isLocalSource(source)) {
             return input;
         }
 

@@ -26,7 +26,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceCache;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 
@@ -34,7 +34,7 @@ import ddf.catalog.source.UnsupportedQueryException;
  * Source used internally by the {@link CachingFederationStrategy} to encapsulate interaction with
  * the cache.
  */
-public class SolrCacheSource implements Source {
+public class SolrCacheSource implements SourceCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrCacheSource.class);
 
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
