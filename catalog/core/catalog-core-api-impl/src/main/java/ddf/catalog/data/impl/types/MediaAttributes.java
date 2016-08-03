@@ -13,6 +13,7 @@
  */
 package ddf.catalog.data.impl.types;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,89 +29,91 @@ import ddf.catalog.data.types.Media;
  */
 public class MediaAttributes implements Media, MetacardType {
 
-    private static final Set<AttributeDescriptor> DESCRIPTORS = new HashSet<>();
+    private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     private static final String NAME = "media";
 
     static {
-        DESCRIPTORS.add(new AttributeDescriptorImpl(FORMAT,
+        Set<AttributeDescriptor> descriptors = new HashSet<>();
+        descriptors.add(new AttributeDescriptorImpl(FORMAT,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(FORMAT_VERSION,
+        descriptors.add(new AttributeDescriptorImpl(FORMAT_VERSION,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(BITS_PER_SECOND,
+        descriptors.add(new AttributeDescriptorImpl(BITS_PER_SECOND,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(BITS_PER_SAMPLE,
+        descriptors.add(new AttributeDescriptorImpl(BITS_PER_SAMPLE,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(COMPRESSION,
+        descriptors.add(new AttributeDescriptorImpl(COMPRESSION,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(ENCODING,
+        descriptors.add(new AttributeDescriptorImpl(ENCODING,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(FRAME_CENTER,
+        descriptors.add(new AttributeDescriptorImpl(FRAME_CENTER,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(FRAMES_PER_SECOND,
+        descriptors.add(new AttributeDescriptorImpl(FRAMES_PER_SECOND,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(HEIGHT,
+        descriptors.add(new AttributeDescriptorImpl(HEIGHT,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(NUMBER_OF_BANDS,
+        descriptors.add(new AttributeDescriptorImpl(NUMBER_OF_BANDS,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(SCANNING_MODE,
+        descriptors.add(new AttributeDescriptorImpl(SCANNING_MODE,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(TYPE,
+        descriptors.add(new AttributeDescriptorImpl(TYPE,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(WIDTH,
+        descriptors.add(new AttributeDescriptorImpl(WIDTH,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
+        DESCRIPTORS = Collections.unmodifiableSet(descriptors);
     }
 
     @Override

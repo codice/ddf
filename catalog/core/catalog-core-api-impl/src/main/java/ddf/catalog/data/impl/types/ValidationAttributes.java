@@ -13,6 +13,7 @@
  */
 package ddf.catalog.data.impl.types;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,23 +28,25 @@ import ddf.catalog.data.types.Validation;
  */
 public class ValidationAttributes implements Validation, MetacardType {
 
-    private static final Set<AttributeDescriptor> DESCRIPTORS = new HashSet<>();
+    private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     private static final String NAME = "validation";
 
     static {
-        DESCRIPTORS.add(new AttributeDescriptorImpl(VALIDATION_ERRORS,
+        Set<AttributeDescriptor> descriptors = new HashSet<>();
+        descriptors.add(new AttributeDescriptorImpl(VALIDATION_ERRORS,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(VALIDATION_WARNINGS,
+        descriptors.add(new AttributeDescriptorImpl(VALIDATION_WARNINGS,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
+        DESCRIPTORS = Collections.unmodifiableSet(descriptors);
     }
 
     @Override

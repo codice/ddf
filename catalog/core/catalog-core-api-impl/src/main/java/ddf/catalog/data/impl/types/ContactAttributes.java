@@ -13,6 +13,7 @@
  */
 package ddf.catalog.data.impl.types;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,107 +30,109 @@ import ddf.catalog.data.types.Contact;
  */
 public class ContactAttributes implements Contact, MetacardType {
 
-    private static final Set<AttributeDescriptor> DESCRIPTORS = new HashSet<>();
+    private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     private static final String NAME = "contact";
 
     static {
-        DESCRIPTORS.add(new AttributeDescriptorImpl(CONTRIBUTOR_ADDRESS,
+        Set<AttributeDescriptor> descriptors = new HashSet<>();
+        descriptors.add(new AttributeDescriptorImpl(CONTRIBUTOR_ADDRESS,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(CONTRIBUTOR_EMAIL,
+        descriptors.add(new AttributeDescriptorImpl(CONTRIBUTOR_EMAIL,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(CONTRIBUTOR_NAME,
+        descriptors.add(new AttributeDescriptorImpl(CONTRIBUTOR_NAME,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(CONTRIBUTOR_PHONE,
+        descriptors.add(new AttributeDescriptorImpl(CONTRIBUTOR_PHONE,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(CREATOR_ADDRESS,
+        descriptors.add(new AttributeDescriptorImpl(CREATOR_ADDRESS,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(CREATOR_EMAIL,
+        descriptors.add(new AttributeDescriptorImpl(CREATOR_EMAIL,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(CREATOR_NAME,
+        descriptors.add(new AttributeDescriptorImpl(CREATOR_NAME,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(CREATOR_PHONE,
+        descriptors.add(new AttributeDescriptorImpl(CREATOR_PHONE,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(POINT_OF_CONTACT_ADDRESS,
+        descriptors.add(new AttributeDescriptorImpl(POINT_OF_CONTACT_ADDRESS,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(POINT_OF_CONTACT_EMAIL,
+        descriptors.add(new AttributeDescriptorImpl(POINT_OF_CONTACT_EMAIL,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(POINT_OF_CONTACT_NAME,
+        descriptors.add(new AttributeDescriptorImpl(POINT_OF_CONTACT_NAME,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(POINT_OF_CONTACT_PHONE,
+        descriptors.add(new AttributeDescriptorImpl(POINT_OF_CONTACT_PHONE,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(PUBLISHER_ADDRESS,
+        descriptors.add(new AttributeDescriptorImpl(PUBLISHER_ADDRESS,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(PUBLISHER_EMAIL,
+        descriptors.add(new AttributeDescriptorImpl(PUBLISHER_EMAIL,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(PUBLISHER_NAME,
+        descriptors.add(new AttributeDescriptorImpl(PUBLISHER_NAME,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        DESCRIPTORS.add(new AttributeDescriptorImpl(PUBLISHER_PHONE,
+        descriptors.add(new AttributeDescriptorImpl(PUBLISHER_PHONE,
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
+        DESCRIPTORS = Collections.unmodifiableSet(descriptors);
     }
 
     @Override
