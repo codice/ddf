@@ -20,17 +20,12 @@ require([
     'marionette',
     'application',
     'properties',
-    'handlebars/dist/handlebars',
+    'handlebars',
     'component/announcement',
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
     'cesium.css'
 ], function (_, $, Backbone, Marionette, app, properties, hbs, announcement) {
-
-    require('regions-extras').register({
-        Handlebars: hbs,
-        Marionette: Marionette
-    });
 
     $(window.document).ajaxError(function (event, jqxhr, settings, throwError) {
         var message;
@@ -81,9 +76,9 @@ require([
         cloneRef._cloneOf = this.id || this.cid;
         return cloneRef;
     };
-    Marionette.Renderer.render = function (template, data, view) {
+    Marionette.Renderer.render = function (template, data) {
         if (typeof template === 'function') {
-            return template(data, { hash: { view: view }});
+            return template(data);
         } else {
             return hbs.compile(template)(data);
         }

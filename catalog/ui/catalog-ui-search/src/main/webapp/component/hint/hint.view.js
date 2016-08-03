@@ -12,23 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, alert*/
-define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './hint.hbs',
-    'js/CustomElements',
-    'wreqr'
-], function (Marionette, _, $, template, CustomElements, wreqr) {
+var Marionette = require('marionette');
+var CustomElements = require('js/CustomElements');
 
-    return Marionette.ItemView.extend({
-        template: template,
-        tagName: CustomElements.register('hint'),
-        events: {
-        },
-        onRender: function(){
-           this.el.innerHTML = this.model.get('hint');
-        }
-    });
+module.exports = Marionette.ItemView.extend({
+    template: require('./hint.hbs'),
+    tagName: CustomElements.register('hint')
 });

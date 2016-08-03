@@ -193,9 +193,6 @@ define([
                     this.$el.append(dropdownHintView.$el);
                     dropdownHintView.$el.css('height', height).css('width', width)
                         .css('top', top).css('left', left);
-                    this.listenTo(dropdownHintView.model, 'change:isOpen', function () {
-                        dropdownHintView.dropdownCompanion.componentToShow.currentView.render();
-                    });
                 }
             }.bind(this));
             this.addUntoggleElement();

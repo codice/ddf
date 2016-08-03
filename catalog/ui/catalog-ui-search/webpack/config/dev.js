@@ -14,10 +14,6 @@ module.exports = merge.smart(base, {
             {
                 test: /\.jsx$/,
                 loaders: ['react-hot']
-            },
-            {
-                test: /\.(hbs|handlebars)$/,
-                loaders: ['handlebars-hot', 'handlebars']
             }
         ]
     },
