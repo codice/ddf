@@ -13,6 +13,8 @@
  */
 package ddf.common.test.cometd;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+
 import java.net.ConnectException;
 import java.net.URI;
 import java.security.KeyManagementException;
@@ -22,13 +24,13 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -54,7 +56,8 @@ import org.slf4j.LoggerFactory;
 import com.jayway.restassured.path.json.JsonPath;
 
 /**
- * CometD client used to listen for messages on CometD channels.
+ * CometD client used to listen for messages on CometD channels and interact with DDF's CometD
+ * endpoint.
  * <p>
  * Below is an example on how to listen for messages on the notifications channel:
  * <p>
@@ -84,6 +87,8 @@ public class CometDClient {
 
     private static final long MAX_NETWORK_DELAY = 60000;
 
+    private static final String QUERY_PUBLISH_CHANNEL = "/service/query";
+
     private final BayeuxClient bayeuxClient;
 
     private final HttpClient httpClient;
@@ -99,7 +104,7 @@ public class CometDClient {
     public CometDClient(String url) throws Exception {
         SslContextFactory sslContextFactory = new SslContextFactory(true);
         httpClient = new HttpClient(sslContextFactory);
-        doTrustAllCertificates();        
+        doTrustAllCertificates();
         ClientTransport transport = new LongPollingTransport(new HashMap<>(), httpClient);
         transport.setOption(ClientTransport.MAX_NETWORK_DELAY_OPTION, MAX_NETWORK_DELAY);
         bayeuxClient = new BayeuxClient(url, transport);
@@ -146,17 +151,22 @@ public class CometDClient {
         }
     }
 
-    public void publish(String channel, Map<String, Object> jsonMap) {
-        LOGGER.debug("Publishing to channel: {} using message: {}", channel, jsonMap);
-        bayeuxClient.getChannel(channel)
-                .publish(jsonMap, new ClientSessionChannel.MessageListener() {
+    /**
+     * Publishes a message
+     *
+     * @param channel channel to publish message to
+     * @param message message to publish
+     */
+    public void publish(String channel, Map<String, Object> message) {
+        LOGGER.debug("Publishing message {} to channel {}", message, channel);
 
-                    @Override
-                    public void onMessage(ClientSessionChannel channel, Message message) {
-                        LOGGER.debug("On channel {} received message {}", channel,
-                                message.getJSON());
-                    }
-                });
+        bayeuxClient.getChannel(channel)
+                .publish(message,
+                        (responseChannel, responseMessage) -> LOGGER.debug(
+                                "Response {} received for message {} on channel {}",
+                                responseMessage.getJSON(),
+                                responseChannel,
+                                message));
     }
 
     /**
@@ -174,6 +184,20 @@ public class CometDClient {
         } else {
             LOGGER.warn("Already subscribed to channel {}", channel);
         }
+    }
+
+    /**
+     * Gets the first message that matches the search criterion
+     *
+     * @param searchCriterion a string that will be searched for in the messages
+     * @return the desired message if found
+     */
+    public Optional<String> searchMessages(String searchCriterion) {
+        List<String> messages = getAllMessages();
+
+        return messages.stream()
+                .filter(query -> query.contains(searchCriterion))
+                .findFirst();
     }
 
     /**
@@ -243,21 +267,68 @@ public class CometDClient {
     }
 
     /**
+     * Publishes a search message for a specific metacard ID.
+     *
+     * @param responseChannel ID of the channel where the response should be sent
+     * @param source          source to query
+     * @param metacardId      ID of the metacard to retrieve
+     */
+    public void searchByMetacardId(String responseChannel, String source, String metacardId) {
+        Map<String, Object> data = new HashMap<>();
+
+        data.put("cql", String.format("(\"anyText\" ILIKE '%s')", metacardId));
+        data.put("id", responseChannel);
+        data.put("federation", "enterprise");
+        data.put("src", source);
+        data.put("radiusUnits", "meters");
+        data.put("count", 250L);
+        data.put("start", 1L);
+        data.put("format", "geojson");
+        data.put("scheduleUnits", "minutes");
+        data.put("timeType", "modified");
+        data.put("locationType", "latlon");
+        data.put("sort", "modified:desc");
+        data.put("q", metacardId);
+        data.put("sortOrder", "desc");
+        data.put("sortField", "modified");
+        data.put("radius", "0");
+
+        publish(QUERY_PUBLISH_CHANNEL, data);
+    }
+
+    /**
+     * Cancels a resource download.
+     *
+     * @param downloadId ID of the download to cancel
+     */
+    public void cancelDownload(String downloadId) {
+        Map<String, Object> jsonMap = new HashMap<>();
+        List<Map<String, Object>> data = new ArrayList<>();
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("id", downloadId);
+        dataMap.put("action", "cancel");
+        data.add(dataMap);
+        jsonMap.put("data", data);
+        publish("/service/action", jsonMap);
+    }
+
+    /**
      * Un-subscribes from a channel. Un-subscribing from the same channel multiple has no effect.
      *
      * @param channel channel name
      */
     public void unsubscribe(String channel) {
         verifyConnected();
-        org.cometd.bayeux.client.ClientSessionChannel.MessageListener messageListener =
-                messageListeners.stream()
-                        .filter(l -> l.getChannel()
-                                .equals(channel))
-                        .findFirst()
-                        .get();
-        bayeuxClient.getChannel(channel)
-                .unsubscribe(messageListener);
-        messageListeners.remove(messageListener);
+        Optional<MessageListener> optionalMessageListener = messageListeners.stream()
+                .filter(l -> l.getChannel()
+                        .equals(channel))
+                .findFirst();
+
+        optionalMessageListener.ifPresent((messageListener) -> {
+            bayeuxClient.getChannel(channel)
+                    .unsubscribe(messageListener);
+            messageListeners.remove(messageListener);
+        });
     }
 
     /**
@@ -265,9 +336,8 @@ public class CometDClient {
      */
     public void unsubscribeFromAllChannels() {
         verifyConnected();
-        messageListeners.stream()
-                .forEach(l -> bayeuxClient.getChannel(l.getChannel())
-                        .unsubscribe(l));
+        messageListeners.forEach(l -> bayeuxClient.getChannel(l.getChannel())
+                .unsubscribe(l));
         messageListeners.clear();
     }
 
@@ -285,17 +355,6 @@ public class CometDClient {
         httpClient.stop();
         bayeuxClient.disconnect();
         bayeuxClient.waitFor(TIMEOUT, BayeuxClient.State.DISCONNECTED);
-    }
-
-    public void cancelDownload(String downloadId) {
-        Map<String, Object> jsonMap = new HashMap<String, Object>();
-        List<Map<String, Object>> data = new ArrayList<>();
-        Map<String, Object> dataMap = new HashMap<String, Object>();
-        dataMap.put("id", downloadId);
-        dataMap.put("action", "cancel");
-        data.add(dataMap);
-        jsonMap.put("data", data);
-        publish("/service/action", jsonMap);
     }
 
     private void verifyConnected() {
@@ -330,13 +389,11 @@ public class CometDClient {
             @Override
             public void checkClientTrusted(X509Certificate[] x509Certificates, String s)
                     throws CertificateException {
-                return;
             }
 
             @Override
             public void checkServerTrusted(X509Certificate[] x509Certificates, String s)
                     throws CertificateException {
-                return;
             }
 
             @Override
@@ -375,7 +432,9 @@ public class CometDClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             LOGGER.debug("On channel {} received message {}", channel, message.getJSON());
-            LOGGER.debug("timestamp of message: {}", message.getDataAsMap().get("timestamp"));
+            LOGGER.debug("timestamp of message: {}",
+                    message.getDataAsMap()
+                            .get("timestamp"));
             messages.add(message.getJSON());
         }
 
@@ -402,9 +461,8 @@ public class CometDClient {
         private LocalTime getLocalTime(String jsonMessage) {
             JsonPath jsonPath = JsonPath.from(jsonMessage);
             String timestamp = jsonPath.getString(TIMESTAMP_PATH);
-            LocalTime time = LocalDateTime.parse(timestamp, DateTimeFormatter.ISO_DATE_TIME)
+            return LocalDateTime.parse(timestamp, ISO_DATE_TIME)
                     .toLocalTime();
-            return time;
         }
     }
 }

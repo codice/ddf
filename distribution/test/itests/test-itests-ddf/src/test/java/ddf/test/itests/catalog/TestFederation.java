@@ -61,12 +61,14 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -200,6 +202,9 @@ public class TestFederation extends AbstractIntegrationTest {
     private static final String NOTIFICATIONS_CHANNEL = "/ddf/notifications/**";
 
     private static final String ACTIVITIES_CHANNEL = "/ddf/activities/**";
+
+    private static final String FIND_ACTION_URL_PATTERN =
+            "data.results[0].metacard.actions.find {it.title=='%s'}.url";
 
     private static final String POLL_INTERVAL = "pollInterval";
 
@@ -346,7 +351,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         // @formatter:off
         expect("List of active downloads is empty").within(30, SECONDS)
-                .until(()-> when().get(RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl())
+                .until(() -> when().get(RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl())
                         .then().log().all().extract().body().jsonPath().getList(""), hasSize(0));
         // @formatter:on
 
@@ -526,8 +531,8 @@ public class TestFederation extends AbstractIntegrationTest {
             // @formatter:off
             when().get(restUrl).then().log().all().assertThat().body(hasXPath(
                     "/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='" + RECORD_TITLE_1
-                        + "']"), not(containsString(RECORD_TITLE_2)));
-        // @formatter:on
+                            + "']"), not(containsString(RECORD_TITLE_2)));
+            // @formatter:on
         } finally {
             //reset the opensearch source id
             OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
@@ -883,7 +888,7 @@ public class TestFederation extends AbstractIntegrationTest {
         try {
             setupConnectedSources();
         } catch (IOException e) {
-            LOGGER.error("Couldn't create connected sources: {}", e.getMessage());
+            LOGGER.error("Couldn't create connected sources: {}", e.searchMessages());
         }
         */
 
@@ -979,7 +984,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
@@ -996,12 +1001,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 new HashSet(Arrays.asList(subscrptionIds)));
 
         // @formatter:off
-        given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+        given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
                 .then().log().all().assertThat().statusCode(404);
         // @formatter:on
 
@@ -1041,7 +1046,7 @@ public class TestFederation extends AbstractIntegrationTest {
         getServiceManager().waitForHttpEndpoint(CSW_SUBSCRIPTION_PATH + "?_wadl");
         //get subscription
         // @formatter:off
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
@@ -1058,12 +1063,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 new HashSet(Arrays.asList(subscrptionIds)));
 
         // @formatter:off
-        given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+        given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
                 .then().log().all().assertThat().statusCode(404);
         // @formatter:on
 
@@ -1095,7 +1100,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .get("Acknowledgement.RequestId")
                 .toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
@@ -1126,7 +1131,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .get("Acknowledgement.RequestId")
                 .toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
                 .then().log().all().assertThat().statusCode(404);
         // @formatter:on
 
@@ -1612,7 +1617,7 @@ public class TestFederation extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
-    public void testFileCachesCorrectlyWhenRangeHeadersAreSupported() throws Exception{
+    public void testFileCachesCorrectlyWhenRangeHeadersAreSupported() throws Exception {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
         String filename = "product2.txt";
         String metacardId = generateUniqueMetacardId();
@@ -1694,7 +1699,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         // @formatter:off
         List<Map<String, Object>> downloads = expect("List of active downloads is not empty").within(30, SECONDS)
-                .until(()-> when().get(getAllDownloadsUrl)
+                .until(() -> when().get(getAllDownloadsUrl)
                         .then().log().all().extract().body().jsonPath().getList(""), hasSize(1)).lastResult();
         // @formatter:on
 
@@ -1922,10 +1927,12 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCancelDownload() throws Exception {
-        getSecurityPolicy().configureWebContextPolicy(null, "/=SAML|basic,/solr=SAML|PKI|basic",
-                null, null);
-        localhostCometDClient = setupCometDClientWithUser(
-                Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL), LOCALHOST_USERNAME, LOCALHOST_PASSWORD);
+        getSecurityPolicy().configureWebContextPolicy(null,
+                "/=SAML|basic,/solr=SAML|PKI|basic",
+                null,
+                null);
+        localhostCometDClient = setupCometDClientWithUser(Arrays.asList(NOTIFICATIONS_CHANNEL,
+                ACTIVITIES_CHANNEL), "localhost", "localhost");
         String filename = testName + ".txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
@@ -2204,6 +2211,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         resourceData2.length()),
                 "COMPLETE");
     }
+
     @Test
     public void testSingleUserDownloadSameProductSyncAndAsync() throws Exception {
         getSecurityPolicy().configureWebContextPolicy(null,
@@ -2229,14 +2237,29 @@ public class TestFederation extends AbstractIntegrationTest {
                         + "&metacard=" + metacardId;
 
         // Download product via async and then sync, should only call the stub server to download once
-        // @formatter:off
-        String downloadId = given().auth().preemptive().basic(ADMIN_USERNAME, ADMIN_PASSWORD).when()
-                .get(resourceDownloadUrlLocalhostUserAsync).then().log().all()
-                .extract().jsonPath().getString("downloadId");
+        String downloadId = given().auth()
+                .preemptive()
+                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .when()
+                .get(resourceDownloadUrlLocalhostUserAsync)
+                .then()
+                .log()
+                .all()
+                .extract()
+                .jsonPath()
+                .getString("downloadId");
         assertThat(downloadId, is(notNullValue()));
-        given().auth().preemptive().basic(ADMIN_USERNAME, ADMIN_PASSWORD).when()
-                .get(resourceDownloadUrlLocalhostUserSync).then().log().all()
-                .assertThat().contentType("text/plain").body(is(resourceData));
+        given().auth()
+                .preemptive()
+                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .when()
+                .get(resourceDownloadUrlLocalhostUserSync)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .contentType("text/plain")
+                .body(is(resourceData));
 
         verifyCswStubCall(1, metacardId);
 
@@ -2271,14 +2294,29 @@ public class TestFederation extends AbstractIntegrationTest {
                         + "&metacard=" + metacardId;
 
         // Download product twice via async, should only call the stub server to download once
-        // @formatter:off
-        String downloadId = given().auth().preemptive().basic(ADMIN_USERNAME, ADMIN_PASSWORD).when()
-                .get(resourceDownloadUrlLocalhostUserAsync).then().log().all()
-                .extract().jsonPath().getString("downloadId");
+        String downloadId = given().auth()
+                .preemptive()
+                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .when()
+                .get(resourceDownloadUrlLocalhostUserAsync)
+                .then()
+                .log()
+                .all()
+                .extract()
+                .jsonPath()
+                .getString("downloadId");
         assertThat(downloadId, is(notNullValue()));
-        String downloadId2 = given().auth().preemptive().basic(ADMIN_USERNAME, ADMIN_PASSWORD).when()
-                .get(resourceDownloadUrlLocalhostUserAsync).then().log().all()
-                .extract().jsonPath().getString("downloadId");
+        String downloadId2 = given().auth()
+                .preemptive()
+                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .when()
+                .get(resourceDownloadUrlLocalhostUserAsync)
+                .then()
+                .log()
+                .all()
+                .extract()
+                .jsonPath()
+                .getString("downloadId");
         assertThat(downloadId2, is(nullValue()));
 
         verifyCswStubCall(1, metacardId);
@@ -2294,11 +2332,10 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     private void setupStubCswResponse(String filename, String metacardId, String resourceData) {
-        Action response =
-                new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
-                        Duration.ofMillis(0))
-                        .fail(NO_RETRIES)
-                        .build();
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+                Duration.ofMillis(0))
+                .fail(NO_RETRIES)
+                .build();
         cswServer.whenHttp()
                 .match(post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
@@ -2394,6 +2431,43 @@ public class TestFederation extends AbstractIntegrationTest {
         notificationFound = foundExpectedActivity(notifications, filename, "failed");
         assertThat(notificationFound, is(equalTo(true)));
 
+    }
+
+    /**
+     * Tests that the async download action's URL is returned in the CometD search results.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAsyncDownloadActionPresentUsingCometDClient() throws Exception {
+
+        String src = "ddf.distribution";
+        String metacardId = ingestXmlWithProduct(String.format("%s.txt", testName.getMethodName()));
+        String responseChannelId = "0193d9e7f9ed4f8f8bd02103143c41d6";
+        String responseChannelPath = String.format("/%s", responseChannelId);
+        String expectedUrl = String.format("%s?source=%s&metacard=%s",
+                RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl(),
+                src,
+                metacardId);
+
+        metacardsToDelete.add(metacardId);
+
+        cometDClient = setupCometDClient(Collections.singletonList(responseChannelPath));
+
+        cometDClient.searchByMetacardId(responseChannelId, src, metacardId);
+
+        expect("CometD query response").within(20, SECONDS)
+                .until(() -> cometDClient.getMessages(responseChannelPath)
+                        .size() >= 1);
+
+        Optional<String> foundString = cometDClient.searchMessages(metacardId);
+
+        assertThat("Async download action not found", foundString.isPresent(), is(true));
+
+        JsonPath path = JsonPath.from(foundString.get());
+
+        assertThat(path.getString(String.format(FIND_ACTION_URL_PATTERN,
+                "Download resource to local cache")), is(expectedUrl));
     }
 
     private void setupCswServerForSuccess(CometDClient cometDClient, String filename)
@@ -2712,7 +2786,7 @@ public class TestFederation extends AbstractIntegrationTest {
         public void startDownload() {
             // @formatter:off
             downloadId = when().get(startDownloadUrl).then().log().all()
-                .extract().jsonPath().getString("downloadId");
+                    .extract().jsonPath().getString("downloadId");
             // @formatter:on
             assertThat(downloadId, not(isEmptyString()));
         }
