@@ -70,6 +70,8 @@ define([
                 this.resultsList.show(new ResultSelectorView({
                     model: store.getCurrentQueries().get(queryId)
                 }));
+            } else {
+                this.resultsList.empty();
             }
         },
         handleEmptyQueries: function(){

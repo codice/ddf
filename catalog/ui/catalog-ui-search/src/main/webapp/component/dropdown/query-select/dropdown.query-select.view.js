@@ -31,6 +31,10 @@ define([
         regions: {
             queryItem: '.querySelect-item'
         },
+        initialize: function(){
+            DropdownView.prototype.initialize.call(this);
+            this.listenTo(store.getCurrentQueries(), 'remove', this.handleRemoveQuery);
+        },
         initializeComponentModel: function(){
             //override if you need more functionality
             this.modelForComponent = this.options.model;
@@ -43,6 +47,11 @@ define([
             return this.el;
         },
         hasTail: true,
+        handleRemoveQuery: function(removedQuery){
+            if (removedQuery.id === this.model.get('value')){
+                this.model.set('value', undefined);
+            }
+        },
         onRender: function(){
             DropdownView.prototype.onRender.call(this);
             var queryId = this.model.get('value');
