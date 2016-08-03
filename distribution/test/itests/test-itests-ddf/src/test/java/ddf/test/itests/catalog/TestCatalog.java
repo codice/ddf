@@ -1048,6 +1048,160 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testFilterPluginWarningsOnly() throws Exception {
+        getServiceManager().startFeature(true,
+                "catalog-plugin-metacard-validation",
+                "sample-validator");
+
+        configureFilterInvalidMetacards("false", "true");
+
+        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
+        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
+
+        try {
+            String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
+                    "AnyText",
+                    "*")
+                    .getQuery();
+            ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
+                    MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+
+            //clean metacard should be in results but not invalid one
+            response.body(not(containsString("warning metacard")));
+            response.body(containsString("clean metacard"));
+
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
+            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            getServiceManager().stopFeature(true,
+                    "catalog-plugin-metacard-validation",
+                    "sample-validator");
+            configureFilterInvalidMetacardsReset();
+        }
+    }
+
+    @Test
+    public void testFilterPluginErrorsOnly() throws Exception {
+        getServiceManager().startFeature(true,
+                "catalog-plugin-metacard-validation",
+                "sample-validator");
+
+        configureFilterInvalidMetacards("true", "false");
+
+        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
+
+        try {
+            String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
+                    "AnyText",
+                    "*")
+                    .getQuery();
+            ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
+                    MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+
+            //clean metacard should be in results but not invalid one
+            response.body(not(containsString("error metacard")));
+            response.body(containsString("clean metacard"));
+
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
+            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            getServiceManager().stopFeature(true,
+                    "catalog-plugin-metacard-validation",
+                    "sample-validator");
+            configureFilterInvalidMetacardsReset();
+        }
+    }
+
+    @Test
+    public void testFilterPluginWarningsAndErrors() throws Exception {
+        getServiceManager().startFeature(true,
+                "catalog-plugin-metacard-validation",
+                "sample-validator");
+
+        configureFilterInvalidMetacards("true", "true");
+
+        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
+
+        try {
+            String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
+                    "AnyText",
+                    "*")
+                    .getQuery();
+            ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
+                    MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+
+            //clean metacard should be in results but not invalid one
+            response.body(not(containsString("error metacard")));
+            response.body(not(containsString("warning metacard")));
+            response.body(containsString("clean metacard"));
+
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id3);
+            deleteMetacard(id2);
+            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            getServiceManager().stopFeature(true,
+                    "catalog-plugin-metacard-validation",
+                    "sample-validator");
+            configureFilterInvalidMetacardsReset();
+        }
+    }
+
+    @Test
+    public void testFilterPluginNoFiltering() throws Exception {
+        getServiceManager().startFeature(true,
+                "catalog-plugin-metacard-validation",
+                "sample-validator");
+
+        configureFilterInvalidMetacards("false", "false");
+
+        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
+
+        try {
+            String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
+                    "AnyText",
+                    "*")
+                    .getQuery();
+            ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
+                    MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+
+            //clean metacard should be in results but not invalid one
+            response.body(containsString("error metacard"));
+            response.body(containsString("warning metacard"));
+            response.body(containsString("clean metacard"));
+
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
+            deleteMetacard(id3);
+            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            getServiceManager().stopFeature(true,
+                    "catalog-plugin-metacard-validation",
+                    "sample-validator");
+            configureFilterInvalidMetacardsReset();
+        }
+    }
+
+    @Test
     public void testIngestPlugin() throws Exception {
 
         //ingest a data set to make sure we don't have any issues initially
@@ -2172,7 +2326,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             invalidCardId = ingestXmlFromResource("/metacard-datatype-validation.xml");
 
             configureShowInvalidMetacards("true", "true");
-            String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]", invalidCardId);
+            String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]",
+                    invalidCardId);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
@@ -2186,7 +2341,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             String modifiedMetacardXml = ddfMetacardXml.replaceFirst("Invalid Type", "Image");
             validCardId = ingest(modifiedMetacardXml, "text/xml");
 
-            String newMetacardXpath2 = String.format("/metacards/metacard[@id=\"%s\"]", validCardId);
+            String newMetacardXpath2 = String.format("/metacards/metacard[@id=\"%s\"]",
+                    validCardId);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
