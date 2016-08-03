@@ -196,7 +196,6 @@ define([
         },
         resetDefaults: function () {
             this.onEdit();
-            var model = this.model;
             this.viewMapLayers.each(function (viewLayer) {
                 var url = viewLayer.get('url');
                 var defaultConfig = _.find(properties.imageryProviders, function (layerObj) {
