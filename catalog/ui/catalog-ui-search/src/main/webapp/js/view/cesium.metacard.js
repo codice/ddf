@@ -648,7 +648,7 @@ define([
                 this.geometries = _.map(collection.getGeometryCollection(), function(geo) {
 
                     var subOptions = _.clone(options);
-                    var subModel = _.clone(options.model);
+                    var subModel = options.model.clone();
                     subOptions.ignoreEvents = true;
                     subModel.set('geometry', geo);
                     subOptions.model = subModel;
