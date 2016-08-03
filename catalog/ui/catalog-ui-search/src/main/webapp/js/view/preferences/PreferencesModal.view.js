@@ -199,10 +199,11 @@ define([
             var model = this.model;
             this.viewMapLayers.each(function (viewLayer) {
                 var url = viewLayer.get('url');
-                var defaultConfig = model.getMapLayerConfig(url);
-                viewLayer.set('show', defaultConfig.show);
+                var defaultConfig = _.find(properties.imageryProviders, function (layerObj) {
+                    return url === layerObj.url;
+                });
+                viewLayer.set('show', true);
                 viewLayer.set('alpha', defaultConfig.alpha);
-                viewLayer.set('index', defaultConfig.index);
             });
             this.viewMapLayers.sort();
         }
@@ -214,9 +215,10 @@ define([
         template: layerListTemplate,
         childViewContainer: '#pickerList',
         ui: { tbody: 'tbody' },
+        viewComparator: 'label',
         initialize: function() {
             this.collection.each(function(model) {
-                this.listenTo(model, 'change', this.updateSort);
+                this.listenTo(model, 'change:alpha', this.updateSort);
             }, this);
         },
         updateSort: function() {
@@ -244,16 +246,16 @@ define([
         tagName: 'tr',
         className: 'layerPicker-row',
         ui: { range: 'input[type="range"]' },
+        events: { 'sort': 'render' },
         initialize: function (options) {
+            this.modelBinder = new Backbone.ModelBinder();
             this.widgetController = options.widgetController;
             this.$el.data('layerPicker', this);    // make model available to sortable.update()
+            this.listenTo(this.model, 'change:show', this.changeShow);
         },
         onRender: function () {
-            this.modelBinder = new Backbone.ModelBinder();
             var layerBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
             this.modelBinder.bind(this.model, this.$el, layerBindings);
-            // bound on viewModel.
-            this.listenTo(this.model, 'change:show', this.changeShow);
             this.ui.range.prop('disabled', !this.model.get('show'));
         },
         changeShow: function (model) {

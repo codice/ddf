@@ -31,7 +31,7 @@ define([
             if (layer) {
                 for (var i = 0; i < properties.imageryProviders.length; i++) {
                     var layerObj = _.omit(layer.toJSON(), ['id', 'show', 'label', 'alpha']);
-                    var propProvider = _.omit(properties.imageryProviders[i], 'alpha', 'label');
+                    var propProvider = _.omit(properties.imageryProviders[i], 'alpha');
                     if (_.isEqual(propProvider, layerObj)) {
                         found = true;
                     }
@@ -46,7 +46,7 @@ define([
             var found = false;
             for (var j = 0; j < layerPrefs.models.length; j++) {
                 var layerObj = _.omit(layerPrefs.at(j).toJSON(), ['id', 'show', 'label', 'alpha']);
-                var propProvider = _.omit(properties.imageryProviders[i], 'alpha', 'label');
+                var propProvider = _.omit(properties.imageryProviders[i], 'alpha');
                 if (_.isEqual(propProvider, layerObj)) {
                     found = true;
                 }
@@ -81,14 +81,15 @@ define([
             };
         },
         parse: function(resp) {
-            resp.label = 'Type: ' + resp.type;
-            if (resp.layer) {
-                resp.label += ' Layer: ' + resp.layer;
+            var layer = _.clone(resp);
+            layer.label = 'Type: ' + layer.type;
+            if (layer.layer) {
+                layer.label += ' Layer: ' + layer.layer;
             }
-            if (resp.layers) {
-                resp.label += ' Layers: ' + resp.layers.join(', ');
+            if (layer.layers) {
+                layer.label += ' Layers: ' + layer.layers.join(', ');
             }
-            return resp;
+            return layer;
         }
     });
 
