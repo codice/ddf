@@ -1,7 +1,549 @@
 ==== Content Endpoint
 
+The Content REST endpoint provides a CDR REST Retrieve v2.0-compliant DDF endpoint that allows clients to perform CRUD operations on the Content Repository using REST, a simple architectural style that performs communication using HTTP.
+
+The Content REST CRUD endpoint provides the capability to read, create, update, and delete content in the Content Repository, as well as create, update, and delete metacards in the catalog provider, i.e., the Metadata Catalog (MDC). Furthermore, this endpoint allows the client to perform the create/update/delete operations on just the Content Repository, just the MDC, or both in one operation.
+
+[NOTE]
+====
+The Content Framework is currently transactional for create operations only. Therefore, the client sends a create request to create content in the DDF Content Repository, processes the content to create a metacard, and ingests it into the MDC (i.e.,directive=STORE_AND_PROCESS), If a problem is encountered during the catalog ingest, the content is removed from the DDF Content Repository, analogous to a rollback. This is so that the DDF Content Repository and the MDC are kept in sync.
+====
+
+The Content Framework does not support rollback capability for update or delete operations that affect both the DDF Content Repository and the MDC.
+
 ===== Installing Content Endpoint
+
+The Content Endpoint is installed by default with a standard installation in the ${ddf-catalog} application.
 
 ===== Configuring Content Endpoint
 
+The location used for content storage can be configured.
+
+.Content Endpoint Configurable Properties
+[cols="1,2m,1,3,1,1" options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Content Repository File Path
+|baseContentDirectory
+|String
+|Specifies the directory to use for the content repository. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, File System Provider will attempt to create them. Out of the box (without configuration), the content repository is `<INSTALL_DIR>/content/store`.
+|
+|Yes
+
+
+|===
+
 ===== Using Content Endpoint
+
+.Content Endpoint URL
+----
+${secure_url}/services/content
+----
+
+The Content REST CRUD endpoint provides the capability to read, create, update, and delete content in the DDF Content Repository as well as create, update, and delete metacards in the catalog provider as follows.
+
+.Content Endpoint Operations
+[cols="1,1m,3a,3" options="header"]
+|===
+|Operation
+|HTTP Request
+|Details
+|Example URL
+
+|Create Content and Catalog Entry
+|HTTP POST
+|The multipart/form-data REST request that contains the binary data to be stored in the DDF Content Repository and to be parsed to create a metacard for ingest into the MDC. This binary data can be included in the request’s body or as a file attachment.
+
+An HTTP 201 CREATED status code is returned to the client with:
+
+* Content-ID HTTP header set to GUID assigned to content item by Content Framework
+* Catalog-ID HTTP header set to the catalog ID assigned to the new catalog entry created based on the metacard generated from the parsed content
+* Content-URI HTTP header set to the resource URI for the content stored in the DDF Content Repository
+* Location URI HTTP header with URI containing the content ID
+
+|${secure_url}/services/content
+
+Where the directive form parameter is set to STORE_AND_PROCESS, and the file form parameter that specifies the binary data with an optional filename parameter that should be stored as in the DDF Content Repository.
+
+|Create Content Only
+|HTTP POST
+|The multipart/form-data REST request that contains the binary data to be stored in the DDF Content Repository. This binary data can be included in the request’s body or as a file attachment.
+
+An HTTP 201 CREATED status code is returned to the client with:
+
+* Content-ID HTTP header set to GUID assigned to content item by Content Framework
+* Location URI HTTP header with URI containing the content ID
+
+|${secure_url}/services/content
+
+Where the directive form parameter is set to STORE, and the file form parameter that specifies the binary data with an optional filename parameter that should be stored as in the DDF Content Repository.
+
+|Create Catalog Entry Only
+|HTTP POST
+|The multipart/form-data REST request that contains the binary data to be parsed to create a metacard for ingest into the MDC. This binary data can be included in the request’s body or as a file attachment.
+
+An HTTP 200 OK status code is returned to the client with:
+
+* Catalog-ID HTTP header set to the catalog ID assigned to the new catalog entry created based on the metacard generated from the parsed content
+
+|${secure_url}/services/content
+
+Where the directive form parameter is set to PROCESS, the contentUri form parameter is set to the URI of content being processed, and the file form parameter specifying the binary data.
+
+|Update Content and Catalog Entry
+|HTTP PUT
+|The ID of the content item in the DDF Content Repository to be updated is appended to the end of the URL.
+
+The body of the REST request contains the binary data to update the DDF Content Repository.
+
+An HTTP 200 OK status code is returned to the client with:
+
+* Content-ID HTTP header set to GUID updated by the Content Framework
+* Catalog-ID HTTP header set to the catalog ID that was updated in the MDC
+
+|${secure_url}/services/content/ABC123
+
+Where ABC123 is the ID of the content item to be updated, and the directive HTTP header parameter is set to STORE_AND_PROCESS.
+
+|Update Content Only
+|HTTP PUT
+|The ID of the content item in the DDF Content Repository to be updated is appended to the end of the URL.
+
+The body of the REST request contains the data to update the DDF Content Repository.
+
+An HTTP 200 OK status code is returned to the client with:
+
+* Content-ID HTTP header set to GUID updated by the Content Framework
+
+|${secure_url}/services/content/ABC123
+
+Where ABC123 is the ID of the content item to be updated, and the directive HTTP header parameter is set to STORE.
+
+|Update Catalog Entry Only and Content ID is provided
+|HTTP PUT
+|The ID of the content item in the DDF Content Repository to be updated is appended to the end of the URL.
+
+The body of the REST request contains the data to update the catalog entry in the MDC.
+
+An HTTP 200 OK status code is returned to the client with:
+
+* Catalog-ID HTTP header set to the catalog ID that was updated in the MDC
+* Content-ID HTTP header set to GUID updated by the Content Framework
+
+|${secure_url}/services/content/ABC123
+
+Where ABC123 is the ID of the content item to be updated, and the directive HTTP header parameter is set to STORE_AND_PROCESS.
+
+|Update Catalog Entry Only and Content URI is provided
+|HTTP PUT
+|The URI of the content item in the MDC to be updated is specified in the contentUri HTTP header parameter.
+
+The body of the REST request contains the data to update the catalog entry in the MDC.
+
+An HTTP 200 OK status code is returned to the client with:
+
+* Catalog-ID HTTP header set to the catalog ID that was updated in the MDC
+
+|${secure_url}/services/content
+
+The directive is set to PROCESS in the Content REST Endpoint; it does not need to be explicitly set in the the directive HTTP header parameter.
+
+|Delete Content and Catalog Entry
+|HTTP DELETE
+|The ID of the content item in the DDF Content Repository to be deleted is appended to the end of the URL.
+
+HTTP status code of 204 NO CONTENT is returned upon successful deletion.
+
+* Content-ID
+* HTTP header set to GUID deleted by the Content Framework
+* Catalog-ID HTTP header set to the catalog ID that was deleted from the MDC
+
+|${secure_url}/services/content/ABC123
+
+Where ABC123 is the ID of the content item to be deleted, and the directive HTTP header parameter is set to STORE_AND_PROCESS.
+
+|Delete Content Only
+|HTTP DELETE
+|The ID of the content item in the DDF Content Repository to be deleted is appended to the end of the URL.
+
+HTTP status code of 204 NO CONTENT is returned upon successful deletion.
+
+|${secure_url}/services/content/ABC123
+
+Where ABC123 is the ID of the content item to be deleted, and the directive HTTP header parameter is set to STORE.
+
+|Delete Catalog Entry Only
+|HTTP DELETE
+|The URI of the content item in the MDC to be deleted is specified in the contentUri HTTP header parameter.
+
+HTTP status code of 204 NO CONTENT is returned to the client upon successful deletion with:
+
+* Catalog-ID HTTP header set to the catalog ID that was deleted from the MDC
+
+|${secure_url}/services/content
+
+The `contentUri` HTTP header parameter is set to the URI of the catalog entry in the MDC to be deleted.
+
+|Read
+|HTTP GET
+|The ID of the content item in the DDF Content Repository to be retrieved is appended to the end of the URL.
+
+An HTTP 200 OK status code is returned upon successful read, and the contents of the retrieved content item are contained in the HTTP body.
+
+|${secure_url}/services/content/ABC123
+
+Where ABC123 is the ID of the content item to be retrieved
+|===
+
+[NOTE]
+====
+For all Content REST CRUD commands, only one content item ID is supported in the URL; i.e., bulk operations are not supported.
+====
+
+===== Interacting with REST Endpoint
+
+Any web browser can be used to perform a REST read. Various other tools and libraries can be used to perform the other HTTP operations on the REST endpoint (e.g., soapUI, cURL, etc.).
+
+====== Creating Request Multipart/Form-Data Parameters
+
+The create (HTTP POST) request is a multipart/form-data request, allowing the binary data (i.e., the content) to be either included in the request’s body or attached as a file. This binary data is defined in a Content-Disposition part of the request where the name parameter is set to file, and the optional filename parameter indicates the name of the file that the content should be stored as.
+
+Optional form parameters for the create request are the directive and contentUri. The directive form parameter’s value can be either`STORE`, PROCESS, or STORE_AND_PROCESS, indicating if the content should be only stored in the Content Repository, only processed to generate a metacard and then ingested into the MDC, or both. The directive form parameter will default to STORE_AND_PROCESS if it is not specified.
+
+The contentUri form parameter allows the client to specify the URI of a product stored remotely/externally (relative to DDF). This contentUri is used to indicate that the client will manage the content storage but wants the Content Framework to parse the content and create/update/delete a catalog entry in the MDC using this content URI as the entry’s product URI. This parameter is used when the directive is set to PROCESS.
+
+====== Updating and Deleting Request HTTP Header Parameters
+
+Two optional HTTP header parameters are available on the update and delete RESTful URLs.
+
+The directive header parameter allows the client to optionally direct the Content Framework to:
+
+* only store the content in the DDF Content Repository (directive=STORE)
+* store the content in the repository and parse the content to create a metacard (directive=STORE_AND_PROCESS); this metacard is then created/updated/deleted in the Metadata Catalog (by invoking the Catalog Framework operations)
+
+`STORE_AND_PROCESS` is the default value for the directive header parameter. The directive header parameter is only used on the PUT and DELETE RESTful URLs that have a contentId in the URL.
+
+The `contentUri` header parameter allows the client to specify the URI of a product stored remotely/externally (relative to DDF). The `contentUri` header parameter is only used with the PUT and DELETE RESTful URLs, where the contentId is not appended to the URL.
+
+
+For the examples below, the binary data, i.e., the "content", is not included in the request’s body.
+
+====== Content Endpoint Sample Requests and Responses
+
+
+.Create Content and Catalog Entry Request
+[source]
+----
+|POST ${secure_url}/services/content/ HTTP/1.1
+
+Content-Type: multipart/form-data; boundary=ARCFormBoundaryuxprlpjxmakbj4i
+
+--ARCFormBoundaryuxprlpjxmakbj4i
+Content-Disposition: form-data; name="directive"
+
+STORE_AND_PROCESS
+--ARCFormBoundaryuxprlpjxmakbj4i
+Content-Disposition: form-data; name="file";
+filename="C:\DDF\geojson_valid.json"
+Content-Type: application/json;id=geojson
+
+<content included in payload but omitted here for brevity>
+--ARCFormBoundaryuxprlpjxmakbj4i--
+----
+
+
+.Create Content and Catalog Entry Response
+[source]
+----
+HTTP/1.1 201 Created
+Catalog-ID: e82a31253e634a409c83d7164638f029
+Content-ID: ef0ef614bbdb4ede99e2371ebd2280ee
+Content-Length: 0
+Content-URI:
+content:ef0ef614bbdb4ede99e2371ebd2280ee
+Date: Wed, 13 Feb 2013 21:56:15 GMT
+Location:
+http://127.0.0.1:8181/services/content/ef0ef614bbdb4ede99e2371ebd2280ee
+Server: Jetty(7.5.4.v20111024)
+----
+
+.Create Content Only Request
+[source]
+----
+POST ${secure_url}/services/content/ HTTP/1.1
+Content-Type: multipart/form-data; boundary=ARCFormBoundaryuxprlpjxmakbj4i
+
+--ARCFormBoundaryuxprlpjxmakbj4i
+Content-Disposition: form-data; name="directive"
+
+STORE
+--ARCFormBoundaryuxprlpjxmakbj4i
+Content-Disposition: form-data; name="file";
+filename="C:\DDF\geojson_valid.json"
+Content-Type: application/json;id=geojson
+
+<content included in payload but omitted here for brevity>
+--ARCFormBoundaryuxprlpjxmakbj4i--
+----
+
+.Create Content Only Response
+[source]
+----
+HTTP/1.1 201 Created
+Content-ID: 7d671cd8e9aa4637960b37c7b3870aed
+Content-Length: 0
+Content-URI:
+content:7d671cd8e9aa4637960b37c7b3870aed
+Date: Wed, 13 Feb 2013 21:56:16 GMT
+Location:
+http://127.0.0.1:8181/services/content/7d671cd8e9aa4637960b37c7b3870aed
+Server: Jetty(7.5.4.v20111024)
+----
+
+.Create Catalog Entry Only Response
+[source]
+----
+POST ${secure_url}/services/content/ HTTP/1.1
+
+Content-Type: multipart/form-data; boundary=ARCFormBoundaryuxprlpjxmakbj4i
+
+--ARCFormBoundaryuxprlpjxmakbj4i
+Content-Disposition: form-data; name="directive"
+
+PROCESS
+
+--ARCFormBoundaryuxprlpjxmakbj4i
+Content-Disposition: form-data; name="contentUri"
+
+http://localhost:8080/some/path/file.json
+--ARCFormBoundaryuxprlpjxmakbj4i
+Content-Disposition: form-data; name="file"; filename="C:\DDF\geojson_valid.json"
+Content-Type: application/json;id=geojson
+
+<content included in payload but omitted here for brevity>
+--ARCFormBoundaryuxprlpjxmakbj4i--
+----
+
+.Create Catalog Entry Only Request
+[source]
+----
+HTTP/1.1 200 OK
+Catalog-ID: 94d8fae228a84e29a7396196542e2608
+Content-Length: 0
+Date: Wed, 13 Feb 2013 21:56:16 GMT
+Server: Jetty(7.5.4.v20111024)
+----
+
+.Update Content and Catalog Entry Request
+[source]
+----
+PUT ${secure_url}/services/content/bf9763c2e74d46f68a9ed591c4b74591 HTTP/1.1
+Accept-Encoding: gzip,deflate
+directive: STORE_AND_PROCESS
+Content-Type: application/json;id=geojson
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: 127.0.0.1:8181
+Content-Length: 9608
+
+<content included in payload but omitted here for brevity>
+----
+
+.Update Content and Catalog Entry Response
+[source]
+----
+HTTP/1.1 200 OK
+Catalog-ID: d9ccbc9d139a4abbb0b1cdded1de0921
+Content-ID: bf9763c2e74d46f68a9ed591c4b74591
+Content-Length: 0
+Date: Wed, 13 Feb 2013 21:56:25 GMT
+Server: Jetty(7.5.4.v20111024)
+----
+
+.Update Content Only Request
+[source]
+----
+PUT ${secure_url}/services/content/bf9763c2e74d46f68a9ed591c4b74591 HTTP/1.1
+Accept-Encoding: gzip,deflate
+directive: STORE
+Content-Type: application/json;id=geojson
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: 127.0.0.1:8181
+Content-Length: 9608
+
+<content included in payload but omitted here for brevity>
+----
+
+.Update Content Only Response
+[source]
+----
+HTTP/1.1 200 OK
+Content-ID: 7a702cd5c95347d2aa79ccc25b39e4f6
+Content-Length: 0
+Date: Wed, 13 Feb 2013 21:56:25 GMT
+Server: Jetty(7.5.4.v20111024)
+----
+
+.Update Catalog Entry Only and Content ID is provided (STORE_AND_PROCESS) Request
+[source]
+----
+PUT ${secure_url}/services/content/bf9763c2e74d46f68a9ed591c4b74591 HTTP/1.1 Accept-Encoding: gzip,deflate directive: STORE_AND_PROCESS Content-Type: application/json;id=geojson User-Agent: Jakarta Commons-HttpClient/3.1 Host: 127.0.0.1:8181 Content-Length: 9608
+
+<content included in payload but omitted here for brevity> ---
+----
+
+.Update Catalog Entry Only and Content ID is provided (STORE_AND_PROCESS) Response
+[source]
+----
+HTTP/1.1 200 OK
+Catalog-ID: 54a42215bf514322ba60bee97dab68e7
+Content-ID: bf9763c2e74d46f68a9ed591c4b74591
+Content-Length: 0
+Date: Wed, 11 Sep 2013 15:22:59 GMT
+Server: Jetty(7.6.8.v20121106)
+----
+
+.Update Catalog Entry Only and Content URI is provided (PROCESS only) Request
+[source]
+----
+PUT ${secure_url}/services/content/ HTTP/1.1
+Accept-Encoding: gzip,deflate
+contentUri: ${secure_url}/some/path4/file.json
+Content-Type: application/json;id=geojson
+
+<content included in payload but omitted here for brevity>
+----
+
+.Update Catalog Entry Only and Content URI is provided (PROCESS only) Response
+[source]
+----
+HTTP/1.1 200 OK
+Catalog-ID: b7a95aab99cd4318b8021eeef2715e4b
+Content-Length: 0
+Date: Wed, 11 Sep 2013 15:23:01 GMT
+Server: Jetty(7.6.8.v20121106)
+----
+
+.Delete Content and Catalog Entry Request
+[source]
+----
+DELETE ${secure_url}/services/content/911e27aba723448ea420142b0e793d38 HTTP/1.1
+Accept-Encoding: gzip,deflate
+directive: STORE_AND_PROCESS
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: 127.0.0.1:8181
+----
+
+.Delete Content and Catalog Entry
+[source]
+----
+HTTP/1.1 204 No Content
+Catalog-ID: 5236910acbd14d97a786f1fa95d43d58
+Content-ID: 911e27aba723448ea420142b0e793d38
+Content-Length: 0
+Date: Wed, 13 Feb 2013 21:56:31 GMT
+Server: Jetty(7.5.4.v20111024)
+----
+
+.Delete Content Only Request
+[source]
+----
+DELETE ${secure_url}/services/content/eb91c8ee225d4cddb4d9fbe2d9bf5d7c HTTP/1.1
+Accept-Encoding: gzip,deflate
+directive: STORE
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: 127.0.0.1:8181
+----
+
+.Delete Content Only Response
+[source]
+----
+HTTP/1.1 204 No Content
+Content-ID: eb91c8ee225d4cddb4d9fbe2d9bf5d7c
+Content-Length: 0
+Date: Wed, 13 Feb 2013 21:56:31 GMT
+Server: Jetty(7.5.4.v20111024)
+----
+
+.Delete Catalog Entry Only Request
+[source]
+----
+DELETE ${secure_url}/services/content/ HTTP/1.1
+Accept-Encoding: gzip,deflate
+contentUri:${secure_url}/some/path5/file.json
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: 127.0.0.1:8181
+----
+
+.Delete Catalog Entry Only Response
+[source]
+----
+HTTP/1.1 204 No Content
+Catalog-ID: c9a2b1c395f74300b33529483f095196
+Content-Length: 0
+Date: Wed, 13 Feb 2013 21:56:31 GMT
+Server: Jetty(7.5.4.v20111024)
+----
+
+.Read Request
+[source]
+----
+GET ${secure_url}/services/content/d34fd2b31f314aa6ade162015ba3016f HTTP/1.1
+Accept-Encoding: gzip,deflate
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: 127.0.0.1:8181
+----
+
+.Read Response
+[source]
+----
+HTTP/1.1 200 OK
+Content-Length: 9579
+Content-Type: application/json;id=geojson
+Date: Wed, 13 Feb 2013 21:56:24 GMT
+Server: Jetty(7.5.4.v20111024)
+...  (remaining data of content item retrieved omitted for brevity) ...
+----
+
+====== cURL Commands
+
+The following are some sample cURL commands corresponding to a few of the above REST requests.
+Pay special attention to the flags, as they vary between operations.
+
+We ingested/updated a file named `geojson_valid.json` whose MIME type was `application/json;id=geojson`, and whose content ID ended up being CONTENT_ID.
+
+To perform each operation without using the catalog, replace `STORE_AND_PROCESS` with `STORE`.
+To manipulate the catalog entry only, replace `STORE_AND_PROCESS` with `PROCESS`.
+
+.Create Content and Catalog Entry
+[source]
+----
+curl -i -X POST -F "directive=STORE_AND_PROCESS" -F "filename=geojson_valid.json" -F "file=@geojson_valid.json;type=application/json;id=geojson" ${secure_url}/services/content/
+----
+
+.Update Content and Catalog Entry
+[source]
+----
+curl -i -X PUT -H "directive: STORE_AND_PROCESS" -H "Content-Type: application/json;id=geojson" --data-binary "@geojson_valid.json" ${secure_url}/services/content/CONTENT_ID
+----
+
+.Delete Content and Catalog Entry
+[source]
+----
+curl -i -X DELETE -H "directive: STORE_AND_PROCESS" ${secure_url}/services/content/CONTENT_ID
+----
+
+.Read
+[source]
+----
+curl -i -X GET ${secure_url}/services/content/CONTENT_ID
+----
+
+===== Known Issues with the Content Endpoint
+
+None.

@@ -1,46 +1,46 @@
 = Distributed Data Framework Documentation
-include::${project.build.directory}/_contents/_contents/config.adoc[]
+include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 
 = Introduction
 
-include::${project.build.directory}/_contents/_contents/introduction-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/introduction-contents.adoc[]
 
 <<<
 
 == Documentation Guide
 
-include::${project.build.directory}/_contents/_contents/documentation-notes-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/documentation-notes-contents.adoc[]
 
 <<<
 
 == ${branding} Quick Start
 
-include::${project.build.directory}/_contents/_contents/quickstart-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/quickstart-contents.adoc[]
 
 <<<
 
 = Managing ${branding}
 
-include::${project.build.directory}/_contents/_contents/installing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/installing-contents.adoc[]
 
-include::${project.build.directory}/_contents/_contents/configuring-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/configuring-contents.adoc[]
 
-include::${project.build.directory}/_contents/_contents/securing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/securing-contents.adoc[]
 
-include::${project.build.directory}/_contents/_contents/running-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/running-contents.adoc[]
 
-include::${project.build.directory}/_contents/_contents/ingesting-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/ingesting-contents.adoc[]
 
-include::${project.build.directory}/_contents/_contents/monitoring-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/monitoring-contents.adoc[]
 
-include::${project.build.directory}/_contents/_contents/troubleshooting-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/troubleshooting-contents.adoc[]
 
 <<<
 
 == Using ${branding}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/_contents/ui-help/standard-${project.version}/help-contents.adoc[]
+include::${project.build.directory}/doc-contents/ui-help/standard-${project.version}/help-contents.adoc[]
 
 <<<
 
@@ -115,479 +115,532 @@ include::${project.build.directory}/doc-contents/_contents/_ui-contents/managing
 //Catalog Frameworks
 == The Catalog Framework
 
-include::${project.build.directory}/_contents/catalog-architecture-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/catalog-architecture-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/catalog-framework-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/catalog-framework-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/catalog-frameworks-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/catalog-frameworks-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/catalog-api-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/catalog-api-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/standard-catalog-framework-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/standard-catalog-framework-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/catalog-fanout-framework-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/catalog-fanout-framework-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/catalog-framework-camel-component-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/catalog-framework-camel-component-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/developing-catalog-frameworks-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/developing-catalog-frameworks-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/json-definition-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/json-definition-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/attribute-type-definition-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/attribute-type-definition-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/metacard-type-definition-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/metacard-type-definition-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/global-attribute-validators-definition-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/global-attribute-validators-definition-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/default-attribute-values-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/default-attribute-values-contents.adoc[]
 
-include::${project.build.directory}/_contents/_catalog-frameworks/attribute-injection-definition-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-frameworks/attribute-injection-definition-contents.adoc[]
 
 == Endpoints
-include::${project.build.directory}/_contents/_endpoints/endpoints-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/endpoints-intro-contents.adoc[]
 
 // summary list of endpoints
-include::${project.build.directory}/_contents/_endpoints/available-endpoints-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/available-endpoints-contents.adoc[]
 
 // endpoint details
-include::${project.build.directory}/_contents/_endpoints/application-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/application-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/catalog-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/catalog-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/cometd-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/cometd-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/content-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/content-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/csw-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/csw-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/ftp-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/ftp-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/geocoder-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/geocoder-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/idp-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/idp-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/kml-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/kml-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/metrics-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/metrics-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/opensearch-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/opensearch-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/registry-rest-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/registry-rest-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/resource-download-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/resource-download-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/soap-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/soap-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/wfs-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/wfs-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/who-am-i-endpoint-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/who-am-i-endpoint-contents.adoc[]
 
-include::${project.build.directory}/_contents/_endpoints/developing-endpoints-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_endpoints/endpoint-utilities-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_endpoints/compression-services-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_endpoints/developing-endpoints-contents.adoc[]
 
 == Transformers and Supported Formats
 
-include::${project.build.directory}/_contents/_transformers/transformers-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/transformers-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/input-transformers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/input-transformers-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/geojson-input-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/geojson-input-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/gmd-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/gmd-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/pdf-input-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/pdf-input-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/pptx-input-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/pptx-input-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/registry-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/registry-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/tika-input-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/tika-input-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/video-input-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/video-input-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/xml-input-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/xml-input-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/developing-input-transformers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/developing-input-transformers-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/metacard-transformers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/metacard-transformers-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/geojson-metacard-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/geojson-metacard-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/html-metacard-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/html-metacard-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/kml-metacard-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/kml-metacard-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/kml-style-mapper-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/kml-style-mapper-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/metadata-metacard-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/metadata-metacard-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/resource-metacard-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/resource-metacard-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/thumbnail-metacard-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/thumbnail-metacard-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/xml-metacard-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/xml-metacard-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/developing-metacard-transformers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/developing-metacard-transformers-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/query-response-transformers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/query-response-transformers-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/atom-query-response-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/atom-query-response-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/csw-query-response-transformer.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/csw-query-response-transformer.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/geojson-query-response-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/geojson-query-response-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/kml-query-response-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/kml-query-response-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/query-response-transformer-consumer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/query-response-transformer-consumer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/searchui-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/searchui-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/xml-query-response-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/xml-query-response-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/xml-response-queue-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/xml-response-queue-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/xslt-response-queue-transformer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/xslt-response-queue-transformer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/zip-compression-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/zip-compression-contents.adoc[]
 
-include::${project.build.directory}/_contents/_transformers/developing-query-response-transformers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_transformers/developing-query-response-transformers-contents.adoc[]
 ////
-include::${project.build.directory}/_contents/file-types-supported-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/file-types-supported-contents.adoc[]
 ////
 == Federation
 
-include::${project.build.directory}/_contents/_federation/federation-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_federation/federation-intro-contents.adoc[]
 
 == Sources
 
-include::${project.build.directory}/_contents/_sources/sources-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/sources-intro-contents.adoc[]
 
 // Federated Sources
-include::${project.build.directory}/_contents/_sources/federated-sources-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/federated-sources-contents.adoc[]
 
-include::${project.build.directory}/_contents/_sources/csw-source-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/csw-source-contents.adoc[]
 
-include::${project.build.directory}/_contents/_sources/gmd-csw-source-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/gmd-csw-source-contents.adoc[]
 
-include::${project.build.directory}/_contents/_sources/opensearch-source-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/opensearch-source-contents.adoc[]
 
-include::${project.build.directory}/_contents/_sources/twitter-source-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/twitter-source-contents.adoc[]
 
-include::${project.build.directory}/_contents/_sources/wfs-10-source-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/wfs-10-source-contents.adoc[]
 
-include::${project.build.directory}/_contents/_sources/wfs-20-source-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/wfs-20-source-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_sources/wfs-sources-services-contents.adoc[]
 
 // Connected Sources
-include::${project.build.directory}/_contents/_sources/connected-sources-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/connected-sources-contents.adoc[]
 
 //Catalog Providers
-include::${project.build.directory}/_contents/_sources/catalog-providers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/catalog-providers-contents.adoc[]
 
-include::${project.build.directory}/_contents/_sources/solr-catalog-provider-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/solr-catalog-provider-contents.adoc[]
 
-include::${project.build.directory}/_contents/_sources/solr-http-catalog-provider-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/solr-http-catalog-provider-contents.adoc[]
 
 //Catalog Stores
-include::${project.build.directory}/_contents/_sources/catalog-stores-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/catalog-stores-contents.adoc[]
 
-include::${project.build.directory}/_contents/_sources/registry-store-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/registry-store-contents.adoc[]
 
 //Developing Sources
-include::${project.build.directory}/_contents/_sources/developing-sources-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/developing-sources-contents.adoc[]
 
 == Plugins
 
-include::${project.build.directory}/_contents/_plugins/plugins-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/plugins-intro-contents.adoc[]
 //pre-ingest
-include::${project.build.directory}/_contents/_plugins/pre-ingest-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-ingest-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/pre-ingest-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-ingest-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/metacard-groomer-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/metacard-groomer-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/metacard-validity-marker-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/metacard-validity-marker-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/expiration-date-pre-ingest-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/expiration-date-pre-ingest-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/identification-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/identification-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/security-logging-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/security-logging-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/dummy-pre-ingest-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-pre-ingest-plugin-contents.adoc[]
 //pre-query
-include::${project.build.directory}/_contents/_plugins/pre-query-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-query-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/pre-query-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-query-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/catalog-metrics-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/catalog-metrics-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/sample-metrics-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/sample-metrics-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/dummy-pre-query-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-pre-query-plugin-contents.adoc[]
 
 //pre-resource
-include::${project.build.directory}/_contents/_plugins/pre-resource-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-resource-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/pre-resource-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-resource-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/resource-usage-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/resource-usage-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/dummy-pre-resource-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-pre-resource-plugin-contents.adoc[]
 
 //pre-subscription
-include::${project.build.directory}/_contents/_plugins/pre-subscription-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-subscription-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/pre-subscription-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-subscription-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/dummy-pre-subscription-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-pre-subscription-plugin-contents.adoc[]
 //pre-delivery
-include::${project.build.directory}/_contents/_plugins/pre-delivery-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-delivery-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/pre-delivery-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-delivery-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/dummy-pre-delivery-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-pre-delivery-plugin-contents.adoc[]
 //pre-create-storage
-include::${project.build.directory}/_contents/_plugins/pre-create-storage-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-create-storage-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/pre-create-storage-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-create-storage-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/checksum-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/checksum-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/preview-storage-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/preview-storage-plugin-contents.adoc[]
 
 //pre-update-storage
-include::${project.build.directory}/_contents/_plugins/pre-update-storage-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-update-storage-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/pre-update-storage-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/pre-update-storage-plugins-contents.adoc[]
 
 //post-ingest
-include::${project.build.directory}/_contents/_plugins/post-ingest-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-ingest-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/post-ingest-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-ingest-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/caching-federation-strategy-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/caching-federation-strategy-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/catalog-backup-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/catalog-backup-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/event-processor-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/event-processor-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/fanout-event-processor-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/fanout-event-processor-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/rest-replicator-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/rest-replicator-plugin-contents.adoc[]
 //post-query
-include::${project.build.directory}/_contents/_plugins/post-query-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-query-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/post-query-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-query-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/jpeg2000-thumbnail-converter-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/jpeg2000-thumbnail-converter-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/metacard-resource-size-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/metacard-resource-size-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/metacard-resource-status-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/metacard-resource-status-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/dummy-validation-post-query-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-validation-post-query-plugin-contents.adoc[]
 //post-resource
-include::${project.build.directory}/_contents/_plugins/post-resource-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-resource-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/post-resource-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-resource-plugins-contents.adoc[]
 //post-create-storage
-include::${project.build.directory}/_contents/_plugins/post-create-storage-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-create-storage-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/post-create-storage-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-create-storage-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/video-thumbnail-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/video-thumbnail-plugin-contents.adoc[]
 //post-update-storage
-include::${project.build.directory}/_contents/_plugins/update-storage-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-update-storage-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/update-storage-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/post-update-storage-plugins-contents.adoc[]
 //Policy
-include::${project.build.directory}/_contents/_plugins/policy-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/policy-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/policy-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/policy-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/catalog-policy-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/catalog-policy-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/filter-post-query-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/filter-post-query-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/historian-policy-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/historian-policy-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/metacard-attribute-security-policy-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/metacard-attribute-security-policy-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/metacard-validity-filter-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/metacard-validity-filter-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/registry-policy-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/registry-policy-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/xml-attribute-security-policy-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/xml-attribute-security-policy-plugin-contents.adoc[]
 //Access
-include::${project.build.directory}/_contents/_plugins/access-plugin-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/access-plugin-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/access-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/access-plugins-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/filter-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/filter-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/operation-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/operation-plugin-contents.adoc[]
 
-include::${project.build.directory}/_contents/_plugins/security-plugin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/security-plugin-contents.adoc[]
 //developing
-include::${project.build.directory}/_contents/_plugins/developing-plugins-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_plugins/developing-plugins-contents.adoc[]
 
 == Operations
 
-include::${project.build.directory}/_contents/_operations/operations-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_operations/operations-intro-contents.adoc[]
 
 == Data and Metadata
 
-include::${project.build.directory}/_contents/_data/data-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_data/data-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_data/data-migration-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_data/data-migration-contents.adoc[]
 
 == Eventing
 
-include::${project.build.directory}/_contents/_eventing/eventing-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_eventing/eventing-intro-contents.adoc[]
 
 == Resources
 
-include::${project.build.directory}/_contents/_resources/resources-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_resources/resources-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_resources/resource-components-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_resources/resource-components-intro-contents.adoc[]
 //resource readers
-include::${project.build.directory}/_contents/_resources/resource-readers-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_resources/resource-readers-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_resources/url-resource-reader-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_resources/url-resource-reader-contents.adoc[]
 
-include::${project.build.directory}/_contents/_resources/developing-resource-readers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_resources/developing-resource-readers-contents.adoc[]
 //resource writers
-include::${project.build.directory}/_contents/_resources/resource-writers-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_resources/resource-writers-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_resources/developing-resource-writers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_resources/developing-resource-writers-contents.adoc[]
 //registry clients
-include::${project.build.directory}/_contents/_resources/developing-registry-clients-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_resources/developing-registry-clients-contents.adoc[]
 //content directory monitor
-include::${project.build.directory}/_contents/_resources/content-directory-monitor-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_resources/content-directory-monitor-contents.adoc[]
 
 == Queries
 
-include::${project.build.directory}/_contents/_queries/queries-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_queries/queries-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_queries/filter-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_queries/filter-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_queries/developing-filters-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_queries/developing-filters-contents.adoc[]
 
-include::${project.build.directory}/_contents/_queries/query-option-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_queries/query-option-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_queries/developing-query-options-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_queries/developing-query-options-contents.adoc[]
 
-include::${project.build.directory}/_contents/_queries/developing-filter-delegates-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_queries/developing-ogc-filters-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_queries/developing-filter-delegates-contents.adoc[]
 
 == Console Commands
 
-include::${project.build.directory}/_contents/_console-commands/developing-console-commands-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_console-commands/developing-console-commands-contents.adoc[]
 
 == Security Framework
 
-include::${project.build.directory}/_contents/_security-framework/security-framework-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-framework-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-core-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-core-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-core-api-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-core-api-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-core-implementation-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-core-implementation-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-core-commons-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-core-commons-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-idp-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-idp-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-encryption-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-encryption-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-encryption-api-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-encryption-api-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-encryption-implementation-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-encryption-implementation-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-encryption-commands-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-encryption-commands-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-ldap-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-ldap-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-ldap-embedded-server-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-ldap-embedded-server-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-pdp-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-pdp-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-pdp-authz-realm-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-pdp-authz-realm-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/guest-interceptor-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/guest-interceptor-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-sts-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-sts-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-sts-client-config-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-sts-client-config-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/external-ws-s-sts-support-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/external-ws-s-sts-support-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-sts-ldap-login-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-sts-ldap-login-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-sts-ldap-claims-handler-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-sts-ldap-claims-handler-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-sts-server-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-sts-server-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-sts-service-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-sts-service-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/developing-token-validators-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-wss-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-pep-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-rest-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-pep-interceptor-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-soap-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-cas-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/developing-token-validators-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-cas-client-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-pep-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-cas-implementation-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-pep-interceptor-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-cas-token-validator-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-cas-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-cas-cxf-servlet-filter-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-cas-client-contents.adoc[]
 
-include::${project.build.directory}/_contents/_security-framework/security-cas-server-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-cas-implementation-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-cas-token-validator-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-cas-cxf-servlet-filter-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_security-framework/security-cas-server-contents.adoc[]
 
 == Metrics
 
-include::${project.build.directory}/_contents/_metrics/metrics-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_metrics/metrics-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_metrics/metrics-collection-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_metrics/metrics-collection-contents.adoc[]
 
-include::${project.build.directory}/_contents/_metrics/metrics-reporting-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_metrics/metrics-reporting-contents.adoc[]
 
-include::${project.build.directory}/_contents/_metrics/catalog-metrics-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_metrics/catalog-metrics-contents.adoc[]
 
-include::${project.build.directory}/_contents/_metrics/source-metrics-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_metrics/source-metrics-contents.adoc[]
 
 == Action Framework
 
-include::${project.build.directory}/_contents/_action-framework/action-framework-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_action-framework/action-framework-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_action-framework/action-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_action-framework/action-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_action-framework/action-provider-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_action-framework/action-provider-intro-contents.adoc[]
 
-include::${project.build.directory}/_contents/_action-framework/action-providers-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_action-framework/action-providers-contents.adoc[]
 
-include::${project.build.directory}/_contents/_action-framework/developing-action-components-contents.adoc[]
-
-== Migratables
-
-include::${project.build.directory}/_contents/_migratables/migratables-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_action-framework/developing-action-components-contents.adoc[]
 
 == Web Contexts
 
-include::${project.build.directory}/_contents/_contexts/landing-page-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_contexts/web-contexts-intro-contents.adoc[]
 
-/////////
-== Development Recommendations
+include::${project.build.directory}/doc-contents/_contents/_contexts/web-contexts-admin-contents.adoc[]
 
-include::${project.build.directory}/_contents/developing-intro-contents.adoc
+include::${project.build.directory}/doc-contents/_contents/_contexts/web-contexts-users-contents.adoc[]
 
-/////////
-== Input Formats
+include::${project.build.directory}/doc-contents/_contents/_contexts/landing-page-contents.adoc[]
 
-include::${project.build.directory}/_contents/file-types-supported-contents.adoc[]
+== Input / Output Formats
 
+include::${project.build.directory}/doc-contents/_contents/_formats/formats-intro-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_formats/mime-type-mapper-intro-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_formats/mime-type-mappers-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_formats/ddf-mime-type-mapper-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_formats/mime-type-resolver-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_formats/mime-type-resolvers-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_formats/tika-mime-type-resolver-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_formats/custom-mime-type-resolver-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_formats/file-types-supported-contents.adoc[]
+
+= Developing ${branding}
+
+include::${project.build.directory}/doc-contents/_contents/_developing/developing-intro-contents.adoc[]
+
+== APIs
+
+include::${project.build.directory}/doc-contents/_contents/_apis/api-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_apis/migration-api-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_apis/application-service-api-contents.adoc[]
+
+== Application Whitelists
+
+include::${project.build.directory}/doc-contents/_contents/_admin-contents/admin-whitelist-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/catalog-whitelist-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_platform-contents/platform-whitelist-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_registry-contents/registry-whitelist-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_security-contents/security-whitelist-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_solr-contents/solr-whitelist-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_spatial-contents/spatial-whitelist-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_ui-contents/ui-whitelist-contents.adoc[]

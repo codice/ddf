@@ -1,5 +1,5 @@
 
-==== Creating Filters
+=== Developing Filters
 
 The common way to create a `Filter` is to use the Geotools `FilterFactoryImpl` object, which provides Java implementations for the various types of filters in the Filter Specification.
 Examples are the easiest way to understand how to properly create a `Filter` and a `Query`. 
@@ -8,6 +8,8 @@ Examples are the easiest way to understand how to properly create a `Filter` a
 ====
 Refer to the http://docs.geotools.org/latest/javadocs/[Geotools javadoc] for more information on `FilterFactoryImpl`.
 ====
+
+==== Filter Examples
 
 The example below illustrates creating a query, and thus an OGC Filter, that does a case-insensitive search for the phrase "mission" in the entire metacard's text.
 Note that the OGC `PropertyIsLike` Filter is used for this simple contextual query.

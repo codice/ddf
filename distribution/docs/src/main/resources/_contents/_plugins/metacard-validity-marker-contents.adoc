@@ -12,21 +12,21 @@ verify either that the ingested data is valid or that the <<catalogFederationStr
 ====
 
 
-====== Installing and Uninstalling
+===== Installing Metacard Validity Marker
 
 This plugin can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
 
-====== Configuring
+===== Configuring Metacard Validity Marker
 
 No configuration is necessary for this plugin. 
 By default, it will mark metacards with validation errors and warnings as they are reported by each metacard validator and then allow the ingest.
 To prevent the ingest of certain invalid metacards, the `Metacard Validity Marker` plugin can be configured to "enforce" one or more validators.
 Metacards that are invalid according to an "enforced" validator will not be ingested.
 
-====== Using
+===== Using Metacard Validity Marker
 
 Use this pre-ingest plugin to validate metacards against metacard validators, which can check schemas, schematron, or any other logic. 
 
-====== Known Issues
+====== Known Issues with the Metacard Validity Marker
 
-None
+None.

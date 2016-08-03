@@ -1,6 +1,8 @@
 
 ${branding} includes a system of data-collection to enable monitoring system health, user interactions, and overall system performance: *Metrics Collection*.
 
+=== Metrics Services
+
 The Metrics Collection collects data for all of the pre-configured metrics in ${branding} and stores them in custom JMX Management Bean (MBean) attributes.
 Samples of each metric's data is collected every 60 seconds and stored in the `<${branding}_INSTALL_DIR>/data/metrics` directory with each metric stored in its own `.rrd` file.
 Refer to the Metrics Reporting Application for how the stored metrics data can be viewed.

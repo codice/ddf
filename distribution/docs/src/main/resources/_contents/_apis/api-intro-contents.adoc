@@ -1,0 +1,2 @@
+This section discusses the several extension points and components permitted by the ${branding} APIs.
+Using code examples, diagrams, and references to specific instances of each API, this guide provides details on how to develop and extend various ${branding} components.

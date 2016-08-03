@@ -7,7 +7,7 @@
 
 <<_cometd_endpoint,CometD Endpoint>>:: _implements [CometD]_. The CometD endpoint enables asychronous search capabilties.
 
-<<_content_endpoint,Content Endpoint>>:: _implements_.
+<<_content_endpoint,Content Endpoint>>:: The Content endpoint provides the capability to read, create, update, and delete content in the Content Repository, as well as create, update, and delete metacards in the Metadata Catalog (MDC).
 
 <<_csw_endpoint,CSW Endpoint>>:: _implements http://www.opengeospatial.org/standards/cat2eoext4ebrim[CSW standard], [XML-RPC], [ISO 19115/ISO191119]_. The CSW endpoint enables a client to search collections of descriptive information (metadata) about geospatial data and services. The CSW endpoint is accessible from \http://<${secure_url}/services/csw.
 

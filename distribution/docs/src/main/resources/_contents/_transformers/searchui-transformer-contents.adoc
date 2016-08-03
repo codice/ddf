@@ -5,12 +5,12 @@ It is primarily used as a test tool and verification of configuration.
 The left pane of the SearchUI contains basic fields to query the Catalog and other Sources.
 The right pane consists of the results returned from the query.
 
-====== Installing and Uninstalling SearchUI
+===== Installing and Uninstalling SearchUI
 
 This transformer is installed by default with a standard installation in the ${ddf-catalog} application.
 This transformer's feature, `catalog-transformer-ui`, can be uninstalled or installed.
 
-====== Configuring SearchUI
+===== Configuring SearchUI
 
 From the ${admin-console}, the SearchUI can be configured under the *Catalog HTML Query Response Transformer*.
 

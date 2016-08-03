@@ -97,7 +97,7 @@ ${branding-lowercase}${at-symbol}local>
 
 . Download a sample valid https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[GeoJson file here].
 . Navigate in the browser to the Search UI at ${secure_url}/search.
-. Click the *upload* icon icon:upload[role="blue"] in the upper right corner.
+. Click the *upload* icon in the upper right corner.
 . Select the file to upload.
 
 === Using the Catalog Content Directory Monitor

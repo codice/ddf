@@ -1,7 +1,5 @@
 
-==== Developing Console Commands
-
-===== Console Commands
+=== Developing Console Commands
 
 ${branding} supports development of custom console commands.
 

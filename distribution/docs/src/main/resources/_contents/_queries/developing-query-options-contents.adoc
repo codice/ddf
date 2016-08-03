@@ -1,4 +1,5 @@
-==== Developing Query Options
+
+=== Developing Query Options
 
 The easiest way to create a Query is to use `${ddf-branding}.catalog.operation.QueryImpl` object.
 It is first necessary to create an OGC Filter object then set the Query Options after `QueryImpl` has been constructed.

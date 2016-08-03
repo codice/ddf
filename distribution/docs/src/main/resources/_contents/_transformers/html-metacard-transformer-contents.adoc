@@ -1,7 +1,8 @@
+
 ==== HTML Metacard Transformer
 The HTML metacard transformer is responsible for translating a metacard into an HTML formatted document.
 
-====== Installing the HTML Metacard Transformer
+===== Installing the HTML Metacard Transformer
 
 
 Install the `catalog-transformer-html` feature using the Admin Console.
@@ -17,12 +18,12 @@ Using the REST Endpoint for example, request a metacard with the transform optio
 ${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=html
 ----
 
-.Example Output
+.HTML Metacard Transformer Example Output
 ----
 html metacard.png
 ----
 
-.Implementation Details
+.HTML Metacard Transformer Implementation Details
 [cols="3*" options="header"]
 |===
 |Registered Interface
@@ -39,6 +40,6 @@ html metacard.png
 
 |===
 
-===== Known Issues
+===== Known Issues with the HTML Metacard Transformer
 
-None
+None.

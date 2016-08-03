@@ -1,3 +1,4 @@
+
 ==== Metrics Collection Application
 
 The Metrics Collection Application is responsible for collection both Catalog and Source metrics.

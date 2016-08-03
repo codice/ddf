@@ -16,14 +16,14 @@ The plugin also makes the following modifications when metacards are in an `Upda
 * If no value is provided, sets the `Metacard.CREATED` date with the `Metacard.MODIFIED` date so that the `Metacard.CREATED` date is not null.
 * Overwrites the `Metacard.MODIFIED` date with a current time stamp.
 
-====== Installing the Metacard Groomer
+===== Installing the Metacard Groomer
 
 The Metacard Groomer is is not installed by default with a standard installation in the ${ddf-catalog} application.
 
-====== Configuring the Metacard Groomer
+===== Configuring the Metacard Groomer
 
 None. 
 
-====== Known Issues with the Metacard Groomer
+===== Known Issues with the Metacard Groomer
 
 None.

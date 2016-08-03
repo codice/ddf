@@ -39,6 +39,8 @@ For example, a fishing company that has operated ships peacefully in the same re
 To exclude metadata about that company, analysts may add contextual criteria indicating to return only records containing the keyword "pirate." 
 With the subscription in place, analysts will only be notified of metadata related to the pirating activity, giving them better situational awareness.
 
+=== Eventing Components
+
 The key components of ${branding} Eventing include:
 
 * Subscription
@@ -304,7 +306,7 @@ public class DeliveryMethodImpl implements DeliveryMethod {
 }
 ----
 
-==== Deleting a Subscription
+===== Deleting a Subscription
 
 To remove a subscription from ${branding}, the subscription ID is required.
 Once this is provided, the `ServiceRegistration` for the indicated `Subscription` should be obtained from the `Subscriptions` Map.
