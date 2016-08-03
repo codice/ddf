@@ -123,6 +123,11 @@ public interface Core {
     String TITLE = "title";
 
     /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the generic type of the {@link Metacard} resource. <br/>
+     */
+    String DATATYPE = "datatype";
+
+    /**
      * {@link ddf.catalog.data.Attribute} name for accessing the creation date of the {@link Metacard}. <br/>
      */
     String METACARD_CREATED = "metacard.created";

@@ -1124,6 +1124,15 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .xmlPath()
                     .getList("metacards.metacard")
                     .size() == 1) {
+
+                String cardId = response.extract()
+                        .xmlPath()
+                        .get("metacards.metacard[0].@gml:id")
+                        .toString();
+
+                if (cardId != null) {
+                    deleteMetacard(cardId);
+                }
                 break;
             }
             try {
@@ -1678,7 +1687,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         tmpFile.toFile()
                 .deleteOnExit();
         Files.copy(getClass().getClassLoader()
-                .getResourceAsStream(filename), tmpFile);
+                .getResourceAsStream(filename), tmpFile, StandardCopyOption.REPLACE_EXISTING);
         return tmpFile.toFile();
     }
 
@@ -1697,8 +1706,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testMetacardDefinitionJsonFile() throws Exception {
-        getServiceManager().startFeature(true, "catalog-core-validationparser");
-
         final String newMetacardTypeName = "new.metacard.type";
         File file = ingestDefinitionJsonWithWaitCondition("definitions.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(10,
@@ -1742,7 +1749,6 @@ public class TestCatalog extends AbstractIntegrationTest {
                                 .isPresent());
                 return null;
             });
-            getServiceManager().stopFeature(true, "catalog-core-validationparser");
             configureShowInvalidMetacards("false", "false");
         }
     }
@@ -1768,8 +1774,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testDefaultValuesCreate() throws Exception {
-        getServiceManager().startFeature(true, "catalog-core-validationparser");
-
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(10,
@@ -1832,17 +1836,14 @@ public class TestCatalog extends AbstractIntegrationTest {
                                 .isPresent());
                 return null;
             });
-            getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }
 
     @Test
     public void testDefaultValuesUpdate() throws Exception {
-        getServiceManager().startFeature(true, "catalog-core-validationparser");
-
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(10,
+            expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
                             "(name=" + customMetacardTypeName + ")"), not(empty()));
@@ -1909,16 +1910,13 @@ public class TestCatalog extends AbstractIntegrationTest {
                                 .isPresent());
                 return null;
             });
-            getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }
 
     @Test
     public void testInjectAttributesOnCreate() throws Exception {
-        getServiceManager().startFeature(true, "catalog-core-validationparser");
-
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(10, TimeUnit.SECONDS)
+            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(2));
             return null;
@@ -1960,14 +1958,11 @@ public class TestCatalog extends AbstractIntegrationTest {
                                 null), is(empty()));
                 return null;
             });
-            getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }
 
     @Test
     public void testInjectAttributesOnUpdate() throws Exception {
-        getServiceManager().startFeature(true, "catalog-core-validationparser");
-
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
             expect("Injectable attributes to be registered").within(10, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
@@ -2013,7 +2008,6 @@ public class TestCatalog extends AbstractIntegrationTest {
                                 null), is(empty()));
                 return null;
             });
-            getServiceManager().stopFeature(true, "catalog-core-validationparser");
         }
     }
 
@@ -2143,6 +2137,59 @@ public class TestCatalog extends AbstractIntegrationTest {
         properties.put("historyEnabled", false);
         config.update(properties);
         deleteMetacard(id);
+    }
+
+    @Test
+    public void testTypeValidation() throws Exception {
+        String invalidCardId = null;
+        String validCardId = null;
+        try {
+            final String newMetacardTypeName = "customtype1";
+
+            ingestDefinitionJsonWithWaitCondition("customtypedefinitions.json", () -> {
+                expect("Service to be available: " + MetacardType.class.getName()).within(30,
+                        TimeUnit.SECONDS)
+                        .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
+                                "(name=" + newMetacardTypeName + ")"), not(empty()));
+                return null;
+            });
+
+            invalidCardId = ingestXmlFromResource("/metacard-datatype-validation.xml");
+
+            configureShowInvalidMetacards("true", "true");
+            String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]", invalidCardId);
+
+            executeOpenSearch("xml", "q=*").log()
+                    .all()
+                    .assertThat()
+                    .body(hasXPath("count(" + newMetacardXpath
+                            + "/string[@name=\"validation-errors\"]/value)", is("1")));
+
+            String ddfMetacardXml = IOUtils.toString(getClass().getClassLoader()
+                    .getResourceAsStream("metacard-datatype-validation.xml"), UTF_8.name());
+
+            String modifiedMetacardXml = ddfMetacardXml.replaceFirst("Invalid Type", "Image");
+            validCardId = ingest(modifiedMetacardXml, "text/xml");
+
+            String newMetacardXpath2 = String.format("/metacards/metacard[@id=\"%s\"]", validCardId);
+
+            executeOpenSearch("xml", "q=*").log()
+                    .all()
+                    .assertThat()
+                    .body(hasXPath("count(" + newMetacardXpath2
+                            + "/string[@name=\"validation-errors\"]/value)", is("0")));
+        } finally {
+
+            if (invalidCardId != null) {
+                deleteMetacard(invalidCardId);
+            }
+
+            if (validCardId != null) {
+                deleteMetacard(validCardId);
+            }
+
+            configureShowInvalidMetacards("false", "false");
+        }
     }
 
     private ValidatableResponse executeOpenSearch(String format, String... query) {

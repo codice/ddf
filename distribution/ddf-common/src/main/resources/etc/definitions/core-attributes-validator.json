@@ -1,0 +1,22 @@
+{
+  "validators": {
+    "datatype": [
+      {
+        "validator": "enumeration",
+        "arguments": [
+          "Collection",
+          "Dataset",
+          "Event",
+          "Image",
+          "Interactive Resource",
+          "Service",
+          "Software",
+          "Sound",
+          "Text",
+          "Video",
+          "Document"
+        ]
+      }
+    ]
+  }
+}
