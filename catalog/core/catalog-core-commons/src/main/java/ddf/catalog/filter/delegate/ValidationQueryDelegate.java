@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,11 +14,9 @@
 
 package ddf.catalog.filter.delegate;
 
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
-
 import java.util.List;
 
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
 public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
@@ -65,16 +63,19 @@ public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
 
     @Override
     public Boolean propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
-        return propertyName.equals(VALIDATION_ERRORS) || propertyName.equals(VALIDATION_WARNINGS);
+        return propertyName.equals(Validation.VALIDATION_ERRORS)
+                || propertyName.equals(Validation.VALIDATION_WARNINGS);
     }
 
     @Override
     public Boolean propertyIsNull(String propertyName) {
-        return propertyName.equals(VALIDATION_ERRORS) || propertyName.equals(VALIDATION_WARNINGS);
+        return propertyName.equals(Validation.VALIDATION_ERRORS)
+                || propertyName.equals(Validation.VALIDATION_WARNINGS);
     }
 
     @Override
     public Boolean propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
-        return propertyName.equals(VALIDATION_ERRORS) || propertyName.equals(VALIDATION_WARNINGS);
+        return propertyName.equals(Validation.VALIDATION_ERRORS)
+                || propertyName.equals(Validation.VALIDATION_WARNINGS);
     }
 }

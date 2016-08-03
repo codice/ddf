@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -28,6 +28,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Validation;
 
 public class GmlHandlerFactory implements SaxEventHandlerFactory {
 
@@ -44,8 +45,6 @@ public class GmlHandlerFactory implements SaxEventHandlerFactory {
 
     private static Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
-    private Gml3ToWkt gml3ToWkt;
-
     static {
         attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.GEOGRAPHY,
                 true /* indexed */,
@@ -54,19 +53,21 @@ public class GmlHandlerFactory implements SaxEventHandlerFactory {
                 false /* multivalued */,
                 BasicTypes.GEO_TYPE));
 
-        attributeDescriptors.add(new AttributeDescriptorImpl(BasicTypes.VALIDATION_WARNINGS,
+        attributeDescriptors.add(new AttributeDescriptorImpl(Validation.VALIDATION_WARNINGS,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        attributeDescriptors.add(new AttributeDescriptorImpl(BasicTypes.VALIDATION_ERRORS,
+        attributeDescriptors.add(new AttributeDescriptorImpl(Validation.VALIDATION_ERRORS,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
     }
+
+    private Gml3ToWkt gml3ToWkt;
 
     @Override
     public SaxEventHandler getNewSaxEventHandler() {

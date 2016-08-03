@@ -58,21 +58,13 @@ public class DuplicationValidator
         org.codice.ddf.platform.services.common.Describable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DuplicationValidator.class);
 
-    private final CatalogFramework catalogFramework;
-
-    private final FilterBuilder filterBuilder;
-
-    private String[] errorOnDuplicateAttributes;
-
-    private String[] warnOnDuplicateAttributes;
-
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
-
-    private static Properties describableProperties = new Properties();
 
     private static final String ORGANIZATION = "organization";
 
     private static final String VERSION = "version";
+
+    private static Properties describableProperties = new Properties();
 
     static {
         try (InputStream properties = DuplicationValidator.class.getResourceAsStream(
@@ -83,6 +75,14 @@ public class DuplicationValidator
         }
     }
 
+    private final CatalogFramework catalogFramework;
+
+    private final FilterBuilder filterBuilder;
+
+    private String[] errorOnDuplicateAttributes;
+
+    private String[] warnOnDuplicateAttributes;
+
     public DuplicationValidator(CatalogFramework catalogFramework, FilterBuilder filterBuilder) {
         this.catalogFramework = catalogFramework;
         this.filterBuilder = filterBuilder;
@@ -90,7 +90,7 @@ public class DuplicationValidator
 
     /**
      * Setter for the list of attributes to test for duplication in the local catalog.  Resulting
-     * attributes will cause the {@link ddf.catalog.data.impl.BasicTypes#VALIDATION_ERRORS} attribute
+     * attributes will cause the {@link ddf.catalog.data.types.Validation#VALIDATION_ERRORS} attribute
      * to be set on the metacard.
      *
      * @param attributeStrings
@@ -104,7 +104,7 @@ public class DuplicationValidator
 
     /**
      * Setter for the list of attributes to test for duplication in the local catalog.  Resulting
-     * attributes will cause the {@link ddf.catalog.data.impl.BasicTypes#VALIDATION_WARNINGS} attribute
+     * attributes will cause the {@link ddf.catalog.data.types.Validation#VALIDATION_WARNINGS} attribute
      * to be set on the metacard.
      *
      * @param attributeStrings
@@ -247,10 +247,11 @@ public class DuplicationValidator
     private ValidationViolation createViolation(final Set<String> attributes,
             Set<String> duplicates, ValidationViolation.Severity severity) {
 
-        return new ValidationViolationImpl(attributes, String.format(
-                "Duplicate data found in catalog: {%s}, based on attributes: {%s}.",
-                collectionToString(duplicates),
-                collectionToString(attributes)), severity);
+        return new ValidationViolationImpl(attributes,
+                String.format("Duplicate data found in catalog: {%s}, based on attributes: {%s}.",
+                        collectionToString(duplicates),
+                        collectionToString(attributes)),
+                severity);
     }
 
     private String collectionToString(final Collection collection) {

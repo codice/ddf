@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,8 +26,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
 import java.io.Serializable;
 import java.util.AbstractMap;
@@ -51,6 +49,7 @@ import com.google.common.collect.Sets;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.Request;
@@ -140,8 +139,8 @@ public class MetacardValidityMarkerPluginTest {
         assertThat(filteredMetacards, hasSize(2));
 
         filteredMetacards.forEach(metacard -> {
-            errorExpectation.accept(metacard.getAttribute(VALIDATION_ERRORS));
-            warningExpectation.accept(metacard.getAttribute(VALIDATION_WARNINGS));
+            errorExpectation.accept(metacard.getAttribute(Validation.VALIDATION_ERRORS));
+            warningExpectation.accept(metacard.getAttribute(Validation.VALIDATION_WARNINGS));
         });
     }
 
@@ -360,20 +359,6 @@ public class MetacardValidityMarkerPluginTest {
         return metacardValidator;
     }
 
-    private class IsMetacardWithTitle extends ArgumentMatcher<Metacard> {
-        private final String title;
-
-        private IsMetacardWithTitle(String title) {
-            this.title = title;
-        }
-
-        @Override
-        public boolean matches(Object o) {
-            return ((Metacard) o).getTitle()
-                    .equals(title);
-        }
-    }
-
     private IsMetacardWithTitle isMetacardWithTitle(String title) {
         return new IsMetacardWithTitle(title);
     }
@@ -387,5 +372,19 @@ public class MetacardValidityMarkerPluginTest {
         doThrow(mock(ValidationException.class)).when(metacardValidator)
                 .validate(argThat(isMetacardWithTitle(FIRST)));
         return metacardValidator;
+    }
+
+    private class IsMetacardWithTitle extends ArgumentMatcher<Metacard> {
+        private final String title;
+
+        private IsMetacardWithTitle(String title) {
+            this.title = title;
+        }
+
+        @Override
+        public boolean matches(Object o) {
+            return ((Metacard) o).getTitle()
+                    .equals(title);
+        }
     }
 }

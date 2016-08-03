@@ -30,7 +30,6 @@ import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static ddf.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME;
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 import static ddf.common.test.WaitCondition.expect;
 import static ddf.test.itests.common.CswQueryBuilder.AND;
 import static ddf.test.itests.common.CswQueryBuilder.NOT;
@@ -100,6 +99,7 @@ import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Validation;
 import ddf.common.test.BeforeExam;
 import ddf.test.itests.AbstractIntegrationTest;
 import ddf.test.itests.common.CswQueryBuilder;
@@ -122,10 +122,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
-    private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
-
     @Rule
     public TestName testName = new TestName();
+
+    private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
 
     public static void deleteMetacard(String id) {
         LOGGER.info("Deleting metacard {}", id);
@@ -1172,8 +1172,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                     id2))));
 
             // Search for all entries that have no validation warnings or errors
-            query = new CswQueryBuilder().addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
-                    .getQuery();
+            query =
+                    new CswQueryBuilder().addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
+                            .getQuery();
             response = given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .body(query)
                     .post(CSW_PATH.getUrl())
@@ -1190,9 +1191,9 @@ public class TestCatalog extends AbstractIntegrationTest {
             //Only search that will actually return all entries
 
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
-                    VALIDATION_WARNINGS,
+                    Validation.VALIDATION_WARNINGS,
                     "*")
-                    .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                    .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
                     .addLogicalOperator(OR)
                     .getQuery();
 
@@ -1210,7 +1211,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             // Search for all metacards that have validation-warnings
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
-                    VALIDATION_WARNINGS,
+                    Validation.VALIDATION_WARNINGS,
                     "*")
                     .getQuery();
 
@@ -1266,8 +1267,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                     id2))));
 
             // Search for all entries that have no validation warnings
-            query = new CswQueryBuilder().addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
-                    .getQuery();
+            query =
+                    new CswQueryBuilder().addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
+                            .getQuery();
             response = given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .body(query)
                     .post(CSW_PATH.getUrl())
@@ -1283,9 +1285,9 @@ public class TestCatalog extends AbstractIntegrationTest {
             //Search for all entries that have validation-warnings or no validation warnings
             //Only search that will actually return all entries
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
-                    VALIDATION_WARNINGS,
+                    Validation.VALIDATION_WARNINGS,
                     "sampleWarnings")
-                    .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                    .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
                     .addLogicalOperator(OR)
                     .getQuery();
 
@@ -1303,7 +1305,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             // Search for all entries that are invalid
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
-                    VALIDATION_WARNINGS,
+                    Validation.VALIDATION_WARNINGS,
                     "*")
                     .getQuery();
 
@@ -1319,9 +1321,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1))));
 
-            query = new CswQueryBuilder().addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
-                    .addLogicalOperator(NOT)
-                    .getQuery();
+            query =
+                    new CswQueryBuilder().addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
+                            .addLogicalOperator(NOT)
+                            .getQuery();
 
             response = given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .body(query)
@@ -1487,9 +1490,9 @@ public class TestCatalog extends AbstractIntegrationTest {
         try {
 
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
-                    VALIDATION_WARNINGS,
+                    Validation.VALIDATION_WARNINGS,
                     "*")
-                    .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                    .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
                     .addLogicalOperator(OR)
                     .getQuery();
 
@@ -1600,8 +1603,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                     id2))));
 
             // Search for all entries that have no validation warnings or errors
-            query = new CswQueryBuilder().addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
-                    .getQuery();
+            query =
+                    new CswQueryBuilder().addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
+                            .getQuery();
             response = given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .body(query)
                     .post(CSW_PATH.getUrl())
@@ -1617,9 +1621,9 @@ public class TestCatalog extends AbstractIntegrationTest {
             //Search for all entries that have validation-warnings from sample-validator or no validation warnings
 
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
-                    VALIDATION_WARNINGS,
+                    Validation.VALIDATION_WARNINGS,
                     "*")
-                    .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                    .addPropertyIsNullAttributeFilter(Validation.VALIDATION_WARNINGS)
                     .addLogicalOperator(OR)
                     .getQuery();
 
@@ -1637,7 +1641,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             // Search for all metacards that have validation-warnings
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
-                    VALIDATION_WARNINGS,
+                    Validation.VALIDATION_WARNINGS,
                     "*")
                     .getQuery();
 

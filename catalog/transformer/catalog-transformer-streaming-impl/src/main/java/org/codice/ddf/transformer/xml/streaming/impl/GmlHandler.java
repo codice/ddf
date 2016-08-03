@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -36,7 +36,7 @@ import com.vividsolutions.jts.io.gml2.GMLHandler;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.validation.ValidationException;
 
 /**
@@ -49,6 +49,10 @@ public class GmlHandler implements SaxEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GmlHandler.class);
 
+    GMLHandler gh;
+
+    WKTWriter wktWriter;
+
     private List<Attribute> attributes;
 
     private boolean readingGml = false;
@@ -57,13 +61,9 @@ public class GmlHandler implements SaxEventHandler {
 
     private SaxEventToXmlElementConverter gml3Element;
 
-    GMLHandler gh;
-
     private Gml3ToWkt gml3Converter;
 
     private Stack<String> state;
-
-    WKTWriter wktWriter;
 
     public GmlHandler(GMLHandler gmlHandler, Gml3ToWkt gml3Converter) {
         this.gh = gmlHandler;
@@ -184,7 +184,7 @@ public class GmlHandler implements SaxEventHandler {
                         attributes.add(new AttributeImpl(Metacard.GEOGRAPHY,
                                 gml3Converter.convert(gml3Element.toString())));
                     } catch (ValidationException e) {
-                        this.attributes.add(new AttributeImpl(BasicTypes.VALIDATION_ERRORS,
+                        this.attributes.add(new AttributeImpl(Validation.VALIDATION_ERRORS,
                                 "geospatial-handler"));
                     }
                 }

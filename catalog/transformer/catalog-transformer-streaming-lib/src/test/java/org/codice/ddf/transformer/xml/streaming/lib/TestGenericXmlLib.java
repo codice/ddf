@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -43,6 +43,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGenericXmlLib {
@@ -151,7 +152,7 @@ public class TestGenericXmlLib {
             }
         };
         Metacard metacard = saxEventHandlerDelegate.read(inputStream);
-        assertThat(metacard.getAttribute(BasicTypes.VALIDATION_ERRORS)
+        assertThat(metacard.getAttribute(Validation.VALIDATION_ERRORS)
                 .getValue(), is("mock-errors-and-warnings"));
 
     }

@@ -26,6 +26,7 @@ import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Validation;
 
 /**
  * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
@@ -98,8 +99,16 @@ public class BasicTypes {
      */
     public static final AttributeType<Short> SHORT_TYPE;
 
+    /**
+     * Use {@link Validation#VALIDATION_WARNINGS}.
+     */
+    @Deprecated
     public static final String VALIDATION_WARNINGS = "validation-warnings";
 
+    /**
+     * Use {@link Validation#VALIDATION_ERRORS}.
+     */
+    @Deprecated
     public static final String VALIDATION_ERRORS = "validation-errors";
 
     private static final Map<String, AttributeType> ATTRIBUTE_TYPE_MAP;
@@ -274,13 +283,13 @@ public class BasicTypes {
                 false /* tokenized */,
                 false /* multivalued */,
                 STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(VALIDATION_WARNINGS,
+        descriptors.add(new AttributeDescriptorImpl(Validation.VALIDATION_WARNINGS,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(VALIDATION_ERRORS,
+        descriptors.add(new AttributeDescriptorImpl(Validation.VALIDATION_ERRORS,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,

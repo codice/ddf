@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -12,6 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.data.types;
+
+import ddf.catalog.data.Metacard;
 
 /**
  * <p>
@@ -22,11 +24,13 @@ package ddf.catalog.data.types;
 public interface Associations {
     /**
      * {@link ddf.catalog.data.Attribute} name for accessing the related associations of the {@link Metacard}. <br/>
+     * Uses original taxonomy to preserve backwards compatibility.
      */
-    String RELATED = "associations.related";
+    String RELATED = Metacard.RELATED;
 
     /**
      * {@link ddf.catalog.data.Attribute} name for accessing the derived associations of the {@link Metacard}. <br/>
+     * Uses original taxonomy to preserve backwards compatibility.
      */
-    String DERIVED = "associations.derived";
+    String DERIVED = Metacard.DERIVED;
 }

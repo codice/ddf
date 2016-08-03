@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -49,6 +49,7 @@ import com.vividsolutions.jts.io.gml2.GMLHandler;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
@@ -62,11 +63,11 @@ public class TestXmlInputTransformer {
 
     static Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(new XmlParser());
 
-    XmlInputTransformer xmlInputTransformer;
-
     static SaxEventHandlerDelegate saxEventHandlerDelegate;
 
     static InputStream inputStream;
+
+    XmlInputTransformer xmlInputTransformer;
 
     /*
         Tests a base XmlInputTransformer, CONTENT_TYPE is null because it is not in the base xmlToMetacard mapping
@@ -226,7 +227,7 @@ public class TestXmlInputTransformer {
         factory.setGml3ToWkt(badGml3toWkt);
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList((SaxEventHandlerFactory) factory));
         Metacard metacard = xmlInputTransformer.transform(inputStream);
-        assertThat(metacard.getAttribute(BasicTypes.VALIDATION_ERRORS)
+        assertThat(metacard.getAttribute(Validation.VALIDATION_ERRORS)
                 .getValue(), is("geospatial-handler"));
 
     }

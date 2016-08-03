@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -12,9 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.metacard.validation;
-
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
-import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -29,6 +26,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -106,11 +104,12 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
         Metacard metacard = input.getMetacard();
         HashMap<String, Set<String>> securityMap = new HashMap<>();
 
-        if ((metacard.getAttribute(VALIDATION_ERRORS) != null && metacard.getAttribute(
-                VALIDATION_ERRORS)
-                .getValues() != null) || (metacard.getAttribute(VALIDATION_WARNINGS) != null &&
-                metacard.getAttribute(VALIDATION_WARNINGS)
-                        .getValues() != null)) {
+        if ((metacard.getAttribute(Validation.VALIDATION_ERRORS) != null && metacard.getAttribute(
+                Validation.VALIDATION_ERRORS)
+                .getValues() != null) || (
+                metacard.getAttribute(Validation.VALIDATION_WARNINGS) != null &&
+                        metacard.getAttribute(Validation.VALIDATION_WARNINGS)
+                                .getValues() != null)) {
             for (Map.Entry<String, List<String>> attributeMapping : attributeMap.entrySet()) {
                 securityMap.put(attributeMapping.getKey(),
                         new HashSet<>(attributeMapping.getValue()));
