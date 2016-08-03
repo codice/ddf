@@ -53,7 +53,7 @@ define(['underscore',
                 var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid');
                 var provider = new type(initObj);
                 var layer = this.map.imageryLayers.addImageryProvider(provider);
-                this.layerForCid[model.cid] = layer;
+                this.layerForCid[model.id] = layer;
                 layer.alpha = model.get('alpha');
                 layer.show = model.get('show');
             }, this);
@@ -68,11 +68,11 @@ define(['underscore',
             }
         },
         setAlpha: function (model) {
-            var layer = this.layerForCid[model.cid];
+            var layer = this.layerForCid[model.id];
             layer.alpha = model.get('alpha');
         },
         setShow: function (model) {
-            var layer = this.layerForCid[model.cid];
+            var layer = this.layerForCid[model.id];
             layer.show = model.get('show');
         },
         reIndexLayers: function () {
@@ -81,7 +81,7 @@ define(['underscore',
              raising/lowering is smoother.
              */
             this.collection.forEach(function (model, index) {
-                var layer = this.layerForCid[model.cid];
+                var layer = this.layerForCid[model.id];
                 var prevIndex = this.map.imageryLayers.indexOf(layer);
                 var indexChange = index - prevIndex;
                 var count = Math.abs(indexChange);

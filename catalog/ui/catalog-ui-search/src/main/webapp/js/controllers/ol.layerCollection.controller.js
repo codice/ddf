@@ -39,7 +39,7 @@ define(['underscore',
             this.collection.forEach(function (model) {
                 var widgetLayer = this.makeWidgetLayer(model);
                 layers.push(widgetLayer);
-                this.layerForCid[model.cid] = widgetLayer;
+                this.layerForCid[model.id] = widgetLayer;
             }, this);
 
             var view = new ol.View({
@@ -68,18 +68,18 @@ define(['underscore',
             }
         },
         setAlpha: function (model) {
-            var layer = this.layerForCid[model.cid];
+            var layer = this.layerForCid[model.id];
             layer.setOpacity(model.get('alpha'));
         },
         setShow: function (model) {
-            var layer = this.layerForCid[model.cid];
+            var layer = this.layerForCid[model.id];
             layer.setVisible(model.get('show'));
         },
         reIndexLayers: function () {
             var olMapLayers = this.map.getLayers();
             olMapLayers.clear();
             this.collection.forEach(function (model) {
-                var widgetLayer = this.layerForCid[model.cid];
+                var widgetLayer = this.layerForCid[model.id];
                 olMapLayers.push(widgetLayer);
             }, this);
         },

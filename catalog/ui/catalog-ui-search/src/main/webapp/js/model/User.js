@@ -31,7 +31,7 @@ define([
             if (layer) {
                 for (var i = 0; i < properties.imageryProviders.length; i++) {
                     var layerObj = _.omit(layer.toJSON(), ['id', 'show', 'label', 'alpha']);
-                    var propProvider = _.omit(properties.imageryProviders[i], 'alpha');
+                    var propProvider = _.omit(properties.imageryProviders[i], 'alpha', 'label');
                     if (_.isEqual(propProvider, layerObj)) {
                         found = true;
                     }
@@ -46,7 +46,7 @@ define([
             var found = false;
             for (var j = 0; j < layerPrefs.models.length; j++) {
                 var layerObj = _.omit(layerPrefs.at(j).toJSON(), ['id', 'show', 'label', 'alpha']);
-                var propProvider = _.omit(properties.imageryProviders[i], 'alpha');
+                var propProvider = _.omit(properties.imageryProviders[i], 'alpha', 'label');
                 if (_.isEqual(propProvider, layerObj)) {
                     found = true;
                 }
