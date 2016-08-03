@@ -2636,7 +2636,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
                     // if isEnterprise, go out and obtain the actual source
                     // where the product's metacard is stored.
-                    QueryRequest queryRequest = new QueryRequestImpl(propertyEqualToUriQuery,
+                    QueryRequest queryRequest = new QueryRequestImpl(anyTag(propertyEqualToUriQuery),
                             isEnterprise,
                             Collections.singletonList(site == null ? this.getId() : site),
                             resourceRequest.getProperties());
@@ -2677,8 +2677,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 if (value instanceof String) {
                     String metacardId = (String) value;
                     LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
-                    QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(
-                            metacardId),
+                    QueryRequest queryRequest = new QueryRequestImpl(anyTag(createMetacardIdQuery(
+                            metacardId)),
                             isEnterprise,
                             Collections.singletonList(site == null ? this.getId() : site),
                             resourceRequest.getProperties());
@@ -2732,6 +2732,17 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     protected Query createMetacardIdQuery(String metacardId) {
         return createPropertyIsEqualToQuery(Metacard.ID, metacardId);
+    }
+
+    protected Query anyTag(Query query) {
+        Filter anyTag = frameworkProperties.getFilterBuilder()
+                .attribute(Metacard.TAGS)
+                .is()
+                .like()
+                .text(FilterDelegate.WILDCARD_CHAR);
+        Filter filter = frameworkProperties.getFilterBuilder()
+                .allOf(anyTag, query);
+        return new QueryImpl(filter);
     }
 
     protected Query createPropertyIsEqualToQuery(String propertyName, String literal) {
