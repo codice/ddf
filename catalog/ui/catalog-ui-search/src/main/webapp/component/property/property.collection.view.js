@@ -102,6 +102,7 @@ define([
                      propertyArray.push({
                          enum: metacardDefinitions.enums[property],
                          label: properties.attributeAliases[property],
+                         readOnly: properties.readOnly.indexOf(property) >= 0,
                          id: property,
                          type: types[0][property].format,
                          values: {},
@@ -115,6 +116,7 @@ define([
                  propertyArray.push({
                      enum: metacardDefinitions.enums[property],
                      label: properties.attributeAliases[property],
+                     readOnly: properties.readOnly.indexOf(property) >= 0,
                      id: property,
                      type: types[0][property].format,
                      values: {},
@@ -157,6 +159,7 @@ define([
                  propertyArray.push({
                      enum: metacardDefinitions.enums[property],
                      label: properties.attributeAliases[property],
+                     readOnly: properties.readOnly.indexOf(property) >= 0,
                      id: property,
                      type: types[0][property].format,
                      values: {},

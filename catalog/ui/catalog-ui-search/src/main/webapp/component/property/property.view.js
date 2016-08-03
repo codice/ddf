@@ -69,10 +69,14 @@ define([
             this.$el.find('input').val(this.model.getValue());
         },
         turnOnEditing: function(){
-            this.model.set('isEditing', true);
+            if (!this.model.get('readOnly')) {
+                this.model.set('isEditing', true);
+            }
+            this.$el.addClass('is-editing');
         },
         turnOffEditing: function(){
             this.model.set('isEditing', false);
+            this.$el.removeClass('is-editing');
         },
         turnOnLimitedWidth: function(){
             this.$el.addClass('has-limited-width');

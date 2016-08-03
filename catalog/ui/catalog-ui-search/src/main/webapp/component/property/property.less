@@ -3,12 +3,15 @@
   width: 100%;
   white-space: nowrap;
   padding: 10px;
+  position: relative;
 
   .property-label,
   .property-value {
     width: 50%;
     display: inline-block;
     vertical-align: middle;
+    position: relative;
+    z-index: 1;
   }
 
 
@@ -54,10 +57,30 @@
     line-height: @minimumButtonSize;
     padding: 0px 10px;
   }
+
+  .property-readOnly {
+    display: none;
+  }
 }
 
-@{customElementNamespace}property.is-readOnly {
-
+@{customElementNamespace}property.is-readOnly.is-editing {
+  .property-readOnly {
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    position: absolute;
+    text-align: center;
+    font-size: @minimumLineSize;
+    line-height: @minimumButtonSize;
+    height: 100%;
+    padding-right: 20px;
+    padding-top: 10px;
+    display: inline-block;
+    color: @heavily-lighten-inherited-background-color;
+    opacity: .6;
+    .background-gradient(@lighten-inherited-background-color, @darken-inherited-background-color);
+    z-index: 0;
+  }
 }
 
 @{customElementNamespace}property.is-editing:not(.is-readOnly) {
@@ -66,7 +89,7 @@
   }
 }
 
-@{customElementNamespace}property.is-editing.is-changed {
+@{customElementNamespace}property.is-editing.is-changed:not(.is-readOnly) {
   .property-revert {
     display: inline-block;
   }
