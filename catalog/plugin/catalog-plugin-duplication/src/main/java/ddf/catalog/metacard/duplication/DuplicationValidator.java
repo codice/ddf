@@ -90,7 +90,7 @@ public class DuplicationValidator
 
     /**
      * Setter for the list of attributes to test for duplication in the local catalog.  Resulting
-     * attributes will cause the {@link Validation#VALIDATION_ERRORS} attribute
+     * attributes will cause the {@link ddf.catalog.data.types.Validation#VALIDATION_ERRORS} attribute
      * to be set on the metacard.
      *
      * @param attributeStrings
@@ -104,7 +104,7 @@ public class DuplicationValidator
 
     /**
      * Setter for the list of attributes to test for duplication in the local catalog.  Resulting
-     * attributes will cause the {@link Validation#VALIDATION_WARNINGS} attribute
+     * attributes will cause the {@link ddf.catalog.data.types.Validation#VALIDATION_WARNINGS} attribute
      * to be set on the metacard.
      *
      * @param attributeStrings
