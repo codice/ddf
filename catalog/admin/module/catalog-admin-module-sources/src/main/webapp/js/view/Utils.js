@@ -62,7 +62,7 @@ function ($,_, Marionette) {
          * Set up the popovers based on if the selector has a description.
          */
         setupPopOvers: function($popoverAnchor, id, title, description) {
-            var selector = ".description[data-title='" + id + "']",
+            var selector = ".description",
                 options = {
                     title: title,
                     content: description,
