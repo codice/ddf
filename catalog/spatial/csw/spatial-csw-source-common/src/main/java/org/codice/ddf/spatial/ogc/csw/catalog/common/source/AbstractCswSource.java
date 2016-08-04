@@ -210,6 +210,8 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
+    private static final String BYTES_SKIPPED = "bytes-skipped";
+
     private static Properties describableProperties = new Properties();
 
     private static Map<String, Consumer<Object>> consumerMap = new HashMap<>();
@@ -919,7 +921,9 @@ public abstract class AbstractCswSource extends MaskableImpl
             getRecordByIdRequest.setId(metacardId);
 
             String rangeValue = "";
+            long requestedBytesToSkip = 0;
             if (requestProperties.containsKey(CswConstants.BYTES_TO_SKIP)) {
+                requestedBytesToSkip = (Long) requestProperties.get(CswConstants.BYTES_TO_SKIP);
                 rangeValue = String.format("%s%s-",
                         CswConstants.BYTES_EQUAL,
                         requestProperties.get(CswConstants.BYTES_TO_SKIP)
@@ -932,12 +936,20 @@ public abstract class AbstractCswSource extends MaskableImpl
 
                 Resource resource = recordCollection.getResource();
                 if (resource != null) {
+
+                    long responseBytesSkipped = 0L;
+                    if (recordCollection.getResourceProperties().get(BYTES_SKIPPED) != null) {
+                        responseBytesSkipped = (Long) recordCollection.getResourceProperties()
+                                .get(BYTES_SKIPPED);
+                    }
+                    alignStream(resource.getInputStream(), requestedBytesToSkip, responseBytesSkipped);
+
                     return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(
                             resource.getInputStream()),
                             resource.getMimeTypeValue(),
                             FilenameUtils.getName(resource.getName())));
                 }
-            } catch (CswException e) {
+            } catch (CswException | IOException e) {
                 throw new ResourceNotFoundException(String.format(ERROR_ID_PRODUCT_RETRIEVAL,
                         metacardId), e);
             }
@@ -945,6 +957,36 @@ public abstract class AbstractCswSource extends MaskableImpl
         }
         LOGGER.debug("Retrieving resource at : {}", resourceUri);
         return resourceReader.retrieveResource(resourceUri, requestProperties);
+    }
+
+    private void alignStream(InputStream in, long requestedBytesToSkip, long responseBytesSkipped)
+            throws IOException {
+        long misalignment = requestedBytesToSkip - responseBytesSkipped;
+
+        if (misalignment == 0) {
+            LOGGER.trace("Server responded with the correct byte range.");
+            return;
+        }
+
+        try {
+            if (requestedBytesToSkip > responseBytesSkipped) {
+                LOGGER.warn("Server returned incorrect byte range, skipping first [{}] bytes",
+                        misalignment);
+                if (in.skip(misalignment) != misalignment) {
+                    throw new IOException(String.format(
+                            "Input Stream could not be skipped %d bytes.",
+                            misalignment));
+                }
+
+            } else {
+                throw new IOException(
+                        "Server skipped more bytes than requested in the range header.");
+            }
+        } catch (IOException e) {
+            throw new IOException(String.format(
+                    "Unable to align input stream with the requested byteOffset of %d",
+                    requestedBytesToSkip), e);
+        }
     }
 
     public void setCswUrl(String cswUrl) {

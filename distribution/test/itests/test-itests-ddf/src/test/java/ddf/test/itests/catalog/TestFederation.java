@@ -1328,8 +1328,6 @@ public class TestFederation extends AbstractIntegrationTest {
      *
      * @throws Exception
      */
-    // TODO: this test is ignored until the csw range-header bug is resolved with ticket DDF-2300
-    @Ignore
     @Test
     public void testRetrievalWithByteOffset() throws Exception {
 
@@ -1482,6 +1480,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests that ddf will return the cached copy if there are no changes to the remote metacard
+     * Also tests that the file caches correctly when range headers are not supported
      *
      * @throws Exception
      */
@@ -1604,6 +1603,60 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.uri("/services/csw"),
                         Condition.parameter("request", "GetRecordById"),
                         Condition.parameter("id", metacardId));
+    }
+
+    /**
+     * Tests that a product caches correctly when the download is interrupted twice and ddf uses
+     * range header requests to re-eretrieve the undownloaded portion.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFileCachesCorrectlyWhenRangeHeadersAreSupported() throws Exception{
+        cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
+        String filename = "product2.txt";
+        String metacardId = generateUniqueMetacardId();
+        String resourceData = getResourceData(metacardId);
+        HeaderCapture headerCapture = new HeaderCapture();
+        Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
+                Duration.ofMillis(200))
+                .fail(2)
+                .allowPartialContent(headerCapture)
+                .build();
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(metacardId))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryResponse(metacardId).getBytes()));
+
+        cswServer.whenHttp()
+                .match(Condition.get("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId),
+                        Condition.custom(headerCapture))
+                .then(getCswRetrievalHeaders(filename), response);
+
+        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId
+                + "?transform=resource" + "&session=" + cometDClient.getClientId();
+
+        // Verify that the testData from the csw stub server is returned.
+        // @formatter:off
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(resourceData));
+
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
+                .body(is(resourceData));
+        // @formatter:on
+
+        cswServer.verifyHttp()
+                .times(3,
+                        Condition.uri("/services/csw"),
+                        Condition.parameter("request", "GetRecordById"),
+                        Condition.parameter("id", metacardId));
+
     }
 
     @Test

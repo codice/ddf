@@ -17,12 +17,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -41,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import com.google.common.net.HttpHeaders;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -58,6 +61,8 @@ import ddf.catalog.resource.impl.ResourceImpl;
  */
 public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordCollection> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsMessageBodyReader.class);
+
+    public static final String BYTES_SKIPPED = "bytes-skipped";
 
     private XStream xstream;
 
@@ -98,6 +103,14 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
             throws IOException, WebApplicationException {
 
         CswRecordCollection cswRecords = null;
+        Map<String, Serializable> resourceProperties = new HashMap<>();
+        // Check if the server returned a Partial Content response (hopefully in response to a range header)
+        String contentRangeHeader = httpHeaders.getFirst(HttpHeaders.CONTENT_RANGE);
+        if (StringUtils.isNotBlank(contentRangeHeader)) {
+            contentRangeHeader = StringUtils.substringBetween(contentRangeHeader.toLowerCase(), "bytes ", "-");
+            long bytesSkipped = Long.parseLong(contentRangeHeader);
+            resourceProperties.put(BYTES_SKIPPED, Long.valueOf(bytesSkipped));
+        }
 
         // If the following HTTP header exists and its value is true, the input stream will contain
         // raw product data
@@ -107,6 +120,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
             String fileName = handleContentDispositionHeader(httpHeaders);
             cswRecords = new CswRecordCollection();
             cswRecords.setResource(new ResourceImpl(inStream, mediaType.toString(), fileName));
+            cswRecords.setResourceProperties(resourceProperties);
             return cswRecords;
         }
 

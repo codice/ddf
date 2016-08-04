@@ -1332,7 +1332,6 @@ public class TestCswSource extends TestCswSourceBase {
 
         Map<String, Serializable> props = new HashMap<>();
         props.put(Metacard.ID, "ID");
-        props.put(CswConstants.BYTES_TO_SKIP, "123");
         cswSource.retrieveResource(new URI("http://example.com/resource"), props);
         // Verify
         verify(csw, times(1)).getRecordById(any(GetRecordByIdRequest.class), any(String.class));
