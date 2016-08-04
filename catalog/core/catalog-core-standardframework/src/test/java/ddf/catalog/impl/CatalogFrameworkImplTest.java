@@ -119,6 +119,16 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
+import ddf.catalog.impl.operations.CreateOperations;
+import ddf.catalog.impl.operations.DeleteOperations;
+import ddf.catalog.impl.operations.OperationsCrudSupport;
+import ddf.catalog.impl.operations.OperationsMetacardSupport;
+import ddf.catalog.impl.operations.OperationsSecuritySupport;
+import ddf.catalog.impl.operations.QueryOperations;
+import ddf.catalog.impl.operations.ResourceOperations;
+import ddf.catalog.impl.operations.SourceOperations;
+import ddf.catalog.impl.operations.TransformOperations;
+import ddf.catalog.impl.operations.UpdateOperations;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -2744,8 +2754,18 @@ public class CatalogFrameworkImplTest {
         ResourceOperations resOps = new ResourceOperations(frameworkProperties, null, null);
         resOps.setId(DDF);
 
+        CatalogFrameworkImpl catalogFramework = new CatalogFrameworkImpl(frameworkProperties,
+                null,
+                null,
+                null,
+                null,
+                null,
+                resOps,
+                null,
+                null);
+
         resOps.setCatalogSupplier(() -> provider);
-        ResourceResponse response = resOps.getResource(mockResourceRequest, false, DDF, false);
+        ResourceResponse response = catalogFramework.getResource(mockResourceRequest, DDF);
 
         // Verify that the Response is as expected
         org.junit.Assert.assertEquals(EXPECTED,

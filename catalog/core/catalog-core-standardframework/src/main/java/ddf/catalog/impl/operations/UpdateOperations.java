@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.impl;
+package ddf.catalog.impl.operations;
 
 import static ddf.catalog.Constants.CONTENT_PATHS;
 
@@ -50,6 +50,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.history.Historian;
+import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
@@ -115,11 +116,11 @@ public class UpdateOperations {
         this.opsCrudSupport = opsCrudSupport;
     }
 
-    void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
+    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
         this.catalogSupplier = catalogSupplier;
     }
 
-    void setStorageSupplier(Supplier<StorageProvider> storageSupplier) {
+    public void setStorageSupplier(Supplier<StorageProvider> storageSupplier) {
         this.storageSupplier = storageSupplier;
     }
 
@@ -130,7 +131,7 @@ public class UpdateOperations {
     //
     // Delegate methods
     //
-    UpdateResponse update(UpdateRequest updateRequest)
+    public UpdateResponse update(UpdateRequest updateRequest)
             throws IngestException, SourceUnavailableException {
         boolean catalogStoreRequest = opsCrudSupport.isCatalogStoreRequest(updateRequest);
         queryOperations.setFlagsOnRequest(updateRequest);
@@ -285,7 +286,7 @@ public class UpdateOperations {
         return updateResponse;
     }
 
-    UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
+    public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
             throws IngestException, SourceUnavailableException {
         opsCrudSupport.prepareStorageRequest(streamUpdateRequest,
                 streamUpdateRequest::getContentItems);

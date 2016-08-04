@@ -11,25 +11,19 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.impl;
+package ddf.catalog.impl.operations;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
-public class OperationsSecuritySupport {
-    void buildPolicyMap(HashMap<String, Set<String>> policyMap,
-            Set<Map.Entry<String, Set<String>>> policy) {
-        if (policy != null) {
-            for (Map.Entry<String, Set<String>> entry : policy) {
-                if (policyMap.containsKey(entry.getKey())) {
-                    policyMap.get(entry.getKey())
-                            .addAll(entry.getValue());
-                } else {
-                    policyMap.put(entry.getKey(), new HashSet<>(entry.getValue()));
-                }
-            }
+import ddf.catalog.data.AttributeInjector;
+import ddf.catalog.data.Metacard;
+
+public class OperationsMetacardSupport {
+    Metacard applyInjectors(Metacard original, List<AttributeInjector> injectors) {
+        Metacard metacard = original;
+        for (AttributeInjector injector : injectors) {
+            metacard = injector.injectAttributes(metacard);
         }
+        return metacard;
     }
 }

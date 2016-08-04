@@ -411,18 +411,18 @@
     <!--
         Create the CatalogFrameworkImpl bean and its delegation beans
     -->
-    <bean id="cfOpsSecurity" class="ddf.catalog.impl.OperationsSecuritySupport"/>
+    <bean id="cfOpsSecurity" class="ddf.catalog.impl.operations.OperationsSecuritySupport"/>
 
-    <bean id="cfOpsMetacard" class="ddf.catalog.impl.OperationsMetacardSupport"/>
+    <bean id="cfOpsMetacard" class="ddf.catalog.impl.operations.OperationsMetacardSupport"/>
 
-    <bean id="cfOpsCrud" class="ddf.catalog.impl.OperationsCrudSupport">
+    <bean id="cfOpsCrud" class="ddf.catalog.impl.operations.OperationsCrudSupport">
         <argument ref="frameworkProperties"/>
         <argument ref="cfQueryOps"/>
         <argument ref="cfSourceOps"/>
         <property name="historian" ref="historian"/>
     </bean>
 
-    <bean id="cfCreateOps" class="ddf.catalog.impl.CreateOperations">
+    <bean id="cfCreateOps" class="ddf.catalog.impl.operations.CreateOperations">
         <argument ref="frameworkProperties"/>
         <argument ref="cfQueryOps"/>
         <argument ref="cfSourceOps"/>
@@ -432,7 +432,7 @@
         <property name="historian" ref="historian"/>
     </bean>
 
-    <bean id="cfUpdateOps" class="ddf.catalog.impl.UpdateOperations">
+    <bean id="cfUpdateOps" class="ddf.catalog.impl.operations.UpdateOperations">
         <argument ref="frameworkProperties"/>
         <argument ref="cfQueryOps"/>
         <argument ref="cfSourceOps"/>
@@ -442,7 +442,7 @@
         <property name="historian" ref="historian"/>
     </bean>
 
-    <bean id="cfDeleteOps" class="ddf.catalog.impl.DeleteOperations">
+    <bean id="cfDeleteOps" class="ddf.catalog.impl.operations.DeleteOperations">
         <argument ref="frameworkProperties"/>
         <argument ref="cfQueryOps"/>
         <argument ref="cfSourceOps"/>
@@ -452,24 +452,24 @@
         <property name="historian" ref="historian"/>
     </bean>
 
-    <bean id="cfQueryOps" class="ddf.catalog.impl.QueryOperations">
+    <bean id="cfQueryOps" class="ddf.catalog.impl.operations.QueryOperations">
         <argument ref="frameworkProperties"/>
         <argument ref="cfSourceOps"/>
         <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
     </bean>
 
-    <bean id="cfResourceOps" class="ddf.catalog.impl.ResourceOperations">
+    <bean id="cfResourceOps" class="ddf.catalog.impl.operations.ResourceOperations">
         <argument ref="frameworkProperties"/>
         <argument ref="cfQueryOps"/>
         <argument ref="cfOpsSecurity"/>
     </bean>
 
-    <bean id="cfSourceOps" class="ddf.catalog.impl.SourceOperations">
+    <bean id="cfSourceOps" class="ddf.catalog.impl.operations.SourceOperations">
         <argument ref="frameworkProperties"/>
     </bean>
 
-    <bean id="cfTransformOps" class="ddf.catalog.impl.TransformOperations">
+    <bean id="cfTransformOps" class="ddf.catalog.impl.operations.TransformOperations">
         <argument ref="frameworkProperties"/>
     </bean>
 

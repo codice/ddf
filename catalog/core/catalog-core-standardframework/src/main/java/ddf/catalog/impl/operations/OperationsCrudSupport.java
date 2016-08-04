@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.impl;
+package ddf.catalog.impl.operations;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -62,6 +62,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.history.Historian;
+import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Request;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;

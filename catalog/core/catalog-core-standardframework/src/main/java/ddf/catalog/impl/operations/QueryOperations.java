@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.impl;
+package ddf.catalog.impl.operations;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,6 +36,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -89,19 +90,19 @@ public class QueryOperations extends DescribableImpl {
         this.opsMetacardSupport = opsMetacardSupport;
     }
 
-    void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
+    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
         this.catalogSupplier = catalogSupplier;
     }
 
     //
     // Delegate methods
     //
-    QueryResponse query(QueryRequest fedQueryRequest, boolean fanoutEnabled)
+    public QueryResponse query(QueryRequest fedQueryRequest, boolean fanoutEnabled)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         return query(fedQueryRequest, null, fanoutEnabled);
     }
 
-    QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy,
+    public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy,
             boolean fanoutEnabled)
             throws SourceUnavailableException, UnsupportedQueryException, FederationException {
         return query(queryRequest, strategy, false, fanoutEnabled);
@@ -390,7 +391,7 @@ public class QueryOperations extends DescribableImpl {
      * @return the updated {@link QueryResponse} with all site names replaced with fanout's site
      * name
      */
-    QueryResponse replaceSourceId(QueryResponse queryResponse) {
+    public QueryResponse replaceSourceId(QueryResponse queryResponse) {
         LOGGER.debug("ENTERING: replaceSourceId()");
         List<Result> results = queryResponse.getResults();
         QueryResponseImpl newResponse = new QueryResponseImpl(queryResponse.getRequest(),
@@ -607,7 +608,7 @@ public class QueryOperations extends DescribableImpl {
      * Whether this {@link ddf.catalog.CatalogFramework} is configured with a {@link CatalogProvider}.
      *
      * @param fanoutEnabled
-     * @return true if this {@link CatalogFrameworkImpl} has a {@link CatalogProvider} configured,
+     * @return true if this has a {@link CatalogProvider} configured,
      * false otherwise
      */
     private boolean hasCatalogProvider(boolean fanoutEnabled) {

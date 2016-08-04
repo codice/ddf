@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.impl;
+package ddf.catalog.impl.operations;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,6 +37,7 @@ import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.impl.LiteralImpl;
 import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
 import ddf.catalog.filter.impl.PropertyNameImpl;
+import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -93,14 +94,14 @@ public class ResourceOperations extends DescribableImpl {
         setOrganization(SystemInfo.getOrganization());
     }
 
-    void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
+    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
         this.catalogSupplier = catalogSupplier;
     }
 
     //
     // Delegate methods
     //
-    ResourceResponse getEnterpriseResource(ResourceRequest request, boolean fanoutEnabled)
+    public ResourceResponse getEnterpriseResource(ResourceRequest request, boolean fanoutEnabled)
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         String methodName = "getEnterpriseResource";
         LOGGER.debug("ENTERING: {}", methodName);
@@ -109,7 +110,7 @@ public class ResourceOperations extends DescribableImpl {
         return resourceResponse;
     }
 
-    Map<String, Set<String>> getEnterpriseResourceOptions(String metacardId,
+    public Map<String, Set<String>> getEnterpriseResourceOptions(String metacardId,
             boolean fanoutEnabled) throws ResourceNotFoundException {
         LOGGER.trace("ENTERING: getEnterpriseResourceOptions");
         Set<String> supportedOptions = Collections.emptySet();
@@ -164,7 +165,7 @@ public class ResourceOperations extends DescribableImpl {
         return Collections.singletonMap(ResourceRequest.OPTION_ARGUMENT, supportedOptions);
     }
 
-    ResourceResponse getLocalResource(ResourceRequest request, boolean fanoutEnabled)
+    public ResourceResponse getLocalResource(ResourceRequest request, boolean fanoutEnabled)
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         String methodName = "getLocalResource";
         LOGGER.debug("ENTERING: {}", methodName);
@@ -179,7 +180,8 @@ public class ResourceOperations extends DescribableImpl {
         return resourceResponse;
     }
 
-    Map<String, Set<String>> getLocalResourceOptions(String metacardId, boolean fanoutEnabled) throws ResourceNotFoundException {
+    public Map<String, Set<String>> getLocalResourceOptions(String metacardId,
+            boolean fanoutEnabled) throws ResourceNotFoundException {
         LOGGER.trace("ENTERING: getLocalResourceOptions");
 
         Map<String, Set<String>> optionsMap;
@@ -228,7 +230,7 @@ public class ResourceOperations extends DescribableImpl {
         return optionsMap;
     }
 
-    ResourceResponse getResource(ResourceRequest request, String resourceSiteName,
+    public ResourceResponse getResource(ResourceRequest request, String resourceSiteName,
             boolean fanoutEnabled)
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         String methodName = "getResource";
@@ -244,7 +246,7 @@ public class ResourceOperations extends DescribableImpl {
         return resourceResponse;
     }
 
-    Map<String, Set<String>> getResourceOptions(String metacardId, String sourceId,
+    public Map<String, Set<String>> getResourceOptions(String metacardId, String sourceId,
             boolean fanoutEnabled) throws ResourceNotFoundException {
         LOGGER.trace("ENTERING: getResourceOptions");
         Map<String, Set<String>> optionsMap;

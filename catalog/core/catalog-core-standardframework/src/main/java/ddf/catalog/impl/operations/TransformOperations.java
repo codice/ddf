@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.impl;
+package ddf.catalog.impl.operations;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -22,6 +22,7 @@ import org.osgi.framework.ServiceReference;
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
@@ -37,7 +38,7 @@ public class TransformOperations {
     //
     // Delegate methods
     //
-    BinaryContent transform(Metacard metacard, String transformerId,
+    public BinaryContent transform(Metacard metacard, String transformerId,
             Map<String, Serializable> requestProperties) throws CatalogTransformerException {
 
         ServiceReference[] refs;
@@ -65,7 +66,7 @@ public class TransformOperations {
         }
     }
 
-    BinaryContent transform(SourceResponse response, String transformerId,
+    public BinaryContent transform(SourceResponse response, String transformerId,
             Map<String, Serializable> requestProperties) throws CatalogTransformerException {
 
         ServiceReference[] refs;
