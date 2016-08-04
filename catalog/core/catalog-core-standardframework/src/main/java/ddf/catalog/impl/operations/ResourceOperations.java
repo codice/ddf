@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemInfo;
+import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.LiteralImpl;
 import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
 import ddf.catalog.filter.impl.PropertyNameImpl;
@@ -561,10 +563,11 @@ public class ResourceOperations extends DescribableImpl {
 
                     // if isEnterprise, go out and obtain the actual source
                     // where the product's metacard is stored.
-                    QueryRequest queryRequest = new QueryRequestImpl(propertyEqualToUriQuery,
-                            isEnterprise,
-                            Collections.singletonList(site == null ? this.getId() : site),
-                            resourceRequest.getProperties());
+                    QueryRequest queryRequest =
+                            new QueryRequestImpl(anyTag(propertyEqualToUriQuery),
+                                    isEnterprise,
+                                    Collections.singletonList(site == null ? this.getId() : site),
+                                    resourceRequest.getProperties());
 
                     QueryResponse queryResponse = queryOperations.query(queryRequest,
                             null,
@@ -605,8 +608,8 @@ public class ResourceOperations extends DescribableImpl {
                 if (value instanceof String) {
                     String metacardId = (String) value;
                     LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
-                    QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(
-                            metacardId),
+                    QueryRequest queryRequest = new QueryRequestImpl(anyTag(createMetacardIdQuery(
+                            metacardId)),
                             isEnterprise,
                             Collections.singletonList(site == null ? this.getId() : site),
                             resourceRequest.getProperties());
@@ -659,6 +662,22 @@ public class ResourceOperations extends DescribableImpl {
         }
 
         return new ResourceInfo(metacard, resourceUri);
+    }
+
+    private Query anyTag(Query query) {
+        Filter anyTag = frameworkProperties.getFilterBuilder()
+                .attribute(Metacard.TAGS)
+                .is()
+                .like()
+                .text(FilterDelegate.WILDCARD_CHAR);
+        Filter filter = frameworkProperties.getFilterBuilder()
+                .allOf(anyTag, query);
+        return new QueryImpl(filter,
+                query.getStartIndex(),
+                query.getPageSize(),
+                query.getSortBy(),
+                query.requestsTotalResultsCount(),
+                query.getTimeoutMillis());
     }
 
     protected static class ResourceInfo {

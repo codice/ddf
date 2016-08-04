@@ -311,7 +311,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         getCatalogBundle().setDownloadRetryDelayInSeconds(1);
 
-        getCatalogBundle().setupCaching(true);
+        getCatalogBundle().setupCaching(false);
         urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
 
         if (fatalError) {
@@ -571,8 +571,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         // Perform Test and Verify
         // @formatter:off
-        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(SAMPLE_DATA));
+        when().get(restUrl).then().log().all().assertThat().body(is(SAMPLE_DATA));
         // @formatter:on
     }
 
@@ -1492,6 +1491,7 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testDownloadFromCacheIfAvailable() throws Exception {
+        getCatalogBundle().setupCaching(true);
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
 
         String filename = "product4.txt";
@@ -1619,6 +1619,7 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testFileCachesCorrectlyWhenRangeHeadersAreSupported() throws Exception {
+        getCatalogBundle().setupCaching(true);
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
         String filename = "product2.txt";
         String metacardId = generateUniqueMetacardId();
@@ -1681,7 +1682,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testProductDownloadListWithOneActiveDownload() throws IOException {
-
+        getCatalogBundle().setupCaching(true);
         String filename = "product.txt";
         String metacardId = generateUniqueMetacardId();
         String resourceData = getResourceData(metacardId);
@@ -1718,7 +1719,7 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testProductDownloadListWithTwoActiveDownloads() throws IOException {
-
+        getCatalogBundle().setupCaching(true);
         String filename1 = "product1.txt";
         String metacardId1 = generateUniqueMetacardId();
         String resourceData1 = getResourceData(metacardId1);
@@ -1785,7 +1786,7 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testProductDownloadListWithTwoActiveDownloadsOneFails() throws Exception {
-
+        getCatalogBundle().setupCaching(true);
         cometDClient = setupCometDClient(Arrays.asList(ACTIVITIES_CHANNEL));
 
         String filename1 = "product1.txt";
@@ -1927,6 +1928,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCancelDownload() throws Exception {
+        getCatalogBundle().setupCaching(true);
         getSecurityPolicy().configureWebContextPolicy(null,
                 "/=SAML|basic,/solr=SAML|PKI|basic",
                 null,
@@ -2214,6 +2216,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testSingleUserDownloadSameProductSyncAndAsync() throws Exception {
+        getCatalogBundle().setupCaching(true);
         getSecurityPolicy().configureWebContextPolicy(null,
                 "/=SAML|basic,/solr=SAML|PKI|basic",
                 null,
@@ -2275,6 +2278,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testSingleUserDownloadSameProductAsync() throws Exception {
+        getCatalogBundle().setupCaching(true);
         getSecurityPolicy().configureWebContextPolicy(null,
                 "/=SAML|basic,/solr=SAML|PKI|basic",
                 null,
@@ -2440,7 +2444,7 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testAsyncDownloadActionPresentUsingCometDClient() throws Exception {
-
+        getCatalogBundle().setupCaching(true);
         String src = "ddf.distribution";
         String metacardId = ingestXmlWithProduct(String.format("%s.txt", testName.getMethodName()));
         String responseChannelId = "0193d9e7f9ed4f8f8bd02103143c41d6";
