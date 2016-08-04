@@ -17,6 +17,7 @@ import static ddf.catalog.Constants.CONTENT_PATHS;
 
 import java.io.Serializable;
 import java.nio.file.Path;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -53,6 +55,7 @@ import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
@@ -73,6 +76,7 @@ import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
@@ -146,6 +150,7 @@ public class UpdateOperations {
 
             updateRequest = processPreIngestPlugins(updateRequest);
             updateRequest = validateUpdateRequest(updateRequest);
+            updateRequest = rewriteQuery(updateRequest);
 
             // Call the update on the catalog
             LOGGER.debug("Calling catalog.update() with {} updates.",
@@ -160,7 +165,7 @@ public class UpdateOperations {
             updateResponse = processPostIngestPlugins(updateResponse);
 
             return updateResponse;
-        } catch (StopProcessingException see) {
+        } catch (StopProcessingException | UnsupportedQueryException see) {
             LOGGER.warn(PRE_INGEST_ERROR, see);
             throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
         } catch (RuntimeException re) {
@@ -257,6 +262,58 @@ public class UpdateOperations {
     //
     // Private helper methods
     //
+    private UpdateRequest rewriteQuery(UpdateRequest updateRequest)
+            throws UnsupportedQueryException {
+        final String attributeName = updateRequest.getAttributeName();
+        if (Metacard.ID.equals(attributeName)) {
+            return updateRequest;
+        }
+
+        Filter filter = frameworkProperties.getFilterBuilder()
+                .anyOf(updateRequest.getUpdates()
+                        .stream()
+                        .map(e -> frameworkProperties.getFilterBuilder()
+                                .attribute(attributeName)
+                                .is()
+                                .equalTo()
+                                .text(e.getKey()
+                                        .toString()))
+                        .collect(Collectors.toList()));
+
+        SourceResponse response = sourceOperations.getCatalog()
+                .query(new QueryRequestImpl(new QueryImpl(filter), false));
+        List<Map.Entry<Serializable, Metacard>> updateList = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .filter(MetacardVersion::isNotVersion)
+                .map(m -> new AbstractMap.SimpleEntry<>((Serializable) m.getId(), m))
+                .collect(Collectors.toList());
+
+        Set<Serializable> originalKeys = updateRequest.getUpdates()
+                .stream()
+                .map(Map.Entry::getKey)
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+
+        // confirm every item from original update list is present.
+        Set<String> updatedKeys = updateList.stream()
+                .map(Map.Entry::getValue)
+                .map(m -> m.getAttribute(attributeName))
+                .map(Attribute::getValue)
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        if (!originalKeys.stream()
+                .allMatch(updatedKeys::contains)) {
+            LOGGER.warn("Could not obtain metacard ID's for all items in Update Request!");
+            throw new UnsupportedQueryException("Unable to complete query");
+        }
+
+        return new UpdateRequestImpl(updateList,
+                Metacard.ID,
+                updateRequest.getProperties(),
+                updateRequest.getStoreIds());
+    }
+
     private UpdateRequest injectAttributes(UpdateRequest request) {
         request.getUpdates()
                 .forEach(updateEntry -> {
@@ -432,7 +489,8 @@ public class UpdateOperations {
         for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
             HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
             HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
-            Metacard oldMetacard = metacardMap.get(update.getKey().toString());
+            Metacard oldMetacard = metacardMap.get(update.getKey()
+                    .toString());
 
             for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                 PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
