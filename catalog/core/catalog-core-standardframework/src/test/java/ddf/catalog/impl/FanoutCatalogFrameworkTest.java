@@ -64,9 +64,56 @@ public class FanoutCatalogFrameworkTest {
         frameworkProperties.setSourcePoller(poller);
         frameworkProperties.setFederationStrategy(new MockFederationStrategy());
         frameworkProperties.setPostIngest(postIngestPlugins);
-        framework = new CatalogFrameworkImpl(frameworkProperties);
+
+        framework = createCatalogFramework(frameworkProperties);
+    }
+
+    private CatalogFrameworkImpl createCatalogFramework(FrameworkProperties frameworkProperties) {
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+        TransformOperations transformOperations = new TransformOperations(frameworkProperties);
+        QueryOperations queryOperations = new QueryOperations(frameworkProperties,
+                sourceOperations,
+                opsSecurity,
+                null);
+        OperationsCrudSupport opsCrud = new OperationsCrudSupport(frameworkProperties,
+                queryOperations,
+                sourceOperations);
+        ResourceOperations resourceOperations = new ResourceOperations(frameworkProperties,
+                queryOperations,
+                opsSecurity);
+        CreateOperations createOperations = new CreateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                null,
+                opsCrud);
+        UpdateOperations updateOperations = new UpdateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                null,
+                opsCrud);
+        DeleteOperations deleteOperations = new DeleteOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                null,
+                opsCrud);
+
+        framework = new CatalogFrameworkImpl(frameworkProperties,
+                opsCrud,
+                createOperations,
+                updateOperations,
+                deleteOperations,
+                queryOperations,
+                resourceOperations,
+                sourceOperations,
+                transformOperations);
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
+
+        return framework;
     }
 
     @Test
@@ -89,7 +136,8 @@ public class FanoutCatalogFrameworkTest {
 
         QueryResponse response = new QueryResponseImpl(request, results, 2);
 
-        QueryResponse newResponse = framework.replaceSourceId(response);
+        QueryResponse newResponse = framework.getQueryOperations()
+                .replaceSourceId(response);
         assertNotNull(newResponse);
 
         List<Result> newResults = newResponse.getResults();
@@ -127,7 +175,8 @@ public class FanoutCatalogFrameworkTest {
 
         QueryResponse response = new QueryResponseImpl(request, results, 2);
 
-        QueryResponse newResponse = framework.replaceSourceId(response);
+        QueryResponse newResponse = framework.getQueryOperations()
+                .replaceSourceId(response);
         assertNotNull(newResponse);
 
         List<Result> newResults = newResponse.getResults();
@@ -166,7 +215,8 @@ public class FanoutCatalogFrameworkTest {
 
         QueryResponse response = new QueryResponseImpl(request, results, 2);
 
-        QueryResponse newResponse = framework.replaceSourceId(response);
+        QueryResponse newResponse = framework.getQueryOperations()
+                .replaceSourceId(response);
         assertNotNull(newResponse);
         List<Result> newResults = newResponse.getResults();
         assertNotNull(newResults);
@@ -227,9 +277,7 @@ public class FanoutCatalogFrameworkTest {
         }
         frameworkProperties.setFederatedSources(sourceMap);
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
-        framework.setId(NEW_SOURCE_ID);
-        framework.setFanoutEnabled(true);
+        CatalogFrameworkImpl framework = createCatalogFramework(frameworkProperties);
 
         // Assert not null simply to prove that we returned an object.
         assertNotNull(framework.getSourceInfo(request));

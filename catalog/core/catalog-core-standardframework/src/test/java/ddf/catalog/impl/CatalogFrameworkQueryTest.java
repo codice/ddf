@@ -53,7 +53,6 @@ import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
@@ -84,17 +83,64 @@ public class CatalogFrameworkQueryTest {
         when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(source);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<>();
         FrameworkProperties props = new FrameworkProperties();
-        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
+        props.setCatalogProviders(Collections.singletonList(provider));
         props.setPostIngest(postIngestPlugins);
         props.setFederationStrategy(new MockFederationStrategy());
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setSourcePoller(mockPoller);
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
-        framework = new CatalogFrameworkImpl(props);
+
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport();
+        SourceOperations sourceOperations = new SourceOperations(props);
+        QueryOperations queryOperations = new QueryOperations(props,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+        ResourceOperations resourceOperations = new ResourceOperations(props,
+                queryOperations,
+                opsSecurity);
+        TransformOperations transformOperations = new TransformOperations(props);
+        OperationsCrudSupport opsCrud = new OperationsCrudSupport(props,
+                queryOperations,
+                sourceOperations);
+        CreateOperations createOperations = new CreateOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+        UpdateOperations updateOperations = new UpdateOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+        DeleteOperations deleteOperations = new DeleteOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCrud);
+
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
-        framework.setHistorian(historian);
+
+        opsCrud.setHistorian(historian);
+        createOperations.setHistorian(historian);
+        updateOperations.setHistorian(historian);
+        deleteOperations.setHistorian(historian);
+
+        framework = new CatalogFrameworkImpl(props,
+                opsCrud,
+                createOperations,
+                updateOperations,
+                deleteOperations,
+                queryOperations,
+                resourceOperations,
+                sourceOperations,
+                transformOperations);
         framework.bind(provider);
     }
 
@@ -237,10 +283,7 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Expecting return 2 results.", 2, response.getHits());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -257,10 +300,7 @@ public class CatalogFrameworkQueryTest {
                             .get(0)
                             .getMetacard()
                             .getId());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -272,10 +312,7 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Before filter should return 0 results.", 0, response.getHits());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -341,10 +378,7 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Expecting return 0 results.", 0, response.getHits());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -364,10 +398,7 @@ public class CatalogFrameworkQueryTest {
                             .get(0)
                             .getMetacard()
                             .getId());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -387,10 +418,7 @@ public class CatalogFrameworkQueryTest {
                             .get(0)
                             .getMetacard()
                             .getId());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -463,10 +491,7 @@ public class CatalogFrameworkQueryTest {
                             .getMetacard()
                             .getId());
 
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -486,10 +511,7 @@ public class CatalogFrameworkQueryTest {
                             .get(0)
                             .getMetacard()
                             .getId());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -503,10 +525,7 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("During filter should return 2 result", 2, response.getHits());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
