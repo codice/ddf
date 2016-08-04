@@ -33,6 +33,12 @@
             description="Enables versioning of both metacards and content."/>
     </OCD>
 
+    <OCD name="Source Poller" id="ddf.catalog.util.impl.SourcePoller">
+         <AD name="Interval" id="interval" required="true" type="Integer"
+            default="1"
+            description="The interval (in minutes) at which to execute successive source polling. Must be a positive, nonzero integer."/>
+    </OCD>
+
     <Designate
             pid="ddf.catalog.CatalogFrameworkImpl">
         <Object
@@ -41,6 +47,10 @@
 
     <Designate pid="ddf.catalog.history.Historian">
         <Object ocdref="ddf.catalog.history.Historian" />
+    </Designate>
+
+    <Designate pid="ddf.catalog.util.impl.SourcePoller">
+        <Object ocdref="ddf.catalog.util.impl.SourcePoller" />
     </Designate>
 
 

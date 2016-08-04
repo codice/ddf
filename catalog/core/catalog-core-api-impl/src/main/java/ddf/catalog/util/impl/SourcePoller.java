@@ -14,13 +14,14 @@
 package ddf.catalog.util.impl;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.Source;
@@ -28,19 +29,17 @@ import ddf.catalog.source.Source;
 /**
  * The SourcePoller is the scheduler of the task to poll all configured sources at a fixed interval
  * to determine their availability. It is created by the CatalogFramework's blueprint.
- *
+ * <p>
  * An isAvailable() method is included in this class so that the caller, nominally the
  * CatalogFramework, can retrieve the cached availability of a specific source, or have it polled on
  * demand if there is no availability status cached.
- *
  */
 public class SourcePoller {
-
-    private static final int INTERVAL = 60;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SourcePoller.class);
 
     private static final int INITIAL_DELAY = 0;
 
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(SourcePoller.class));
+    private int interval = 1;
 
     private ScheduledExecutorService scheduler;
 
@@ -50,11 +49,10 @@ public class SourcePoller {
 
     /**
      * Constructor to schedule the SourcePollerRunner to execute immediately and at a fixed
-     * interval, currently set at every 60 seconds. This constructor is invoked by the
+     * interval, currently set at every 1 minute. This constructor is invoked by the
      * CatalogFramework's blueprint.
      *
-     * @param incomingRunner
-     *            the SourcePollerRunner to use for polling
+     * @param incomingRunner the SourcePollerRunner to use for polling
      */
     public SourcePoller(SourcePollerRunner incomingRunner) {
 
@@ -62,18 +60,16 @@ public class SourcePoller {
 
         scheduler = Executors.newSingleThreadScheduledExecutor();
 
-        handle = scheduler.scheduleAtFixedRate(runner, INITIAL_DELAY, INTERVAL, TimeUnit.SECONDS);
+        handle = scheduler.scheduleAtFixedRate(runner, INITIAL_DELAY, interval, TimeUnit.MINUTES);
 
     }
 
     /**
-     * Retrieves a {@link CachedSource} which contains cached values from the 
-     * specified {@link Source}. Returns a {@link Source} with values from the 
+     * Retrieves a {@link CachedSource} which contains cached values from the
+     * specified {@link Source}. Returns a {@link Source} with values from the
      * last polling interval. If the {@link Source} is not known, null is returned.
      *
-     * @param source
-     *            the source to get the {@link CachedSource} for
-     *
+     * @param source the source to get the {@link CachedSource} for
      * @return a {@link CachedSource} which contains cached values
      */
     public CachedSource getCachedSource(Source source) {
@@ -85,10 +81,8 @@ public class SourcePoller {
      * specific intervals. Invoked by the CatalogFramework's blueprint when the framework is
      * unregistered/uninstalled.
      *
-     * @param framework
-     *            unused, but required by blueprint
-     * @param properties
-     *            unused, but required by blueprint
+     * @param framework  unused, but required by blueprint
+     * @param properties unused, but required by blueprint
      */
     public void cancel(CatalogFramework framework, Map properties) {
 
@@ -106,13 +100,29 @@ public class SourcePoller {
      * Start method for this poller, invoked by the CatalogFramework's blueprint when the framework
      * is registered/installed. No logic is executed except for logging the framework name.
      *
-     * @param framework
-     *            the catalog framework being started
-     * @param properties
-     *            unused, but required by blueprint
+     * @param framework  the catalog framework being started
+     * @param properties unused, but required by blueprint
      */
     public void start(CatalogFramework framework, Map properties) {
         LOGGER.debug("Framework started for [{}]", framework);
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(int interval) {
+        if (interval < 1) {
+            throw new IllegalArgumentException("Cannot set to lower than 1 minute");
+        }
+
+        this.interval = interval;
+        Optional.ofNullable(handle)
+                .ifPresent((handle) -> handle.cancel(false));
+        handle = scheduler.scheduleAtFixedRate(runner,
+                INITIAL_DELAY,
+                this.interval,
+                TimeUnit.MINUTES);
     }
 
 }
