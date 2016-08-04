@@ -38,12 +38,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.tika.Tika;
-import org.apache.tika.metadata.HttpHeaders;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.net.HttpHeaders;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
@@ -260,6 +260,8 @@ public class URLResourceReader implements ResourceReader {
             bytesToSkip = properties.get(BYTES_TO_SKIP)
                     .toString();
             LOGGER.debug("bytesToSkip: {}", bytesToSkip);
+        } else {
+            bytesToSkip = "0";
         }
 
         if (resourceURI.getScheme()
@@ -356,7 +358,8 @@ public class URLResourceReader implements ResourceReader {
             Object entityObj = clientResponse.getEntity();
             if (entityObj instanceof InputStream) {
                 is = (InputStream) entityObj;
-                if (Response.Status.OK.getStatusCode() != clientResponse.getStatus()) {
+                if (Response.Status.OK.getStatusCode() != clientResponse.getStatus()
+                        && Response.Status.PARTIAL_CONTENT.getStatusCode() != clientResponse.getStatus()) {
                     String error = null;
                     try {
                         if (is != null) {
@@ -376,7 +379,16 @@ public class URLResourceReader implements ResourceReader {
                         "Received null response while retrieving resource.");
             }
 
-            skipBytes(is, bytesToSkip);
+            long responseBytesSkipped = 0L;
+            if (headers.getFirst(HttpHeaders.CONTENT_RANGE) != null) {
+                String contentRangeHeader =
+                        String.valueOf(headers.getFirst(HttpHeaders.CONTENT_RANGE));
+                responseBytesSkipped = Long.parseLong(StringUtils.substringBetween(
+                        contentRangeHeader.toLowerCase(),
+                        "bytes ",
+                        "-"));
+            }
+            alignStream(is, Long.parseLong(bytesToSkip), responseBytesSkipped);
 
             return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is),
                     mimeType,
@@ -462,6 +474,36 @@ public class URLResourceReader implements ResourceReader {
                 LOGGER.debug("Did not skip specified bytes while retrieving resource."
                         + " Bytes to skip: {} -- Skipped Bytes: {}", bytesToSkip, bytesSkipped);
             }
+        }
+    }
+
+    private void alignStream(InputStream in, long requestedBytesToSkip, long responseBytesSkipped)
+            throws IOException {
+        long misalignment = requestedBytesToSkip - responseBytesSkipped;
+
+        if (misalignment == 0) {
+            LOGGER.trace("Server responded with the correct byte range.");
+            return;
+        }
+
+        try {
+            if (requestedBytesToSkip > responseBytesSkipped) {
+                LOGGER.warn("Server returned incorrect byte range, skipping first [{}] bytes",
+                        misalignment);
+                if (in.skip(misalignment) != misalignment) {
+                    throw new IOException(String.format(
+                            "Input Stream could not be skipped %d bytes.",
+                            misalignment));
+                }
+
+            } else {
+                throw new IOException(
+                        "Server skipped more bytes than requested in the range header.");
+            }
+        } catch (IOException e) {
+            throw new IOException(String.format(
+                    "Unable to align input stream with the requested byteOffset of %d",
+                    requestedBytesToSkip), e);
         }
     }
 

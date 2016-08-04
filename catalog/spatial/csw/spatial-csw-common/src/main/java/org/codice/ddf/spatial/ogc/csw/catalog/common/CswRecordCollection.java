@@ -13,8 +13,11 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -60,6 +63,8 @@ public class CswRecordCollection {
     private boolean doWriteNamespaces;
 
     private Resource resource;
+
+    private Map<String, Serializable> resourceProperties = new HashMap<>();
 
     /**
      * Retrieves the request made that generated this set of CSW Records, if applicable
@@ -191,5 +196,13 @@ public class CswRecordCollection {
 
     public Resource getResource() {
         return resource;
+    }
+
+    public void setResourceProperties(Map<String, Serializable> resourceProperties){
+        this.resourceProperties = resourceProperties;
+    }
+
+    public Map<String, Serializable> getResourceProperties(){
+        return this.resourceProperties;
     }
 }

@@ -16,14 +16,14 @@
     <csw:SearchStatus timestamp="2016-06-07T10:08:46.223-07:00"/>
     <csw:SearchResults elementSet="full" nextRecord="0" numberOfRecordsMatched="1" numberOfRecordsReturned="1" recordSchema="http://www.opengis.net/cat/csw/2.0.2">
         <csw:Record>
-            <dc:identifier>4cdb5d6bc8c1428f874f28a944d18b84</dc:identifier>
-            <dct:bibliographicCitation>4cdb5d6bc8c1428f874f28a944d18b84</dct:bibliographicCitation>
+            <dc:identifier>$metacardId$</dc:identifier>
+            <dct:bibliographicCitation>$metacardId$</dct:bibliographicCitation>
             <dc:title>Michael.txt</dc:title>
             <dct:alternative>Michael.txt</dct:alternative>
             <dc:type>text/plain; charset=ISO-8859-1</dc:type>
-            <dc:relation>$httpRoot$:$port$/services/catalog/sources/$sourceId$/4cdb5d6bc8c1428f874f28a944d18b84?transform=resource</dc:relation>
+            <dc:relation>$httpRoot$:$port$/services/catalog/sources/$sourceId$/$metacardId$?transform=resource</dc:relation>
             <dc:date>2016-06-07T09:49:06.005-07:00</dc:date>
-            <dct:modified>2016-06-08T09:49:06.005-07:00</dct:modified>
+            <dct:modified>$modifiedTime$</dct:modified>
             <dct:created>2016-06-07T09:49:06.005-07:00</dct:created>
             <dct:dateAccepted>2016-06-07T09:49:06.005-07:00</dct:dateAccepted>
             <dct:dateCopyrighted>2016-06-07T09:49:06.005-07:00</dct:dateCopyrighted>
@@ -32,7 +32,7 @@
             <dc:creator/>
             <dc:publisher/>
             <dc:contributor/>
-            <dc:source>content:4cdb5d6bc8c1428f874f28a944d18b84</dc:source>
+            <dc:source>content:$metacardId$</dc:source>
             <dc:publisher>$sourceId$</dc:publisher>
         </csw:Record>
     </csw:SearchResults>

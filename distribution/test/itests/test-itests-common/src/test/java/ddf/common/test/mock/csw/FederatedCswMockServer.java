@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.xebialabs.restito.builder.stub.StubHttp;
 import com.xebialabs.restito.builder.verify.VerifyHttp;
@@ -37,8 +37,7 @@ import com.xebialabs.restito.server.StubServer;
  * and federated query responses for a csw endpoint.
  */
 public class FederatedCswMockServer {
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(FederatedCswMockServer.class));
+    protected static final Logger LOGGER = LoggerFactory.getLogger(FederatedCswMockServer.class);
 
     private final String sourceId;
 
