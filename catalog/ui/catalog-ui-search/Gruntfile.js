@@ -23,14 +23,6 @@ module.exports = function (grunt) {
             }
         },
         bower: { install: {} },
-        sed: {
-            imports: {
-                path: 'target/webapp/lib/bootswatch/cyborg',
-                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Droid\\+Sans:400,700"\\);',
-                replacement: '',
-                recursive: true
-            }
-        },
         webpack: {
             build: require('./webpack/config/prod')
         },
@@ -128,7 +120,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build:part', [
         'bower-offline-install',
-        'sed',
         'less',
         'cssmin',
         'jshint'
