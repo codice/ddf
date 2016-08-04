@@ -17,6 +17,7 @@ import static ddf.catalog.Constants.CONTENT_PATHS;
 
 import java.io.Serializable;
 import java.nio.file.Path;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,14 +27,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
@@ -43,6 +47,7 @@ import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -53,6 +58,7 @@ import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
@@ -73,6 +79,7 @@ import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
@@ -170,7 +177,8 @@ public class UpdateOperations {
         } catch (StopProcessingException see) {
             throw new IngestException(PRE_INGEST_ERROR, see);
         } catch (RuntimeException re) {
-            throw new InternalIngestException("Exception during runtime while performing update", re);
+            throw new InternalIngestException("Exception during runtime while performing update",
+                    re);
         }
     }
 
@@ -262,6 +270,106 @@ public class UpdateOperations {
     //
     // Private helper methods
     //
+
+    private UpdateRequest rewriteRequestToAvoidHistoryConflicts(UpdateRequest updateRequest)
+            throws UnsupportedQueryException {
+        final String attributeName = updateRequest.getAttributeName();
+        if (Metacard.ID.equals(attributeName)) {
+            return updateRequest;
+        }
+
+        Filter filter = updateRequest.getUpdates()
+                .stream()
+                .map(Map.Entry::getKey)
+                .map(Object::toString)
+                .map((val) -> getNonhistoryFilter(attributeName, val))
+                .collect(Collectors.collectingAndThen(Collectors.toList(),
+                        frameworkProperties.getFilterBuilder()::anyOf));
+
+        SourceResponse response = sourceOperations.getCatalog()
+                .query(new QueryRequestImpl(new QueryImpl(filter,
+                        1,
+                        0,
+                        SortBy.NATURAL_ORDER,
+                        false,
+                        TimeUnit.SECONDS.toMillis(10))));
+
+        Map<Serializable, Metacard> results = response.getResults()
+                .stream()
+                .collect(Collectors.toMap(r -> r.getMetacard()
+                        .getAttribute(attributeName)
+                        .getValue(), Result::getMetacard));
+
+        if (isAllAttributesMatched(updateRequest, response, attributeName)) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "While rewriting the query, did not get a metacardId corresponding to every attribute."
+                                + "Original Delete By attribute was: " + attributeName);
+                LOGGER.debug("Metacards unable to get Metacard ID from are: "
+                        + updateRequest.getUpdates()
+                        .stream()
+                        .map(Map.Entry::getKey)
+                        .map(Object::toString)
+                        .filter(s -> !results.keySet()
+                                .contains(s))
+                        .collect(Collectors.joining(", ", "[", "]")));
+            }
+            throw new UnsupportedQueryException("Could not find all metacards to update.");
+        }
+
+        List<Map.Entry<Serializable, Metacard>> updatedList = updateRequest.getUpdates()
+                .stream()
+                .map(Map.Entry::getValue)
+                .map(this::toEntryById)
+                .collect(Collectors.toList());
+
+        return new UpdateRequestImpl(updatedList,
+                Metacard.ID,
+                updateRequest.getProperties(),
+                updateRequest.getStoreIds());
+    }
+
+    private Filter getNonhistoryFilter(String attributeName, String value) {
+        Filter attr = frameworkProperties.getFilterBuilder()
+                .attribute(attributeName)
+                .is()
+                .equalTo()
+                .text(value);
+        Filter notHistory = frameworkProperties.getFilterBuilder()
+                .not(frameworkProperties.getFilterBuilder()
+                        .attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(MetacardVersion.VERSION_TAG));
+
+        return frameworkProperties.getFilterBuilder()
+                .allOf(attr, notHistory);
+    }
+
+    private boolean isAllAttributesMatched(UpdateRequest updateRequest, SourceResponse response,
+            String attributeName) {
+        Set<String> originalKeys = updateRequest.getUpdates()
+                .stream()
+                .map(Map.Entry::getKey)
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        Set<String> responseKeys = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .map(m -> m.getAttribute(attributeName))
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        boolean notSameSize = response.getResults()
+                .size() != updateRequest.getUpdates()
+                .size();
+        return !Sets.difference(originalKeys, responseKeys)
+                .isEmpty() || notSameSize;
+    }
+
+    private Map.Entry<Serializable, Metacard> toEntryById(Metacard metacard) {
+        return new AbstractMap.SimpleEntry<>(metacard.getId(), metacard);
+    }
+
     private UpdateRequest injectAttributes(UpdateRequest request) {
         request.getUpdates()
                 .forEach(updateEntry -> {
@@ -404,7 +512,11 @@ public class UpdateOperations {
         if (!Requests.isLocal(updateRequest)) {
             return null;
         }
-
+        try {
+            updateRequest = rewriteRequestToAvoidHistoryConflicts(updateRequest);
+        } catch (UnsupportedQueryException e) {
+            throw new IngestException("Could not rewrite request to avoid history conflicts", e);
+        }
         UpdateResponse updateResponse = sourceOperations.getCatalog()
                 .update(updateRequest);
         updateResponse = historian.version(updateResponse);
@@ -437,7 +549,8 @@ public class UpdateOperations {
         for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
             HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
             HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
-            Metacard oldMetacard = metacardMap.get(update.getKey().toString());
+            Metacard oldMetacard = metacardMap.get(update.getKey()
+                    .toString());
 
             for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                 PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),

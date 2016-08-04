@@ -34,13 +34,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -58,9 +59,148 @@ import ddf.security.SubjectUtils;
  * performed, who it was edited by, and what time it was edited on.
  */
 public class MetacardVersion extends MetacardImpl {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardVersion.class);
+
+    private static final Set<AttributeDescriptor> VERSION_DESCRIPTORS =
+            new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+
+    private static final String VERSION_PREFIX = "metacard.version";
+
+    private static final Function<String, String> PREFIX = s -> String.format("%s.%s",
+            VERSION_PREFIX,
+            s);
+
+    private static final MetacardType METACARD_VERSION;
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // OPERATION PROPERTIES
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    public static final String SKIP_VERSIONING = "skip-versioning";
+
+    public static final String HISTORY_METACARDS_PROPERTY = "history-metacards";
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // ATTRIBUTE VALUES
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * {@link ddf.catalog.data.Attribute} value for {@link ddf.catalog.data.Metacard#TAGS} when
+     * a metacard is a History Metacard.
+     */
+    public static final String VERSION_TAG = "revision";
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // ATTRIBUTE NAMES
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for action of the current {@link MetacardVersion}.
+     * Can be one of <code>Created</code>, <code>Updated</code>, or <code>Deleted</code>.
+     *
+     * @since DDF-2.9.0
+     */
+    public static final String ACTION = PREFIX.apply("action");
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for the editor of this {@link Metacard} revision.
+     *
+     * @since DDF-2.9.0
+     */
+    public static final String EDITED_BY = PREFIX.apply("edited-by");
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for version date of this {@link Metacard} revision.
+     *
+     * @since DDF-2.9.0
+     */
+    public static final String VERSIONED_ON = PREFIX.apply("versioned-on");
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for metacard ID on a history item of this {@link Metacard} revision.
+     *
+     * @since DDF-2.9.0
+     */
+    public static final String VERSION_OF_ID = PREFIX.apply("id");
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for original tags of this {@link Metacard} revision.
+     *
+     * @since DDF-2.9.0
+     */
+    public static final String VERSION_TAGS = PREFIX.apply("tags");
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for original metacard type of this {@link Metacard} revision.
+     *
+     * @since DDF-2.9.0
+     */
+    public static final String VERSION_TYPE = PREFIX.apply("type");
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for original serialized metacard type  of this {@link Metacard} revision.
+     *
+     * @since DDF-2.9.0
+     */
+    public static final String VERSION_TYPE_BINARY = PREFIX.apply("type-binary");
+
+    static {
+        VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(ACTION,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(EDITED_BY,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSIONED_ON,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.DATE_TYPE));
+        VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSION_OF_ID,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSION_TAGS,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSION_TYPE,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+        VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSION_TYPE_BINARY,
+                false /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.BINARY_TYPE));
+        METACARD_VERSION = new MetacardTypeImpl(VERSION_PREFIX, VERSION_DESCRIPTORS);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // ENUMERATIONS
+    ////////////////////////////////////////////////////////////////////////////////////
     public enum Action {
-        CREATED("Created"), CREATED_CONTENT("Created-Content"), UPDATED("Updated"), UPDATED_CONTENT(
-                "Updated-Content"), DELETED("Deleted");
+        // @formatter:off
+        CREATED("Created"),
+        CREATED_CONTENT("Created-Content"),
+        UPDATED("Updated"),
+        UPDATED_CONTENT("Updated-Content"),
+        DELETED("Deleted");
+        // @formatter:on
 
         private static Map<String, Action> keyMap = new HashMap<>();
 
@@ -101,108 +241,6 @@ public class MetacardVersion extends MetacardImpl {
 
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardVersion.class);
-
-    public static final String SKIP_VERSIONING = "skip-versioning";
-
-    public static final String HISTORY_METACARDS_PROPERTY = "history-metacards";
-
-    private static final String VERSION_PREFIX = "metacard.version";
-
-    private static Function<String, String> prefix = s -> String.format("%s.%s", VERSION_PREFIX, s);
-
-    /**
-     * {@link ddf.catalog.data.Attribute} value for {@link ddf.catalog.data.Metacard#TAGS} when
-     * a metacard is a History Metacard.
-     */
-    public static final String VERSION_TAG = "revision";
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for action of the current {@link MetacardVersion}.
-     * Can be one of <code>Created</code>, <code>Updated</code>, or <code>Deleted</code>.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String ACTION = prefix.apply("action");
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for the editor of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String EDITED_BY = prefix.apply("edited-by");
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for version date of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String VERSIONED_ON = prefix.apply("versioned-on");
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for metacard ID on a history item of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String VERSION_OF_ID = prefix.apply("id");
-
-    public static final String VERSION_TAGS = prefix.apply("tags");
-
-    public static final String VERSION_TYPE = prefix.apply("type");
-
-    public static final String VERSION_TYPE_BINARY = prefix.apply("type-binary");
-
-    private static MetacardType metacardVersion;
-
-    private static Set<AttributeDescriptor> versionDescriptors =
-            new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-
-    static {
-        versionDescriptors.add(new AttributeDescriptorImpl(ACTION,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        versionDescriptors.add(new AttributeDescriptorImpl(EDITED_BY,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        versionDescriptors.add(new AttributeDescriptorImpl(VERSIONED_ON,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.DATE_TYPE));
-        versionDescriptors.add(new AttributeDescriptorImpl(VERSION_OF_ID,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        versionDescriptors.add(new AttributeDescriptorImpl(VERSION_TAGS,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                true /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        versionDescriptors.add(new AttributeDescriptorImpl(VERSION_TYPE,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        versionDescriptors.add(new AttributeDescriptorImpl(VERSION_TYPE_BINARY,
-                false /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.BINARY_TYPE));
-        metacardVersion = new MetacardTypeImpl(VERSION_PREFIX, versionDescriptors);
-    }
-
     /**
      * Will convert the given {@link Metacard} to a {@link MetacardVersion} by cloning
      * it and adding the current subject, time, and a random UUID. Cannot take a
@@ -216,11 +254,24 @@ public class MetacardVersion extends MetacardImpl {
         this(sourceMetacard, action, subject, Collections.singletonList(BasicTypes.BASIC_METACARD));
     }
 
+    /**
+     * Will convert the given {@link Metacard} to a {@link MetacardVersion} by cloning
+     * it and adding the current subject, time, and a random UUID. Cannot take a
+     * {@link MetacardVersion} as the sourceMetacard.
+     * <br/>
+     * The {@link MetacardType}s list will affect whether the metacard type is stored by name
+     * or entirely by serializing the type and storing it in the metacard.
+     *
+     * @param sourceMetacard Metacard to clone and create a history item from
+     * @param action         Which action was done to modify the metacard
+     * @param types          A list of currently defined types in the system
+     * @throws IllegalArgumentException
+     */
     public MetacardVersion(Metacard sourceMetacard, Action action, Subject subject,
             List<MetacardType> types) {
         super(sourceMetacard,
                 new MetacardTypeImpl(VERSION_PREFIX,
-                        metacardVersion,
+                        METACARD_VERSION,
                         sourceMetacard.getMetacardType()
                                 .getAttributeDescriptors()));
 
@@ -242,8 +293,6 @@ public class MetacardVersion extends MetacardImpl {
         this.setVersionType(sourceMetacard.getMetacardType()
                 .getName());
         if (!type.isPresent()) {
-            this.setVersionType(sourceMetacard.getMetacardType()
-                    .getName());
             this.setVersionTypeBinary(getVersionType(sourceMetacard));
         }
 
@@ -266,13 +315,12 @@ public class MetacardVersion extends MetacardImpl {
             oos.writeObject(sourceMetacard.getMetacardType());
             return baos.toByteArray();
         } catch (IOException e) {
-            throw new RuntimeException("Could not serialize MetacardType");
+            throw new RuntimeException("Could not serialize MetacardType", e);
         }
     }
 
     /**
-     * Returns a {@link Metacard} version of the given
-     * {@link MetacardVersion}
+     * Reverts the {@link MetacardVersion} to the original {@link Metacard}
      *
      * @return The converted metacard
      * @throws IllegalStateException
@@ -309,8 +357,8 @@ public class MetacardVersion extends MetacardImpl {
     private static void sanitizeVersionAttributes(/*Mutable*/ Metacard source) {
         Consumer<String> nullifySourceAttribute = (s) -> source.setAttribute(new AttributeImpl(s,
                 (Serializable) null));
-        versionDescriptors.stream()
-                .filter(((Predicate<AttributeDescriptor>) BasicTypes.BASIC_METACARD.getAttributeDescriptors()::contains).negate())
+        Sets.difference(VERSION_DESCRIPTORS, BasicTypes.BASIC_METACARD.getAttributeDescriptors())
+                .stream()
                 .map(AttributeDescriptor::getName)
                 .forEach(nullifySourceAttribute);
     }
@@ -332,7 +380,7 @@ public class MetacardVersion extends MetacardImpl {
                     .filter(MetacardType.class::isInstance)
                     .map(MetacardType.class::cast);
         } catch (IOException | ClassNotFoundException e) {
-            LOGGER.error("Error while processing metacard type", e);
+            LOGGER.info("Error while processing metacard type", e);
             return Optional.empty();
         }
     }
@@ -431,7 +479,7 @@ public class MetacardVersion extends MetacardImpl {
     }
 
     public static MetacardType getMetacardVersionType() {
-        return metacardVersion;
+        return METACARD_VERSION;
     }
 }
 

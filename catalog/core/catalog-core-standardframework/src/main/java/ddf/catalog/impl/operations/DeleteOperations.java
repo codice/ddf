@@ -21,18 +21,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -44,6 +49,8 @@ import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
@@ -60,6 +67,7 @@ import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
 
 /**
@@ -252,6 +260,7 @@ public class DeleteOperations {
         }
 
         try {
+            deleteRequest = rewriteRequestToAvoidHistoryConflicts(deleteRequest);
             sourceOperations.getStorage()
                     .delete(deleteStorageRequest);
         } catch (StorageException e) {
@@ -259,12 +268,105 @@ public class DeleteOperations {
             throw new InternalIngestException(
                     "Unable to delete stored content items. Not removing stored metacards.",
                     e);
+        } catch (UnsupportedQueryException e) {
+            throw new IngestException("Could not rewrite request to avoid history conflicts", e);
         }
         DeleteResponse deleteResponse = sourceOperations.getCatalog()
                 .delete(deleteRequest);
         deleteResponse = injectAttributes(deleteResponse);
         historian.version(deleteResponse);
         return deleteResponse;
+    }
+
+    //
+    // Private helper methods
+    //
+
+    private DeleteRequest rewriteRequestToAvoidHistoryConflicts(DeleteRequest deleteRequest)
+            throws UnsupportedQueryException {
+        final String attributeName = deleteRequest.getAttributeName();
+        if (Metacard.ID.equals(attributeName)) {
+            return deleteRequest;
+        }
+
+        Filter filter = deleteRequest.getAttributeValues()
+                .stream()
+                .map(Object::toString)
+                .map((val) -> getNonhistoryFilter(attributeName, val))
+                .collect(Collectors.collectingAndThen(Collectors.toList(),
+                        frameworkProperties.getFilterBuilder()::anyOf));
+
+        SourceResponse response = sourceOperations.getCatalog()
+                .query(new QueryRequestImpl(new QueryImpl(filter,
+                        1,
+                        0,
+                        SortBy.NATURAL_ORDER,
+                        false,
+                        TimeUnit.SECONDS.toMillis(10))));
+
+        if (isAllAttributesMatched(deleteRequest, response, attributeName)) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "While rewriting the query, did not get a metacardId corresponding to every attribute."
+                                + "Original Delete By attribute was: " + attributeName);
+                LOGGER.debug("Metacards unable to get Metacard ID from are: "
+                        + deleteRequest.getAttributeValues()
+                        .stream()
+                        .map(Object::toString)
+                        .filter(s -> !response.getResults()
+                                .contains(s))
+                        .collect(Collectors.joining(", ", "[", "]")));
+            }
+            throw new UnsupportedQueryException("Could not find all metacards to delete.");
+        }
+
+        List<Serializable> updatedList = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .map(Metacard::getId)
+                .map(Serializable.class::cast)
+                .collect(Collectors.toList());
+
+        return new DeleteRequestImpl(updatedList,
+                Metacard.ID,
+                deleteRequest.getProperties(),
+                deleteRequest.getStoreIds());
+    }
+
+    private boolean isAllAttributesMatched(DeleteRequest deleteRequest, SourceResponse response,
+            String attributeName) {
+        Set<String> originalKeys = deleteRequest.getAttributeValues()
+                .stream()
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        Set<String> responseKeys = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .map(m -> m.getAttribute(attributeName))
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        boolean notSameSize = response.getResults()
+                .size() != deleteRequest.getAttributeValues()
+                .size();
+        return !Sets.difference(originalKeys, responseKeys)
+                .isEmpty() || notSameSize;
+    }
+
+    private Filter getNonhistoryFilter(String attributeName, String value) {
+        Filter attr = frameworkProperties.getFilterBuilder()
+                .attribute(attributeName)
+                .is()
+                .equalTo()
+                .text(value);
+        Filter notHistory = frameworkProperties.getFilterBuilder()
+                .not(frameworkProperties.getFilterBuilder()
+                        .attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(MetacardVersion.VERSION_TAG));
+
+        return frameworkProperties.getFilterBuilder()
+                .allOf(attr, notHistory);
     }
 
     private DeleteRequest processPreIngestPlugins(DeleteRequest deleteRequest)
