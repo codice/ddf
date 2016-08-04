@@ -20,6 +20,8 @@ define(['backbone',
 
         var MB_SIZE = (1000 * 1000);
 
+        var CONFIGURATION_ADMIN_URL = "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/";
+
         var DataUsage = {};
 
         DataUsage.UsageModel = Backbone.Model.extend({
@@ -38,6 +40,13 @@ define(['backbone',
                     dataType: 'json',
                     success: function(data) {
                         that.set({'users' : that.parseDataModel(data.value)});
+                    }
+                });
+                $.ajax({
+                    url: CONFIGURATION_ADMIN_URL + "getProperties/org.codice.ddf.resourcemanagement.usage",
+                    dataType: 'json',
+                    success: function(data) {
+                        that.set({ 'monitorLocalSources' : data.value.monitorLocalSources});
                     }
                 });
             },
@@ -169,6 +178,18 @@ define(['backbone',
                          usageRemaining = "0 MB";
                     }
                 return usageRemaining;
+            },
+            updateMonitorLocalSources: function(updateMonitorLocalSources) {
+                var properties = {monitorLocalSources : updateMonitorLocalSources};
+                var that = this;
+                $.ajax({
+                    url: CONFIGURATION_ADMIN_URL + "update/org.codice.ddf.resourcemanagement.usage/" + JSON.stringify(properties),
+                    dataType: 'json',
+                    success : function() {
+                        that.set(properties);
+                    }
+                });
+
             }
         });
 

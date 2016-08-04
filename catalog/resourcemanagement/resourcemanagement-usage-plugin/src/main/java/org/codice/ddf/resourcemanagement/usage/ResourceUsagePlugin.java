@@ -19,19 +19,24 @@ import org.codice.ddf.persistence.attributes.AttributesStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.Response;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostResourcePlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
+import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
 
 public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugin {
+
+    private boolean monitorLocalSources;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceUsagePlugin.class);
 
@@ -46,8 +51,7 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
             throws PluginExecutionException, StopProcessingException {
         long resourceSize = 0L;
 
-        if (input != null) {
-
+        if (input != null && (Requests.isEnterprise(input) || monitorLocalSources)) {
             Object sizeObj = input.getPropertyValue(Metacard.RESOURCE_SIZE);
             if (sizeObj instanceof String) {
                 try {
@@ -66,23 +70,21 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
                     String username = getUsernameFromSubject(input.getPropertyValue(
                             SecurityConstants.SECURITY_SUBJECT));
                     if (StringUtils.isNotEmpty(username)) {
-                        long currentUserDataUage = 0L;
-                        long userDataLimit = 0L;
-
                         try {
-                            currentUserDataUage =
-                                    attributesStore.getCurrentDataUsageByUser(username);
-                            userDataLimit = attributesStore.getDataLimitByUser(username);
+                            long currentUserDataUage = attributesStore.getCurrentDataUsageByUser(username);
+                            long userDataLimit = attributesStore.getDataLimitByUser(username);
+                            if (currentUserDataUage + resourceSize > userDataLimit) {
+                                throw new DataUsageLimitExceededException(
+                                        username + ": data usage limit exceeded. (" + userDataLimit
+                                                + " bytes)");
+
+                            }
                         } catch (PersistenceException pex) {
                             LOGGER.warn("Persistence exception updating user {} data usage",
                                     username,
                                     pex);
                         }
-                        if (currentUserDataUage + resourceSize > userDataLimit) {
-                            throw new DataUsageLimitExceededException(username + ": data usage limit exceeded. (" + userDataLimit
-                                    + " bytes)");
 
-                        }
                     }
                 }
             }
@@ -94,9 +96,7 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
     public ResourceResponse process(ResourceResponse input)
             throws PluginExecutionException, StopProcessingException {
         long resourceSize = 0L;
-
-        if (input != null) {
-
+        if (input != null && (isEnterprise(input) || monitorLocalSources)) {
             Object sizeObj = input.getPropertyValue(Metacard.RESOURCE_SIZE);
             if (sizeObj instanceof String) {
                 try {
@@ -125,6 +125,20 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
             }
         }
         return input;
+    }
+
+    private boolean isEnterprise(Response response) {
+        return response.hasProperties()
+                && response.getPropertyValue(Constants.REMOTE_DESTINATION_KEY) != null
+                && (boolean) response.getPropertyValue(Constants.REMOTE_DESTINATION_KEY);
+    }
+
+    public void setMonitorLocalSources(boolean monitorLocalSources) {
+        this.monitorLocalSources = monitorLocalSources;
+    }
+
+    public boolean getMonitorLocalSources() {
+        return this.monitorLocalSources;
     }
 
     private String getUsernameFromSubject(Object subjectObj) {
