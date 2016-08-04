@@ -32,12 +32,15 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.io.ShapeReader;
 import org.locationtech.spatial4j.shape.Shape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 import ddf.action.Action;
 import ddf.action.ActionRegistry;
@@ -57,8 +60,14 @@ public class CqlResult {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CqlQueryResponse.class);
 
-    private static final SpatialContext SPATIAL_CONTEXT =
-            new JtsSpatialContextFactory().newSpatialContext();
+    private static final Map<String, String> SPATIAL_CONTEXT_ARGUMENTS = ImmutableMap.of(
+            "spatialContextFactory", JtsSpatialContextFactory.class.getName(),
+            "allowMultiOverlap", "true"
+    );
+
+    private static final SpatialContext SPATIAL_CONTEXT = SpatialContextFactory.makeSpatialContext(
+            SPATIAL_CONTEXT_ARGUMENTS,
+            CqlResult.class.getClassLoader());
 
     private static final ShapeReader WKT_READER = SPATIAL_CONTEXT.getFormats()
             .getWktReader();
