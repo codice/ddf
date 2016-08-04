@@ -94,14 +94,15 @@ define([
             };
         },
         parse: function(resp) {
-            resp.label = 'Type: ' + resp.type;
-            if (resp.layer) {
-                resp.label += ' Layer: ' + resp.layer;
+            var layer = _.clone(resp);
+            layer.label = 'Type: ' + layer.type;
+            if (layer.layer) {
+                layer.label += ' Layer: ' + layer.layer;
             }
-            if (resp.layers) {
-                resp.label += ' Layers: ' + resp.layers.join(', ');
+            if (layer.layers) {
+                layer.label += ' Layers: ' + layer.layers.join(', ');
             }
-            return resp;
+            return layer;
         }
     });
 
