@@ -197,8 +197,8 @@ public class SourceConfigurationHandlerTest {
 
         ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
         setupSerialExecutor();
-        doReturn(new Hashtable<String, Object>()).when(config)
-                .getProperties();
+        doReturn("Csw_Federated_Source_disabled").when(config)
+                .getFactoryPid();
         sch.handleEvent(createEvent);
 
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled",
@@ -216,8 +216,8 @@ public class SourceConfigurationHandlerTest {
         ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
         mcard.setAttribute(Metacard.TITLE, null);
         setupSerialExecutor();
-        doReturn(new Hashtable<String, Object>()).when(config)
-                .getProperties();
+        doReturn("Csw_Federated_Source_disabled").when(config)
+                .getFactoryPid();
         sch.handleEvent(createEvent);
 
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled",
@@ -252,8 +252,8 @@ public class SourceConfigurationHandlerTest {
         Configuration newDisabledConfig = mock(Configuration.class);
         doReturn(newDisabledConfig).when(configAdmin)
                 .createFactoryConfiguration("Csw_Federated_Source_disabled", null);
-        doReturn(new Hashtable<String, Object>()).when(newDisabledConfig)
-                .getProperties();
+        doReturn("Csw_Federated_Source_disabled").when(newDisabledConfig)
+                .getFactoryPid();
 
         setupSerialExecutor();
         sch.handleEvent(createEvent);
@@ -275,8 +275,8 @@ public class SourceConfigurationHandlerTest {
         sch.setActivateConfigurations(true);
         setupSerialExecutor();
 
-        doReturn(new Hashtable<String, Object>()).when(config)
-                .getProperties();
+        doReturn("Csw_Federated_Source").when(config)
+                .getFactoryPid();
         sch.handleEvent(createEvent);
 
         verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source", null);
@@ -361,9 +361,10 @@ public class SourceConfigurationHandlerTest {
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Some_Other_Source");
         Configuration newActiveConfig = mock(Configuration.class);
-        doReturn(newActiveConfig).when(configAdmin).createFactoryConfiguration("Csw_Federated_Source", null);
-        doReturn("Csw_Federated_Source").when(newActiveConfig).getFactoryPid();
-        doReturn(new Hashtable<String, Object>()).when(newActiveConfig).getProperties();
+        doReturn(newActiveConfig).when(configAdmin)
+                .createFactoryConfiguration("Csw_Federated_Source", null);
+        doReturn("Csw_Federated_Source").when(newActiveConfig)
+                .getFactoryPid();
         sch.setActivateConfigurations(true);
         setupSerialExecutor();
         sch.handleEvent(createEvent);
@@ -406,8 +407,8 @@ public class SourceConfigurationHandlerTest {
         Configuration newConfig = mock(Configuration.class);
         doReturn(newConfig).when(configAdmin)
                 .createFactoryConfiguration("Csw_Federated_Source_disabled", null);
-        doReturn(new Hashtable<String, Object>()).when(newConfig)
-                .getProperties();
+        doReturn("Csw_Federated_Source_disabled").when(newConfig)
+                .getFactoryPid();
         sch.setActivateConfigurations(true);
         setupSerialExecutor();
         sch.handleEvent(updateEvent);
@@ -444,8 +445,8 @@ public class SourceConfigurationHandlerTest {
         Configuration newActiveConfig = mock(Configuration.class);
         doReturn(newActiveConfig).when(configAdmin)
                 .createFactoryConfiguration("Csw_Federated_Source", null);
-        doReturn(new Hashtable<String, Object>()).when(newActiveConfig)
-                .getProperties();
+        doReturn("Csw_Federated_Source").when(newActiveConfig)
+                .getFactoryPid();
         sch.setPreserveActiveConfigurations(false);
         sch.setActivateConfigurations(true);
         setupSerialExecutor();
@@ -476,8 +477,6 @@ public class SourceConfigurationHandlerTest {
         when(config.getFactoryPid()).thenReturn("Some_Other_Source");
         Configuration newConfig = mock(Configuration.class);
         when(newConfig.getFactoryPid()).thenReturn("Some_Other_Source_disabled");
-        doReturn(new Hashtable<String, Object>()).when(newConfig)
-                .getProperties();
         when(configAdmin.createFactoryConfiguration("Some_Other_Source_disabled", null)).thenReturn(
                 newConfig);
         List<String> priority = new ArrayList();
@@ -524,8 +523,8 @@ public class SourceConfigurationHandlerTest {
         Configuration newActiveConfig = mock(Configuration.class);
         when(configAdmin.createFactoryConfiguration("Csw_Federated_Source", null)).thenReturn(
                 newActiveConfig);
-        doReturn(new Hashtable<String, Object>()).when(newActiveConfig)
-                .getProperties();
+        doReturn("Csw_Federated_Source").when(newActiveConfig)
+                .getFactoryPid();
 
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Some_Other_Source");
@@ -623,8 +622,8 @@ public class SourceConfigurationHandlerTest {
         when(config.getProperties()).thenReturn(props);
         when(config.getFactoryPid()).thenReturn("Csw_Federated_Source");
         Configuration newConfig = mock(Configuration.class);
-        doReturn(new Hashtable<String, Object>()).when(newConfig)
-                .getProperties();
+        doReturn("Csw_Federated_Source_disabled").when(newConfig)
+                .getFactoryPid();
         when(configAdmin.createFactoryConfiguration("Csw_Federated_Source_disabled",
                 null)).thenReturn(newConfig);
         setupSerialExecutor();
