@@ -10,6 +10,7 @@ These steps will demonstrate:
 ==== Prerequisites
 
 * Install/Upgrade to Java 8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
+** The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] or later.
 * Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
 * http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
 * The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
