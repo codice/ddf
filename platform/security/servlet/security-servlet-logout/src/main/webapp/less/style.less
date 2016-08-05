@@ -12,44 +12,59 @@ td {
 {
     display: none;
 }
-
-#nav {
-    height: 50px;
-    position: fixed;
-    top: 0px;
-    left: 0px;
+.nav img {
+    height: 30px;
 }
-#nav a {
-    margin-left: 10px;
-}
-#nav img {
-    height: 100%;
-}
-#actions {
+.actions {
     height: ~"calc(100% - 50px)";
-    width: 100%;
     overflow: auto;
-    position: fixed;
-    top: 50px;
-    left: 0px;
     height: 90%;
 }
 #modal {
     position: fixed;
-    top: 0%;
-    left: 0%;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,.3);
+    background: rgba(0,0,0,.4);
 }
 iframe {
-    position: relative;
-    top: 10%;
-    left: 10%;
-    height: 80%;
-    width: 80%;
-    background: white;
     border: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, -50%, 0);
+}
+
+@media (min-height: 1000px) {
+    .logout-modal {
+        height: 800px;
+    }
+}
+
+@media (min-height: 700px) {
+    .logout-modal {
+        height: 500px;
+    }
+}
+
+@media (min-height: 400px) {
+    .logout-modal {
+        height: 400px;
+    }
+}
+
+.full-width {
+    width: 100%;
+}
+
+.table>thead>tr>th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.table>tbody>tr>td {
+    vertical-align: middle;
 }
 
 .description
@@ -58,18 +73,61 @@ iframe {
 }
 
 .logout-response-body {
-    font-family: Lato,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    position: fixed;
+    background: rgba(0,0,0,0);
+    width: 100%;
+    height: 100%;
 }
 
 .logout-response-container {
-    border: solid 5px #ecf0f1;
-    border-radius: 30px;
-    padding: 10px;
+    border: solid 20px #ecf0f1;
+    border-radius: 4px;
+    padding: 5px;
+    background: #ffffff;
+    height: 100%;
 }
 
 .logout-msg {
     text-align: center;
-    font-size: 200%;
-    left: 40px;
-    top: 57px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+}
+
+.app-header {
+    padding: 5px 0px 0px 0px;
+    margin-bottom: 21px;
+    background-color: #ecf0f1;
+    color: #95a5a6;
+    white-space: nowrap;
+    height: 51px;
+}
+
+.app-header > label {
+    width: 33%;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    margin: 0px;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px;
+    height: 50px;
+}
+
+.app-header > label:first-of-type {
+    text-align: left;
+}
+
+.app-header > label:last-of-type {
+    text-align: right;
+    padding: 0px;
+}
+
+.app-header > label:last-of-type > button {
+    border: none;
+    background: none;
+    padding: 10px;
 }

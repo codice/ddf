@@ -20,12 +20,16 @@
     <title>Logout Response</title>
     <script src="/logout/lib/jquery/dist/jquery.min.js"></script>
     <meta http-equiv="x-ua-compatible" content="IE=Edge"/>
+    <link rel="stylesheet" type="text/css" href="/logout/lib/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/logout/lib/bootswatch/flatly/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/logout/css/style.css">
 </head>
-<body class="logout-response-body">
-<div class="logout-response-container">
+<body class="full-width logout-response-body">
+<div class="full-width logout-response-container">
     <div class="logout-msg">
-        Successfully logged out
+        <h2>You are now signed out.</h2>
+        <h4>You can <a id="landinglink" href="#">return to the landing page</a> or <a id="signinlink" href="#">sign in again.</a></h4>
+        <h4 id="extramessage"></h4>
     </div>
 </div>
 <script src="js/logout-response.js"></script>

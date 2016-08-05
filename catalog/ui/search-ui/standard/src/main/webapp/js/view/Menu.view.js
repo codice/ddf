@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout, clearTimeout, document, window, parseInt*/
+/*global define, setTimeout, clearTimeout, document, window, parseInt, encodeURI*/
 define([
     'marionette',
     'icanhaz',
@@ -359,7 +359,7 @@ define([
                 username: "1",
                 password: "1",
             }).then( function(){
-                 window.location = '/logout';
+                 window.location = '/logout?prevurl=' + encodeURI(window.location.pathname);
             });
         }
     });

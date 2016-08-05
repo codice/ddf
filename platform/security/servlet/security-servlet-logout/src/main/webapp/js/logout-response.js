@@ -1,18 +1,24 @@
-console.log("Beginning logout-response.js");
+/*global $, window */
+(function () {
+    var searchString = (window.location.search + '').split('?');
 
-var searchString = (window.location.search + '').split('?');
+    if (searchString[1] !== undefined) {
+        var searchParams = searchString[1].split('&');
 
-if(searchString[1] !== undefined)
-{
-    var searchParams = searchString[1].split('&');
+        searchParams.forEach(function (paramString) {
 
-    searchParams.forEach(function(paramString){
+            var param = paramString.split('=');
 
-        var param = paramString.split('=');
-
-        if(param[0] === "msg"){
-            $('.logout-msg').text(param[1].split('+').join(' '));
-        }
-        //add additional params here if needed
+            if (param[0] === "msg") {
+                $('#extramessage').html(param[1].split('+').join(' '));
+            }
+            //add additional params here if needed
+        });
+    }
+    $('#landinglink').click(function () {
+        window.parent.postMessage('landing', window.location.origin + '/logout');
     });
-}
+    $('#signinlink').click(function () {
+        window.parent.postMessage('signin', window.location.origin + '/logout');
+    });
+}());

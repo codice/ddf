@@ -56,10 +56,10 @@ define([
                     view.setErrorState();
                 },
                 success: function() {
-                    if (!_.isUndefined(prevUrl)) {
+                    if (!_.isUndefined(prevUrl) && prevUrl !== 'undefined') {
                         window.location.href = prevUrl;
                     } else {
-                        document.location.reload();
+                        window.location.href = window.location.origin;
                     }
                 }
             });

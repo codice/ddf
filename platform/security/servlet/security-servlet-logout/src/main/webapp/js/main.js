@@ -1,52 +1,73 @@
-$('#modal').on('click',function(){
-    $(this).addClass('is-hidden');
-                    window.top.location.reload();
+/*global $, window, decodeURI */
+(function () {
+    var prevUrl = $.url().param('prevurl');
+    $('#modal').on('click', function () {
+        $(this).addClass('is-hidden');
+        window.top.location.reload();
 
-});
+    });
 
-$.get("/services/platform/config/ui", function(data){
-    $('#nav img').attr('src', "data:image/png;base64,"+data.productImage);
-});
-
-$.get("/services/logout/actions", function (data){
-
-    var actions = JSON.parse(data);
-
-    if(actions.length === 0) {
-        $("#actions").replaceWith($('iframe').attr('src', '/logout/logout-response.html?msg=You+are+not+logged+in'));
-    }
-    else {
-        $('#noActions').toggleClass('is-hidden', actions.length!==0);
-        $('#actions').toggleClass('is-hidden', actions.length===0);
-
-
-        actions.forEach(function(action){
-            var $row = $('<tr></tr>');
-            var $realm = $('<td></td>');
-            $realm.html(action.realm);
-            var $realmDescription = $('<a href="#" class="description" tabindex="-1"></a>');
-            $realmDescription.data('title',action.description);
-            $realmDescription.data('placement','right');
-            $realmDescription.append($('<i class="glyphicon glyphicon-question-sign"></i>'));
-            $realm.append($realmDescription);
-            var $user = $('<td></td>');
-            $user.html(action.auth);
-            var $logout = $('<td></td>');
-            var $button = $('<button>').text('Logout')
-                                      .addClass('btn btn-primary float-right')
-                                      .click(function () {
-                                            $('iframe').attr('src',action.url);
-                                            $('#modal').removeClass('is-hidden');
-
-                                      });
-            $logout.append($button);
-            $row.append($realm).append($user).append($logout);
-            $('#actions tbody').append($row);
+    $.get("/services/platform/config/ui", function (data) {
+        $('.nav img').attr('src', "data:image/png;base64," + data.productImage);
+        $('.nav label').attr('title', data.version);
+        $('.nav label:first-of-type').append(data.version);
+        $('.nav label button').click(function () {
+            window.location.href = window.location.origin + ((prevUrl !== undefined && prevUrl !== 'undefined') ? decodeURI(prevUrl) : '');
         });
+    });
 
-                    $('.description').tooltip();
+    $.get("/services/logout/actions", function (data) {
 
-    }
-});
+        var actions = JSON.parse(data);
 
+        if (actions.length !== 0) {
+            $('#noActions').toggleClass('is-hidden', actions.length !== 0);
+            $('#actions').toggleClass('is-hidden', actions.length === 0);
+            actions.forEach(function (action) {
+                var $row = $('<tr></tr>');
+                var $realm = $('<td></td>');
+                $realm.html(action.realm);
+                var $realmDescription = $('<a href="#" class="description" tabindex="-1"></a>');
+                $realmDescription.data('title', action.description);
+                $realmDescription.data('placement', 'right');
+                $realmDescription.append($('<i class="glyphicon glyphicon-question-sign"></i>'));
+                $realm.append($realmDescription);
+                var $user = $('<td></td>');
+                $user.html(action.auth);
+                var $logout = $('<td></td>');
+                var $button = $('<button>').text('Logout')
+                    .addClass('btn btn-primary float-right')
+                    .click(function () {
+                        $('iframe').attr('src', action.url);
+                        $('#modal').removeClass('is-hidden');
+
+                    });
+                $logout.append($button);
+                $row.append($realm).append($user).append($logout);
+                $('#actions tbody').append($row);
+            });
+
+            $('.description').tooltip();
+
+        }
+    });
+
+    var handleIframeResponse = function (e) {
+        if (e.origin === window.location.origin) {
+            var action = e.data.split(':')[0];
+            if (action === 'landing') {
+                window.location.href = window.location.origin;
+            } else if (action === 'signin') {
+                window.location.href = window.location.origin + '/login' + ((prevUrl !== undefined && prevUrl !== 'undefined') ? '?prevurl=' + prevUrl : '');
+            }
+        }
+    };
+    window.addEventListener('message', handleIframeResponse, false);
+    $('#landinglink').click(function () {
+        window.location.href = window.location.origin;
+    });
+    $('#signinlink').click(function () {
+        window.location.href = window.location.origin + '/login' + ((prevUrl !== undefined && prevUrl !== 'undefined') ? '?prevurl=' + prevUrl : '');
+    });
+}());
 

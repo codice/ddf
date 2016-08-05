@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, encodeURI*/
 /* jslint browser:true */
 // #Main Application
 define([
@@ -21,15 +21,15 @@ define([
     'poller',
     'js/wreqr',
     'js/models/Module',
-    'js/models/App',
     'text!templates/tabs.handlebars',
     'text!templates/appHeader.handlebars',
     'text!templates/header.handlebars',
     'text!templates/footer.handlebars',
     'js/controllers/Modal.controller',
     'js/controllers/SystemUsage.controller',
-    'text!templates/moduleTab.handlebars'
-    ],function (_, Backbone, Marionette, ich, $, poller, wreqr, Module, AppModel, tabs, appHeader, header, footer, ModalController, SystemUsageController, moduleTab) {
+    'text!templates/moduleTab.handlebars',
+    'properties'
+    ],function (_, Backbone, Marionette, ich, $, poller, wreqr, Module, tabs, appHeader, header, footer, ModalController, SystemUsageController, moduleTab, Properties) {
     'use strict';
 
     var Application = {};
@@ -81,26 +81,21 @@ define([
         });
     };
 
-    var setHeader = function () {
-        Application.App.appHeader.show(new (Backbone.Marionette.ItemView.extend({
-            template: 'appHeader',
-            className: 'app-header',
-            tagName: 'div',
-            model: Application.AppModel,
-            events: {
-                'click button': 'logout'
-            },
-            logout: function () {
-                window.location = '/logout';
-            }
-        }))());
-    };
-
-    Application.AppModel = new AppModel();
     Application.ModuleModel = new Module.Model();
     Application.ModuleModel.fetch().done(addModuleRegions);
-    Application.AppModel.fetch().done(setHeader);
-
+    Application.AppModel = new Backbone.Model(Properties);
+    Application.App.appHeader.show(new (Backbone.Marionette.ItemView.extend({
+        template: 'appHeader',
+        className: 'app-header',
+        tagName: 'div',
+        model: Application.AppModel,
+        events: {
+            'click button': 'logout'
+        },
+        logout: function () {
+            window.location = '/logout?prevurl=' + encodeURI(window.location.pathname);
+        }
+    }))());
     var modulePoller = poller.get(Application.ModuleModel, options);
     modulePoller.on('success', addModuleRegions);
 
