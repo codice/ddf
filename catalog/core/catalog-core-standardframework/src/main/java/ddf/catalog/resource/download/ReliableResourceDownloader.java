@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.Timer;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -507,40 +506,14 @@ public class ReliableResourceDownloader implements Runnable {
             // Re-fetch product from the Source after setting up values to indicate the number of
             // bytes to skip. This prevents the same bytes being read again and put in the
             // PipedOutputStream that the client is still reading from and in the file being cached
-            // to.
+            // to. It also allows for range headers to be used in the request so that already read
+            // bytes do not need to be re-retrieved.
             ResourceResponse resourceResponse = retriever.retrieveResource(bytesRead);
             LOGGER.debug("Name of re-retrieved resource = {}",
                     resourceResponse.getResource()
                             .getName());
             resourceInputStream = resourceResponse.getResource()
                     .getInputStream();
-
-            // If Source did not support the skipping of bytes, then will have to do it here.
-            if (!resourceResponse.containsPropertyName(BYTES_SKIPPED)) {
-                LOGGER.debug("Skipping {} bytes in re-retrieved source InputStream", bytesRead);
-                long numBytesSkipped = resourceInputStream.skip(bytesRead);
-                bytesRead = numBytesSkipped;
-                LOGGER.debug("Actually skipped {} bytes in source InputStream", numBytesSkipped);
-            } else {
-                // If Source did not skip the number of bytes (even though it supposedly supported
-                // skipping)
-                Serializable value = resourceResponse.getPropertyValue(BYTES_SKIPPED);
-                if (value instanceof Boolean) {
-                    boolean bytesSkipped = (Boolean) value;
-                    if (!bytesSkipped) {
-                        LOGGER.debug("Skipping {} bytes in re-retrieved source InputStream",
-                                bytesRead);
-                        long numBytesSkipped = resourceInputStream.skip(bytesRead);
-                        LOGGER.debug("Actually skipped {} bytes in source InputStream",
-                                numBytesSkipped);
-                    } else {
-                        LOGGER.info("Source skipped bytes");
-                    }
-                } else {
-                    LOGGER.warn("Unable to read {} property from resource response.",
-                            BYTES_SKIPPED);
-                }
-            }
 
             reliableResourceCallable = new ReliableResourceCallable(resourceInputStream,
                     countingFbos,
