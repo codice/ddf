@@ -23,32 +23,12 @@ public class DownloadManagerState {
 
     private DownloadState state;
 
-    private boolean cacheEnabled;
-
-    private boolean continueCaching;
-
     public DownloadState getDownloadState() {
         return state;
     }
 
     public void setDownloadState(DownloadState state) {
         this.state = state;
-    }
-
-    public boolean isCacheEnabled() {
-        return cacheEnabled;
-    }
-
-    public void setCacheEnabled(boolean cacheEnabled) {
-        this.cacheEnabled = cacheEnabled;
-    }
-
-    public boolean isContinueCaching() {
-        return continueCaching;
-    }
-
-    public void setContinueCaching(boolean continueCaching) {
-        this.continueCaching = continueCaching;
     }
 
     public enum DownloadState {

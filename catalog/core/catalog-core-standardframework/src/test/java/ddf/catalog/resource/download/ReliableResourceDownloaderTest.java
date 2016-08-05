@@ -16,11 +16,9 @@ package ddf.catalog.resource.download;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,7 +26,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -50,7 +47,6 @@ import ddf.catalog.cache.MockInputStream;
 import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
@@ -113,7 +109,7 @@ public class ReliableResourceDownloaderTest {
                 DOWNLOAD_ID,
                 mockResponse,
                 getMockRetriever());
-        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+        downloader.setupDownload(mockMetacard, new File("test"), false);
         downloader.run();
 
         verify(mockPublisher, times(retries)).postRetrievalStatus(any(ResourceResponse.class),
@@ -122,44 +118,6 @@ public class ReliableResourceDownloaderTest {
                 anyString(),
                 anyLong(),
                 eq(DOWNLOAD_ID));
-
-    }
-
-    @Test
-    public void testCacheExceptionDuringWrite() throws Exception {
-
-        downloaderConfig.setCacheEnabled(true);
-
-        ResourceCacheImpl mockCache = mock(ResourceCacheImpl.class);
-        when(mockCache.isPending(anyString())).thenReturn(false);
-        when(mockCache.getProductCacheDirectory()).thenReturn(productCacheDirectory);
-        downloaderConfig.setResourceCache(mockCache);
-
-        mis = new MockInputStream(productInputFilename);
-        ResourceResponse mockResponse = getMockResourceResponse(mis);
-
-        ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,
-                new AtomicBoolean(),
-                "123",
-                mockResponse,
-                getMockRetriever());
-        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
-
-        FileOutputStream mockFos = mock(FileOutputStream.class);
-        doThrow(new IOException()).when(mockFos)
-                .write(any(byte[].class), anyInt(), anyInt());
-
-        downloader.setFileOutputStream(mockFos);
-        downloader.run();
-
-        verify(mockPublisher, times(1)).postRetrievalStatus(any(ResourceResponse.class),
-                eq(ProductRetrievalStatus.RETRYING),
-                any(Metacard.class),
-                anyString(),
-                anyLong(),
-                eq(DOWNLOAD_ID));
-        verify(mockCache, times(1)).removePendingCacheEntry(anyString());
-        assertThat(downloaderConfig.isCacheEnabled(), is(false));
 
     }
 
@@ -183,7 +141,7 @@ public class ReliableResourceDownloaderTest {
                 "123",
                 mockResponse,
                 getMockRetriever());
-        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+        downloader.setupDownload(mockMetacard, new File("test"), false);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         CountingOutputStream mockCountingFbos = new CountingOutputStream(baos);
