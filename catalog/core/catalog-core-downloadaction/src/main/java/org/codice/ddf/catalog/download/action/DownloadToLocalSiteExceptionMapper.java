@@ -11,16 +11,18 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.resource.download;
+package org.codice.ddf.catalog.download.action;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
-public class DownloadToCacheOnlyExceptionMapper implements ExceptionMapper<DownloadToCacheOnlyException> {
+import org.codice.ddf.catalog.resource.download.DownloadToLocalSiteException;
+
+public class DownloadToLocalSiteExceptionMapper implements ExceptionMapper<DownloadToLocalSiteException> {
 
     @Override
-    public Response toResponse(DownloadToCacheOnlyException e) {
+    public Response toResponse(DownloadToLocalSiteException e) {
         return Response.status(e.getStatus()).entity(e.getMessage())
         .type(MediaType.TEXT_PLAIN_TYPE).build();
     }

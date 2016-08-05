@@ -506,5 +506,10 @@
             <artifactId>catalog-plugin-content-uri</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-downloadaction</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

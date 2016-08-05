@@ -247,11 +247,6 @@
             <version>3.4</version>
         </dependency>
         <dependency>
-            <groupId>io.fastjson</groupId>
-            <artifactId>boon</artifactId>
-            <version>0.33</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-defaultvalues</artifactId>
             <version>${project.version}</version>
@@ -284,7 +279,6 @@
 
                         <Embed-Dependency>
                             activities,
-                            boon,
                             catalog-core-actions,
                             catalog-core-solr,
                             commons-collections,
@@ -312,14 +306,16 @@
                             ddf.catalog.resourceretriever,
                             ddf.catalog.source.impl,
                             ddf.catalog.util.impl,
-                            org.codice.ddf.catalog.resource.cache,
                             org.codice.ddf.catalog.resource.cache.impl,
-                            org.codice.ddf.platform.util,
+                            org.codice.ddf.catalog.resource.download.impl,
+                            org.codice.ddf.platform.util
                         </Private-Package>
                         <Export-Package>
                             ddf.catalog.cache,
                             ddf.catalog.resourceretriever,
-                            ddf.catalog.resource.data
+                            ddf.catalog.resource.data,
+                            org.codice.ddf.catalog.resource.download,
+                            org.codice.ddf.catalog.resource.cache
                         </Export-Package>
                         <Import-Package>
                             !org.eclipse.jetty.server.bio,

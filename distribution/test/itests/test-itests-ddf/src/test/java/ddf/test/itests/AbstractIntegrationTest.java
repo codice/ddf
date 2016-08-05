@@ -261,7 +261,7 @@ public abstract class AbstractIntegrationTest {
             "/admin/jolokia/exec/org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean:service=admin-source-poller-service/sourceStatus/");
 
     public static final DynamicUrl RESOURCE_DOWNLOAD_ENDPOINT_ROOT = new DynamicUrl(SERVICE_ROOT,
-            "/catalog/downloads");
+            "/internal/catalog/download/cache");
 
     public static final DynamicUrl COMETD_ENDPOINT = new DynamicUrl(SECURE_ROOT,
             HTTPS_PORT,

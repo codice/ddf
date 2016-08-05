@@ -14,7 +14,6 @@
         xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
         xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <bean id="downloadThreadPool" class="java.util.concurrent.Executors"
@@ -45,18 +44,23 @@
         <argument ref="downloadThreadPool"/>
     </bean>
 
-    <bean id="resourceDownloadBean" class="ddf.catalog.resource.download.ResourceDownloadEndpoint">
-        <argument ref="catalogFramework"/>
-        <argument ref="reliableResourceDownloadManager"/>
-        <argument ref="objectMapper"/>
+    <bean id="mBeanServer" class="java.lang.management.ManagementFactory"
+        factory-method="getPlatformMBeanServer" />
+
+    <bean id="resourceDownloadMBean"
+          class="org.codice.ddf.catalog.resource.download.impl.ResourceDownload" init-method="init" destroy-method="destroy">
+          <argument ref="mBeanServer"/>
+          <argument ref="catalogFramework"/>
+          <argument ref="resourceCacheMBean"/>
     </bean>
 
-    <jaxrs:server id="resourceDownloadEnpoint" address="/catalog/downloads">
-        <jaxrs:serviceBeans>
-            <ref component-id="resourceDownloadBean"/>
-        </jaxrs:serviceBeans>
-        <jaxrs:providers>
-            <bean class="ddf.catalog.resource.download.DownloadToCacheOnlyExceptionMapper"/>
-        </jaxrs:providers>
-    </jaxrs:server>
+    <bean id="resourceCacheMBean"
+          class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheService" init-method="init" destroy-method="destroy">
+          <argument ref="mBeanServer"/>
+          <argument ref="productCache"/>
+          <argument ref="reliableResourceDownloadManager"/>
+          <argument ref="frameworkProperties"/> 
+          <argument ref="catalogFramework"/>
+    </bean>
+
 </blueprint>
