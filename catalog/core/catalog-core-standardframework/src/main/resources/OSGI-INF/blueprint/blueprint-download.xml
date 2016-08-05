@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint
+        xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+        xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <bean id="downloadThreadPool" class="java.util.concurrent.Executors"
+          factory-method="newFixedThreadPool">
+        <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
+    </bean>
+
+    <bean id="reliableResourceDownloadManager"
+          class="ddf.catalog.resource.download.ReliableResourceDownloadManager"
+          init-method="init" destroy-method="cleanUp">
+        <cm:managed-properties
+                persistent-id="ddf.catalog.resource.download.ReliableResourceDownloadManager"
+                update-strategy="container-managed"/>
+        <argument>
+            <bean xml:id="downloaderConfig"
+                  class="ddf.catalog.resource.download.ReliableResourceDownloaderConfig">
+                <property name="cacheEnabled" value="true"/>
+                <property name="delayBetweenAttemptsMS" value="10000"/>
+                <property name="maxRetryAttempts" value="3"/>
+                <property name="monitorPeriodMS" value="5000"/>
+                <property name="cacheWhenCanceled" value="false"/>
+                <property name="resourceCache" ref="deprecatedProductCache"/>
+                <property name="eventPublisher" ref="retrieveStatusEventPublisher"/>
+                <property name="eventListener" ref="retrieveStatusEventListener"/>
+            </bean>
+        </argument>
+        <argument ref="downloadStatusInfo"/>
+        <argument ref="downloadThreadPool"/>
+    </bean>
+
+    <bean id="resourceDownloadBean" class="ddf.catalog.resource.download.ResourceDownloadEndpoint">
+        <argument ref="catalogFramework"/>
+        <argument ref="reliableResourceDownloadManager"/>
+        <argument ref="objectMapper"/>
+    </bean>
+
+    <jaxrs:server id="resourceDownloadEnpoint" address="/catalog/downloads">
+        <jaxrs:serviceBeans>
+            <ref component-id="resourceDownloadBean"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="ddf.catalog.resource.download.DownloadToCacheOnlyExceptionMapper"/>
+        </jaxrs:providers>
+    </jaxrs:server>
+</blueprint>

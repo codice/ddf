@@ -16,15 +16,16 @@ package ddf.catalog.impl.operations;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.osgi.service.blueprint.container.ServiceUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.content.StorageProvider;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.SourceInfoRequest;
@@ -42,19 +43,112 @@ import ddf.catalog.util.impl.SourceDescriptorComparator;
 public class SourceOperations extends DescribableImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceOperations.class);
 
-    private Supplier<CatalogProvider> catalogSupplier;
-
     //
     // Injected properties
     //
     private FrameworkProperties frameworkProperties;
 
+    //
+    // Bound objects
+    //
+    private CatalogProvider catalog;
+
+    private StorageProvider storage;
+
     public SourceOperations(FrameworkProperties frameworkProperties) {
         this.frameworkProperties = frameworkProperties;
     }
 
-    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
-        this.catalogSupplier = catalogSupplier;
+    /**
+     * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
+     * CatalogFramework instance.
+     * <p/>
+     * The local catalog provider will be set to the first item in the {@link java.util.List} of
+     * {@link CatalogProvider}s bound to this CatalogFramework.
+     *
+     * @param catalogProvider the {@link CatalogProvider} being bound to this CatalogFramework instance
+     */
+    public void bind(CatalogProvider catalogProvider) {
+        LOGGER.trace("ENTERING: bind");
+
+        catalog = frameworkProperties.getCatalogProviders()
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        LOGGER.trace("EXITING: bind with catalog = {}", catalog);
+    }
+
+    /**
+     * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
+     * CatalogFramework instance.
+     * <p/>
+     * The local catalog provider will be reset to the new first item in the {@link java.util.List} of
+     * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
+     * currently empty, then the local catalog provider will be set to <code>null</code>.
+     *
+     * @param catalogProvider the {@link CatalogProvider} being unbound from this CatalogFramework instance
+     */
+    public void unbind(CatalogProvider catalogProvider) {
+        LOGGER.trace("ENTERING: unbind");
+
+        catalog = frameworkProperties.getCatalogProviders()
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        LOGGER.trace("EXITING: unbind with catalog = {}", catalog);
+    }
+
+    /**
+     * Invoked by blueprint when a {@link StorageProvider} is created and bound to this
+     * CatalogFramework instance.
+     * <p/>
+     * The local storage provider will be set to the first item in the {@link List} of
+     * {@link StorageProvider}s bound to this CatalogFramework.
+     *
+     * @param storageProvider the {@link CatalogProvider} being bound to this CatalogFramework instance
+     */
+    public void bind(StorageProvider storageProvider) {
+        List<StorageProvider> storageProviders = frameworkProperties.getStorageProviders();
+        LOGGER.info("storage providers list size = {}", storageProviders.size());
+
+        // The list of storage providers is sorted by OSGi service ranking, hence should
+        // always set the local storage provider to the first item in the list.
+        this.storage = storageProviders.get(0);
+    }
+
+    /**
+     * Invoked by blueprint when a {@link StorageProvider} is deleted and unbound from this
+     * CatalogFramework instance.
+     * <p/>
+     * The local storage provider will be reset to the new first item in the {@link List} of
+     * {@link StorageProvider}s bound to this CatalogFramework. If this list of storage providers is
+     * currently empty, then the local storage provider will be set to <code>null</code>.
+     *
+     * @param storageProvider the {@link StorageProvider} being unbound from this CatalogFramework instance
+     */
+    public void unbind(StorageProvider storageProvider) {
+        List<StorageProvider> storageProviders = this.frameworkProperties.getStorageProviders();
+        if (!storageProviders.isEmpty()) {
+            LOGGER.info("storage providers list size = {}", storageProviders.size());
+            LOGGER.info("Setting storage to first provider in list");
+
+            // The list of storage providers is sorted by OSGi service ranking, hence should
+            // always set the local storage provider to the first item in the list.
+            this.storage = storageProviders.get(0);
+        } else {
+            LOGGER.info("Setting storage = NULL");
+            this.storage = null;
+        }
+    }
+
+    public CatalogProvider getCatalog() {
+        return catalog;
+    }
+
+    public StorageProvider getStorage() {
+        return storage;
     }
 
     //
@@ -71,8 +165,7 @@ public class SourceOperations extends DescribableImpl {
     }
 
     public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest,
-            boolean fanoutEnabled)
-            throws SourceUnavailableException {
+            boolean fanoutEnabled) throws SourceUnavailableException {
         SourceInfoResponse response;
         Set<SourceDescriptor> sourceDescriptors;
 
@@ -324,9 +417,8 @@ public class SourceOperations extends DescribableImpl {
         // local site info.
         if (descriptors != null) {
             Set<ContentType> contentTypes = new HashSet<>();
-            if (catalogSupplier.get() != null) {
-                contentTypes = catalogSupplier.get()
-                        .getContentTypes();
+            if (catalog != null) {
+                contentTypes = catalog.getContentTypes();
             }
             SourceDescriptorImpl descriptor = new SourceDescriptorImpl(this.getId(), contentTypes);
             descriptor.setVersion(this.getVersion());

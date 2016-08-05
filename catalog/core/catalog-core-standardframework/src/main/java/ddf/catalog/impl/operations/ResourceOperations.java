@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemInfo;
@@ -61,7 +60,6 @@ import ddf.catalog.resource.download.DownloadException;
 import ddf.catalog.resourceretriever.LocalResourceRetriever;
 import ddf.catalog.resourceretriever.RemoteResourceRetriever;
 import ddf.catalog.resourceretriever.ResourceRetriever;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.DescribableImpl;
@@ -74,14 +72,12 @@ public class ResourceOperations extends DescribableImpl {
 
     private static final String DEFAULT_RESOURCE_NOT_FOUND_MESSAGE = "Unknown resource request";
 
-    private Supplier<CatalogProvider> catalogSupplier;
-
     // Inject properties
-    private FrameworkProperties frameworkProperties;
+    private final FrameworkProperties frameworkProperties;
 
-    private QueryOperations queryOperations;
+    private final QueryOperations queryOperations;
 
-    private OperationsSecuritySupport opsSecuritySupport;
+    private final OperationsSecuritySupport opsSecuritySupport;
 
     public ResourceOperations(FrameworkProperties frameworkProperties,
             QueryOperations queryOperations, OperationsSecuritySupport opsSecuritySupport) {
@@ -92,10 +88,6 @@ public class ResourceOperations extends DescribableImpl {
         setId(SystemInfo.getSiteName());
         setVersion(SystemInfo.getVersion());
         setOrganization(SystemInfo.getOrganization());
-    }
-
-    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
-        this.catalogSupplier = catalogSupplier;
     }
 
     //

@@ -194,16 +194,14 @@ public class FederationStrategyTest {
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props,
-                opsCrud,
-                createOperations,
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
                 deleteOperations,
                 queryOperations,
                 null,
                 null,
                 null);
-        framework.bind(provider);
+        sourceOperations.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();
 

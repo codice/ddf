@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <reference-list id="preCreateStorage"
+                    interface="ddf.catalog.content.plugin.PreCreateStoragePlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preCreateStorageSortedList"/>
+    </reference-list>
+
+    <reference-list id="postCreateStorage"
+                    interface="ddf.catalog.content.plugin.PostCreateStoragePlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="postCreateStorageSortedList"/>
+    </reference-list>
+
+    <reference-list id="preUpdateStorage"
+                    interface="ddf.catalog.content.plugin.PreUpdateStoragePlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preUpdateStorageSortedList"/>
+    </reference-list>
+
+    <reference-list id="postUpdateStorage"
+                    interface="ddf.catalog.content.plugin.PostUpdateStoragePlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="postUpdateStorageSortedList"/>
+    </reference-list>
+
+    <reference-list id="preIngest" interface="ddf.catalog.plugin.PreIngestPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preIngestSortedList"/>
+    </reference-list>
+
+    <reference-list id="postIngest" interface="ddf.catalog.plugin.PostIngestPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="postIngestSortedList"/>
+    </reference-list>
+
+    <reference-list id="preQuery" interface="ddf.catalog.plugin.PreQueryPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preQuerySortedList"/>
+    </reference-list>
+
+    <reference-list id="postQuery" interface="ddf.catalog.plugin.PostQueryPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="postQuerySortedList"/>
+    </reference-list>
+
+    <reference-list id="preFederatedQuery" interface="ddf.catalog.plugin.PreFederatedQueryPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preFederatedQuerySortedList"/>
+    </reference-list>
+
+    <reference-list id="postFederatedQuery" interface="ddf.catalog.plugin.PostFederatedQueryPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="postFederatedQuerySortedList"/>
+    </reference-list>
+
+    <reference-list id="preResource"
+                    interface="ddf.catalog.plugin.PreResourcePlugin" availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preResourceSortedList"/>
+    </reference-list>
+
+    <reference-list id="postResource"
+                    interface="ddf.catalog.plugin.PostResourcePlugin" availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="postResourceSortedList"/>
+    </reference-list>
+
+    <reference-list id="policyPlugins" interface="ddf.catalog.plugin.PolicyPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="policySortedList"/>
+    </reference-list>
+
+    <reference-list id="accessPlugins" interface="ddf.catalog.plugin.AccessPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="accessSortedList"/>
+    </reference-list>
+
+    <bean id="preCreateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="postCreateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="preUpdateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="postUpdateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="preIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="postIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="preQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="postQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="preFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="postFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="preResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="policySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="accessSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+
+</blueprint>

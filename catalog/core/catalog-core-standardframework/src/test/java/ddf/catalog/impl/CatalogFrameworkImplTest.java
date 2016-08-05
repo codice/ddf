@@ -410,9 +410,7 @@ public class CatalogFrameworkImplTest {
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
 
-        framework = new CatalogFrameworkImpl(frameworkProperties,
-                opsCrud,
-                createOperations,
+        framework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
                 deleteOperations,
                 queryOperations,
@@ -421,13 +419,11 @@ public class CatalogFrameworkImplTest {
                 transformOperations);
         // Conditionally bind objects if framework properties are setup
         if (!CollectionUtils.isEmpty(frameworkProperties.getCatalogProviders())) {
-            framework.bind(provider);
+            sourceOperations.bind(provider);
         }
-        framework.bind(storageProvider);
+        sourceOperations.bind(storageProvider);
 
-        resourceFramework = new CatalogFrameworkImpl(frameworkProperties,
-                opsCrud,
-                createOperations,
+        resourceFramework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
                 deleteOperations,
                 queryOperations,
@@ -436,9 +432,9 @@ public class CatalogFrameworkImplTest {
                 transformOperations);
         // Conditionally bind objects if framework properties are setup
         if (!CollectionUtils.isEmpty(frameworkProperties.getCatalogProviders())) {
-            resourceFramework.bind(provider);
+            sourceOperations.bind(provider);
         }
-        resourceFramework.bind(storageProvider);
+        sourceOperations.bind(storageProvider);
 
         ThreadContext.bind(mock(Subject.class));
     }
@@ -1201,9 +1197,7 @@ public class CatalogFrameworkImplTest {
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
 
-        CatalogFrameworkImpl catalogFramework = new CatalogFrameworkImpl(frameworkProperties,
-                opsCrud,
-                createOperations,
+        CatalogFrameworkImpl catalogFramework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
                 deleteOperations,
                 queryOperations,
@@ -1213,10 +1207,10 @@ public class CatalogFrameworkImplTest {
 
         // Conditionally bind objects if framework properties are setup
         if (CollectionUtils.isNotEmpty(frameworkProperties.getCatalogProviders())) {
-            catalogFramework.bind(provider);
+            sourceOperations.bind(provider);
         }
         if (CollectionUtils.isNotEmpty(frameworkProperties.getStorageProviders())) {
-            catalogFramework.bind(storageProvider);
+            sourceOperations.bind(storageProvider);
         }
         return catalogFramework;
     }
@@ -2751,12 +2745,15 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setFederationStrategy(strategy);
         frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
 
-        ResourceOperations resOps = new ResourceOperations(frameworkProperties, null, null);
+        SourceOperations sourceOps = new SourceOperations(frameworkProperties);
+        QueryOperations queryOps = new QueryOperations(frameworkProperties,
+                sourceOps,
+                null,
+                null);
+        ResourceOperations resOps = new ResourceOperations(frameworkProperties, queryOps, null);
         resOps.setId(DDF);
 
-        CatalogFrameworkImpl catalogFramework = new CatalogFrameworkImpl(frameworkProperties,
-                null,
-                null,
+        CatalogFrameworkImpl catalogFramework = new CatalogFrameworkImpl(null,
                 null,
                 null,
                 null,
@@ -2764,7 +2761,7 @@ public class CatalogFrameworkImplTest {
                 null,
                 null);
 
-        resOps.setCatalogSupplier(() -> provider);
+        sourceOps.bind(provider);
         ResourceResponse response = catalogFramework.getResource(mockResourceRequest, DDF);
 
         // Verify that the Response is as expected

@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -53,7 +52,6 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
@@ -70,16 +68,14 @@ import ddf.security.permission.KeyValueCollectionPermission;
 public class QueryOperations extends DescribableImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryOperations.class);
 
-    private Supplier<CatalogProvider> catalogSupplier;
-
     // Inject properties
-    private FrameworkProperties frameworkProperties;
+    private final FrameworkProperties frameworkProperties;
 
-    private SourceOperations sourceOperations;
+    private final SourceOperations sourceOperations;
 
-    private OperationsSecuritySupport opsSecuritySupport;
+    private final OperationsSecuritySupport opsSecuritySupport;
 
-    private OperationsMetacardSupport opsMetacardSupport;
+    private final OperationsMetacardSupport opsMetacardSupport;
 
     public QueryOperations(FrameworkProperties frameworkProperties,
             SourceOperations sourceOperations, OperationsSecuritySupport opsSecuritySupport,
@@ -88,10 +84,6 @@ public class QueryOperations extends DescribableImpl {
         this.sourceOperations = sourceOperations;
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
-    }
-
-    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
-        this.catalogSupplier = catalogSupplier;
     }
 
     //
@@ -344,10 +336,10 @@ public class QueryOperations extends DescribableImpl {
         }
 
         if (addCatalogProvider) {
-            if (sourceOperations.isSourceAvailable(catalogSupplier.get())) {
-                sourcesToQuery.add(catalogSupplier.get());
+            if (sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
+                sourcesToQuery.add(sourceOperations.getCatalog());
             } else {
-                exceptions.add(createUnavailableProcessingDetails(catalogSupplier.get()));
+                exceptions.add(createUnavailableProcessingDetails(sourceOperations.getCatalog()));
             }
         }
 
@@ -372,8 +364,8 @@ public class QueryOperations extends DescribableImpl {
 
             request.getProperties()
                     .put(Constants.LOCAL_DESTINATION_KEY,
-                            ids.isEmpty() || (catalogSupplier.get() != null && ids.contains(
-                                    catalogSupplier.get()
+                            ids.isEmpty() || (sourceOperations.getCatalog() != null && ids.contains(
+                                    sourceOperations.getCatalog()
                                             .getId())));
             request.getProperties()
                     .put(Constants.REMOTE_DESTINATION_KEY,
@@ -605,14 +597,14 @@ public class QueryOperations extends DescribableImpl {
     }
 
     /**
-     * Whether this {@link ddf.catalog.CatalogFramework} is configured with a {@link CatalogProvider}.
+     * Whether this {@link ddf.catalog.CatalogFramework} is configured with a {@code CatalogProvider}.
      *
      * @param fanoutEnabled
-     * @return true if this has a {@link CatalogProvider} configured,
+     * @return true if this has a {@code CatalogProvider} configured,
      * false otherwise
      */
     private boolean hasCatalogProvider(boolean fanoutEnabled) {
-        if (!fanoutEnabled && catalogSupplier.get() != null) {
+        if (!fanoutEnabled && sourceOperations.getCatalog() != null) {
             LOGGER.trace("hasCatalogProvider() returning true");
             return true;
         }

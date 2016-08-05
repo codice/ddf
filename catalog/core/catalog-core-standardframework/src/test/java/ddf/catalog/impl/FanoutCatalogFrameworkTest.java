@@ -110,9 +110,7 @@ public class FanoutCatalogFrameworkTest {
                 null,
                 opsCrud);
 
-        framework = new CatalogFrameworkImpl(frameworkProperties,
-                opsCrud,
-                createOperations,
+        framework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
                 deleteOperations,
                 queryOperations,
