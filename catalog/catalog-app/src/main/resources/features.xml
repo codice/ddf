@@ -103,6 +103,7 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-contentresourcereader/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf/checksum/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-checksum/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-content-uri/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-videothumbnail/${project.version}</bundle>
     </feature>
 

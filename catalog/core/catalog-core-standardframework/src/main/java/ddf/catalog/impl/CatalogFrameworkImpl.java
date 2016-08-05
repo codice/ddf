@@ -270,7 +270,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 .setActivityEnabled(activityEnabled);
     }
 
-
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
@@ -1420,7 +1419,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     .isEmpty()) {
                 try {
                     query = doQuery(queryRequest, frameworkProperties.getFederationStrategy());
-                    for (Result result : query.getResults()) {
+                    List<Result> results = query.getResults();
+                    if (results.size() != updateRequest.getUpdates()
+                            .size()) {
+                        throw new IngestException("Unable to find all metacards in update request.");
+                    }
+                    for (Result result : results) {
                         metacardMap.put(getAttributeStringValue(result.getMetacard(),
                                 updateRequest.getAttributeName()), result.getMetacard());
                     }
@@ -2452,21 +2456,17 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         .get(resourceSourceName);
 
                 if (source != null) {
-                    LOGGER.debug("Adding federated site to federated query: {}",
-                            source.getId());
+                    LOGGER.debug("Adding federated site to federated query: {}", source.getId());
                     LOGGER.debug("Retrieving product from remote source {}", source.getId());
-                    retriever = new RemoteResourceRetriever(source,
-                            responseURI,
-                            requestProperties);
+                    retriever = new RemoteResourceRetriever(source, responseURI, requestProperties);
                 } else {
                     LOGGER.warn("Could not find federatedSource: {}", resourceSourceName);
                 }
             } else {
                 LOGGER.debug("Retrieving product from local source {}", resourceSourceName);
-                retriever =
-                        new LocalResourceRetriever(frameworkProperties.getResourceReaders(),
-                                responseURI,
-                                requestProperties);
+                retriever = new LocalResourceRetriever(frameworkProperties.getResourceReaders(),
+                        responseURI,
+                        requestProperties);
             }
 
             try {
