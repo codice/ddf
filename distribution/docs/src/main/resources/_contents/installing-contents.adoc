@@ -20,6 +20,7 @@ Restrict access to sensitive files by ensuring that the only users with access p
 . Delete any other groups or users listed with access to `INSTALLATION_HOME/etc` and `INSTALLATION_HOME/deploy`.
 
 * Install/Upgrade to Java 8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
+** The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] or later.
 * Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
 * http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
 * The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
@@ -77,7 +78,7 @@ For the change to take effect, a restart is required.
 init 6
 ----
 
-===== Directory Permissions on *NIX
+====== Directory Permissions on *NIX
 
 Protect the ${ddf-branding} from unauthorized access.
 
