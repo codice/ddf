@@ -137,8 +137,6 @@
 
         var app = Application.App;
 
-        Application.AppModel = new Backbone.Model(Properties);
-
         //setup the area that the modules will load into and asynchronously require in each module
         //so that it can render itself into the area that was just constructed for it
         app.addInitializer(function () {

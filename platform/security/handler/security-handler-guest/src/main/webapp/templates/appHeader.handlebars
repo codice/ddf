@@ -1,3 +1,4 @@
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,14 +10,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define([
-    'backbone'
-    ],function (Backbone) {
-
-    var AppModel = Backbone.Model.extend({
-        url: "/services/admin/config"
-    });
-
-    return AppModel;
-});
+ --}}
+<label title="{{version}}"><a href="/"><img class="product-image" src="data:image/png;base64,{{productImage}}"></a>&nbsp;{{version}}</label>
+<label title="Login">Login</label>
+<label></label>

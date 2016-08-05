@@ -56,7 +56,7 @@ public class DdfBrandingPlugin implements BrandingPlugin {
             productURL = propertiesConfiguration.getString("branding.product.url",
                     "http://codice.org/ddf");
             productImage = propertiesConfiguration.getString("branding.product.image",
-                    "/ddf/ddf.jpg");
+                    "/ddf/ddf.png");
             vendorName = propertiesConfiguration.getString("branding.vendor.name", "Codice");
             vendorURL = propertiesConfiguration.getString("branding.vendor.url",
                     "http://codice.org");
@@ -69,7 +69,7 @@ public class DdfBrandingPlugin implements BrandingPlugin {
                     e.getMessage());
             productName = "DDF";
             productURL = "http://codice.org/ddf";
-            productImage = "/ddf/ddf.jpg";
+            productImage = "/ddf/ddf.png";
             vendorName = "Codice";
             vendorURL = "http://codice.org";
             vendorImage = "/ddf/logo.png";

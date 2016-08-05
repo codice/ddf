@@ -13,21 +13,39 @@
 
 // #Main Application
 define(['marionette',
-        'js/view/Login.view'
-    ], function (Marionette, Login) {
+        'backbone',
+        'js/view/Login.view',
+        'text!templates/appHeader.handlebars',
+        'icanhaz'
+    ], function (Marionette, Backbone, Login, appHeader, ich) {
     'use strict';
+
+    ich.addTemplate('appHeader', appHeader);
 
     var Application = {};
 
     Application.App = new Marionette.Application();
 
+    Application.AppModel = new Backbone.Model();
+
     //add regions
     Application.App.addRegions({
-        mainRegion: 'main'
+        mainRegion: 'main',
+        headerRegion: '#appHeader'
     });
 
     Application.App.addInitializer(function() {
         Application.App.mainRegion.show(new Login.LoginForm());
+    });
+
+    Application.App.addInitializer(function () {
+        Application.AppModel.fetch({url:"/services/platform/config/ui"}).done(function () {
+            Application.App.headerRegion.show(new Marionette.ItemView({
+                template: 'appHeader',
+                model: Application.AppModel,
+                className: 'app-header'
+            }));
+        });
     });
 
     return Application;

@@ -1,23 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <title>Logout</title>
     <script src="/logout/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/logout/lib/purl/purl.js"></script>
     <meta http-equiv="x-ua-compatible" content="IE=Edge"/>
     <link rel="stylesheet" type="text/css" href="/logout/lib/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="/logout/lib/bootswatch/flatly/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/logout/css/style.css">
-
 </head>
 <body>
-<div id="nav">
-    <a href="/">
-        <img>
+<div class="app-header nav">
+    <label>
+        <a href="/">
+            <img>
         </a>
+    </label>
+    <label>Logout</label>
+    <label>
+        <button type="button" title="Return to Previous Page">Back</button>
+    </label>
 </div>
-<div id="actions" class="is-hidden">
-    <table>
+<div id="actions" class="logout-response-container container is-hidden">
+    <table class="table">
         <thead>
         <tr>
             <th>Realm</th>
@@ -30,10 +35,11 @@
     </table>
 </div>
 <div id="modal" class="is-hidden">
-    <iframe></iframe>
+    <iframe class="container logout-modal" scrolling="yes"></iframe>
 </div>
-<div id="noActions" class="is-hidden">
-    <h2>You are not currently logged in.</h2>
+<div id="noActions" class="actions logout-response-container container">
+    <h2 class="text-center">You are not logged in.</h2>
+    <h4 class="text-center">You can <a id="landinglink" href="#">return to the landing page</a> or <a id="signinlink" href="#">sign in here.</a></h4>
 </div>
 <script src="js/main.js"></script>
 <script src="/logout/lib/bootstrap/dist/js/bootstrap.min.js"></script>
