@@ -258,9 +258,13 @@
                                         <!-- WARNING callout bullets don't yet work with CodeRay -->
                                         <attributes>
                                             <pagenums/>
-                                            <toc/>
-                                            <idprefix/>
-                                            <idseparator>-</idseparator>
+                                            <toc>left</toc>
+                                            <icons>font</icons>
+                                            <sectanchors>true</sectanchors>
+                                            <sectlinks>true</sectlinks>
+                                            <idprefix />
+                                            <idseparator>_</idseparator>
+                                            <docinfo1>true</docinfo1>
                                         </attributes>
                                     </configuration>
                                 </execution>

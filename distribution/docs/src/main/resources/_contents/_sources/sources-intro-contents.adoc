@@ -23,7 +23,10 @@ Sources act as proxies to the actual external data sources, e.g., a RDBMS databa
 ||   Plugins     |                   |cDEF           Resources                  |              |
 |\---------------+-------------------+------------------------------------------/              |
 |                |c369               |                                                         |
-|                | Catalog Provider  |              cFFF                                       |
+|                | Catalog Provider  |              cCCC                                       |
+|                +-------------------+                                                         |
+|                |cDEF               |                                                         |
+|                | Storage Provider  |                                                         |
 |                \-------------------/                                                         |
 |                          |                                                                   |
 |                          v                                                                   |

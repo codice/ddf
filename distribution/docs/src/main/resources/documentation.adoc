@@ -3,7 +3,15 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 
 = Introduction
 
-include::${project.build.directory}/doc-contents/_contents/introduction-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_introduction/introduction-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_introduction/applications-contents.adoc[]
+
+== ${branding} Core Concepts
+
+include::${project.build.directory}/doc-contents/_contents/_introduction/metadata-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_introduction/osgi-intro-contents.adoc[]
 
 <<<
 
@@ -178,7 +186,6 @@ include::${project.build.directory}/doc-contents/_contents/_endpoints/resource-d
 
 include::${project.build.directory}/doc-contents/_contents/_endpoints/soap-endpoint-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_endpoints/wfs-endpoint-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_endpoints/who-am-i-endpoint-contents.adoc[]
 
