@@ -830,6 +830,21 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testUpdateContentResourceUri() throws IOException {
+        String fileName = testName.getMethodName() + ".txt";
+        String metacardId = ingestXmlWithProduct(fileName);
+        update(metacardId, Library.getSimpleXml("content:" + metacardId), "text/xml");
+        given().header(HttpHeaders.CONTENT_TYPE, "text/xml")
+                .body(Library.getSimpleXml("foo:bar"))
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .when()
+                .put(new DynamicUrl(REST_PATH, metacardId).getUrl());
+    }
+
+    @Test
     public void testCachedContentLengthHeader() throws IOException {
         String fileName = "testCachedContentLengthHeader" + ".jpg";
         File tmpFile = createTemporaryFile(fileName,
