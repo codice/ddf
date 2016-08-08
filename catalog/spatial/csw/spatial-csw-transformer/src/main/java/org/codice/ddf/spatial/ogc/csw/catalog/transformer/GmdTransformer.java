@@ -13,32 +13,25 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
-import javax.activation.MimeType;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswUnmarshallHelper;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GmdConverter;
@@ -50,12 +43,8 @@ import org.slf4j.LoggerFactory;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.DataHolder;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.path.Path;
-import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.QNameMap;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.StaxReader;
@@ -63,15 +52,12 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTWriter;
 
-import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.transform.MetacardTransformer;
 
-public class GmdTransformer implements InputTransformer, MetacardTransformer {
+public class GmdTransformer extends AbstractGmdTransformer implements InputTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GmdTransformer.class);
 
@@ -91,6 +77,8 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
     private final XMLInputFactory xmlFactory;
 
     public GmdTransformer() {
+        super(GmdConverter::new);
+
         QNameMap qmap = new QNameMap();
         qmap.setDefaultNamespace(GmdMetacardType.GMD_NAMESPACE);
         qmap.setDefaultPrefix("");
@@ -130,9 +118,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
                 GmdMetacardType.BBOX_SOUTH_LAT_PATH,
                 GmdMetacardType.BBOX_NORTH_LAT_PATH,
                 GmdMetacardType.POINT_OF_CONTACT_PATH)
-                .forEach(path -> {
-                    paths.add(toPath(path));
-                });
+                .forEach(path -> paths.add(toPath(path)));
 
         return paths;
     }
@@ -147,7 +133,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
     public Metacard transform(InputStream inputStream, String id)
             throws IOException, CatalogTransformerException {
 
-        String xml = null;
+        String xml;
         XstreamPathValueTracker pathValueTracker = null;
         xml = IOUtils.toString(inputStream);
 
@@ -168,46 +154,6 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         metacard.setAttribute(Metacard.METADATA, xml);
 
         return metacard;
-    }
-
-    @Override
-    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-            throws CatalogTransformerException {
-        StringWriter stringWriter = new StringWriter();
-        Boolean omitXmlDec = null;
-        if (MapUtils.isNotEmpty(arguments)) {
-            omitXmlDec = (Boolean) arguments.get(CswConstants.OMIT_XML_DECLARATION);
-        }
-
-        if (omitXmlDec == null || !omitXmlDec) {
-            stringWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
-        }
-
-        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter, new NoNameCoder());
-
-        MarshallingContext context = new TreeMarshaller(writer, null, null);
-        copyArgumentsToContext(context, arguments);
-
-        new GmdConverter().marshal(metacard, writer, context);
-
-        BinaryContent transformedContent;
-
-        ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString()
-                .getBytes(StandardCharsets.UTF_8));
-        transformedContent = new BinaryContentImpl(bais, new MimeType());
-        return transformedContent;
-    }
-
-    private void copyArgumentsToContext(MarshallingContext context,
-            Map<String, Serializable> arguments) {
-
-        if (context == null || arguments == null) {
-            return;
-        }
-
-        for (Map.Entry<String, Serializable> entry : arguments.entrySet()) {
-            context.put(entry.getKey(), entry.getValue());
-        }
     }
 
     private MetacardImpl toMetacard(final XstreamPathValueTracker pathValueTracker,
