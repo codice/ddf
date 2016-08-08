@@ -17,4 +17,4 @@ currentConfiguration.update( properties );
 ----
 
 Note that the `QUERY_ADDRESS_PROPERTY` is specific to this Configuration and might not be required for every `Source`.
-The properties necessary for creating a Configuration are different for every `Source`. 
+The properties necessary for creating a Configuration are different for every `Source`.

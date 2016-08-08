@@ -117,8 +117,8 @@ The supported schemes are obtained by a `ResourceReader`'s `getSupportedSchemes
 As an example, one `ResourceReader` may know how to handle file-based URIs with the scheme 	`file`, whereas another `ResourceReader` may support HTTP-based URIs with the scheme `http`.
 
 The `ResourceReader` or `Source` is responsible for locating the resource, reading its bytes, adding the binary data to a `Resource` implementation, then returning that `Resource` in a `ResourceResponse`. 
-The `ResourceReader` or `Source` is also responsible for determining the `Resource`'s name and mime type, which it sends back in the `Resource` implementation.  
- 
+The `ResourceReader` or `Source` is also responsible for determining the `Resource`'s name and mime type, which it sends back in the `Resource` implementation.
+
 ==== Options
 
 Options can be specified on a retrieve resource request made through any of the supporting endpoint. 
