@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
+import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
 import ddf.catalog.data.Metacard;
@@ -80,20 +81,21 @@ public class DeleteOperations {
 
     private final OperationsMetacardSupport opsMetacardSupport;
 
-    private final OperationsCrudSupport opsCrudSupport;
+    private final OperationsCatalogStoreSupport opsCatStoreSupport;
 
     private Historian historian;
 
     public DeleteOperations(FrameworkProperties frameworkProperties,
             QueryOperations queryOperations, SourceOperations sourceOperations,
             OperationsSecuritySupport opsSecuritySupport,
-            OperationsMetacardSupport opsMetacardSupport, OperationsCrudSupport opsCrudSupport) {
+            OperationsMetacardSupport opsMetacardSupport,
+            OperationsCatalogStoreSupport opsCatStoreSupport) {
         this.frameworkProperties = frameworkProperties;
         this.queryOperations = queryOperations;
         this.sourceOperations = sourceOperations;
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
-        this.opsCrudSupport = opsCrudSupport;
+        this.opsCatStoreSupport = opsCatStoreSupport;
     }
 
     public void setHistorian(Historian historian) {
@@ -105,171 +107,46 @@ public class DeleteOperations {
     //
     public DeleteResponse delete(DeleteRequest deleteRequest)
             throws IngestException, SourceUnavailableException {
-        boolean catalogStoreRequest = opsCrudSupport.isCatalogStoreRequest(deleteRequest);
-        queryOperations.setFlagsOnRequest(deleteRequest);
-
-        validateDeleteRequest(deleteRequest);
-
-        if (Requests.isLocal(deleteRequest) && (
-                !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())
-                        || !opsCrudSupport.isStorageAvailable(sourceOperations.getStorage()))) {
-            throw new SourceUnavailableException(
-                    "Local provider is not available, cannot perform delete operation.");
-        }
-
         DeleteStorageRequest deleteStorageRequest = null;
 
         DeleteResponse deleteResponse = null;
+
+        deleteRequest = queryOperations.setFlagsOnRequest(deleteRequest);
+        deleteRequest = validateDeleteRequest(deleteRequest);
+        deleteRequest = validateLocalSource(deleteRequest);
+
         try {
-            List<Filter> idFilters = new ArrayList<>(deleteRequest.getAttributeValues()
-                    .size());
-            for (Serializable serializable : deleteRequest.getAttributeValues()) {
-                idFilters.add(frameworkProperties.getFilterBuilder()
-                        .attribute(deleteRequest.getAttributeName())
-                        .is()
-                        .equalTo()
-                        .text(serializable.toString()));
-            }
-
-            QueryImpl queryImpl = new QueryImpl(opsCrudSupport.getFilterWithAdditionalFilters(
-                    idFilters));
-            queryImpl.setStartIndex(1);
-            queryImpl.setPageSize(deleteRequest.getAttributeValues()
-                    .size());
-            QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl,
-                    deleteRequest.getStoreIds());
-
-            QueryResponse query;
-            List<Metacard> metacards = new ArrayList<>(deleteRequest.getAttributeValues()
-                    .size());
-            if (!frameworkProperties.getPolicyPlugins()
-                    .isEmpty()) {
-                try {
-                    query = queryOperations.doQuery(queryRequest,
-                            frameworkProperties.getFederationStrategy(),
-                            false);
-                    metacards.addAll(query.getResults()
-                            .stream()
-                            .map(Result::getMetacard)
-                            .collect(Collectors.toList()));
-                } catch (FederationException e) {
-                    LOGGER.warn("Unable to complete query for updated metacards.", e);
-                    throw new IngestException("Exception during runtime while performing delete");
-                }
-
-                if (metacards.size() < deleteRequest.getAttributeValues()
-                        .size()) {
-                    throw new StopProcessingException(
-                            "Unable to remove all metacards contained in request.");
-                }
-            }
+            List<Metacard> metacards = populateMetacards(deleteRequest);
 
             deleteStorageRequest = new DeleteStorageRequestImpl(metacards,
                     deleteRequest.getProperties());
 
-            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            Map<String, Serializable> unmodifiableProperties = Collections.unmodifiableMap(
-                    deleteRequest.getProperties());
-            for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                PolicyResponse policyResponse = plugin.processPreDelete(metacards,
-                        unmodifiableProperties);
-                opsSecuritySupport.buildPolicyMap(requestPolicyMap,
-                        policyResponse.operationPolicy()
-                                .entrySet());
-            }
-            deleteRequest.getProperties()
-                    .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                deleteRequest = plugin.processPreDelete(deleteRequest);
-            }
+            deleteRequest = processPreDeletePolicyPlugins(deleteRequest, metacards);
+            deleteRequest = processPreDeleteAccessPlugins(deleteRequest);
 
             deleteRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
                             new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
                                     metacards));
 
-            for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
-                try {
-                    deleteRequest = plugin.process(deleteRequest);
-                } catch (PluginExecutionException e) {
-                    LOGGER.info(
-                            "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                            e);
-                }
-            }
-            validateDeleteRequest(deleteRequest);
+            deleteRequest = processPreIngestPlugins(deleteRequest);
+            deleteRequest = validateDeleteRequest(deleteRequest);
 
             // Call the Provider delete method
             LOGGER.debug("Calling catalog.delete() with {} entries.",
                     deleteRequest.getAttributeValues()
                             .size());
 
-            if (Requests.isLocal(deleteRequest)) {
-                try {
-                    sourceOperations.getStorage()
-                            .delete(deleteStorageRequest);
-                } catch (StorageException e) {
-                    LOGGER.error(
-                            "Unable to delete stored content items. Not removing stored metacards",
-                            e);
-                    throw new InternalIngestException(
-                            "Unable to delete stored content items. Not removing stored metacards.",
-                            e);
-                }
-                deleteResponse = sourceOperations.getCatalog()
-                        .delete(deleteRequest);
-                deleteResponse = injectAttributes(deleteResponse);
-                historian.version(deleteResponse);
-            }
+            deleteResponse = performLocalDelete(deleteRequest, deleteStorageRequest);
+            deleteResponse = performRemoteDelete(deleteRequest, deleteResponse);
 
-            if (catalogStoreRequest) {
-                DeleteResponse remoteDeleteResponse = doRemoteDelete(deleteRequest);
-                if (deleteResponse == null) {
-                    deleteResponse = remoteDeleteResponse;
-                    deleteResponse = injectAttributes(deleteResponse);
-                } else {
-                    deleteResponse.getProperties()
-                            .putAll(remoteDeleteResponse.getProperties());
-                    deleteResponse.getProcessingErrors()
-                            .addAll(remoteDeleteResponse.getProcessingErrors());
-                }
-            }
+            deleteRequest = populateDeleteRequestPolicyMap(deleteRequest, deleteResponse);
 
-            HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
-            unmodifiableProperties = Collections.unmodifiableMap(deleteRequest.getProperties());
-            if (deleteResponse != null && deleteResponse.getDeletedMetacards() != null) {
-                for (Metacard metacard : deleteResponse.getDeletedMetacards()) {
-                    HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-                    for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                        PolicyResponse policyResponse = plugin.processPostDelete(metacard,
-                                unmodifiableProperties);
-                        opsSecuritySupport.buildPolicyMap(itemPolicyMap,
-                                policyResponse.itemPolicy()
-                                        .entrySet());
-                        opsSecuritySupport.buildPolicyMap(responsePolicyMap,
-                                policyResponse.operationPolicy()
-                                        .entrySet());
-                    }
-                    metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-                }
-            }
-            deleteRequest.getProperties()
-                    .put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
-
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                deleteResponse = plugin.processPostDelete(deleteResponse);
-            }
+            deleteResponse = processPostDeleteAccessPlugins(deleteResponse);
 
             // Post results to be available for pubsub
             deleteResponse = validateFixDeleteResponse(deleteResponse, deleteRequest);
-            for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
-                try {
-                    deleteResponse = plugin.process(deleteResponse);
-                } catch (PluginExecutionException e) {
-                    LOGGER.info("Plugin exception", e);
-                }
-            }
+            deleteResponse = processPostIngestPlugins(deleteResponse);
 
         } catch (StopProcessingException see) {
             LOGGER.warn(PRE_INGEST_ERROR + see.getMessage(), see);
@@ -296,6 +173,193 @@ public class DeleteOperations {
     //
     // Private helper methods
     //
+    private DeleteResponse processPostIngestPlugins(DeleteResponse deleteResponse) {
+        for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
+            try {
+                deleteResponse = plugin.process(deleteResponse);
+            } catch (PluginExecutionException e) {
+                LOGGER.info("Plugin exception", e);
+            }
+        }
+        return deleteResponse;
+    }
+
+    private DeleteResponse processPostDeleteAccessPlugins(DeleteResponse deleteResponse)
+            throws StopProcessingException {
+        for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+            deleteResponse = plugin.processPostDelete(deleteResponse);
+        }
+        return deleteResponse;
+    }
+
+    private DeleteRequest populateDeleteRequestPolicyMap(DeleteRequest deleteRequest,
+            DeleteResponse deleteResponse) throws StopProcessingException {
+        HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
+        Map<String, Serializable> unmodifiableProperties =
+                Collections.unmodifiableMap(deleteRequest.getProperties());
+        if (deleteResponse != null && deleteResponse.getDeletedMetacards() != null) {
+            for (Metacard metacard : deleteResponse.getDeletedMetacards()) {
+                HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
+                for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
+                    PolicyResponse policyResponse = plugin.processPostDelete(metacard,
+                            unmodifiableProperties);
+                    opsSecuritySupport.buildPolicyMap(itemPolicyMap,
+                            policyResponse.itemPolicy()
+                                    .entrySet());
+                    opsSecuritySupport.buildPolicyMap(responsePolicyMap,
+                            policyResponse.operationPolicy()
+                                    .entrySet());
+                }
+                metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
+            }
+        }
+        deleteRequest.getProperties()
+                .put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
+
+        return deleteRequest;
+    }
+
+    private DeleteResponse performRemoteDelete(DeleteRequest deleteRequest,
+            DeleteResponse deleteResponse) {
+        if (!opsCatStoreSupport.isCatalogStoreRequest(deleteRequest)) {
+            return deleteResponse;
+        }
+
+        DeleteResponse remoteDeleteResponse = doRemoteDelete(deleteRequest);
+        if (deleteResponse == null) {
+            deleteResponse = remoteDeleteResponse;
+            deleteResponse = injectAttributes(deleteResponse);
+        } else {
+            deleteResponse.getProperties()
+                    .putAll(remoteDeleteResponse.getProperties());
+            deleteResponse.getProcessingErrors()
+                    .addAll(remoteDeleteResponse.getProcessingErrors());
+        }
+        return deleteResponse;
+    }
+
+    private DeleteResponse performLocalDelete(DeleteRequest deleteRequest,
+            DeleteStorageRequest deleteStorageRequest) throws IngestException {
+        if (!Requests.isLocal(deleteRequest)) {
+            return null;
+        }
+
+        try {
+            sourceOperations.getStorage()
+                    .delete(deleteStorageRequest);
+        } catch (StorageException e) {
+            LOGGER.error("Unable to delete stored content items. Not removing stored metacards", e);
+            throw new InternalIngestException(
+                    "Unable to delete stored content items. Not removing stored metacards.",
+                    e);
+        }
+        DeleteResponse deleteResponse = sourceOperations.getCatalog()
+                .delete(deleteRequest);
+        deleteResponse = injectAttributes(deleteResponse);
+        historian.version(deleteResponse);
+        return deleteResponse;
+    }
+
+    private DeleteRequest processPreIngestPlugins(DeleteRequest deleteRequest)
+            throws StopProcessingException {
+        for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
+            try {
+                deleteRequest = plugin.process(deleteRequest);
+            } catch (PluginExecutionException e) {
+                LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        e);
+            }
+        }
+        return deleteRequest;
+    }
+
+    private DeleteRequest processPreDeleteAccessPlugins(DeleteRequest deleteRequest)
+            throws StopProcessingException {
+        for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+            deleteRequest = plugin.processPreDelete(deleteRequest);
+        }
+        return deleteRequest;
+    }
+
+    private DeleteRequest processPreDeletePolicyPlugins(DeleteRequest deleteRequest,
+            List<Metacard> metacards) throws StopProcessingException {
+        Map<String, Serializable> unmodifiableProperties =
+                Collections.unmodifiableMap(deleteRequest.getProperties());
+
+        HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+        for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
+            PolicyResponse policyResponse = plugin.processPreDelete(metacards,
+                    unmodifiableProperties);
+            opsSecuritySupport.buildPolicyMap(requestPolicyMap,
+                    policyResponse.operationPolicy()
+                            .entrySet());
+        }
+        deleteRequest.getProperties()
+                .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+        return deleteRequest;
+    }
+
+    private List<Metacard> populateMetacards(DeleteRequest deleteRequest)
+            throws IngestException, StopProcessingException {
+        if (frameworkProperties.getPolicyPlugins()
+                .isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        QueryRequestImpl queryRequest = createQueryRequest(deleteRequest);
+
+        try {
+            QueryResponse query = queryOperations.doQuery(queryRequest,
+                    frameworkProperties.getFederationStrategy(),
+                    false);
+            List<Metacard> metacards = query.getResults()
+                    .stream()
+                    .map(Result::getMetacard)
+                    .collect(Collectors.toList());
+
+            if (metacards.size() < deleteRequest.getAttributeValues()
+                    .size()) {
+                throw new StopProcessingException(
+                        "Unable to remove all metacards contained in request.");
+            }
+
+            return metacards;
+        } catch (FederationException e) {
+            LOGGER.warn("Unable to complete query for updated metacards.", e);
+            throw new IngestException("Exception during runtime while performing delete");
+        }
+    }
+
+    private QueryRequestImpl createQueryRequest(DeleteRequest deleteRequest) {
+        List<Filter> idFilters = deleteRequest.getAttributeValues()
+                .stream()
+                .map(serializable -> frameworkProperties.getFilterBuilder()
+                        .attribute(deleteRequest.getAttributeName())
+                        .is()
+                        .equalTo()
+                        .text(serializable.toString()))
+                .collect(Collectors.toList());
+
+        QueryImpl queryImpl =
+                new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters));
+        queryImpl.setStartIndex(1);
+        queryImpl.setPageSize(deleteRequest.getAttributeValues()
+                .size());
+        return new QueryRequestImpl(queryImpl, deleteRequest.getStoreIds());
+    }
+
+    private DeleteRequest validateLocalSource(DeleteRequest deleteRequest)
+            throws SourceUnavailableException {
+        if (Requests.isLocal(deleteRequest) && (
+                !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())
+                        || !isStorageAvailable(sourceOperations.getStorage()))) {
+            throw new SourceUnavailableException(
+                    "Local provider is not available, cannot perform delete operation.");
+        }
+
+        return deleteRequest;
+    }
 
     private DeleteResponse injectAttributes(DeleteResponse response) {
         List<Metacard> deletedMetacards = response.getDeletedMetacards()
@@ -319,7 +383,8 @@ public class DeleteOperations {
      * @throws IngestException if the {@link DeleteRequest} is null, or has null or empty {@link Metacard} list,
      *                         or a null attribute name
      */
-    private void validateDeleteRequest(DeleteRequest deleteRequest) throws IngestException {
+    private DeleteRequest validateDeleteRequest(DeleteRequest deleteRequest)
+            throws IngestException {
         if (deleteRequest == null) {
             throw new IngestException(
                     "DeleteRequest was null, either passed in from endpoint, or as output from PreIngestPlugins");
@@ -330,13 +395,15 @@ public class DeleteOperations {
                     "Cannot perform delete with null/empty attribute value list or null attributeName, "
                             + "either passed in from endpoint, or as output from PreIngestPlugins");
         }
+
+        return deleteRequest;
     }
 
     private DeleteResponse doRemoteDelete(DeleteRequest deleteRequest) {
         HashSet<ProcessingDetails> exceptions = new HashSet<>();
         Map<String, Serializable> properties = new HashMap<>();
 
-        List<CatalogStore> stores = opsCrudSupport.getCatalogStoresForRequest(deleteRequest,
+        List<CatalogStore> stores = opsCatStoreSupport.getCatalogStoresForRequest(deleteRequest,
                 exceptions);
 
         List<Metacard> metacards = new ArrayList<>();
@@ -390,5 +457,13 @@ public class DeleteOperations {
             throw new IngestException("CatalogProvider returned null DeleteResponse Object.");
         }
         return delResponse;
+    }
+
+    private boolean isStorageAvailable(StorageProvider storageProvider) {
+        if (storageProvider == null) {
+            LOGGER.warn("storageProvider is null, therefore not available");
+            return false;
+        }
+        return true;
     }
 }

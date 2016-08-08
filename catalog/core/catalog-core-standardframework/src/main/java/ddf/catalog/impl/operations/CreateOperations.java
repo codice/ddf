@@ -15,6 +15,7 @@ package ddf.catalog.impl.operations;
 
 import static ddf.catalog.Constants.CONTENT_PATHS;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -72,6 +73,8 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 
 public class CreateOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateOperations.class);
@@ -92,20 +95,25 @@ public class CreateOperations {
 
     private final OperationsMetacardSupport opsMetacardSupport;
 
-    private final OperationsCrudSupport opsCrudSupport;
+    private final OperationsCatalogStoreSupport opsCatStoreSupport;
+
+    private final OperationsStorageSupport opsStorageSupport;
 
     private Historian historian;
 
     public CreateOperations(FrameworkProperties frameworkProperties,
             QueryOperations queryOperations, SourceOperations sourceOperations,
             OperationsSecuritySupport opsSecuritySupport,
-            OperationsMetacardSupport opsMetacardSupport, OperationsCrudSupport opsCrudSupport) {
+            OperationsMetacardSupport opsMetacardSupport,
+            OperationsCatalogStoreSupport opsCatStoreSupport,
+            OperationsStorageSupport opsStorageSupport) {
         this.frameworkProperties = frameworkProperties;
         this.queryOperations = queryOperations;
         this.sourceOperations = sourceOperations;
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
-        this.opsCrudSupport = opsCrudSupport;
+        this.opsCatStoreSupport = opsCatStoreSupport;
+        this.opsStorageSupport = opsStorageSupport;
     }
 
     public void setHistorian(Historian historian) {
@@ -117,96 +125,30 @@ public class CreateOperations {
     //
     public CreateResponse create(CreateRequest createRequest)
             throws IngestException, SourceUnavailableException {
-        boolean catalogStoreRequest = opsCrudSupport.isCatalogStoreRequest(createRequest);
-        queryOperations.setFlagsOnRequest(createRequest);
-
-        validateCreateRequest(createRequest);
-
-        if (Requests.isLocal(createRequest)
-                && !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
-            SourceUnavailableException sourceUnavailableException = new SourceUnavailableException(
-                    "Local provider is not available, cannot perform create operation.");
-            if (INGEST_LOGGER.isWarnEnabled()) {
-                INGEST_LOGGER.warn(
-                        "Error on create operation, local provider not available. {} metacards failed to ingest. {}",
-                        createRequest.getMetacards()
-                                .size(),
-                        buildIngestLog(createRequest),
-                        sourceUnavailableException);
-            }
-            throw sourceUnavailableException;
-        }
-
         CreateResponse createResponse = null;
 
         Exception ingestError = null;
+
+        createRequest = queryOperations.setFlagsOnRequest(createRequest);
+        createRequest = validateCreateRequest(createRequest);
+        createRequest = validateLocalSource(createRequest);
+
         try {
             createRequest = injectAttributes(createRequest);
-
-            setDefaultValues(createRequest);
-
-            Map<String, Serializable> unmodifiablePropertiesMap = Collections.unmodifiableMap(
-                    createRequest.getProperties());
-            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            for (Metacard metacard : createRequest.getMetacards()) {
-                HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-                for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                    PolicyResponse policyResponse = plugin.processPreCreate(metacard,
-                            unmodifiablePropertiesMap);
-                    opsSecuritySupport.buildPolicyMap(itemPolicyMap,
-                            policyResponse.itemPolicy()
-                                    .entrySet());
-                    opsSecuritySupport.buildPolicyMap(requestPolicyMap,
-                            policyResponse.operationPolicy()
-                                    .entrySet());
-                }
-
-                metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-            }
-            createRequest.getProperties()
-                    .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                createRequest = plugin.processPreCreate(createRequest);
-            }
+            createRequest = setDefaultValues(createRequest);
+            createRequest = updateCreateRequestPolicyMap(createRequest);
+            createRequest = processPrecreateAccessPlugins(createRequest);
 
             createRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
                             new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
                                     Collections.emptyList()));
 
-            for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
-                try {
-                    createRequest = plugin.process(createRequest);
-                } catch (PluginExecutionException e) {
-                    LOGGER.info(
-                            "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                            e);
-                }
-            }
-            validateCreateRequest(createRequest);
-
-            // Call the create on the catalog
-            LOGGER.debug("Calling catalog.create() with {} entries.",
-                    createRequest.getMetacards()
-                            .size());
-            if (Requests.isLocal(createRequest)) {
-                createResponse = sourceOperations.getCatalog()
-                        .create(createRequest);
-                createResponse = historian.version(createResponse);
-            }
-
-            if (catalogStoreRequest) {
-                CreateResponse remoteCreateResponse = doRemoteCreate(createRequest);
-                if (createResponse == null) {
-                    createResponse = remoteCreateResponse;
-                } else {
-                    createResponse.getProperties()
-                            .putAll(remoteCreateResponse.getProperties());
-                    createResponse.getProcessingErrors()
-                            .addAll(remoteCreateResponse.getProcessingErrors());
-                }
-            }
+            createRequest = processPreIngestPlugins(createRequest);
+            createRequest = validateCreateRequest(createRequest);
+            createResponse = getCreateResponse(createRequest);
+            createResponse = historian.version(createResponse);
+            createResponse = performRemoteCreate(createRequest, createResponse);
 
         } catch (IngestException iee) {
             INGEST_LOGGER.warn("Ingest error", iee);
@@ -232,20 +174,11 @@ public class CreateOperations {
 
         try {
             createResponse = validateFixCreateResponse(createResponse, createRequest);
-            for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
-                try {
-                    createResponse = plugin.process(createResponse);
-                } catch (PluginExecutionException e) {
-                    LOGGER.info(
-                            "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                            e);
-                }
-            }
+            createResponse = processPostIngestPlugins(createResponse);
         } catch (RuntimeException re) {
             LOGGER.warn(
-                    "Exception during runtime while performing doing post create operations (plugins and pubsub)",
+                    "Exception during runtime while performing post create operations (plugins and pubsub)",
                     re);
-
         }
 
         // if debug is enabled then catalog might take a significant performance hit w/r/t string
@@ -261,51 +194,37 @@ public class CreateOperations {
 
     public CreateResponse create(CreateStorageRequest streamCreateRequest)
             throws IngestException, SourceUnavailableException {
-        opsCrudSupport.prepareStorageRequest(streamCreateRequest,
-                streamCreateRequest::getContentItems);
-
         Optional<String> historianTransactionKey = Optional.empty();
-
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems()
                 .size());
         HashMap<String, Path> tmpContentPaths = new HashMap<>(streamCreateRequest.getContentItems()
                 .size());
-        opsCrudSupport.generateMetacardAndContentItems(streamCreateRequest,
-                streamCreateRequest.getContentItems(),
-                metacardMap,
-                contentItems,
-                tmpContentPaths);
-        streamCreateRequest.getProperties()
-                .put(CONTENT_PATHS, tmpContentPaths);
-
-        // Get attributeOverrides, apply them and then remove them from the streamCreateRequest so they are not exposed to plugins
-        Map<String, String> attributeOverrideHeaders =
-                (HashMap<String, String>) streamCreateRequest.getProperties()
-                        .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
-        applyAttributeOverridesToMetacardMap(attributeOverrideHeaders, metacardMap);
-        streamCreateRequest.getProperties()
-                .remove(Constants.ATTRIBUTE_OVERRIDES_KEY);
-
         CreateResponse createResponse = null;
         CreateStorageRequest createStorageRequest = null;
         CreateStorageResponse createStorageResponse;
+
+        streamCreateRequest = opsStorageSupport.prepareStorageRequest(streamCreateRequest,
+                streamCreateRequest::getContentItems);
+
+        // Operation populates the metacardMap, contentItems, and tmpContentPaths
+        opsMetacardSupport.generateMetacardAndContentItems(streamCreateRequest.getContentItems(),
+                (Subject) streamCreateRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                metacardMap,
+                contentItems,
+                tmpContentPaths);
+
+        streamCreateRequest.getProperties()
+                .put(CONTENT_PATHS, tmpContentPaths);
+
+        streamCreateRequest = applyAttributeOverrides(streamCreateRequest, metacardMap);
+
         try {
             if (!contentItems.isEmpty()) {
                 createStorageRequest = new CreateStorageRequestImpl(contentItems,
                         streamCreateRequest.getId(),
                         streamCreateRequest.getProperties());
-                for (final PreCreateStoragePlugin plugin : frameworkProperties.getPreCreateStoragePlugins()) {
-                    try {
-                        createStorageRequest = plugin.process(createStorageRequest);
-                    } catch (PluginExecutionException e) {
-                        LOGGER.warn(
-                                "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                                e);
-                    }
-                }
-
-                historianTransactionKey = historian.version(createStorageRequest);
+                createStorageRequest = processPreCreateStoragePlugins(createStorageRequest);
 
                 try {
                     createStorageResponse = sourceOperations.getStorage()
@@ -316,29 +235,11 @@ public class CreateOperations {
                     throw new IngestException("Could not store content items.", e);
                 }
 
-                for (final PostCreateStoragePlugin plugin : frameworkProperties.getPostCreateStoragePlugins()) {
-                    try {
-                        createStorageResponse = plugin.process(createStorageResponse);
-                    } catch (PluginExecutionException e) {
-                        LOGGER.warn(
-                                "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                                e);
-                    }
-                }
+                historianTransactionKey = historian.version(createStorageRequest);
 
-                for (ContentItem contentItem : createStorageResponse.getCreatedContentItems()) {
-                    if (contentItem.getMetacard()
-                            .getResourceURI() == null
-                            && StringUtils.isBlank(contentItem.getQualifier())) {
-                        contentItem.getMetacard()
-                                .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
-                                        contentItem.getUri()));
-                        contentItem.getMetacard()
-                                .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
-                                        String.valueOf(contentItem.getSize())));
-                    }
-                    metacardMap.put(contentItem.getId(), contentItem.getMetacard());
-                }
+                createStorageResponse = processPostCreateStoragePlugins(createStorageResponse);
+
+                populateMetacardMap(metacardMap, createStorageResponse);
             }
 
             CreateRequest createRequest =
@@ -348,12 +249,22 @@ public class CreateOperations {
                                     .orElseGet(HashMap::new));
 
             createResponse = create(createRequest);
-        } catch (Exception e) {
-            opsCrudSupport.handleStorageException(createStorageRequest,
-                    streamCreateRequest.getId(),
-                    e);
+        } catch (StorageException | IOException | RuntimeException e) {
+            if (createStorageRequest != null) {
+                try {
+                    sourceOperations.getStorage()
+                            .rollback(createStorageRequest);
+                } catch (StorageException e1) {
+                    LOGGER.error("Unable to remove temporary content for id: {}",
+                            createStorageRequest.getId(),
+                            e1);
+                }
+            }
+            throw new IngestException(
+                    "Unable to store products for request: " + streamCreateRequest.getId(), e);
+
         } finally {
-            opsCrudSupport.commitAndCleanup(createStorageRequest,
+            opsStorageSupport.commitAndCleanup(createStorageRequest,
                     historianTransactionKey,
                     tmpContentPaths);
         }
@@ -440,11 +351,12 @@ public class CreateOperations {
         }
     }
 
-    private void setDefaultValues(CreateRequest createRequest) {
+    private CreateRequest setDefaultValues(CreateRequest createRequest) {
         createRequest.getMetacards()
                 .stream()
                 .filter(Objects::nonNull)
-                .forEach(opsCrudSupport::setDefaultValues);
+                .forEach(opsMetacardSupport::setDefaultValues);
+        return createRequest;
     }
 
     /**
@@ -455,7 +367,8 @@ public class CreateOperations {
      * @throws IngestException if the {@link CreateRequest} is null, or request has a null or empty list of
      *                         {@link Metacard}s
      */
-    private void validateCreateRequest(CreateRequest createRequest) throws IngestException {
+    private CreateRequest validateCreateRequest(CreateRequest createRequest)
+            throws IngestException {
         if (createRequest == null) {
             throw new IngestException(
                     "CreateRequest was null, either passed in from endpoint, or as output from PreIngestPlugins");
@@ -465,6 +378,8 @@ public class CreateOperations {
             throw new IngestException(
                     "Cannot perform ingest with null/empty entry list, either passed in from endpoint, or as output from PreIngestPlugins");
         }
+
+        return createRequest;
     }
 
     /**
@@ -473,22 +388,23 @@ public class CreateOperations {
     private String buildIngestLog(CreateRequest createReq) {
         StringBuilder strBuilder = new StringBuilder();
         List<Metacard> metacards = createReq.getMetacards();
-        final String newLine = System.lineSeparator();
+        String metacardTitleLabel = "Metacard Title: ";
+        String metacardIdLabel = "Metacard ID: ";
 
         for (int i = 0; i < metacards.size(); i++) {
             Metacard card = metacards.get(i);
-            strBuilder.append(newLine)
+            strBuilder.append(System.lineSeparator())
                     .append("Batch #: ")
                     .append(i + 1)
                     .append(" | ");
             if (card != null) {
                 if (card.getTitle() != null) {
-                    strBuilder.append("Metacard Title: ")
+                    strBuilder.append(metacardTitleLabel)
                             .append(card.getTitle())
                             .append(" | ");
                 }
                 if (card.getId() != null) {
-                    strBuilder.append("Metacard ID: ")
+                    strBuilder.append(metacardIdLabel)
                             .append(card.getId())
                             .append(" | ");
                 }
@@ -503,7 +419,7 @@ public class CreateOperations {
         HashSet<ProcessingDetails> exceptions = new HashSet<>();
         Map<String, Serializable> properties = new HashMap<>();
 
-        List<CatalogStore> stores = opsCrudSupport.getCatalogStoresForRequest(createRequest,
+        List<CatalogStore> stores = opsCatStoreSupport.getCatalogStoresForRequest(createRequest,
                 exceptions);
 
         for (CatalogStore store : stores) {
@@ -559,4 +475,169 @@ public class CreateOperations {
         return createResponse;
     }
 
+    private CreateResponse processPostIngestPlugins(CreateResponse createResponse) {
+        for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
+            try {
+                createResponse = plugin.process(createResponse);
+            } catch (PluginExecutionException e) {
+                LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        e);
+            }
+        }
+        return createResponse;
+    }
+
+    private CreateResponse performRemoteCreate(CreateRequest createRequest,
+            CreateResponse createResponse) {
+        if (!opsCatStoreSupport.isCatalogStoreRequest(createRequest)) {
+            return createResponse;
+        }
+
+        CreateResponse remoteCreateResponse = doRemoteCreate(createRequest);
+        if (createResponse == null) {
+            createResponse = remoteCreateResponse;
+        } else {
+            createResponse.getProperties()
+                    .putAll(remoteCreateResponse.getProperties());
+            createResponse.getProcessingErrors()
+                    .addAll(remoteCreateResponse.getProcessingErrors());
+        }
+        return createResponse;
+    }
+
+    private CreateResponse getCreateResponse(CreateRequest createRequest) throws IngestException {
+        // Call the create on the catalog
+        LOGGER.debug("Calling catalog.create() with {} entries.",
+                createRequest.getMetacards()
+                        .size());
+        if (!Requests.isLocal(createRequest)) {
+            return null;
+        }
+
+        return sourceOperations.getCatalog()
+                .create(createRequest);
+    }
+
+    private CreateRequest processPreIngestPlugins(CreateRequest createRequest)
+            throws StopProcessingException {
+        for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
+            try {
+                createRequest = plugin.process(createRequest);
+            } catch (PluginExecutionException e) {
+                LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        e);
+            }
+        }
+        return createRequest;
+    }
+
+    private CreateRequest processPrecreateAccessPlugins(CreateRequest createRequest)
+            throws StopProcessingException {
+        for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+            createRequest = plugin.processPreCreate(createRequest);
+        }
+        return createRequest;
+    }
+
+    private CreateRequest updateCreateRequestPolicyMap(CreateRequest createRequest)
+            throws StopProcessingException {
+        Map<String, Serializable> unmodifiablePropertiesMap = Collections.unmodifiableMap(
+                createRequest.getProperties());
+        HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+        for (Metacard metacard : createRequest.getMetacards()) {
+            HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
+            for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
+                PolicyResponse policyResponse = plugin.processPreCreate(metacard,
+                        unmodifiablePropertiesMap);
+                opsSecuritySupport.buildPolicyMap(itemPolicyMap,
+                        policyResponse.itemPolicy()
+                                .entrySet());
+                opsSecuritySupport.buildPolicyMap(requestPolicyMap,
+                        policyResponse.operationPolicy()
+                                .entrySet());
+            }
+
+            metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
+        }
+        createRequest.getProperties()
+                .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+        return createRequest;
+    }
+
+    private CreateRequest validateLocalSource(CreateRequest createRequest)
+            throws SourceUnavailableException {
+        if (Requests.isLocal(createRequest)
+                && !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
+            SourceUnavailableException sourceUnavailableException = new SourceUnavailableException(
+                    "Local provider is not available, cannot perform create operation.");
+            if (INGEST_LOGGER.isWarnEnabled()) {
+                INGEST_LOGGER.warn(
+                        "Error on create operation, local provider not available. {} metacards failed to ingest. {}",
+                        createRequest.getMetacards()
+                                .size(),
+                        buildIngestLog(createRequest),
+                        sourceUnavailableException);
+            }
+            throw sourceUnavailableException;
+        }
+
+        return createRequest;
+    }
+
+    private void populateMetacardMap(Map<String, Metacard> metacardMap,
+            CreateStorageResponse createStorageResponse) throws IOException {
+        for (ContentItem contentItem : createStorageResponse.getCreatedContentItems()) {
+            if (contentItem.getMetacard()
+                    .getResourceURI() == null && StringUtils.isBlank(contentItem.getQualifier())) {
+                contentItem.getMetacard()
+                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
+                                contentItem.getUri()));
+                contentItem.getMetacard()
+                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                String.valueOf(contentItem.getSize())));
+            }
+            metacardMap.put(contentItem.getId(), contentItem.getMetacard());
+        }
+    }
+
+    private CreateStorageResponse processPostCreateStoragePlugins(
+            CreateStorageResponse createStorageResponse) {
+        for (final PostCreateStoragePlugin plugin : frameworkProperties.getPostCreateStoragePlugins()) {
+            try {
+                createStorageResponse = plugin.process(createStorageResponse);
+            } catch (PluginExecutionException e) {
+                LOGGER.warn("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        e);
+            }
+        }
+        return createStorageResponse;
+    }
+
+    private CreateStorageRequest processPreCreateStoragePlugins(
+            CreateStorageRequest createStorageRequest) {
+        for (final PreCreateStoragePlugin plugin : frameworkProperties.getPreCreateStoragePlugins()) {
+            try {
+                createStorageRequest = plugin.process(createStorageRequest);
+            } catch (PluginExecutionException e) {
+                LOGGER.warn("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        e);
+            }
+        }
+        return createStorageRequest;
+    }
+
+    @SuppressWarnings("unchecked")
+    private CreateStorageRequest applyAttributeOverrides(CreateStorageRequest createStorageRequest,
+            Map<String, Metacard> metacardMap) {
+        // Get attributeOverrides, apply them and then remove them from the streamCreateRequest so they are not exposed to plugins
+        Map<String, String> attributeOverrideHeaders =
+                (HashMap<String, String>) createStorageRequest.getProperties()
+                        .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
+        applyAttributeOverridesToMetacardMap(attributeOverrideHeaders, metacardMap);
+        createStorageRequest.getProperties()
+                .remove(Constants.ATTRIBUTE_OVERRIDES_KEY);
+
+        return createStorageRequest;
+    }
 }

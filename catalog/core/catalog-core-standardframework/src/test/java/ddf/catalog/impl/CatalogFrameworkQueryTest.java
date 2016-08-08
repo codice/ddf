@@ -48,9 +48,10 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
-import ddf.catalog.impl.operations.OperationsCrudSupport;
+import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
+import ddf.catalog.impl.operations.OperationsStorageSupport;
 import ddf.catalog.impl.operations.QueryOperations;
 import ddf.catalog.impl.operations.ResourceOperations;
 import ddf.catalog.impl.operations.SourceOperations;
@@ -102,7 +103,7 @@ public class CatalogFrameworkQueryTest {
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport();
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props);
         SourceOperations sourceOperations = new SourceOperations(props);
         QueryOperations queryOperations = new QueryOperations(props,
                 sourceOperations,
@@ -112,32 +113,35 @@ public class CatalogFrameworkQueryTest {
                 queryOperations,
                 opsSecurity);
         TransformOperations transformOperations = new TransformOperations(props);
-        OperationsCrudSupport opsCrud = new OperationsCrudSupport(props,
-                queryOperations,
-                sourceOperations);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(props, sourceOperations);
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(
+                sourceOperations,
+                queryOperations);
         CreateOperations createOperations = new CreateOperations(props,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard,
-                opsCrud);
+                opsCatStore,
+                opsStorage);
         UpdateOperations updateOperations = new UpdateOperations(props,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard,
-                opsCrud);
+                opsCatStore,
+                opsStorage);
         DeleteOperations deleteOperations = new DeleteOperations(props,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard,
-                opsCrud);
+                opsCatStore);
 
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
 
-        opsCrud.setHistorian(historian);
+        opsStorage.setHistorian(historian);
         createOperations.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
