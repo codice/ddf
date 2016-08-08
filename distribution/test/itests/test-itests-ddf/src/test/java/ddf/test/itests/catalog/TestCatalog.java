@@ -1053,10 +1053,21 @@ public class TestCatalog extends AbstractIntegrationTest {
                 "catalog-plugin-metacard-validation",
                 "sample-validator");
 
+        //Configure not enforcing validators so invalid metacards can ingest
+        configureEnforcedMetacardValidators(Collections.singletonList(""));
+
+        // Configure invalid filtering
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+
+        // Configure query to request invalid metacards
+        configureShowInvalidMetacards("true", "true");
+
+        //Configure to filter metacards with validation warnings but not validation errors
         configureFilterInvalidMetacards("false", "true");
 
         String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
         String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1072,15 +1083,18 @@ public class TestCatalog extends AbstractIntegrationTest {
             //clean metacard should be in results but not invalid one
             response.body(not(containsString("warning metacard")));
             response.body(containsString("clean metacard"));
+            response.body(containsString("error metacard"));
 
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            deleteMetacard(id3);
             getServiceManager().stopFeature(true,
                     "catalog-plugin-metacard-validation",
                     "sample-validator");
             configureFilterInvalidMetacardsReset();
+            configureMetacardValidityFilterPlugin(Arrays.asList(""));
+            configureShowInvalidMetacards("true", "false");
         }
     }
 
@@ -1090,10 +1104,21 @@ public class TestCatalog extends AbstractIntegrationTest {
                 "catalog-plugin-metacard-validation",
                 "sample-validator");
 
+        //Configure not enforcing validators so invalid metacards can ingest
+        configureEnforcedMetacardValidators(Collections.singletonList(""));
+
+        // Configure invalid filtering
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+
+        // Configure query to request invalid metacards
+        configureShowInvalidMetacards("true", "true");
+
+        //Configure to filter metacards with validation errors but not validation warnings
         configureFilterInvalidMetacards("true", "false");
 
         String id1 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
         String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1109,15 +1134,19 @@ public class TestCatalog extends AbstractIntegrationTest {
             //clean metacard should be in results but not invalid one
             response.body(not(containsString("error metacard")));
             response.body(containsString("clean metacard"));
+            response.body(containsString("warning metacard"));
 
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
+            deleteMetacard(id3);
             configureEnforcedMetacardValidators(Collections.singletonList(""));
             getServiceManager().stopFeature(true,
                     "catalog-plugin-metacard-validation",
                     "sample-validator");
             configureFilterInvalidMetacardsReset();
+            configureMetacardValidityFilterPlugin(Arrays.asList(""));
+            configureShowInvalidMetacards("true", "false");
         }
     }
 
@@ -1127,6 +1156,16 @@ public class TestCatalog extends AbstractIntegrationTest {
                 "catalog-plugin-metacard-validation",
                 "sample-validator");
 
+        //Configure not enforcing validators so invalid metacards can ingest
+        configureEnforcedMetacardValidators(Collections.singletonList(""));
+
+        // Configure invalid filtering
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+
+        // Configure query to request invalid metacards
+        configureShowInvalidMetacards("true", "true");
+
+        //configure to filter both metacards with validation errors and validation warnings
         configureFilterInvalidMetacards("true", "true");
 
         String id1 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
@@ -1158,6 +1197,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                     "catalog-plugin-metacard-validation",
                     "sample-validator");
             configureFilterInvalidMetacardsReset();
+            configureMetacardValidityFilterPlugin(Arrays.asList(""));
+            configureShowInvalidMetacards("true", "false");
         }
     }
 
@@ -1167,6 +1208,16 @@ public class TestCatalog extends AbstractIntegrationTest {
                 "catalog-plugin-metacard-validation",
                 "sample-validator");
 
+        //Configure not enforcing validators so invalid metacards can ingest
+        configureEnforcedMetacardValidators(Collections.singletonList(""));
+
+        // Configure invalid filtering
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+
+        // Configure query to request invalid metacards
+        configureShowInvalidMetacards("true", "true");
+
+        //Configure to not filter metacard with validation errors or warnings
         configureFilterInvalidMetacards("false", "false");
 
         String id1 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
@@ -1198,6 +1249,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                     "catalog-plugin-metacard-validation",
                     "sample-validator");
             configureFilterInvalidMetacardsReset();
+            configureMetacardValidityFilterPlugin(Arrays.asList(""));
+            configureShowInvalidMetacards("true", "false");
         }
     }
 

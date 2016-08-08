@@ -67,15 +67,14 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
     public void validate(Metacard metacard) throws ValidationException {
         if (checkMetacardForWarningWords(metacard.getTitle())) {
             ValidationExceptionImpl validationException = new ValidationExceptionImpl(
-                    "Metacard title contains one of the warning words: " + validWords);
+                    "Metacard title contains one of the warning words: " + warningWords);
             validationException.setWarnings(Collections.singletonList("sampleWarnings"));
             throw validationException;
         }
         if (checkMetacardForErrorWords(metacard.getTitle())) {
             ValidationExceptionImpl validationException = new ValidationExceptionImpl(
-                    "Metacard title does not contain any of: " + validWords);
+                    "Metacard title contains one of the error words: " + errorWords);
             validationException.setErrors(Collections.singletonList("sampleError"));
-            validationException.setWarnings(Collections.singletonList("sampleWarnings"));
             throw validationException;
         }
         if (!checkMetacardForValidWords(metacard.getTitle())) {

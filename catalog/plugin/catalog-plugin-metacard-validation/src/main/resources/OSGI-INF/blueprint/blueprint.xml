@@ -53,6 +53,8 @@
         <property name="attributeMap">
             <list/>
         </property>
+        <property name="filterErrors" value="true"/>
+        <property name="filterWarnings" value="false"/>
     </bean>
 
 
