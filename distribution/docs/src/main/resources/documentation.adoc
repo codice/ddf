@@ -160,8 +160,6 @@ include::${project.build.directory}/doc-contents/_contents/_endpoints/available-
 // endpoint details
 include::${project.build.directory}/doc-contents/_contents/_endpoints/application-endpoint-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_endpoints/catalog-endpoint-contents.adoc[]
-
 include::${project.build.directory}/doc-contents/_contents/_endpoints/cometd-endpoint-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_endpoints/content-endpoint-contents.adoc[]
@@ -194,6 +192,14 @@ include::${project.build.directory}/doc-contents/_contents/_endpoints/endpoint-u
 include::${project.build.directory}/doc-contents/_contents/_endpoints/compression-services-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_endpoints/developing-endpoints-contents.adoc[]
+
+== Data and Metadata
+
+include::${project.build.directory}/doc-contents/_contents/_data/data-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_data/data-migration-contents.adoc[]
+
+//TODO: NEUTRAL TAXONOMY SECTION??
 
 == Transformers and Supported Formats
 
@@ -262,6 +268,21 @@ include::${project.build.directory}/doc-contents/_contents/_transformers/xslt-re
 include::${project.build.directory}/doc-contents/_contents/_transformers/zip-compression-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_transformers/developing-query-response-transformers-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_transformers/mime-type-mapper-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_transformers/mime-type-mappers-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_transformers/ddf-mime-type-mapper-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_transformers/mime-type-resolver-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_transformers/mime-type-resolvers-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_transformers/tika-mime-type-resolver-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_transformers/custom-mime-type-resolver-contents.adoc[]
+
 ////
 include::${project.build.directory}/doc-contents/_contents/file-types-supported-contents.adoc[]
 ////
@@ -448,12 +469,6 @@ include::${project.build.directory}/doc-contents/_contents/_plugins/developing-p
 
 include::${project.build.directory}/doc-contents/_contents/_operations/operations-intro-contents.adoc[]
 
-== Data and Metadata
-
-include::${project.build.directory}/doc-contents/_contents/_data/data-intro-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_data/data-migration-contents.adoc[]
-
 == Eventing
 
 include::${project.build.directory}/doc-contents/_contents/_eventing/eventing-intro-contents.adoc[]
@@ -592,37 +607,23 @@ include::${project.build.directory}/doc-contents/_contents/_action-framework/act
 
 include::${project.build.directory}/doc-contents/_contents/_action-framework/developing-action-components-contents.adoc[]
 
-== Web Contexts
+== Web Applications
 
-include::${project.build.directory}/doc-contents/_contents/_contexts/web-contexts-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_web-applications/web-applications-intro-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_contexts/web-contexts-admin-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_web-applications/web-applications-admin-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_contexts/web-contexts-users-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_web-applications/web-applications-users-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_contexts/landing-page-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_web-applications/landing-page-contents.adoc[]
 
 == Input / Output Formats
 
 include::${project.build.directory}/doc-contents/_contents/_formats/formats-intro-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_formats/mime-type-mapper-intro-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_formats/mime-type-mappers-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_formats/ddf-mime-type-mapper-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_formats/mime-type-resolver-intro-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_formats/mime-type-resolvers-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_formats/tika-mime-type-resolver-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_formats/custom-mime-type-resolver-contents.adoc[]
-
 include::${project.build.directory}/doc-contents/_contents/_formats/file-types-supported-contents.adoc[]
 
-= Developing ${branding}
+= Extending ${branding}
 
 include::${project.build.directory}/doc-contents/_contents/_developing/developing-intro-contents.adoc[]
 
