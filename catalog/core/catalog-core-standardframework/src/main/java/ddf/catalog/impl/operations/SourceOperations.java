@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.impl;
+package ddf.catalog.impl.operations;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.ContentType;
+import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.SourceInfoRequest;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.SourceInfoResponseImpl;
@@ -52,14 +53,14 @@ public class SourceOperations extends DescribableImpl {
         this.frameworkProperties = frameworkProperties;
     }
 
-    void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
+    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
         this.catalogSupplier = catalogSupplier;
     }
 
     //
     // Delegate methods
     //
-    Set<String> getSourceIds(boolean fanoutEnabled) {
+    public Set<String> getSourceIds(boolean fanoutEnabled) {
         Set<String> ids = new TreeSet<>();
         ids.add(getId());
         if (!fanoutEnabled) {
@@ -69,7 +70,8 @@ public class SourceOperations extends DescribableImpl {
         return ids;
     }
 
-    SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest, boolean fanoutEnabled)
+    public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest,
+            boolean fanoutEnabled)
             throws SourceUnavailableException {
         SourceInfoResponse response;
         Set<SourceDescriptor> sourceDescriptors;
