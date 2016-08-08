@@ -36,7 +36,7 @@ public class XstreamTreeWriter {
 
     void startVisit(final String node) {
         if (!isAttributeNode(node)) {
-            writer.startNode(node);
+            writer.startNode(normalizeNode(node));
         }
 
         Path currentPath = tracker.getPath();
@@ -61,6 +61,10 @@ public class XstreamTreeWriter {
             }
         }
 
+    }
+
+    private String normalizeNode(String node) {
+        return node.replaceAll("\\[[0-9]+\\]", "");
     }
 
     void endVisit(final String node) {
