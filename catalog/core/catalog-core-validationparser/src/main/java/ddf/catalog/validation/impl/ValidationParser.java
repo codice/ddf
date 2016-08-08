@@ -314,7 +314,11 @@ public class ValidationParser implements ArtifactInstaller {
         }
         case "enumeration": {
             Set<String> values = new HashSet<>(validator.arguments);
-            return new EnumerationValidator(values);
+            return new EnumerationValidator(values, false);
+        }
+        case "enumerationignorecase": {
+            Set<String> values = new HashSet<>(validator.arguments);
+            return new EnumerationValidator(values, true);
         }
         case "range": {
             BigDecimal min = new BigDecimal(validator.arguments.get(0));

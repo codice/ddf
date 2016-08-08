@@ -1731,6 +1731,8 @@ The `validator` key must have a value of one of the following:
  ** (3) [number (decimal or integer): inclusive lower bound, number (decimal or integer): inclusive upper bound, decimal number: epsilon (the maximum tolerable error on either side of the range)]
  - `enumeration`
  * `arguments`: (unlimited) [list of strings: each argument is one case-sensitive, valid enumeration value]
+  - `enumerationignorecase`
+  * `arguments`: (unlimited) [list of strings: each argument is one case-insensitive, valid enumeration value]
 
 Examples:
 [source, json]
@@ -1775,6 +1777,12 @@ Examples:
             {
                 "validator": "enumeration",
                 "arguments": ["1080p", "1080i", "720p"]
+            }
+        ],
+        "type": [
+            {
+                "validator": "enumerationignorecase",
+                "arguments": ["Document", "Image", "Video"]
             }
         ]
     }
