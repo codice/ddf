@@ -1,6 +1,6 @@
 ==== Metacard Validity Marker
 
-The Metacard Validity Marker Pre-Ingest plugin modifies the metacards contained in `CreateRequest`s and `UpdateRequest`s.
+The Metacard Validity Marker Pre-Ingest plugin modifies the metacards contained in ``CreateRequest``s and ``UpdateRequest``s.
 
 The plugin runs each metacard in the `CreateRequest` and `UpdateRequest` against each registered `MetacardValidator` service.
 
