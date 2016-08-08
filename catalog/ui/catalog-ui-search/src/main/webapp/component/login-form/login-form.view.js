@@ -50,6 +50,7 @@ define([
         login: function (e) {
             var view = this;
             this.deleteCookie();
+            e.preventDefault(); // prevent form submission
 
             $.ajax({
                 type: 'GET',
