@@ -287,6 +287,30 @@ public class MetacardValidityMarkerPluginTest {
         assertThat(plugin.getEnforcedMetacardValidators(), is(empty()));
     }
 
+    @Test
+    public void testEnforceWarningsOnly() throws Exception {
+        markerPluginResponseHelper(getMockFailingValidatorWithWarnings(), false, true, 0);
+        markerPluginResponseHelper(getMockFailingValidatorWithErrors(), false, true, 2);
+    }
+
+    @Test
+    public void testEnforceErrorsOnly() throws Exception {
+        markerPluginResponseHelper(getMockFailingValidatorWithErrors(), true, false, 0);
+        markerPluginResponseHelper(getMockFailingValidatorWithWarnings(), true, false, 2);
+    }
+
+    @Test
+    public void testEnforceErrorsAndWarnings() throws Exception {
+        markerPluginResponseHelper(getMockFailingValidatorWithErrorsAndWarnings(), true, true, 0);
+    }
+
+    @Test
+    public void testNoEnforcement() throws Exception {
+        markerPluginResponseHelper(getMockFailingValidatorWithErrorsAndWarnings(), false, false, 2);
+        markerPluginResponseHelper(getMockFailingValidatorWithWarnings(), false, false, 2);
+        markerPluginResponseHelper(getMockFailingValidatorWithErrors(), false, false, 2);
+    }
+
     private Metacard metacardWithTitle(String title) {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setTitle(title);
@@ -351,9 +375,11 @@ public class MetacardValidityMarkerPluginTest {
 
     private MetacardValidator getMockEnforcedFailingValidatorWithId(String id)
             throws ValidationException {
+        ValidationException validationException = mock(ValidationException.class);
+        when(validationException.getErrors()).thenReturn(Collections.singletonList(SAMPLE_ERROR));
         MetacardValidator metacardValidator = mock(MetacardValidator.class,
                 withSettings().extraInterfaces(Describable.class));
-        doThrow(mock(ValidationException.class)).when(metacardValidator)
+        doThrow(validationException).when(metacardValidator)
                 .validate(argThat(isMetacardWithTitle(FIRST)));
         when(((Describable) metacardValidator).getId()).thenReturn(id);
         return metacardValidator;
@@ -369,7 +395,9 @@ public class MetacardValidityMarkerPluginTest {
 
     private MetacardValidator getMockFailingValidatorNoDescribable() throws ValidationException {
         MetacardValidator metacardValidator = mock(MetacardValidator.class);
-        doThrow(mock(ValidationException.class)).when(metacardValidator)
+        ValidationException validationException = mock(ValidationException.class);
+        when(validationException.getErrors()).thenReturn(Collections.singletonList(SAMPLE_ERROR));
+        doThrow(validationException).when(metacardValidator)
                 .validate(argThat(isMetacardWithTitle(FIRST)));
         return metacardValidator;
     }
@@ -386,5 +414,35 @@ public class MetacardValidityMarkerPluginTest {
             return ((Metacard) o).getTitle()
                     .equals(title);
         }
+    }
+
+    private void markerPluginResponseHelper(MetacardValidator validator, boolean enforceErrors,
+            boolean enforceWarnings, int numNotFiltered) throws Exception {
+        String validatorName;
+        if (validator instanceof Describable) {
+            validatorName = ((Describable) validator).getId();
+        } else {
+            validatorName = validator.getClass()
+                    .getCanonicalName();
+        }
+
+        metacardValidators.add(validator);
+        enforcedMetacardValidators.add(validatorName);
+
+        plugin.setMetacardValidators(metacardValidators);
+        plugin.setEnforcedMetacardValidators(enforcedMetacardValidators);
+
+        plugin.setEnforceErrors(enforceErrors);
+        plugin.setEnforceWarnings(enforceWarnings);
+
+        CreateRequest createRequest = plugin.process(getMockCreateRequest());
+        List<Metacard> createdMetacards = createRequest.getMetacards();
+        assertThat(createdMetacards.size(), is(numNotFiltered));
+
+        //reset
+        metacardValidators.remove(validator);
+        enforcedMetacardValidators.remove(validatorName);
+        plugin.setEnforceErrors(true);
+        plugin.setEnforceWarnings(false);
     }
 }
