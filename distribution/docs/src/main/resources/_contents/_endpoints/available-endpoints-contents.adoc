@@ -1,39 +1,21 @@
 
 === Included Endpoints
 
-<<_application_upload_endpoint,Application Upload Endpoint>>:: This endpoint uploads new/upgraded applications to the system. The Application endpoint is available at \https://<${secure_url}/services/application.
-
-<<_catalog_endpoint,Catalog Endpoint>>:: _implements_.
-
+<<_application_upload_endpoint,Application Upload Endpoint>>:: This endpoint uploads new/upgraded applications to the system.
 <<_cometd_endpoint,CometD Endpoint>>:: _implements [CometD]_. The CometD endpoint enables asychronous search capabilties.
-
 <<_content_endpoint,Content Endpoint>>:: The Content endpoint provides the capability to read, create, update, and delete content in the Content Repository, as well as create, update, and delete metacards in the Metadata Catalog (MDC).
-
-<<_csw_endpoint,CSW Endpoint>>:: _implements http://www.opengeospatial.org/standards/cat2eoext4ebrim[CSW standard], [XML-RPC], [ISO 19115/ISO191119]_. The CSW endpoint enables a client to search collections of descriptive information (metadata) about geospatial data and services. The CSW endpoint is accessible from \http://<${secure_url}/services/csw.
-
-<<_csw_subscription_endpoint,CSW Subscription Endpoint>>:: _implements [CSW]. The CSW Subscription Endpoint manages uses CSW to enable managing subscriptions. The CSW Subscription Endpoint is accessible from \${secure_url}/services/
-
+<<_csw_endpoint,CSW Endpoint>>:: _implements http://www.opengeospatial.org/standards/cat2eoext4ebrim[Catalogue Services for Web (CSW) standard], http://xmlrpc.scripting.com/spec.html[XML-RPC], https://portal.opengeospatial.org/modules/admin/license_agreement.php?suppressHeaders=0&access_license_id=3&target=http://portal.opengeospatial.org/files/%3fartifact_id=12597[ISO 19115/ISO191119]_. The CSW endpoint enables a client to search collections of descriptive information (metadata) about geospatial data and services.
+<<_csw_subscription_endpoint,CSW Subscription Endpoint>>:: _implements _implements http://www.opengeospatial.org/standards/cat2eoext4ebrim[CSW]. The CSW Subscription Endpoint manages uses CSW to enable managing subscriptions.
 <<_ftp_endpoint,FTP Endpoint>>:: _implements https://tools.ietf.org/html/rfc959[FTP]_. The FTP Endpoint provides a method for ingesting files directly into the ${branding} Catalog using the FTP protocol.
-
-<<_geocoder_endpoint,GeoCoderEndpoint>>:: _implements_.
-
-<<_idp_endpoint,IDP Endpoint>>:: _implements [SAML 2.0]
-
-<<_kml_endpoint, KML Endpoint>>:: _implements_. The KML Network Link endpoint allows a user to generate a view-based KML Query Results Network Link. This network link can be opened with Google Earth, establishing a dynamic connection between Google Earth and DDF. the KML Network Link endpoint can be accessed at \${secure_url}/services/catalog/kml.
-
-<<_metrics_endpoint,MetricsEndpoint>>:: *INTERNAL* _implements_
+<<_geocoder_endpoint,GeoCoderEndpoint>>:: _implements_. {Description}
+<<_idp_endpoint,IDP Endpoint>>:: _implements https://www.oasis-open.org/standards#samlv2.0[SAML 2.0] {Description}
+<<_kml_endpoint, KML Endpoint>>:: _implements_. The KML Network Link endpoint allows a user to generate a view-based KML Query Results Network Link. This network link can be opened with Google Earth, establishing a dynamic connection between Google Earth and ${branding}.
+<<_metrics_endpoint,INTERNAL: Metrics Endpoint>>:: _implements_
 The Metrics Endpoint is used by the <<_metrics_collection_application,Metrics Collection Application>> to report on system metrics.
-
-<<_opensearch_endpoint,OpenSearch Endpoint>>:: _implements OpenSearch[JAX-RS], [CDR IPT BrokeredSearch], [CDR IPT OpenSearch], [CDR REST Brokered Search 1.1], [CDR REST Search v3.0], and [OpenSearch]_. The OpenSearch Endpoint provides an endpoint that a client accesses to send query parameters and receive search results. The OpenSearch endpoint is accessible from \${secure_url}/services/catalog/query.
-
-<<_registry_rest_endpoint,Registry REST Endpoint>>:: _implements [CSW], [ebRIM]_
-
-<<_resource_download_endpoint,Resource Download Endpoint>>:: _implements_ The Resource Download Endpoint provides a REST API to trigger downloading resources to the ${branding} cache only. The resource is not returned to the client.
-
+<<_opensearch_endpoint,OpenSearch Endpoint>>:: _implements OpenSearch[JAX-RS], [CDR IPT BrokeredSearch], [CDR IPT OpenSearch], [CDR REST Brokered Search 1.1], [CDR REST Search v3.0], and [OpenSearch]_. The OpenSearch Endpoint provides an endpoint that a client accesses to send query parameters and receive search results.
+<<_registry_rest_endpoint,Registry REST Endpoint>>:: _implements http://www.opengeospatial.org/standards/cat2eoext4ebrim[CSW]_ {Description}
 <<_rest_endpoint,REST Endpoint>>:: _implements [REST]_ https://www.w3.org/2001/sw/wiki/REST[REST specification]. The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. The URL exposing the REST functionality is located at \${secure_url}/services/catalog.
-
-<<_soap_endpoint,SOAP Endpoint>>:: _implements [SOAP]_
-
 <<_wfs_endpoint,WFS EndpointMt>>:: _implements http://www.opengeospatial.org/standards/wfs[WFS specification]_.
-
-<<_whoami_endpoint,WhoAmI Endpoint>>:: example endpoint?
+<<_resource_download_endpoint,EXPERIMENTAL: Resource Download Endpoint>>:: _implements_ The Resource Download Endpoint provides a REST API to trigger downloading resources to the ${branding} cache only. The resource is not returned to the client.
+<<_soap_endpoint,EXAMPLE: SOAP Endpoint>>:: _implements https://www.w3.org/TR/soap/[SOAP]_. Sample implementation of a SOAP endpoint included with the <<_sdk, SDK>>.
+<<_whoami_endpoint,EXAMPLE: WhoAmI Endpoint>>:: Sample endpoint implementation included with the <<_sdk, SDK>>.

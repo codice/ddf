@@ -6,15 +6,13 @@ The Application Upload Endpoint enables uploading new and upgraded applications 
 
 The Application Upload Endpoint is installed by default with a standard installation as part of the ${ddf-admin} application.
 
+===== Application Upload Endpoint
+
+The Application endpoint is available at https://<${secure_url}/services/application.
+
 ===== Configuring Application Upload Endpoint
 
 No configuration necessary.
-
-===== Using Application Upload Endpoint
-
-////
-TBD
-////
 
 ===== Known Issues with Application Endpoint
 

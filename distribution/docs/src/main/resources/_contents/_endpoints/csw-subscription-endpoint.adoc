@@ -1,0 +1,28 @@
+
+==== CSW Subscription Endpoint
+
+The CSW Subscription Endpoint uses CSW to manage subscriptions
+
+===== Installing CSW Subscription Endpoint
+
+The CSW Subscription Endpoint is installed by default with a standard installation in the ${app-name} application.
+The CSW Subscription Endpoint is not installed by default with a standard installation in the ${app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring CSW Subscription Endpoint
+
+None.
+
+===== CSW Subscription Endpoint URL
+
+----
+${secure_url}/path/to/endpoint
+----
+
+{operations}
+
+==== CSW Subscription Endpoint Known Issues
+
+None.

@@ -11,7 +11,7 @@ The CSW Endpoint is installed by default with a standard installation in the ${d
 The CSW endpoint has no configurable properties.
 It can only be installed or uninstalled.
 
-===== Using CSW Endpoint
+===== CSW Endpoint URL
 
 The CSW endpoint is accessible from ${secure_url}/services/csw.
 

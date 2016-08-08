@@ -15,9 +15,8 @@ To install:
 The OpenSearch Endpoint has no configurable properties.
 It can only be installed or uninstalled.
 
-===== Using OpenSearch Endpoint
+===== OpenSearch URL
 
-.OpenSearch Endpoint URL
 ----
 ${secure_url}/services/catalog/query
 ----

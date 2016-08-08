@@ -1,3 +1,4 @@
+
 ==== {endpoint name}
 
 {description}
@@ -14,9 +15,8 @@ To install:
 
 * any applicable configurations
 
-===== Using {endpoint name}
+===== {endpoint name} URL
 
-.{endpoint name} URL
 ----
 ${secure_url}/path/to/endpoint
 ----
