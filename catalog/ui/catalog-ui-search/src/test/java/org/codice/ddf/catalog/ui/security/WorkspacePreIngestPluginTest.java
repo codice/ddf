@@ -79,20 +79,4 @@ public class WorkspacePreIngestPluginTest {
         WorkspacePreIngestPlugin wpip = makePlugin(null, null);
         wpip.process(new CreateRequestImpl(new WorkspaceMetacardImpl()));
     }
-
-    @Test
-    public void testSuccessfulUpdateWithUpdatedOwner() throws Exception {
-        WorkspacePreIngestPlugin wpip = makePlugin();
-
-        WorkspaceMetacardImpl original = new WorkspaceMetacardImpl("id");
-        original.setOwner("me");
-
-        WorkspaceMetacardImpl updated = WorkspaceMetacardImpl.clone(original);
-        updated.setOwner("you");
-
-        wpip.process(update(original, updated));
-
-        assertThat(updated.getOwner(), is(original.getOwner()));
-    }
-
 }

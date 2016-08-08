@@ -35,23 +35,15 @@ import ddf.security.common.audit.SecurityLogger;
 
 public class WorkspacePreIngestPlugin implements PreIngestPlugin {
 
-    /**
-     * Converts a list of Map.Entry into a Map.
-     *
-     * @param request
-     * @return
-     */
-    private static Map<String, Metacard> getUpdatedMetacards(UpdateRequest request) {
-        return request.getUpdates()
-                .stream()
-                .collect(Collectors.toMap(entry -> (String) entry.getKey(), Map.Entry::getValue));
-    }
-
-    private static List<Metacard> getPreviousMetacards(UpdateRequest request) {
+    private static Map<String, WorkspaceMetacardImpl> getPreviousWorkspaces(UpdateRequest request) {
         OperationTransaction operationTransaction = (OperationTransaction) request.getProperties()
                 .get(Constants.OPERATION_TRANSACTION_KEY);
 
-        return operationTransaction.getPreviousStateMetacards();
+        return operationTransaction.getPreviousStateMetacards()
+                .stream()
+                .filter(WorkspaceMetacardImpl::isWorkspaceMetacard)
+                .map(WorkspaceMetacardImpl::from)
+                .collect(Collectors.toMap(Metacard::getId, m -> m));
     }
 
     protected String getSubjectEmail() {
@@ -67,7 +59,7 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
     }
 
     /**
-     * Attaches an owner to a workspace metcard on initial creation.
+     * Ensures a workspace has an owner.
      *
      * @param request the {@link CreateRequest} to process
      * @return
@@ -84,6 +76,7 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
                 .stream()
                 .filter(WorkspaceMetacardImpl::isWorkspaceMetacard)
                 .map(WorkspaceMetacardImpl::from)
+                .filter(workspace -> StringUtils.isEmpty(workspace.getOwner()))
                 .collect(Collectors.toList());
 
         if (!workspaces.isEmpty() && StringUtils.isEmpty(email)) {
@@ -99,7 +92,7 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
     }
 
     /**
-     * Ensures the owner doesn't change.
+     * Ensures the owner attribute is always present.
      *
      * @param request the {@link UpdateRequest} to process
      * @return
@@ -110,24 +103,16 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
     public UpdateRequest process(UpdateRequest request)
             throws PluginExecutionException, StopProcessingException {
 
-        Map<String, Metacard> newMetacards = getUpdatedMetacards(request);
+        Map<String, WorkspaceMetacardImpl> previous = getPreviousWorkspaces(request);
 
-        getPreviousMetacards(request).stream()
+        request.getUpdates()
+                .stream()
+                .map(Map.Entry::getValue)
                 .filter(WorkspaceMetacardImpl::isWorkspaceMetacard)
                 .map(WorkspaceMetacardImpl::from)
-                .forEach(previous -> {
-                    WorkspaceMetacardImpl updated = WorkspaceMetacardImpl.from(newMetacards.get(
-                            previous.getId()));
-
-                    String oldOwner = previous.getOwner();
-                    String newOwner = updated.getOwner();
-
-                    if (!StringUtils.isEmpty(newOwner) && !newOwner.equals(oldOwner)) {
-                        warn("Subject is trying to change the owner of a workspace metacard.");
-                    }
-
-                    updated.setOwner(oldOwner);
-                });
+                .filter(workspace -> StringUtils.isEmpty(workspace.getOwner()))
+                .forEach(workspace -> workspace.setOwner(previous.get(workspace.getId())
+                        .getOwner()));
 
         return request;
     }

@@ -180,24 +180,4 @@ public class WorkspaceAccessPluginTest {
 
         accessPlugin.processPreUpdate(update, ImmutableMap.of(id, before));
     }
-
-    @Test(expected = StopProcessingException.class)
-    public void testFailToSetOwnerRole() throws Exception {
-        String id = "0";
-
-        WorkspaceMetacardImpl before = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
-                id,
-                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
-                "user1"));
-
-        WorkspaceMetacardImpl after = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
-                id,
-                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
-                "user2"));
-
-        UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));
-
-        accessPlugin.processPreUpdate(update, ImmutableMap.of(id, before));
-    }
-
 }

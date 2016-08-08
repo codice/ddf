@@ -68,10 +68,8 @@
         <bean class="org.codice.ddf.catalog.ui.security.WorkspacePreIngestPlugin"/>
     </service>
 
-    <bean id="workspaceAccessPlugin" class="org.codice.ddf.catalog.ui.security.WorkspaceAccessPlugin">
-        <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.ui.security"
-                update-strategy="container-managed"/>
+    <bean id="workspaceAccessPlugin"
+          class="org.codice.ddf.catalog.ui.security.WorkspaceAccessPlugin">
     </bean>
 
     <service interface="ddf.catalog.plugin.AccessPlugin">
@@ -83,7 +81,6 @@
             <argument ref="workspaceTransformer"/>
         </bean>
     </service>
-
 
     <service interface="ddf.security.policy.extension.PolicyExtension">
         <bean class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension"/>
@@ -223,7 +220,8 @@
         </bean>
     </service>
 
-    <reference id="workspacePersistentStore" availability="optional" interface="org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore"/>
+    <reference id="workspacePersistentStore" availability="optional"
+               interface="org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore"/>
 
     <bean id="emailNotifierService"
           class="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">
@@ -282,6 +280,7 @@
         </argument>
     </bean>
 
-    <service ref="workspaceQueryService" interface="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"/>
+    <service ref="workspaceQueryService"
+             interface="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"/>
 
 </blueprint>

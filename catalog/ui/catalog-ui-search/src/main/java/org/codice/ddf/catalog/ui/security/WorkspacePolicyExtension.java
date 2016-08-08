@@ -13,17 +13,22 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import static java.util.stream.Stream.concat;
+
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.apache.shiro.authz.Permission;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
-import ddf.security.SubjectUtils;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
@@ -31,56 +36,56 @@ import ddf.security.policy.extension.PolicyExtension;
 
 public class WorkspacePolicyExtension implements PolicyExtension {
 
-    public static final Set<String> CLAIMS = ImmutableSet.of(Constants.ROLES_CLAIM_URI,
-            Constants.EMAIL_ADDRESS_CLAIM_URI);
-
-    /**
-     * Find a permission from a list of permissions by key.
-     *
-     * @param permissions
-     * @return
-     */
-    private static Optional<KeyValuePermission> find(List<Permission> permissions, String key) {
-        return permissions.stream()
-                .map(permission -> (KeyValuePermission) permission)
-                .filter(permission -> permission.getKey()
-                        .equals(key))
-                .findFirst();
+    private Stream<KeyValuePermission> injectedPermissions() {
+        return ImmutableList.of(new KeyValuePermission("role", ImmutableSet.of("admin")))
+                .stream();
     }
 
-    protected String getSystemEmail() {
-        return Security.runAsAdmin(() -> SubjectUtils.getEmailAddress(Security.getInstance()
-                .getSystemSubject()));
+    private Map<String, String> keyMapping = ImmutableMap.of("admin",
+            Constants.ROLES_CLAIM_URI,
+            WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+            Constants.EMAIL_ADDRESS_CLAIM_URI,
+            "email",
+            Constants.EMAIL_ADDRESS_CLAIM_URI,
+            "role",
+            Constants.ROLES_CLAIM_URI);
+
+    private static <T> Predicate<T> not(Predicate<T> p) {
+        return (o) -> !p.test(o);
     }
 
-    private boolean isSystem(List<Permission> permissions) {
-        Optional<KeyValuePermission> subjectEmail = find(permissions,
-                Constants.EMAIL_ADDRESS_CLAIM_URI);
+    private static Predicate<KeyValuePermission> byKeys(Set<String> keys) {
+        return permission -> keys.contains(permission.getKey());
+    }
 
-        if (subjectEmail.isPresent()) {
-            return subjectEmail.get()
-                    .getValues()
-                    .iterator()
-                    .next()
-                    .equals(getSystemEmail());
-        }
-
-        return false;
+    private static Function<KeyValuePermission, KeyValuePermission> remapKeys(
+            Map<String, String> mapping) {
+        return permission -> new KeyValuePermission(mapping.get(permission.getKey()),
+                permission.getValues());
     }
 
     @Override
-    public KeyValueCollectionPermission isPermittedMatchAll(
-            CollectionPermission subjectAllCollection,
-            KeyValueCollectionPermission matchAllCollection) {
-        return matchAllCollection;
-    }
+    public KeyValueCollectionPermission isPermittedMatchAll(CollectionPermission subject,
+            KeyValueCollectionPermission match) {
 
-    private List<KeyValuePermission> removePermissions(List<Permission> permissions,
-            Set<String> keys) {
-        return permissions.stream()
-                .map(permission -> (KeyValuePermission) permission)
-                .filter(permission -> !keys.contains(permission.getKey()))
+        List<KeyValuePermission> permissions = match.getPermissionList()
+                .stream()
+                .filter(p -> p instanceof KeyValuePermission)
+                .map(p -> (KeyValuePermission) p)
                 .collect(Collectors.toList());
+
+        Stream<KeyValuePermission> stream = concat(injectedPermissions(), permissions.stream());
+
+        boolean matched = stream.filter(byKeys(keyMapping.keySet()))
+                .map(remapKeys(keyMapping))
+                .filter(subject::implies)
+                .findFirst()
+                .isPresent();
+
+        return new KeyValueCollectionPermission(match.getAction(),
+                permissions.stream()
+                        .filter(matched ? not(byKeys(keyMapping.keySet())) : p -> true)
+                        .collect(Collectors.toList()));
     }
 
     /**
@@ -99,26 +104,6 @@ public class WorkspacePolicyExtension implements PolicyExtension {
     @Override
     public KeyValueCollectionPermission isPermittedMatchOne(CollectionPermission subject,
             KeyValueCollectionPermission matchOne) {
-        List<Permission> permissions = matchOne.getPermissionList();
-
-        if (isSystem(subject.getPermissionList())) {
-            return new KeyValueCollectionPermission(matchOne.getAction(),
-                    removePermissions(permissions, CLAIMS));
-        }
-
-        boolean isImplied = CLAIMS.stream()
-                .map(claim -> find(permissions, claim))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .filter(subject::implies)
-                .findFirst()
-                .isPresent();
-
-        if (isImplied) {
-            return new KeyValueCollectionPermission(matchOne.getAction(),
-                    removePermissions(permissions, CLAIMS));
-        }
-
         return matchOne;
     }
 }

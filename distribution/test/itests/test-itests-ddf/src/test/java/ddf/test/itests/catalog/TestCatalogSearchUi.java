@@ -135,6 +135,18 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testGuestCanCreateWorkspacesForOthers() {
+        Map<String, String> workspace = ImmutableMap.of("title", "my workspace", "owner", "a@b.c");
+        Response res = expect(asGuest().body(stringify(workspace)), 201).post(api());
+
+        Map body = parse(res);
+        String id = (String) body.get("id");
+        assertNotNull(id);
+
+        ids.add(id);
+    }
+
+    @Test
     public void testAdminCanCreateWorkspace() {
         Map<String, String> workspace = ImmutableMap.of("title", "my workspace");
         Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());

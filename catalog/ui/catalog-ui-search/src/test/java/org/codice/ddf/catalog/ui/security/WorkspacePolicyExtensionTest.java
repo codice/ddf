@@ -36,10 +36,8 @@ import ddf.security.policy.extension.PolicyExtension;
 
 public class WorkspacePolicyExtensionTest {
 
-    private static final String SYSTEM_EMAIL = "system@localhost";
-
     private static final Permission SYSTEM = makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
-            ImmutableSet.of(SYSTEM_EMAIL));
+            ImmutableSet.of("system@localhost"));
 
     private static final Permission ADMIN = makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
             ImmutableSet.of("admin@localhost"));
@@ -48,27 +46,21 @@ public class WorkspacePolicyExtensionTest {
 
     private static final Permission RANDOM = makePermission("random", VALUES);
 
-    private static final Permission ROLES = makePermission(Constants.ROLES_CLAIM_URI, VALUES);
+    private static final Permission ROLES = makePermission("role", VALUES);
 
-    private static final Permission EMAILS = makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
-            VALUES);
+    private static final Permission EMAILS = makePermission("email", VALUES);
 
     private PolicyExtension extension;
 
     private CollectionPermission subject;
 
-    private KeyValueCollectionPermission matchOne;
+    private KeyValueCollectionPermission match;
 
     @Before
     public void setUp() {
-        extension = new WorkspacePolicyExtension() {
-            @Override
-            protected String getSystemEmail() {
-                return SYSTEM_EMAIL;
-            }
-        };
+        extension = new WorkspacePolicyExtension();
         subject = mock(CollectionPermission.class);
-        matchOne = mock(KeyValueCollectionPermission.class);
+        match = mock(KeyValueCollectionPermission.class);
     }
 
     private static KeyValuePermission makePermission(String key, Set<String> values) {
@@ -84,10 +76,10 @@ public class WorkspacePolicyExtensionTest {
     public void testIsPermittedMatchAllPassThrough() {
         List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
 
-        doReturn(before).when(matchOne)
+        doReturn(before).when(match)
                 .getPermissionList();
 
-        List<Permission> after = extension.isPermittedMatchAll(subject, matchOne)
+        List<Permission> after = extension.isPermittedMatchAll(subject, match)
                 .getPermissionList();
 
         assertThat(after, is(before));
@@ -97,13 +89,16 @@ public class WorkspacePolicyExtensionTest {
     public void testShouldRemoveRolesAndEmailsWhenSystem() {
         List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
 
-        doReturn(before).when(matchOne)
+        doReturn(before).when(match)
                 .getPermissionList();
 
         doReturn(ImmutableList.of(SYSTEM)).when(subject)
                 .getPermissionList();
 
-        List<Permission> after = extension.isPermittedMatchOne(subject, matchOne)
+        doReturn(true).when(subject)
+                .implies(any(Permission.class));
+
+        List<Permission> after = extension.isPermittedMatchAll(subject, match)
                 .getPermissionList();
 
         assertThat(after, is(ImmutableList.of(RANDOM)));
@@ -113,7 +108,7 @@ public class WorkspacePolicyExtensionTest {
     public void testShouldRemoveRolesAndEmailsWhenAnyImplied() {
         List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
 
-        doReturn(before).when(matchOne)
+        doReturn(before).when(match)
                 .getPermissionList();
 
         doReturn(ImmutableList.of(ADMIN)).when(subject)
@@ -122,7 +117,7 @@ public class WorkspacePolicyExtensionTest {
         doReturn(true).when(subject)
                 .implies(any(Permission.class));
 
-        List<Permission> after = extension.isPermittedMatchOne(subject, matchOne)
+        List<Permission> after = extension.isPermittedMatchAll(subject, match)
                 .getPermissionList();
 
         assertThat(after, is(ImmutableList.of(RANDOM)));
@@ -132,7 +127,7 @@ public class WorkspacePolicyExtensionTest {
     public void testShouldKeepRolesAndEmailsWhenNoneImplied() {
         List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
 
-        doReturn(before).when(matchOne)
+        doReturn(before).when(match)
                 .getPermissionList();
 
         doReturn(ImmutableList.of(ADMIN)).when(subject)
@@ -141,7 +136,7 @@ public class WorkspacePolicyExtensionTest {
         doReturn(false).when(subject)
                 .implies(any(Permission.class));
 
-        List<Permission> after = extension.isPermittedMatchOne(subject, matchOne)
+        List<Permission> after = extension.isPermittedMatchAll(subject, match)
                 .getPermissionList();
 
         assertThat(after, is(before));
