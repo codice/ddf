@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -38,6 +38,10 @@ import ddf.catalog.plugin.impl.PolicyResponseImpl;
 public class MetacardValidityFilterPlugin implements PolicyPlugin {
 
     private static Map<String, List<String>> attributeMap = new HashMap<>();
+
+    private boolean filterErrors = true;
+
+    private boolean filterWarnings = false;
 
     public Map<String, List<String>> getAttributeMap() {
         return attributeMap;
@@ -104,20 +108,21 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
         Metacard metacard = input.getMetacard();
         HashMap<String, Set<String>> securityMap = new HashMap<>();
 
-        if ((metacard.getAttribute(Validation.VALIDATION_ERRORS) != null && metacard.getAttribute(
-                Validation.VALIDATION_ERRORS)
-                .getValues() != null) || (
-                metacard.getAttribute(Validation.VALIDATION_WARNINGS) != null &&
-                        metacard.getAttribute(Validation.VALIDATION_WARNINGS)
-                                .getValues() != null)) {
+        if (isMarkedForFilter(filterErrors, metacard, Validation.VALIDATION_ERRORS)
+                || isMarkedForFilter(filterWarnings, metacard, Validation.VALIDATION_WARNINGS)) {
             for (Map.Entry<String, List<String>> attributeMapping : attributeMap.entrySet()) {
                 securityMap.put(attributeMapping.getKey(),
                         new HashSet<>(attributeMapping.getValue()));
             }
-
         }
 
         return new PolicyResponseImpl(new HashMap<>(), securityMap);
+    }
+
+    private boolean isMarkedForFilter(boolean filterFlag, Metacard metacard, String attribute) {
+        return filterFlag && metacard.getAttribute(attribute) != null && metacard.getAttribute(
+                attribute)
+                .getValues() != null;
     }
 
     @Override
@@ -130,5 +135,21 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
     public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
             throws StopProcessingException {
         return new PolicyResponseImpl();
+    }
+
+    public void setFilterErrors(boolean filterErrors) {
+        this.filterErrors = filterErrors;
+    }
+
+    public boolean getFilterErrors() {
+        return filterErrors;
+    }
+
+    public void setFilterWarnings(boolean filterWarnings) {
+        this.filterWarnings = filterWarnings;
+    }
+
+    public boolean getFilterWarnings() {
+        return filterWarnings;
     }
 }

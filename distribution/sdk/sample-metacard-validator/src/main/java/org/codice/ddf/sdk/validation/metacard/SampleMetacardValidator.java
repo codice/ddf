@@ -26,7 +26,11 @@ import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
 
 public class SampleMetacardValidator implements MetacardValidator, Describable {
-    private Set<String> validWords = Sets.newHashSet("test", "default", "sample");
+    private Set<String> validWords = Sets.newHashSet("clean", "test", "default", "sample");
+
+    private Set<String> warningWords = Sets.newHashSet("warning");
+
+    private Set<String> errorWords = Sets.newHashSet("error");
 
     private String id = "sample-validator";
 
@@ -61,7 +65,19 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
 
     @Override
     public void validate(Metacard metacard) throws ValidationException {
-        if (!checkMetacard(metacard.getTitle())) {
+        if (checkMetacardForWarningWords(metacard.getTitle())) {
+            ValidationExceptionImpl validationException = new ValidationExceptionImpl(
+                    "Metacard title contains one of the warning words: " + warningWords);
+            validationException.setWarnings(Collections.singletonList("sampleWarnings"));
+            throw validationException;
+        }
+        if (checkMetacardForErrorWords(metacard.getTitle())) {
+            ValidationExceptionImpl validationException = new ValidationExceptionImpl(
+                    "Metacard title contains one of the error words: " + errorWords);
+            validationException.setErrors(Collections.singletonList("sampleError"));
+            throw validationException;
+        }
+        if (!checkMetacardForValidWords(metacard.getTitle())) {
             ValidationExceptionImpl validationException = new ValidationExceptionImpl(
                     "Metacard title does not contain any of: " + validWords);
             validationException.setErrors(Collections.singletonList("sampleError"));
@@ -70,8 +86,18 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
         }
     }
 
-    private boolean checkMetacard(String title) {
+    private boolean checkMetacardForValidWords(String title) {
         return validWords.stream()
+                .anyMatch(title::contains);
+    }
+
+    private boolean checkMetacardForWarningWords(String title) {
+        return warningWords.stream()
+                .anyMatch(title::contains);
+    }
+
+    private boolean checkMetacardForErrorWords(String title) {
+        return errorWords.stream()
                 .anyMatch(title::contains);
     }
 
@@ -81,7 +107,27 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
         }
     }
 
+    public void setWarningWords(Set<String> warningWords) {
+        if (warningWords != null) {
+            this.warningWords = warningWords;
+        }
+    }
+
+    public void setErrorWords(Set<String> errorWords) {
+        if (errorWords != null) {
+            this.errorWords = errorWords;
+        }
+    }
+
     public Set<String> getValidWords() {
         return validWords;
+    }
+
+    public Set<String> getWarningWords() {
+        return warningWords;
+    }
+
+    public Set<String> getErrorWords() {
+        return errorWords;
     }
 }

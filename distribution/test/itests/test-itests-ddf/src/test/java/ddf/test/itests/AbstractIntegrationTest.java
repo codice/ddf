@@ -611,6 +611,22 @@ public abstract class AbstractIntegrationTest {
         config.update(properties);
     }
 
+    protected void configureFilterInvalidMetacards(String filterErrors, String filterWarnings)
+            throws IOException {
+        Configuration config = configAdmin.getConfiguration(
+                "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin",
+                null);
+
+        Dictionary properties = new Hashtable<>();
+        properties.put("filterErrors", filterErrors);
+        properties.put("filterWarnings", filterWarnings);
+        config.update(properties);
+    }
+
+    protected void configureFilterInvalidMetacardsReset() throws IOException {
+        configureFilterInvalidMetacards("true", "false");
+    }
+
     /**
      * Allows extending classes to add any custom options to the configuration.
      */

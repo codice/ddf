@@ -15,7 +15,6 @@ package ddf.catalog.metacard.validation;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +34,6 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.plugin.PolicyResponse;
-import ddf.catalog.plugin.StopProcessingException;
 
 public class MetacardValidityFilterPluginTest {
 
@@ -57,91 +55,6 @@ public class MetacardValidityFilterPluginTest {
                 .contains("test1"), is(true));
         assertThat(assertMap.get("sample")
                 .contains("test2"), is(true));
-
-    }
-
-    @Test
-    public void testValidMetacards() {
-        Result result = mock(Result.class);
-        Metacard metacard = getValidMetacard();
-        when(result.getMetacard()).thenReturn(metacard);
-
-        try {
-            PolicyResponse response = metacardValidityFilterPlugin.processPostQuery(result,
-                    new HashMap<>());
-            assertThat(response.itemPolicy()
-                    .size(), is(0));
-        } catch (StopProcessingException e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testInvalidMetacards() {
-        List<String> attributeMapping = Collections.singletonList("sample=test1,test2");
-        metacardValidityFilterPlugin.setAttributeMap(attributeMapping);
-        Result result = mock(Result.class);
-        Metacard metacard = getInvalidMetacard();
-
-        when(result.getMetacard()).thenReturn(metacard);
-
-        try {
-            PolicyResponse response = metacardValidityFilterPlugin.processPostQuery(result,
-                    new HashMap<>());
-            assertThat(response.itemPolicy()
-                    .get("sample")
-                    .contains("test1"), is(true));
-        } catch (StopProcessingException e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testNullMetacard() {
-        List<String> attributeMapping = Collections.singletonList("sample=test1,test2");
-        metacardValidityFilterPlugin.setAttributeMap(attributeMapping);
-        Result result = mock(Result.class);
-
-        when(result.getMetacard()).thenReturn(null);
-        try {
-            PolicyResponse response = metacardValidityFilterPlugin.processPostQuery(result,
-                    new HashMap<>());
-            assertThat(response.itemPolicy()
-                    .isEmpty(), is(true));
-
-        } catch (StopProcessingException e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testNullResults() {
-        List<String> attributeMapping = Collections.singletonList("sample=test1,test2");
-        metacardValidityFilterPlugin.setAttributeMap(attributeMapping);
-
-        try {
-            PolicyResponse response = metacardValidityFilterPlugin.processPostQuery(null,
-                    new HashMap<>());
-            assertThat(response.itemPolicy()
-                    .isEmpty(), is(true));
-
-        } catch (StopProcessingException e) {
-            fail();
-        }
-    }
-
-    private MetacardImpl getValidMetacard() {
-        return new MetacardImpl();
-
-    }
-
-    private MetacardImpl getInvalidMetacard() {
-        MetacardImpl returnMetacard = new MetacardImpl();
-        returnMetacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
-                Collections.singletonList("sample-validator")));
-        returnMetacard.setAttribute(new AttributeImpl(Validation.VALIDATION_WARNINGS,
-                Collections.singletonList("sample-validator")));
-        return returnMetacard;
     }
 
     @Test
@@ -156,6 +69,144 @@ public class MetacardValidityFilterPluginTest {
         metacardValidityFilterPlugin.setAttributeMap(Arrays.asList(""));
         assertThat(metacardValidityFilterPlugin.getAttributeMap(),
                 is(new HashMap<String, List<String>>()));
+    }
+
+    @Test
+    public void testValidMetacards() throws Exception {
+        Result result = mock(Result.class);
+
+        PolicyResponse response = filterPluginResponseHelper(result,
+                getValidMetacard(),
+                true,
+                false);
+        assertThat(response.itemPolicy()
+                .size(), is(0));
+    }
+
+    @Test
+    public void testInvalidMetacards() throws Exception {
+        Result result = mock(Result.class);
+
+        PolicyResponse response = filterPluginResponseHelper(result,
+                getErrorsMetacard(),
+                true,
+                false);
+        assertThat(response.itemPolicy()
+                .get("sample")
+                .contains("test1"), is(true));
+    }
+
+    @Test
+    public void testNullMetacard() throws Exception {
+        Result result = mock(Result.class);
+
+        PolicyResponse response = filterPluginResponseHelper(result, null, true, false);
+        assertThat(response.itemPolicy()
+                .isEmpty(), is(true));
+
+    }
+
+    @Test
+    public void testNullResults() throws Exception {
+        PolicyResponse response = filterPluginResponseHelper(null, getValidMetacard(), true, false);
+
+        assertThat(response.itemPolicy()
+                .isEmpty(), is(true));
+    }
+
+    @Test
+    public void testFilterErrorsOnly() throws Exception {
+        Result result = mock(Result.class);
+
+        PolicyResponse response = filterPluginResponseHelper(result,
+                getErrorsMetacard(),
+                true,
+                false);
+        assertThat(response.itemPolicy()
+                .get("sample")
+                .contains("test1"), is(true));
+    }
+
+    @Test
+    public void testFilterWarningsOnly() throws Exception {
+        Result result = mock(Result.class);
+
+        PolicyResponse response = filterPluginResponseHelper(result,
+                getWarningsMetacard(),
+                false,
+                true);
+        assertThat(response.itemPolicy()
+                .get("sample")
+                .contains("test1"), is(true));
+    }
+
+    @Test
+    public void testFilterErrorsAndWarnings() throws Exception {
+        Result result = mock(Result.class);
+
+        PolicyResponse response = filterPluginResponseHelper(result,
+                getWarningsMetacard(),
+                true,
+                true);
+        assertThat(response.itemPolicy()
+                .get("sample")
+                .contains("test1"), is(true));
+
+        response = filterPluginResponseHelper(result, getErrorsMetacard(), true, true);
+        assertThat(response.itemPolicy()
+                .get("sample")
+                .contains("test1"), is(true));
+    }
+
+    @Test
+    public void testFilterNone() throws Exception {
+        Result result = mock(Result.class);
+
+        PolicyResponse response = filterPluginResponseHelper(result,
+                getErrorsMetacard(),
+                false,
+                false);
+        assertThat(response.itemPolicy()
+                .size(), is(0));
+
+        response = filterPluginResponseHelper(result, getWarningsMetacard(), false, false);
+        assertThat(response.itemPolicy()
+                .size(), is(0));
+    }
+
+    private MetacardImpl getValidMetacard() {
+        return new MetacardImpl();
+
+    }
+
+    private MetacardImpl getErrorsMetacard() {
+        MetacardImpl returnMetacard = new MetacardImpl();
+        returnMetacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
+                Collections.singletonList("sample-validator")));
+        return returnMetacard;
+    }
+
+    private MetacardImpl getWarningsMetacard() {
+        MetacardImpl returnMetacard = new MetacardImpl();
+        returnMetacard.setAttribute(new AttributeImpl(Validation.VALIDATION_WARNINGS,
+                Collections.singletonList("sample-validator")));
+        return returnMetacard;
+    }
+
+    private PolicyResponse filterPluginResponseHelper(Result result, Metacard metacard,
+            boolean filterErrors, boolean filterWarnings) throws Exception {
+        List<String> attributeMapping = Collections.singletonList("sample=test1,test2");
+        metacardValidityFilterPlugin.setAttributeMap(attributeMapping);
+        metacardValidityFilterPlugin.setFilterErrors(filterErrors);
+        metacardValidityFilterPlugin.setFilterWarnings(filterWarnings);
+
+        if (result != null) {
+            when(result.getMetacard()).thenReturn(metacard);
+        }
+
+        PolicyResponse response = metacardValidityFilterPlugin.processPostQuery(result,
+                new HashMap<>());
+        return response;
     }
 }
 
