@@ -26,6 +26,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
+import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.INVALID_TAG;
+import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALID_TAG;
 
 import java.io.Serializable;
 import java.util.AbstractMap;
@@ -79,6 +81,11 @@ public class MetacardValidityMarkerPluginTest {
 
     private static final Set<String> DESTINATIONS = Sets.newHashSet("source 1", "source 2");
 
+    private final Consumer<Set<String>> invalidTag = tags -> assertThat(tags,
+            contains(INVALID_TAG));
+
+    private final Consumer<Set<String>> validTag = tags -> assertThat(tags, contains(VALID_TAG));
+
     private final Consumer<Attribute> expectNone = attribute -> assertThat(attribute,
             is(nullValue()));
 
@@ -115,32 +122,40 @@ public class MetacardValidityMarkerPluginTest {
     }
 
     private void verifyCreate(CreateRequest originalRequest, Consumer<Attribute> errorExpectation,
-            Consumer<Attribute> warningExpectation)
+            Consumer<Attribute> warningExpectation, Consumer<Set<String>> expectedTags)
             throws PluginExecutionException, StopProcessingException {
         CreateRequest filteredRequest = plugin.process(originalRequest);
         List<Metacard> filteredMetacards = filteredRequest.getMetacards();
 
-        verifyMetacardErrorsAndWarnings(filteredMetacards, errorExpectation, warningExpectation);
+        verifyMetacardErrorsAndWarnings(filteredMetacards,
+                errorExpectation,
+                warningExpectation,
+                expectedTags);
         verifyRequestPropertiesUnchanged(originalRequest, filteredRequest);
     }
 
     private void verifyUpdate(UpdateRequest originalRequest, Consumer<Attribute> errorExpectation,
-            Consumer<Attribute> warningExpectation)
+            Consumer<Attribute> warningExpectation, Consumer<Set<String>> expectedTags)
             throws PluginExecutionException, StopProcessingException {
         UpdateRequest filteredRequest = plugin.process(originalRequest);
         List<Metacard> filteredMetacards = getUpdatedMetacards(filteredRequest);
 
-        verifyMetacardErrorsAndWarnings(filteredMetacards, errorExpectation, warningExpectation);
+        verifyMetacardErrorsAndWarnings(filteredMetacards,
+                errorExpectation,
+                warningExpectation,
+                expectedTags);
         verifyRequestPropertiesUnchanged(originalRequest, filteredRequest);
     }
 
     private void verifyMetacardErrorsAndWarnings(List<Metacard> filteredMetacards,
-            Consumer<Attribute> errorExpectation, Consumer<Attribute> warningExpectation) {
+            Consumer<Attribute> errorExpectation, Consumer<Attribute> warningExpectation,
+            Consumer<Set<String>> expectedTags) {
         assertThat(filteredMetacards, hasSize(2));
 
         filteredMetacards.forEach(metacard -> {
             errorExpectation.accept(metacard.getAttribute(Validation.VALIDATION_ERRORS));
             warningExpectation.accept(metacard.getAttribute(Validation.VALIDATION_WARNINGS));
+            expectedTags.accept(metacard.getTags());
         });
     }
 
@@ -152,32 +167,32 @@ public class MetacardValidityMarkerPluginTest {
     @Test
     public void testMarkMetacardValid() throws StopProcessingException, PluginExecutionException {
         metacardValidators.add(getMockPassingValidator());
-        verifyCreate(getMockCreateRequest(), expectNone, expectNone);
-        verifyUpdate(getMockUpdateRequest(), expectNone, expectNone);
+        verifyCreate(getMockCreateRequest(), expectNone, expectNone, validTag);
+        verifyUpdate(getMockUpdateRequest(), expectNone, expectNone, validTag);
     }
 
     @Test
     public void testMarkMetacardInvalidErrors()
             throws ValidationException, StopProcessingException, PluginExecutionException {
         metacardValidators.add(getMockFailingValidatorWithErrors());
-        verifyCreate(getMockCreateRequest(), expectError, expectNone);
-        verifyUpdate(getMockUpdateRequest(), expectError, expectNone);
+        verifyCreate(getMockCreateRequest(), expectError, expectNone, invalidTag);
+        verifyUpdate(getMockUpdateRequest(), expectError, expectNone, invalidTag);
     }
 
     @Test
     public void testMarkMetacardInvalidWarnings()
             throws ValidationException, StopProcessingException, PluginExecutionException {
         metacardValidators.add(getMockFailingValidatorWithWarnings());
-        verifyCreate(getMockCreateRequest(), expectNone, expectWarning);
-        verifyUpdate(getMockUpdateRequest(), expectNone, expectWarning);
+        verifyCreate(getMockCreateRequest(), expectNone, expectWarning, invalidTag);
+        verifyUpdate(getMockUpdateRequest(), expectNone, expectWarning, invalidTag);
     }
 
     @Test
     public void testMarkMetacardInvalidErrorsAndWarnings()
             throws ValidationException, StopProcessingException, PluginExecutionException {
         metacardValidators.add(getMockFailingValidatorWithErrorsAndWarnings());
-        verifyCreate(getMockCreateRequest(), expectError, expectWarning);
-        verifyUpdate(getMockUpdateRequest(), expectError, expectWarning);
+        verifyCreate(getMockCreateRequest(), expectError, expectWarning, invalidTag);
+        verifyUpdate(getMockUpdateRequest(), expectError, expectWarning, invalidTag);
     }
 
     @Test

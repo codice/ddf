@@ -54,6 +54,10 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
 
     private final Predicate<Object> didNotFailEnforcedValidator = Objects::nonNull;
 
+    static final String INVALID_TAG = "INVALID";
+
+    static final String VALID_TAG = "VALID";
+
     private List<String> enforcedMetacardValidators;
 
     private List<MetacardValidator> metacardValidators;
@@ -93,7 +97,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
         INGEST_LOGGER.info("Validation results: {} had warnings and {} had errors.",
                 counter.getOrDefault(Validation.VALIDATION_WARNINGS, 0),
                 counter.getOrDefault(Validation.VALIDATION_ERRORS, 0));
-        
+
         return validated;
     }
 
@@ -103,13 +107,17 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
         Set<String> warnings = new HashSet<>();
 
         Metacard metacard = itemToMetacard.apply(item);
+        Set<String> tags = metacard.getTags();
+
         for (MetacardValidator validator : metacardValidators) {
             try {
                 validator.validate(metacard);
+                tags.add(VALID_TAG);
             } catch (ValidationException e) {
                 String validatorName = getValidatorName(validator);
                 boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
                 boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
+                tags.add(INVALID_TAG);
 
                 if ((isValidatorEnforced(validatorName) && validationErrorsExist && enforceErrors)
                         || isValidatorEnforced(validatorName) && validationWarningsExist
@@ -123,6 +131,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                     getValidationProblems(validatorName, e, errors, warnings, counter);
                 }
             }
+
+            metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
         }
 
         metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
