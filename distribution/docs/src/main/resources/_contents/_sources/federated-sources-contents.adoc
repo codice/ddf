@@ -1,5 +1,6 @@
 
 === Included Federated Sources
+
 <<_csw_source,CSW Source>>:: The CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
 <<_gmd_csw_source,GMD CSW Source>>:: _implements https://portal.opengeospatial.org/files/?artifact_id=6495[Application Profile ISO 19115/ISO19119]_. The GMD CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
 <<_opensearch_source,OpenSearch Source>>:: The OpenSearch source provides a <<_federated_source,Federated Source>> that has the capability to do http://www.opensearch.org/Home[OpenSearch] queries for metadata from Content Discovery and Retrieval (CDR) Search V1.1 compliant sources.

@@ -1,6 +1,7 @@
 ==== Twitter Source
+*EXAMPLE*
 
-The Twitter Source is an *EXAMPLE* source provided in the ${branding} SDK. It enables queries using the http://twitter.com/[Twitter API].
+The Twitter Source is a sample implementation of a source provided in the ${branding} SDK. It enables queries using the http://twitter.com/[Twitter API].
 
 [NOTE]
 ====
