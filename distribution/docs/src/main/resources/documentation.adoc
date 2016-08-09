@@ -157,6 +157,10 @@ include::${project.build.directory}/doc-contents/_contents/_endpoints/endpoints-
 // summary list of endpoints
 include::${project.build.directory}/doc-contents/_contents/_endpoints/available-endpoints-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_endpoints/internal-endpoints-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_endpoints/sample-endpoints-contents.adoc[]
+
 // endpoint details
 include::${project.build.directory}/doc-contents/_contents/_endpoints/application-endpoint-contents.adoc[]
 
@@ -297,13 +301,13 @@ include::${project.build.directory}/doc-contents/_contents/_sources/sources-intr
 // Federated Sources
 include::${project.build.directory}/doc-contents/_contents/_sources/federated-sources-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_sources/example-federated-sources-contents.adoc[]
+
 include::${project.build.directory}/doc-contents/_contents/_sources/csw-source-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_sources/gmd-csw-source-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_sources/opensearch-source-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_sources/twitter-source-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_sources/wfs-10-source-contents.adoc[]
 
@@ -311,6 +315,7 @@ include::${project.build.directory}/doc-contents/_contents/_sources/wfs-20-sourc
 
 include::${project.build.directory}/doc-contents/_contents/_sources/wfs-sources-services-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_sources/twitter-source-contents.adoc[]
 // Connected Sources
 include::${project.build.directory}/doc-contents/_contents/_sources/connected-sources-contents.adoc[]
 

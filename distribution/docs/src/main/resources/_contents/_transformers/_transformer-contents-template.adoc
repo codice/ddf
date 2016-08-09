@@ -1,8 +1,8 @@
 ==== {transformer name}
 
-The {transformer name} is responsible for translating a {document} into a Catalog Metacard.
+description
 
-===== Installing {transformer name}
+===== Installing the {transformer name}
 
 The {transformer name} is installed by default with a standard installation in the ${app-name} application.
 The {transformer name} is not installed by default with a standard installation in the ${app-name} application.
@@ -10,11 +10,14 @@ To install:
 
 * Install steps
 
-===== Configuring {transformer name}
+===== Configuring the {transformer name}
 
 * any applicable configurations
 
-===== Using {transformer name}
+===== Using the {transformer name}
 
 {operations}
 
+===== Known Issues with the {transformer name}
+
+None.
