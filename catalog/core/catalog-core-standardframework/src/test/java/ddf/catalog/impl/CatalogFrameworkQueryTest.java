@@ -142,16 +142,14 @@ public class CatalogFrameworkQueryTest {
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
 
-        framework = new CatalogFrameworkImpl(props,
-                opsCrud,
-                createOperations,
+        framework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
                 deleteOperations,
                 queryOperations,
                 resourceOperations,
                 sourceOperations,
                 transformOperations);
-        framework.bind(provider);
+        sourceOperations.bind(provider);
     }
 
     @Test

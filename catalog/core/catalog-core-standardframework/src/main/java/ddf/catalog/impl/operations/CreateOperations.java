@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.DatatypeConverter;
@@ -41,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
-import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.CreateStorageResponse;
@@ -69,7 +67,6 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
@@ -82,25 +79,20 @@ public class CreateOperations {
     private static final Logger INGEST_LOGGER =
             LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
-    private static final String PRE_INGEST_ERROR =
-            "Error during pre-ingest:\n\n";
-
-    private Supplier<CatalogProvider> catalogSupplier;
-
-    private Supplier<StorageProvider> storageSupplier;
+    private static final String PRE_INGEST_ERROR = "Error during pre-ingest:\n\n";
 
     // Inject properties
-    private FrameworkProperties frameworkProperties;
+    private final FrameworkProperties frameworkProperties;
 
-    private QueryOperations queryOperations;
+    private final QueryOperations queryOperations;
 
-    private SourceOperations sourceOperations;
+    private final SourceOperations sourceOperations;
 
-    private OperationsSecuritySupport opsSecuritySupport;
+    private final OperationsSecuritySupport opsSecuritySupport;
 
-    private OperationsMetacardSupport opsMetacardSupport;
+    private final OperationsMetacardSupport opsMetacardSupport;
 
-    private OperationsCrudSupport opsCrudSupport;
+    private final OperationsCrudSupport opsCrudSupport;
 
     private Historian historian;
 
@@ -114,14 +106,6 @@ public class CreateOperations {
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
         this.opsCrudSupport = opsCrudSupport;
-    }
-
-    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
-        this.catalogSupplier = catalogSupplier;
-    }
-
-    public void setStorageSupplier(Supplier<StorageProvider> storageSupplier) {
-        this.storageSupplier = storageSupplier;
     }
 
     public void setHistorian(Historian historian) {
@@ -139,7 +123,7 @@ public class CreateOperations {
         validateCreateRequest(createRequest);
 
         if (Requests.isLocal(createRequest)
-                && !sourceOperations.isSourceAvailable(catalogSupplier.get())) {
+                && !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
             SourceUnavailableException sourceUnavailableException = new SourceUnavailableException(
                     "Local provider is not available, cannot perform create operation.");
             if (INGEST_LOGGER.isWarnEnabled()) {
@@ -207,7 +191,7 @@ public class CreateOperations {
                     createRequest.getMetacards()
                             .size());
             if (Requests.isLocal(createRequest)) {
-                createResponse = catalogSupplier.get()
+                createResponse = sourceOperations.getCatalog()
                         .create(createRequest);
                 createResponse = historian.version(createResponse);
             }
@@ -324,7 +308,7 @@ public class CreateOperations {
                 historianTransactionKey = historian.version(createStorageRequest);
 
                 try {
-                    createStorageResponse = storageSupplier.get()
+                    createStorageResponse = sourceOperations.getStorage()
                             .create(createStorageRequest);
                     createStorageResponse.getProperties()
                             .put(CONTENT_PATHS, tmpContentPaths);

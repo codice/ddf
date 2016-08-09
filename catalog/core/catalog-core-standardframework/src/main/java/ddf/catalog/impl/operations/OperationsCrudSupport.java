@@ -66,7 +66,6 @@ import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Request;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
@@ -84,16 +83,12 @@ public class OperationsCrudSupport {
     private static final Logger INGEST_LOGGER =
             LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
-    private Supplier<CatalogProvider> catalogSupplier;
-
-    private Supplier<StorageProvider> storageSupplier;
-
     // Inject properties
-    private FrameworkProperties frameworkProperties;
+    private final FrameworkProperties frameworkProperties;
 
-    private QueryOperations queryOperations;
+    private final QueryOperations queryOperations;
 
-    private SourceOperations sourceOperations;
+    private final SourceOperations sourceOperations;
 
     private Historian historian;
 
@@ -102,14 +97,6 @@ public class OperationsCrudSupport {
         this.frameworkProperties = frameworkProperties;
         this.queryOperations = queryOperations;
         this.sourceOperations = sourceOperations;
-    }
-
-    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
-        this.catalogSupplier = catalogSupplier;
-    }
-
-    public void setStorageSupplier(Supplier<StorageProvider> storageSupplier) {
-        this.storageSupplier = storageSupplier;
     }
 
     public void setHistorian(Historian historian) {
@@ -126,9 +113,9 @@ public class OperationsCrudSupport {
 
         queryOperations.setFlagsOnRequest(storageRequest);
 
-        if (Requests.isLocal(storageRequest) && (
-                !sourceOperations.isSourceAvailable(catalogSupplier.get()) || !isStorageAvailable(
-                        storageSupplier.get()))) {
+        if (Requests.isLocal(storageRequest) && (!sourceOperations.isSourceAvailable(
+                sourceOperations.getCatalog())
+                || !isStorageAvailable(sourceOperations.getStorage()))) {
             String message = "Local provider is not available, cannot perform storage operation.";
             SourceUnavailableException sourceUnavailableException = new SourceUnavailableException(
                     message);
@@ -143,7 +130,8 @@ public class OperationsCrudSupport {
             throws IngestException {
         if (storageRequest != null) {
             try {
-                storageSupplier.get().rollback(storageRequest);
+                sourceOperations.getStorage()
+                        .rollback(storageRequest);
             } catch (StorageException e1) {
                 LOGGER.error("Unable to remove temporary content for id: " + storageRequest.getId(),
                         e1);
@@ -157,14 +145,16 @@ public class OperationsCrudSupport {
             HashMap<String, Path> tmpContentPaths) {
         if (storageRequest != null) {
             try {
-                storageSupplier.get().commit(storageRequest);
+                sourceOperations.getStorage()
+                        .commit(storageRequest);
                 historianTransactionKey.ifPresent(historian::commit);
             } catch (StorageException e) {
                 LOGGER.error("Unable to commit content changes for id: {}",
                         storageRequest.getId(),
                         e);
                 try {
-                    storageSupplier.get().rollback(storageRequest);
+                    sourceOperations.getStorage()
+                            .rollback(storageRequest);
                 } catch (StorageException e1) {
                     LOGGER.error("Unable to remove temporary content for id: {}",
                             storageRequest.getId(),
@@ -187,7 +177,6 @@ public class OperationsCrudSupport {
         tmpContentPaths.clear();
 
     }
-
 
     void setDefaultValues(Metacard metacard) {
         MetacardType metacardType = metacard.getMetacardType();
@@ -271,13 +260,15 @@ public class OperationsCrudSupport {
             return Collections.emptyList();
         }
 
-        List<CatalogStore> results = new ArrayList<>(request.getStoreIds().size());
+        List<CatalogStore> results = new ArrayList<>(request.getStoreIds()
+                .size());
         for (String destination : request.getStoreIds()) {
             if (frameworkProperties.getCatalogStoresMap()
                     .containsKey(destination)) {
                 results.add(frameworkProperties.getCatalogStoresMap()
                         .get(destination));
-            } else if (catalogSupplier.get() == null || !destination.equals(catalogSupplier.get()
+            } else if (sourceOperations.getCatalog() == null
+                    || !destination.equals(sourceOperations.getCatalog()
                     .getId())) {
                 exceptions.add(new ProcessingDetailsImpl(destination,
                         null,
@@ -290,8 +281,9 @@ public class OperationsCrudSupport {
     boolean isCatalogStoreRequest(Request request) {
         return request != null && CollectionUtils.isNotEmpty(request.getStoreIds()) && (
                 request.getStoreIds()
-                        .size() > 1 || catalogSupplier.get() == null || !request.getStoreIds()
-                        .contains(catalogSupplier.get()
+                        .size() > 1 || sourceOperations.getCatalog() == null
+                        || !request.getStoreIds()
+                        .contains(sourceOperations.getCatalog()
                                 .getId()));
     }
 

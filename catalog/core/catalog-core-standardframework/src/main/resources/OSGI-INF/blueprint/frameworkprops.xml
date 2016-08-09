@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <bean id="frameworkProperties" class="ddf.catalog.impl.FrameworkProperties">
+        <property name="catalogProviders" ref="catalogProviderSortedList"/>
+        <property name="storageProviders" ref="storageProviderSortedList"/>
+        <property name="catalogStoresMap" ref="catalogStoreMap"/>
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+        <property name="preCreateStoragePlugins" ref="preCreateStorageSortedList"/>
+        <property name="postCreateStoragePlugins" ref="postCreateStorageSortedList"/>
+        <property name="preUpdateStoragePlugins" ref="preUpdateStorageSortedList"/>
+        <property name="postUpdateStoragePlugins" ref="postUpdateStorageSortedList"/>
+        <property name="preIngest" ref="preIngestSortedList"/>
+        <property name="postIngest" ref="postIngestSortedList"/>
+        <property name="preQuery" ref="preQuerySortedList"/>
+        <property name="postQuery" ref="postQuerySortedList"/>
+        <property name="preResource" ref="preResourceSortedList"/>
+        <property name="postResource" ref="postResourceSortedList"/>
+        <property name="connectedSources" ref="connectedSources"/>
+        <property name="federatedSources" ref="federatedSourceMap"/>
+        <property name="resourceReaders" ref="resourceReaderSortedList"/>
+        <property name="federationStrategy" ref="federationStrategy"/>
+        <property name="pool" ref="queryThreadPool"/>
+        <property name="queryResponsePostProcessor" ref="queryResponsePostProcessor"/>
+        <property name="sourcePoller" ref="sourcePoller"/>
+        <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
+        <property name="reliableResourceDownloadManager"
+                  ref="reliableResourceDownloadManager"/>
+        <property name="policyPlugins" ref="policySortedList"/>
+        <property name="accessPlugins" ref="accessSortedList"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
+        <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+        <property name="validationQueryFactory" ref="validationQueryFactory"/>
+        <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
+        <property name="attributeInjectors" ref="attributeInjectors"/>
+    </bean>
+
+</blueprint>

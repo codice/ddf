@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -38,7 +37,6 @@ import com.google.common.collect.Iterables;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
-import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
@@ -70,7 +68,6 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
@@ -85,22 +82,18 @@ public class UpdateOperations {
 
     private static final String PRE_INGEST_ERROR = "Error during pre-ingest:\n\n";
 
-    private Supplier<CatalogProvider> catalogSupplier;
-
-    private Supplier<StorageProvider> storageSupplier;
-
     // Inject properties
-    private FrameworkProperties frameworkProperties;
+    private final FrameworkProperties frameworkProperties;
 
-    private QueryOperations queryOperations;
+    private final QueryOperations queryOperations;
 
-    private SourceOperations sourceOperations;
+    private final SourceOperations sourceOperations;
 
-    private OperationsSecuritySupport opsSecuritySupport;
+    private final OperationsSecuritySupport opsSecuritySupport;
 
-    private OperationsMetacardSupport opsMetacardSupport;
+    private final OperationsMetacardSupport opsMetacardSupport;
 
-    private OperationsCrudSupport opsCrudSupport;
+    private final OperationsCrudSupport opsCrudSupport;
 
     private Historian historian;
 
@@ -114,14 +107,6 @@ public class UpdateOperations {
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
         this.opsCrudSupport = opsCrudSupport;
-    }
-
-    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
-        this.catalogSupplier = catalogSupplier;
-    }
-
-    public void setStorageSupplier(Supplier<StorageProvider> storageSupplier) {
-        this.storageSupplier = storageSupplier;
     }
 
     public void setHistorian(Historian historian) {
@@ -139,7 +124,7 @@ public class UpdateOperations {
         validateUpdateRequest(updateRequest);
 
         if (Requests.isLocal(updateRequest)
-                && !sourceOperations.isSourceAvailable(catalogSupplier.get())) {
+                && !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
             throw new SourceUnavailableException(
                     "Local provider is not available, cannot perform update operation.");
         }
@@ -248,7 +233,7 @@ public class UpdateOperations {
                             .size());
 
             if (Requests.isLocal(updateRequest)) {
-                updateResponse = catalogSupplier.get()
+                updateResponse = sourceOperations.getCatalog()
                         .update(updateRequest);
                 updateResponse = historian.version(updateResponse);
             }
@@ -326,7 +311,7 @@ public class UpdateOperations {
                 }
 
                 try {
-                    updateStorageResponse = storageSupplier.get()
+                    updateStorageResponse = sourceOperations.getStorage()
                             .update(updateStorageRequest);
                     updateStorageResponse.getProperties()
                             .put(CONTENT_PATHS, tmpContentPaths);

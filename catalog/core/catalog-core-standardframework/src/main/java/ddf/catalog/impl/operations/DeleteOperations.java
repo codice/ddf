@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
-import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
 import ddf.catalog.data.Metacard;
@@ -57,7 +55,6 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
@@ -70,25 +67,20 @@ public class DeleteOperations {
     private static final Logger INGEST_LOGGER =
             LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
-    private static final String PRE_INGEST_ERROR =
-            "Error during pre-ingest:\n\n";
-
-    private Supplier<CatalogProvider> catalogSupplier;
-
-    private Supplier<StorageProvider> storageSupplier;
+    private static final String PRE_INGEST_ERROR = "Error during pre-ingest:\n\n";
 
     // Inject properties
-    private FrameworkProperties frameworkProperties;
+    private final FrameworkProperties frameworkProperties;
 
-    private QueryOperations queryOperations;
+    private final QueryOperations queryOperations;
 
-    private SourceOperations sourceOperations;
+    private final SourceOperations sourceOperations;
 
-    private OperationsSecuritySupport opsSecuritySupport;
+    private final OperationsSecuritySupport opsSecuritySupport;
 
-    private OperationsMetacardSupport opsMetacardSupport;
+    private final OperationsMetacardSupport opsMetacardSupport;
 
-    private OperationsCrudSupport opsCrudSupport;
+    private final OperationsCrudSupport opsCrudSupport;
 
     private Historian historian;
 
@@ -102,14 +94,6 @@ public class DeleteOperations {
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
         this.opsCrudSupport = opsCrudSupport;
-    }
-
-    public void setCatalogSupplier(Supplier<CatalogProvider> catalogSupplier) {
-        this.catalogSupplier = catalogSupplier;
-    }
-
-    public void setStorageSupplier(Supplier<StorageProvider> storageSupplier) {
-        this.storageSupplier = storageSupplier;
     }
 
     public void setHistorian(Historian historian) {
@@ -127,8 +111,8 @@ public class DeleteOperations {
         validateDeleteRequest(deleteRequest);
 
         if (Requests.isLocal(deleteRequest) && (
-                !sourceOperations.isSourceAvailable(catalogSupplier.get())
-                        || !opsCrudSupport.isStorageAvailable(storageSupplier.get()))) {
+                !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())
+                        || !opsCrudSupport.isStorageAvailable(sourceOperations.getStorage()))) {
             throw new SourceUnavailableException(
                     "Local provider is not available, cannot perform delete operation.");
         }
@@ -137,7 +121,8 @@ public class DeleteOperations {
 
         DeleteResponse deleteResponse = null;
         try {
-            List<Filter> idFilters = new ArrayList<>(deleteRequest.getAttributeValues().size());
+            List<Filter> idFilters = new ArrayList<>(deleteRequest.getAttributeValues()
+                    .size());
             for (Serializable serializable : deleteRequest.getAttributeValues()) {
                 idFilters.add(frameworkProperties.getFilterBuilder()
                         .attribute(deleteRequest.getAttributeName())
@@ -222,7 +207,7 @@ public class DeleteOperations {
 
             if (Requests.isLocal(deleteRequest)) {
                 try {
-                    storageSupplier.get()
+                    sourceOperations.getStorage()
                             .delete(deleteStorageRequest);
                 } catch (StorageException e) {
                     LOGGER.error(
@@ -232,7 +217,7 @@ public class DeleteOperations {
                             "Unable to delete stored content items. Not removing stored metacards.",
                             e);
                 }
-                deleteResponse = catalogSupplier.get()
+                deleteResponse = sourceOperations.getCatalog()
                         .delete(deleteRequest);
                 deleteResponse = injectAttributes(deleteResponse);
                 historian.version(deleteResponse);
@@ -297,7 +282,7 @@ public class DeleteOperations {
         } finally {
             if (deleteStorageRequest != null) {
                 try {
-                    storageSupplier.get()
+                    sourceOperations.getStorage()
                             .commit(deleteStorageRequest);
                 } catch (StorageException e) {
                     LOGGER.error("Unable to remove stored content items.", e);

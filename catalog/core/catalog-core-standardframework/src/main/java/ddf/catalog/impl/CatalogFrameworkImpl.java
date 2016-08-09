@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.data.BinaryContent;
@@ -40,7 +38,6 @@ import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
-import ddf.catalog.impl.operations.OperationsCrudSupport;
 import ddf.catalog.impl.operations.QueryOperations;
 import ddf.catalog.impl.operations.ResourceOperations;
 import ddf.catalog.impl.operations.SourceOperations;
@@ -61,7 +58,6 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -80,23 +76,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     private static final String FANOUT_MESSAGE =
             "Fanout proxy does not support create, update, and delete operations";
 
-    // The local catalog provider, which is set to the first item in the {@code List} of
-    // {@code CatalogProvider}s.
-    // Keep this private to make sure subclasses don't use it.
-    private CatalogProvider catalog;
-
-    private StorageProvider storage;
-
     //
     // Injected properties
     //
     private boolean fanoutEnabled;
 
     private Masker masker;
-
-    private FrameworkProperties frameworkProperties;
-
-    private OperationsCrudSupport operationsCrudSupport;
 
     private CreateOperations createOperations;
 
@@ -115,8 +100,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Instantiates a new CatalogFrameworkImpl which delegates its work to surrogate operations classes.
      *
-     * @param frameworkProperties   properties used to configure the framework
-     * @param operationsCrudSupport support class for crud operations
      * @param createOperations      delegate that handles create operations
      * @param updateOperations      delegate that handles update operations
      * @param deleteOperations      delegate that handles delete operations
@@ -125,13 +108,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * @param sourceOperations      delegate that handles source operations
      * @param transformOperations   delegate that handles transformation operations
      */
-    public CatalogFrameworkImpl(FrameworkProperties frameworkProperties,
-            OperationsCrudSupport operationsCrudSupport, CreateOperations createOperations,
-            UpdateOperations updateOperations, DeleteOperations deleteOperations,
-            QueryOperations queryOperations, ResourceOperations resourceOperations,
+    public CatalogFrameworkImpl(CreateOperations createOperations, UpdateOperations updateOperations,
+            DeleteOperations deleteOperations, QueryOperations queryOperations, ResourceOperations resourceOperations,
             SourceOperations sourceOperations, TransformOperations transformOperations) {
-        this.frameworkProperties = frameworkProperties;
-        this.operationsCrudSupport = operationsCrudSupport;
 
         this.createOperations = createOperations;
         this.updateOperations = updateOperations;
@@ -145,32 +124,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         setVersion(SystemInfo.getVersion());
         setOrganization(SystemInfo.getOrganization());
         registerBasicMetacard();
-
-        if (this.operationsCrudSupport != null) {
-            this.operationsCrudSupport.setCatalogSupplier(this::getCatalog);
-            this.operationsCrudSupport.setStorageSupplier(this::getStorage);
-        }
-        if (this.createOperations != null) {
-            this.createOperations.setCatalogSupplier(this::getCatalog);
-            this.createOperations.setStorageSupplier(this::getStorage);
-        }
-        if (this.updateOperations != null) {
-            this.updateOperations.setCatalogSupplier(this::getCatalog);
-            this.updateOperations.setStorageSupplier(this::getStorage);
-        }
-        if (this.deleteOperations != null) {
-            this.deleteOperations.setCatalogSupplier(this::getCatalog);
-            this.deleteOperations.setStorageSupplier(this::getStorage);
-        }
-        if (this.queryOperations != null) {
-            this.queryOperations.setCatalogSupplier(this::getCatalog);
-        }
-        if (this.resourceOperations != null) {
-            this.resourceOperations.setCatalogSupplier(this::getCatalog);
-        }
-        if (this.sourceOperations != null) {
-            this.sourceOperations.setCatalogSupplier(this::getCatalog);
-        }
     }
 
     private void registerBasicMetacard() {
@@ -181,98 +134,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             bundle.getBundleContext()
                     .registerService(MetacardType.class, BasicTypes.BASIC_METACARD, properties);
         }
-    }
-
-    /**
-     * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
-     * CatalogFramework instance.
-     * <p/>
-     * The local catalog provider will be set to the first item in the {@link java.util.List} of
-     * {@link CatalogProvider}s bound to this CatalogFramework.
-     *
-     * @param catalogProvider the {@link CatalogProvider} being bound to this CatalogFramework instance
-     */
-    public void bind(CatalogProvider catalogProvider) {
-        LOGGER.trace("ENTERING: bind");
-
-        catalog = frameworkProperties.getCatalogProviders()
-                .stream()
-                .findFirst()
-                .orElse(null);
-
-        LOGGER.trace("EXITING: bind with catalog = {}", catalog);
-    }
-
-    /**
-     * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
-     * CatalogFramework instance.
-     * <p/>
-     * The local catalog provider will be reset to the new first item in the {@link java.util.List} of
-     * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
-     * currently empty, then the local catalog provider will be set to <code>null</code>.
-     *
-     * @param catalogProvider the {@link CatalogProvider} being unbound from this CatalogFramework instance
-     */
-    public void unbind(CatalogProvider catalogProvider) {
-        LOGGER.trace("ENTERING: unbind");
-
-        catalog = frameworkProperties.getCatalogProviders()
-                .stream()
-                .findFirst()
-                .orElse(null);
-
-        LOGGER.trace("EXITING: unbind with catalog = {}", catalog);
-    }
-
-    /**
-     * Invoked by blueprint when a {@link StorageProvider} is created and bound to this
-     * CatalogFramework instance.
-     * <p/>
-     * The local storage provider will be set to the first item in the {@link List} of
-     * {@link StorageProvider}s bound to this CatalogFramework.
-     *
-     * @param storageProvider the {@link CatalogProvider} being bound to this CatalogFramework instance
-     */
-    public void bind(StorageProvider storageProvider) {
-        List<StorageProvider> storageProviders = frameworkProperties.getStorageProviders();
-        LOGGER.info("storage providers list size = {}", storageProviders.size());
-
-        // The list of storage providers is sorted by OSGi service ranking, hence should
-        // always set the local storage provider to the first item in the list.
-        this.storage = storageProviders.get(0);
-    }
-
-    /**
-     * Invoked by blueprint when a {@link StorageProvider} is deleted and unbound from this
-     * CatalogFramework instance.
-     * <p/>
-     * The local storage provider will be reset to the new first item in the {@link List} of
-     * {@link StorageProvider}s bound to this CatalogFramework. If this list of storage providers is
-     * currently empty, then the local storage provider will be set to <code>null</code>.
-     *
-     * @param storageProvider the {@link StorageProvider} being unbound from this CatalogFramework instance
-     */
-    public void unbind(StorageProvider storageProvider) {
-        List<StorageProvider> storageProviders = this.frameworkProperties.getStorageProviders();
-        if (!storageProviders.isEmpty()) {
-            LOGGER.info("storage providers list size = {}", storageProviders.size());
-            LOGGER.info("Setting storage to first provider in list");
-
-            // The list of storage providers is sorted by OSGi service ranking, hence should
-            // always set the local storage provider to the first item in the list.
-            this.storage = storageProviders.get(0);
-        } else {
-            LOGGER.info("Setting storage = NULL");
-            this.storage = null;
-        }
-    }
-
-    private CatalogProvider getCatalog() {
-        return catalog;
-    }
-
-    private StorageProvider getStorage() {
-        return storage;
     }
 
     public QueryOperations getQueryOperations() {
