@@ -19,14 +19,15 @@ define([
     'underscore',
     'js/model/FieldDescriptors.js',
     'js/model/Field.js',
+    'moment',
     'jquery',
     'backboneassociation'
 
 
-], function (Backbone, _, FieldDescriptors, Field) {
+], function (Backbone, _, FieldDescriptors, Field, moment) {
 
     var counter = 0;
-    var typeCounters= {
+    var typeCounters = {
         Service: 1,
         Organization: 1,
         Content: 1,
@@ -41,12 +42,14 @@ define([
                 properties['value' + i] = values[i];
             }
         } else if (values && field.get('type') === 'date') {
-            var normalizedDateTime = new Date(values).toISOString();
-            var dateTimeParts = normalizedDateTime.split('T');
-            properties.valueDate = dateTimeParts[0];
-            if (dateTimeParts.length === 2) {
-                properties.valueTime = dateTimeParts[1].substring(0, dateTimeParts[1].length - 1);
+            var dateTime = moment(values).utc();
+
+            if (!dateTime.isValid()) {
+                dateTime = moment().utc();
             }
+
+            properties.valueDate = dateTime.format("YYYY-MM-DD");
+            properties.valueTime = dateTime.format("HH:mm:ss.SSS");
         } else if (values && field.get('type') === 'point') {
             properties.valueLat = values.coords[1];
             properties.valueLon = values.coords[0];
@@ -89,9 +92,9 @@ define([
                     if (slot.name === name) {
                         slotFound = true;
                         var values = getSlotValue(slot, entry.type, entry.multiValued);
-                        if(!values || (_.isArray(values) && values.length === 0)) {
-                            if(entry.value){
-                                if(_.isArray(entry.value)){
+                        if (!values || (_.isArray(values) && values.length === 0)) {
+                            if (entry.value) {
+                                if (_.isArray(entry.value)) {
                                     values = entry.value.slice(0);
                                 } else {
                                     values = entry.value;
@@ -102,9 +105,9 @@ define([
                         addedSlots.push(name);
                     }
                 });
-                if(!slotFound && entry.value){
+                if (!slotFound && entry.value) {
                     var values = [];
-                    if(_.isArray(entry.value)){
+                    if (_.isArray(entry.value)) {
                         values = entry.value.slice(0);
                     } else {
                         values = entry.value;
@@ -143,7 +146,8 @@ define([
         if (_.isArray(slot.value)) { //ebrim value list
             if (multiValued) {
                 return slot.value.slice(0);
-            }if (type === 'boolean') {
+            }
+            if (type === 'boolean') {
                 return slot.value[0] === 'true' ? true : false;
             }
             return slot.value[0];
@@ -299,7 +303,7 @@ define([
                             seg.populateFromModel(passedModel, descriptors);
                             segs.push(seg);
                         } else if (!obj.isSlot) {
-                            var field =new Field.FormField({
+                            var field = new Field.FormField({
                                 key: prop,
                                 name: obj.displayName,
                                 desc: obj.description,
@@ -335,7 +339,7 @@ define([
         },
         addField: function (key, type, value) {
             var model = this;
-            if(this.getField(key)){
+            if (this.getField(key)) {
                 //field with that name already exists return
                 return;
             }
@@ -380,8 +384,8 @@ define([
             this.get('segments').add(seg);
             var segType = seg.get('segmentType');
             var nameField = seg.getField('Name');
-            if(nameField && nameField.isEmpty() && typeCounters[segType]) {
-                nameField.set('value', segType + ' '+typeCounters[segType]);
+            if (nameField && nameField.isEmpty() && typeCounters[segType]) {
+                nameField.set('value', segType + ' ' + typeCounters[segType]);
                 typeCounters[segType]++;
             }
             var segTitle = seg.constructTitle ? seg.constructTitle() : seg.getField('Name').get('value');
@@ -417,25 +421,25 @@ define([
                 return obj[autoPopId] === prePopulateId;
             });
         },
-        validate: function (){
+        validate: function () {
             var errors = [];
             var fields = this.get("fields").models;
             var segments = this.get('segments').models;
             this.validationError = undefined;
             _.each(fields, function (field) {
                 var error = field.validate();
-                if(error){
+                if (error) {
                     errors = errors.concat(error);
                 }
             });
 
             _.each(segments, function (segment) {
                 var error = segment.validate();
-                if(error){
+                if (error) {
                     errors = errors.concat(error);
                 }
             });
-            if(errors.length > 0){
+            if (errors.length > 0) {
                 this.validationError = errors;
                 return errors;
             }
@@ -451,13 +455,20 @@ define([
             }
             //update and add values
             _.each(fields, function (field) {
-                field.saveData(backingData,ebrimTypes);
+                if (field.get('type') === 'date') {
+                    var date = moment(field.get('valueDate') + "T" + field.get('valueTime'));
+                    if (date.isValid()) {
+                        field.set('valueDate', date.format("YYYY-MM-DD"));
+                        field.set('valueTime', date.format("HH:mm:ss.SSS"));
+                    }
+                }
+                field.saveData(backingData, ebrimTypes);
             });
 
             //remove slots
             if (backingData.Slot) {
                 var slots = [];
-                for (var index = 0; index <backingData.Slot.length; index++) {
+                for (var index = 0; index < backingData.Slot.length; index++) {
                     if (model.getField(backingData.Slot[index].name)) {
                         slots.push(backingData.Slot[index]);
                     }

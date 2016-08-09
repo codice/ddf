@@ -119,11 +119,13 @@ define([
                 return data;
             },
             getNodeName: function() {
-                var node = this.model.get("RegistryObjectList").ExtrinsicObject.find(function(extObj) {
-                    return extObj.objectType === "urn:registry:federation:node";
+                var extName;
+                this.model.get("RegistryObjectList").ExtrinsicObject.forEach( function (extObj) {
+                    if (extObj.objectType === "urn:registry:federation:node") {
+                        extName = extObj.Name;
+                    }
                 });
-
-                return node.Name;
+                return extName;
             },
             onRender: function () {
                 this.$el.attr('role', "dialog");

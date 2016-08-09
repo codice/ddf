@@ -17,11 +17,12 @@
 define([
     'backbone',
     'underscore',
+    'moment',
     'jquery',
     'backboneassociation'
 
 
-], function (Backbone, _) {
+], function (Backbone, _, moment) {
 
     function getSlot(slots, key) {
         for (var index = 0; index < slots.length; index++) {
@@ -30,7 +31,6 @@ define([
             }
         }
     }
-
 
     var Field = {};
 
@@ -58,7 +58,20 @@ define([
                 }
             });
         },
-        isEmpty: function() {
+        isBlankDate: function () {
+            var timeLength = 0;
+            if (this.get('valueDate') !== undefined) {
+                timeLength = this.get('valueDate').length;
+            }
+            if (this.get('valueTime') !== undefined) {
+                timeLength += this.get('valueTime').length;
+            }
+            if (timeLength === 0) {
+                return true;
+            }
+            return false;
+        },
+        isEmpty: function () {
             return !this.get('value') || (_.isArray(this.get('value')) && this.get('value').length === 0);
         },
         addValue: function (val) {
@@ -73,8 +86,8 @@ define([
         },
         removeValue: function (index) {
             var values = this.get('value');
-            for (var count = 0; count < values.length; count++){
-                values[count] = this.get('value'+count);
+            for (var count = 0; count < values.length; count++) {
+                values[count] = this.get('value' + count);
             }
 
             values.splice(index, 1);
@@ -83,62 +96,76 @@ define([
             }
             this.unset('value' + values.length);
         },
-        validate: function() {
+        validate: function () {
             var error;
             var indices = [];
             var type = this.get('type');
-            if(!this.get('value') && (type === 'point' || type === 'bounds')) {
-                this.set('value',[]);
+            if (!this.get('value') && (type === 'point' || type === 'bounds')) {
+                this.set('value', []);
             }
 
-            if(!this.get('value') && !this.get('regex') && !this.get('required')){
-                this.set('error',error);
-                return;
+
+            if (type === 'date') {
+                if (this.isBlankDate() && !this.get('required')) {
+                    this.set('error', error);
+                    return;
+                }
+            } else {
+                if (this.isEmpty() && !this.get('regex') && !this.get('required')) {
+                    this.set('error', error);
+                    return;
+                }
             }
 
             var regex;
-            if(this.get('regex')){
+            if (this.get('regex')) {
                 var flags = this.get('regex').replace(/.*\/([gimy]*)$/, '$1');
-                var pattern = this.get('regex').replace(new RegExp('^/(.*?)/'+flags+'$'), '$1');
+                var pattern = this.get('regex').replace(new RegExp('^/(.*?)/' + flags + '$'), '$1');
                 regex = new RegExp(pattern, flags);
             }
 
-            if(!this.get('multiValued')) {
-                if(type === 'number'){
-                    if(this.get('min') && this.get('value') < this.get('min')){
+            if (!this.get('multiValued')) {
+                if (type === 'number') {
+                    if (this.get('min') && this.get('value') < this.get('min')) {
                         error = 'Value is less than minimum of ' + this.get('min');
                     } else if (this.get('max') && this.get('value') > this.get('max')) {
-                        error =  'Value is greater than maximum of ' + this.get('max');
+                        error = 'Value is greater than maximum of ' + this.get('max');
                     }
-                } else if(type === 'string' && regex){
-                    if(!regex.test(this.get('value'))){
-                        error =  this.get('regexMessage') ? this.get('regexMessage') : 'Invalid input value. Must match ' + this.get('regex');
+                } else if (type === 'string' && regex) {
+                    if (!regex.test(this.get('value'))) {
+                        error = this.get('regexMessage') ? this.get('regexMessage') : 'Invalid input value. Must match ' + this.get('regex');
                     }
-                } else if(type === 'point'){
-                    if(this.get('valueLat') && (this.get('valueLat') > 90 || this.get('valueLat') < -90)){
+                } else if (type === 'point') {
+                    if (this.get('valueLat') && (this.get('valueLat') > 90 || this.get('valueLat') < -90)) {
                         error = 'Invalid decimal latitude value. Must be -90 < lat < 90';
                     }
-                    if(this.get('valueLon') && (this.get('valueLon') > 180 || this.get('valueLon')< -180)){
+                    if (this.get('valueLon') && (this.get('valueLon') > 180 || this.get('valueLon') < -180)) {
                         error = 'Invalid decimal longitude value. Must be -180 < lat < 180';
                     }
-                } else if(type === 'bounds'){
-                    if(this.get('valueLowerLat') && (this.get('valueLowerLat') > 90 || this.get('valueLowerLat') < -90)){
+                } else if (type === 'bounds') {
+                    if (this.get('valueLowerLat') && (this.get('valueLowerLat') > 90 || this.get('valueLowerLat') < -90)) {
                         error = 'Invalid decimal latitude value. Must be -90 < lat < 90';
                     }
-                    if(this.get('valueUpperLat') && (this.get('valueUpperLat') > 90 || this.get('valueUpperLat') < -90)){
+                    if (this.get('valueUpperLat') && (this.get('valueUpperLat') > 90 || this.get('valueUpperLat') < -90)) {
                         error = 'Invalid decimal latitude value. Must be -90 < lat < 90';
                     }
-                    if(this.get('valueLowerLon') && (this.get('valueLowerLon') > 180 || this.get('valueLowerLon')< -180)){
+                    if (this.get('valueLowerLon') && (this.get('valueLowerLon') > 180 || this.get('valueLowerLon') < -180)) {
                         error = 'Invalid decimal longitude value. Must be -180 < lat < 180';
                     }
-                    if(this.get('valueUpperLon') && (this.get('valueUpperLon') > 180 || this.get('valueUpperLon')< -180)){
+                    if (this.get('valueUpperLon') && (this.get('valueUpperLon') > 180 || this.get('valueUpperLon') < -180)) {
                         error = 'Invalid decimal longitude value. Must be -180 < lat < 180';
+                    }
+                } else if (type === 'date') {
+                    if (!moment(this.get('valueDate')).isValid()) {
+                        error = 'Invalid date. Must be of the format YYYY-MM-DD';
+                    } else if (!moment(this.get('valueDate') + 'T' + this.get('valueTime')).isValid()) {
+                        error = 'Invalid date/time. Must be of the format YYYY-MM-DD HH:MM';
                     }
                 }
             } else {
-                if(type === 'string' && regex && this.get('value')) {
+                if (type === 'string' && regex && this.get('value')) {
                     for (var index = 0; index < this.get('value').length; index++) {
-                        if(this.get('value' + index)) {
+                        if (this.get('value' + index)) {
                             if (!regex.test(this.get('value' + index))) {
                                 indices.push(index);
                                 error = this.get('regexMessage') ? this.get('regexMessage') : 'Invalid input value. Must match ' + this.get('regex');
@@ -153,17 +180,17 @@ define([
             }
 
             this.errorIndices = indices;
-            this.set('error',error);
+            this.set('error', error);
             return error;
         },
-        saveData: function(backingData, ebrimTypes) {
-            if(this.validationError){
+        saveData: function (backingData, ebrimTypes) {
+            if (this.validationError) {
                 return this.validationError;
             }
             if (!this.get('isSlot')) {
                 if (this.get('value') && !(_.isArray(this.get('value')) && this.get('value').length === 0)) {
                     backingData[this.get('key')] = this.get('value');
-                } else if( backingData[this.get('key')]){
+                } else if (backingData[this.get('key')]) {
                     delete backingData[this.get('key')];
                 }
 
@@ -180,7 +207,7 @@ define([
                 slot.value = undefined;
 
                 if (this.get('type') === 'date') {
-                    if (this.get('valueDate')) {
+                    if (!this.isBlankDate()) {
                         var time = '00:00';
                         if (this.get('valueTime')) {
                             time = this.get('valueTime');
@@ -193,7 +220,7 @@ define([
                             Point: {
                                 srsName: 'urn:ogc:def:crs:EPSG::4326',
                                 srsDimension: 2,
-                                pos:  this.get('valueLon') + ' ' +this.get('valueLat') 
+                                pos: this.get('valueLon') + ' ' + this.get('valueLat')
                             }
                         };
                     }
@@ -212,7 +239,7 @@ define([
                 } else if (this.get('multiValued') && this.get('value')) {
                     var values = [];
                     for (var index = 0; index < this.get('value').length; index++) {
-                        if(this.get('value' + index)) {
+                        if (this.get('value' + index)) {
                             values.push(this.get('value' + index));
                         }
                     }
