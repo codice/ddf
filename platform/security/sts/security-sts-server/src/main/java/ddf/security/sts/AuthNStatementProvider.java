@@ -14,6 +14,7 @@
 package ddf.security.sts;
 
 import java.security.Principal;
+import java.security.SecureRandom;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
@@ -33,9 +34,14 @@ import org.codice.ddf.platform.util.RandomNumberGenerator;
  */
 public class AuthNStatementProvider implements AuthenticationStatementProvider {
 
+    private SecureRandom secureRandom;
+
     /**
      * Get an AuthenticationStatementBean using the given parameters.
      */
+    public AuthNStatementProvider() {
+        secureRandom = RandomNumberGenerator.create();
+    }
 
     /*
      * (non-Javadoc)
@@ -47,7 +53,7 @@ public class AuthNStatementProvider implements AuthenticationStatementProvider {
     @Override
     public AuthenticationStatementBean getStatement(TokenProviderParameters providerParameters) {
         AuthenticationStatementBean authBean = new AuthenticationStatementBean();
-        authBean.setSessionIndex(Integer.toString(RandomNumberGenerator.create().nextInt()));
+        authBean.setSessionIndex(Integer.toString(secureRandom.nextInt()));
 
         TokenRequirements tokenRequirements = providerParameters.getTokenRequirements();
         ReceivedToken receivedToken = null;
