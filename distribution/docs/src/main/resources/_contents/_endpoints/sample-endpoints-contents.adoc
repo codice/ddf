@@ -1,0 +1,3 @@
+
+<<_soap_endpoint,EXAMPLE: SOAP Endpoint>>:: _implements https://www.w3.org/TR/soap/[SOAP]_. Sample implementation of a SOAP endpoint included with the <<_sdk, SDK>>.
+<<_whoami_endpoint,EXAMPLE: WhoAmI Endpoint>>:: Sample endpoint implementation included with the <<_sdk, SDK>>.

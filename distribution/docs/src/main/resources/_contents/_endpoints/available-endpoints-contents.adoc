@@ -1,5 +1,5 @@
 
-=== Included Endpoints
+=== Available Endpoints
 
 <<_application_upload_endpoint,Application Upload Endpoint>>:: This endpoint uploads new/upgraded applications to the system.
 <<_cometd_endpoint,CometD Endpoint>>:: _implements [CometD]_. The CometD endpoint enables asychronous search capabilties.
@@ -17,5 +17,4 @@ The Metrics Endpoint is used by the <<_metrics_collection_application,Metrics Co
 <<_rest_endpoint,REST Endpoint>>:: _implements [REST]_ https://www.w3.org/2001/sw/wiki/REST[REST specification]. The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. The URL exposing the REST functionality is located at \${secure_url}/services/catalog.
 <<_wfs_endpoint,WFS EndpointMt>>:: _implements http://www.opengeospatial.org/standards/wfs[WFS specification]_.
 <<_resource_download_endpoint,EXPERIMENTAL: Resource Download Endpoint>>:: _implements_ The Resource Download Endpoint provides a REST API to trigger downloading resources to the ${branding} cache only. The resource is not returned to the client.
-<<_soap_endpoint,EXAMPLE: SOAP Endpoint>>:: _implements https://www.w3.org/TR/soap/[SOAP]_. Sample implementation of a SOAP endpoint included with the <<_sdk, SDK>>.
-<<_whoami_endpoint,EXAMPLE: WhoAmI Endpoint>>:: Sample endpoint implementation included with the <<_sdk, SDK>>.
+

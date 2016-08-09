@@ -3,7 +3,7 @@
 
 {description}
 
-===== Installing {endpoint name}
+===== Installing the {endpoint name}
 
 The {endpoint name} is installed by default with a standard installation in the ${app-name} application.
 The {endpoint name} is not installed by default with a standard installation in the ${app-name} application.
@@ -11,7 +11,7 @@ To install:
 
 * Install steps
 
-===== Configuring {endpoint name}
+===== Configuring the {endpoint name}
 
 * any applicable configurations
 
@@ -23,5 +23,5 @@ ${secure_url}/path/to/endpoint
 
 {operations}
 
-==== {endpoint name} Known Issues
+====Known Issues with {endpoint name}
 
