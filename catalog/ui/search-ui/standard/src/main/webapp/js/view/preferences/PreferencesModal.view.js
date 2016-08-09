@@ -270,13 +270,21 @@ define([
             },
             resetDefaults: function () {
                 this.onEdit();
-                var model = this.model;
                 this.viewMapLayers.each(function (viewLayer) {
-                    var url = viewLayer.get('url');
-                    var defaultConfig = model.getMapLayerConfig(url);
-                    viewLayer.set('show', defaultConfig.show);
-                    viewLayer.set('alpha', defaultConfig.alpha);
-                    viewLayer.set('index', defaultConfig.index);
+                    var viewObj = viewLayer.toJSON();
+                    var defaultConfig = _.find(properties.imageryProviders, function (layerObj) {
+                        var keys = _.without(_.keys(layerObj), 'alpha');
+                        var viewProperties = _.pick(viewObj, keys);
+                        return _.isEqual(viewProperties, _.omit(layerObj, 'alpha'));
+                    });
+                    var alpha = 0;
+                    if (defaultConfig && _.isNumber(defaultConfig.alpha)) {
+                        alpha = defaultConfig.alpha;
+                    }
+                    viewLayer.set({
+                        show: true,
+                        alpha: alpha
+                    });
                 });
                 this.viewMapLayers.sort();
             }
@@ -320,10 +328,9 @@ define([
             ui: {
                 tbody: 'tbody'
             },
-            initialize: function() {
-                this.collection.each(function(model) {
-                    this.listenTo(model, 'change', this.updateSort);
-                }, this);
+            viewComparator: 'label',
+            collectionEvents: {
+                'change:alpha': 'updateSort'
             },
             updateSort: function() {
                 var sort = false;
@@ -353,17 +360,17 @@ define([
             ui: {
                 range: 'input[type="range"]'
             },
+            modelEvents: {
+                'change:show': 'changeShow'
+            },
             initialize: function (options) {
+                this.modelBinder = new Backbone.ModelBinder();
                 this.widgetController = options.widgetController;
                 this.$el.data('layerPicker', this);// make model available to sortable.update()
             },
             onRender: function () {
-                this.modelBinder = new Backbone.ModelBinder();
                 var layerBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
                 this.modelBinder.bind(this.model, this.$el, layerBindings); // bound on viewModel.
-
-                this.listenTo(this.model, 'change:show', this.changeShow);
-
                 this.ui.range.prop('disabled', !this.model.get('show'));
             },
             changeShow: function (model) {
