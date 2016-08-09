@@ -58,6 +58,10 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
 
     private List<MetacardValidator> metacardValidators;
 
+    private boolean enforceErrors = true;
+
+    private boolean enforceWarnings = true;
+
     @Override
     public CreateRequest process(CreateRequest input)
             throws PluginExecutionException, StopProcessingException {
@@ -89,7 +93,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
         INGEST_LOGGER.info("Validation results: {} had warnings and {} had errors.",
                 counter.getOrDefault(Validation.VALIDATION_WARNINGS, 0),
                 counter.getOrDefault(Validation.VALIDATION_ERRORS, 0));
-
+        
         return validated;
     }
 
@@ -104,9 +108,13 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 validator.validate(metacard);
             } catch (ValidationException e) {
                 String validatorName = getValidatorName(validator);
+                boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
+                boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
 
-                if (isValidatorEnforced(validatorName)) {
-                    INGEST_LOGGER.info(
+                if ((isValidatorEnforced(validatorName) && validationErrorsExist && enforceErrors)
+                        || isValidatorEnforced(validatorName) && validationWarningsExist
+                        && enforceWarnings) {
+                    INGEST_LOGGER.debug(
                             "The metacard with id={} is being removed from the operation because it failed the enforced validator [{}].",
                             metacard.getId(),
                             validatorName);
@@ -191,5 +199,21 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             return metacardValidator.getClass()
                     .getCanonicalName();
         }
+    }
+
+    public void setEnforceErrors(boolean enforceErrors) {
+        this.enforceErrors = enforceErrors;
+    }
+
+    public boolean getEnforceErrors() {
+        return enforceErrors;
+    }
+
+    public void setEnforceWarnings(boolean enforceWarnings) {
+        this.enforceWarnings = enforceWarnings;
+    }
+
+    public boolean getEnforceWarnings() {
+        return enforceWarnings;
     }
 }

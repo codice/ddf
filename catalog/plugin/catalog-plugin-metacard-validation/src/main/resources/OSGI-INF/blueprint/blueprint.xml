@@ -41,6 +41,8 @@
         <property name="enforcedMetacardValidators">
             <list/>
         </property>
+        <property name="enforceErrors" value="true"/>
+        <property name="enforceWarnings" value="true"/>
 
     </bean>
 

@@ -627,6 +627,22 @@ public abstract class AbstractIntegrationTest {
         configureFilterInvalidMetacards("true", "false");
     }
 
+    protected void configureEnforceValidityErrorsAndWarnings(String enforceErrors,
+            String enforceWarnings) throws IOException {
+        Configuration config = configAdmin.getConfiguration(
+                "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
+                null);
+
+        Dictionary properties = new Hashtable<>();
+        properties.put("enforceErrors", enforceErrors);
+        properties.put("enforceWarnings", enforceWarnings);
+        config.update(properties);
+    }
+
+    protected void configureEnforceValidityErrorsAndWarningsReset() throws IOException {
+        configureEnforceValidityErrorsAndWarnings("true", "false");
+    }
+
     /**
      * Allows extending classes to add any custom options to the configuration.
      */
