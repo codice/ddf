@@ -60,6 +60,8 @@ import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 
 public class AuthorizationFilterTest {
+    private static final String PATH = "/path";
+
     private boolean sucess = false;
 
     @Before
@@ -71,7 +73,7 @@ public class AuthorizationFilterTest {
     public void testAuthorizedSubject() {
         FilterConfig filterConfig = mock(FilterConfig.class);
         ContextPolicyManager contextPolicyManager = new TestPolicyManager();
-        contextPolicyManager.setContextPolicy("/path", new TestContextPolicy());
+        contextPolicyManager.setContextPolicy(PATH, new TestContextPolicy());
         AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
         try {
             loginFilter.init(filterConfig);
@@ -111,7 +113,7 @@ public class AuthorizationFilterTest {
     public void testUnAuthorizedSubject() {
         FilterConfig filterConfig = mock(FilterConfig.class);
         ContextPolicyManager contextPolicyManager = new TestPolicyManager();
-        contextPolicyManager.setContextPolicy("/path", new TestContextPolicy());
+        contextPolicyManager.setContextPolicy(PATH, new TestContextPolicy());
         AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
         try {
             loginFilter.init(filterConfig);
@@ -147,7 +149,7 @@ public class AuthorizationFilterTest {
     public void testNoSubject() {
         FilterConfig filterConfig = mock(FilterConfig.class);
         ContextPolicyManager contextPolicyManager = new TestPolicyManager();
-        contextPolicyManager.setContextPolicy("/path", new TestContextPolicy());
+        contextPolicyManager.setContextPolicy(PATH, new TestContextPolicy());
         AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
         try {
             loginFilter.init(filterConfig);
@@ -178,7 +180,7 @@ public class AuthorizationFilterTest {
     public void testBadSubject() {
         FilterConfig filterConfig = mock(FilterConfig.class);
         ContextPolicyManager contextPolicyManager = new TestPolicyManager();
-        contextPolicyManager.setContextPolicy("/path", new TestContextPolicy());
+        contextPolicyManager.setContextPolicy(PATH, new TestContextPolicy());
         AuthorizationFilter loginFilter = new AuthorizationFilter(contextPolicyManager);
         try {
             loginFilter.init(filterConfig);
@@ -210,7 +212,7 @@ public class AuthorizationFilterTest {
 
         @Override
         public String getContextPath() {
-            return "/path";
+            return PATH;
         }
 
         @Override
@@ -321,7 +323,7 @@ public class AuthorizationFilterTest {
 
         @Override
         public String getContextPath() {
-            return "/path";
+            return PATH;
         }
 
         @Override
@@ -351,7 +353,7 @@ public class AuthorizationFilterTest {
 
         @Override
         public String getRequestURI() {
-            return null;
+            return PATH;
         }
 
         @Override
