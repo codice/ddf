@@ -3,7 +3,7 @@ See (http://geowebcache.org[GeoWebCache]) for more information.
 This application also provides an administrative plugin for the management of GeoWebCached layers.
 GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at \${secure_url}/geowebcache/.
 
-=== Prerequisites for ${ddf-geowebcache}
+=== ${ddf-geowebcache} Prerequisites
 
 none.
 
@@ -30,42 +30,29 @@ ${ddf-geowebcache} can be configured to cache layers locally, using the followin
 * If necessary, click the *Add* button to add additional MIME types.
 * If necessary, click the *Add* button to add additional WMS Layer Names.
 
-.Add Layer
-[cols="1,1m,1,2,1,1" options="header"]
+
+
+.Add Layers
+[cols="3" options="header"]
 |===
 |Name
-|Property
 |Type
-|Description
-|Default Value
 |Required
 
 |Name
-|
 |String
-|
-|
 |no
 
 |Mime Formats
-|
 |String
-|
-|
 |yes
 
 |URL
-|
 |URI
-|
-|
 |yes
 
 |WMS Layer Name
-|
 |String
-|
-|
 |yes
 
 |===

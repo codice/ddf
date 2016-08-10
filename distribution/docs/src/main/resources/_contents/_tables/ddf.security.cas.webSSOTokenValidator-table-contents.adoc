@@ -1,0 +1,20 @@
+.[[ddf.security.cas.webSSOTokenValidator]]Security STS CAS Token Validator
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|CAS Server URL:
+|casServerUrl
+|String
+|The URL of CAS server to validate tickets against.
+|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas/
+|true
+
+|===
+

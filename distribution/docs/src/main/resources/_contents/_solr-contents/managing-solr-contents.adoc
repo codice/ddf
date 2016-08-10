@@ -1,89 +1,61 @@
 
 The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
 
-=== ${branding} Catalog Solr External Provider
-
-==== Using
-
-The Solr Catalog Provider is used in conjunction with an Apache Solr Server data store and acts as the client for an external Solr Server.
-It is meant to be used only with the Standalone Solr Server (`catalog-solr-server`).
-
-==== Installing and Uninstalling
-
-===== Prerequisites
+=== ${ddf-solr} Prerequisites
 
 Before the ${ddf-solr} Application can be installed,
 
 * the ${ddf-platform} Application and
 * the ${ddf-catalog} Application must be installed.
 
-===== Installing
+=== Installing ${ddf-solr}
 
-By default, the ${ddf-solr} application installs the External Solr Provider.
+The ${ddf-solr} application is installed by default with a standard installation.
 
+=== Configuring ${ddf-solr}
 
-===== Configuring
+The following configuration properties can be changed under the Configuration tab of the ${admin-console}
 
-In order for the external Solr Catalog Provider to work, it must be pointed at the external Solr Server.
-When the `catalog-solr-external-provider` feature is installed, it is in an unconfigured state until the user provides an HTTP URL to the external Solr Server. 
-The configurable properties for this SCP are accessed from the Catalog External Solr Catalog Provider configurations in the Web Console.
-
-====== Configurable Properties
-[cols="1,1,1,3a,2,1" options="header"]
+.${ddf-solr} Configurations
+[cols="1,1m,1" options="header"]
 |===
-|Title
-|Property
-|Type
+|Name
+|Configuration ID
 |Description
-|Default Value
-|Required
 
-|HTTP URL
-|`url`
-|String
-|HTTP URL of the standalone, preconfigured Solr Server.
-|\${secure_url}/solr
-|Yes
+include::../_tables/conf-ddf.catalog.solr.external.SolrHttpCatalogProvider-table-contents.adoc[]
+|===
 
-|Force AutoCommit
-|`forceAutoCommit`
-|Boolean / Checkbox
-|
+include::../_tables/ddf.catalog.solr.external.SolrHttpCatalogProvider-table-contents.adoc[]
+
 [IMPORTANT]
 ====
 *Performance Impact* +
 Only in special cases should auto-commit be forced.
 Forcing auto-commit makes the search results visible immediately.
 ====
-|Unchecked
-|No
 
-|Disable Text Path Indexing
-|
-|Boolean / Checkbox
-|Unchecked
-|No
+=== Using ${branding} Catalog Solr External Provider
 
-|===
+The Solr Catalog Provider is used in conjunction with an Apache Solr Server data store and acts as the client for an external Solr Server.
+It is meant to be used only with the Standalone Solr Server (`catalog-solr-server`).
 
-=== ${branding} Catalog Solr Embedded Provider
+==== Installing ${branding} Catalog Solr External Provider
 
-==== Using
+By default, the ${ddf-solr} application installs the External Solr Provider.
+
+===== Configuring ${branding} Catalog Solr External Provider
+
+In order for the external Solr Catalog Provider to work, it must be pointed at the external Solr Server.
+When the `catalog-solr-external-provider` feature is installed, it is in an unconfigured state until the user provides an HTTP URL to the external Solr Server. 
+The <<ddf.catalog.solr.external.SolrHttpCatalogProvider, configurable properties>> for this SCP are accessed from the Catalog External Solr Catalog Provider configurations in the ${admin-console}.
+
+=== Using ${branding} Catalog Solr Embedded Provider
 
 The Solr Catalog Embedded Provider is an embedded, local Solr Server instance used in conjunction with an Apache Solr Server data store.
 It is a local instance that is a lightweight Catalog provider solution. However, it does not provide a Solr Admin GUI or a "REST-like HTTP/XML and JSON API." If that is necessary, see Standalone Solr Server.
 
-==== Installing and Uninstalling
-
-===== Prerequisites
-
-Before the ${ddf-solr} Application can be installed:
-
-* the ${branding} Kernel must be running,
-* the ${branding} Platform Application must be installed, and
-* the ${branding} Catalog Application must be installed
-
-===== Installing
+===== Installing ${branding} Catalog Solr Embedded Provider
 
 . Navigate to the ${ddf-solr} application in the Admin console.
 . Under the *Features* tab, uninstall the `catalog-solr-external-provider` feature.
@@ -105,45 +77,17 @@ The configurable properties for the SCP are accessed from the *Catalog Embedded
 The Embedded (Local) Solr Catalog Provider works on startup without any configuration because a local embedded Solr Server is automatically started and pre-configured.
 ====
 
-===== Configurable Properties
-
-[cols="1,1,1,4a,1,1" options="header"]
+.${ddf-solr} Catalog Solr Embedded Provider Configurations
+[cols="1,1m,1" options="header"]
 |===
-
-|Title
-|Property
-|Type
+|Name
+|Configuration ID
 |Description
-|Default Value
-|Required
 
-|Data Directory File Path
-|`dataDirectoryPath`
-|String
-|Specifies the directory to use for data storage. The server must be shutdown for this property to take effect. If a filepath is provided with directories that don't exist, SCP will attempt to create those directories. Out of the box (without configuration), the SCP writes to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr`.
-
-If `dataDirectoryPath` is left blank (empty string), it will default to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr`.
-
-If data directory file path is a relative string, the SCP will write the data files starting at the installation directory. For instance, if the string `scp/solr_data` is provided, the data directory will be at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/scp/solr_data`.
-
-If data directory file path is `/solr_data` in Windows, the Solr Catalog Provider will write the data files starting at the beginning of the drive, e.g., `C:\solr_data`.
-
-It is recommended that an absolute filepath be used to minimize confusion, e.g., `/opt/solr_data` in Linux or `C:\solr_data` in Windows. Permissions are necessary to write to the directory.
-|
-|No
-
-|Force Auto Commit
-|`forceAutoCommit`
-|Boolean / Checkbox
-|[IMPORTANT]
-====
-*Performance Impact* +
-Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately.
-====
-|
-|No
-
+include::../_tables/conf-ddf.catalog.source.solr.SolrCatalogProvider-table-contents.adoc[]
 |===
+
+include::../_tables/ddf.catalog.source.solr.SolrCatalogProvider-table-contents.adoc[]
 
 ==== Solr Configuration Files
 
@@ -188,8 +132,6 @@ The Standalone Solr Server gives the user an ability to run an Apache Solr insta
 The Standalone Solr Server contains a Solr Web Application Bundle and pre-configured Solr configuration files.
 A Solr Web Application Bundle is essentially the Apache Solr war repackaged as a bundle and configured for use within this distribution. 
 
-==== Using
-
 Users can use this feature to create a data store.
 Users would use this style of deployment over an embedded Java Solr Server when the user wants to install a Solr Server on a separate, dedicated machine for the purpose of isolated data storage or ease of maintenance. 
 The Standalone Solr Server can now run in its own JVM (separate from endpoints and other frameworks) and accept calls with its "REST-like HTTP/XML and JSON API." 
@@ -197,9 +139,7 @@ The Standalone Solr Server can now run in its own JVM (separate from endpoints a
 This Standalone Solr Server is meant to be used in conjunction with the Solr Catalog Provider for External Solr.
 The Solr Catalog Provider acts as a client to the Solr Server.
 
-==== Installing and Uninstalling
-
-===== Prerequisites
+==== Standalone Solr Server Prerequisites
 
 Before the ${ddf-solr} Application can be installed for configuration as the Standalone Solr Server, the ${branding} Kernel must be running.
 
@@ -208,7 +148,7 @@ The Standalone Solr Server, as its name suggests, does not require or depend on 
 Therefore, it is recommended to have the Solr Server app run on a lightweight ${branding} distribution, such as the ${branding} Distribution Kernel.
 If clustering is necessary, the Solr Server application can run alongside the Platform application for clustering support.
 
-==== Installing
+==== Installing Standalone Solr Server
 
 By default, the features for the Standalone Solr Server and External Solr Catalog Provider are installed.
 
@@ -229,12 +169,12 @@ Use the core selector in the Solr administration page to get a list of available
 ${secure_url}/solr
 ----
 
-==== Configuring
+==== Configuring Standalone Solr Server
 
 The Standalone Solr Server comes pre-configured to work with Solr Catalog External Provider implementations.
 For most use cases, no other configuration to the Solr Server is necessary with the standard distribution.
 
-==== Known Issues
+==== Known Issues With Standalone Solr Server
 
 The standalone Solr Server fails to install if it has been previously uninstalled prior to the distribution being restarted.
 
@@ -309,3 +249,7 @@ Here are some helpful suggestions for setting up data backups and recoveries:
 * Run a scheduler program that calls the backup URL on a timed basis.
 * Put indicators in place that can detect when data corruption may have occurred.
 * Testing a backup before recovery is possible. A replicated "staging" Solr server instance can be stood up, and the backup can be copied to that system for testing before moving it to the "production" system.
+
+==== Known Issues With Standalone Solr Server
+
+The standalone Solr Server fails to install if it has been previously uninstalled prior to the distribution being restarted.

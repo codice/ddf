@@ -1,0 +1,4 @@
+|<<ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validation Marker Plugin>>
+|ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin
+|Metacard Validation Marker Plugin
+

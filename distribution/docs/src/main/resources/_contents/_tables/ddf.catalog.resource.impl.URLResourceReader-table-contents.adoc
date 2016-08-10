@@ -1,0 +1,27 @@
+.[[ddf.catalog.resource.impl.URLResourceReader]]URL Resource Reader
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Follow Server Redirects
+|followRedirects
+|Boolean
+|Check the box if you want the Resource Reader to automatically follow server issued redirects (HTTP Response Code 300 series)
+|false
+|true
+
+| Root Resource Directories
+| rootResourceDirectories
+| String
+| List of root resource directories. A relative path is relative to ddf.home. Specifies the only directories the URLResourceReader has access to when attempting to download resources linked using file-based URLs.
+| data/products
+| true
+
+|===
+

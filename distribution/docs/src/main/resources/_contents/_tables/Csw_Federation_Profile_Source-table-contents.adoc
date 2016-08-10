@@ -1,0 +1,54 @@
+.[[Csw_Federation_Profile_Source]]CSW Federation Profile Source
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|id
+|String
+|The unique name of the Source
+|CSW
+|true
+
+| CSW URL
+| cswUrl
+| String
+| URL to the endpoint implementing the Catalogue Service for Web (CSW) spec
+| ${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw
+| true
+
+| CSW Event Service Address
+| eventServiceAddress
+| String
+| CSW Event Service endpoint.
+| ${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw/subscription
+| false
+
+| Register for Events
+| registerForEvents
+| Boolean
+| Check to register for events from this connected source.
+| false
+| false
+
+| Username
+| username
+| String
+| Username for CSW Service (optional)
+| null
+| false
+
+| Password
+| password
+| String
+| Password for CSW Service (optional)
+| null
+| false
+
+|===

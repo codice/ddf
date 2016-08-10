@@ -319,6 +319,16 @@
                                     <type>pdf</type>
                                     <classifier>Help</classifier>
                                 </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/adoc-files/standard-${project.version}-adoc-files.zip</file>
+                                    <type>zip</type>
+                                    <classifier>help-adoc-files</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/images/standard-${project.version}-images.zip</file>
+                                    <type>zip</type>
+                                    <classifier>help-images</classifier>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

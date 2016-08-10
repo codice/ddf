@@ -1,0 +1,4 @@
+|<<org.codice.ddf.security.validator.pki,Security STS PKI Token Validator>>
+|org.codice.ddf.security.validator.pki
+|STS PKI Token Validator Configuration.
+

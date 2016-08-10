@@ -1,0 +1,83 @@
+.[[Claims_Handler_Manager]]Security STS LDAP and Roles Claims Handler
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|LDAP URL:
+|url
+|String
+|LDAP or LDAPS server and port
+|ldaps://${org.codice.ddf.system.hostname}:1636
+|true
+
+| StartTLS:
+| startTls
+| Boolean
+| Determines whether or not to use StartTLS when connecting via the ldap protocol. This setting is ignored if the URL uses ldaps.
+| false
+| true
+
+| LDAP Bind User DN:
+| ldapBindUserDn
+| String
+| DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.
+| cn=admin
+| true
+
+| LDAP Bind User Password:
+| password
+| Password
+| Password used to bind user with LDAP.
+| secret
+| true
+
+| LDAP Username Attribute:
+| userNameAttribute
+| String
+| Attribute used to designate the user's name in LDAP. Usually this is uid, cn, or something similar.
+| uid
+| true
+
+| LDAP Base User DN:
+| userBaseDn
+| String
+| Full LDAP path to where users can be found.
+| ou=users\
+| true
+
+| LDAP Group ObjectClass:
+| objectClass
+| String
+| ObjectClass that defines structure for group membership in LDAP. Usually this is groupOfNames or groupOfUniqueNames.
+|dc=example\
+| true
+
+| LDAP Membership Attribute:
+| memberNameAttribute
+| String
+| Attribute used to designate the user's name as a member of the group in LDAP. Usually this is member or uniqueMember.
+|dc=com
+| true
+
+| LDAP Base Group DN:
+| groupBaseDn
+| String
+| Full LDAP path to where groups can be found.
+| groupOfNames
+| true
+
+| Attribute Map File:
+| propertyFileLocation
+| String
+| Location of the file which contains user attribute maps to use.
+| member
+| true
+
+|===
+

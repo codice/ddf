@@ -1,0 +1,34 @@
+.[[org.codice.ddf.catalog.twitter.source.TwitterSource]]Twitter Federated Source
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Source Name
+|id
+|String
+|null
+|DDF-Twitter
+|true
+
+| Consumer Key
+| consumerKey
+| String
+| null
+| 
+| true
+
+| Consumer Secret
+| consumerSecret
+| String
+| null
+| 
+| true
+
+|===
+

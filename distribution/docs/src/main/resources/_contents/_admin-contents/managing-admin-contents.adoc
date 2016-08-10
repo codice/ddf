@@ -6,81 +6,35 @@ It contains various services and interfaces that allow administrators more contr
 The Admin application contains an application service that handles all operations that are performed on applications.
 This includes adding, removing, starting, stopping, and showing status.
 
+=== ${ddf-admin} Prerequisites
+
+None.
+
 === Installing ${ddf-admin}
 
 The ${ddf-admin} application is installed by default with a standard installation.
 
-==== Configurable Properties ${ddf-admin}
+=== Configuring ${ddf-admin}
 
-The following configuration properties can be changed under the Configuration tab under Admin UI
+The following configuration properties can be changed under the Configuration tab of the ${admin-console}
 
-[cols="6" options="header"]
+.${ddf-admin} Configurations
+[cols="1,1m,1" options="header"]
 |===
-
-|Title
-|Property
-|Type
+|Name
+|Configuration ID
 |Description
-|Default Value
-|Required
 
-|Enable System Usage Message
-|`systemUsageEnabled`
-|Boolean
-|Turns on a system usage message, which is shown when the Admin Application is opened
-|
-|yes
+include::../_tables/conf-org.codice.ddf.admin.config.policy.AdminConfigPolicy-table-contents.adoc[]
 
-|System Usage Message Title
-|`systemUsageTitle`
-|String
-|A title for the system usage Message when the application is opened
-|
-|yes
-
-|System Usage Message
-|`systemUsageMessage`
-|String
-|A system usage message to be displayed to the user each time the user opens the application
-|
-|yes
-
-|Show System Usage Message once per session
-|`systemUsageOncePerSession`
-|Boolean
-|With this selected, the system usage message will be shown once for each browser session. Uncheck this to have the usage message appear every time the admin page is opened or refreshed.
-|true
-|yes
-
-|Header
-|`header`
-|String
-|Specifies the header text to be rendered on all pages.
-|
-|yes
-
-|Footer
-|`footer`
-|String
-|Specifies the footer text to be rendered on all pages.
-|
-|yes
-
-|Style
-|`color`
-|String
-|Specifies the Style of the Header and Footer. Use html css colors or `#rrggbb`.
-|
-|yes
-
-|Text Color
-|`color`
-|String
-|Specifies the Text Color of the Header and Footer. Use html css colors or `#rrggbb`.
-|
-|yes
-
+include::../_tables/conf-org.codice.admin.ui.configuration-table-contents.adoc[]
 |===
+
+include::../_tables/org.codice.ddf.admin.config.policy.AdminConfigPolicy-table-contents.adoc[]
+
+include::../_tables/org.codice.admin.ui.configuration-table-contents.adoc[]
+
+=== Using ${ddf-admin}
 
 ==== Defining Platform Settings
 
@@ -88,7 +42,7 @@ The platform settings can be configured by the `<INSTALL_HOME>/etc/system.proper
 
 The settings in this file can be changed at any time during the ${branding} lifecycle (before installation, after, or during run-time) and will take effect after a system restart.
 
-=== Console Commands
+==== Application Service Console Commands
 
 The application service comes with various console commands that can be executed on the ${command-console}.
 
@@ -97,12 +51,12 @@ The application service comes with various console commands that can be executed
 The Application service has multiple ways of interacting with it.
 These methods include operations that can be performed by integrators, administrators, and end users.
 
-==== Installing and Uninstalling
+==== Installing and Uninstalling Application Service
 
-The Admin App installs this service by default.
+The ${ddf-admin} App installs this service by default.
 It is recommended to NOT uninstall the application service unless absolutely necessary.
 
-==== Configuring
+==== Configuring Application Service
 
 None.
 
@@ -121,12 +75,12 @@ However, new modules can be added, and each module is presented in its own tab o
 Modules are single components that implement the `org.codice.ddf.ui.admin.api.module.AdminModule` interface.
 Once they implement and expose themselves as a service, they are added in to the ${admin-console} as a new tab.
 
-==== Included Modules
+===== Included Modules
 
-* Installer Module
-* Configuration Module
+* <<installer_module,Installer Module>>
+* <<configuration_module,Configuration Module>>
 
-===== Installer Module
+===== [[installer_module]]Installer Module
 
 The application installer module enables a user to install and remove applications.
 Each application includes a features file that provides a description of the application and a list of the dependencies required to successfully run that application.
@@ -224,7 +178,7 @@ The redirect will only work if the certificates are configured in the browser. +
 Otherwise the redirect link must be used.
 ===============================
 
-==== Configuration Module
+==== [[configuration_module]]Configuration Module
 
 The configuration module allows administrators to change bundle and service configurations.
 
@@ -239,74 +193,4 @@ The configuration module allows administrators to change bundle and service conf
 
 . Select the Configurations tab if not already selected.
 
-===== Configurations Tab
 
-=== ${admin-console} Access Control
-
-If you have integrated ${branding} with your existing security infrastructure, then you may want to limit access to parts of the ${branding} based on user roles/groups.
-
-==== Restricting ${branding} Access
-
-. See the documentation for your specific security infrastructure to configure users, roles, and groups.
-
-. Select the Web Context Policy Manager.
-
-.. A dialogue will pop up that allows you to edit ${branding} access restrictions.
-
-.. Once you have configured your realms in your security infrastructure, you can associate them with ${branding} contexts.
-
-.. If your infrastructure supports multiple authentication methods, they may be specified on a per-context basis.
-
-.. Role requirements may be enforced by configuring the required attributes for a given context.
-
-.. The whitelist allows child contexts to be excluded from the authentication constraints of their parents.
-
-==== Restricting ${branding} Feature, App, Service, and Configuration Access
-
-. See the documentation for your specific security infrastructure to configure users, roles, and groups.
-
-. Select the Admin Configuration Policy under the ${ddf-admin} Admin App
-
-. To add a feature or app permission:
-
-.. Add a new field to "Feature and App Permissions" in the format of: `feature name/app name = "attribute name=attribute value","attribute name2=attribute value2", ...`
-
-.. For example, to restrict access of any user without an admin role to the catalog-app: `catalog-app = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin", ...`
-
-. To add a configuration permission:
-
-.. Add a new field to "Configuration Permissions" in the format of: `configuration id = "attribute name=attribute value","attribute name2=attribute value2", ...`
-
-.. For example, to restrict access of any user without an admin role to the Web Context Policy Manager: `org.codice.ddf.security.policy.context.impl.PolicyManager="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"`
-
-If a permission is specified, any user without the required attributes will be unable to see or modify the feature, app, or configuration.
-
-==== LDAP Admin Role Configuration
-
-The admin role will default to `system-admin`. This can be configured to work with an external LDAP with a few minor changes.
-
-==== Update the admin role in `INSTALL_HOME/etc/users.properties`
-
-Change the value of 'system-admin' to the new admin role for any users needing the new role.
-
-.Example `user.properties` entries:
-[source]
-----
-admin=admin,group,admin,manager,viewer,system-admin
-localhost=localhost,group,admin,manager,viewer,system-admin
-----
-
-[NOTE]
-====
-A system restart is required for the changes to `users.properties` to take effect.
-====
-
-==== Update the web context policy to point to the new admin role
-
-. Open ${ddf-security} in the ${admin-console}
-. Select the Configuration tab and open Web Context Policy Manager
-. Update the entries under 'Required Attributes' to set the new admin role
-
-*Web Context Policy Manager*
-
-image::web_context_policy_manager.png[Web Context Policy Manager,${image.width}]

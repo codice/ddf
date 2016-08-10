@@ -1,0 +1,4 @@
+|<<org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor,Catalog Content Directory Monitor>>
+|org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor
+|null
+

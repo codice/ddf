@@ -1,0 +1,4 @@
+|<<org.codice.ddf.spatial.geocoding.index.properties,GeoNames Indexer>>
+|org.codice.ddf.spatial.geocoding.index.properties
+|GeoNames Indexer
+

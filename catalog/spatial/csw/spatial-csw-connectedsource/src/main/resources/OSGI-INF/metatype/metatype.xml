@@ -44,7 +44,7 @@
             name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
             type="Boolean" default="false"/>
 
-        <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing"
+        <AD description="Use a &lt;posList&gt; element rather than a series of &lt;pos&gt; elements when issuing geospatial queries containing a LinearRing"
             name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"
             default="false"/>
 

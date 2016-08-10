@@ -1,90 +1,52 @@
 
 The ${ddf-spatial} Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 
-This page describes:
-
-* which applications must be installed prior to installing this application.
-* how to install the ${ddf-spatial} Application.
-* how to verify if the application was successfully installed.
-* how to uninstall the application.
-* how to upgrade the application.
-* the optional features available in the application.
-* the console commands that come with the application.
-
-=== Prerequisites
+=== ${ddf-spatial} Prerequisites
 
 Before the ${ddf-spatial} Application can be installed:
 
 * the ${ddf-platform} Application and
 * the ${ddf-catalog} Application must be installed
 
-=== Installing
-. Before installing a ${branding} application, verify that its prerequisites have been met.
-. Copy the ${branding} application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+=== Installing ${ddf-spatial}
 
-[NOTE]
-====
-These Installation steps are the same whether ${branding} was installed from a distribution zip or a custom installation using the ${branding} Kernel zip.
-====
+The ${ddf-spatial} application is installed by default on a standard installation.
 
-==== Verifying
-. Verify the appropriate features for the ${branding} application have been installed using the `features:list` command to view the KAR file's features.
-. Verify that the bundles within the installed features are in an active state.
+=== Configuring ${ddf-spatial}
 
-==== Uninstalling
-[WARNING]
-====
-It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
-====
+The following configuration properties can be changed under the Configuration tab of the ${admin-console}
 
-If the ${branding} application is deployed on the ${branding} Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
+.${ddf-catalog} Configurations
+[cols="1,1m,1" options="header"]
+|===
+|Name
+|Configuration ID
+|Description
 
-Otherwise, if the ${branding} application is running as part of the ${branding} distribution zip, it is uninstalled the first time and only the first time using the `features:removeurl` command:
+include::../_tables/conf-Csw_Federation_Profile_Source-table-contents.adoc[]
+include::../_tables/conf-Csw_Federated_Source-table-contents.adoc[]
+include::../_tables/conf-Gmd_Csw_Federated_Source-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.spatial.kml.endpoint.KmlEndpoint-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.spatial.kml.style-table-contents.adoc[]
+include::../_tables/conf-Wfs_v2_0_0_Federated_Source-table-contents.adoc[]
+include::../_tables/conf-Wfs_v1_0_0_Federated_Source-table-contents.adoc[]
 
-.Uninstall ${branding} application from ${branding} distribution
-----
-feature:repo-remove -u <Application's feature repository URL>
+|===
 
-Example:   feature:repo-remove -u mvn:org.codice.ddf.spatial/spatial-app/2.5.0/xml/features
-----
+include::../_tables/Csw_Federated_Source-table-contents.adoc[]
 
-The uninstall of the application can be verified by the absence of any of the ${branding} application's features in the `feature:list` command output.
+include::../_tables/org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper-table-contents.adoc[]
 
-[NOTE]
-====
-The repository URLs for installed applications can be obtained by entering:
-      `feature:repo-list -u`
-====
+include::../_tables/org.codice.ddf.spatial.kml.endpoint.KmlEndpoint-table-contents.adoc[]
 
-==== Reverting the Uninstall
+include::../_tables/org.codice.ddf.spatial.kml.style-table-contents.adoc[]
 
-If the uninstall of the ${branding} application needs to be reverted, this is accomplished by either:
+include::../_tables/Wfs_v2_0_0_Federated_Source-table-contents.adoc[]
 
-* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR
-* adding the application's feature repository back into ${branding} and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
+include::../_tables/Wfs_v1_0_0_Federated_Source-table-contents.adoc[]
 
-.Reverting ${branding} application's uninstall
-----
-feature:repo-add <Application's feature repository URL>
-feature:install <Application's main feature>
-----
-
-.Example
-----
-${branding-lowercase}${at-symbol}local>feature:repo-add mvn:ddf.catalog/catalog-app/${ddf.version}/xml/features
-${branding-lowercase}${at-symbol}local>feature:install catalog-app
-----
-
-==== Upgrading
-
-To upgrade an application, complete the following procedure.
-
-. Uninstall the application by following the Uninstall Applications instructions above.
-. Install the new application KAR file by copying the `admin-app-X.Y.kar` file to the `<INSTALL_DIRECTORY>/deploy` directory.
-. Start the application.
-. Complete the steps in the Verify section above to determine if the upgrade was successful.
-
-=== Optional Features
+=== Optional Features of ${ddf-spatial}
 
 ==== Offline Gazetteer Service
 

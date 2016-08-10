@@ -2444,3 +2444,73 @@ jar verified.
 
 Note the last line: _jar verified_.
 This indicates that the signatures used to sign the JAR (or in this case, KAR) were valid according to the trust relationships specified by the keystore.
+
+=== ${admin-console} Access Control
+
+If you have integrated ${branding} with your existing security infrastructure, then you may want to limit access to parts of the ${branding} based on user roles/groups.
+
+==== Restricting ${branding} Access
+
+. See the documentation for your specific security infrastructure to configure users, roles, and groups.
+
+. Select the <<web_context_policy_manager,Web Context Policy Manager>>.
+
+.. A dialogue will pop up that allows you to edit ${branding} access restrictions.
+
+.. Once you have configured your realms in your security infrastructure, you can associate them with ${branding} contexts.
+
+.. If your infrastructure supports multiple authentication methods, they may be specified on a per-context basis.
+
+.. Role requirements may be enforced by configuring the required attributes for a given context.
+
+.. The whitelist allows child contexts to be excluded from the authentication constraints of their parents.
+
+==== Restricting ${branding} Feature, App, Service, and Configuration Access
+
+. See the documentation for your specific security infrastructure to configure users, roles, and groups.
+
+. Select the Admin Configuration Policy under the ${ddf-admin} Admin App
+
+. To add a feature or app permission:
+
+.. Add a new field to "Feature and App Permissions" in the format of: `feature name/app name = "attribute name=attribute value","attribute name2=attribute value2", ...`
+
+.. For example, to restrict access of any user without an admin role to the catalog-app: `catalog-app = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin", ...`
+
+. To add a configuration permission:
+
+.. Add a new field to "Configuration Permissions" in the format of: `configuration id = "attribute name=attribute value","attribute name2=attribute value2", ...`
+
+.. For example, to restrict access of any user without an admin role to the Web Context Policy Manager: `org.codice.ddf.security.policy.context.impl.PolicyManager="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"`
+
+If a permission is specified, any user without the required attributes will be unable to see or modify the feature, app, or configuration.
+
+==== LDAP Admin Role Configuration
+
+The admin role will default to `system-admin`. This can be configured to work with an external LDAP with a few minor changes.
+
+==== Update the admin role in `INSTALL_HOME/etc/users.properties`
+
+Change the value of 'system-admin' to the new admin role for any users needing the new role.
+
+.Example `user.properties` entries:
+[source]
+----
+admin=admin,group,admin,manager,viewer,system-admin
+localhost=localhost,group,admin,manager,viewer,system-admin
+----
+
+[NOTE]
+====
+A system restart is required for the changes to `users.properties` to take effect.
+====
+
+==== Update the web context policy to point to the new admin role
+
+. Open ${ddf-security} in the ${admin-console}
+. Select the Configuration tab and open Web Context Policy Manager
+. Update the entries under 'Required Attributes' to set the new admin role
+
+*Web Context Policy Manager*
+
+image::web_context_policy_manager.png[Web Context Policy Manager,${image.width}]

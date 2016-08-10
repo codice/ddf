@@ -1,0 +1,4 @@
+|<<ddf.catalog.federation.impl.CachingFederationStrategy,Catalog Federation Strategy>>
+|ddf.catalog.federation.impl.CachingFederationStrategy
+|Catalog Caching Federation Strategy
+

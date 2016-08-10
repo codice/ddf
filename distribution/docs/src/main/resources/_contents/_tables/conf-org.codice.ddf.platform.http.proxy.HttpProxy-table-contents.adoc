@@ -1,0 +1,4 @@
+|<<org.codice.ddf.platform.http.proxy.HttpProxy,HTTP to HTTPS Proxy Settings>>
+|org.codice.ddf.platform.http.proxy.HttpProxy
+|HTTP to HTTPS Proxy Settings
+

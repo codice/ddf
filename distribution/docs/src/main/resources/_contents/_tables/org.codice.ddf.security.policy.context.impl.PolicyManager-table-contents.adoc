@@ -1,0 +1,41 @@
+.[[org.codice.ddf.security.policy.context.impl.PolicyManager]]Web Context Policy Manager
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Context Realms
+|realms
+|String
+|List of realms supporting each context. Karaf is provided by default. Example: /=karaf
+|/=karaf
+|true
+
+| Authentication Types
+| authenticationTypes
+| String
+| List of authentication types required for each context. List of default valid authentication types are: SAML, BASIC, PKI, GUEST. Example: /context=AUTH1
+| /=SAML
+| true
+
+| Required Attributes
+| requiredAttributes
+| String
+|AUTH2
+|GUEST
+| true
+
+| White Listed Contexts
+| whiteListContexts
+| String
+|AUTH3
+|/admin=SAML
+| true
+
+|===
+

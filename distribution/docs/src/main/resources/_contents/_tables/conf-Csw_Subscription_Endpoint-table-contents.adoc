@@ -1,0 +1,4 @@
+|<<Csw_Subscription_Endpoint,CSW Subscription Endpoint>>
+|Csw_Subscription_Endpoint
+|CSW Subscription Endpoint
+

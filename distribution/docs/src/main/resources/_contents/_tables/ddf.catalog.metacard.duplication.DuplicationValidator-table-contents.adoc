@@ -1,0 +1,27 @@
+.[[ddf.catalog.metacard.duplication.DuplicationValidator]]Catalog Duplicate Validator
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Metacard attributes (duplicates cause a validation error)
+|errorOnDuplicateAttributes
+|String
+|A list of metacard attributes used in the duplication check against the local catalog.  If a duplicate is found
+|null
+|true
+
+| Metacard attributes (duplicates cause a validation warning)
+| warnOnDuplicateAttributes
+| String
+|the ingest will cause a metacard validation ERROR
+| checksum
+| true
+
+|===
+

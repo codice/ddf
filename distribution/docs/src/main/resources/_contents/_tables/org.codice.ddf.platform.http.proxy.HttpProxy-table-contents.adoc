@@ -1,0 +1,20 @@
+.[[org.codice.ddf.platform.http.proxy.HttpProxy]]HTTP to HTTPS Proxy Settings
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Hostname
+|hostname
+|String
+|Hostname to use for HTTPS connection in the proxy.
+|null
+|true
+
+|===
+

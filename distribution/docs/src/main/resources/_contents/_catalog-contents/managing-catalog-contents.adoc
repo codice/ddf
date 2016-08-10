@@ -1,0 +1,58 @@
+
+=== ${ddf-catalog} Prerequisites
+
+None.
+
+=== Installing ${ddf-catalog}
+
+Before the ${ddf-catalog} application can be installed:
+
+* the ${branding} Platform application must be installed
+
+The ${ddf-catalog} is pre-installed with a standard installation.
+
+
+=== Configuring ${ddf-catalog}
+
+The following configuration properties can be changed under the Configuration tab of the ${admin-console}
+
+.${ddf-catalog} Configurations
+[cols="1,1m,1" options="header"]
+|===
+|Name
+|Configuration ID
+|Description
+
+include::../_tables/conf-plugin.backup-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor-table-contents.adoc[]
+include::../_tables/conf-ddf.catalog.federation.impl.CachingFederationStrategy-table-contents.adoc[]
+include::../_tables/conf-OpenSearchSource-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.catalog.security.CatalogPolicy-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.catalog.content.impl.FileSystemStorageProvider-table-contents.adoc[]
+include::../_tables/conf-ddf.catalog.history.Historian-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin-table-contents.adoc[]
+include::../_tables/conf-ddf.catalog.resource.download.ReliableResourceDownloadManager-table-contents.adoc[]
+include::../_tables/conf-ddf.services.schematron.SchematronValidationService-table-contents.adoc[]
+include::../_tables/conf-ddf.catalog.resource.impl.URLResourceReader-table-contents.adoc[]
+include::../_tables/conf-org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin-table-contents.adoc[]
+include::../_tables/conf-ddf.catalog.transformer.xml.XmlResponseQueueTransformer-table-contents.adoc[]
+|===
+
+include::../_tables/plugin.backup-table-contents.adoc[]
+include::../_tables/org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor-table-contents.adoc[]
+include::../_tables/ddf.catalog.federation.impl.CachingFederationStrategy-table-contents.adoc[]
+include::../_tables/OpenSearchSource-table-contents.adoc[]
+include::../_tables/org.codice.ddf.catalog.security.CatalogPolicy-table-contents.adoc[]
+include::../_tables/ddf.catalog.CatalogFrameworkImpl-table-contents.adoc[]
+include::../_tables/org.codice.ddf.catalog.content.impl.FileSystemStorageProvider-table-contents.adoc[]
+
+include::../_tables/org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin-table-contents.adoc[]
+
+include::../_tables/ddf.catalog.resource.download.ReliableResourceDownloadManager-table-contents.adoc[]
+
+include::../_tables/ddf.services.schematron.SchematronValidationService-table-contents.adoc[]
+include::../_tables/ddf.catalog.resource.impl.URLResourceReader-table-contents.adoc[]
+include::../_tables/org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin-table-contents.adoc[]
+
+include::../_tables/ddf.catalog.transformer.xml.XmlResponseQueueTransformer-table-contents.adoc[]
+

@@ -2199,71 +2199,6 @@ The Catalog API is an OSGi bundle (`catalog-core-api`) that contains the Java i
 The Standard Catalog Framework provides the reference implementation of a Catalog Framework that implements all requirements of the ${ddf-catalog}API. 
 `CatalogFrameworkImpl` is the implementation of the ${branding} Standard Catalog Framework.
 
-===== Installing and Uninstalling
-
-The Standard Catalog Framework is bundled as the `catalog-core-standardframework` feature and can be installed and uninstalled using the normal processes described in Configuration.
-
-When this feature is installed, the Catalog Fanout Framework App feature `catalog-core-fanoutframework` should be uninstalled, as both catalog frameworks should not be installed simultaneously.
-
-===== Configuring
-
-====== Configurable Properties
-
-.Catalog Standard Framework
-[cols="2,1,3,1,1", options="header"]
-|===
-
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|`fanoutEnabled`
-|Boolean
-|When enabled the Framework acts as a proxy, federating requests to all available sources. All requests are executed as federated queries and resource retrievals, allowing the framework to be the sole component exposing the functionality of all of its Federated Sources.
-|false
-|yes
-
-|`productCacheDirectory`
-|String
-|Directory where retrieved products will be cached for faster, future retrieval. If a directory path is specified with directories that do not exist, Catalog Framework will attempt to create those directories. Out of the box (without configuration), the product cache directory is `<INSTALL_DIR>/data/product-cache`. If a relative path is provided it will be relative to the `<INSTALL_DIR>`.
-
-It is recommended to enter an absolute directory path such as `/opt/product-cache`in Linux or `C:\product-cache` in Windows."
-|`(empty)`
-|no
-
-|`cacheEnabled`
-|Boolean
-|Check to enable caching of retrieved products to provide faster retrieval for subsequent requests for the same product.
-|false
-|no
-
-|`delayBetweenRetryAttempts`
-|Integer
-|The time to wait (in seconds) between each attempt to retry retrieving a product from the Source.
-|10
-|no
-
-|`maxRetryAttempts`
-|Integer
-|The maximum number of attempts to try and retrieve a product from the Source.
-|3
-|no
-
-|`cachingMonitorPeriod`
-|Integer
-|The number of seconds allowed for no data to be read from the product data before determining that the network connection to the Source where the product is located is considered to be down.
-|5
-|no
-
-|`cacheWhenCanceled`
-|Boolean
-|Check to enable caching of retrieved products even if client cancels the download.
-|false
-|no
-
-|===
 
 [cols="2*", options="header"]
 |===
@@ -2469,87 +2404,6 @@ In addition, the Fanout Catalog Framework provides the following benefits:
 * Backwards compatibility (e.g., federating with older versions) with existing older versions of ${branding}.
 * A single node being exposed from an enterprise, thus hiding the enterprise from an external client.
 * Ensures all queries and resource retrievals are federated.
-
-===== Installing and Uninstalling
-
-The Fanout Catalog Framework is bundled as the `catalog-core-fanoutframework` feature and can be installed and uninstalled using the normal processes described in Configuration.
-
-[WARNING]
-====
-When this feature is installed, the Standard Catalog Framework feature `catalog-core-standardframework` should be uninstalled, as both catalog frameworks should not be installed simultaneously.
-====
-
-==== Configuring
-
-The Fanout Catalog Framework can be configured using the normal processes described in Configuring ${branding}.
-
-The configurable properties for the Fanout Catalog Framework are accessed from the Catalog Fanout Framework configuration in the Admin Console.
-
-===== Configurable Properties
-
-[cols="1,2,1,3,1,1" options="header"]
-|===
-
-|Title
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|Default Timeout
-(in milliseconds)
-|`defaultTimeout`
-|Integer
-|The maximum amount of time to wait for a response from the Sources.
-|60000
-|yes
-
-|Product Cache Directory
-|`productCacheDirectory`
-|String
-|Directory where retrieved products will be cached for faster, future retrieval. If a directory path is specified with directories that do not exist, Catalog Framework will attempt to create those directories. Out of the box (without configuration), the product cache directory is `<INSTALL_DIR>/data/product-cache`. If a relative path is provided, it will be relative to the `<INSTALL_DIR>`.
-
-It is recommended to enter an absolute directory path, such as `/opt/product-cache` in Linux or `C:\product-cache` in Windows.
-|(empty)
-|no
-
-|Enable Product Caching
-|`cacheEnabled`
-|Boolean
-|Check to enable caching of retrieved products to provide faster retrieval for subsequent requests for the same product.
-|false
-|no
-
-|Delay (in seconds) between product retrieval retry attempts
-|`delayBetweenRetryAttempts`
-|Integer
-|The time to wait (in seconds) between attempting to retry retrieving a product.
-|10
-|no
-
-|Max product retrieval retry attempts
-|`maxRetryAttempts`
-|Integer
-|The maximum number of attempts to retry retrieving a product.
-|3
-|no
-
-|Caching Monitor Period
-|`cachingMonitorPeriod`
-|Integer
-|How many seconds to wait and not receive product data before retrying to retrieve a product.
-|5
-|no
-
-|Always Cache Product
-|`cacheWhenCanceled`
-|Boolean
-|Check to enable caching of retrieved products, even if client cancels the download.
-|false
-|no
-
-|===
 
 [cols="2*" options="header"]
 |===
@@ -2961,73 +2815,7 @@ Therefore, a ${ddf-catalog} can also act as a federated source to another ${ddf-
 The OpenSearch source provides a Federated Source that has the capability to do http://www.opensearch.org/Home[OpenSearch] queries for metadata from Content Discovery and Retrieval (CDR) Search V1.1 compliant sources.
 The OpenSearch source does not provide a Connected Source interface.
 
-===== Installing and Uninstalling
-
-The OpenSearch source can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
-
-===== Configuring
-
-This component can be configured using the normal processes described in the Configuring ${branding} section.
-The configurable properties for the OpenSearch source are accessed from the Catalog OpenSearch Federated Source Configuration in the Web Console.
-
-===== Configuring the OpenSearch Source
-
-====== Configurable Properties
-[cols="1,1,1,3,1,1" options="header"]
-|===
-
-|Title
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|Source Name
-|`shortname`
-|String
-|
-|DDF-OS
-|Yes
-
-|OpenSearch service URL
-|`endpointUrl`
-|String
-|The OpenSearch endpoint URL, e.g., ${branding}'s OpenSearch endpoint (http://0.0.0.0:8181/services/catalog/query?q={searchTerms}...)
-|https://example.com?q={searchTerms}&amp;src={fs:routeTo?}&amp;mr={fs:maxResults?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;dn={idn:userDN?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;bbox={geo:box?}&amp;polygon={geo:polygon?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dateName={cat:dateName?}&amp;filter={fsa:filter?}&amp;sort={fsa:sort?}
-|Yes
-
-|Username
-|`username`
-|String
-|Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication.
-|
-|No
-
-|Password
-|`password`
-|String
-|Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication.
-|
-|No
-
-|Always perform local query
-|`localQueryOnly`
-|Boolean
-|Always performs a local query by setting src=local OpenSearch parameter in endpoint URL. *This must be set if federating to another ${branding}*.
-|false
-|Yes
-
-|Convert to BBox
-|`shouldConvertToBBox`
-|Boolean
-|Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with legacy interfaces. Generated bounding box is a very rough representation of the input geometry
-|true
-|Yes
-
-|===
-
-===== Using
+===== Using OpenSearch source
 
 Use the OpenSearch source if querying a CDR-compliant search service is desired.
 
@@ -5238,55 +5026,6 @@ The Catalog Federation Strategy expects the results returned from the Source to 
 If a metadata record in the query results contains null values for the sorting criteria elements, the Catalog Federation Strategy expects that result to come at the end of the result list.
 ====
 
-===== Configuration
-
-The Catalog Federation Strategy configuration can be found in the admin console under *Configuration -> Catalog Federation Strategy*.
-
-[cols="1,1,4a,1,1" options="header"]
-|===
-
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|`maxStartIndex`
-|Integer
-|The maximum query offset number (any number from 1 to unlimited). Setting the number too high would allow offset queries that could result in an out of memory error because the ${branding} will cycle through all records in memory. Things to consider when setting this value are:
-
-* How much memory is allocated to the ${branding} Server
-* How many sites are being federated with.
-
-|50000
-|yes
-
-|`expirationIntervalInMinutes`
-|Long
-|Interval that Solr Cache checks for expired documents to remove.
-|10
-|yes
-
-|`expirationAgeInMinutes`
-|Long
-|The number of minutes a document will remain in the cache before it will expire. Default is 7 days.
-|10080
-|yes
-
-|`url`
-|String
-|HTTP URL of Solr Server
-|${secure_url}/solr
-|yes
-
-|`cachingEverything`
-|Boolean
-|Cache all results unless configured as native
-|false
-|yes
-
-|===
-
 [cols="2" options="header"]
 |===
 
@@ -5726,33 +5465,6 @@ When a resource linked using a file-based URL is in the product cache, the `URLR
 It is downloaded from the product cache which bypasses the `URLResourceReader`.
 For example, if path `/my/valid/path` is configured in the `URLResourceReader`&#8217;s rootResourceDirectories and one downloads the product with resource-uri `file:///my/valid/path/product.txt` and then one removes `/my/valid/path` from the `URLResourceReader`&#8217;s `rootResourceDirectories` configuration, the product will still be accessible via the product cache.
 ====
-
-===== Installing and Uninstalling
-
-`URLResourceReader` is installed by default with the ${branding} Catalog.
-
-===== Configuring
-
-====== Configurable Properties
-
-_URL Resource Reader_
-
-[cols="1,1,3,1,1", options="header"]
-|===
-
-|Property
-|Type
-|Description
-|Default Value
-|Required
-
-|`rootResourceDirectories`
-|String array
-|Specifies the only directories the `URLResourceReader` has access to when attempting to download resources linked using file-based URLs (i.e. the metacard attribute resource-uri uses the file URI scheme). This property is used to restrict the `URLResourceReader`&#8217;s access to the file system. The `URLResourceReader` can be given full access to the file system by setting the `rootResourceDirectories` property to the root directory (e.g. `/`), but this configuration is not recommended.
-|<${ddf-branding}.home>/data/products
-|yes
-
-|===
 
 ===== Using
 
