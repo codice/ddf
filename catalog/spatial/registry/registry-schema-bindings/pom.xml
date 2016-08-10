@@ -96,6 +96,11 @@
             <artifactId>jaxb-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

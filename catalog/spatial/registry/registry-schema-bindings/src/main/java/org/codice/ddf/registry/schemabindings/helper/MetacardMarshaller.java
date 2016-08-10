@@ -98,6 +98,7 @@ public class MetacardMarshaller {
 
     /**
      * Turns the passed in registryPackage into an InputStream of xml
+     *
      * @param registryPackage RegistryPackageType to create the input stream from
      * @return An InputStream with the xml content of the RegistryPackageTypes
      * @throws ParserException
@@ -136,6 +137,8 @@ public class MetacardMarshaller {
         this.unmarshalConfigurator = parser.configureParser(contextPath, classLoader);
         this.marshalConfigurator = parser.configureParser(contextPath, classLoader);
         this.marshalConfigurator.addProperty(Marshaller.JAXB_FRAGMENT, true);
+        this.marshalConfigurator.addProperty("com.sun.xml.bind.namespacePrefixMapper",
+                new RegistryNamespacePrefixMapper());
         this.parser = parser;
     }
 }
