@@ -12,6 +12,7 @@
 /*global require*/
 var Marionette = require('marionette');
 var $ = require('jquery');
+var _ = require('underscore');
 var store = require('js/store');
 var GeometryView = require('./geometry.view');
 
@@ -25,9 +26,11 @@ var GeometryCollectionView = Marionette.CollectionView.extend({
     };
   },
   initialize: function (options) {
+    this.render = _.debounce(this.render, 200);
     this.selectionInterface = options.selectionInterface || this.selectionInterface;
     this.listenTo(this.options.geoController, 'click:left', this.onMapLeftClick);
     this.listenTo(this.options.geoController, 'hover', this.onMapHover);
+    this.render();
   },
   onMapHover: function (event) {
     $(this.options.geoController.mapViewer.canvas).toggleClass('is-hovering', Boolean(event.id));

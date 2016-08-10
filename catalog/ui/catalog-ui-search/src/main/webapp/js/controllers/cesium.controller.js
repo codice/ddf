@@ -493,13 +493,15 @@ define(['underscore',
             },
 
             showResults: function (results) {
-                this.clearResults();
-                this.mapViews = new GeometryColletionView({
-                    collection: results,
-                    geoController: this,
-                    selectionInterface: this.selectionInterface
-                });
-                this.mapViews.render();
+                if (!this.mapViews) {
+                  this.mapViews = new GeometryColletionView({
+                      collection: results,
+                      geoController: this,
+                      selectionInterface: this.selectionInterface
+                  });
+                } else {
+                  this.mapViews.collection = results;
+                }
                 mapclustering.setResultLists(this.mapViews);
 
                 if(this.clustering && typeof results !== "undefined") {
@@ -508,31 +510,19 @@ define(['underscore',
             },
             
             showResult: function(result){
-                this.clearResults();
-                this.mapViews = new GeometryColletionView({
-                    collection: new Backbone.Collection([result]),
-                    geoController: this,
-                    selectionInterface: this.selectionInterface
-                });
-                this.mapViews.render();
+                if (!this.mapViews) {
+                  this.mapViews = new GeometryColletionView({
+                      collection: new Backbone.Collection([result]),
+                      geoController: this,
+                      selectionInterface: this.selectionInterface
+                  });
+                } else {
+                  this.mapViews.collection = results;
+                }
                 mapclustering.setResultLists(this.mapViews);
 
                 if(this.clustering && typeof results !== "undefined") {
                     mapclustering.cluster();
-                }
-            },
-
-            clear: function () {
-                this.clearResults();
-                this.billboardCollection.removeAll();
-            },
-
-            clearResults: function () {
-                if (this.mapViews) {
-                    this.mapViews.destroy();
-                }
-                if (this.clustering) {
-                    mapclustering.uncluster();
                 }
             }
 
