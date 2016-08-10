@@ -1,0 +1,17 @@
+==== Dummy Pre-Ingest Plugin
+
+This is an *EXAMPLE* plugin included in the <<_sdk,SDK>> for demonstration purposes.
+
+===== Installing the Dummy Pre-Ingest Plugin
+
+The Dummy Pre-Ingest Plugin is not installed by default on a standard installation.
+
+{sdk-installation-instructions}
+
+===== Configuring the Dummy Pre-Ingest Plugin
+
+None.
+
+===== Known Issues with the Dummy Pre-Ingest Plugin
+
+None.

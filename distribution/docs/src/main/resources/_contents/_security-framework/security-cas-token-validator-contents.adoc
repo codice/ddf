@@ -1,0 +1,51 @@
+
+==== Security CAS Token Validator
+
+The Security CAS `TokenValidator` bundle exports a `TokenValidator` service that is called by the STS to validate CAS proxy tickets.
+
+===== Installing the Security CAS Token Validator
+
+This bundle is not installed by default but can be added by installing the `security-cas-tokenvalidator` feature.
+
+===== Configuring the Security CAS Token Validator
+
+.Security CAS Token Validator Settings
+[cols="2,2,5" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Description
+
+|CAS Server URL
+|\https://localhost:8443/cas/
+|The hostname in the URL should match the hostname alias defined within the certificate that CAS is using for SSL communication.
+
+|===
+
+.Security CAS Token Validator Imported Services
+[cols="4,1,1" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`ddf.security.encryption.EncryptionService`
+|required
+|false
+|===
+
+.Security CAS Token Validator Exported Services
+[cols="4,4,2" options="header"]
+|===
+
+|Registered Interfaces
+|Implementation Class
+|Properties Set
+
+|`org.apache.cxf.sts.token.validator.TokenValidator`
+|`ddf.security.cas.WebSSOTokenValidator`
+|CAS Server URL and Encryption Service reference
+
+|===

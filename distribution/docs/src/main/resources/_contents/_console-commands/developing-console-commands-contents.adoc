@@ -1,0 +1,6 @@
+
+=== Developing Console Commands
+
+${branding} supports development of custom console commands.
+
+${branding} includes custom commands for working with the Catalog, as described in <<_console_commands,Managing Console Commands>>.

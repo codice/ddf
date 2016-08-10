@@ -1,0 +1,17 @@
+
+==== Filter Plugin
+
+{description}
+
+===== Installing Filter Plugin
+
+The Filter Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Filter Plugin
+
+{configuration}
+
+===== Known Issues with Filter Plugin
+
+None.
+

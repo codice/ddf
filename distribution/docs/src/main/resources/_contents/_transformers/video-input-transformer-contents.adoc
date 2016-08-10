@@ -1,0 +1,43 @@
+==== Video Input Transformer
+
+The video input transformer is responsible for creating Catalog metacards from certain video file types. Currently, it is responsible for handling MPEG-2 transport streams as well as MPEG-4, AVI, MOV, and WMV videos. This input transformer uses Apache Tika to extract basic metadata from the video files and applies more sophisticated methods to extract more meaningful metadata from these types of video.
+
+===== Installing Video Input Transformer
+
+This transformer is installed by default with a standard installation in the ${ddf-catalog} application.
+
+====== Configuring Video Input Transformer
+
+None.
+
+====== Using Video Input Transformer
+
+Use the video input transformer for ingesting video files into the Catalog.
+
+.Video Input Transformer Service Properties
+[cols="2,5a" options="header"]
+|===
+|Key
+|Value
+
+|mime-type
+|* video/avi
+* video/msvideo
+* video/vnd.avi
+* video/x-msvideo
+* video/mp4
+* video/MP2T
+* video/mpeg
+* video/quicktime
+* video/wmv
+* video/x-ms-wmv
+
+|shortname
+|video
+
+|id
+|video
+
+|description
+|Detects and extracts metadata from various video file formats.
+|===

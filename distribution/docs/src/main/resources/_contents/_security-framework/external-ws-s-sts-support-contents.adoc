@@ -1,0 +1,12 @@
+==== External/WS-S STS Support
+
+===== Security STS WSS
+
+This configuration works just like the STS Client Config for the internal STS, but produces standard requests instead of the custom ${branding} ones.
+It supports two new auth types for the context policy manager, WSSBASIC and WSSPKI.
+
+===== Security STS Address Provider
+
+This allows one to select which STS address will be used (e.g. in SOAP sources) for clients of this service.
+Default is off (internal).
+

@@ -1,0 +1,48 @@
+==== Metadata Metacard Transformer
+
+The Metadata Metacard Transformer returns the `Metacard.METADATA` attribute when given a metacard.
+The MIME Type returned is `text/xml`.
+
+===== Installing and Uninstalling
+
+Catalog Transformers application will install this feature when deployed.
+This transformer's feature, `catalog-transformer-metadata`, can be uninstalled or installed.
+
+===== Configuring
+
+None
+
+===== Using
+
+The Metadata Metacard Transformer can be used programmatically by requesting a MetacardTransformer with the id metadata.
+It can also be used within the REST Endpoint by providing the transform option as metadata.
+
+.Example REST GET method with the Metadata MetacardTransformer
+----
+${public_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
+----
+
+===== Implementation Details
+
+[cols="3" options="header"]
+|===
+|Registered Interface
+|Service Property
+|Value
+
+1.3+^|`${ddf-branding}.catalog.transform.MetacardTransformer`
+
+|mime-type
+|`text/xml`
+
+|id
+|metadata
+
+|shortname (for backwards compatibility)
+|metadata
+
+|===
+
+===== Known Issues
+
+None.

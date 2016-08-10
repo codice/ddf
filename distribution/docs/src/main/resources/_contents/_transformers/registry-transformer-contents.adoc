@@ -1,0 +1,20 @@
+==== Registry Transformer
+
+The Registry Transformer is responsible for translating a {document} into a Registry Metacard.
+
+===== Installing Registry Transformer
+
+The Registry Transformer is installed by default with a standard installation in the ${app-name} application.
+The Registry Transformer is not installed by default with a standard installation in the ${app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring Registry Transformer
+
+* any applicable configurations
+
+===== Using Registry Transformer
+
+{operations}
+

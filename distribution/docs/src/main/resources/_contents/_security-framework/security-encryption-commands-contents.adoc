@@ -1,0 +1,23 @@
+
+==== Security Encryption Commands
+
+The Security Encryption Commands bundle enhances the ${branding} system console by allowing administrators and integrators to encrypt and decrypt values directly from the console.
+More information and sample commands are available on the Encryption Service page.
+
+===== Installing Security Encryption Commands
+
+This bundle is installed by default by the `security-encryption` feature.
+This bundle is tied specifically to the ${branding} console and can be uninstalled without causing any issues to other applications.
+When uninstalled, however, administrators will not be able to encrypt and decrypt data from the console.
+
+===== Configuring Security Encryption Commands
+
+None.
+
+.Security Encryption Commands Imported Services
+
+None.
+
+.Security Encryption Commands Exported Services
+
+None.

@@ -1,0 +1,16 @@
+==== Dummy Validation Post Query Plugin
+
+*Example* implentation in the <<_sdk,SDK>> for demonstration purposes.
+
+===== Installing Dummy Validation Post Query Plugin
+
+The Dummy Validation Post Query Plugin is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Dummy Validation Post Query Plugin
+
+None.
+
+===== Known Issues with Dummy Validation Post Query Plugin
+
+None.
+

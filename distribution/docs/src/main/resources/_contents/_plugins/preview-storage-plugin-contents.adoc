@@ -1,0 +1,17 @@
+
+==== Preview Storage Plugin
+
+{description}
+
+===== Installing the Preview Storage Plugin
+
+The Preview Storage Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring the Preview Storage Plugin
+
+{configuration}
+
+===== Known Issues with the Preview Storage Plugin
+
+None.
+

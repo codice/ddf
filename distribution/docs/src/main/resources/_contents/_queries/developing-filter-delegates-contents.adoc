@@ -1,0 +1,127 @@
+=== Developing Filter Delegates
+
+Filter Delegates help reduce the complexity of parsing OGC Filters.
+The reference Filter Adapter implementation contains the necessary boilerplate visitor code and input normalization to handle commonly supported OGC Filters.
+
+==== Creating a New Filter Delegate
+
+A Filter Delegate contains the logic that converts normalized filter input into a form that the targeted data source can handle.
+Delegate methods will be called in a depth first order as the Filter Adapter visits filter nodes.
+
+==== Implementing the Filter Delegate
+
+. Create a Java class extending `FilterDelegate`. +
+`public class ExampleDelegate extends ${ddf-branding}.catalog.filter.FilterDelegate<ExampleReturnObjectType> {`
+. `FilterDelegate` will throw an appropriate exception for all methods not implemented.  Refer to the ${branding} JavaDoc for more details about what is expected of each `FilterDelegate` method.
+
+[NOTE]
+====
+A code example of a Filter Delegate can be found in `${ddf-branding}.catalog.filter.proxy.adapter.test` of the `filter-proxy` bundle.
+====
+
+===== Throwing Exceptions
+
+Filter delegate methods can throw `UnsupportedOperationException` run-time exceptions.
+The `GeotoolsFilterAdapterImpl` will catch and re-throw these exceptions as `UnsupportedQueryExceptions`.
+
+===== Using the Filter Adapter
+
+The FilterAdapter can be requested from the OSGi registry.
+
+[source,xml]
+----
+<reference id="filterAdapter" interface="${ddf-branding}.catalog.filter.FilterAdapter" />
+----
+
+The Query in a QueryRequest implements the Filter interface.
+The Query can be passed to a `FilterAdapter` and `FilterDelegate` to process the Filter.
+
+[source,java,linenums]
+----
+@Override
+public ${ddf-branding}.catalog.operation.QueryResponse query(${ddf-branding}.catalog.operation.QueryRequest queryRequest)
+    throws ${ddf-branding}.catalog.source.UnsupportedQueryException {
+
+    ${ddf-branding}.catalog.operation.Query query = queryRequest.getQuery();
+
+    ${ddf-branding}.catalog.filter.FilterDelegate<ExampleReturnObjectType> delegate = new ExampleDelegate();
+
+    // ${ddf-branding}.catalog.filter.FilterAdapter adapter injected via Blueprint
+    ExampleReturnObjectType result = adapter.adapt(query, delegate);
+}
+----
+
+Import the ${ddf-catalog} API Filter package and the reference implementation package of the Filter Adapter in the bundle manifest  (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.filter, ${ddf-branding}.catalog.source`
+
+===== Filter Support
+
+Not all OGC Filters are exposed at this time.
+If demand for further OGC Filter functionality is requested, it can be added to the Filter Adapter and Delegate so sources can support more complex filters.
+The following OGC Filter types are currently available:
+
+[cols="1" options="header"]
+|===
+|Logical
+|And
+|Or
+|Not
+|Include
+|Exclude
+|===
+
+[cols="1" options="header"]
+|===
+|Property Comparison
+|`PropertyIsBetween`
+|`PropertyIsEqualTo`
+|`PropertyIsGreaterThan`
+|`PropertyIsGreaterThanOrEqualTo`
+|`PropertyIsLessThan`
+|`PropertyIsLessThanOrEqualTo`
+|`PropertyIsLike`
+|`PropertyIsNotEqualTo`
+|`PropertyIsNull`
+|===
+
+[cols="2,5" options="header"]
+|===
+|`Spatial`
+|Definition
+
+|`Beyond`
+|True if the geometry being tested is beyond the stated distance of the geometry provided.
+
+|`Contains`
+|True if the second geometry is wholly inside the first geometry.
+
+|`Crosses`
+|True if the intersection of the two geometries results in a value whose dimension is less than the geometries and the maximum dimension of the intersection value includes points interior to both the geometries, and the intersection value is not equal to either of the geometries.
+
+|`Disjoint`
+|True if the two geometries do not touch or intersect.
+
+|`DWithin`
+|True if the geometry being tested is within the stated distance of the geometry provided.
+
+|`Intersects`
+|True if the two geometries intersect. This is a convenience method as you could always ask for Not Disjoint(A,B) to get the same result.
+
+|`Overlaps`
+|True if the intersection of the geometries results in a value of the same dimension as the geometries that is different from both of the geometries.
+
+|`Touches`
+|True if and only if the only common points of the two geometries are in the union of the boundaries of the geometries.
+
+|`Within`
+|True if the first geometry is wholly inside the second geometry.
+|===
+
+[cols="1" options="header"]
+|===
+|Temporal
+|http://docs.geotools.org/latest/javadocs/org/opengis/filter/temporal/After.html[After]
+|http://docs.geotools.org/latest/javadocs/org/opengis/filter/temporal/Before.html[Before]
+|http://docs.geotools.org/latest/javadocs/org/opengis/filter/temporal/During.html[During]
+|===
+

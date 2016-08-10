@@ -1,0 +1,49 @@
+
+==== Security CAS CXF Servlet Filter
+
+The Security CAS CXF Servlet Filter bundle binds a list of CAS servlet filters to the CXF servlet.
+The servlet filters are defined by by the `security-cas-client` bundle.
+
+===== Installing Security CAS CXF Servlet Filter
+
+This bundle is not installed by default but can be added by installing the `security-cas-cxfservletfilter` feature.
+
+===== Configuring Security CAS CXF Servlet Filter
+
+.Security CAS CXF Servlet Filter Settings
+[cols="1,1,3" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Description
+
+|URL Pattern
+|/services/catalog/*
+|This defines the servlet URL that should be binded to the CAS filter. By default, they will bind to the REST and OpenSearch endpoints. The REST endpoint is called by the SearchUI when accessing individual metadata about a metacard and when accessing the metacard's thumbnail. An example of just securing the OpenSearch endpoint would be the value: `/services/catalog/query`.
+
+|===
+
+[WARNING]
+====
+Endpoints that are secured by the CXF Servlet Filters will not currently work with federation.
+With the default settings, REST and OpenSearch federation to the site with this feature installed will not work.
+Federation from this site, however, will work normally.
+====
+
+.Security CAS CXF Servlet Filter Imported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`javax.servlet.Filter`
+|required
+|false
+
+|===
+
+.Security CAS CXF Servlet Filter Exported Services
+None (filter is exported inside the code and not via configuration).

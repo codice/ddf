@@ -1,0 +1,325 @@
+
+.Catalog Architecture: Plugins
+[ditaa, catalog_architecture_plugins, png,${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||c369           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                +-------------------+                       |
+|                |cDEF               |                       |
+|                | Storage Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+Plugins are additional tools to use to add additional business logic at certain points, depending on the type of plugin.
+
+The Catalog Framework calls Catalog Plugins to process requests and responses as they enter and leave the Framework. 
+
+=== Types of Plugins
+
+Plugins can be designed to run before or after certain processes.
+They are often used for validation, optimization, or logging.
+
+."Pre-" Plugins
+These plugins are executed before an action is taken.
+
+<<_pre_ingest_plugins,Pre-Ingest Plugins>>:: Perform any changes to a resource prior to ingesting it.
+
+<<_pre_query_plugins,Pre-Query Plugins>>:: Perform any changes to query before executing.
+
+<<_pre_resource_plugins,Pre-Resource Plugins>>:: Perform any changes to a resource associated with a metacard prior to download.
+
+<<_pre_subscription_plugins,Pre-Subscription Plugins>>:: Perform any changes before creating a subscription.
+
+<<_pre_delivery_plugins,Pre-Delivery Plugins>>:: Perform any changes before delivered a subscribed event.
+
+<<_pre_create_storage_plugins,Pre-Create Storage Plugins>> Perform any changes before creating a resource.
+
+<<_pre_update_storage_plugins,Pre-Update Storage Plugins>> Perform any changes before updating a resource.
+
+."Post-" Plugins
+These plugins execute after an action is taken.
+
+<<_post_ingest_plugins,Post-Ingest Plugins>>:: Perform actions after ingest is completed.
+
+<<_post_query_plugins,Post-Query Plugins>>:: Perform any changes to response after query completes.
+
+<<_post_resource_plugins,Post-Resource Plugins>>:: Perform any changes to a resource after download
+
+<<_post_create_storage_plugins,Post-Create Storage Plugins>> Perform any changes after creating a resource.
+
+<<_post_update_storage_plugins,Post-Update Storage Plugins>> Perform any changes after updating a resource.
+
+.Other Plugins
+<<_policy_plugins,Policy Plugins>>:: used to build policy information for requests.
+
+<<_access_plugins,Access Plugins>>:: allows or denies access to the Catalog operation or response.
+
+==== Plugin Invocation
+
+Plugins are called in a specific order during different operations. <<_developing_catalog_plugins, Custom Plugins>> can be added to the chain for special use cases.
+
+.Query Request Plugin Call Order
+[ditaa,query_plugin_order,png]
+....
++------------------------------------------+
+|/--------------\    |             cCCC    |
+||Query         |    |                     |
+||Request cDEF  |    |                     |
+|\--------------/    v                     |
+| /--------------------------------------\ |
+| |     PolicyPlugin.processPreQuery c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |     AccessPlugin.processPreQuery c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |        PreQueryPlugin.process c369   | |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |        PreFederatedQueryPlugin  c369 | |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |        PostFederatedQueryPlugin c369 | |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |    PolicyPlugin.processPostQuery c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |    AccessPlugin.processPostQuery c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |       PostQueryPlugin.process c369   | |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
++------------------------------------------+
+....
+
+.Create Request Plugin Call Order
+[ditaa,create_plugin_order,png]
+....
+
++------------------------------------------+
+|/--------------\    |             cCCC    |
+||Create        |    |                     |
+||Request   cDEF|    |                     |
+|\--------------/    v                     |
+| /--------------------------------------\ |
+| |    PolicyPlugin.processPreCreate c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |    AccessPlugin.processPreCreate c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |        PreIngestPlugin.process   c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |       PostIngestPlugin.process   c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
++------------------------------------------+
+....
+
+
+.Update Request Plugin Call Order
+[ditaa,update_plugin_order,png]
+....
++------------------------------------------+
+|/--------------\    |             cCCC    |
+||Update        |    |                     |
+||Request cDEF  |    |                     |
+|\--------------/    v                     |
+| /--------------------------------------\ |
+| |     PolicyPlugin.processPreUpdatec369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |    AccessPlugin.processPreUpdatec369 | |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |        PreIngestPlugin.process   c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |        PostIngestPlugin.process  c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
++------------------------------------------+
+....
+
+
+.Delete Request Plugin Call Order
+[ditaa,delete_plugin_order,png]
+....
++------------------------------------------+
+|/--------------\    |             cCCC    |
+||Delete        |    |                     |
+||Request cDEF  |    |                     |
+|\--------------/    v                     |
+| /--------------------------------------\ |
+| |    PolicyPlugin.processPreDelete c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |    AccessPlugin.processPreDelete c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |       PreIngestPlugin.process    c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |    PolicyPlugin.processPostDeletec369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |   AccessPlugin.processPostDelete c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |       PostIngestPlugin.process c369  | |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
++------------------------------------------+
+....
+
+.Resource Request Plugin Call Order
+[ditaa,resource_plugin_order,png]
+....
++------------------------------------------+
+|/--------------\    |             cCCC    |
+||Resource      |    |                     |
+||Request cDEF  |    |                     |
+|\--------------/    v                     |
+| /--------------------------------------\ |
+| |   PolicyPlugin.processPreResourcec369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |  AccessPlugin.processPostResourcec369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |      PreResourcePlugin.process   c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |  PolicyPlugin.processPostResourcec369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |  AccessPlugin.processPostResourcec369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |      PostResourcePlugin.process  c369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
++------------------------------------------+
+....
+
+.Storage Create Request Plugin Call Order
+[ditaa,storage_create_plugin_order,png]
+....
++------------------------------------------+
+|/--------------\    |             cCCC    |
+||Storage Create|    |                     |
+||Request cDEF  |    |                     |
+|\--------------/    v                     |
+| /--------------------------------------\ |
+| |    PreCreateStoragePlugin.processc369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |             See Create               | |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |   PostCreateStoragePlugin.processc369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
++------------------------------------------+
+....
+
+.Storage Update Request Plugin Call Order
+[ditaa,storage_update_plugin_order,png]
+....
++------------------------------------------+
+|/--------------\    |             cCCC    |
+||Storage Update|    |                     |
+||Request cDEF  |    |                     |
+|\--------------/    v                     |
+| /--------------------------------------\ |
+| |    PreUpdateStoragePlugin.processc369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |             See Update               | |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
+| /--------------------------------------\ |
+| |   PostUpdateStoragePlugin.processc369| |
+| \--------------------------------------/ |
+|                    |                     |
+|                    v                     |
++------------------------------------------+
+....
+

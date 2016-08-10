@@ -1,0 +1,20 @@
+==== PDF Transformer
+
+The PDF Transformer is responsible for translating a PDF document into a Catalog Metacard.
+
+===== Installing PDF Transformer
+
+The PDF Transformer is installed by default with a standard installation in the ${app-name} application.
+The PDF Transformer is not installed by default with a standard installation in the ${app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring PDF Transformer
+
+* any applicable configurations
+
+===== Using PDF Transformer
+
+{operations}
+

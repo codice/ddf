@@ -1,0 +1,5 @@
+
+=== Post-Create Storage Plugins
+
+Post-Create storage plugins are invoked immediately after an item is created in the content repository.
+

@@ -1,0 +1,17 @@
+
+==== Registry Policy Plugin
+
+{description}
+
+===== Installing Registry Policy Plugin
+
+The Registry Policy Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Registry Policy Plugin
+
+{configuration}
+
+===== Known Issues with Registry Policy Plugin
+
+None.
+

@@ -1,0 +1,358 @@
+
+=== Developing Catalog Plugins
+
+Plugins extend the functionality of the Catalog Framework by performing actions at specified times during a transaction. 
+
+By implementing a plugin interface, actions can be performed at the desired time. 
+
+The following types of plugins can be created:
+
+.Plugin Interfaces
+[cols="1,2m,1,1", options="header"]
+|===
+
+|Plugin Type
+|Plugin Interface
+|Description
+|Example
+
+|Pre-Ingest
+|${ddf-branding}.catalog.plugin.PreIngestPlugin
+|Runs before the Create/Update/Delete method is sent to the CatalogProvider
+|Metadata validation services
+
+|Post-Ingest
+|${ddf-branding}.catalog.plugin.PostIngestPlugin
+|Runs after the Create/Update/Delete method is sent to the CatalogProvider
+|EventProcessor for processing and publishing event notifications to subscribers
+
+|Pre-Query
+|${ddf-branding}.catalog.plugin.PreQueryPlugin
+|Runs prior to the Query/Read method being sent to the Source
+|An example is not included with ${branding}
+
+|Post-Query
+|${ddf-branding}.catalog.plugin.PostQueryPlugin
+|Runs after results have been retrieved from the query but before they are posted to the Endpoint
+|An example is not included with ${branding}
+
+|Pre-Subscription
+|${ddf-branding}.catalog.plugin.PreSubscription
+|Runs prior to a Subscription being created or updated
+|Modify a query prior to creating a subscription
+
+|Pre-Delivery
+|${ddf-branding}.catalog.plugin.PreDeliveryPlugin
+|Runs prior to the delivery of a Metacard when an event is posted
+|Inspect a metacard prior to delivering it to the Event Consumer
+
+|Pre-Resource
+|${ddf-branding}.catalog.plugin.PreResource
+|Runs prior to a Resource being retrieved
+|An example is not included with ${branding}
+
+|Post-Resource
+|${ddf-branding}.catalog.plugin.PostResource
+|Runs after a Resource is retrieved, but before it is sent to the Endpoint
+|Verification of a resource prior to returning to a client
+
+|Policy
+|${ddf-branding}.catalog.plugin.PolicyPlugin
+|Runs prior to all other catalog plugins to esablish the policy for requests/responses
+|An example is MetacardValidityFilterPlugin
+
+|Access
+|${ddf-branding}.catalog.plugin.AccessPlugin
+|Runs directly after the PolicyPlugin
+|An examples are the FilterPlugin and OperationPlugin
+
+|===
+
+==== Implement Plugins
+
+The procedure for implementing any of the plugins follows a similar format:
+
+. Create a new class that implements the specified plugin interface.
+
+. Implement the required methods.
+
+. Create OSGi descriptor file to communicate with the OSGi registry.
+
+.. Import ${branding} packages.
+
+.. Register plugin class as service to OSGi registry.
+
+. Deploy to ${branding}.
+
+[TIP]
+====
+Refer to the Javadoc for more information on all Requests and Responses in the `${ddf-branding-lowercase}.catalog.operation` and `${ddf-branding-lowercase}.catalog.event` packages.
+====
+
+===== Implementing Pre-Ingest Plugins
+
+. Create a Java class that implements `PreIngestPlugin.` +
+`public class SamplePreIngestPlugin implements ${ddf-branding}.catalog.plugin.PreIngestPlugin`
+
+. Implement the required methods. +
+ * `public CreateRequest process(CreateRequest input) throws PluginExecutionException;`
+ * `public UpdateRequest process(UpdateRequest input) throws PluginExecutionException;`
+ * `public DeleteRequest process(DeleteRequest input) throws PluginExecutionException;`
+
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin`
+
+. Export the service to the OSGi registry. +
+*Blueprint descriptor example*
+`<service ref="[[SamplePreIngestPlugin ]]"interface="${ddf-branding}.catalog.plugin.PreIngestPlugin" />`
+
+====== Pre-Ingest Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Pre-Ingest Plugins
+
+Pre-Ingest plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+
+The output of a Pre-Ingest plugin is sent to the next Pre-Ingest plugin, until all have executed and the ingest operation is sent to the requested Source.
+
+===== Implementing Post-Ingest Plugins
+
+. Create a Java class that implements `PostIngestPlugin`. +
+`public class SamplePostIngestPlugin implements ${ddf-branding}.catalog.plugin.PostIngestPlugin`
+
+. Implement the required methods. +
+ * `public CreateResponse process(CreateResponse input) *throws* PluginExecutionException;`
+ * `public UpdateResponse process(UpdateResponse input) *throws* PluginExecutionException;`
+ * `public DeleteResponse process(DeleteResponse input) *throws* PluginExecutionException;`
+
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin`
+
+. Export the service to the OSGi registry. +
+*Blueprint descriptor example*
+`<service ref="[[SamplePostIngestPlugin ]]"interface="${ddf-branding}.catalog.plugin.PostIngestPlugin" />`
+
+====== Post-Ingest Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+
+====== Invoking a Post-Ingest Plugin
+
+Because the event has already occurred and changes from one post-ingest plugin cannot affect others, all Post-Ingest plugins are invoked in parallel and no priority is enforced.
+
+===== Implementing Pre-Query Plugins
+
+. Create a Java class that implements `PreQueryPlugin`. +
+`public class SamplePreQueryPlugin implements ${ddf-branding}.catalog.plugin.PreQueryPlugin`
+
+. Implement the required method. +
+`public QueryRequest process(QueryRequest input) *throws* PluginExecutionException, StopProcessingException;`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin`
+
+. Export the service to the OSGi registry. +
+`<service ref="[[SamplePreQueryPlugin]]"interface="${ddf-branding}.catalog.plugin.PreQueryPlugin" />`
+
+=====  Pre-Query Plugins Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+===== Invoking Pre-Query Plugins
+
+Pre-query plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+The output of a pre-query plugin is sent to the next pre-query plugin, until all have executed and the query operation is sent to the requested Source.
+
+===== Implementing Post-Query Plugins
+
+. Create a Java class that implements `PostQueryPlugin`. +
+`public class SamplePostQueryPlugin implements ${ddf-branding}.catalog.plugin.PostQueryPlugin`
+
+. Implement the required method. +
+`public QueryResponse process(QueryResponse input) *throws* PluginExecutionException, StopProcessingException;`
+
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin`
+
+. Export the service to the OSGi registry. +
+`<service ref="[[SamplePostQueryPlugin]]"interface="${ddf-branding}.catalog.plugin.PostQueryPlugin" />`
+
+====== Post-Query Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Post-Query Plugins
+
+Post-query plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+The output of the first plugin is sent to the next plugin, until all have executed and the response is returned to the requesting endpoint.
+
+===== Implementing Pre-Delivery Plugins
+
+. Create a Java class that implements `PreDeliveryPlugin`. +
+`public class SamplePreDeliveryPlugin *implements* ${ddf-branding}.catalog.plugin.PreDeliveryPlugin`
+
+. Implement the required methods. +
+`public Metacard processCreate(Metacard metacard) *throws* PluginExecutionException, StopProcessingException;`
+`public Update processUpdateMiss(Update update) *throws* PluginExecutionException,
+StopProcessingException;`
+ * `public Update processUpdateHit(Update update) *throws* PluginExecutionException, StopProcessingException;`
+ * `public Metacard processCreate(Metacard metacard) *throws* PluginExecutionException, StopProcessingException;`
+
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation,${ddf-branding}.catalog.event`
+
+. Export the service to the OSGi registry. +
+*Blueprint descriptor example* +
+`<service ref="[[SamplePreDeliveryPlugin]]"interface="${ddf-branding}.catalog.plugin.PreDeliveryPlugin" />`
+
+====== Pre-Delivery Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Pre-Delivery Plugins
+
+Pre-delivery plugins are invoked serially, prioritized by descending OSGi service ranking.
+The plugin with the highest service ranking will be executed first. 
+
+The output of a pre-delivery plugin is sent to the next pre-delivery plugin, until all have executed and the Delivery Method is invoked on the associated Subscription.
+
+===== Implementing Pre-Subscription Plugins
+
+. Create a Java class that implements `PreSubscriptionPlugin`. +
+`public class SamplePreSubscriptionPlugin *implements* ${ddf-branding}.catalog.plugin.PreSubscriptionPlugin
+
+. Implement the required method.
+ * `public Subscription process(Subscription input) *throws* PluginExecutionException, StopProcessingException;`
+
+====== Pre-Subscription Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Pre-Subscription Plugin
+
+Pre-subscription plugins are invoked serially, prioritized by descending OSGi service ranking. 
+That is, the plugin with the highest service ranking will be executed first. 
+
+The output of a pre-subscription plugin is sent to the next pre-subscription plugin, until all have executed and the create Subscription operation is sent to the Event Processor.
+
+===== Implementing Pre-Resource Plugins
+
+. Create a Java class that implements `PreResourcePlugin`.
+`public class SamplePreResourcePlugin *implements* ${ddf-branding}.catalog.plugin.PreResourcePlugin`
+
+. Implement the required method. +
+ * `public ResourceRequest process(ResourceRequest input) *throws* PluginExecutionException, StopProcessingException;`
+
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation`
+
+. Export the service to the OSGi registry.
+.Blueprint descriptor example
+[source,xml]
+----
+<service ref="[[SamplePreResourcePlugin]]" interface="${ddf-branding}.catalog.plugin.PreResourcePlugin" />
+----
+
+===== Pre-Resource Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown.
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled. 
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+===== Invoking Pre-Resource Plugins
+
+Pre-Resource plugins are invoked serially, prioritized by descending OSGi service ranking. 
+That is, the plugin with the highest service ranking will be executed first. 
+
+The output of the first plugin is sent to the next plugin, until all have executed and the request is sent to the targeted Source.
+
+===== Implementing Post-Resource Plugins
+
+. Create a Java class that implements `PostResourcePlugin`. +
+`public class SamplePostResourcePlugin *implements* ${ddf-branding}.catalog.plugin.PostResourcePlugin`
+
+. Implement the required method. +
+ * `public ResourceResponse process(ResourceResponse input) *throws* PluginExecutionException, StopProcessingException;`
+
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation`
+
+. Export the service to the OSGi registry.
+
+.Blueprint descriptor example
+[source,xml]
+----
+<service ref="[[SamplePostResourcePlugin]]" interface="${ddf-branding}.catalog.plugin.PostResourcePlugin" />
+----
+
+===== Post-Resource Plugin Failure Behavior
+
+In the event that this Catalog Plugin cannot operate but does not wish to fail the transaction, a `PluginExecutionException` will be thrown. 
+For any other Exceptions, the Catalog will "fail safe" and the Operation will be cancelled.
+If processing is to be explicitly stopped, a `StopProcessingException` will be thrown.
+
+====== Invoking Post-Resource Plugins
+
+Post-get resource plugins are invoked serially, prioritized by descending OSGi service ranking. 
+The plugin with the highest service ranking will be executed first. 
+
+The output of the first plugin is sent to the next plugin, until all have executed and the response is returned to the requesting endpoint.
+
+===== Implementing Policy Plugins
+
+. Create a Java class that implements `PolicyPlugin`. +
+`public class SamplePolicyPlugin *implements* ${ddf-branding}.catalog.plugin.PolicyPlugin`
+
+. Implement the required methods. +
+ * `PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties) *throws* StopProcessingException;`
+ * `PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties) *throws* StopProcessingException;`
+ * `PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues, Map<String, Serializable> properties) *throws* StopProcessingException;`
+ * `PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties) *throws* StopProcessingException;`
+ * `PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties) *throws* StopProcessingException;`
+
+. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation`
+
+. Export the service to the OSGi registry.  +
+*Blueprint descriptor example* +
+`<service ref="[[SamplePolicyPlugin]]" interface="${ddf-branding}.catalog.plugin.PolicyPlugin" />`
+
+====== Failure Behavior
+
+All failure cases should be handled internally to the plugin with the exception of the StopProcessingException. If the exception encountered should stop/block the request then a StopProcessingException should be thrown.
+
+===== Implementing Access Plugins
+
+. Create a Java class that implements `AccessPlugin`. +
+`public class SamplePostResourcePlugin *implements* ${ddf-branding}.catalog.plugin.AccessPlugin`
+
+. Implement the required methods. +
+ * `CreateRequest processPreCreate(CreateRequest input) *throws* StopProcessingException;`
+ * `UpdateRequest processPreUpdate(UpdateRequest input) *throws* StopProcessingException;`
+ * `DeleteRequest processPreDelete(DeleteRequest input) *throws* StopProcessingException;`
+ * `QueryRequest processPreQuery(QueryRequest input) *throws* StopProcessingException;`
+ * `QueryResponse processPostQuery(QueryResponse input) *throws* StopProcessingException;`
+
+. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation`
+
+. Export the service to the OSGi registry.  +
+*Blueprint descriptor example* +
+`<service ref="[[SampleAccessPlugin]]" interface="${ddf-branding}.catalog.plugin.AccessPlugin" />`
+
+===== Access Plugins Failure Behavior
+
+All failure cases should be handled internally to the plugin with the exception of the `StopProcessingException`. If the exception encountered should stop/block the request then a `StopProcessingException` should be thrown.

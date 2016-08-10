@@ -1,0 +1,88 @@
+
+=== Filters
+
+An OGC Filter is a http://www.opengeospatial.org/standards/filter[Open Geospatial Consortium (OGC) standard] that describes a query expression in terms of Extensible Markup Language (XML) and key-value pairs (KVP). 
+The ${ddf-catalog} Framework does not use the XML representation of the OGC Filter standard. ${branding} instead uses the Java implementation provided by http://geotools.org/[Geotools].
+Geotools provides Java equivalent classes for OGC Filter XML elements.
+Geotools originally provided the standard Java classes for the OGC Filter Encoding 1.0 under the package name `org.opengis.filter`.
+The same package name is used today and is currently used by ${branding}. 
+Java developers do not parse or view the XML representation of a Filter in ${branding}. Instead, developers use only the Java objects to complete query tasks.
+
+Note that the `ddf.catalog.operation.Query` interface extends the `org.opengis.filter.Filter` interface, which means that a Query object is an OGC Java Filter with Query Options.
+
+.A Query is an OGC Filter
+[source,java]
+----
+public interface Query extends Filter
+----
+
+==== `FilterBuilder` API
+
+To abstract developers from the complexities of working with the Filter interface directly and implementing the ${branding} Profile of the Filter specification, the ${ddf-catalog} includes an API, primarily in `${ddf-branding}.filter`, to build Filters using a fluent API.
+
+To use the `FilterBuilder` API, an instance of `${ddf-branding}.filter.FilterBuilder` should be used via the OSGi registry.
+Typically, this will be injected via a dependency injection framework.
+Once an instance of `FilterBuilder` is available, methods can be called to create and combine Filters.
+
+[TIP]
+====
+The fluent API is best accessed using an IDE that supports code-completion.
+For additional details, refer to the [Catalog API Javadoc].
+====
+
+===== Boolean Operators
+
+`FilterBuilder.allOf(Filter ...)`:: creates a new Filter that requires all provided Filters are satisfied (Boolean AND), either from a List or Array of Filter instances.
+
+`FilterBuilder.anyOf(Filter ...)`:: creates a new Filter that requires all provided Filters are satisfied (Boolean OR), either from a List or Array of Filter instances.
+
+`FilterBuilder.not(Filter filter)`:: creates a new Filter that requires the provided Filter must not be match (Boolean NOT).
+
+===== Attribute
+
+`FilterBuilder.attribute(String attributeName)`:: begins a fluent API for creating an Attribute-based Filter, i.e., a Filter that matches on Metacards with Attributes of a particular value.
+
+===== XPath
+
+`FilterBuilder.xpath(String xpath)`:: begins a fluent API for creating an XPath-based Filter, i.e., a Filter that matches on Metacards with Attributes of type XML that match when evaluating a provided XPath selector.
+
+.Contextual Operators
+[source,java,linenums]
+----
+FilterBuilder.attribute(attributeName).is().like().text(String contextualSearchPhrase);
+FilterBuilder.attribute(attributeName).is().like().caseSensitiveText(StringcaseSensitiveContextualSearchPhrase);
+FilterBuilder.attribute(attributeName).is().like().fuzzyText(String fuzzySearchPhrase);
+----
+
+===== Directly Implementing the Filter (Advanced)
+
+[WARNING]
+====
+Implementing the Filter interface directly is only for extremely advanced use cases and is highly discouraged.
+Instead, use of the ${branding}-specific `FilterBuilder` API is recommended.
+====
+
+Developers create a `Filter` object in order to filter or constrain the amount of records returned from a `Source`.
+The OGC Filter Specification has several types of filters that can be combined in a tree-like structure to describe the set of metacards that should be returned. 
+
+.Categories of Filters
+* Comparison Operators
+* Logical Operators
+* Expressions
+* Literals
+* Functions
+* Spatial Operators
+* Temporal Operators
+
+===== Units of Measure
+
+According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 09-026r1] and http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 04-095], units of measure can be expressed as a URI.
+To fulfill that requirement, ${branding} utilizes the Geotools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
+Essentially, the `UomOgcMapping` maps the http://www.opengeospatial.org/standards/symbol[OGC Symbology Encoding] standard URIs to Java Units.
+This class provides three options for units of measure: 
+
+* FOOT
+* METRE
+* PIXEL
+
+${branding} only supports FOOT and METRE since they are the most applicable to scalar distances.

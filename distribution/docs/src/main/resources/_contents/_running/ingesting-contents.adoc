@@ -1,0 +1,169 @@
+==== Ingesting Data
+
+Ingesting is the process of getting metadata into the Catalog Framework.
+Ingested files are "transformed" into a neutral format that can be searched against as well as migrated to other formats and systems.
+There are multiple methods available for ingesting files into the ${branding}.
+
+===== File types supported
+
+${branding} supports a wide variety of file types and data types for ingest.
+The ${branding}'s internal Input Transformers extract the necessary data into a generalized format.
+
+See this <<supported_file_types, List of supported file types>>.
+
+===== Methods of Ingest
+
+====== Easy (for fewer records or manual ingesting)
+
+====== Ingest command (${command-console})
+
+The ${branding} console application has a command line option for ingesting files
+
+====== Usage
+
+The syntax for the ingest command is `ingest -t <transformer type> <file path>` relative to the installation path.
+
+For XML data, run this command:
+----
+ingest -t xml examples/metacards/xml
+----
+====== Directory Monitor
+
+The ${ddf-catalog} application contains a Directory Monitor feature that allows files placed in a single directory to be monitored and ingested automatically.
+For more information about configuring a directory to be monitored, consult Directory Monitor.
+
+====== Using Directory Monitor
+
+Simply place the desired files in the monitored directory and it will be ingested automatically.
+If, for any reason, the files cannot be ingested, they will be moved to an automatically created sub-folder named `.errors`.
+Optionally, ingested files can be automatically moved to a sub-folder called `.ingested`.
+
+===== Medium
+
+====== External Methods
+
+Several third-party tools, such as cURL.exe and the Chrome Advanced Rest Client, can be used to send files and other types of data to ${branding} for ingest.
+
+.Windows Example
+----
+curl -H "Content-type: application/json;id=geojson" -i -X POST -d ${at-symbol}"C:\path\to\geojson_valid.json" ${secure_url}/services/catalog
+----
++
+.*NIX Example
+----
+curl -H "Content-type: application/json;id=geojson" -i -X POST -d ${at-symbol}geojson_valid.json ${secure_url}/services/catalog
+----
++
+Where:
+*-H* adds an HTTP header. In this case, Content-type header `application/json;id=geojson` is added to match the data being sent in the request.
+*-i* requests that HTTP headers are displayed in the response.
+*-X* specifies the type of HTTP operation. For this example, it is necessary to POST (ingest) data to the server.
+*-d* specifies the data sent in the POST request. The `${at-symbol}` character is necessary to specify that the data is a file.
++
+The last parameter is the URL of the server that will receive the data.
++
+This should return a response similar to the following (the actual catalog ID in the id and Location URL fields will be different):
++
+.Sample Response
+[source,http,linenums]
+----
+HTTP/1.1 201 Created
+Content-Length: 0
+Date: Mon, 22 Apr 2015 22:02:22 GMT
+id: 44dc84da101c4f9d9f751e38d9c4d97b
+Location: ${secure_url}/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b
+Server: Jetty(7.5.4.v20111024)
+----
++
+. Verify the entry was successfully ingested by entering in a browser the URL returned in the POST response's HTTP header. For instance in our example, it was `/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b`. This should display the catalog entry in XML within the browser.
+. Verify the catalog entry exists by executing a query via the OpenSearch endpoint.
+. Enter the following URL in a browser /services/catalog/query?q=ddf. A single result, in Atom format, should be returned.
+
+===== Verifying Ingest
+
+. Verify GeoJson file was stored using the Content REST endpoint.
+.. Send a GET command to read the content from the content repository using the Content REST endpoint. This can be done using `cURL` command below. Note that the GUID will be different for each ingest. The GUID can be determined by going to the `<DISTRIBUTION_INSTALL_DIR>/content/store` directory and copying the sub-directory in this folder (there should only be one).
+
+.Windows Example
+[source,terminal]
+----
+curl -X GET ${secure_url}/services/content/c90147bf86294d46a9d35ebbd44992c5
+----
+
+.*NIX Example
+[source,terminal]
+----
+curl -X GET ${secure_url}/services/content/c90147bf86294d46a9d35ebbd44992c5
+----
+
+The response to the GET command will be the contents of the `geojson_valid.json` file originally ingested.
+
+===== Advanced (more records, automated ingest)
+
+The ${branding} provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog.
+
+===== Removing Expired Records from Catalog
+
+${branding} has many ways to remove expired records from the underlying Catalog data store.
+Nevertheless, the benefits of data standardization is that an attempt can be made to remove records without the need to know any vendor-specific information.
+Whether the data store is a search server, a No-SQL database, or a relational database, expired records can be removed universally using the Catalog API and the Catalog Commands.
+
+===== Universal Expired Records Removal
+
+====== Manual Removal
+
+To manually remove expired records from the Catalog, execute in the Command Line Console,
+
+----
+catalog:removeall --expired
+----
+
+When prompted, type yes to remove all expired records.
+
+[TIP]
+====
+For help on the removeall command, execute
+
+`help catalog:removeall`
+====
+
+====== Automated Removal
+
+By default, the ${branding} runs a scheduled command every 24 hours to remove expired records.
+The command is executed and scheduled <<Using the Command Scheduler>>.
+To change the configuration out of the box, follow the <<Updating a Scheduled Command>> instructions.
+If an administrator wants to create additional scheduled tasks to remove records from the local Catalog, the administrator can follow the steps provided in the Scheduling a Command section.
+In the Command text field, type the following
+
+`catalog:removeall --force --expired`
+
+If it is intended to have this run daily, type 86400 for the amount of seconds.
+(60 seconds/min x 60 minutes/hr x 24 hours/day = 86400 seconds for one day)
+
+===== Explanation of Command to Remove Expired Records
+
+The `catalog:removeall` command states you want to remove records from the local Catalog.
+
+The `--force` option is used to suppress the confirmation message which asks a user if the user intentionally wants to permanently remove records from the Catalog.
+
+The `--expired` option is to remove only expired records.
+
+[IMPORTANT]
+====
+If the `--expired` option is omitted, then all records will be removed from the Catalog.
+====
+
+===== Non-Universal or Catalog Specific Removal
+
+Using the Catalog Commands is convenient for achieving many goals such as removing expired records, but is not always the most efficient since not all Catalog implementation details are known.
+The Catalog API does not allow for every special nuance of a specific data store.
+Therefore, whether an administrator's data store is from Oracle, Solr, or any other vendor, the administrator should consult the specific Catalog implementation's documentation on the best method to remove metadata.
+Many specific Catalog implementations might come with their own custom scripts for removing expired metadata such as the SQL scripts provided for the Oracle Catalog implementation.
+
+===== Automatic Catalog Backup
+
+To backup local catalog records.
+A backup plugin is disabled by default for performance reasons.
+It can be enabled and configured in the:
+
+*${admin-console} -> ${ddf-catalog} -> Configuration -> Backup Post-Ingest Plugin.*

@@ -1,0 +1,359 @@
+
+[ditaa, catalog_architecture_data, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |c369  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                +-------------------+                       |
+|                |cDEF               |                       |
+|                | Storage Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+The Catalog stores and translates Metadata, which can be transformed into many data formats, shared, and queried.
+The primary form of this metadata is the metacard. 
+A `Metacard` is a container for metadata. 
+`CatalogProviders` accept `Metacards` as input for ingest, and `Sources` search for metadata and return matching `Results` that include `Metacards`.
+
+=== Metacards
+
+A single instance of metadata in the Catalog (an instance of a metacard type) which generally contains metadata providing a title for the product and describing a product's geo-location, created and modified dates, owner or producer, security classification, etc. 
+
+==== Metacard Type
+
+A metacard type indicates the attributes available for a particular metacard.
+It is a model used to define the attributes of a metacard, much like a schema.
+
+===== Default Metacard Type and Attributes
+
+Most metacards within the system are created using with the default metacard type.
+The default metacard type of the system can be programmatically retrieved by calling `${ddf-branding}.catalog.data.BasicTypes.BASIC_METACARD`.
+The name of the default MetacardType can be retrieved from `${ddf-branding}.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME`.
+
+The default metacard type has the following required attributes.
+Though the following attributes are required on all metacard types, setting their values is optional except for ID.
+
+.[[_metacard_required_attributes]]Metacard Required Attributes
+[cols="4*", options="header"]
+|===
+
+|`${ddf-branding}.catalog.data.Metacard` Constant
+|Attribute Name
+|Attribute Format
+|Description
+
+|`CONTENT_TYPE`
+|`metadata-content-type`
+|STRING
+|Attribute name accessing for the metadata content type of a Metacard.
+
+|`CONTENT_TYPE_VERSION`
+|`metadata-content-type-version`
+|STRING
+|Attribute name for the version of the metadata content accessing type of a Metacard.
+
+|`CREATED`
+|`created`
+|DATE
+|Attribute name for accessing the date/time *this Metacard* was created.
+
+|`EFFECTIVE`
+|`effective`
+|DATE
+|Attribute name for accessing the date/time of *the product* represented by the Metacard.
+
+|`EXPIRATION`
+|`expiration`
+|DATE
+|Attribute name for accessing the date/time the Metacard is no longer valid and could be removed.
+
+|`GEOGRAPHY`
+|`location`
+|GEOMETRY
+|Attribute name for accessing the location for this Metacard.
+
+|`ID`
+|`id`
+|STRING
+|Attribute name for accessing the ID of the Metacard.
+
+|`METADATA`
+|`metadata`
+|XML
+|Attribute name for accessing the XML metadata for this Metacard.
+
+|`MODIFIED`
+|`modified`
+|DATE
+|Attribute name for accessing the date/time this Metacard was last modified.
+
+|`RESOURCE_SIZE`
+|`resource-size`
+|STRING
+|Attribute name for accessing the size in bytes of the product this Metacard represents.
+
+|`RESOURCE_URI`
+|`resource-uri`
+|STRING
+|Attribute name for accessing the URI reference to the product this Metacard represents.
+
+|`TARGET_NAMESPACE`
+|`metadata-target-namespace`
+|STRING
+|Attribute name for the target namespace of the accessing metadata content type of a Metacard.
+
+|`THUMBNAIL`
+|`thumbnail`
+|BINARY
+|Attribute name for accessing the thumbnail image of the product this Metacard represents. The thumbnail must be of MIME Type `image/jpeg` and be less than 128 kilobytes. 
+
+|`TITLE`
+|`title`
+|STRING
+|Attribute name for accessing the title of the Metacard.
+
+|===
+
+[NOTE]
+====
+It is highly recommended when referencing a default attribute name to use the `ddf.catalog.data.Metacard` constants whenever possible.
+====
+
+[WARNING]
+====
+Every Source should at the very least return an ID attribute according to Catalog API.
+Other fields might or might not be applicable, but a unique ID must be returned by a <<_sources,Source>>.
+====
+
+===== Extensible Metacards
+
+Metacard extensibility is achieved by creating a new `MetacardType` that supports attributes in addition to the required attributes listed above.
+
+Required attributes must be the base of all extensible metacard types. 
+
+[WARNING]
+====
+Not all Catalog Providers support extensible metacards.
+Nevertheless, each Catalog Provider should at least have support for the default `MetacardType`; i.e., it should be able to store and query on the attributes and attribute formats specified by the default metacard type.
+Consult the documentation of the Catalog Provider in use for more information on its support of extensible metacards.
+====
+
+Often, the `BASIC_METACARD` `MetacardType` does not provide all the functionality or attributes necessary for a specific task.
+For performance or convenience purposes, it may be necessary to create custom attributes even if others will not be aware of those attributes.
+One example could be if a user wanted to optimize a search for a date field that did not fit the definition of `CREATED`, `MODIFIED`, `EXPIRATION`, or `EFFECTIVE`.
+The user could create an additional `java.util.Date` attribute in order to query the attribute separately. 
+
+`Metacard` objects are extensible because they allow clients to store and retrieve standard and custom key/value Attributes from the `Metacard`. 
+All `Metacards` must return a `MetacardType` object that includes an `AttributeDescriptor` for each `Attribute`, indicating it's key and value type.
+`AttributeType` support is limited to those types defined by the Catalog.
+
+New `MetacardType` implementations can be made by implementing the `MetacardType` interface.
+
+==== Metacard Type Registry
+
+[WARNING]
+====
+The `MetacardTypeRegistry` is experimental. 
+While this component has been tested and is functional, it may change as more information is gathered about what is needed and as it is used in more scenarios.
+====
+
+The `MetacardTypeRegistry` allows ${branding} components, primarily CatalogProviders and Sources, to make available the `MetacardTypes` that they support. 
+It maintains a list of all supported `MetacardTypes` in the `CatalogFramework`, so that other components such as Endpoints, Plugins, and Transformers can make use of those `MetacardTypes`. 
+The `MetacardType` is essential for a component in the `CatalogFramework` to understand how it should interpret a metacard by knowing what attributes are available in that metacard. 
+
+For example, an endpoint receiving incoming metadata can perform a lookup in the `MetacardTypeRegistry` to find a corresponding `MetacardType`. 
+The discovered `MetacardType` will then be used to help the endpoint populate a metacard based on the specified attributes in the `MetacardType`. 
+By doing this, all the incoming metadata elements can then be available for processing, cataloging, and searching by the rest of the `CatalogFramework`.
+
+`MetacardTypes` should be registered with the `MetacardTypeRegistry`.  The `MetacardTypeRegistry` makes those `MetacardTypes` available to other ${branding} `CatalogFramework` components. 
+Other components that need to know how to interpret metadata or metacards should look up the appropriate `MetacardType` from the registry. 
+By having these `MetacardTypes` available to the `CatalogFramework`, these components can be aware of the custom attributes. 
+
+The `MetacardTypeRegistry` is accessible as an OSGi service. 
+The following blueprint snippet shows how to inject that service into another component:
+
+[source,xml,linenums]
+----
+<bean id="sampleComponent" class="${ddf-branding}.catalog.SampleComponent">
+    <argument ref="metacardTypeRegistry" />
+</bean>
+
+<!-- Access MetacardTypeRegistry -->
+<reference id="metacardTypeRegistry" interface="${ddf-branding}.catalog.data.MetacardTypeRegistry"/>
+----
+
+The reference to this service can then be used to register new `MetacardTypes` or to lookup existing ones. 
+
+Typically, new `MetacardTypes` will be registered by `CatalogProviders` or Sources indicating they know how to persist, index, and query attributes from that type. 
+Typically, Endpoints or `InputTransformers` will use the lookup functionality to access a `MetacardType` based on a parameter in the incoming metadata. 
+Once the appropriate `MetacardType` is discovered and obtained from the registry, the component will know how to translate incoming raw metadata into a ${branding} Metacard.
+
+==== Attributes
+
+An attribute is a single field of a metacard, an instance of an attribute type.
+Attributes are typically indexed for searching by a Source or Catalog Provider.
+
+===== Attribute Types
+
+An attribute type indicates the attribute format of the value stored as an attribute. 
+It is a model for an attribute.
+
+====== Attribute Format
+
+An enumeration of attribute formats are available in the catalog.
+Only these attribute formats may be used.
+
+.Attribute Formats
+[cols="2*", options="header"]
+|===
+|AttributeFormat
+|Description
+
+|`BINARY`
+|Attributes of this attribute format must have a value that is a Java `byte[]` and `AttributeType.getBinding()` should return `Class<Array>of` byte.
+
+|`BOOLEAN`
+|Attributes of this attribute format must have a value that is a Java boolean.
+
+|`DATE`
+|Attributes of this attribute format must have a value that is a Java date.
+
+|`DOUBLE`
+|Attributes of this attribute format must have a value that is a Java double.
+
+|`FLOAT`
+|Attributes of this attribute format must have a value that is a Java float.
+
+|`GEOMETRY`
+|Attributes of this attribute format must have a value that is a WKT-formatted Java string.
+
+|`INTEGER`
+|Attributes of this attribute format must have a value that is a Java integer.
+
+|`LONG`
+|Attributes of this attribute format must have a value that is a Java long.
+
+|`OBJECT`
+|Attributes of this attribute format must have a value that implements the serializable interface.
+
+|`SHORT`
+|Attributes of this attribute format must have a value that is a Java short.
+
+|`STRING`
+|Attributes of this attribute format must have a value that is a Java string and treated as plain text.
+
+|`XML`
+|Attributes of this attribute format must have a value that is a XML-formatted Java string.
+
+|===
+
+===== Result
+
+A single "hit" included in a query response.
+
+A result object consists of the following:
+
+* a metacard
+* a relevance score if included
+* distance in meters if included
+
+==== Creating Metacards
+
+The quickest way to create a `Metacard` is to extend or construct the `MetacardImpl` object. 
+`MetacardImpl` is the most commonly used and extended `Metacard` implementation in the system because it provides a convenient way for developers to retrieve and set `Attribute`s without having to create a new `MetacardType` (see below).
+`MetacardImpl` uses `BASIC_METACARD` as its `MetacardType`.  
+
+===== Limitations
+
+A given developer does not have all the information necessary to programmatically interact with any arbitrary `Source`. 
+Developers hoping to query custom fields from extensible `Metacards` of other `Sources` cannot easily accomplish that task with the current API.
+A developer cannot question a random `Source` for all its _queryable_ fields.
+A developer only knows about the `MetacardTypes` which that individual developer has used or created previously. 
+
+The only exception to this limitation is the `Metacard.ID` field, which is required in every `Metacard` that is stored in a `Source`.
+A developer can always request `Metacards` from a `Source` for which that developer has the `Metacard.ID` value. 
+The developer could also perform a wildcard search on the `Metacard.ID` field if the `Source` allows.
+
+===== Processing Metacards
+
+As `Metacard` objects are created, updated, and read throughout the Catalog, care should be taken by all Catalog Components to interrogate the `MetacardType` to ensure that additional `Attributes` are processed accordingly.
+
+===== Basic Types
+
+The Catalog includes definitions of several Basic Types all found in the `${ddf-branding}.catalog.data.BasicTypes` class.
+
+.Basic Types
+[cols="3*", options="header"]
+|===
+
+|Name
+|Type
+|Description
+
+|`BASIC_METACARD`
+|MetacardType
+|representing all required Metacard Attributes
+
+|`BINARY_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.BINARY`.
+
+|`BOOLEAN_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.BOOLEAN`.
+
+|`DATE_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.DATE`.
+
+|`DOUBLE_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.DOUBLE`.
+
+|`FLOAT_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.FLOAT`.
+
+|`GEO_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.GEOMETRY`.
+
+|`INTEGER_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.INTEGER`.
+
+|`LONG_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.LONG`.
+
+|`OBJECT_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.OBJECT`.
+
+|`SHORT_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.SHORT`.
+
+|`STRING_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.STRING`.
+
+|`XML_TYPE`
+|AttributeType
+|A Constant for an AttributeType with `AttributeType.AttributeFormat.XML`.
+
+|===

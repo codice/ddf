@@ -1,0 +1,17 @@
+
+==== Checksum
+
+{description}
+
+===== Installing Checksum
+
+The Checksum is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Checksum
+
+{configuration}
+
+===== Known Issues with Checksum
+
+None.
+

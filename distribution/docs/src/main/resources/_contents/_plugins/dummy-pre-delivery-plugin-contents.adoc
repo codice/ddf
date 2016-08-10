@@ -1,0 +1,15 @@
+==== Dummy Pre-Delivery Plugin
+
+*Example* implementation in the <<_sdk,SDK>>.
+
+===== Installing Dummy Pre-Delivery Plugin
+
+The Dummy Pre-Delivery Plugin is not installed by default with a standard installation.
+
+===== Configuring Dummy Pre-Delivery Plugin
+
+None.
+
+===== Known Issues with Dummy Pre-Delivery Plugin
+
+None.

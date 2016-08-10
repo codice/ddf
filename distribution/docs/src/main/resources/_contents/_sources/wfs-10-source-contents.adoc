@@ -1,0 +1,127 @@
+[[_wfs_v100_source]]
+==== WFS v1.0.0 Source
+
+The WFS Source allows for requests for geographical features across the web using platform-independent calls.
+
+A Web Feature Service (WFS) source is an implementation of the `FederatedSource` interface provided by the ${branding} Framework.
+
+Use the WFS Source if querying a WFS version 1.0.0 compliant service.
+
+===== Installing the WFS v1.0.0 Source
+
+The WFS v1.0.0 Source is is not installed by default with a standard installation in the ${ddf-spatial} application.
+
+===== Configuring the WFS v1.0.0 Source
+
+* Navigate to the ${admin-console}.
+* Navigate to the ${ddf-spatial} application.
+*
+
+.WFS v1.0.0 Source Configurable Properties
+[cols="6*", options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|`id`
+|String
+|Unique name of the Source.
+|WFS_v1_0_0
+|Yes
+
+|WFS URL
+|`wfsUrl`
+|String
+|URL to the Web Feature Service (WFS) that will be queried by this source (see below).
+|
+|Yes
+
+|Disable CN Check
+|`disableCnCheck`
+|Boolean
+|Disable CN check for the server certificate. This should only be used when testing.
+|false
+|Yes
+
+|Username
+|`username`
+|String
+|Username to log in to the WFS service. Password to log in to the WFS service.
+|
+|No
+
+|Password
+|`password`
+|String
+|Password to log in to the WFS service.
+|
+|No
+
+|Forced Feature Type
+|`forcedFeatureType`
+|String
+|Force only a specific FeatureType to be queried instead of all featureTypes
+|
+|No
+
+|Non Queryable Properties
+|`nonQueryableProperties`
+|List of Strings
+|Multivalued list of properties in the feature XML that should not be used as filters.
+|
+|No
+
+|Poll Interval
+|`pollInterval`
+|Integer
+|Poll interval to check if the source is available (in minutes; minimum = 1).
+|5
+|Yes
+
+|Forced Spatial Filter Type
+|`forceSpatialFilter`
+|String
+|Force the selected Spatial Filter Type to be the only available Spatial Filter.
+|None
+|No
+
+|Connection Timeout
+|`connectionTimeout`
+|Integer
+|Amount of time to attempt to establish a connection before timing out, in milliseconds
+|30000
+|Yes
+
+|Receive Timeout
+|`receiveTimeout`
+|Integer
+|Amount of time to wait for a response before timing out, in milliseconds.
+|60000
+|Yes
+
+|===
+
+===== WFS URL
+
+The WFS URL must match the endpoint for the service being used.
+The type of service and version are added automatically, so they do not need to be included.
+Some servers will throw an exception if they are included twice, so do not include those.
+
+The syntax depends on the server.
+However, in most cases, the syntax will be everything before the `?` character in the URL that corresponds to the `GetCapabilities` query.
+
+.Example GeoServer 2.5 Syntax
+----
+http://www.example.org:8080/geoserver/ows?service=wfs&version=1.0.0&request=GetCapabilities
+----
+
+In this case, the WFS URL would be: `http://www.example.org:8080/geoserver/ows`
+
+===== Known Issues with the WFS v1.0.0 Source
+
+None.

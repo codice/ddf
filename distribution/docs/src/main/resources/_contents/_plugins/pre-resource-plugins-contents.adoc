@@ -1,0 +1,5 @@
+
+.[[_included_pre-resource_plugins]]Included Pre-Resource Plugins
+<<_resource_usage_plugin,Resource Usage Plugin>>:: description
+<<_security_logging_plugin,Security Logging Plugin>>:: The Security Logging Plugin logs operations to the security log.
+

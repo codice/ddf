@@ -1,0 +1,27 @@
+==== WhoAmI Endpoint
+
+Example?
+
+===== Installing WhoAmI Endpoint
+
+The WhoAmI Endpoint is not installed by default with a standard installation in the {app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring WhoAmI Endpoint
+
+* any applicable configurations
+
+===== Using WhoAmI Endpoint
+
+.WhoAmI Endpoint URL
+----
+${secure_url}/path/to/endpoint
+----
+
+{operations}
+
+===== WhoAmI Endpoint Known Issues
+
+None.

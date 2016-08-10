@@ -1,0 +1,75 @@
+==== XML Query Response Transformer
+
+The XML Query Response Transformer is responsible for translating a query response into an XML-formatted document.
+The metacards element that is generated is an extension of `gml:AbstractFeatureCollectionType`, which makes the output of this transformer GML 3.1.1 compatible.
+
+===== Installing the XML Query Response Transformer
+
+This transformer is installed by default with a standard installation in the ${ddf-catalog} application.
+To uninstall or install manually, use the `catalog-transformer-xml` feature.
+
+===== Configuring the the XML Query Response Transformer
+
+None.
+
+===== Using the XML Query Response Transformer
+
+Using the OpenSearch Endpoint, for example, query with the format option set to the XML shortname `xml`.
+
+.XML Query Response Transformer Query Example
+[source,http]
+----
+${public_url}/services/catalog/query?q=input?format=xml
+----
+
+.XML Query Response Transformer Example Output
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns3:metacards xmlns:ns1="http://www.opengis.net/gml" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ns3="urn:catalog:metacard" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language">
+    <ns3:metacard ns1:id="000ba4dd7d974e258845a84966d766eb">
+        <ns3:type>${ddf-branding}.metacard</ns3:type>
+        <ns3:source>southwestCatalog1</ns3:source>
+        <ns3:dateTime name="created">
+          <ns3:value>2013-04-10T15:30:05.702-07:00</ns3:value>
+        </ns3:dateTime>
+        <ns3:string name="title">
+            <ns3:value>Input 1</ns3:value>
+        </ns3:string>
+    </ns3:metacard>
+    <ns3:metacard ns1:id="00c0eb4ba9b74f8b988ef7060e18a6a7">
+        <ns3:type>${ddf-branding}.metacard</ns3:type>
+        <ns3:source>southwestCatalog1</ns3:source>
+        <ns3:dateTime name="created">
+          <ns3:value>2013-04-10T15:30:05.702-07:00</ns3:value>
+        </ns3:dateTime>
+        <ns3:string name="title">
+            <ns3:value>Input 2</ns3:value>
+        </ns3:string>
+    </ns3:metacard>
+</ns3:metacards>
+----
+
+.XML Query Response Transformer Implementation Details
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+1.3+^|`${ddf-branding}.catalog.transform.QueryResponseTransformer`
+
+|`shortname`
+|xml
+
+|`description`
+|Transforms query results into xml
+
+|`title`
+|View as XML...
+|===
+
+===== Known Issues with the XML Query Response Transformer
+
+None.

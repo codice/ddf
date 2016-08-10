@@ -1,0 +1,5 @@
+
+.[[_included_post-create_storage_plugins]]Included Post-Create Storage Plugins
+<<_video_thumbnail_plugin,Video Thumbnail>>:: The Video Thumbnail Plugin provides the ability to generate thumbnails for video files stored in the Content Repository.
+<<_security_logging_plugin,Security Logging Plugin>>:: description.
+

@@ -1,0 +1,45 @@
+==== Resource Metacard Transformer
+
+The Resource Metacard Transformer retrieves the resource bytes of a metacard by returning the product associated with the metacard.
+
+===== Installing the Resource Metacard Transformer
+
+This transformer is installed or uninstalled with the feature `catalog-transformer-resource`.
+
+===== Configuring the Resource Metacard Transformer
+
+None.
+
+===== Using the Resource Metacard Transformer
+
+Endpoints or other components can retrieve an instance of the Resource Metacard Transformer using its id resource.
+
+.Sample Blueprint Reference Snippet
+[source,xml]
+----
+<reference id="metacardTransformer" interface="${ddf-branding}.catalog.transform.MetacardTransformer" filter="(id=resource)"/>
+----
+
+.Resource Metacard Transformer Implementation Details
+[cols="3" options="header"]
+|===
+|Service Property
+|Value
+
+|id
+|resource
+
+|shortname
+|resource
+
+|mime-type
+|application/octet-stream
+
+|title
+|Get Resource ...
+|===
+
+===== Known Issues with the Resource Metacard Transformer
+
+None.
+

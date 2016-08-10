@@ -1,0 +1,14 @@
+
+=== Developing OGC Filters
+
+An OGC Filter is a http://www.opengeospatial.org/[Open Geospatial Consortium (OGC)] standard that describes a query expression in terms of XML and Key-Value Pairs (KVP).
+
+The OGC Filter is used to represent a query to be sent to sources and the Catalog Provider, as well as to represent a Subscription.
+The OGC Filter provides support for expression processing, such as adding or dividing expressions in a query, but that is not the intended use for ${branding}.
+
+==== OGC filter in the ${branding} Catalog
+
+The ${branding} Catalog Framework uses the implementation provided by http://www.geotools.org/[Geotools], which provides a Java representation of the standard.
+
+Geotools originally provided standard Java classes for the OGC Filter Encoding 1.0, under the package name `org.opengis.filter`, which is where `org.opengis.filter.Filter` is located.
+Java developers should use the Java objects exclusively to complete query tasks, rather than parsing or viewing the XML representation.

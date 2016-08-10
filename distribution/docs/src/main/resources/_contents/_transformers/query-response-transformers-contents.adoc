@@ -1,0 +1,12 @@
+
+=== Included Query Response Transformers
+<<_atom_query_response_transformer_,Atom Query Response Transformer>>:: The Atom Query Response Transformer transforms a query response into an http://tools.ietf.org/html/rfc4287[Atom 1.0] feed.
+<<_csw_query_response_transformer, Query Response Transformer>>:: description
+<<_geojson_query_response_transformer_,GeoJSON Query Response Transformer>>:: description
+<<_kml_query_response_transformer_,KML Query Response Transformer>>::
+The KML Query Response Transformer is responsible for translating a query response into a KML-formatted document.
+<<_query_response_transformer_consumer_,Query Response Transformer Consumer>>:: description
+<<_searchui_transformer,SearchUI>>:: The SearchUI is a `QueryResponseTransformer` that not only provides results in html format but also provides a convenient, simple querying user interface.
+<<_xml_query_response_transformer_,XML Query Response Transformer>>:: The XML Query Response Transformer is responsible for translating a query response into an XML-formatted document.
+<<_xml_response_queue_transformer,XML Response Queue Transformer>>:: description
+<<_xml_xslt_response_queue_transformer,XSLT Response Queue Transformer>>:: description

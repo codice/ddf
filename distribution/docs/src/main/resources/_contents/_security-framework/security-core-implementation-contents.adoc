@@ -1,0 +1,44 @@
+
+==== Security Core Implementation
+
+The Security Core Implementation contains the reference implementations for the Security Core API interfaces that come with the ${branding} distribution.
+
+===== Configuring
+
+None
+
+===== Install and Uninstall
+
+The Security Core app installs this bundle by default.
+It is recommended to use this bundle as it contains the reference implementations for many classes used within the ${ddf-security} Framework.
+
+===== Implementation Details
+
+====== Imported Services
+
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`org.apache.shiro.realm.Realm`
+|optional
+|true
+
+|===
+
+====== Exported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Implementation Class
+|Properties Set
+
+|`ddf.security.service.SecurityManager`
+|`ddf.security.service.impl.SecurityManagerImpl`
+|None
+
+|===

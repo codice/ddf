@@ -1,0 +1,36 @@
+
+=== Security CAS
+
+The Security CAS app contains all of the services and implementations needed to integrate with the _Central Authentication Server_ (CAS).
+
+Information on setting up and configuring the CAS server is located on the CAS SSO Configuration page.
+
+.Security CAS Components
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Feature Located In
+|Description/Link to Bundle Page
+
+|`security-cas-client`
+|`security-cas-client`
+|<<_security_cas_client,Security CAS Client
+
+|`security-cas-impl`
+|`security-cas-client`
+|<<_security_cas_implementation,Security CAS Implementation
+
+|`security-cas-tokenvalidator`
+|`security-cas-tokenvalidator`
+|<<_security_cas_token_validator,Security CAS Token Validator
+
+|`security-cas-cxfservletfilter`
+|`security-cas-cxfservletfilter`
+|<<_security_cas_cxf_servlet_filter,Security CAS CXF Servlet Filter
+
+|`security-cas-server`
+| 
+|<<_security_cas_server,Security CAS Server
+
+|===

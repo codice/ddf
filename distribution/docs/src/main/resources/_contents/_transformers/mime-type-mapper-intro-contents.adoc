@@ -1,0 +1,14 @@
+
+=== Mime Type Mapper
+
+The MimeTypeMapper is the entry point in ${branding} for resolving file extensions to mime types, and vice versa.
+
+`MimeTypeMappers` are used by the `ResourceReader` to determine the file extension for a given mime type in aid of retrieving a product.
+`MimeTypeMappers` are also used by the `FileSystemProvider` in the Catalog Framework to read a file from the content file repository.
+
+The `MimeTypeMapper` maintains a list of all of the `MimeTypeResolvers` in ${branding}.
+
+The `MimeTypeMapper` accesses each `MimeTypeResolver` according to its priority until the provided file extension is successfully mapped to its corresponding mime type.
+If no mapping is found for the file extension, `null` is returned for the mime type. 
+Similarly, the `MimeTypeMapper` accesses each `MimeTypeResolver` according to its priority until the provided mime type is successfully mapped to its corresponding file extension.
+If no mapping is found for the mime type, `null` is returned for the file extension.

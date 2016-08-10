@@ -1,0 +1,17 @@
+
+==== Metacard Attribute Security Policy Plugin
+
+{description}
+
+===== Installing Metacard Attribute Security Policy Plugin
+
+The Metacard Attribute Security Policy Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Metacard Attribute Security Policy Plugin
+
+{configuration}
+
+===== Known Issues with Metacard Attribute Security Policy Plugin
+
+None.
+

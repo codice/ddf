@@ -1,0 +1,127 @@
+==== Catalog Solr Embedded Provider
+
+The Solr Catalog Embedded Provider is an embedded, local Solr Server instance used in conjunction with an Apache Solr Server data store.
+It is a local instance that is a lightweight Catalog provider solution. However, it does not provide a Solr Admin GUI or a "REST-like HTTP/XML and JSON API." If that is necessary, see Standalone Solr Server.
+
+===== Installing Solr Catalog Embedded Provider
+
+. Navigate to the ${ddf-solr} application in the Admin console.
+. Under the *Features* tab, uninstall the `catalog-solr-external-provider` feature.
+. Install the `catalog-solr-embedded-provider`
+
+==== Configuring Embedded Solr Server and Solr Catalog Provider
+
+No configuration is necessary for the embedded Solr Server and the Solr Catalog Provider.
+The standard installation described above is sufficient.
+When the `catalog-solr-embedded-provider` feature is installed, it stores the Solr index files to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr` by default.
+A user does not have to specify any parameters and the `catalog-solr-embedded-provider` feature contains all files necessary for Solr to start the server. 
+
+However, this component _can_ be configured to specify the directory to use for data storage. 
+
+The configurable properties for the SCP are accessed from the *Catalog Embedded Solr Catalog Provider* configurations in the ${admin-console}.
+
+[TIP]
+====
+The Embedded (Local) Solr Catalog Provider works on startup without any configuration because a local embedded Solr Server is automatically started and pre-configured.
+====
+
+.Embedded Solr Catalog Provider Configurable Properties
+[cols="1,1,1,4a,1,1" options="header"]
+|===
+
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Data Directory File Path
+|`dataDirectoryPath`
+|String
+|Specifies the directory to use for data storage. The server must be shutdown for this property to take effect. If a filepath is provided with directories that don't exist, SCP will attempt to create those directories. Out of the box (without configuration), the SCP writes to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr`.
+
+If `dataDirectoryPath` is left blank (empty string), it will default to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr`.
+
+If data directory file path is a relative string, the SCP will write the data files starting at the installation directory. For instance, if the string `scp/solr_data` is provided, the data directory will be at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/scp/solr_data`.
+
+If data directory file path is `/solr_data` in Windows, the Solr Catalog Provider will write the data files starting at the beginning of the drive, e.g., `C:\solr_data`.
+
+It is recommended that an absolute filepath be used to minimize confusion, e.g., `/opt/solr_data` in Linux or `C:\solr_data` in Windows. Permissions are necessary to write to the directory.
+|
+|No
+
+|Force Auto Commit
+|`forceAutoCommit`
+|Boolean / Checkbox
+|[IMPORTANT]
+====
+*Performance Impact* +
+Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately.
+====
+|
+|No
+
+|===
+
+Some notable features of the Solr Catalog Provider include:
+
+* Supports extensible metacards
+* Fast, simple contextual searching
+* Indexes XML Attributes as well as CDATA sections and XML text elements
+* Full XPath support.
+* Works with an embedded, local Solr Server (all-in-one Catalog)
+** No configuration necessary on a single-node distribution
+** Data directory of Solr indexes are configurable
+* Works with a standalone Solr Server
+
+.Embedded Solr Catalog Provider Pros and Cons
+[cols="1,4a,2a" options="header"]
+|===
+
+|Feature
+|Pro
+|Con
+
+|Scalability
+|
+|* Does not scale. Only runs one single server instance.
+* Does not allow the middle tier to be scaled.
+
+|Flexibility
+|* Can be embedded in Java easily.
+* Requires no HTTP connection.
+* Uses the same interface as the Standalone Solr Server uses under the covers.
+* Allows for full control over the Solr Server. No synchronous issues on startup; i.e., the Solr Server will synchronously start up with the Solr Catalog Provider
+* Runs within the same JVM
+* Setup and Installation is simple: unzip and run.
+|* Can only be interfaced using Java
+
+|(Administrative)Tools
+|* External open source tools like Luke will work to allow admins to check index contents
+* JMX metrics reporting is enabled
+
+|* No Web Console. 
+* No easy way to natively access (out of the box) what is in the index files or health of server at the data store level.
+
+|Security
+|* Does not open any ports which means no ports have to be secured.
+|
+ 
+|Performance
+|* Requires no HTTP or network overhead
+* Near real-time indexing
+* Can understand complex queries
+|
+
+|Backup/Recovery
+|* Can manually or through custom scripts back up the indexes
+|* Must copy files when server is shutdown
+
+|===
+
+===== When to Use the Embedded Solr Catalog Provider
+
+Use the local, embedded Solr Catalog Provider when only one ${branding} instance is necessary and scalability is not an issue.
+The local, embedded Solr Catalog Provider requires no installation and little to no configuration.
+It is great for demonstrations, training exercises, or for sparse querying and ingesting.

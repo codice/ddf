@@ -1,0 +1,44 @@
+==== PPTX Input Transformer
+
+The PPTX Input Transformer is the input transformer responsible for translating Microsoft PowerPoint (OOXML only) documents into a Catalog Metacard. This input transformer utilizes Apache Tika (for basic metadata) and Apache POI (for thumbnail creation).
+The PPTX Input Transformer's main purpose is to ingest PPTX documents into the ${branding} Content Repository and the Metadata Catalog.
+
+The PPTX Input Transformer will take precedence over the Tika Input Transformer for PPTX documents.
+
+===== Installing and Uninstalling PPTX Input Transformer
+
+This transformer is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring PPTX Input Transformer
+
+None.
+
+===== Using PPTX Input Transformer
+
+Use the PPTX Input Transformer for ingesting Microsoft PowerPoint (OOXML only) documents into the ${branding} Content Repository and/or the Metadata Catalog.
+
+.PPTX Input Transformer Service Properties
+[cols="2,5a" options="header"]
+|===
+
+|Key
+|Value
+
+|mime-type
+|* application/vnd.openxmlformats-officedocument.presentationml.presentation
+
+|id
+|pptx
+
+|title
+|PPTX Input Transformer
+
+|description
+|Default Input Transformer for the `application/vnd.openxmlformats-officedocument.presentationml.presentation` mime type.
+
+|===
+
+===== PPTX Input Transformer Implementation Details
+
+This input transformer maps the metadata common across all mime types to applicable metacard attributes in the default MetacardType and adds a thumbnail of
+the first page in the PPTX document.

@@ -1,0 +1,152 @@
+
+=== Directory Monitors
+
+==== Catalog Content Directory Monitor
+
+The Catalog Content Directory Monitor allows files placed in a monitored directory to be ingested into the ${ddf-catalog} Repository and/or the Metadata Catalog (MDC). 
+A monitored directory is a directory configured to be polled by ${branding} periodically (typically once per second) for any new files added to the directory that should be ingested into the Catalog Framework.
+
+===== Installing Content Directory Monitor
+
+The Content Directory Monitor is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring Content Directory Monitors
+
+Managed Service Factory PID:
+`org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor`
+
+.Content Directory Monitor Configurable Properties
+[cols="1,1,1,4a,1,1," options="header"]
+|===
+
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Directory Path
+|`monitoredDirectoryPath`
+|String
+|Specifies the directory to be monitored.
+Can be a fully-qualified directory or a relative path (which is relative to the ${branding} installation directory).
+|N/A
+|Yes
+
+|Processing Directive
+|`directive`
+|String
+|One of three possible values from a drop down box:
+
+* Store only - indicates to only store content in Content Repository
+* Process only - indicates to only create metacard and insert into MDC
+* Store and Process - do both
+|Store and Process
+|Yes
+
+|Copy Files to Backup Directory
+|`copyIngestedFiles`
+|Boolean
+|Checking this option indicates that a backup of the file placed in the monitored directory should be made upon successful processing of the file. The file is moved into the `.ingested` sub-directory of the monitored directory.
+|False
+|No
+
+|===
+
+===== Using the Content Directory Monitor
+
+The typical execution flow of the Directory Monitor is:
+
+. A new file is detected in the monitored directory, 
+. The file's contents are passed on to the Catalog Framework and processed based on whether the monitored directory's processing directive was:
+.. configured to just store the file in the ${ddf-catalog} Repository,
+.. configured to just process the file's metadata and ingest it into the MDC, or 
+.. configured to both store the file in the Content Repository and ingest it into the MDC.
+. If the response from the Catalog Framework is successful, indicating the content was stored and/or processed, the file in the monitored directory is either deleted (default behavior) or copied to a sub-directory called `.ingested` (see below for how to configure this behavior). If the response from the Catalog Framework was unsuccessful or a failure occurred, the file is moved from the monitored directory to a sub-folder named `.errors`, allowing easy identification of the ingested files that had problems.
+
+Multiple monitored directories can be configured, each monitoring different directories.
+
+The Content Directory Monitor provides the capability to easily create content in the ${ddf-catalog} Repository and metacards in the MDC by simply placing a file in a directory that has been configured to be monitored by ${branding}.
+For example, this would be useful for copying files from a hard drive (or directory) in a batch-like operation to the monitored directory and having all of the files processed by the Catalog Framework.
+
+
+.Monitor single directory for storage and processing, with no file backup
+* The Content Directory Monitor has the following configurations.
+** The *relative* path of `inbox` for the directory path.
+** The Processing Directive is set to Store and Process.
+** The *Copy Ingested Files* option is not checked.
+* As files are placed in the monitored directory `<${branding}_INSTALL_DIR>/inbox`, the files are ingested into the Catalog Framework.
+** The Catalog Framework generates a GUID for the create request for this ingested file.
+** Since the Store and Process directive was configured the ingested file is passed on to the Content File System Storage Provider, which creates a sub-directory in the Content Repository using the GUID and places the ingested file into this GUID sub-directory using the file name provided in the request.
+** The Catalog Framework then invokes the Catalog Content Plugin, which looks up the Input Transformer associated with the ingested file's mime type and invokes the Catalog Framework, which inserts the metacard into the MDC. This Input Transformer creates a metacard based on the contents of the ingested file.
+** The Catalog Framework sends back a successful status to the Camel route that was monitoring the directory.
+** Camel route completes and deletes the file from the monitored directory.
+
+.Monitor single directory for storage with file backup
+* The Content Directory Monitor has the following configurations.
+** The *absolute* path of `/usr/my/home/dir/inbox` for the directory path. 
+** The Processing Directive is set to store only. 
+** The *Copy Ingested Files* option is checked.
+* As files are placed in the monitored directory `/usr/my/home/dir/inbox`, the files are ingested into the Catalog Framework.
+** The Catalog Framework generates a GUID for the create request for this ingested file.
+** Since the Store directive was configured, the ingested file is passed on to the Content File System Storage Provider, which creates a sub-directory in the Content Repository using the GUID and places the ingested file into this GUID sub-directory using the file name provided in the request.
+** The Catalog Framework sends back a successful status to the Camel route that was monitoring the directory.
+** The Camel route completes and moves the file from the monitored directory to its sub-directory `/usr/my/home/dir/inbox/.ingested`.
+
+.Monitor multiple directories for processing only with file backup - errors encountered on some ingests
+
+* Two different Content Directory Monitors have the following configurations.
+** The *relative* path of `inbox` and `inbox2` for the directory path. 
+** The Processing Directive on both directory monitors is set to Process.
+** The Copy Ingested Files option is checked for both directory monitors.
+* As files are placed in the monitored directory `<${branding}_INSTALL_DIR>/inbox`, the files are ingested into the Catalog Framework.
+** The Catalog Framework generates a GUID for the create request for this ingested file.
+** Since the Process directive was configured, the ingested file is passed on to the Catalog Content Plugin, which looks up the Input Transformer associated with the ingested file's mime type (but no Input Transformer is found) and an exception is thrown.
+** The Catalog Framework sends back a failure status to the Camel route that was monitoring the directory.
+** The Camel route completes and moves the file from the monitored directory to the `.errors` sub-directory.
+* As files are placed in the monitored directory `<${branding}_INSTALL_DIR>/inbox2`, the files are ingested into the Catalog Framework.
+** The Catalog Framework generates a GUID for the create request for this ingested file.
+** The Catalog Framework then invokes the Catalog Content Plugin, which looks up the Input Transformer associated with the ingested file's mime type and invokes the Catalog Framework, which inserts the metacard into the MDC. This Input Transformer creates a metacard based on the contents of the ingested file.
+** The Catalog Framework sends back a successful status to the Camel route that was monitoring the directory.
+** The Camel route completes and moves the file from the monitored directory to its `.ingested` sub-directory.
+
+.Imported Services
+[cols="3*", options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`ddf.mime.MimeTypeToTransformerMapper`
+|required
+|false
+
+|`ddf.catalog.CatalogFramework`
+|required
+|false
+
+|`ddf.catalog.filter.FilterBuilder`
+|required
+|false
+
+|===
+
+.Exported Services
+[cols="3*", options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+|ddf.action.ActionProvider
+|id
+|catalog.data.metacard.view
+
+|===
+
+===== Known Issues with the Catalog Content Directory Monitor
+
+None.

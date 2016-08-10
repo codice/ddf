@@ -1,0 +1,20 @@
+==== Query Response Transformer Consumer
+
+The Query Response Transformer Consumer is responsible for translating a {document} into a Catalog Metacard.
+
+===== Installing Query Response Transformer Consumer
+
+The Query Response Transformer Consumer is installed by default with a standard installation in the ${app-name} application.
+The Query Response Transformer Consumer is not installed by default with a standard installation in the ${app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring Query Response Transformer Consumer
+
+* any applicable configurations
+
+===== Using Query Response Transformer Consumer
+
+{operations}
+

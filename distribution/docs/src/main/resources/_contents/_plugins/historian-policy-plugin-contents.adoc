@@ -1,0 +1,17 @@
+
+==== Historian Policy Plugin
+
+{description}
+
+===== Installing Historian Policy Plugin
+
+The Historian Policy Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Historian Policy Plugin
+
+{configuration}
+
+===== Known Issues with Historian Policy Plugin
+
+None.
+

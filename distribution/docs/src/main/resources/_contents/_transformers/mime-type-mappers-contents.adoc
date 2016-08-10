@@ -1,0 +1,3 @@
+
+.[[_included_mime_type_mappers]]Included Mime Type Mappers
+<<_${ddf-branding-lowercase}_mime_type_mapper,${ddf-branding} Mime Type Mapper>>:: description.

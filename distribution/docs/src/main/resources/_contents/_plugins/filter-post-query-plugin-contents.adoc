@@ -1,0 +1,16 @@
+==== Filter Post Query Plugin
+
+{description}
+
+===== Installing Filter Post Query Plugin
+
+The Filter Post Query Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Filter Post Query Plugin
+
+{configuration}
+
+===== Known Issues with Filter Post Query Plugin
+
+None.
+

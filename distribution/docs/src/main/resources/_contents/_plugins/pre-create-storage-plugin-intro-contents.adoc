@@ -1,0 +1,5 @@
+
+=== Pre-Create Storage Plugins
+
+Pre-Create storage plugins are invoked immediately before an item is created in the content repository.
+

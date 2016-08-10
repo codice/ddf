@@ -1,0 +1,13 @@
+
+=== Included Metacard Transformers
+<<_geojson_metacard_transformer,GeoJSON Metacard Transformer>>:: The GeoJSON Metacard Transformer translates a Metacard into GeoJSON.
+<<_gmd_transformer,GmdTransformer>>:: _description_
+<<_html_metacard_transformer,HTML Metacard Transformer>>:: The HTML metacard transformer is responsible for translating a metacard into an HTML formatted document.
+<<_kml_metacard_transformer, KML Metacard Transformer>>:: _implements [KML]_. The KML Metacard Transformer is responsible for translating a metacard into a KML-formatted document.
+<<_kml_style_mapper,KML Style Mapper>>:: The KML Style Mapper provides the ability for the `KmlTransformer` to map a KML Style URL to a metacard based on that metacard's attributes.
+<<_metadata_metacard_transformer,Metadata Metacard Transformer>>:: The Metadata Metacard Transformer returns the `Metacard.METADATA` attribute when given a metacard.
+<<_registry_transformer,RegistryTransformer>>:: _description_
+<<_resource-metacard_transformer,Resource Metacard Transformer>>:: The Resource Metacard Transformer retrieves the resource bytes of a metacard by returning the product associated with the metacard.
+<<_thumbnail_metacard_transformer,Thumbnail Metacard Transformer>>:: The Thumbnail Metacard Transformer retrieves the thumbnail bytes of a Metacard by returning the `Metacard.THUMBNAIL` attribute value.
+<<_xml_metacard_transformer,XML Metacard Transformer>>:: The XML metacard transformer is responsible for translating a metacard into an XML-formatted document.
+

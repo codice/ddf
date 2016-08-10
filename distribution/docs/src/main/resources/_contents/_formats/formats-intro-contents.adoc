@@ -1,0 +1,7 @@
+
+${branding} supports ingest and query of a wide variety of file formats.
+
+////
+TODO: DDF-0000 Summary of File formats supported.
+////
+

@@ -1,0 +1,26 @@
+
+.Transformers
+[ditaa, catalog_architecture_transformers, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                +-------------------+                       |
+|                |c369               |                       |
+|                | Storage Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....

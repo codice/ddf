@@ -1,0 +1,7 @@
+.[[_included_pre-ingest_plugins]]Included Pre-Ingest Plugins
+<<_metacard_groomer,Metacard Groomer>>:: The Metacard Groomer Pre-Ingest plugin makes modifications to `CreateRequest` and `UpdateRequest` metacards.
+<<_metacard_validity_marker,Metacard Validity Marker>>:: The Metacard Validity Marker Pre-Ingest plugin modifies the metacards contained in `CreateRequest` s and `UpdateRequest` s.
+<<_expiration_date_pre_ingest_plugin,Expiration Date Pre-Ingest Plugin>>:: The Expiration Date plugin updates metacard expiration dates.
+<<_identification_plugin,Identification Plugin>>:: The Identification Plugin assigns IDs to a metacard as it is added to the catalog.
+<<_security_logging_plugin,Security Logging Plugin>>:: The Security Logging Plugin logs operations to the security log.
+<<_dummy_pre_ingest_plugin,Dummy Pre-Ingest Plugin>>:: *Example* implementation in the <<_sdk,SDK>> for demonstration purposes.

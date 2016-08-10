@@ -1,0 +1,9 @@
+
+.[[_included_policy_plugins]]Included Policy Plugins
+<<_catalog_policy_plugin,Catalog Policy Plugin>>:: description
+<<_filter_post_query_plugin,Filter Post Query Plugin>>:: description
+<<_historian_policy_plugin,Historian Policy Plugin>>:: description
+<<_metacard_attribute_security_policy_plugin,Metacard Attribute Security Policy Plugin>>:: description
+<<_metacard_validity_filter_plugin,Metacard Validity Filter Plugin>>:: description
+<<_registry_policy_plugin,Registry Policy Plugin>>:: description
+<<_xml_attribute_security_policy_plugin,XML Attribute Security Policy Plugin>>:: description

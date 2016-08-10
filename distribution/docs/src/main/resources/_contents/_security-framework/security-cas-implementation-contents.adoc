@@ -1,0 +1,17 @@
+
+==== Security CAS Implementation
+
+The Security CAS implementation bundle contains CAS-specific implementations of classes from the Security Core API.
+Inside this bundle is the `ddf.security.service.impl.cas.CasAuthenticationToken` class.
+It is an implementation of the `AuthenticationToken` class that is used to pass Authentication Credentials to the Security Framework.
+
+===== Configuring the Security CAS Implementation
+
+None.
+
+
+.Security CAS Implementation Imported Services
+None.
+
+.Security CAS Implementation Exported Services
+None.

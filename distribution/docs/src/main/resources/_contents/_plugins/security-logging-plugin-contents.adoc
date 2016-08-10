@@ -1,0 +1,15 @@
+==== Security Logging Plugin
+
+The Security Logging Plugin logs operations to the security log.
+
+===== Installing Security Logging Plugin
+
+The Security Logging Plugin is is not installed by default in a standard installation in the ${ddf-security} application.
+
+===== Configuring the Security Logging Plugin
+
+{configuration}
+
+===== Known issues with the Security Logging Plugin
+
+None.

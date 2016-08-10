@@ -1,0 +1,10 @@
+
+${branding} is primarily accessesed through one of several task-specific web contexts.
+Some contexts are designed for administrators, while others are intended for end users.
+
+=== Administrative Contexts
+<<${admin-console}>>:: description
+<</Services>>:: description
+
+=== User Contexts
+<<_landing_page,Landing Page>>:: The ${branding} landing page offers a starting point and general information.

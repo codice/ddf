@@ -1,0 +1,55 @@
+== Understanding Metadata and Metacards
+
+Metadata is information about a resource, organized into a schema to make it possible to search against.
+The ${ddf-catalog} stores this metadata and allows access to it. If desired, the ${ddf-content} application can be installed to store the resources themselves.
+Metacards are single instances of metadata, representing a single record, in the Metadata Catalog (MDC).
+Metacards follow one of several schemas to ensure reliable, accurate, and complete metadata.
+Essentially, Metacards function as containers of metadata.
+
+=== Populating Metacards (during ingest)
+
+Upon ingest, a metacard transformer will read the data from the ingested file and populate the fields of the metacard.
+Exactly how this is accomplished depends on the origin of the data, but most fields (except id) are imported directly.
+
+=== Searching Metadata
+
+${branding} provides the capability to search the Metadata Catalog (MDC) for metadata.
+There are a number of different types of searches that can be performed on the MDC, and these searches are accessed using one of several interfaces.
+This section provides a very high level overview of introductory concepts of searching with ${branding}.
+These concepts are expanded upon in later sections.
+
+==== Search Types
+
+There are four basic types of metadata search.
+Additionally, any of the types can be combined to create a compound search.
+
+===== Contextual Search
+
+A contextual search is used when searching for textual information.
+It is similar to a Google search over the metadata contained in the MDC.
+Contextual searches may use wildcards, logical operators, and approximate matches.
+
+===== Spatial Search
+
+A spatial search is used for Area of Interest (AOI) searches.
+Polygon and point radius searches are supported.
+Specifically, the spatial search looks at the metacards' location attribute and coordinates are specified in *WGS 84* decimal degrees.
+
+===== Temporal Search
+
+A temporal search finds information from a specific time range.
+Two types of temporal searches are supported: _relative_ and _absolute_.
+Relative searches contain an offset from the current time, while absolute searches contain a start and an end timestamp.
+Temporal searches can look at the effective date attribute or the modified date.
+
+===== Datatype
+
+A datatype search is used to search for metadata based on the datatype, and optional versions.
+Wildcards (*) can be used in both the datatype and version fields.
+Metadata that matches any of the datatypes (and associated versions if specified) will be returned.
+If a version is not specified, then all metadata records for the specified datatype(s) regardless of version will be returned.
+
+==== Compound Search
+
+These search types may be combined to create Compound searches.
+For example, a Contextual and Spatial search could be combined into one Compound search to search for certain text in metadata in a particular region of the world.

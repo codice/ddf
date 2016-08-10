@@ -1,13 +1,5 @@
+////
+NOTE TO REVIEWERS:
+The Content in this file is being migrated to other files. Ignore changes here, as the content has been moved to a new home. A nice farm; upstate.
+////
 
-This section supports developers creating extensions of the existing ${ddf-admin} application.
-
-=== ${ddf-admin} Whitelist
-
-The following packages have been exported by the ${ddf-admin} application and are approved for use by third parties:
-
-* `org.codice.${ddf-branding-lowercase}.ui.admin.api`
-* `org.codice.${ddf-branding-lowercase}.ui.admin.api.module`
-* `org.codice.${ddf-branding-lowercase}.ui.admin.api.plugin`
-* `org.codice.${ddf-branding-lowercase}.admin.configuration.plugin`
-* `org.codice.${ddf-branding-lowercase}.admin.application.service`
-* `org.codice.${ddf-branding-lowercase}.admin.application.plugin`

@@ -1,0 +1,10 @@
+=== ${ddf-branding} and OSGi
+
+The ${ddf-branding} follows the OSGi set of commercial standards and best practices, governed by a broad-reaching industry alliance, for developing and deploying modular Java code.
+
+. OSGi bundles tend to be small, cohesive and de-coupled, significantly reducing development and debug time.
+. With the appropriate organizational incentives in place to encourage re-use over code creation, further, significant efficiencies are realized by re-use of OSGi Bundles and Services.
+Current industry trends are collectively shifting away from rigidly coupled, static, opaque environments towards adaptive, loosely coupled systems which are dynamically assembled from well-defined software components that run across a fluid set of computer resources.
+. OSGi is the industry standard for Java modularity.
+
+For more info on OSGi, http://www.osgi.org/wiki/uploads/Links/OSGiAndTheEnterpriseBusinessWhitepaper.pdf[check here].

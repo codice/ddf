@@ -1,0 +1,32 @@
+==== Metacard Validity Marker
+
+The Metacard Validity Marker Pre-Ingest plugin modifies the metacards contained in ``CreateRequest``s and ``UpdateRequest``s.
+
+The plugin runs each metacard in the `CreateRequest` and `UpdateRequest` against each registered `MetacardValidator` service.
+
+[NOTE]
+====
+This plugin can make it seem like ingested products are not successfully ingested.
+If after ingesting, the ingest did not fail and there are no errors in the ingest log, but the expected results do not show up after a query,
+verify either that the ingested data is valid or that the <<catalogFederationStrategy, Catalog Federation Strategy>> is configured to show warnings and/or errors.
+====
+
+
+===== Installing Metacard Validity Marker
+
+This plugin can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
+
+===== Configuring Metacard Validity Marker
+
+No configuration is necessary for this plugin. 
+By default, it will mark metacards with validation errors and warnings as they are reported by each metacard validator and then allow the ingest.
+To prevent the ingest of certain invalid metacards, the `Metacard Validity Marker` plugin can be configured to "enforce" one or more validators.
+Metacards that are invalid according to an "enforced" validator will not be ingested.
+
+===== Using Metacard Validity Marker
+
+Use this pre-ingest plugin to validate metacards against metacard validators, which can check schemas, schematron, or any other logic. 
+
+====== Known Issues with the Metacard Validity Marker
+
+None.

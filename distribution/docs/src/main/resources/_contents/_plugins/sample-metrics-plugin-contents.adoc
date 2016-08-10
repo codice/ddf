@@ -1,0 +1,15 @@
+==== Sample Metrics Plugin
+
+*Example* implementation in the <<_sdk,SDK>> for demonstration purposes.
+
+===== Installing Sample Metrics Plugin
+
+The Sample Metrics Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Sample Metrics Plugin
+
+{configuration}
+
+===== Known Issues with Sample Metrics Plugin
+
+None.

@@ -1,0 +1,9 @@
+
+=== Included Federated Sources
+
+<<_csw_source,CSW Source>>:: The CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
+<<_gmd_csw_source,GMD CSW Source>>:: _implements https://portal.opengeospatial.org/files/?artifact_id=6495[Application Profile ISO 19115/ISO19119]_. The GMD CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
+<<_opensearch_source,OpenSearch Source>>:: The OpenSearch source provides a <<_federated_source,Federated Source>> that has the capability to do http://www.opensearch.org/Home[OpenSearch] queries for metadata from Content Discovery and Retrieval (CDR) Search V1.1 compliant sources.
+<<_twitter_source,Twitter Source>>:: The Twitter Source is an *EXAMPLE* source provided in the ${branding} SDK. It enables queries using the http://twitter.com/[Twitter API].
+<<_wfs_v100_source,WFS v1.0.0 Source>>:: The WFS Source allows for requests for geographical features across the web using platform-independent calls.
+<<_wfs_v200_source,WFS v2.0.0 Source>>:: Use the WFS Source if querying a WFS version 2.0.0 compliant service.

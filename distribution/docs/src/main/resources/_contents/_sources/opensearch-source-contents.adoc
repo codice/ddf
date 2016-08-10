@@ -1,0 +1,164 @@
+
+==== OpenSearch Source
+
+The OpenSearch source provides a <<_federated_source,Federated Source>> that has the capability to do http://www.opensearch.org/Home[OpenSearch] queries for metadata from Content Discovery and Retrieval (CDR) Search V1.1 compliant sources.
+The OpenSearch source does not provide a <<_connected_source,Connected Source>> interface.
+
+===== Installing OpenSearch Source
+
+The OpenSearch Source is is not installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the OpenSearch Source
+
+.OpenSearch Source Configurable Properties
+[cols="1,1,1,3,1,1" options="header"]
+|===
+
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Source Name
+|`shortname`
+|String
+|
+|DDF-OS
+|Yes
+
+|OpenSearch service URL
+|`endpointUrl`
+|String
+|The OpenSearch endpoint URL, e.g., ${branding}'s OpenSearch endpoint (http://0.0.0.0:8181/services/catalog/query?q={searchTerms}...)
+|https://example.com?q={searchTerms}&amp;src={fs:routeTo?}&amp;mr={fs:maxResults?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;dn={idn:userDN?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;bbox={geo:box?}&amp;polygon={geo:polygon?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dateName={cat:dateName?}&amp;filter={fsa:filter?}&amp;sort={fsa:sort?}
+|Yes
+
+|Username
+|`username`
+|String
+|Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication.
+|
+|No
+
+|Password
+|`password`
+|String
+|Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication.
+|
+|No
+
+|Always perform local query
+|`localQueryOnly`
+|Boolean
+|Always performs a local query by setting src=local OpenSearch parameter in endpoint URL. *This must be set if federating to another ${branding}*.
+|false
+|Yes
+
+|Convert to BBox
+|`shouldConvertToBBox`
+|Boolean
+|Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with legacy interfaces. Generated bounding box is a very rough representation of the input geometry
+|true
+|Yes
+
+|===
+
+===== Using OpenSearch Source
+
+Use the OpenSearch source if querying a CDR-compliant search service is desired.
+
+====== OpenSearch Query Format
+
+.OpenSearch Parameter to ${branding} Query Mapping
+[cols="1m,2" options="header"]
+|===
+|OpenSearch/CDR Parameter
+|${branding} Data Location
+
+|q={searchTerms}
+|Pulled verbatim from ${branding} query.
+
+|src={fs:routeTo?}
+|Unused
+
+|mr={fs:maxResults?}
+|Pulled verbatim from ${branding} query.
+
+|count={count?}
+|Pulled verbatim from ${branding} query.
+
+|mt={fs:maxTimeout?}
+|Pulled verbatim from ${branding} query.
+
+|dn={idn:userDN?}
+|${branding} Subject
+
+|lat={geo:lat?}
+|Pulled verbatim from ${branding} query.
+
+|lon={geo:lon?}
+|Pulled verbatim from ${branding} query.
+
+|radius={geo:radius?}
+|Pulled verbatim from ${branding} query.
+
+|bbox={geo:box?}
+|Converted from Point-Radius ${branding} query.
+
+|polygon={geo:polygon?}
+|Pulled verbatim from ${branding} query.
+
+|dtstart={time:start?}
+|Pulled verbatim from ${branding} query.
+
+|dtend={time:end?}
+|Pulled verbatim from ${branding} query.
+
+|dateName={cat:dateName?}
+|Unused
+
+|filter={fsa:filter?}
+|Unused
+
+|sort={fsa:sort?}
+|Translated from ${branding} query.
+Format: "relevance" or "date"
+Supports "asc" and "desc" using colon as delimiter.
+
+|===
+
+.OpenSearch Source Exported Services
+[cols="2,1,1" options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+|`${ddf-branding}.catalog.source.FederatedSource`
+|
+|
+
+|===
+
+.OpenSearch Source Imported Services
+[cols="2,1,1,2" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+|Filter
+
+|${ddf-branding}.catalog.transform.InputTransformer
+|required
+|false
+|(&amp;(mime-type=text/xml)(id=xml))
+
+|===
+
+===== Known Issues with OpenSearch Source
+
+The OpenSearch source does not provide a <<_connected_source,Connected Source>> interface.

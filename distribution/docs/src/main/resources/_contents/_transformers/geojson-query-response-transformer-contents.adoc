@@ -1,0 +1,20 @@
+==== GeoJSON Query Response Transformer
+
+{description}
+
+===== Installing the GeoJSON Query Response Transformer
+
+The GeoJSON Query Response Transformer is installed by default with a standard installation in the ${ddf-catalog} application.
+The GeoJSON Query Response Transformer is not installed by default with a standard installation in the ${ddf-catalog} application.
+To install:
+
+* Install steps
+
+===== Configuring the GeoJSON Query Response Transformer
+
+* any applicable configurations
+
+===== Using the GeoJSON Query Response Transformer
+
+{operations}
+

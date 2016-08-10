@@ -1,0 +1,45 @@
+
+==== HTML Metacard Transformer
+The HTML metacard transformer is responsible for translating a metacard into an HTML formatted document.
+
+===== Installing the HTML Metacard Transformer
+
+
+Install the `catalog-transformer-html` feature using the Admin Console.
+
+===== Configuring the HTML Metacard Transformer
+
+None.
+
+===== Using the HTML Metacard Transformer
+
+Using the REST Endpoint for example, request a metacard with the transform option set to the HTML shortname.
+----
+${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=html
+----
+
+.HTML Metacard Transformer Example Output
+----
+html metacard.png
+----
+
+.HTML Metacard Transformer Implementation Details
+[cols="3*" options="header"]
+|===
+|Registered Interface
+|Service Property
+|Value
+
+1.3+^|`${ddf-branding}.catalog.transform.MetacardTransformer`
+|title
+|View as html...
+|description
+|Transforms query results into html
+|shortname (for backwards compatibility)
+|html
+
+|===
+
+===== Known Issues with the HTML Metacard Transformer
+
+None.

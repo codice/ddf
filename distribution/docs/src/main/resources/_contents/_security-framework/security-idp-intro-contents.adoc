@@ -1,0 +1,28 @@
+
+=== Security IdP
+
+The Security IdP application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
+
+.Security IdP Components
+[cols="3", options="header"]
+|===
+
+|Bundle Name
+|Located in Feature
+|Description
+
+|`security-idp-sp`
+|`security-idp`
+|The IdP client that interacts with the specified Identity Provider.
+
+|`security-idp-server`
+|`security-idp`
+|An internal Identity Provider solution.
+
+|===
+
+.Limitations
+[NOTE]
+====
+The internal Identity Provider solution should be used in favor of any external solutions until the IdP Service Provider fully satisfies the https://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile].
+====

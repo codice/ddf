@@ -1,0 +1,2 @@
+
+<<_dummy_pre_delivery_plugin,Dummy Pre-Delivery Plugin>>:: *Example* implementation in the <<_sdk,SDK>>.

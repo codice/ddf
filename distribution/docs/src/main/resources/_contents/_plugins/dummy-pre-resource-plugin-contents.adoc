@@ -1,0 +1,15 @@
+==== Dummy Pre-Resource Plugin
+
+{description}
+
+===== Installing Dummy Pre-Resource Plugin
+
+The Dummy Pre-Resource Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Dummy Pre-Resource Plugin
+
+{configuration}
+
+===== Known Issues with Dummy Pre-Resource Plugin
+
+None.

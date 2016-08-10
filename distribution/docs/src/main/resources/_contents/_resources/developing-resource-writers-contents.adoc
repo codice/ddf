@@ -1,0 +1,60 @@
+==== Developing Resource Writers
+
+A `ResourceWriter` is an object used to store or delete a `Resource`. 
+`ResourceWriter` objects should be registered within the OSGi Service Registry, so clients can retrieve an instance when clients need to store a `Resource`. 
+
+===== Create a New `ResourceWriter`
+
+Complete the following procedure to create a `ResourceWriter`.
+
+. Create a Java class that implements the `${ddf-branding}.catalog.resource.ResourceWriter` interface.
+
+.ResourceWriter Implementation Skeleton
+[source,java,linenums]
+----
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+import ${ddf-branding}.catalog.resource.Resource;
+import ${ddf-branding}.catalog.resource.ResourceNotFoundException;
+import ${ddf-branding}.catalog.resource.ResourceNotSupportedException;
+import ${ddf-branding}.catalog.resource.ResourceWriter;
+
+public class SampleResourceWriter implements ResourceWriter {
+
+	@Override
+	public void deleteResource(URI uri, Map<String, Object> arguments) throws ResourceNotFoundException, IOException {
+	   // WRITE IMPLEMENTATION
+	 }
+
+	@Override
+	public URI storeResource(Resource resource, Map<String, Object> arguments)throws ResourceNotSupportedException, IOException {
+	   // WRITE IMPLEMENTATION
+	   return null;
+	}
+
+	@Override
+	public URI storeResource(Resource resource, String id, Map<String, Object> arguments) throws ResourceNotSupportedException, IOException {
+	   // WRITE IMPLEMENTATION
+	   return null;
+	}
+
+}
+----
+. Register the implementation as a Service in the OSGi Service Registry.
+
+.Blueprint Service Registration Example
+[source,xml,linenums]
+----
+...
+<service ref="[[ResourceWriterReference]]" interface="${ddf-branding}.catalog.resource.ResourceWriter" />
+...
+----
+
+. Deploy the OSGi bundled packaged service to the ${branding} run-time (Refer to the Working with OSGi - Bundles section.)
+
+[TIP]
+====
+*ResourceWriter Javadoc* +
+Refer to the ${ddf-catalog} API Javadoc for more information about the methods required for implementing the interface. 
+====

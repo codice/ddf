@@ -1,0 +1,271 @@
+==== Catalog Solr External Provider
+
+The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+
+The Solr Catalog Provider is used in conjunction with an Apache Solr Server data store and acts as the client for an external Solr Server.
+It is meant to be used only with the Standalone Solr Server (`catalog-solr-server`).
+
+===== Installing the Catalog Solr External Provider
+
+The Catalog Solr External Provider is is not installed by default with a standard installation in the ${ddf-solr} application.
+
+===== Configuring the Catalog Solr External Provider
+
+In order for the external Solr Catalog Provider to work, it must be pointed at an external Solr Server.
+When the `catalog-solr-external-provider` feature is installed, it is in an unconfigured state until the user provides an HTTP URL to the external Solr Server. 
+The configurable properties for this SCP are accessed from the Catalog External Solr Catalog Provider configurations in the Web Console.
+
+.Catalog Solr External Provider Configurable Properties
+[cols="1,1,1,3a,2,1" options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|HTTP URL
+|`url`
+|String
+|HTTP URL of the standalone, preconfigured Solr Server.
+|\${secure_url}/solr
+|Yes
+
+|Force AutoCommit
+|`forceAutoCommit`
+|Boolean / Checkbox
+|
+[IMPORTANT]
+====
+*Performance Impact* +
+Only in special cases should auto-commit be forced.
+Forcing auto-commit makes the search results visible immediately.
+====
+|Unchecked
+|No
+
+|Disable Text Path Indexing
+|
+|Boolean / Checkbox
+|Unchecked
+|No
+
+|===
+
+.Solr Catalog External Provider Pros and Cons
+[cols="1,3a,3a" options="header"]
+|===
+
+|Feature
+|Pro
+|Con
+
+|Scalability
+|* Allows the middle-tier to be scaled by pointing various middle-tier instances to one server facade.
+* Possible data tier scalability with
+Solr Cloud. Solr Cloud allows for "high scale, fault tolerant, distributed indexing and search capabilities."
+|* Solr Cloud Catalog Provider not implemented yet.
+
+|Flexibility
+|* REST-like HTTP/XML and JSON APIs that make it easy to use from virtually any programming language.
+* Ability to run in separate or same JVM of middle tier.
+|
+ 
+|(Administrative) Tools
+|* Contains Solr Admin GUI, which allows admins to query, check health, see metrics, see configuration files and preferences, etc.
+* External open source tools like Luke will work to allow admins to check index contents.
+* JMX metrics reporting is enabled.
+|
+
+|Security
+|* Inherits app server security.
+|* Web Console must be secured and is openly accessible.
+* REST-like HTTP/XML and JSON APIs must be secured.
+* Current Catalog Provider implementation requires sending unsecured messages to Solr. Without a coded solution, requires network or firewall restrictions in order to secure.
+
+|Performance
+|* If scaled, high performance.
+* Near real-time indexing.
+|* Possible network latency impact
+* Extra overhead when sent over HTTP. Extra parsing for XML, JSON, or other interface formats.
+* Possible limitations upon requests and queries dependent on HTTP server settings.
+
+|Backup/Recovery
+
+|* Built-in recovery tools that allow in-place backups (does not require server shutdown).
+* Backup of Solr indexes can be scripted.
+|* Recovery is performed as an HTTP request.
+
+|===
+
+===== When to Use the Solr External Provider
+
+Use the Solr External Provider when the Standalone Solr Server is being used on a separate machine.
+Refer to the Standalone Solr Server recommended configuration.
+
+===== Indexing Text with the Solr External Catalog Provider
+
+When storing fields, the Solr Catalog Provider will analyze and tokenize the text values of `STRING_TYPE` and `XML_TYPE` `AttributeTypes`.
+These types of fields are indexed in at least three ways: in raw form, analyzed with case sensitivity, and analyzed without concern to case sensitivity.
+Concerning XML, the Solr Catalog Provider will analyze and tokenize XML CDATA sections, XML element text values, and XML attribute values. 
+
+
+==== Standalone Solr Server
+
+The Standalone Solr Server gives the user an ability to run an Apache Solr instance as a Catalog data store within the distribution. 
+The Standalone Solr Server contains a Solr Web Application Bundle and pre-configured Solr configuration files.
+A Solr Web Application Bundle is essentially the Apache Solr war repackaged as a bundle and configured for use within this distribution. 
+
+===== Using the Standalone Solr Server
+
+This feature can  create a data store.
+Use this style of deployment over an embedded Java Solr Server if having a Solr Server on a separate, dedicated machine is desired, potentially for the isolating data storage or simplifying maintenance. 
+The Standalone Solr Server can now run in its own JVM (separate from endpoints and other frameworks) and accept calls with its "REST-like HTTP/XML and JSON API." 
+
+This Standalone Solr Server is meant to be used in conjunction with the Solr Catalog Provider for External Solr.
+The Solr Catalog Provider acts as a client to the Solr Server.
+
+===== Installing a Standalone Solr Server
+
+In production environments, it is recommended that Standalone Solr Server be run in isolation on a separate machine in order to maximize the Solr Server performance and use of resources such as RAM and CPU cores.
+The Standalone Solr Server, as its name suggests, does not require or depend on other apps, such as the Catalog API, nor does it require their dependencies, such as Camel, CXF, etc.
+Therefore, it is recommended to have the Solr Server app run on a lightweight ${branding} distribution, such as the ${branding} Distribution Kernel.
+If clustering is necessary, the Solr Server application can run alongside the Platform application for clustering support.
+
+The features for the Standalone Solr Server and External Solr Catalog Provider are installed by default on a standard installation.
+
+===== Remove Data from Solr Core
+
+It is possible to remove data in the Solr index of a Solr core.  
+Replace `<CORE_NAME>` in the following command with a valid Solr core to delete all data in that Solr core:
+
+.How to delete Solr Core data with curl
+----
+curl '${secure_url}/solr/<CORE_NAME>/update?commit=true' -H 'Content-type: text/xml' -d '<delete><query>*:*</query></delete>'
+----
+
+Use the core selector in the Solr administration page to get a list of available Solr cores.
+
+.Solr administration page
+----
+${secure_url}/solr
+----
+
+===== Configuring a Standalone Solr Server
+
+The Standalone Solr Server comes pre-configured to work with Solr Catalog External Provider implementations.
+For most use cases, no other configuration to the Solr Server is necessary with the standard distribution.
+
+===== Solr Standalone Server Meta Catalog Backup
+
+Prior to setting up backup for the Solr Metadata catalog, it is important to plan how backup and recovery will be executed.
+The amount and velocity of data entering the catalog differ depending on the use of the system.
+As such, there will be varying plans depending on the need.
+It is important to get a sense of how often the data changes in the catalog in order to determine how often the data should be backed up.
+When something goes wrong with the system and data is corrupted, how much time is there to recover?
+A plan must be put in place to remove corrupted data from the catalog and replace it with backed up data in a time span that fits deadlines.
+Equipment must also be purchased to maintain backups, and this equipment may be co-located with local production systems or remotely located at a different site.
+A backup schedule will also have to be determined so that it does not affect end users interacting with the production system.
+
+===== Back Up Data from the Solr Server Standalone Metadata Catalog
+
+The Solr server contains a built-in backup system capable of saving full snapshot backups of the catalog data upon request.
+Backups are created by using a web based service.
+Through making a web based service call utilizing the web browser, a time-stamped backup can be generated and saved to a local drive, or location where the backup device has been mounted. 
+
+The URL for the web call contains three parameters that allow for the customization of the backup:
+
+command:: allows for the command 'backup' to backup the catalog.
+location:: allows for a file system location to place the backup to be specified.
+numberToKeep:: allows the user to specify how many backups should be maintained. If the number of backups exceed the "numberToKeep" value, the system will replace the oldest backup with the newest one.
+
+An example URL would look like \${secure_url}solr/replication?command=backup&location=d:/solr_data&numberToKeep=5.
+
+The above URL would run a backup, save the backup file in `D:/solr_data`, and it would keep up to five backup files at any time.
+To execute this backup, first ensure that the Solr server is running.
+Once the server is running, create the URL and copy it into a web browser window.
+Once the URL is executed, the following information is returned to the browser: 
+
+.Solr Backup Sample Response
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+ <lst name="responseHeader">
+  <int name="status">0</int>
+  <int name="QTime">15</int>
+ </lst>
+ <str name="status">OK</str>
+</response>
+----
+
+If the status equals 0, there was success.
+Qtime shows the time it took to execute the backup (in milliseconds).
+Backup files are saved in directories which are given the name `snapshot` along with a timestamp.
+Within the directory are all of the files that contain the data from the catalog.
+
+===== Restore Data to the Solr Server Standalone Metadata Catalog
+
+Under certain circumstances, such as when data has been corrupted, information has accidentally been deleted, or a system upgrade is occurring, the catalog must be restored.
+The backup files acquired from the previous section will be used to restore data into the catalog.
+
+. The first step in the process is to choose which data backup will be used for restoring the catalog. A most recent backup maybe the correct choice, or the last stable backup may be a better option.
+. At this point, one more backup may be executed to save the corrupted data just in case it needs to be revisited.
+. Shut down the Solr server. The catalog cannot be restored while the server is running.
+. Locate the index that contains all of the Solr data. This index is found at 
+`${ddf-branding}_INSTALL/solr/collection1/data/index`
+. All files within the index directory should be deleted.
+. Copy the files from the chosen backup directory into the index directory.
+. Restart the Solr server. The data should now be restored.
+
+===== Suggestions for Managing Backup and Recovery
+
+Here are some helpful suggestions for setting up data backups and recoveries:
+
+* Acquire a backup drive that is separate from the media that runs the server. Mount this drive as a directory and save backups to that location.
+* Ensure that the backup media has enough space to support the number of backups that need to be saved.
+* Run a scheduler program that calls the backup URL on a timed basis.
+* Put indicators in place that can detect when data corruption may have occurred.
+* Testing a backup before recovery is possible. A replicated "staging" Solr server instance can be stood up, and the backup can be copied to that system for testing before moving it to the "production" system.
+
+===== Solr Configuration Files
+
+The Apache Solr product has Configuration files to customize behavior for the Solr Server. These files can be found at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/etc/solr`.
+Care must be taken in editing these files because they will directly affect functionality and performance of the Solr Catalog Provider.
+A restart of the distribution is necessary for changes to take effect. 
+ 
+[WARNING]
+====
+*Solr Configuration File Changes* +
+Solr Configuration files should not be changed in most cases.
+Changes to the `schema.xml` will most likely need code changes within the Solr Catalog Provider.
+====
+
+===== Move Solr Data to a New Location
+
+If SCP has been installed for the first time, changing the Data Directory File Path property and restarting the distribution is all that is necessary because no data had been written into Solr previously.
+Nonetheless, if a user needs to change the location after the user has already ingested data in a previous location, complete the following procedure:
+
+. Change the data directory file path property within the *Catalog Embedded Solr Catalog Provider* configuration in the Admin Console to the desired future location of the Solr data files.
+. Shut down the distribution.
+. Find the future location on the drive. If the current location does not exist, create the directories.
+. Find the location of where the current Solr data files exist and copy all the directories in that location to the future the location. For instance, if the previous Solr data files existed at C:\solr_data and it is necessary to move it to C:\solr_data_new, copy all directories within `C:\solr_data` into `C:\solr_data_new`. Usually this consists of copying the index and tlog directories into the new data directory.
+. Start the distribution. SCP should recognize the index files and be able to query them again.
+
+[WARNING]
+====
+*Changes Require a Distribution Restart* +
+If the Data Directory File Path property is changed, no changes will occur to the SCP until the distribution has been restarted.
+====
+
+[NOTE]
+====
+If data directory file path property is changed to a new directory, and the previous data is not moved into that directory, no data will exist in Solr.
+Instead, Solr will create an empty index.
+Therefore, it is possible to have multiple places where Solr files are stored, and a user can toggle between those locations for different sets of data.
+====
+
+===== Known Issues with the Standalone Solr Server
+
+The standalone Solr Server fails to install if it has been previously uninstalled prior to the distribution being restarted.

@@ -1,0 +1,19 @@
+
+==== Security Plugin
+
+{description}
+
+===== Installing Security Plugin
+
+The Security Plugin is is not installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring Security Plugin
+
+{configuration}
+
+===== Known Issues with Security Plugin
+
+None.
+
+
+

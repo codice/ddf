@@ -1,0 +1,15 @@
+==== Identification Plugin
+
+The Identification Plugin assigns IDs to a metacard as it is added to the catalog.
+
+===== Installing Identification Plugin
+
+The Identification Plugin is is not installed by default in a standard installation in the ${ddf-registry} application.
+
+===== Configuring the Identification Plugin
+
+{configuration}
+
+===== Known issues with the Identification Plugin
+
+None.

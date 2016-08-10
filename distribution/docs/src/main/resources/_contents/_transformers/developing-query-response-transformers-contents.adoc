@@ -1,0 +1,49 @@
+
+=== Developing Query Response Transformers
+
+A `QueryResponseTransformer` is used to transform a List of Results from a `SourceResponse`. Query Response Transformers can be used through the Catalog transform convenience method or requested from the OSGi Service Registry by endpoints or other bundles.
+
+. Create a new Java class that implements `DDF.catalog.transform.QueryResponseTransformer`. +
+`public class SampleResponseTransformer implements DDF.catalog.transform.QueryResponseTransformer`
+. Implement the `transform` method. +
+`public BinaryContent transform(SourceResponse upstreamResponse, Map<String, Serializable> arguments) throws CatalogTransformerException`
+. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: DDF.catalog, DDF.catalog.transform`
+. Create an OSGi descriptor file to communicate with the OSGi Service Registry (described in <<_working_with_osgi,Working with OSGi>>). Export the service to the OSGi registry and declare service properties.
+
+.Query Response Transformer Blueprint Descriptor Example
+[source,xml,linenums]
+----
+...
+<service ref="[[SampleResponseTransformer]]" interface="DDF.catalog.transform.QueryResponseTransformer">
+    <service-properties>
+        <entry key="shortname" value="[[sampletransform]]" />
+        <entry key="title" value="[[Sample Response Transformer]]" />
+        <entry key="description" value="[[A new transformer for response queues.]]" />
+    </service-properties>
+</service>
+...
+----
+
+Deploy OSGi Bundle to OSGi runtime.
+
+.Query Response Transformer Blueprint Service Properties / Variable Descriptions
+[cols="3" options="header"]
+|===
+|Key
+|Description of Value
+|Example
+
+|`shortname`
+|An abbreviation for the return type of the BinaryContent being sent to the user.
+|atom
+
+|`title`
+|A user-readable title that describes (in greater detail than the shortname) the service.
+|Atom Entry Transformer Service
+
+|`description`
+|A short, human-readable description that describes the functionality of the service and the output.
+|_This service converts a single metacard xml document to an atom entry element_.
+
+|===

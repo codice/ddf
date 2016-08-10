@@ -1,0 +1,19 @@
+
+==== Security Core API
+
+The Security Core API contains all of the ${branding} Security Framework APIs that are used to perform security operations within ${branding}.
+
+===== Installing Security Core API
+
+The Security Services App installs this bundle by default.
+Do not uninstall the Security Core API as it is integral to system function and all of the other security services depend upon it.
+
+==== Configuring Security Core API
+
+None.
+
+.Security Core API Imported Services
+None.
+
+.Security Core API Exported Services
+None.

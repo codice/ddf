@@ -1,0 +1,21 @@
+==== Twitter Source
+*EXAMPLE*
+
+The Twitter Source is a sample implementation of a source provided in the ${branding} SDK. It enables queries using the http://twitter.com/[Twitter API].
+
+[NOTE]
+====
+The Twitter Source is an example implementation primarily for modeling design.
+====
+
+===== Installing the Twitter Source
+
+The Twitter Source is is not installed by default with a standard installation in the <<SDK>>
+
+===== Configuring the Twitter Source
+
+None.
+
+===== Using the Twitter Source
+
+{operations}

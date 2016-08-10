@@ -1,0 +1,23 @@
+
+==== GeoCoder Endpoint
+
+{description}
+
+===== Installing GeoCoder Endpoint
+
+The GeoCoder Endpoint is installed by default with a standard installation in the {app-name} application.
+The GeoCoder Endpoint is not installed by default with a standard installation in the {app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring GeoCoder Endpoint
+
+* any applicable configurations
+
+===== GeoCoder Endpoint URL
+----
+${secure_url}/path/to/endpoint
+----
+
+

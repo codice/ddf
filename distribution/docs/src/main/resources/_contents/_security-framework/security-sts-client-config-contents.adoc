@@ -1,0 +1,84 @@
+
+==== Security STS Client Config
+
+The ${ddf-security} STS Client Config bundle keeps track and exposes configurations and settings for the CXF STS client.
+This client can be used by other services to create their own STS client.
+Once a service is registered as a watcher of the configuration, it will be updated whenever the settings change for the sts client.
+
+===== Installing Security STS Client Config
+
+This bundle is installed by default.
+
+===== Configuring Security STS Client Config
+
+* Navigate to the ${admin-console}.
+* Select *${ddf-security} Application*.
+* Select *Configuration* tab.
+* Select *Security STS Client*.
+
+.Security STS Client Config Settings
+[cols="1,2,2" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Information
+
+|SAML Assertion Type
+|SAML v2.0
+|The version of SAML to use. Most services require SAML v2.0. Changing this value from the default could cause services to stop responding.
+
+|SAML Key Size
+|256
+|The key type to use with SAML. Most services require Bearer. Changing this value from the default could cause services to stop responding.
+
+|Use Key
+|true
+|Signals whether or not the STS Client should supply a public key to embed as the proof key. Changing this value from the default could cause services to stop responding.
+
+|STS WSDL Address
+|\${secure_url}/services/SecurityTokenService?wsdl
+|The hostname of the remote server should match the certificate that the server is using.
+
+|STS Endpoint Name
+|`{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port`
+|
+ 
+|STS Service Name
+|`{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService`
+|
+ 
+|Signature Properties
+|`etc/ws-security/server/signature.properties`
+|Path to Signature crypto properties. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+ 
+|Encryption Properties
+|`etc/ws-security/server/encryption.properties`
+|Path to Encryption crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+ 
+|STS Properties
+|`etc/ws-security/server/signature.properties`
+|Path to STS crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+ 
+|Claims
+|<List of Claims>
+|List of claims that should be requested by the STS Client.
+ 
+|===
+
+.Security STS Client Config Imported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`org.osgi.service.cm.ConfigurationAdmin`
+|required
+|false
+
+|===
+
+.Security STS Client Config Exported Services
+None.

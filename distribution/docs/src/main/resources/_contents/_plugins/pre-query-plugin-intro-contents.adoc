@@ -1,0 +1,11 @@
+
+=== Pre-Query Plugins
+
+Pre-query plugins are invoked before a query operation is sent to any of the Sources. 
+This is an opportunity to take any action on the query, including but not limited to:
+
+* validation
+* logging
+* auditing
+* optimization
+* security filtering

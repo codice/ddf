@@ -1,0 +1,20 @@
+==== XML Input Transformer
+
+The XML Input Transformer is responsible for translating a {document} into a Catalog Metacard.
+
+===== Installing XML Input Transformer
+
+The XML Input Transformer is installed by default with a standard installation in the ${app-name} application.
+The XML Input Transformer is not installed by default with a standard installation in the ${app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring XML Input Transformer
+
+* any applicable configurations
+
+===== Using XML Input Transformer
+
+{operations}
+
