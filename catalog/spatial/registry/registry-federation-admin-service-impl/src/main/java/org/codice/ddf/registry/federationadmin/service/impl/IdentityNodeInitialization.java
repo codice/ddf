@@ -14,7 +14,6 @@
 
 package org.codice.ddf.registry.federationadmin.service.impl;
 
-
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
 
 import java.io.IOException;
@@ -26,8 +25,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -42,6 +39,7 @@ import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelp
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
 import org.codice.ddf.security.common.Security;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +52,6 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.VersionInfoType;
 
-
 /**
  * Creates a registry identity node when DDF Registry is first instantiated.
  * If a previous registry node is not already found, then a registry identity metacard and its
@@ -65,6 +62,9 @@ public class IdentityNodeInitialization {
     private static final Logger LOGGER = LoggerFactory.getLogger(IdentityNodeInitialization.class);
 
     private static final String UNKNOWN_SITE_NAME = "Unknown Site Name";
+
+    private static final String DATE_TIME = CswConstants.XML_SCHEMA_NAMESPACE_PREFIX.concat(
+            ":dateTime");
 
     private static final int RETRY_INTERVAL = 30;
 
@@ -84,7 +84,8 @@ public class IdentityNodeInitialization {
     public void init() {
         try {
             Security.runAsAdminWithException(() -> {
-                Optional<Metacard> optional = federationAdminService.getLocalRegistryIdentityMetacard();
+                Optional<Metacard> optional =
+                        federationAdminService.getLocalRegistryIdentityMetacard();
                 optional.ifPresent(e -> System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY,
                         RegistryUtility.getRegistryId(e)));
                 if (!optional.isPresent()) {
@@ -142,13 +143,13 @@ public class IdentityNodeInitialization {
 
         SlotType1 lastUpdated = slotTypeHelper.create(RegistryConstants.XML_LAST_UPDATED_NAME,
                 rightNow,
-                DatatypeConstants.DATETIME.toString());
+                DATE_TIME);
         extrinsicObject.getSlot()
                 .add(lastUpdated);
 
         SlotType1 liveDate = slotTypeHelper.create(RegistryConstants.XML_LIVE_DATE_NAME,
                 rightNow,
-                DatatypeConstants.DATETIME.toString());
+                DATE_TIME);
         extrinsicObject.getSlot()
                 .add(liveDate);
 

@@ -41,7 +41,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.xml.bind.JAXBElement;
-import javax.xml.datatype.DatatypeConstants;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -59,6 +58,7 @@ import org.codice.ddf.registry.schemabindings.converter.type.RegistryPackageType
 import org.codice.ddf.registry.schemabindings.converter.web.RegistryPackageWebConverter;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -124,6 +124,9 @@ public class FederationAdmin implements FederationAdminMBean {
     private static final String REGISTRY_CONFIG_DIR = "registry";
 
     private static final String REGISTRY_FIELDS_FILE = "registry-custom-slots.json";
+
+    private static final String DATE_TIME = CswConstants.XML_SCHEMA_NAMESPACE_PREFIX.concat(
+            ":dateTime");
 
     private final AdminHelper helper;
 
@@ -533,7 +536,7 @@ public class FederationAdmin implements FederationAdminMBean {
             if (!liveDateFound) {
                 SlotType1 liveDate = slotHelper.create(RegistryConstants.XML_LIVE_DATE_NAME,
                         rightNow,
-                        DatatypeConstants.DATETIME.toString());
+                        DATE_TIME);
 
                 nodeInfo.getSlot()
                         .add(liveDate);
@@ -542,7 +545,7 @@ public class FederationAdmin implements FederationAdminMBean {
             if (!lastUpdatedFound) {
                 SlotType1 lastUpdated = slotHelper.create(RegistryConstants.XML_LAST_UPDATED_NAME,
                         rightNow,
-                        DatatypeConstants.DATETIME.toString());
+                        DATE_TIME);
 
                 nodeInfo.getSlot()
                         .add(lastUpdated);
