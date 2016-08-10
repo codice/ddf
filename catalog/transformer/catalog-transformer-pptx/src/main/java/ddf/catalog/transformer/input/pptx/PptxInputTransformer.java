@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
@@ -56,6 +58,8 @@ public class PptxInputTransformer implements InputTransformer {
 
     private final InputTransformer inputTransformer;
 
+    private boolean usePptTitleAsTitle;
+
     /**
      * The inputTransformer parameter will be used to generate the basic metadata. If the parameter
      * is null, then a {@link NullPointerException} will be thrown.
@@ -63,10 +67,11 @@ public class PptxInputTransformer implements InputTransformer {
      * @param inputTransformer must be non-null
      * @throws NullPointerException
      */
-    public PptxInputTransformer(InputTransformer inputTransformer) {
+    public PptxInputTransformer(InputTransformer inputTransformer, boolean usePptTitleAsTitle) {
 
         notNull(inputTransformer, "The inputTransformer parameter must be non-null");
 
+        this.usePptTitleAsTitle = usePptTitleAsTitle;
         this.inputTransformer = inputTransformer;
     }
 
@@ -116,6 +121,11 @@ public class PptxInputTransformer implements InputTransformer {
             extractThumbnail(metacard,
                     fileBackedOutputStream.asByteSource()
                             .openStream());
+
+            if(!usePptTitleAsTitle) {
+                // Allow the metacard title to be set as the filename
+                metacard.setAttribute(new AttributeImpl(Core.TITLE, (Serializable)null));
+            }
 
             return metacard;
         }
@@ -240,4 +250,11 @@ public class PptxInputTransformer implements InputTransformer {
         return null;
     }
 
+    public void setUsePptTitleAsTitle(boolean usePptTitleAsTitle) {
+        this.usePptTitleAsTitle = usePptTitleAsTitle;
+    }
+
+    public boolean getUsePptTitleAsTitle() {
+        return this.usePptTitleAsTitle;
+    }
 }

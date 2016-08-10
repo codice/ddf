@@ -36,19 +36,19 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.input.tika.TikaInputTransformer;
 
-public class PptxInputTransformerTest {
+public class TestPptxInputTransformer {
 
     private final InputTransformer inputTransformer = new TikaInputTransformer(null);
 
     private InputStream getResource(String resourceName) {
-        return PptxInputTransformerTest.class.getResourceAsStream(resourceName);
+        return TestPptxInputTransformer.class.getResourceAsStream(resourceName);
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testBadCopy() throws IOException, CatalogTransformerException {
         IOException ioe = new IOException();
         try {
-            PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+            PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
             InputStream is = mock(InputStream.class);
             when(is.read(any())).thenThrow(ioe);
             t.transform(is);
@@ -60,13 +60,13 @@ public class PptxInputTransformerTest {
 
     @Test(expected = CatalogTransformerException.class)
     public void testTransformNullInput() throws IOException, CatalogTransformerException {
-        PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+        PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
         t.transform(null);
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testPasswordProtected() throws IOException, CatalogTransformerException {
-        PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+        PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
         try (InputStream is = getResource("/password-powerpoint.pptx")) {
             t.transform(is);
         }
@@ -74,7 +74,7 @@ public class PptxInputTransformerTest {
 
     @Test
     public void testOle2() throws IOException, CatalogTransformerException {
-        PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+        PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
         try (InputStream is = getResource("/empty.ppt")) {
             Metacard mc = t.transform(is);
             assertThat(mc.getThumbnail(), is(nullValue()));
@@ -90,7 +90,7 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getThumbnail(), is(nullValue()));
                 }
@@ -112,12 +112,33 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getTitle(), is("TheTitle"));
                 }
             }
 
+        }
+    }
+
+    @Test
+    public void testTitleAsMetadataTitle()
+            throws IOException, CatalogTransformerException, InterruptedException {
+
+        try (XMLSlideShow ss = new XMLSlideShow()) {
+            ss.createSlide();
+            ss.getProperties()
+                    .getCoreProperties()
+                    .setTitle("TheTitle");
+            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                ss.write(os);
+
+                try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, false);
+                    Metacard m = t.transform(inStr);
+                    assertThat(m.getTitle(), nullValue());
+                }
+            }
         }
     }
 
@@ -140,7 +161,7 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getCreatedDate()
                             .getTime(), is(d.getTime()));
@@ -165,7 +186,7 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getModifiedDate()
                             .getTime(), is(d.getTime()));
