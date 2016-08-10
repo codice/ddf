@@ -269,6 +269,9 @@
         </profile>
         <profile>
             <id>documentation</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <!-- After the doc directory is more consistent across all repositories
