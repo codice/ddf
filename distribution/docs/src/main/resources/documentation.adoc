@@ -319,8 +319,12 @@ include::${project.build.directory}/doc-contents/_contents/_sources/twitter-sour
 // Connected Sources
 include::${project.build.directory}/doc-contents/_contents/_sources/connected-sources-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_sources/example-connected-sources-contents.adoc[]
+
 //Catalog Providers
 include::${project.build.directory}/doc-contents/_contents/_sources/catalog-providers-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_sources/example-catalog-providers-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_sources/solr-catalog-provider-contents.adoc[]
 
