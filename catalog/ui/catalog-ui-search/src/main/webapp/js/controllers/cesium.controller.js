@@ -20,16 +20,28 @@ define(['underscore',
         'wreqr',
         'js/store',
         'properties',
-        'js/view/cesium.metacard',
+        'component/visualization/cesium/geometry.collection.view',
         'jquery',
         'imports?Cesium=cesium!exports?DrawHelper!drawHelper',
         'js/controllers/cesium.layerCollection.controller',
         'js/widgets/cesium.mapclustering',
         'component/singletons/user-instance',
         'js/model/User'
-    ], function (_, Backbone, Marionette, Cesium, Q, wreqr, store, properties, CesiumMetacard,
+    ], function (_, Backbone, Marionette, Cesium, Q, wreqr, store, properties, GeometryColletionView,
                  $, DrawHelper, LayerCollectionController, MapClustering, user, User) {
         "use strict";
+        
+        function getDestinationForVisiblePan(rectangle, geocontroller){
+          var destinationForZoom = geocontroller.mapViewer.camera.getRectangleCameraCoordinates(geocontroller.expandRectangle(rectangle));
+          var cartographicDestinationForZoom = Cesium.Cartographic.fromCartesian(destinationForZoom);
+          var height = geocontroller.mapViewer.camera._positionCartographic.height;
+          if (height < 0){
+            height = Math.min(height, cartographicDestinationForZoom.height);
+          } else {
+            height = Math.max(height, cartographicDestinationForZoom.height);
+          }
+          return Cesium.Cartesian3.fromRadians(cartographicDestinationForZoom.longitude, cartographicDestinationForZoom.latitude, height);
+        }
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
 
@@ -158,44 +170,91 @@ define(['underscore',
                 var controller = this;
                 //Left button events
                 controller.handler.setInputAction(function (event) {
-                    controller.trigger('click:left', controller.pickObject(event), false);
+                    controller.trigger('click:left', {
+                      id: controller.determineIdFromPosition(event.position),
+                      ctrlKey: false,
+                      shiftKey: false
+                    });
                 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
                 controller.handler.setInputAction(function (event) {
-                    controller.trigger('click:left', controller.pickObject(event), true);
+                    controller.trigger('click:left', {
+                      id: controller.determineIdFromPosition(event.position),
+                      ctrlKey: true,
+                      shiftKey: false
+                    });
 
                 }, Cesium.ScreenSpaceEventType.LEFT_CLICK, Cesium.KeyboardEventModifier.CTRL);
                 controller.handler.setInputAction(function (event) {
-                    controller.trigger('click:left', controller.pickObject(event), true);
+                    controller.trigger('click:left', {
+                      id: controller.determineIdFromPosition(event.position),
+                      ctrlKey: false,
+                      shiftKey: true
+                    });
 
                 }, Cesium.ScreenSpaceEventType.LEFT_CLICK, Cesium.KeyboardEventModifier.SHIFT);
+                
+                controller.handler.setInputAction(function (event) {
+                    controller.trigger('hover', {
+                      id: controller.determineIdFromPosition(event.endPosition),
+                      ctrlKey: false,
+                      shiftKey: false
+                    });
 
+                }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+              
+                controller.handler.setInputAction(function (event) {
+                      controller.trigger('hover', {
+                        id: controller.determineIdFromPosition(event.endPosition),
+                        ctrlKey: false,
+                        shiftKey: false
+                      });
+
+                  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.CTRL);
 
                 controller.handler.setInputAction(function (event) {
-                    controller.trigger('doubleclick:left', controller.pickObject(event));
+                      controller.trigger('hover', {
+                        id: controller.determineIdFromPosition(event.endPosition),
+                        ctrlKey: false,
+                        shiftKey: false
+                      });
 
-                }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-                //Right button events
+                  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
+
                 controller.handler.setInputAction(function (event) {
-                    //Tack on the object if one was clicked
-                    controller.trigger('click:right', controller.pickObject(event));
+                      controller.trigger('hover', {
+                        id: controller.determineIdFromPosition(event.endPosition),
+                        ctrlKey: false,
+                        shiftKey: false
+                      });
 
-                }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+                  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.ALT);
             },
-
+          
+            
             pickObject: function (event) {
                 var controller = this,
                 //Add the offset created by the timeline
                     position = new Cesium.Cartesian2(event.position.x, event.position.y),
                     selectedObject = controller.scene.pick(position);
-
                 if (selectedObject) {
                     selectedObject = selectedObject.primitive;
                 }
-
+  
                 return {
                     position: event.position,
                     object: selectedObject
                 };
+            },
+            determineIdFromPosition: function (position) {
+                var id;
+                var pickedObject = this.scene.pick(position);
+                if (pickedObject){
+                  id = pickedObject.id;
+                  if (id && id.constructor === Cesium.Entity) {
+                    id = id.resultId;
+                  }
+                }
+                return id;
             },
 
             expandRectangle: function (rectangle) {
@@ -298,6 +357,51 @@ define(['underscore',
                 var geometry = model.get('geometry');
                 this.flyToGeometry(geometry);
             },
+          
+            panToResults: function(results){
+              var rectangle, cartArray;
+              
+              cartArray = _.flatten(results.filter(function(result){
+                return Boolean(result.get('metacard').get('geometry'));
+              }).map(function(result){
+                 return _.map(result.get('metacard').get('geometry').getAllPoints(), function(coordinate){
+                    return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], this.mapViewer.camera._positionCartographic.height);
+                 }.bind(this));
+              }.bind(this), true));
+              
+              if (cartArray.length > 0) {
+                rectangle = Cesium.Rectangle.fromCartographicArray(cartArray);
+                this.panToRectangle(rectangle);
+              }
+            },
+          
+            panToResult: function(result){
+                this.panToGeometry(result.get('metacard').get('geometry'));
+            },
+          
+            panToGeometry: function(geometry){
+                var rectangle, cartArray;
+
+                cartArray = _.map(geometry.getAllPoints(), function (coordinate) {
+                    return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], this.mapViewer.camera._positionCartographic.height);
+                }.bind(this));
+
+                rectangle = Cesium.Rectangle.fromCartographicArray(cartArray);
+                this.panToRectangle(rectangle);
+            },
+          
+            panToRectangle: function(rectangle){
+                this.mapViewer.scene.camera.flyTo({
+                    duration: 0.50,
+                    destination: getDestinationForVisiblePan(rectangle, this),
+                    complete: function(){
+                      this.mapViewer.scene.camera.flyTo({
+                        duration: 0.25,
+                        destination: getDestinationForVisiblePan(rectangle, this)
+                      });
+                    }.bind(this)
+                });
+            },
 
             flyToGeometry: function (geometry) {
                 var rectangle, cartArray;
@@ -380,7 +484,7 @@ define(['underscore',
             },
             zoomToSelected: function(){
                 if (this.selectionInterface.getSelectedResults().length === 1){
-                    this.flyToCenterPoint(this.selectionInterface.getSelectedResults());
+                    this.panToResults(this.selectionInterface.getSelectedResults());
                 }
             },
 
@@ -390,7 +494,7 @@ define(['underscore',
 
             showResults: function (results) {
                 this.clearResults();
-                this.mapViews = new CesiumMetacard.ResultsView({
+                this.mapViews = new GeometryColletionView({
                     collection: results,
                     geoController: this,
                     selectionInterface: this.selectionInterface
@@ -405,7 +509,7 @@ define(['underscore',
             
             showResult: function(result){
                 this.clearResults();
-                this.mapViews = new CesiumMetacard.ResultsView({
+                this.mapViews = new GeometryColletionView({
                     collection: new Backbone.Collection([result]),
                     geoController: this,
                     selectionInterface: this.selectionInterface

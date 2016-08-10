@@ -304,7 +304,7 @@ define([
                     return _.flatten(_.map(geometries, function (geometry) {
                         var geoModel = new MetaCard.Geometry(geometry);
                         return geoModel.getAllPoints();
-                    }));
+                    }), true);
                 }
             },
 
@@ -479,6 +479,9 @@ define([
         });
 
         MetaCard.Results = Backbone.PageableCollection.extend({
+            state: {
+              pageSize: 25
+            },
             model: MetaCard.MetacardResult,
             mode: "client",
             amountFiltered: 0,

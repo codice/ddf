@@ -583,7 +583,6 @@ define([
                         color: this.getColor(),
                         status: initialStatus
                     });
-                    result.get('results').state.pageSize = 50;
                     this.set({result: result});
                 }
 

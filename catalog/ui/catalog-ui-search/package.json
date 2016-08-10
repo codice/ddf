@@ -76,7 +76,7 @@
     "backbone.modelbinder": "1.1.0",
     "backbone.paginator": "2.0.5",
     "bootstrap": "3.2.0",
-    "cesium": "1.17.0",
+    "cesium": "1.24.0",
     "handlebars": "4.0.5",
     "jquery": "1.12.4",
     "jquery-ui": "1.10.4",
