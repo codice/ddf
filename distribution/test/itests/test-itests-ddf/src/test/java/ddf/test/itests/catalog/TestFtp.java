@@ -53,7 +53,9 @@ public class TestFtp extends AbstractIntegrationTest {
 
     private static final String FTP_SERVER = "localhost";
 
-    private static final int FTP_DEFAULT_PORT = 8021;
+    private static final String FTP_PORT_PROPERTY = "org.codice.ddf.catalog.ftp.port";
+
+    private static final DynamicPort FTP_PORT = new DynamicPort(FTP_PORT_PROPERTY, 6);
 
     private static final String FTP_ENDPOINT_FEATURE = "catalog-ftp";
 
@@ -75,6 +77,7 @@ public class TestFtp extends AbstractIntegrationTest {
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
 
+            System.setProperty(FTP_PORT_PROPERTY, FTP_PORT.getPort());
             getServiceManager().startFeature(true, FTP_ENDPOINT_FEATURE);
 
         } catch (Exception e) {
@@ -155,7 +158,7 @@ public class TestFtp extends AbstractIntegrationTest {
     private FTPClient createInsecureClient() throws Exception {
         FTPClient ftp = new FTPClient();
 
-        ftp.connect(FTP_SERVER, FTP_DEFAULT_PORT);
+        ftp.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
         showServerReply(ftp);
         int connectionReply = ftp.getReplyCode();
         if (!FTPReply.isPositiveCompletion(connectionReply)) {

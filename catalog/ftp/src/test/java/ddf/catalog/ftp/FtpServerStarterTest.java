@@ -148,14 +148,20 @@ public class FtpServerStarterTest {
 
     @Test
     public void testSetClientAuthWant() {
-        ftpServerStarter.setClientAuth(ClientAuth.WANT.toString());
+        ftpServerStarter.setClientAuth("want");
         assertEquals(ClientAuth.WANT, ftpServerStarter.getClientAuthMode());
+    }
+
+    @Test
+    public void testSetClientAuthNeed() {
+        ftpServerStarter.setClientAuth("need");
+        assertEquals(ClientAuth.NEED, ftpServerStarter.getClientAuthMode());
     }
 
     private Map<String, Object> createProperties(int port, String clientAuth) {
         Map<String, Object> properties = new HashMap<>();
 
-        properties.put("port", port);
+        properties.put("port", Integer.toString(port));
         properties.put("clientAuth", clientAuth);
 
         return properties;

@@ -18,8 +18,8 @@
 
         <AD
                 description="The port number for the FTP server to listen on."
-                name="FTP Port Number" id="port" min="0" max="65535"
-                required="true" type="Integer" default="8021"/>
+                name="FTP Port Number" id="port"
+                required="true" type="String" default="${org.codice.ddf.catalog.ftp.port}"/>
 
         <AD
                 description='Whether or not client authentication is required or wanted. A value of "Need" requires client auth, a value of "Want" leaves it up to the client.'
