@@ -23,12 +23,15 @@ define(['application',
         'jquery',
         'drawHelper',
         'js/controllers/cesium.layerCollection.controller',
-        'js/model/user'
+        'js/model/user',
+        'js/widgets/cesium.mapclustering'
     ], function (Application, _, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper,
-                 LayerCollectionController, User) {
+                 LayerCollectionController, User, MapClustering) {
         "use strict";
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
+
+        var mapclustering = new MapClustering();
 
         var CesiumLayerCollectionController = LayerCollectionController.extend({
             initialize: function () {
@@ -64,6 +67,11 @@ define(['application',
                     this.newResults(wreqr.reqres.request('search:results'));
                 }
             },
+
+            toggleClustering: function() {
+                mapclustering.toggleClustering();
+            },
+
             createMap: function () {
                 var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
                 var layersToRemove = [];
@@ -91,6 +99,17 @@ define(['application',
                     }
                 );
 
+                viewer.camera.moveEnd.addEventListener(function() {
+                    if(mapclustering.clustering) {
+                        var cartographic = new Cesium.Cartographic();
+                        var metersToKm = 0.001;
+                        viewer.scene.mapProjection.ellipsoid.cartesianToCartographic(viewer.camera.positionWC, cartographic);
+                        var cameraHeight = (cartographic.height * metersToKm).toFixed(1);
+                        mapclustering.cluster(cameraHeight);
+                    }
+                });
+                mapclustering.setViewer(viewer);
+
                 if (properties.terrainProvider) {
                     var type = imageryProviderTypes[properties.terrainProvider.type];
                     var initObj = _.omit(properties.terrainProvider, 'type');
@@ -106,9 +125,9 @@ define(['application',
                         scene: viewer.scene
                     });
                 }
+
                 return viewer;
             },
-
             billboards: [
                 'images/default.png',
                 'images/default-selected.png'
@@ -348,10 +367,16 @@ define(['application',
                 if (this.mapViews) {
                     this.mapViews.destroy();
                 }
+
                 this.mapViews = new CesiumMetacard.ResultsView({
                     collection: results,
                     geoController: this
                 }).render();
+                mapclustering.setResultLists(this.mapViews);
+
+                if(!_.isUndefined(results)) {
+                    mapclustering.cluster();
+                }
             },
 
             clear: function () {
@@ -363,9 +388,10 @@ define(['application',
                 if (this.mapViews) {
                     this.mapViews.destroy();
                 }
+
+                mapclustering.uncluster();
                 this.removeAllOverlays();
             }
-
         });
 
         return Controller;
