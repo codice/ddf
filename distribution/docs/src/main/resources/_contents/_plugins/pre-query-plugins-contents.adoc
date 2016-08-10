@@ -2,5 +2,4 @@
 .[[_included_pre-query_plugins]]Included Pre-Query Plugins
 <<_catalog_metrics_plugin,Catalog Metrics Plugin>>:: The Catalog Metrics Plugin captures metrics on catalog operations.
 <<_security_logging_plugin,Security Logging Plugin>>:: The Security Logging Plugin logs operations to the security log.
-<<_dummy_pre_query_plugin,Dummy Pre-Query Plugin>>:: *Example* implementation in the <<_sdk,SDK>> for demonstration purposes.
-<<_sample_metrics_plugin,Sample Metrics Plugin>>:: *Example* implementation in the <<_sdk,SDK>> for demonstration purposes.
+

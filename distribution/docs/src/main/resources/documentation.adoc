@@ -362,6 +362,8 @@ include::${project.build.directory}/doc-contents/_contents/_plugins/pre-query-pl
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/pre-query-plugins-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-pre-query-plugins-contents.adoc[]
+
 include::${project.build.directory}/doc-contents/_contents/_plugins/catalog-metrics-plugin-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/sample-metrics-plugin-contents.adoc[]
@@ -373,6 +375,8 @@ include::${project.build.directory}/doc-contents/_contents/_plugins/pre-resource
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/pre-resource-plugins-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-pre-resource-plugins-contents.adoc[]
+
 include::${project.build.directory}/doc-contents/_contents/_plugins/resource-usage-plugin-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-pre-resource-plugin-contents.adoc[]
@@ -382,11 +386,15 @@ include::${project.build.directory}/doc-contents/_contents/_plugins/pre-subscrip
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/pre-subscription-plugins-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-pre-subscription-plugins-contents.adoc[]
+
 include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-pre-subscription-plugin-contents.adoc[]
 //pre-delivery
 include::${project.build.directory}/doc-contents/_contents/_plugins/pre-delivery-plugin-intro-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/pre-delivery-plugins-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-pre-delivery-plugins-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-pre-delivery-plugin-contents.adoc[]
 //pre-create-storage
@@ -403,10 +411,14 @@ include::${project.build.directory}/doc-contents/_contents/_plugins/pre-update-s
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/pre-update-storage-plugins-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-pre-update-storage-plugins-contents.adoc[]
+
 //post-ingest
 include::${project.build.directory}/doc-contents/_contents/_plugins/post-ingest-plugin-intro-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/post-ingest-plugins-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-post-ingest-plugins-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/caching-federation-strategy-contents.adoc[]
 
@@ -422,6 +434,8 @@ include::${project.build.directory}/doc-contents/_contents/_plugins/post-query-p
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/post-query-plugins-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-post-query-plugins-contents.adoc[]
+
 include::${project.build.directory}/doc-contents/_contents/_plugins/jpeg2000-thumbnail-converter-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/metacard-resource-size-plugin-contents.adoc[]
@@ -433,20 +447,28 @@ include::${project.build.directory}/doc-contents/_contents/_plugins/dummy-valida
 include::${project.build.directory}/doc-contents/_contents/_plugins/post-resource-plugin-intro-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/post-resource-plugins-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-post-resource-plugins-contents.adoc[]
 //post-create-storage
 include::${project.build.directory}/doc-contents/_contents/_plugins/post-create-storage-plugin-intro-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/post-create-storage-plugins-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-post-create-storage-plugins-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/video-thumbnail-plugin-contents.adoc[]
 //post-update-storage
 include::${project.build.directory}/doc-contents/_contents/_plugins/post-update-storage-plugin-intro-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/post-update-storage-plugins-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-post-update-storage-plugins-contents.adoc[]
 //Policy
 include::${project.build.directory}/doc-contents/_contents/_plugins/policy-plugin-intro-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/policy-plugins-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-policy-plugins-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/catalog-policy-plugin-contents.adoc[]
 
@@ -465,6 +487,8 @@ include::${project.build.directory}/doc-contents/_contents/_plugins/xml-attribut
 include::${project.build.directory}/doc-contents/_contents/_plugins/access-plugin-intro-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/access-plugins-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_plugins/example-access-plugins-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_plugins/filter-plugin-contents.adoc[]
 

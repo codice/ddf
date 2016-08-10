@@ -1,0 +1,2 @@
+
+<<_dummy_validation_post_query_plugin,Dummy Validation Post Query Plugin>>:: *Example* implementation in the <<_sdk,SDK>>.

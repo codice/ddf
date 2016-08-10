@@ -1,0 +1,2 @@
+
+<<_dummy_pre_subscription_plugin,Dummy Pre-Subscription Plugin>>:: *Example* implementation in the <<_sdk,SDK>> for demonstration purposes.

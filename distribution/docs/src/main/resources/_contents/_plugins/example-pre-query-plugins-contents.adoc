@@ -1,0 +1,3 @@
+
+<<_dummy_pre_query_plugin,Dummy Pre-Query Plugin>>:: *Example* implementation in the <<_sdk,SDK>> for demonstration purposes.
+<<_sample_metrics_plugin,Sample Metrics Plugin>>:: *Example* implementation in the <<_sdk,SDK>> for demonstration purposes.
