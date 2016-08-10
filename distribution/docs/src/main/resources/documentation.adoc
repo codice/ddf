@@ -17,31 +17,36 @@ include::${project.build.directory}/doc-contents/_contents/_introduction/osgi-in
 
 == Documentation Guide
 
-include::${project.build.directory}/doc-contents/_contents/documentation-notes-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_introduction/documentation-notes-contents.adoc[]
 
 <<<
 
 == ${branding} Quick Start
 
-include::${project.build.directory}/doc-contents/_contents/quickstart-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_introduction/quickstart-contents.adoc[]
 
 <<<
 
 = Managing ${branding}
+//installing
+include::${project.build.directory}/doc-contents/_contents/_installing/installing-intro-contents.adoc[]
+//configuring
+include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-intro-contents.adoc[]
+//securing
+include::${project.build.directory}/doc-contents/_contents/_securing/securing-contents.adoc[]
+//running
+include::${project.build.directory}/doc-contents/_contents/_running/running-intro-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/installing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_running/ingesting-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/configuring-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_running/data-migration-intro-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_running/exporting-metadata-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_running/ingesting-exported-metadata-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_running/translating-exported-metadata-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/securing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_running/monitoring-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/running-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/ingesting-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/monitoring-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/troubleshooting-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_running/troubleshooting-contents.adoc[]
 
 <<<
 
@@ -187,8 +192,7 @@ include::${project.build.directory}/doc-contents/_contents/_endpoints/registry-r
 include::${project.build.directory}/doc-contents/_contents/_endpoints/resource-download-endpoint-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_endpoints/soap-endpoint-contents.adoc[]
-
-
+git
 include::${project.build.directory}/doc-contents/_contents/_endpoints/who-am-i-endpoint-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_endpoints/endpoint-utilities-intro-contents.adoc[]
@@ -201,9 +205,9 @@ include::${project.build.directory}/doc-contents/_contents/_endpoints/developing
 
 include::${project.build.directory}/doc-contents/_contents/_data/data-intro-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_data/data-migration-contents.adoc[]
-
+include::${project.build.directory}/doc-contents/_contents/_data/schematron-intro-contents.adoc[]
 //TODO: NEUTRAL TAXONOMY SECTION??
+include::${project.build.directory}/doc-contents/_contents/_data/schematron-intro-contents.adoc[]
 
 == Transformers and Supported Formats
 
