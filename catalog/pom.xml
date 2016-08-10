@@ -52,7 +52,6 @@
         <lucene.version>5.1.0</lucene.version>
         <!-- Mina version is not the latest version due to Apache FTPServer 1.0.6 not supporting newer releases properly -->
         <mina.version>2.0.6</mina.version>
-        <commons.fileupload.version>1.3.2</commons.fileupload.version>
     </properties>
     <dependencyManagement>
         <dependencies>
