@@ -22,12 +22,12 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 import javax.xml.stream.XMLInputFactory;
@@ -65,8 +65,14 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Location;
+import ddf.catalog.data.types.Media;
+import ddf.catalog.data.types.Topic;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
@@ -130,9 +136,9 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
                 GmdMetacardType.BBOX_SOUTH_LAT_PATH,
                 GmdMetacardType.BBOX_NORTH_LAT_PATH,
                 GmdMetacardType.POINT_OF_CONTACT_PATH)
-                .forEach(path -> {
-                    paths.add(toPath(path));
-                });
+                .stream()
+                .map(this::toPath)
+                .forEach(paths::add);
 
         return paths;
     }
@@ -147,7 +153,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
     public Metacard transform(InputStream inputStream, String id)
             throws IOException, CatalogTransformerException {
 
-        String xml = null;
+        String xml;
         XstreamPathValueTracker pathValueTracker = null;
         xml = IOUtils.toString(inputStream);
 
@@ -237,6 +243,8 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
 
         addMetacardSubject(pathValueTracker, metacard);
 
+        addLanguage(pathValueTracker, metacard);
+
         setPointOfContact(pathValueTracker, metacard);
 
         return metacard;
@@ -265,6 +273,8 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         metacard.setModifiedDate(date);
         metacard.setCreatedDate(date);
         metacard.setEffectiveDate(date);
+        metacard.setAttribute(Core.METACARD_MODIFIED, date);
+        metacard.setAttribute(Core.METACARD_CREATED, date);
     }
 
     private void setPointOfContact(final XstreamPathValueTracker pathValueTracker,
@@ -274,7 +284,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
                 pathValueTracker.getFirstValue(toPath(GmdMetacardType.POINT_OF_CONTACT_PATH));
         if (StringUtils.isNotEmpty(pointOfContact)) {
             metacard.setPointOfContact(pointOfContact);
-            metacard.setAttribute(GmdMetacardType.GMD_PUBLISHER, pointOfContact);
+            metacard.setAttribute(Contact.POINT_OF_CONTACT_NAME, pointOfContact);
         }
 
     }
@@ -285,21 +295,20 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         String type = pathValueTracker.getFirstValue(toPath(GmdMetacardType.CODE_LIST_VALUE_PATH));
         if (StringUtils.isNotEmpty(type)) {
             metacard.setContentTypeName(type);
+            metacard.setAttribute(Media.TYPE, type);
         }
 
     }
 
     private void addMetacardCrs(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
-        StringBuilder crs = new StringBuilder();
-        crs.append("urn:ogc:def:crs:");
-        crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_AUTHORITY_PATH))));
-        crs.append(COLON);
-        crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_VERSION_PATH))));
-        crs.append(COLON);
-        crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_CODE_PATH))));
-        metacard.setAttribute(GmdMetacardType.GMD_CRS, crs.toString());
 
+        String authority = StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(
+                GmdMetacardType.CRS_AUTHORITY_PATH)));
+        String code = StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(
+                GmdMetacardType.CRS_CODE_PATH)));
+
+        metacard.setAttribute(Location.COORDINATE_REFERENCE_SYSTEM_CODE, authority + COLON + code);
     }
 
     private void addMetacardTitle(final XstreamPathValueTracker pathValueTracker,
@@ -323,7 +332,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
             MetacardImpl metacard) {
         String format = pathValueTracker.getFirstValue(toPath(GmdMetacardType.FORMAT_PATH));
         if (StringUtils.isNotEmpty((format))) {
-            metacard.setAttribute(GmdMetacardType.GMD_FORMAT, format);
+            metacard.setAttribute(Media.FORMAT, format);
         }
     }
 
@@ -340,6 +349,13 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
 
     }
 
+    private List<Serializable> toSerializableList(List<String> in) {
+        return in.stream()
+                .filter(Serializable.class::isInstance)
+                .map(Serializable.class::cast)
+                .collect(Collectors.toList());
+    }
+
     private void addMetacardSubject(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
 
@@ -347,17 +363,21 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         List<String> topics =
                 pathValueTracker.getAllValues(toPath(GmdMetacardType.TOPIC_CATEGORY_PATH));
 
-        List<String> subjects = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(keywords)) {
-            subjects.addAll(keywords);
+            metacard.setAttribute(new AttributeImpl(Topic.KEYWORD, toSerializableList(keywords)));
         }
+
         if (CollectionUtils.isNotEmpty(topics)) {
-            subjects.addAll(topics);
+            metacard.setAttribute(new AttributeImpl(Topic.CATEGORY, toSerializableList(topics)));
         }
 
-        if (subjects.size() > 0) {
-            metacard.setAttribute(GmdMetacardType.GMD_SUBJECT, (Serializable) subjects);
+    }
 
+    private void addLanguage(final XstreamPathValueTracker pathValueTracker,
+            MetacardImpl metacard) {
+        String language = pathValueTracker.getFirstValue(toPath(GmdMetacardType.LANGUAGE_PATH));
+        if (StringUtils.isNotEmpty(language)) {
+            metacard.setAttribute(Core.LANGUAGE, language);
         }
     }
 
