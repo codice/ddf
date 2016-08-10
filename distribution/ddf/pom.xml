@@ -102,6 +102,13 @@
                                 <descriptor>
                                     mvn:ddf.distribution/install-profiles/${project.version}/xml/features
                                 </descriptor>
+                                <!-- Artemis -->
+                                <descriptor>
+                                    mvn:org.apache.karaf.features/enterprise/${karaf.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:org.apache.activemq/artemis-features/${artemis.version}/xml/features
+                                </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
                         </configuration>
@@ -339,6 +346,20 @@
             <groupId>org.codice.ddf.resourcemanagement</groupId>
             <artifactId>resourcemanagement-app</artifactId>
             <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-features</artifactId>
+            <version>${artemis.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>enterprise</artifactId>
+            <version>${karaf.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>

@@ -212,7 +212,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                 }
             }
 
-            LOGGER.debug("{} has {} required features that must be started.", application.getName(),
+            LOGGER.debug("{} has {} required features that must be started.",
+                    application.getName(),
                     requiredFeatures.size());
 
             BundleStateSet bundleStates = getCurrentBundleStates(requiredFeatures);
@@ -237,7 +238,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
             installState = ApplicationState.UNKNOWN;
         }
 
-        return new ApplicationStatusImpl(application, installState, uninstalledFeatures,
+        return new ApplicationStatusImpl(application,
+                installState,
+                uninstalledFeatures,
                 errorBundles);
     }
 
@@ -303,8 +306,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
         for (Entry<Application, ApplicationNodeImpl> curAppNode : appMap.entrySet()) {
             if (curAppNode.getValue()
                     .getParent() == null) {
-                LOGGER.debug("Adding {} as a root application.", curAppNode.getKey()
-                        .getName());
+                LOGGER.debug("Adding {} as a root application.",
+                        curAppNode.getKey()
+                                .getName());
                 applicationTree.add(curAppNode.getValue());
             }
         }
@@ -349,9 +353,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                 // where they are from
                 Set<Application> depAppSet = new HashSet<>();
                 for (Dependency curDepFeature : dependencies) {
-                    Application dependencyApp = findFeature(
-                            featuresService.getFeature(curDepFeature.getName()),
-                            filteredApplications);
+                    Application dependencyApp =
+                            findFeature(featuresService.getFeature(curDepFeature.getName()),
+                                    filteredApplications);
                     if (dependencyApp != null) {
                         if (dependencyApp.equals(curAppNode.getKey())) {
                             if (reportDebug) {
@@ -363,7 +367,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                                 LOGGER.debug(
                                         "Application {} depends on the feature {} which is located in application {}.",
                                         curAppNode.getKey()
-                                                .getName(), curDepFeature.getName(),
+                                                .getName(),
+                                        curDepFeature.getName(),
                                         dependencyApp.getName());
                             }
                             depAppSet.add(dependencyApp);
@@ -409,7 +414,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                     LOGGER.warn(
                             "Encountered error while determining dependencies for \"{}\". This may cause an incomplete application hierarchy to be created.",
                             curAppNode.getKey()
-                                    .getName(), e);
+                                    .getName(),
+                            e);
                 }
             }
         }
@@ -445,12 +451,14 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
         // within its parents
         for (Entry<Application, Set<Application>> curAppEntry : applicationTreeSet.entrySet()) {
             if (!(new HashSet<Application>(applicationSet).retainAll(curAppEntry.getValue()))) {
-                LOGGER.debug("{} contains all needed dependencies.", curAppEntry.getKey()
-                        .getName());
+                LOGGER.debug("{} contains all needed dependencies.",
+                        curAppEntry.getKey()
+                                .getName());
                 return curAppEntry.getKey();
             } else {
-                LOGGER.trace("{} does not contain all needed dependencies.", curAppEntry.getKey()
-                        .getName());
+                LOGGER.trace("{} does not contain all needed dependencies.",
+                        curAppEntry.getKey()
+                                .getName());
             }
         }
 
@@ -501,7 +509,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
             } catch (Exception e) {
                 LOGGER.warn(
                         "Encountered and error when trying to check features in application named {}. "
-                                + "Skipping and checking other applications.", curApp, e);
+                                + "Skipping and checking other applications.",
+                        curApp,
+                        e);
             }
         }
         LOGGER.warn("Could not find feature {} in any known application, returning null.",
@@ -574,7 +584,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                         // and SpringDM) failed on start
                         for (BundleStateService curStateService : bundleStateServices) {
                             LOGGER.trace("Checking {} for bundle state of {}.",
-                                    curStateService.getName(), curBundle.getSymbolicName());
+                                    curStateService.getName(),
+                                    curBundle.getSymbolicName());
                             BundleState curState = curStateService.getState(curBundle);
 
                             switch (curState) {
@@ -582,7 +593,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
 
                             case Stopping:
                                 LOGGER.trace("{} is in an inactive state. Current State: {}",
-                                        curBundle.getSymbolicName(), curState.toString());
+                                        curBundle.getSymbolicName(),
+                                        curState.toString());
 
                                 bundleStateSet.addInactiveBundle(curBundle);
                                 break;
@@ -590,7 +602,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                             case Installed:
                             case Failure:
                                 LOGGER.trace("{} is in a failed state. Current State: {}",
-                                        curBundle.getSymbolicName(), curState.toString());
+                                        curBundle.getSymbolicName(),
+                                        curState.toString());
 
                                 bundleStateSet.addFailedBundle(curBundle);
                                 break;
@@ -599,14 +612,16 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                             case Starting:
                             case GracePeriod:
                                 LOGGER.trace("{} is in a transitional state. Current State: {}",
-                                        curBundle.getSymbolicName(), curState.toString());
+                                        curBundle.getSymbolicName(),
+                                        curState.toString());
 
                                 bundleStateSet.addTransitionalBundle(curBundle);
                                 break;
 
                             case Active:
                                 LOGGER.trace("{} is in an active state. Current State: {}",
-                                        curBundle.getSymbolicName(), curState.toString());
+                                        curBundle.getSymbolicName(),
+                                        curState.toString());
 
                                 bundleStateSet.addActiveBundle(curBundle);
                                 break;
@@ -654,7 +669,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     public synchronized void startApplication(Application application)
             throws ApplicationServiceException {
         try {
-            LOGGER.debug("Starting Application {} - {}", application.getName(),
+            LOGGER.debug("Starting Application {} - {}",
+                    application.getName(),
                     application.getVersion());
             Set<Feature> autoInstallFeatures = application.getAutoInstallFeatures();
             if (!autoInstallFeatures.isEmpty()) {
@@ -682,8 +698,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                             EnumSet.of(Option.NoAutoRefreshBundles));
                     waitForApplication(application);
                 }
+                // If there are no auto install features, but there is a main feature, install it.
+            } else if (application.getMainFeature() != null) {
+                featuresService.installFeature(application.getMainFeature()
+                        .getName(), EnumSet.of(Option.NoAutoRefreshBundles));
+                waitForApplication(application);
             }
-
         } catch (Exception e) {
             throw new ApplicationServiceException(
                     "Could not start application " + application.getName() + " due to errors.", e);
@@ -709,10 +729,24 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     public synchronized void stopApplication(Application application)
             throws ApplicationServiceException {
         try {
-            for (Feature feature : application.getFeatures()) {
-                if (featuresService.isInstalled(feature)) {
-                    featuresService.uninstallFeature(feature.getName(), feature.getVersion(),
+            // If there are no auto install features, but there is a main feature,
+            // it will be the only one installed, so uninstall it.
+            if (application.getAutoInstallFeatures()
+                    .isEmpty() && application.getMainFeature() != null) {
+                Feature mainFeature = application.getMainFeature();
+                if (featuresService.isInstalled(mainFeature)) {
+                    featuresService.uninstallFeature(mainFeature.getName(),
+                            mainFeature.getVersion(),
                             EnumSet.of(Option.NoAutoRefreshBundles));
+                }
+            } else {
+                // Otherwise uninstall all application's features.
+                for (Feature feature : application.getFeatures()) {
+                    if (featuresService.isInstalled(feature)) {
+                        featuresService.uninstallFeature(feature.getName(),
+                                feature.getVersion(),
+                                EnumSet.of(Option.NoAutoRefreshBundles));
+                    }
                 }
             }
             waitForApplication(application);
@@ -838,15 +872,18 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
         try {
             Set<Feature> features = application.getFeatures();
             for (Feature feature : features) {
-                if (featuresService.isInstalled(feature) && isPermittedToViewFeature(
-                        feature.getName())) {
+                if (featuresService.isInstalled(feature)
+                        && isPermittedToViewFeature(feature.getName())) {
                     try {
-                        featuresService.uninstallFeature(feature.getName(), feature.getVersion(),
+                        featuresService.uninstallFeature(feature.getName(),
+                                feature.getVersion(),
                                 EnumSet.of(Option.NoAutoRefreshBundles));
                     } catch (Exception e) {
                         //if there is an issue uninstalling a feature try to keep uninstalling the other features
                         LOGGER.warn("Could not uninstall feature: {} version: {}",
-                                feature.getName(), feature.getVersion(), e);
+                                feature.getName(),
+                                feature.getVersion(),
+                                e);
                     }
                 }
             }
@@ -930,13 +967,17 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                 ServiceReference<ConfigurationAdmin> configAdminRef = context.getServiceReference(
                         ConfigurationAdmin.class);
                 ConfigurationAdmin configAdmin = context.getService(configAdminRef);
-                Configuration config = configAdmin.getConfiguration(
-                        ApplicationServiceImpl.class.getName());
+                Configuration config =
+                        configAdmin.getConfiguration(ApplicationServiceImpl.class.getName());
                 Dictionary<String, Object> properties = config.getProperties();
 
                 LOGGER.debug("Checking the configuration file on the first run.");
                 ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
-                        configFileName, this, featuresService, POST_CONFIG_START, POST_CONFIG_STOP);
+                        configFileName,
+                        this,
+                        featuresService,
+                        POST_CONFIG_START,
+                        POST_CONFIG_STOP);
                 configInstaller.start();
                 config.update(properties);
 

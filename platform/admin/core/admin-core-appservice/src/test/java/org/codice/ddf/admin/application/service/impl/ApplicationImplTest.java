@@ -41,6 +41,9 @@ public class ApplicationImplTest {
 
     private static final String FILE_MAIN_FEATURE = "test-features-with-main-feature.xml";
 
+    private static final String FILE_REGULAR_FEATURE =
+            "test-features-with-regular-features.xml";
+
     private static final String MAIN_FEATURE_NAME = "Main Feature Test";
 
     private static final String TEST_APP = "test-app";
@@ -100,6 +103,33 @@ public class ApplicationImplTest {
         String appToString = mainFeatureName + " - " + mainFeatureVersion;
         RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
                 .getResource(FILE_MAIN_FEATURE)
+                .toURI());
+        repo.load();
+        Application testApp = new ApplicationImpl(repo);
+
+        assertEquals(mainFeatureName, testApp.getName());
+        assertEquals(mainFeatureVersion, testApp.getVersion());
+        assertEquals(mainFeatureDescription, testApp.getDescription());
+        assertNotNull(testApp.toString());
+        assertEquals(appToString, testApp.toString());
+
+        assertNotNull(testApp.getMainFeature());
+    }
+
+    /**
+     * Tests that if an application HAS a main feature and no auto install features,
+     * that the properties in it are properly parsed and set.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRegularFeature() throws Exception {
+        String mainFeatureName = "test-app";
+        String mainFeatureVersion = "1.0.1";
+        String mainFeatureDescription = "Regular Feature Test";
+        String appToString = mainFeatureName + " - " + mainFeatureVersion;
+        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
+                .getResource(FILE_REGULAR_FEATURE)
                 .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);

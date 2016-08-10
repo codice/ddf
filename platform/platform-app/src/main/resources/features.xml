@@ -59,7 +59,7 @@
         <feature version='${camel.version}'>camel-spring</feature>
         <feature version='${camel.version}'>camel-blueprint</feature>
     </feature>
-    <feature name='camel-amqp' version='${project.version}' start-level='50'>
+    <feature name='camel-amqp' version='${camel.version}' start-level='50'>
     <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
     <bundle dependency='true'>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.mina/${servicemix.bundles.mina.version}</bundle>
