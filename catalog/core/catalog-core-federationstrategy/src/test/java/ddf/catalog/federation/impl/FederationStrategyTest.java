@@ -66,6 +66,7 @@ import ddf.catalog.impl.MockDelayProvider;
 import ddf.catalog.impl.QueryResponsePostProcessor;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
+import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
@@ -155,7 +156,10 @@ public class FederationStrategyTest {
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props);
+        MetacardFactory metacardFactory =
+                new MetacardFactory(props.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props,
+                metacardFactory);
 
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
@@ -167,10 +171,10 @@ public class FederationStrategyTest {
                 opsSecurity,
                 opsMetacard);
 
-        OperationsStorageSupport opsStorage = new OperationsStorageSupport(
-                sourceOperations,
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
                 queryOperations);
-        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(props, sourceOperations);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(props,
+                sourceOperations);
 
         CreateOperations createOperations = new CreateOperations(props,
                 queryOperations,

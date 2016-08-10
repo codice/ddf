@@ -28,6 +28,13 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 
+/**
+ * Support class for transformation delegate operations for the {@code CatalogFrameworkImpl}.
+ *
+ * This class contains two delegated transformation methods and methods to support them. No
+ * operations/support methods should be added to this class except in support of CFI
+ * transformation operations.
+ */
 public class TransformOperations {
     private FrameworkProperties frameworkProperties;
 
@@ -40,6 +47,9 @@ public class TransformOperations {
     //
     public BinaryContent transform(Metacard metacard, String transformerId,
             Map<String, Serializable> requestProperties) throws CatalogTransformerException {
+        if (metacard == null) {
+            throw new IllegalArgumentException("Metacard is null.");
+        }
 
         ServiceReference[] refs;
         try {
@@ -54,20 +64,19 @@ public class TransformOperations {
         }
         if (refs == null || refs.length == 0) {
             throw new IllegalArgumentException("Transformer " + transformerId + " not found");
-        } else {
-            MetacardTransformer transformer =
-                    (MetacardTransformer) frameworkProperties.getBundleContext()
-                            .getService(refs[0]);
-            if (metacard != null) {
-                return transformer.transform(metacard, requestProperties);
-            } else {
-                throw new IllegalArgumentException("Metacard is null.");
-            }
         }
+
+        MetacardTransformer transformer =
+                (MetacardTransformer) frameworkProperties.getBundleContext()
+                        .getService(refs[0]);
+        return transformer.transform(metacard, requestProperties);
     }
 
     public BinaryContent transform(SourceResponse response, String transformerId,
             Map<String, Serializable> requestProperties) throws CatalogTransformerException {
+        if (response == null) {
+            throw new IllegalArgumentException("QueryResponse is null.");
+        }
 
         ServiceReference[] refs;
         try {
@@ -85,11 +94,7 @@ public class TransformOperations {
             QueryResponseTransformer transformer =
                     (QueryResponseTransformer) frameworkProperties.getBundleContext()
                             .getService(refs[0]);
-            if (response != null) {
-                return transformer.transform(response, requestProperties);
-            } else {
-                throw new IllegalArgumentException("QueryResponse is null.");
-            }
+            return transformer.transform(response, requestProperties);
         }
     }
 }

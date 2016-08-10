@@ -62,6 +62,13 @@ import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
 
+/**
+ * Support class for delete delegate operations for the {@code CatalogFrameworkImpl}.
+ *
+ * This class contains one delegated delete method and methods to support it. No
+ * operations/support methods should be added to this class except in support of CFI
+ * delete operations.
+ */
 public class DeleteOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteOperations.class);
 

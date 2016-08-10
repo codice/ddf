@@ -121,6 +121,7 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
+import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
@@ -354,7 +355,9 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setAttributeInjectors(Collections.singletonList(attributeInjector));
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties);
+        MetacardFactory metacardFactory = new MetacardFactory(mimeTypeToTransformerMapper);
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
+                metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
         TransformOperations transformOperations = new TransformOperations(frameworkProperties);
         Historian historian = new Historian();
@@ -368,7 +371,8 @@ public class CatalogFrameworkImplTest {
                 queryOperations);
         opsStorage.setHistorian(historian);
 
-        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(frameworkProperties,
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(
+                frameworkProperties,
                 sourceOperations);
         CreateOperations createOperations = new CreateOperations(frameworkProperties,
                 queryOperations,
@@ -1162,16 +1166,19 @@ public class CatalogFrameworkImplTest {
 
     private CatalogFrameworkImpl createFramework(FrameworkProperties frameworkProperties) {
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties);
+        MetacardFactory metacardFactory =
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
+                metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
         QueryOperations queryOperations = new QueryOperations(frameworkProperties,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard);
-        OperationsStorageSupport opsStorage = new OperationsStorageSupport(
-                sourceOperations,
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
                 queryOperations);
-        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(frameworkProperties,
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(
+                frameworkProperties,
                 sourceOperations);
         CreateOperations createOperations = new CreateOperations(frameworkProperties,
                 queryOperations,

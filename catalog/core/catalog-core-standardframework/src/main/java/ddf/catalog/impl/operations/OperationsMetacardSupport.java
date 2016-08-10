@@ -23,11 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -47,17 +42,20 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.source.IngestException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeResolutionException;
 import ddf.security.Subject;
-import ddf.security.SubjectUtils;
 
+/**
+ * Support class for working with {@code Metacard}s for the {@code CatalogFrameworkImpl}.
+ *
+ * This class contains methods for management/manipulation for metacards for the CFI and its
+ * support classes. No operations/support methods should be added to this class except in support
+ * of CFI, specific to metacards.
+ */
 public class OperationsMetacardSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsMetacardSupport.class);
 
@@ -66,8 +64,12 @@ public class OperationsMetacardSupport {
     //
     private final FrameworkProperties frameworkProperties;
 
-    public OperationsMetacardSupport(FrameworkProperties frameworkProperties) {
+    private final MetacardFactory metacardFactory;
+
+    public OperationsMetacardSupport(FrameworkProperties frameworkProperties,
+            MetacardFactory metacardFactory) {
         this.frameworkProperties = frameworkProperties;
+        this.metacardFactory = metacardFactory;
     }
 
     /**
@@ -119,7 +121,7 @@ public class OperationsMetacardSupport {
                 }
 
                 String fileName = updateFileExtension(mimeTypeRaw, contentItem.getFilename());
-                Metacard metacard = generateMetacard(mimeTypeRaw,
+                Metacard metacard = metacardFactory.generateMetacard(mimeTypeRaw,
                         contentItem.getId(),
                         fileName,
                         subject,
@@ -168,78 +170,6 @@ public class OperationsMetacardSupport {
 
     private boolean hasNoValue(Attribute attribute) {
         return attribute == null || attribute.getValue() == null;
-    }
-
-    private Metacard generateMetacard(String mimeTypeRaw, String id, String fileName,
-            Subject subject, Path tmpContentPath)
-            throws MetacardCreationException, MimeTypeParseException {
-
-        Metacard generatedMetacard = null;
-        InputTransformer transformer = null;
-        StringBuilder causeMessage = new StringBuilder("Could not create metacard with mimeType ");
-        try {
-            MimeType mimeType = new MimeType(mimeTypeRaw);
-
-            List<InputTransformer> listOfCandidates =
-                    frameworkProperties.getMimeTypeToTransformerMapper()
-                            .findMatches(InputTransformer.class, mimeType);
-
-            LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
-
-            for (InputTransformer candidate : listOfCandidates) {
-                transformer = candidate;
-
-                try (InputStream transformerStream = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
-                    generatedMetacard = transformer.transform(transformerStream);
-                }
-                if (generatedMetacard != null) {
-                    break;
-                }
-            }
-        } catch (CatalogTransformerException | IOException e) {
-            causeMessage.append(mimeTypeRaw)
-                    .append(". Reason: ")
-                    .append(System.lineSeparator())
-                    .append(e.getMessage());
-
-            // The caught exception more than likely does not have the root cause message
-            // that is needed to inform the caller as to why things have failed.  Therefore
-            // we need to iterate through the chain of cause exceptions and gather up
-            // all of their message details.
-            Throwable cause = e.getCause();
-            while (cause != null && cause != cause.getCause()) {
-                causeMessage.append(System.lineSeparator())
-                        .append(cause.getMessage());
-                cause = cause.getCause();
-            }
-            LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
-        }
-
-        if (generatedMetacard == null) {
-            throw new MetacardCreationException(causeMessage.toString());
-        }
-
-        if (id != null) {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
-        } else {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID,
-                    UUID.randomUUID()
-                            .toString()
-                            .replaceAll("-", "")));
-        }
-
-        if (StringUtils.isBlank(generatedMetacard.getTitle())) {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, fileName));
-        }
-
-        String name = Optional.ofNullable(SubjectUtils.getName(subject))
-                .orElse("");
-
-        generatedMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT, name));
-
-        return generatedMetacard;
     }
 
     private String updateFileExtension(String mimeTypeRaw, String fileName) {
