@@ -27,7 +27,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -96,13 +95,7 @@ public class WebSSOFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
-        String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
-                httpRequest.getContextPath() :
-                httpRequest.getServletPath() + StringUtils.defaultString(httpRequest.getPathInfo());
-
-        if (StringUtils.isEmpty(path)) {
-            path = httpRequest.getRequestURI();
-        }
+        final String path = httpRequest.getRequestURI();
 
         LOGGER.debug("Handling request for path {}", path);
 
@@ -177,9 +170,7 @@ public class WebSSOFilter implements Filter {
             }
         }
 
-        String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
-                httpRequest.getContextPath() :
-                httpRequest.getServletPath() + StringUtils.defaultString(httpRequest.getPathInfo());
+        final String path = httpRequest.getRequestURI();
         String ipAddress = httpRequest.getHeader("X-FORWARDED-FOR");
 
         if (ipAddress == null) {
