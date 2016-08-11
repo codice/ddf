@@ -15,6 +15,10 @@ package ddf.catalog.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,12 +28,15 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import com.google.common.collect.ImmutableList;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceInfoRequest;
@@ -37,6 +44,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.plugin.PostIngestPlugin;
+import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.SourcePoller;
@@ -53,6 +61,8 @@ public class FanoutCatalogFrameworkTest {
 
     private CatalogFrameworkImpl framework;
 
+    private FrameworkProperties frameworkProperties;
+
     @Before
     public void initFramework() {
 
@@ -60,7 +70,7 @@ public class FanoutCatalogFrameworkTest {
         SourcePollerRunner runner = new SourcePollerRunner();
         SourcePoller poller = new SourcePoller(runner);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
-        FrameworkProperties frameworkProperties = new FrameworkProperties();
+        frameworkProperties = new FrameworkProperties();
         frameworkProperties.setSourcePoller(poller);
         frameworkProperties.setFederationStrategy(new MockFederationStrategy());
         frameworkProperties.setPostIngest(postIngestPlugins);
@@ -103,6 +113,39 @@ public class FanoutCatalogFrameworkTest {
             card = newResult.getMetacard();
             assertNotNull(card);
             assertEquals(NEW_SOURCE_ID, card.getSourceId());
+        }
+    }
+
+    @Test
+    public void testQueryReplacesSourceId() throws Exception {
+        ConnectedSource source1 = mock(ConnectedSource.class);
+        ConnectedSource source2 = mock(ConnectedSource.class);
+        when(source1.getId()).thenReturn("source1");
+        when(source2.getId()).thenReturn("source2");
+
+        frameworkProperties.setConnectedSources(ImmutableList.of(source1, source2));
+        frameworkProperties.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
+
+        QueryRequestImpl queryRequest = new QueryRequestImpl(mock(Query.class));
+
+        MetacardImpl meta1 = new MetacardImpl();
+        MetacardImpl meta2 = new MetacardImpl();
+        meta1.setSourceId("source1");
+        meta2.setSourceId("source2");
+        ResultImpl result1 = new ResultImpl(meta1);
+        ResultImpl result2 = new ResultImpl(meta2);
+        List<Result> results = new ArrayList<>();
+        results.add(result1);
+        results.add(result2);
+
+        QueryResponseImpl queryResponse = new QueryResponseImpl(queryRequest, results, 2);
+        FederationStrategy strategy = mock(FederationStrategy.class);
+        when(strategy.federate(anyList(), any())).thenReturn(queryResponse);
+
+        QueryResponse response = framework.query(queryRequest, strategy);
+        for (Result result : response.getResults()) {
+            assertEquals(result.getMetacard()
+                    .getSourceId(), NEW_SOURCE_ID);
         }
     }
 
@@ -206,14 +249,12 @@ public class FanoutCatalogFrameworkTest {
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
         List<FederatedSource> fedSources = new ArrayList<FederatedSource>();
 
-        FederatedSource mockFederatedSource = Mockito.mock(FederatedSource.class);
-        Mockito.when(mockFederatedSource.isAvailable())
-                .thenReturn(true);
+        FederatedSource mockFederatedSource = mock(FederatedSource.class);
+        when(mockFederatedSource.isAvailable()).thenReturn(true);
 
         // Mockito would not accept Collections.emptySet() as the parameter for
         // thenReturn for mockFederatedSource.getContentTypes()
-        Mockito.when(mockFederatedSource.getContentTypes())
-                .thenReturn(null);
+        when(mockFederatedSource.getContentTypes()).thenReturn(null);
 
         fedSources.add(mockFederatedSource);
 
