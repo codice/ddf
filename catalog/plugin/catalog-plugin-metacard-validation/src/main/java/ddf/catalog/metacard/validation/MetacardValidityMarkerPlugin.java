@@ -108,6 +108,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
 
         Metacard metacard = itemToMetacard.apply(item);
         Set<String> tags = metacard.getTags();
+        tags.remove(VALID_TAG);
+        tags.remove(INVALID_TAG);
 
         for (MetacardValidator validator : metacardValidators) {
             try {
