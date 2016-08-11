@@ -517,11 +517,11 @@ define(['underscore',
                       selectionInterface: this.selectionInterface
                   });
                 } else {
-                  this.mapViews.collection = results;
+                  this.mapViews.collection = new Backbone.Collection([result]);
                 }
                 mapclustering.setResultLists(this.mapViews);
 
-                if(this.clustering && typeof results !== "undefined") {
+                if(this.clustering && typeof result !== "undefined") {
                     mapclustering.cluster();
                 }
             }
