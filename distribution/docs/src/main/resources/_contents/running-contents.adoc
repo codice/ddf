@@ -91,19 +91,24 @@ to:
 RUN_AS_USER=<${ddf-branding-lowercase}-user>
 ----
 +
-. Set the memory in the wrapper config to match with ${branding} default memory setting.
-.. Add the setting for PermGen space under the JVM Parameters section.
-.. Update heap space to 2048.
+. Set the memory in the wrapper config to match with ${branding} default memory setting and set additional required parameters.
 +
 .INSTALLATION_HOME/etc/${branding-lowercase}-wrapper.conf
 [source,java,linenums]
 ----
 #Add the following:
-wrapper.java.additional.11=-Dderby.system.home="..\data\derby"
-wrapper.java.additional.12=-Dderby.storage.fileSyncTransactionLog=true
-wrapper.java.additional.13=-Dcom.sun.management.jmxremote
-wrapper.java.additional.14=-Dfile.encoding=UTF8
-wrapper.java.additional.15=-D${ddf-branding-lowercase}.home=%${branding}_HOME%
+wrapper.java.additional.10=-D${ddf-branding-lowercase}.home=%KARAF_HOME%
+wrapper.java.additional.11=-server
+wrapper.java.additional.12=-Djava.security.egd=file:/dev/./urandom
+wrapper.java.additional.13=-Dkaraf.instances=%KARAF_HOME%/instances
+wrapper.java.additional.14=-Dkaraf.restart.jvm.supported=true
+wrapper.java.additional.15=-Djava.io.tmpdir=%KARAF_HOME%/data/tmp
+wrapper.java.additional.16=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
+wrapper.java.additional.17=-Dfile.encoding=UTF8
+wrapper.java.additional.18=-XX:+UnlockDiagnosticVMOptions
+wrapper.java.additional.19=-XX:+UnsyncloadClass
+wrapper.java.additional.20=-Dderby.system.home=%KARAF_HOME%/data/derby
+wrapper.java.additional.21=-Dderby.storage.fileSyncTransactionLog=true
 
 #Update the following:
 wrapper.java.maxmemory=2048
@@ -113,7 +118,7 @@ wrapper.java.maxmemory=2048
 +
 .INSTALLATION_HOME/etc/${branding-lowercase}-wrapper.conf
 ----
-set.default.${branding}_HOME="%KARAF_HOME%"
+set.default.${branding}_HOME=%KARAF_HOME%
 ----
 +
 . Install the wrapper startup/shutdown scripts.
