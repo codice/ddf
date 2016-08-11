@@ -42,4 +42,24 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
         </Arg>
     </Call>
 
+    <Get name="handler">
+            <Set name="handlers">
+                <Array type="org.eclipse.jetty.server.Handler">
+                    <Item>
+                        <New id="RequestLog"
+                             class="org.eclipse.jetty.server.handler.RequestLogHandler"/>
+                    </Item>
+                </Array>
+            </Set>
+    </Get>
+    <Ref refid="RequestLog">
+        <Set name="requestLog">
+            <New id="RequestLogImpl" class="org.codice.ddf.pax.web.jetty.AccessRequestLog">
+                <Set name="resource">/access.xml</Set>
+                <Set name="quiet">true</Set>
+            </New>
+        </Set>
+    </Ref>
+
+
 </Configure>

@@ -285,13 +285,16 @@
         <feature prerequisite="true" version="${cxf.wsdl4j.bundle.version}">servicemix-wsdl4j</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-wsdl/${cxf.version}</bundle>
     </feature>
+    <feature name="neethi" version="${cxf.version}" install="manual">
+        <bundle start-level="30">mvn:org.apache.neethi/neethi/${cxf.neethi.version}</bundle>
+    </feature>
     <feature name="cxf-ws-policy" version="${cxf.version}" install="manual">
         <feature version="${cxf.version}">cxf-wsdl</feature>
-        <bundle start-level="30" dependency="true">mvn:org.apache.neethi/neethi/${cxf.neethi.version}</bundle>
+        <feature prerequisite="true">neethi</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-policy/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-ws-addr" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-ws-policy</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-ws-policy</feature>
         <feature version="${cxf.version}">cxf-bindings-soap</feature>
         <feature version="${cxf.version}">cxf-databinding-jaxb</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-addr/${cxf.version}</bundle>
@@ -957,6 +960,7 @@
 
     <feature name="web-container" install="manual" version="${project.version}">
         <feature prerequisite="true">platform-filter-delegate</feature>
+        <feature prerequisite="true">platform-paxweb-jettyconfig</feature>
         <feature>war</feature>
     </feature>
 
@@ -996,7 +1000,6 @@
     <feature name="platform-all" install="manual" version="${project.version}" hidden="true">
         <feature prerequisite="true">platform-api</feature>
         <bundle>mvn:ddf.platform/platform-logging/${project.version}</bundle>
-        <feature prerequisite="true">platform-security-session</feature>
         <feature prerequisite="true">platform-migrate-all</feature>
         <feature>platform-scheduler</feature>
         <feature>platform-commands</feature>
@@ -1019,10 +1022,10 @@
         <feature>banana</feature>
     </feature>
 
-    <feature name="platform-security-session" install="manual" version="${project.version}"
+    <feature name="platform-paxweb-jettyconfig" install="manual" version="${project.version}"
              description="Custom Session Manager">
         <feature>pax-jetty</feature>
-        <bundle>mvn:ddf.platform.security/platform-security-session/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/platform-paxweb-jettyconfig/${project.version}</bundle>
     </feature>
 
     <feature name="platform-http-proxy" install="manual" version="${project.version}"
