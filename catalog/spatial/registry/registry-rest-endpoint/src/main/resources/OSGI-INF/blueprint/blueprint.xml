@@ -28,14 +28,15 @@
         <property name="path" value="/assets"/>
     </bean>
 
-    <bean id="registryReportMapBuilder"
-          class="org.codice.ddf.registry.rest.endpoint.report.RegistryReportMapBuilder"/>
+    <bean id="registryReportBuilder"
+          class="org.codice.ddf.registry.rest.endpoint.report.RegistryReportBuilder"
+          init-method="setup"/>
 
     <bean id="registryRestEndpoint"
           class="org.codice.ddf.registry.rest.endpoint.RegistryRestEndpoint">
         <property name="federationAdminService" ref="federationAdminService"/>
         <property name="registryPublicationService" ref="registryPublicationService"/>
-        <property name="registryReportMapBuilder" ref="registryReportMapBuilder"/>
+        <property name="registryReportBuilder" ref="registryReportBuilder"/>
     </bean>
 
     <jaxrs:server id="registryRestEndpointService" address="/registries">
