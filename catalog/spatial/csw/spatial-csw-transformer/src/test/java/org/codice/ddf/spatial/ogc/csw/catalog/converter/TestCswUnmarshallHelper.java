@@ -35,7 +35,6 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -53,9 +52,12 @@ public class TestCswUnmarshallHelper {
 
     private Map<AttributeType.AttributeFormat, String> valueMap;
 
+    private DateFormat dateFormat;
+
     @Before
     public void setUp() {
-        matcherMap = new HashMap<AttributeType.AttributeFormat, Matcher>();
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        matcherMap = new HashMap<>();
         matcherMap.put(AttributeType.AttributeFormat.BOOLEAN, is(Boolean.class));
         matcherMap.put(AttributeType.AttributeFormat.DOUBLE, is(Double.class));
         matcherMap.put(AttributeType.AttributeFormat.FLOAT, is(Float.class));
@@ -67,7 +69,7 @@ public class TestCswUnmarshallHelper {
         matcherMap.put(AttributeType.AttributeFormat.DATE, is(Date.class));
         matcherMap.put(AttributeType.AttributeFormat.OBJECT, nullValue());
 
-        valueMap = new HashMap<AttributeType.AttributeFormat, String>();
+        valueMap = new HashMap<>();
         valueMap.put(AttributeType.AttributeFormat.BOOLEAN, "true");
         valueMap.put(AttributeType.AttributeFormat.DOUBLE, "232.212332443523");
         valueMap.put(AttributeType.AttributeFormat.FLOAT, "342344.23445");
@@ -107,8 +109,8 @@ public class TestCswUnmarshallHelper {
         valueMap.put(AttributeType.AttributeFormat.GEOMETRY, TEST_BOUNDING_BOX);
 
         matcherMap.put(AttributeType.AttributeFormat.BINARY, notNullValue());
-        matcherMap.put(AttributeType.AttributeFormat.GEOMETRY,
-                is("POLYGON((44.792 -6.171, 51.126 -6.171, 51.126 -2.228, 44.792 -2.228, 44.792 -6.171))"));
+        matcherMap.put(AttributeType.AttributeFormat.GEOMETRY, is(
+                "POLYGON((44.792 -6.171, 51.126 -6.171, 51.126 -2.228, 44.792 -2.228, 44.792 -6.171))"));
 
         AttributeType.AttributeFormat[] attributeFormats = AttributeType.AttributeFormat.values();
 
@@ -129,7 +131,7 @@ public class TestCswUnmarshallHelper {
         HierarchicalStreamReader reader = mock(HierarchicalStreamReader.class);
 
         if (attributeFormat.equals(AttributeType.AttributeFormat.GEOMETRY)) {
-            Stack<String> boundingBoxNodes = new Stack<String>();
+            Stack<String> boundingBoxNodes = new Stack<>();
 
             boundingBoxNodes.push(valueMap.get(attributeFormat));
             boundingBoxNodes.push("-2.228 51.126");
@@ -140,19 +142,13 @@ public class TestCswUnmarshallHelper {
             boundingBoxNodes.push("BoundingBox");
             boundingBoxNodes.push("BoundingBox");
 
-            Answer<String> answer = new Answer<String>() {
-                @Override
-                public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    return boundingBoxNodes.pop();
-                }
-            };
+            Answer<String> answer = invocationOnMock -> boundingBoxNodes.pop();
 
             when(reader.getNodeName()).thenAnswer(answer);
             when(reader.getValue()).thenAnswer(answer);
         } else {
             when(reader.getValue()).thenReturn(valueMap.get(attributeFormat));
         }
-
         return reader;
     }
 
@@ -165,8 +161,7 @@ public class TestCswUnmarshallHelper {
         Date result = CswUnmarshallHelper.convertToDate(dateString);
         assertThat(result, is(testDate));
 
-        DateFormat xsdFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateString = xsdFormat.format(testDate);
+        dateString = dateFormat.format(testDate);
         LocalDate localResult = LocalDate.fromDateFields(CswUnmarshallHelper.convertToDate(
                 dateString));
         assertThat(localResult, is(localDate));
@@ -175,5 +170,23 @@ public class TestCswUnmarshallHelper {
                 .print(localDate);
         localResult = LocalDate.fromDateFields(CswUnmarshallHelper.convertToDate(dateString));
         assertThat(localResult, is(localDate));
+    }
+
+    @Test
+    public void testConvertGYearToDate() throws Exception {
+        String gYear = "2011";
+        String testDate = "2011-01-01";
+        Date expectedDate = dateFormat.parse(testDate);
+        Date result = CswUnmarshallHelper.convertToDate(gYear);
+        assertThat(result, is(expectedDate));
+    }
+
+    @Test
+    public void testConvertGYearMonthToDate() throws Exception {
+        String gYearMonth = "2009-09";
+        String testDate = "2009-09-01";
+        Date expectedDate = dateFormat.parse(testDate);
+        Date result = CswUnmarshallHelper.convertToDate(gYearMonth);
+        assertThat(result, is(expectedDate));
     }
 }
