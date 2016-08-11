@@ -61,7 +61,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
     private static final String HOST_TITLE = "Host";
 
     private static final String HOST_DESCRIPTION =
-            "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the address the system runs on.";
+            "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
 
     private static final String PROTOCOL_TITLE = "Default Protocol";
 
@@ -78,17 +78,17 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
     private static final String DEFAULT_PORT_TITLE = "Default Port";
 
     private static final String DEFAULT_PORT_DESCRIPTION =
-            "The default port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.";
+            "The default port used to advertise the system. The default port should match either the http or https port. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
 
     private static final String HTTP_PORT_TITLE = "HTTP Port";
 
     private static final String HTTP_PORT_DESCRIPTION =
-            "The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.";
+            "The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
 
     private static final String HTTPS_PORT_TITLE = "HTTPS Port";
 
     private static final String HTTPS_PORT_DESCRIPTION =
-            "The secure port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: Does not change the port the system runs on.";
+            "The secure port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
 
     private static final String ORGANIZATION_TITLE = "Organization";
 
