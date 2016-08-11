@@ -2,24 +2,20 @@
 Running Section
 ////
 
-=== Running ${branding}
+== Running ${branding}
 
 Follow the below steps to start and stop ${branding}.
 
-==== Starting ${branding}
+=== Starting ${branding}
 
-===== \*NIX
+Run one of the start scripts from a command shell to start the distribution and open a local console:
 
-Run the following script from a command shell to start the distribution and open a local console:
-
+.Start Script: \*NIX
 ----
 INSTALLATION_HOME/bin/${ddf-branding-lowercase}
 ----
 
-===== Windows
-
-Run the following script from a console window to start the distribution and open a local console:
-
+.Start Script: Windows
 ----
 INSTALLATION_HOME/bin/${branding-lowercase}.bat
 ----
@@ -218,9 +214,6 @@ Proceed with caution!
 
 It is recommended to use the *${ddf-catalog} App -> Sources* tab to configure and manage sites/sources.
 
-
-
-
 ==== Console Commands
 
 Once the distribution has started, users will have access to a powerful command line console, the ${command-console}.
@@ -236,7 +229,6 @@ For more information on how to use the `client` scripts or how to remote into th
 ====
 The majority of functionality and information available on the ${admin-console} is also available on the Command Line Console.
 ====
-
 
 ===== Available System Console Commands
 

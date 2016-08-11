@@ -1,8 +1,8 @@
-==== Monitoring ${branding}
+=== Monitoring ${branding}
 
 The ${branding} contains many tools to monitor system functionality, usage, and overall system health.
 
-===== Metrics Reporting
+==== Metrics Reporting
 
 Metrics are available in several formats and levels of detail.
 
@@ -17,39 +17,39 @@ Complete the following procedure now that several queries have been executed.
 . For a detailed report of all metrics, at the bottom of the page are selectors to choose time frame and summary level.
 A report is generated in _xls_ format.
 
-===== Managing Logging
+==== Managing Logging
 
 The ${branding} supports a dynamic and customizable logging system including log level, log format, log output destinations, roll over, etc.
 
-====== Configuring Logging
+===== Configuring Logging
 
 Edit the configuration file `[${branding-lowercase}_install_dir]/etc/org.ops4j.pax.logging.cfg]`
 
-====== ${branding} log file
+===== ${branding} log file
 
 The name and location of the log file can be changed with the following setting:
 
 `log4j.appender.out.file=<KARAF.DATA>/log/${branding-lowercase}.log`
 
-====== Controlling log level
+===== Controlling log level
 
 A useful way to debug and detect issues is to change the log level:
 
 `log4j.rootLogger=DEBUG, out, osgi:VmLogAppender`
 
-====== Controlling the size of the log file
+===== Controlling the size of the log file
 
 Set the maximum size of the log file before it is rolled over by editing the value of this setting:
 
 `log4j.appender.out.maxFileSize=20MB`
 
-====== Number of backup log files to keep
+===== Number of backup log files to keep
 
 Adjust the number of backup files to keep by editing the value of the of this setting:
 
 `log4j.appender.out.maxBackupIndex=10`
 
-====== Enabling logging of inbound and outbound SOAP messages for the ${branding} SOAP endpoints
+===== Enabling logging of inbound and outbound SOAP messages for the ${branding} SOAP endpoints
 
 By default, the ${branding} start scripts include a system property enabling logging of inbound and outbound SOAP messages.
 
