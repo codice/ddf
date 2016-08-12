@@ -172,9 +172,7 @@
     </bean>
 
     <bean id="service"
-          class="ddf.security.sts.StsStaticService">
-        <cm:managed-properties persistent-id="ddf.security.sts.StsStaticService"
-                               update-strategy="container-managed"/>
+          class="org.apache.cxf.sts.service.StaticService">
         <property name="endpoints">
             <list>
                 <value>.*</value>
