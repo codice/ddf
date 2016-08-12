@@ -31,10 +31,10 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.codice.ddf.registry.api.RegistryStore;
+import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
-import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -113,7 +113,7 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
     @Test
     public void testBindRegistryStoreNoContext() {
-        registryStorePublisher = spy(new RegistryStorePublisher());
+        registryStorePublisher = Mockito.spy(new RegistryStorePublisher());
         registryStorePublisher.bindRegistryStore(serviceReference);
 
         verify(registryStorePublisher, Mockito.times(0)).registryPublish(any(), anyString());
@@ -136,7 +136,7 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
     @Test
     public void testUnbindRegistryStoreNoContext() {
-        registryStorePublisher = spy(new RegistryStorePublisher());
+        registryStorePublisher = Mockito.spy(new RegistryStorePublisher());
         registryStorePublisher.unbindRegistryStore(serviceReference);
 
         verify(registryStorePublisher, Mockito.times(0)).registryPublish(any(), eq(UNPUBLISH));

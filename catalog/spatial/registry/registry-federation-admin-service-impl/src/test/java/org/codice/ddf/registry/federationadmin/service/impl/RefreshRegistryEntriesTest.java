@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.Date;
 
-import org.codice.ddf.registry.api.RegistryStore;
+import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.geotools.filter.FilterFactoryImpl;

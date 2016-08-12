@@ -45,6 +45,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
+                        <Export-Package>
+                            org.codice.ddf.registry.federationadmin.internal
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

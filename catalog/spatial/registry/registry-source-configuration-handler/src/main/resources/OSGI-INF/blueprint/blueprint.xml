@@ -17,7 +17,7 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
     <reference id="eventAdmin" interface="org.codice.ddf.parser.Parser" availability="mandatory"/>
-    <reference id="federationAdminService" interface="org.codice.ddf.registry.federationadmin.service.FederationAdminService"/>
+    <reference id="federationAdminService" interface="org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService"/>
     <reference id="metaTypeService" interface="org.osgi.service.metatype.MetaTypeService" />
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)" availability="mandatory"/>
 

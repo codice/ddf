@@ -29,7 +29,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -267,7 +267,7 @@ public class TestRegistry extends AbstractIntegrationTest {
         final String mcardId = "2014ca7f59ac46f495e32b4a67a51292";
         createRegistryEntry(mcardId, regId);
 
-        final String restUrl = SERVICE_ROOT.getUrl() + "/registries/" + regId + "/report";
+        final String restUrl = SERVICE_ROOT.getUrl() + "/internal/registries/" + regId + "/report";
 
         ValidatableResponse response = when().get(restUrl)
                 .then()

@@ -202,7 +202,7 @@
                             !org.codice.ddf.platform.util.http,
                             !org.codice.ddf.platform.util,
                             ddf.security.permission,
-                            org.codice.ddf.registry.api,
+                            org.codice.ddf.registry.api.internal,
                             net.opengis.gml.v_3_1_1,
                             *
                         </Import-Package>

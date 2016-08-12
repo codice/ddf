@@ -45,7 +45,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            org.codice.ddf.registry.api
+                            org.codice.ddf.registry.api.internal
                         </Export-Package>
                         <Import-Package>
                             !org.codice.ddf.platform.util,

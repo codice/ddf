@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.registry.api;
+package org.codice.ddf.registry.api.internal;
 
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.CatalogStore;
