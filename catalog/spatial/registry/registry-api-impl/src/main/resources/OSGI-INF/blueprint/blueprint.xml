@@ -39,14 +39,32 @@
     <reference id="registryPublicationService"
                interface="org.codice.ddf.registry.federationadmin.service.RegistryPublicationService"/>
 
-    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+    <bean id="registryPublisherExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+    <bean id="metacardHandlerExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
 
     <bean id="registryPublisher"
           class="org.codice.ddf.registry.api.impl.RegistryStorePublisher">
         <property name="federationAdminService" ref="federationAdminService"/>
         <property name="registryPublicationService" ref="registryPublicationService"/>
-        <property name="executor" ref="executor"/>
+        <property name="executor" ref="registryPublisherExecutor"/>
     </bean>
+
+    <bean id="registryMetacardHandler" class="org.codice.ddf.registry.api.impl.RegistryMetacardHandler" destroy-method="destroy">
+        <argument ref="metacardHandlerExecutor"/>
+        <argument ref="federationAdminService"/>
+    </bean>
+
+    <service ref="registryMetacardHandler" interface="org.osgi.service.event.EventHandler">
+        <service-properties>
+            <entry key="event.topics">
+                <array value-type="java.lang.String">
+                    <value>ddf/catalog/event/CREATED</value>
+                    <value>ddf/catalog/event/UPDATED</value>
+                    <value>ddf/catalog/event/DELETED</value>
+                </array>
+            </entry>
+        </service-properties>
+    </service>
 
     <reference-list id="registryPubList" interface="org.codice.ddf.registry.api.RegistryStore"
                     availability="optional">

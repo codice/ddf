@@ -32,6 +32,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelper;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
 import org.jvnet.jaxb2_commons.locator.DefaultRootObjectLocator;
@@ -413,10 +414,21 @@ public class RegistryPackageConverter {
             List<ExternalIdentifierType> extIds = registryObject.getExternalIdentifier();
             for (ExternalIdentifierType extId : extIds) {
                 if (extId.getId()
-                        .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID)) {
+                        .equals(RegistryConstants.REGISTRY_MCARD_ID_LOCAL)) {
                     metacard.setId(extId.getValue());
-                    break;
+                } else if (extId.getId().equals(RegistryConstants.REGISTRY_ID_ORIGIN)) {
+                    if (!System.getProperty(RegistryConstants.REGISTRY_ID_PROPERTY)
+                            .equals(extId.getValue())) {
+                        setMetacardStringAttribute(extId.getValue(),
+                                RegistryObjectMetacardType.REMOTE_REGISTRY_ID, metacard);
+                    }
                 }
+            }
+            if (RegistryUtility.hasAttribute(metacard,
+                    RegistryObjectMetacardType.REMOTE_REGISTRY_ID)) {
+                setMetacardStringAttribute(metacard.getId(),
+                        RegistryObjectMetacardType.REMOTE_METACARD_ID,
+                        metacard);
             }
         }
 

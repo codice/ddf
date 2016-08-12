@@ -55,6 +55,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -196,37 +197,38 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     public void updateRegistryEntry(Metacard updateMetacard, Set<String> destinations)
             throws FederationAdminException {
         validateRegistryMetacards(Collections.singletonList(updateMetacard));
-        String registryId = RegistryUtility.getRegistryId(updateMetacard);
-        if (registryId == null){
-            return;
-        }
-
-        List<Metacard> existingMetacards =
-                this.getRegistryMetacardsByRegistryIds(Collections.singletonList(registryId));
-
-        if (existingMetacards.size() > 1) {
-            String message = "Error updating registry entry. Multiple registry metacards found.";
-            List<String> metacardIds = existingMetacards.stream()
-                    .map(Metacard::getId)
-                    .collect(Collectors.toList());
-            LOGGER.error("{} Matching registry metacard ids: {}", message, metacardIds);
-
-            throw new FederationAdminException(message);
-        }
-        if (existingMetacards.size() == 0) {
-            String message =
-                    "Error updating registry entry. No corresponding registry entry found.";
-            LOGGER.error("{}", message);
-            throw new FederationAdminException(message);
-        }
 
         Map<String, Serializable> properties = new HashMap<>();
+        String mcardId = updateMetacard.getId();
+        if (isRemoteMetacard(updateMetacard) || CollectionUtils.isNotEmpty(destinations)) {
+
+            Filter idFilter = filterBuilder.attribute(RegistryObjectMetacardType.REMOTE_METACARD_ID)
+                    .is()
+                    .equalTo()
+                    .text(updateMetacard.getId());
+            Filter tagFilter = filterBuilder.attribute(Metacard.TAGS)
+                    .is()
+                    .like()
+                    .text(FilterDelegate.WILDCARD_CHAR);
+            List<Metacard> results =
+                    this.getRegistryMetacardsByFilter(filterBuilder.allOf(tagFilter, idFilter),
+                            destinations);
+            if (results.size() != 1) {
+                throw new FederationAdminException("Could not find metacard to update.");
+            }
+            mcardId = results.get(0)
+                    .getId();
+
+            LOGGER.debug("Looked up remote-mcard-id {} and got id {}",
+                    updateMetacard.getId(),
+                    mcardId);
+        }
 
         List<Map.Entry<Serializable, Metacard>> updateList = new ArrayList<>();
-        updateList.add(new AbstractMap.SimpleEntry<>(registryId, updateMetacard));
+        updateList.add(new AbstractMap.SimpleEntry<>(mcardId, updateMetacard));
 
         UpdateRequest updateRequest = new UpdateRequestImpl(updateList,
-                RegistryObjectMetacardType.REGISTRY_ID,
+                Metacard.ID,
                 properties,
                 destinations);
 
@@ -262,8 +264,24 @@ public class FederationAdminServiceImpl implements FederationAdminService {
 
         List<Serializable> serializableIds = new ArrayList<>(registryIds);
         Map<String, Serializable> properties = new HashMap<>();
+
+        String deleteField = RegistryObjectMetacardType.REGISTRY_ID;
+        if (CollectionUtils.isNotEmpty(destinations)) {
+            deleteField = RegistryObjectMetacardType.REMOTE_METACARD_ID;
+            try {
+                List<Metacard> toDelete =
+                        security.runWithSubjectOrElevate(() -> this.getRegistryMetacardsByRegistryIds(
+                                registryIds));
+                serializableIds = toDelete.stream()
+                        .map(e -> e.getId())
+                        .collect(Collectors.toList());
+            } catch (SecurityServiceException | InvocationTargetException e) {
+                throw new FederationAdminException("Error looking up metacards to delete.", e);
+            }
+        }
+
         DeleteRequest deleteRequest = new DeleteRequestImpl(serializableIds,
-                RegistryObjectMetacardType.REGISTRY_ID,
+                deleteField,
                 properties,
                 destinations);
         try {
@@ -322,6 +340,22 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         Filter filter = filterBuilder.allOf(getBasicFilter());
 
         return getRegistryMetacardsByFilter(filter);
+    }
+
+    @Override
+    public List<Metacard> getInternalRegistryMetacards() throws FederationAdminException {
+        return getRegistryMetacardsByFilter(filterBuilder.allOf(getBasicFilter(RegistryConstants.REGISTRY_TAG_INTERNAL)));
+    }
+
+    @Override
+    public List<Metacard> getInternalRegistryMetacardsByRegistryId(String registryId)
+            throws FederationAdminException {
+        List<Filter> filters = getBasicFilter(RegistryConstants.REGISTRY_TAG_INTERNAL);
+        filters.add(filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_ID)
+                .is()
+                .equalTo()
+                .text(registryId));
+        return getRegistryMetacardsByFilter(filterBuilder.allOf(filters));
     }
 
     @Override
@@ -494,7 +528,8 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             if (metacard == null) {
                 throw new FederationAdminException("ValidationError: Metacard was null.");
             }
-            if (!RegistryUtility.isRegistryMetacard(metacard)) {
+            if (!RegistryUtility.isRegistryMetacard(metacard)
+                    && !RegistryUtility.isInternalRegistryMetacard(metacard)) {
                 throw new FederationAdminException(
                         "ValidationError: Metacard does not have a registry tag and/or registry id.");
             }
@@ -565,6 +600,10 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     }
 
     private List<Filter> getBasicFilter() {
+        return getBasicFilter(RegistryConstants.REGISTRY_TAG);
+    }
+
+    private List<Filter> getBasicFilter(String tag) {
         List<Filter> filters = new ArrayList<>();
         filters.add(filterBuilder.attribute(Metacard.CONTENT_TYPE)
                 .is()
@@ -573,8 +612,13 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         filters.add(filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .equalTo()
-                .text(RegistryConstants.REGISTRY_TAG));
+                .text(tag));
         return filters;
+    }
+
+    private boolean isRemoteMetacard(Metacard metacard) {
+        return RegistryUtility.hasAttribute(metacard,
+                RegistryObjectMetacardType.REMOTE_REGISTRY_ID);
     }
 
     public void setCatalogFramework(CatalogFramework catalogFramework) {

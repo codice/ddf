@@ -37,7 +37,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 import org.codice.ddf.cxf.SecureCxfClientFactory;
-import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
@@ -46,6 +45,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.CswFilterFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,9 +93,9 @@ import net.opengis.filter.v_1_1_0.FilterType;
 
 public class TestRegistryStore {
 
-    private RegistryStoreImpl registryStore;
+    private MetacardMarshaller marshaller;
 
-    private Parser parser;
+    private RegistryStoreImpl registryStore;
 
     private BundleContext context;
 
@@ -121,7 +121,7 @@ public class TestRegistryStore {
 
     @Before
     public void setup() throws Exception {
-        parser = new XmlParser();
+        marshaller = new MetacardMarshaller(new XmlParser());
         context = mock(BundleContext.class);
         provider = mock(Converter.class);
         configuration = mock(CswSourceConfiguration.class);
@@ -158,9 +158,9 @@ public class TestRegistryStore {
         registryStore.setFilterBuilder(filterBuilder);
         registryStore.setFilterAdapter(filterAdapter);
         registryStore.setConfigAdmin(configAdmin);
-        registryStore.setMetacardMarshaller(new MetacardMarshaller(parser));
         registryStore.setSchemaTransformerManager(transformer);
         registryStore.setAutoPush(true);
+        registryStore.setMetacardMarshaller(marshaller);
 
         when(configAdmin.getConfiguration(any())).thenReturn(config);
         when(config.getProperties()).thenReturn(new Hashtable<>());
@@ -174,15 +174,6 @@ public class TestRegistryStore {
         registryStore.create(request);
     }
 
-    @Test
-    public void testCreateWithExistingMetacard() throws Exception {
-        Metacard mcard = getDefaultMetacard();
-        queryResults.add(new ResultImpl(mcard));
-        CreateRequest request = new CreateRequestImpl(mcard);
-        CreateResponse response = registryStore.create(request);
-        assertThat(response.getCreatedMetacards()
-                .get(0), is(mcard));
-    }
 
     @Test
     public void testCreateNoExistingMetacard() throws Exception {
@@ -333,6 +324,11 @@ public class TestRegistryStore {
     public void testDelete() throws Exception {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Csw csw = mock(Csw.class);
+        TransactionResponseType transResponse = mock(TransactionResponseType.class);
+        TransactionSummaryType transSummary = mock(TransactionSummaryType.class);
+        when(transResponse.getTransactionSummary()).thenReturn(transSummary);
+        when(transSummary.getTotalDeleted()).thenReturn(new BigInteger("1"));
+        when(csw.transaction(any(CswTransactionRequest.class))).thenReturn(transResponse);
         when(factory.getClientForSubject(any())).thenReturn(csw);
         when(transformer.getTransformerIdForSchema(any())).thenReturn(null);
         FilterAdapter mockAdaptor = mock(FilterAdapter.class);
