@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
-import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
+import org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService;
 import org.codice.ddf.security.common.Security;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;

@@ -30,7 +30,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.registry.api.RegistryStore;
+import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.publication.manager.RegistryPublicationManager;
@@ -179,7 +179,7 @@ public class RegistryPublicationActionProviderTest {
         assertThat(actions.get(0)
                         .getUrl()
                         .toString(),
-                equalTo(SystemBaseUrl.constructUrl("registries/regId1/publication/regId2", true)));
+                equalTo(SystemBaseUrl.constructUrl("internal/registries/regId1/publication/regId2", true)));
     }
 
     @Test
@@ -199,7 +199,7 @@ public class RegistryPublicationActionProviderTest {
         assertThat(actions.get(0)
                         .getUrl()
                         .toString(),
-                equalTo(SystemBaseUrl.constructUrl("registries/regId1/publication/regId2", true)));
+                equalTo(SystemBaseUrl.constructUrl("internal/registries/regId1/publication/regId2", true)));
     }
 
     private Metacard getRegistryMetacard(String regId) {

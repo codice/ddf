@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.parser.ParserException;
-import org.codice.ddf.registry.api.RegistryStore;
+import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;

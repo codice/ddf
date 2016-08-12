@@ -32,9 +32,9 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.codice.ddf.parser.ParserException;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
-import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService;
 import org.codice.ddf.registry.rest.endpoint.report.RegistryReportBuilder;
 import org.junit.Before;
 import org.junit.Test;
