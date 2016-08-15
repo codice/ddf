@@ -1,0 +1,113 @@
+
+==== Configuring ${branding} with New Certificates
+
+${branding} ships with a default security certificate configured to identify the instance machine as `localhost`.
+This allows the distribution to be unzipped and run immediately in a secure manner.
+If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
+If the hostname was left as `localhost` or the hostname was changed after installation, in order to access the ${branding} instance from another machine over HTTPS (now the default for many services) the default certificates need to be replaced with a certificates that use the fully qualified hostname of the server running the ${branding} instance.
+
+.Important Terms for Certificates
+[cols="3" options="header"]
+|===
+
+|Term
+|Definition
+|Example Value
+
+|`<${branding}_HOME>`
+|The path to the unzipped ${branding} distribution
+|`/opt/${branding-lowercase}/${branding-lowercase}-${project.version}`
+
+|alias
+|The nickname given to a certificate within a keystore to make it easily identifiable. Normally, the alias should be the FQDN.
+|`localhost`
+
+|certificate
+|A combination of an entity's identity information with the entity's public key.
+The entity can be a person, organization, or something else, but in this case the entity is a computer on the network.
+To be valid, a certificate must be digitally (cryptographically) signed by a certificate authority.
+By signing a certificate, the CA attests that the public key truly belongs to the entity and no one else.
+See also *PKIX*.
+|`<FQDN>.crt`
+
+|CN
+|Common Name - The FQDN of the ${branding} instance as defined within the Certificate.
+|`search.codice.org`
+
+|certification path
+|A list of certificates, starting with the server's certificate and followed certificate of the CA who signed the server's CSR.
+The list of certificates continues, with each subsequent certificate belonging to the CA that signed the current CA's certificate.
+This chain continues until it reaches a trusted anchor, or root CA certificate.
+The chain establishes a link between the trust anchor and the server's certificate.
+See https://tools.ietf.org/html/rfc4158[IETF RFC 4158] for details.
+|
+
+|chain of trust
+|See certification path.
+|
+
+|CSR
+|Certificate Signing Request. A certificate that has not yet been signed by a certificate auhority.
+|`<FQDN>.csr`
+
+|digital certificate
+|See *certificate*.
+|
+
+|FQDN
+|Fully Qualified Domain Name
+|`search.codice.org`
+
+|HTTPS
+|Hyper-Text Transfer Protocol Secure.
+An encrypted alternative to HTTP.
+The HTTP connection is encrypted over TLS.
+See https://tools.ietf.org/html/rfc2818[IETF RFC 2818] for more information.
+|`https://`
+
+|JKS
+|Java *keystore*.
+A dictionary of cryptographic objects (e.g. private keys, certificates) referenced by an *alias*.
+The JKS format is specific to Java.
+|
+
+|keystore
+|Refers to either a JKS keystore or a PKCS#12 keystore.
+For the purposes of these instructions, a keystore is always a file.
+|
+
+|keytool
+|The Java keytool is a key and certificate management command line utility.
+|
+
+|openssl
+|The openssl program is a command line tool for using the various cryptography functions of OpenSSL's crypto library from the shell.
+|
+
+|PKCS#12
+|Personal Information Exchange Syntax.
+A standard that allows certificates, private keys, and optional attributes to be combined into a single file.
+See https://tools.ietf.org/html/rfc7292[IETF RFC 7292] for more information.
+|<FQDN>.p12
+
+|PKIX
+|A public key infrastructure also known as X.509.
+It is documented in the https://www.ietf.org/html/rfc5280[IEFT RFC 5280] and defines what a *certificate* is.
+|
+
+|PORT
+|TCP Port of service
+|`8993`
+
+|security certificate
+|See *certificate*.
+|
+
+|TLS
+|Transport Layer Security protocol.
+Provides privacy and data integrity between client and server.
+See https://tools.ietf.org/html/rfc5246[IETF RFC 5246] for more information.
+|
+
+|===
+
