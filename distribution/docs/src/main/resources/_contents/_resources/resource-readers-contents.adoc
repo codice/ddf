@@ -1,0 +1,3 @@
+
+.[[_included_resource_readers]]Included Resource Readers
+<<_url_resource_reader,URL Resource Reader>>:: The URL Resource Reader obtains a resource given an http, https, or file-based URL.

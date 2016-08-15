@@ -563,15 +563,26 @@ include::${project.build.directory}/doc-contents/_contents/_eventing/developing-
 
 include::${project.build.directory}/doc-contents/_contents/_resources/resources-intro-contents.adoc[]
 
+include::${project.build.directory}/doc-contents/_contents/_resources/retrieving-resources-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_resources/retrieving-resources-options-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_resources/storing-resources-contents.adoc[]
+
+
 include::${project.build.directory}/doc-contents/_contents/_resources/resource-components-intro-contents.adoc[]
 //resource readers
 include::${project.build.directory}/doc-contents/_contents/_resources/resource-readers-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_resources/resource-readers-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_resources/url-resource-reader-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_resources/developing-resource-readers-contents.adoc[]
 //resource writers
 include::${project.build.directory}/doc-contents/_contents/_resources/resource-writers-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_resources/resource-writers-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_resources/developing-resource-writers-contents.adoc[]
 //registry clients
