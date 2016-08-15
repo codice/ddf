@@ -1,0 +1,8 @@
+|<<ddf.security.sts,Security STS Server>>
+|ddf.security.sts
+|STS Configuration
+
+|<<ddf.security.sts.StsStaticService,STS Server Token Endpoint>>
+|ddf.security.sts.StsStaticService
+|STS Server Token Endpoint
+

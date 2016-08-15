@@ -1,0 +1,34 @@
+.[[org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor]]Catalog Content Directory Monitor
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Directory Path
+|monitoredDirectoryPath
+|String
+|Specifies the directory to be monitored
+| false
+|true
+
+| Copy Files to Backup Directory
+| copyIngestedFiles
+| Boolean
+| Optional: Copy the ingested files into a backup directory under the monitored directory named /.ingested  -  NOTE: this will double the amount of disk space required for ingested files in this monitored directory if its Processing Directive includes storing the file in the DDF Content Repository.
+| 
+| false
+
+| Attribute Overrides
+| attributeOverrides
+| String
+| Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the content monitor.  If an attribute is specified here, it will overwrite the metacard's attribute that was created from the content directory.   The format should be 'key=value'.
+|null
+| false
+
+|===
+

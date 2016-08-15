@@ -1,0 +1,8 @@
+|<<ddf.security.sts.client.configuration,Security STS Client>>
+|ddf.security.sts.client.configuration
+|STS Client Configuration Settings
+
+|<<ddf.security.sts.wss.configuration,Security STS WSS>>
+|ddf.security.sts.wss.configuration
+|STS WSS Configuration Settings
+

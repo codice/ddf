@@ -1,0 +1,4 @@
+|<<org.codice.ddf.resourcemanagement.usage,Data Usage>>
+|org.codice.ddf.resourcemanagement.usage
+|null
+

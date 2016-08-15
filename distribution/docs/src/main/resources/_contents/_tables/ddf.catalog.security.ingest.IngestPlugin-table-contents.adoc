@@ -1,0 +1,20 @@
+.[[ddf.catalog.security.ingest.IngestPlugin]]Ingest Security Plugin
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Required Attributes
+|permissionStrings
+|String
+|Roles/attributes required for ingest operations (create
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
+|true
+
+|===
+

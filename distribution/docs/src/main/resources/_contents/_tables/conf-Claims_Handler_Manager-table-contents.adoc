@@ -1,0 +1,4 @@
+|<<Claims_Handler_Manager,Security STS LDAP and Roles Claims Handler>>
+|Claims_Handler_Manager
+|STS Ldap and Roles Claims Handler Configuration. WARNING: The server must be restarted for these updates to take affect.
+

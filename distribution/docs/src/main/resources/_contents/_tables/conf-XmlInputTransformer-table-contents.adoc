@@ -1,0 +1,4 @@
+|<<XmlInputTransformer,Streaming Input Transformer Configuration>>
+|XmlInputTransformer
+|Streaming Input Transformer Configuration
+

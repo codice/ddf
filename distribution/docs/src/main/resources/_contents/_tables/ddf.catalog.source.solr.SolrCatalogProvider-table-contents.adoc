@@ -1,0 +1,41 @@
+.[[ddf.catalog.source.solr.SolrCatalogProvider]]Catalog Embedded Solr Catalog Provider
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Data Directory File Path
+|dataDirectoryPath
+|String
+|Specifies the directory to use for data storage. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, Solr Catalog Provider (SCP) will attempt to create those directories. Out of the box (without configuration), this Solr Catalog Provider writes to <DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr. It is recommended to use an absolute filepath to minimize confusion such as /opt/solr_data in Linux or C:/solr_data in Windows.
+| false
+|true
+
+| Force Auto Commit
+| forceAutoCommit
+| Boolean
+| WARNING: Performance Impact.  Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately.
+| false
+| true
+
+| Disable Text Path indexing
+| disableTextPath
+| Boolean
+| Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance.
+| 1000
+| true
+
+| Nearest Neighbor Distance Limit
+| nearestNeighborDistanceLimit
+| Double
+| Limit for "Nearest Neighbor" search in nautical miles.             Please Note: This should be a positive number; if the number is negative, it will be converted to positive and if the input is not a number it will be silently rejected.
+|null
+| true
+
+|===
+

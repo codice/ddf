@@ -1,0 +1,4 @@
+|<<ddf.security.sts.anonymousclaims,Security STS Anonymous Claims Handler>>
+|ddf.security.sts.anonymousclaims
+|Anonymous Claims Handler Configuration
+

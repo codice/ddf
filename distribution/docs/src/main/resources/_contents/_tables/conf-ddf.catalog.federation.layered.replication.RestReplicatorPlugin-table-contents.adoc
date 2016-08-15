@@ -1,0 +1,4 @@
+|<<ddf.catalog.federation.layered.replication.RestReplicatorPlugin,Catalog Federation Replication>>
+|ddf.catalog.federation.layered.replication.RestReplicatorPlugin
+|null
+

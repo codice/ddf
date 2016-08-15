@@ -1,0 +1,4 @@
+|<<org.codice.ddf.security.idp.server.IdpEndpoint,IdP Server>>
+|org.codice.ddf.security.idp.server.IdpEndpoint
+|IdP Server
+

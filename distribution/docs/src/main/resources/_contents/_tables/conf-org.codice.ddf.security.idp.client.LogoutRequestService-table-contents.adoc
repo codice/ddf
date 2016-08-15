@@ -1,0 +1,4 @@
+|<<org.codice.ddf.security.idp.client.LogoutRequestService,Logout Page>>
+|org.codice.ddf.security.idp.client.LogoutRequestService
+|null
+

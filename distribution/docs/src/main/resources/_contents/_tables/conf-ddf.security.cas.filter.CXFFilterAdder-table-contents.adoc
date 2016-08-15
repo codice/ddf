@@ -1,0 +1,4 @@
+|<<ddf.security.cas.filter.CXFFilterAdder,Security CAS CXF Servlet Filter>>
+|ddf.security.cas.filter.CXFFilterAdder
+|null
+

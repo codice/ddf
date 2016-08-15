@@ -1,0 +1,4 @@
+|<<ddf.catalog.security.ingest.IngestPlugin,Ingest Security Plugin>>
+|ddf.catalog.security.ingest.IngestPlugin
+|Ingest Security Plugin
+

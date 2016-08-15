@@ -1,0 +1,4 @@
+|<<org.codice.ddf.security.interceptor.AnonymousInterceptor,Security SOAP Anonymous Interceptor>>
+|org.codice.ddf.security.interceptor.AnonymousInterceptor
+|null
+

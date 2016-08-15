@@ -1,0 +1,4 @@
+|<<org.codice.ddf.ui.search.standard.properties,Standard Search UI>>
+|org.codice.ddf.ui.search.standard.properties
+|null
+

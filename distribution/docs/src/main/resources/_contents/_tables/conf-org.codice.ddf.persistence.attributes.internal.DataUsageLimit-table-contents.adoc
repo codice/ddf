@@ -1,0 +1,4 @@
+|<<org.codice.ddf.persistence.attributes.internal.DataUsageLimit,User Default Data Usage Limit>>
+|org.codice.ddf.persistence.attributes.internal.DataUsageLimit
+|User Default Data Usage Limit
+

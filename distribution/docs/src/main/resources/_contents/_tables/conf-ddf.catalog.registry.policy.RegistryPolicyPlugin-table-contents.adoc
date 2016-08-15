@@ -1,0 +1,4 @@
+|<<ddf.catalog.registry.policy.RegistryPolicyPlugin,Registry Policy Plugin>>
+|ddf.catalog.registry.policy.RegistryPolicyPlugin
+|Registry Policy Plugin
+

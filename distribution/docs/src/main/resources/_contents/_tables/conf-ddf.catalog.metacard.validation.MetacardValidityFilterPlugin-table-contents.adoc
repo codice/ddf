@@ -1,0 +1,4 @@
+|<<ddf.catalog.metacard.validation.MetacardValidityFilterPlugin,Metacard Validation Filter Plugin>>
+|ddf.catalog.metacard.validation.MetacardValidityFilterPlugin
+|null
+

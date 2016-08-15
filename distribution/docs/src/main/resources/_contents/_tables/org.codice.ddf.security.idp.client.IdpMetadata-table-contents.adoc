@@ -1,0 +1,40 @@
+.[[org.codice.ddf.security.idp.client.LogoutRequestService]]Logout Page
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Log Out Page Time Out
+|logOutPageTimeOut
+|Long
+|This is the time limit that the IDP client will wait for a user to click log out on the log out page. Any requests that take longer than this time for the user to submit will be rejected.
+|3600000
+|true
+
+|===
+
+.[[org.codice.ddf.security.idp.client.IdpMetadata]]IdP Client
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|IdP Metadata
+|metadata
+|String
+|Refer to metadata by HTTPS URL (https://), file URL (file:), or an XML block(<md:EntityDescriptor>...</md:EntityDescriptor>).
+|null
+|true
+
+|===
+

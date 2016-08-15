@@ -1,0 +1,4 @@
+|<<ddf.security.sts.anonymousvalidator,Security STS Anonymous Validator>>
+|ddf.security.sts.anonymousvalidator
+|Anonymous Validator Configuration
+

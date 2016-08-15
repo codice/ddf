@@ -1,0 +1,333 @@
+.[[Csw_Federated_Source]]CSW Specification Profile Federated Source
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|id
+|String
+|The unique name of the Source
+|null
+|true
+
+| CSW URL
+| cswUrl
+| String
+| URL to the endpoint implementing the Catalogue Service for Web (CSW) spec
+| ${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw
+| true
+
+| Event Service Address
+| eventServiceAddress
+| String
+| DDF Event Service endpoint.
+| ${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw/subscription
+| false
+
+| Register for Events
+| registerForEvents
+| Boolean
+| Check to register for events from this source.
+| false
+| false
+
+| Username
+| username
+| String
+| Username for CSW Service (optional)
+| null
+| false
+
+| Password
+| password
+| Password
+| Password for CSW Service (optional)
+| null
+| false
+
+| Disable CN Check
+| disableCnCheck
+| Boolean
+| Disable CN check for the server certificate. This should only be used when testing.
+| false
+| true
+
+| Coordinate Order
+| coordinateOrder
+| String
+| Coordinate order that remote source expects and returns spatial data in
+| LON_LAT
+| true
+
+| Use posList in LinearRing
+| usePosList
+| Boolean
+| Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing
+| false
+| false
+
+| Metacard Mappings
+| metacardMappings
+| String
+| Mapping of the Metacard Attribute names to their CSW property names. The format should be 'title=dc:title'.
+| effective=created
+| false
+
+| Poll Interval
+| pollInterval
+| Integer
+| Poll Interval to Check if the Source is available (in minutes - minimum 1).
+|created=dateSubmitted
+| true
+
+| Connection Timeout
+| connectionTimeout
+| Integer
+| Amount of time to attempt to establish a connection before timing out, in milliseconds.
+|modified=modified
+| true
+
+| Receive Timeout
+| receiveTimeout
+| Integer
+| Amount of time to wait for a response before timing out, in milliseconds.
+|thumbnail=references
+| true
+
+| Output Schema
+| outputSchema
+| String
+| Output Schema
+|content-type=type
+| true
+
+| Query Type Name
+| queryTypeName
+| String
+| Qualified Name for the Query Type used in the CSW GetRecords request
+|id=identifier
+| true
+
+| Query Type Namespace
+| queryTypeNamespace
+| String
+| Namespace for the Query Type used in the CSW GetRecords request
+|resource-uri=source
+| true
+
+| Force CQL Text as the Query Language
+| isCqlForced
+| Boolean
+| Force CQL Text
+| 5
+| true
+
+| Forced Spatial Filter Type
+| forceSpatialFilter
+| String
+| Force only the selected Spatial Filter Type as the only available Spatial Filter.
+| 30000
+| false
+
+| Security Attributes
+| securityAttributeStrings
+| String
+| Security attributes for this source
+| 60000
+| true
+
+|===
+
+.[[Csw_Federation_Profile_Source]]CSW Federation Profile Source
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|id
+|String
+|The unique name of the Source
+|CSW
+|true
+
+| CSW URL
+| cswUrl
+| String
+| URL to the endpoint implementing the Catalogue Service for Web (CSW) spec
+| ${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw
+| true
+
+| CSW Event Service Address
+| eventServiceAddress
+| String
+| CSW Event Service endpoint.
+| ${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw/subscription
+| false
+
+| Register for Events
+| registerForEvents
+| Boolean
+| Check to register for events from this connected source.
+| false
+| false
+
+| Username
+| username
+| String
+| Username for CSW Service (optional)
+| null
+| false
+
+| Password
+| password
+| String
+| Password for CSW Service (optional)
+| null
+| false
+
+|===
+
+.[[Gmd_Csw_Federated_Source]]GMD CSW ISO Federated Source
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|id
+|String
+|The unique name of the Source
+|null
+|true
+
+| CSW URL
+| cswUrl
+| String
+| URL to the endpoint implementing the Catalogue Service for Web (CSW) spec
+| null
+| true
+
+| Username
+| username
+| String
+| Username for CSW Service (optional)
+| null
+| false
+
+| Password
+| password
+| Password
+| Password for CSW Service (optional)
+| null
+| false
+
+| Disable CN Check
+| disableCnCheck
+| Boolean
+| Disable CN check for the server certificate. This should only be used when testing.
+| false
+| true
+
+| Coordinate Order
+| coordinateOrder
+| String
+| Coordinate order that remote source expects and returns spatial data in
+| LON_LAT
+| true
+
+| Use posList in LinearRing
+| usePosList
+| Boolean
+| Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing
+| false
+| false
+
+| Metacard Mappings
+| metacardMappings
+| String
+| Mapping of the Metacard Attribute names to their CSW property names. The format should be 'title=dc:title'.
+| id=apiso:Identifier
+| false
+
+| Poll Interval
+| pollInterval
+| Integer
+| Poll Interval to Check if the Source is available (in minutes - minimum 1).
+|effective=apiso:PublicationDate
+| true
+
+| Connection Timeout
+| connectionTimeout
+| Integer
+| Amount of time to attempt to establish a connection before timing out, in milliseconds.
+|created=apiso:CreationDate
+| true
+
+| Receive Timeout
+| receiveTimeout
+| Integer
+| Amount of time to wait for a response before timing out, in milliseconds.
+|modified=apiso:RevisionDate
+| true
+
+| Output Schema
+| outputSchema
+| String
+| Output Schema
+|title=apiso:AlternateTitle
+| true
+
+| Query Type Name
+| queryTypeName
+| String
+| Qualified Name for the Query Type used in the CSW GetRecords request
+|AnyText=apiso:AnyText
+| true
+
+| Query Type Namespace
+| queryTypeNamespace
+| String
+| Namespace for the Query Type used in the CSW GetRecords request
+|ows:BoundingBox=apiso:BoundingBox
+| true
+
+| Force CQL Text as the Query Language
+| isCqlForced
+| Boolean
+| Force CQL Text
+| 5
+| true
+
+| Forced Spatial Filter Type
+| forceSpatialFilter
+| String
+| Force only the selected Spatial Filter Type as the only available Spatial Filter.
+| 30000
+| false
+
+| Security Attributes
+| securityAttributeStrings
+| String
+| Security attributes for this source
+| 60000
+| true
+
+|===
+

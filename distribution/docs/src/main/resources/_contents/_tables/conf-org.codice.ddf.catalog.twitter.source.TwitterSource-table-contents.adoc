@@ -1,0 +1,4 @@
+|<<org.codice.ddf.catalog.twitter.source.TwitterSource,Twitter Federated Source>>
+|org.codice.ddf.catalog.twitter.source.TwitterSource
+|Twitter Federated Source
+

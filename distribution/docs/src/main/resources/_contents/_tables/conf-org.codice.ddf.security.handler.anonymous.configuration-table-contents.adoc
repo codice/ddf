@@ -1,0 +1,4 @@
+|<<org.codice.ddf.security.handler.anonymous.configuration,Login Page>>
+|org.codice.ddf.security.handler.anonymous.configuration
+|null
+

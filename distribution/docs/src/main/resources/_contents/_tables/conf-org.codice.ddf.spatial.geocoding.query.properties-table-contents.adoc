@@ -1,0 +1,4 @@
+|<<org.codice.ddf.spatial.geocoding.query.properties,GeoNames Querier>>
+|org.codice.ddf.spatial.geocoding.query.properties
+|null
+

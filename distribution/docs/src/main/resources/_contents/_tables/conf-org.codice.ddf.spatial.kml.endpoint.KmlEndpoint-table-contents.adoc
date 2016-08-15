@@ -1,0 +1,4 @@
+|<<org.codice.ddf.spatial.kml.endpoint.KmlEndpoint,Spatial KML Endpoint>>
+|org.codice.ddf.spatial.kml.endpoint.KmlEndpoint
+|null
+

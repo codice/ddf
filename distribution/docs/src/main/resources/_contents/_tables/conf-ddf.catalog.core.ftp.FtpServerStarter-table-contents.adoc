@@ -1,0 +1,4 @@
+|<<ddf.catalog.core.ftp.FtpServerStarter,FTP Endpoint>>
+|ddf.catalog.core.ftp.FtpServerStarter
+|FTP Endpoint Configuration
+

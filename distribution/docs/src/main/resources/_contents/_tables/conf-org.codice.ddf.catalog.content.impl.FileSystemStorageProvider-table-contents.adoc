@@ -1,0 +1,4 @@
+|<<org.codice.ddf.catalog.content.impl.FileSystemStorageProvider,Content File System Storage Provider>>
+|org.codice.ddf.catalog.content.impl.FileSystemStorageProvider
+|null
+

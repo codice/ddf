@@ -1,0 +1,4 @@
+|<<ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings>>
+|ddf.catalog.resource.download.ReliableResourceDownloadManager
+|Resource Download Configuration
+

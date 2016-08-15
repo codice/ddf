@@ -1,0 +1,4 @@
+|<<ddf.security.sts.attributequery,Security STS AttributeQuery Claims Handler>>
+|ddf.security.sts.attributequery
+|SAML Protocol AttributeQuery Claims Handler Configuration
+

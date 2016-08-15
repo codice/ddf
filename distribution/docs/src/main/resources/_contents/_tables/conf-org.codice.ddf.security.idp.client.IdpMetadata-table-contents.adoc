@@ -1,0 +1,8 @@
+|<<org.codice.ddf.security.idp.client.LogoutRequestService,Logout Page>>
+|org.codice.ddf.security.idp.client.LogoutRequestService
+|null
+
+|<<org.codice.ddf.security.idp.client.IdpMetadata,IdP Client>>
+|org.codice.ddf.security.idp.client.IdpMetadata
+|null
+
