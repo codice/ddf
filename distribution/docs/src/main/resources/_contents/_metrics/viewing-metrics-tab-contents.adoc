@@ -1,0 +1,14 @@
+
+==== Viewing Metrics in the ${admin-console}
+
+The Metrics tab in the ${admin-console} (under ${ddf-platform}) has reports in various formats.
+
+. Click on the PNG link for the Catalog Queries row under the column labeled 1d, which stands for one day. A graph of the catalog queries executed in the last 24 hours will be displayed.
+. Click the back button of the browser to return to the Metrics tab.
+. At the bottom of the page, adjust the settings to the time and level of detail desired for reporting.
+. Click the download link for the Catalog Queries row under the column labeled 1d to generate a report displaying all data points collected by the Metrics Framework.
+
+[NOTE]
+====
+Based on the browser's configuration, either the `.xls` file will be downloaded or automatically displayed in Excel.
+====

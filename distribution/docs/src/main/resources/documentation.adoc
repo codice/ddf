@@ -569,7 +569,6 @@ include::${project.build.directory}/doc-contents/_contents/_resources/retrieving
 
 include::${project.build.directory}/doc-contents/_contents/_resources/storing-resources-contents.adoc[]
 
-
 include::${project.build.directory}/doc-contents/_contents/_resources/resource-components-intro-contents.adoc[]
 //resource readers
 include::${project.build.directory}/doc-contents/_contents/_resources/resource-readers-intro-contents.adoc[]
@@ -691,6 +690,8 @@ include::${project.build.directory}/doc-contents/_contents/_metrics/metrics-repo
 include::${project.build.directory}/doc-contents/_contents/_metrics/catalog-metrics-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_metrics/source-metrics-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_metrics/viewing-metrics-tab-contents.adoc[]
 
 == Action Framework
 
