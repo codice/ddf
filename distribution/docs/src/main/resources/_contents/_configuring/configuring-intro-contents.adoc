@@ -1,6 +1,12 @@
 
 == Configuring ${branding}
 
+.Configuration Requirements
+[NOTE]
+====
+Because components can easily be installed and uninstalled, it's important to remember that for proper ${branding} functionality, at least the Catalog API, one Endpoint, and one Catalog Framework implementation must be active.
+====
+
 ${branding} can be configured in several ways, depending on need:
 
 [NOTE]

@@ -1,5 +1,5 @@
 
-==== Translating Metadata from One Format to Another
+===== Translating Metadata from One Format to Another
 
 Metadata can be converted from one data format to another format. 
 Only the data format changes, but the content of the metadata does not, as long as `option -p` is used with the ingest command.

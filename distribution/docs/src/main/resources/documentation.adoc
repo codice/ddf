@@ -3,17 +3,10 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 
 = Introduction
 
+== About ${branding}
 include::${project.build.directory}/doc-contents/_contents/_introduction/introduction-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_introduction/applications-contents.adoc[]
-
-== ${branding} Core Concepts
-
-include::${project.build.directory}/doc-contents/_contents/_introduction/metadata-intro-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_introduction/osgi-intro-contents.adoc[]
-
-<<<
 
 == Documentation Guide
 
@@ -21,27 +14,81 @@ include::${project.build.directory}/doc-contents/_contents/_introduction/documen
 
 <<<
 
-== ${branding} Quick Start
+= ${branding} Core Concepts
 
-include::${project.build.directory}/doc-contents/_contents/_introduction/quickstart-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_core-concepts/metadata-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_core-concepts/osgi-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_core-concepts/federation-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_core-concepts/ogc-filter-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_core-concepts/contextual-search-intro-content.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_core-concepts/events-subscriptions-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_core-concepts/specifications-supported-contents.adoc[]
 
 <<<
 
 = Managing ${branding}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_introduction/quickstart-contents.adoc[]
+
 //installing
 include::${project.build.directory}/doc-contents/_contents/_installing/installing-intro-contents.adoc[]
 //configuring
+
+== Configuring ${branding}
+
 include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-intro-contents.adoc[]
+
+=== Configuring ${branding} From the ${admin-console}
+
+include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-from-the-admin-console-contents.adoc[]
+
+=== Configuring ${branding} From the ${command-console}
+
+include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-from-the-command-console-contents.adoc[]
+
+=== Configuring ${branding} From Configuration
+
+include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-from-configuration-files-contents.adoc[]
+
+=== Importing Configurations
+
+include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-from-import-contents.adoc[]
+
+=== Other Configurations
+include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-web-service-providers-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-ldap-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-product-cache-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_configuring/configuring-catalog-provider-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_configuring/managing-features-contents.adoc[]
+
 //securing
+== Securing ${branding}
+
 include::${project.build.directory}/doc-contents/_contents/_securing/securing-contents.adoc[]
 //running
 include::${project.build.directory}/doc-contents/_contents/_running/running-intro-contents.adoc[]
 
+=== Handling Data
+
 include::${project.build.directory}/doc-contents/_contents/_running/ingesting-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_running/data-migration-intro-contents.adoc[]
+
 include::${project.build.directory}/doc-contents/_contents/_running/exporting-metadata-contents.adoc[]
+
 include::${project.build.directory}/doc-contents/_contents/_running/ingesting-exported-metadata-contents.adoc[]
+
 include::${project.build.directory}/doc-contents/_contents/_running/translating-exported-metadata-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_running/monitoring-contents.adoc[]
@@ -50,7 +97,7 @@ include::${project.build.directory}/doc-contents/_contents/_running/troubleshoot
 
 <<<
 
-== Using ${branding}
+== Using ${branding} Search UI
 [small]#Version: ${project.version}#
 
 include::${project.build.directory}/doc-contents/ui-help/standard-${project.version}/help-contents.adoc[]
@@ -509,6 +556,10 @@ include::${project.build.directory}/doc-contents/_contents/_operations/operation
 == Eventing
 
 include::${project.build.directory}/doc-contents/_contents/_eventing/eventing-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_eventing/subscriptions-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_eventing/developing-custom-subscription-implementations-contents.adoc[]
 
 == Resources
 

@@ -1,5 +1,5 @@
 
-==== Ingesting Exported Metadata into a Catalog Provider
+===== Ingesting Exported Metadata into a Catalog Provider
 
 . Configure a different catalog provider.
 

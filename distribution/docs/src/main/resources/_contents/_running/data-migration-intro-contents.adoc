@@ -1,4 +1,4 @@
-=== ${branding} Data Migration
+==== ${branding} Data Migration
 
 Data migration is the process of moving metadata from one catalog provider to another.
 It is also the process of translating metadata from one format to another. 
