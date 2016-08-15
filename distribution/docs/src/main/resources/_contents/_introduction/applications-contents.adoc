@@ -1,4 +1,4 @@
-== Applications
+=== Applications
 
 ${branding} is comprised of several modular applications, to be installed or uninstalled as needed.
 

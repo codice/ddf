@@ -7,7 +7,9 @@ These steps will demonstrate:
 - [*] Installation
 - [*] Ingesting into the ${ddf-branding} Catalog
 
-=== ${branding} Prerequisites
+== QuickStart Tutorial
+
+=== ${branding} Quick Install Prerequisites
 
 * Install/Upgrade to Java 8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
 ** The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] or later.
@@ -68,7 +70,7 @@ For the change to take effect, a restart is required.
 init 6
 ----
 
-=== Installing ${branding}
+=== Quick Install of ${branding}
 
 . Install ${branding} by unzipping the zip file.
 . This will create an installation directory, which is typically created with the name and version of the application.
@@ -81,7 +83,8 @@ This installation directory will be referred to as `<DISTRIBUTION_INSTALL_DIR>`.
 ----
 ${branding-lowercase}${at-symbol}local>
 ----
-=== Configuring
+
+=== Configuring Quick Install
 
 .. Go to ${secure_url}/admin.
 .. Enter the default username of `admin` and the password of `admin`.
@@ -93,14 +96,14 @@ ${branding-lowercase}${at-symbol}local>
 ... Click *Next*
 ... Click *Finish*
 
-=== Catalog Capabilities
+==== Catalog Capabilities
 
 . Download a sample valid https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[GeoJson file here].
 . Navigate in the browser to the Search UI at ${secure_url}/search.
 . Click the *upload* icon in the upper right corner.
 . Select the file to upload.
 
-=== Using the Catalog Content Directory Monitor
+==== Using the Catalog Content Directory Monitor
 
 Using the Catalog framework's directory monitor, ingest a file so that it is stored in the content repository with a metacard created and inserted into the Catalog.
 

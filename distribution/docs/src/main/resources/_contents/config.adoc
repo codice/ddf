@@ -6,6 +6,7 @@ Version ${version}. Copyright (c) Codice Foundation
 :source-highlighter: coderay
 :sectlinks:
 :sectanchors:
+:icons: font
 :data-uri:
 :sectnums:
 :branding: DDF
