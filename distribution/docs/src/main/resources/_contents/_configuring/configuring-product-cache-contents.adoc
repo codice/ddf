@@ -1,0 +1,73 @@
+
+==== Configuring the Product Cache
+
+All caching properties are part of the Catalog Framework Configuration.
+
+.Product Cache Configurable Properties
+[cols="1m,1,1,1,1" options="header"]
+|===
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|productCacheDirectory
+|String
+|Directory where retrieved products will be cached for faster, future retrieval. If a directory path is specified with directories that do not exist, Catalog Framework will attempt to create those directories. Without configuration, the product cache directory is `<INSTALL_DIR>/data/productcache`. If a relative
+path is provided it will be relative to the `<INSTALL_DIR>`.
+
+It is recommended to enter an absolute directory path such as `/opt/productcache` in Linux or `C:\product-cache` in Windows.
+|(empty)
+|No
+
+|cacheEnabled
+|Boolean
+|Check to enable caching of retrieved products to provide faster retrieval for subsequent requests for the same product.
+|true
+|no
+
+|delayBetweenRetryAttempts
+|Integer
+|The time to wait (in seconds) between each attempt to retry retrieving a product from the Source.
+|10
+|no
+
+|maxRetryAttempts
+|Integer
+|The maximum number of attempts to try and retrieve a product from the Source.
+|3
+|no
+
+|cachingMonitorPeriod
+|Integer
+|The number of seconds allowed for no data to be read from the product data before determining that the network connection to the Source where the product is located is considered to be down.
+|5
+|no
+
+|cacheWhenCanceled
+|Boolean
+|Check to enable caching of retrieved products even if client cancels the download.
+|false
+|no
+
+|cacheDirMaxSizeMegabytes
+|Long
+|Configure maximum directory size for product caching. Oldest product cached will be evicted when a new product pushes the size over the specified limit. Don't set this value to the available disk space because the cache will allow a new product to get cached and then check to see if the cache exceeds the maximum allowable size. A value of 0 disables the max limit.
+|===
+
+===== Invalidating the Product Cache
+
+. The product cache directory can be administratively invalidated by turning off the product caching using the cacheEnabled property.
+. Alternatively, an administrator may manually invalidate products by removing them from the file system. Products are cached at the directory specified in the `productCacheDirectory` property. The following example assumes the
+`productCacheDirectory` has the default value of `<INSTALL-DIR>/data/product-cache`
+
+Format:
+
+`<INSTALL-DIR>/data/product-cache/<source-id>-<metacard-id>`
+
+Example:
+
+`<INSTALL-DIR>/data/product-cache/abc123`
+
+. Set Max Caching Directory Size. The `cacheDirMaxSizeMegabytes` property can be used as a way to evict the oldest products from the cache. By setting this to a low limit, the oldest products in the cache will be removed as new products are placed in the cache to ensure the cache does not go over the max limit.

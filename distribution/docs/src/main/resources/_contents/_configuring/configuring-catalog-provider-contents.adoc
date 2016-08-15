@@ -1,0 +1,30 @@
+
+==== Reconfiguring ${ddf-branding} with a Different Catalog Provider
+
+This scenario describes how to reconfigure ${ddf-branding} to use a different catalog provider.
+
+This scenario assumes ${ddf-branding} is already running.
+
+.Use of the Dummy Catalog Provider
+[WARNING]
+====
+This scenario uses the Dummy Catalog Provider as the catalog provider ${ddf-branding} is being reconfigured to use.
+This is because the Dummy Catalog Provider is the only other catalog provider shipped with ${ddf-branding} out of the box.
+The Dummy Catalog Provider should never be used in a production environment.
+It is only used for testing purposes.
+====
+
+===== Steps
+
+. Uninstall Catalog Provider (if installed).
+. Install the new Catalog Provider, which will be the Dummy Provider, by installing its feature `${ddf-branding}-provider-dummy`, following the instructions in the Installing Features section.
+. Verify ${ddf-branding} is running with the Dummy Provider as its Catalog Provider by going to the Services tab in the ${admin-console}.
+In the far right column labeled *Bundle*, there should be an entry labeled `ddf.providers.provider-dummy`, as shown below.
+
+.New catalog provider Dummy Provider installed
+[source%nowrap.java]
+----
+Id      Type(s)                                              Bundle
+325     [ddf.catalog.source.CatalogProvider]                 ddf.providers.provider-dummy (175)
+          osgi.service.blueprint.compname DummyProvider
+----

@@ -1,0 +1,13 @@
+
+=== Managing Features
+
+${branding} includes many components, packaged as _features_, that can be installed and/or uninstalled without restarting the system.
+Features are collections of OSGi bundles, configuration data, and/or other features.
+
+.Transitive Dependencies
+[NOTE]
+====
+Features may have dependencies on other features and will auto-install them as needed.
+====
+
+In the ${admin-console}, Features are found on the *Features* tab of each application.
