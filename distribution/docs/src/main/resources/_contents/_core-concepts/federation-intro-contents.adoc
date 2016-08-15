@@ -1,0 +1,8 @@
+
+== Federation
+
+Federation is the ability of the ${branding} to query other data sources, including other ${branding}s.
+Out of the box, the ${branding} is able to federate using OpenSearch, ${branding} 2.0 SOAP , ${branding} 1.3 SOAP , and ${branding} JSON protocols.
+The minimum configuration necessary to configure those federations is to supply a query address.
+From the ${admin-console}, select the corresponding federation desired to be configured from the Catalog: *OpenSearch Federated Source*, *Catalog ${branding} SOAP v1.3 Federated Source*, *Catalog ${branding} SOAP v2.0 Federated Source*, or *Catalog ${branding} JSON Federated Source* options.
+After a source has been configured in the ${branding}, it will be able to be queried in the same manner as before except with the addition of a source name parameter.

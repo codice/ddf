@@ -1,0 +1,162 @@
+
+== Events and Subscriptions
+
+${branding} can be configured to subscribe to events and therefore receive metadata as soon as it is created or updated anywhere in its federated sources.
+
+=== Federated Eventing
+
+The Catalog can also receive events from Federated and Connected sources that it has configured.
+This is referred to as "federated events."
+Another point of interest is that in a Fanout Catalog configuration all subscriptions are treated as federated subscriptions.
+
+When a Federated (or Connected) Source is configured, it can optionally be configured to register for events.
+If the Federated Source is configured to register for events, any enterprise or site-based subscription created in the Catalog will receive matching events from that Federated Source.
+All subscriptions registered using SOAP endpoints result in enterprise-wide subscriptions being created, hence all events from all remote sources federated to ${branding} will be delivered to the consumer (assuming they meet the subscription's criteria).
+Subscriptions registered with the JSON endpoint can be local, site-specific, or enterprise-wide subscriptions.
+
+To clarify further, events occurring on federated sources are only sent to consumers from ${branding} in two cases:
+
+. The subscription is a federated subscription (enterprise or site-specific) and the source is registered for events.
+. ${branding} is configured to use a Fanout Catalog and the source is registered for events.
+
+This works as follows.
+
+When the remote source is registered for events, ${branding} registers a filterless Subscription to the remote source with a subscription ID of `JmsBridge_<remote_source_ID>.filterless` (e.g., `JmsBridge_fs1.filterless`).
+${branding} also configures an internal Event Consumer to receive the events from the remote source.
+The URL for this internal Event Consumer is included as the callback URL in the filterless subscription to the remote source.
+Whenever a create, update, or delete event occurs on the remote source, it will send a notification back to ${branding}.
+The ${branding} Eventing Engine will then process that notification according to the existing subscriptions and their criteria.
+
+This Event Consumer URL is generated based on:
+
+* The hostname of the machine ${branding} is running on
+* The port number of the server ${branding} is running on (e.g., `8993`)
+* The context root for all services (e.g., `/services`)
+* The remaining path to the Event Consumer web service
+
+When ${branding} is configuring the remote source it examines the Event Service address entered to determine what version of the remote source's Event Service the filterless subscription will be registered with.
+This is used to determine the remaining path of the EventConsumer WSDL URL.
+
+==== Eventing Sample Diagram
+
+The diagram below shows a configuration of multiple ${branding}s with multiple federated sources and how federated events would pass through the system.
+
+image::federated-events.png[]
+
+The names for each ${branding} instance, Federated Source and Catalog Provider are provided in parenthesis in the diagram, e.g., `${branding-lower}-2.fs-1`.
+This is the name that will appear in the site name field of the event that arrives at the client's event consumer, except in the case of the Federated Sources configured for the fanout proxy `${branding-lower}-fanout`.
+Note in the diagram, that all events from all federated sources in the `${branding-lower}-fanout` configuration are published to the event consumer since in fanout configuration the source name of all events is overridden to be the local source name.
+Hence, events from `${branding-lower}-fanout.fs-1` and `${branding-lower}-fanout.fs-2` have the source name in their events overridden to be ${branding-lower}-fanout.
+The table below, referencing the site names in the diagram above, lists the various combinations of subscriptions registered by the client, events, and whether the event would be delivered to the client.
+In all cases it is assumed the ingested event's catalog entry would match the subscription's criteria.
+The focus of the table is to illustrate which events would be delivered and which would not based on the scope of the subscription (enterprise, site-specific, local), and the type of catalog framework configured (standard or fanout).
+
+[cols="2,2,2,2,5" options="headers"]
+|===
+
+|Subscription Scope
+|Ingest Site
+|Catalog Framework
+|Site name in event
+
+received by client
+|Comments
+
+|Local
+a|`${branding-lower}-1`
+|Standard
+a|`${branding-lower}-1`
+|All local events are delivered to client for a local subscription.
+
+|Local
+a|`${branding-lower}-1.fs-1`
+|Standard
+|N/A
+|No remote source events are delivered to the client for a local subscription.
+
+|Local
+a|`${branding-lower}-2.fs-1`
+|Standard
+|N/A
+|No remote source events are delivered to the client for a local subscription.
+
+|Local
+a|`${branding-lower}-fanout.fs-1`
+|Fanout
+a|`${branding-lower}-fanout`
+|All remote source events are delivered to the client when the remote source is behind a fanout.
+
+|Enterprise
+a|`${branding-lower}-1`
+|Standard
+a|`${branding-lower}-1`
+|All local events are delivered to client for an enterprise-wide subscription.
+
+|Enterprise
+a|`${branding-lower}-1.fs-1`
+|Standard
+a|`${branding-lower}-1.fs-1`
+|All remote source events that are not a ${branding}-to-${branding} event are delivered
+to the client for an enterprise-wide subscription.
+
+|Enterprise
+a|`${branding-lower}-2.fs-1`
+|Standard
+|N/A
+a|Event from site `${branding-lower}-2.fs-1` is not delivered to client because the event is a ${branding}-to-${branding} event between sites `${branding-lower}-2.fs-1` and `${branding-lower}-2`.
+${branding}-to-${branding} events are not propagated up to the local source (site `${branding-lower}-1 in this case) hence they are not delivered to the client.
+(This configuration is referred to as layered federation where the federation has multiple layers behind the local source).
+
+|Enterprise
+a|`${branding-lower}-fanout.fs-1`
+|Fanout
+a|`${branding-lower}-fanout`
+a|All remote source events are delivered to the client when the remote source is behind a fanout.
+
+Note that if another remote source was federated to `${branding-lower}-fanout.fs-1` and a catalog entry was ingested into this new federated source, events from it would only be propagated through to the client if `${branding-lower}-fanout.fs-1` was configured in fanout mode.
+Otherwise, the event would be a ${branding}-to-${branding} event and
+would not be propagated.
+
+|Site-specific
+
+(`sitename=${branding-lower}-1.fs-1`)
+
+a|`${branding-lower}-1`
+|Standard
+|N/A
+|Only events from the specified site are delivered to client for a site-specific subscription.
+
+a|Site-specific
+
+(`sitename=${branding-lower}-1.fs-1`)
+a|`${branding-lower}-1.fs-1`
+|Standard
+a|`${branding-lower}-1.fs-1`
+|Events from the specified site are delivered to client for a site-specific subscription.
+
+a|Site-specific
+
+(`sitename=${branding-lower}-1.fs-1`)
+|${branding-lower}-2.fs-1
+|Standard	N/A
+|Only events from the specified site are delivered to client for a site-specific subscription.
+
+a|Site-specific
+
+(`sitename=${branding-lower}-1.fs-1`)
+a|`${branding-lower}-fanout.fs-1`
+|Fanout
+|N/A
+|Only events from the specified site are delivered to client for a site-specific subscription.
+
+Note that this subscription should not be allowed to be registered since the client should not know the names of the sites behind the fanout.
+
+|===
+
+The diagram also illustrates the Pre-Subscription and Pre-Delivery Catalog Plugins.
+These are optional plugins that can be written and deployed to ${branding} to allow pre-processing on subscriptions before they are registered by ${branding}, and on events before they are delivered to the client's callback event consumer web service.
+Note that when ${branding}s are federated to each other, these plugins are still applied.
+So if `${branding-lower}-2` had a Pre-Delivery Plugin, it would be applied to a federated event before sending it on to `${branding-lower}-1`.
+Then `${branding-lower}-1` would apply its pre-delivery plugin to the event before sending it on to the client's event consumer.
+
+${branding} can be configured to subscribe to events and therefore receive metadata as soon as it is created or updated anywhere in its federated sources.
