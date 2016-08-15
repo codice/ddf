@@ -43,19 +43,15 @@ public class XstreamTreeWriter {
 
         for (Path path : pathValues.getPaths()) {
             String value = pathValues.getFirstValue(path);
-            Path searchPath = path;
 
             if (value != null) {
 
-                if (currentPath.isAncestor(searchPath) && searchPath.toString()
+                if (currentPath.isAncestor(path) && path.toString()
                         .endsWith(node)) {
 
-                    if (isAttributePath(searchPath) & isAttributeNode(node)) {
+                    if (isAttributePath(path) & isAttributeNode(node)) {
 
-                        writer.addAttribute(getAttributeNameFromPath(searchPath), value);
-                    } else if (!isAttributeNode(node) && !isAttributePath(searchPath)) {
-
-                        writer.setValue(value);
+                        writer.addAttribute(getAttributeNameFromPath(path), value);
                     }
                 }
             }
@@ -69,6 +65,25 @@ public class XstreamTreeWriter {
 
     void endVisit(final String node) {
         if (!isAttributeNode(node)) {
+
+            Path currentPath = tracker.getPath();
+
+            for (Path path : pathValues.getPaths()) {
+                String value = pathValues.getFirstValue(path);
+
+                if (value != null) {
+
+                    if (currentPath.isAncestor(path) && path.toString()
+                            .endsWith(node)) {
+
+                        if (!isAttributeNode(node) && !isAttributePath(path)) {
+
+                            writer.setValue(value);
+                        }
+                    }
+                }
+            }
+
             writer.endNode();
         }
     }
