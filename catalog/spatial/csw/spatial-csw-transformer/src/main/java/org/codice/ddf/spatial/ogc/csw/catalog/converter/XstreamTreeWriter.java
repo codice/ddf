@@ -14,6 +14,8 @@
 
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.thoughtworks.xstream.io.path.Path;
@@ -21,6 +23,9 @@ import com.thoughtworks.xstream.io.path.PathTracker;
 import com.thoughtworks.xstream.io.path.PathTrackingWriter;
 
 public class XstreamTreeWriter {
+
+    private static final Pattern NORMALIZE_NODE = Pattern.compile("\\[[0-9]+\\]");
+
     private PathTrackingWriter writer = null;
 
     private PathTracker tracker = null;
@@ -60,7 +65,8 @@ public class XstreamTreeWriter {
     }
 
     private String normalizeNode(String node) {
-        return node.replaceAll("\\[[0-9]+\\]", "");
+        return NORMALIZE_NODE.matcher(node)
+                .replaceAll("");
     }
 
     void endVisit(final String node) {
