@@ -20,8 +20,7 @@ import java.io.Serializable;
  * <p>
  * {@link Attribute} values are bound to and the format expected to be used by those values
  *
- * @param <T>
- *            - The class used by values of this {@link AttributeType}
+ * @param <T> - The class used by values of this {@link AttributeType}
  */
 public interface AttributeType<T extends Serializable> extends Serializable {
 
@@ -45,7 +44,6 @@ public interface AttributeType<T extends Serializable> extends Serializable {
      * switch on <code>instanceof</code>, an {@link java.util.Enumeration} is used instead.
      *
      * @author michael.menousek@lmco.com
-     *
      */
     public enum AttributeFormat {
 
@@ -122,7 +120,7 @@ public interface AttributeType<T extends Serializable> extends Serializable {
          * {@link AttributeDescriptor#isIndexed() indexing},
          * {@link AttributeDescriptor#isTokenized() tokenizing}) will not be performed even if
          * indicated by the {@link AttributeDescriptor}. <br>
-         *
+         * <p>
          * <p>
          * <b>NOTE:</b> In order for classes to be deserialized by a {@link ddf.catalog.source.Source}, that class must
          * exist on the classpath of that {@link ddf.catalog.source.Source}. This may require additional parameters to

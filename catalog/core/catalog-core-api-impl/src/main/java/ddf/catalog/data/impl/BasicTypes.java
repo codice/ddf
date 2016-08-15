@@ -337,6 +337,18 @@ public class BasicTypes {
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Validation.FAILED_VALIDATORS_WARNINGS,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Validation.FAILED_VALIDATORS_ERRORS,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                STRING_TYPE));
         DESCRIPTORS = Collections.unmodifiableSet(descriptors);
 
         BASIC_METACARD = new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
