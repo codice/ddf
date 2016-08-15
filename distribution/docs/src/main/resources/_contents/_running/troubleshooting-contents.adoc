@@ -64,7 +64,7 @@ ${branding} will not start when calling the start script defined during installa
 
 This can be caused when another ${branding} is not properly shut down.
 
-a|Perform one or all of the following recommended solutions, as necessary.
+|Perform one or all of the following recommended solutions, as necessary.
 
 * Wait for proper shutdown of ${branding} prior to starting a new instance.
 * Verify running java.exe are not ${branding} (e.g., kill/close if necessary).

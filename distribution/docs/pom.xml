@@ -90,7 +90,7 @@
                     <dependency>
                         <groupId>org.asciidoctor</groupId>
                         <artifactId>asciidoctorj</artifactId>
-                        <version>1.5.2</version>
+                        <version>1.5.4</version>
                     </dependency>
                 </dependencies>
                 <build>

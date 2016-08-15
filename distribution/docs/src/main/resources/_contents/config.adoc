@@ -22,3 +22,6 @@ Copyright (c) Codice Foundation. +
 This work is licensed under a http://creativecommons.org/licenses/by/4.0[Creative Commons Attribution 4.0 International License].
 <<<
 endif::[]
+
+// workaround to remove "table of contents" blocks from table cells
+:toc!:
