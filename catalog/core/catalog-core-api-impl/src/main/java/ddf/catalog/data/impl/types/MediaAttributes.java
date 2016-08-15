@@ -52,7 +52,7 @@ public class MediaAttributes implements Media, MetacardType {
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
-                BasicTypes.INTEGER_TYPE));
+                BasicTypes.DOUBLE_TYPE));
         descriptors.add(new AttributeDescriptorImpl(BITS_PER_SAMPLE,
                 true /* indexed */,
                 true /* stored */,
@@ -82,7 +82,7 @@ public class MediaAttributes implements Media, MetacardType {
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
-                BasicTypes.INTEGER_TYPE));
+                BasicTypes.DOUBLE_TYPE));
         descriptors.add(new AttributeDescriptorImpl(HEIGHT,
                 true /* indexed */,
                 true /* stored */,
