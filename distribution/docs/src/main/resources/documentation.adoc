@@ -24,8 +24,6 @@ include::${project.build.directory}/doc-contents/_contents/_core-concepts/federa
 
 include::${project.build.directory}/doc-contents/_contents/_core-concepts/ogc-filter-intro-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_core-concepts/contextual-search-intro-content.adoc[]
-
 include::${project.build.directory}/doc-contents/_contents/_core-concepts/events-subscriptions-intro-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_core-concepts/specifications-supported-contents.adoc[]
