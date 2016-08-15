@@ -93,7 +93,7 @@ public abstract class AbstractGmdConverter implements Converter {
     @Override
     public final void marshal(Object source, HierarchicalStreamWriter inWriter,
             MarshallingContext context) {
-        if (source == null || !(source instanceof Metacard)) {
+        if (!(source instanceof Metacard)) {
             LOGGER.warn("Failed to marshal Metacard: {}", source);
             return;
         }
