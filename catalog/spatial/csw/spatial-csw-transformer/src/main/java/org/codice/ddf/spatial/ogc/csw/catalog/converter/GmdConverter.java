@@ -14,31 +14,17 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
-import java.util.Set;
-import java.util.TimeZone;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.path.Path;
-import com.thoughtworks.xstream.io.path.PathTracker;
-import com.thoughtworks.xstream.io.path.PathTrackingWriter;
-import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -48,96 +34,17 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
-public class GmdConverter implements Converter {
+public class GmdConverter extends AbstractGmdConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GmdConverter.class);
 
-    static final DatatypeFactory XSD_FACTORY;
-
-    private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
-
-    static {
-        DatatypeFactory factory = null;
-
-        try {
-            factory = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException e) {
-            LOGGER.error("Failed to create xsdFactory", e);
-        }
-
-        XSD_FACTORY = factory;
-    }
-
-    public GmdConverter() {
-
-        XStream xstream = new XStream(new Xpp3Driver(new NoNameCoder()));
-
-        xstream.setClassLoader(xstream.getClass()
-                .getClassLoader());
-
-        xstream.registerConverter(this);
-        xstream.alias(GmdMetacardType.GMD_LOCAL_NAME, Metacard.class);
-        xstream.alias(GmdMetacardType.GMD_METACARD_TYPE_NAME, Metacard.class);
+    @Override
+    protected List<String> getXstreamAliases() {
+        return Arrays.asList(GmdMetacardType.GMD_LOCAL_NAME,
+                GmdMetacardType.GMD_METACARD_TYPE_NAME);
     }
 
     @Override
-    public boolean canConvert(Class clazz) {
-        return Metacard.class.isAssignableFrom(clazz);
-    }
-
-    @Override
-    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public void marshal(Object source, HierarchicalStreamWriter inWriter,
-            MarshallingContext context) {
-        if (source == null || !(source instanceof Metacard)) {
-            LOGGER.warn("Failed to marshal Metacard: {}", source);
-            return;
-        }
-        MetacardImpl metacard = new MetacardImpl((Metacard) source);
-
-        PathTracker tracker = new PathTracker();
-        PathTrackingWriter trackingWriter = new PathTrackingWriter(inWriter, tracker);
-
-        XstreamPathValueTracker pathValueTracker = buildPaths(metacard);
-        XmlTree tree = buildTree(pathValueTracker.getPaths());
-
-        tree.accept(new XstreamTreeWriter(trackingWriter, tracker, pathValueTracker));
-
-    }
-
-    protected XmlTree buildTree(Set<Path> paths) {
-
-        XmlTree gmdTree = new XmlTree(GmdMetacardType.GMD_LOCAL_NAME);
-
-        XmlTree current = gmdTree;
-
-        for (Path path : paths) {
-            String tree = path.toString();
-            XmlTree root = current;
-
-            tree = StringUtils.substringAfter(tree, GmdMetacardType.GMD_LOCAL_NAME);
-            for (String data : tree.split("/")) {
-                if (StringUtils.isNotBlank(data)) {
-                    current = current.addChild(data);
-                }
-            }
-
-            current = root;
-        }
-        return gmdTree;
-    }
-
-    /**
-     * Builds up the xml paths and values to write.
-     * Order matters!  Paths should be added in the order they must be written.
-     *
-     * @param metacard
-     * @return XstreamPathValueTracker containing XML paths and values to write
-     */
     protected XstreamPathValueTracker buildPaths(MetacardImpl metacard) {
 
         XstreamPathValueTracker pathValueTracker = new XstreamPathValueTracker();
@@ -174,6 +81,11 @@ public class GmdConverter implements Converter {
 
     }
 
+    @Override
+    protected String getRootNodeName() {
+        return GmdMetacardType.GMD_LOCAL_NAME;
+    }
+
     protected void addDistributionInfo(MetacardImpl metacard,
             XstreamPathValueTracker pathValueTracker) {
 
@@ -199,8 +111,8 @@ public class GmdConverter implements Converter {
     protected void addIdentificationInfo(MetacardImpl metacard,
             XstreamPathValueTracker pathValueTracker) {
 
-        pathValueTracker.add(new Path(GmdMetacardType.TITLE_PATH), StringUtils.defaultString(
-                metacard.getTitle()));
+        pathValueTracker.add(new Path(GmdMetacardType.TITLE_PATH),
+                StringUtils.defaultString(metacard.getTitle()));
 
         GregorianCalendar createdCal = new GregorianCalendar();
 
@@ -218,17 +130,16 @@ public class GmdConverter implements Converter {
         pathValueTracker.add(new Path(GmdMetacardType.CREATED_DATE_TYPE_CODE_VALUE_PATH),
                 Metacard.CREATED);
 
-        pathValueTracker.add(new Path(GmdMetacardType.ABSTRACT_PATH), StringUtils.defaultString(
-                metacard.getDescription()));
+        pathValueTracker.add(new Path(GmdMetacardType.ABSTRACT_PATH),
+                StringUtils.defaultString(metacard.getDescription()));
         pathValueTracker.add(new Path(GmdMetacardType.POINT_OF_CONTACT_PATH),
                 StringUtils.defaultString(metacard.getPointOfContact()));
 
         pathValueTracker.add(new Path(GmdMetacardType.POINT_OF_CONTACT_ROLE_PATH), (String) null);
 
-        pathValueTracker.add(new Path(GmdMetacardType.LANGUAGE_PATH), StringUtils.defaultIfEmpty(
-                Locale.getDefault()
-                        .getLanguage(),
-                Locale.ENGLISH.getLanguage()));
+        pathValueTracker.add(new Path(GmdMetacardType.LANGUAGE_PATH),
+                StringUtils.defaultIfEmpty(Locale.getDefault()
+                        .getLanguage(), Locale.ENGLISH.getLanguage()));
         addExtent(metacard, pathValueTracker);
 
     }
