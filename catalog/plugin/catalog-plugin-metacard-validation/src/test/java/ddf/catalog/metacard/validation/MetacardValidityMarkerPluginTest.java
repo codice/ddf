@@ -14,6 +14,7 @@
 package ddf.catalog.metacard.validation;
 
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
@@ -49,6 +50,7 @@ import com.google.common.collect.Sets;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.operation.CreateRequest;
@@ -160,6 +162,38 @@ public class MetacardValidityMarkerPluginTest {
     private void verifyRequestPropertiesUnchanged(Request original, Request processed) {
         assertThat(processed.getProperties(), is(original.getProperties()));
         assertThat(processed.getStoreIds(), is(original.getStoreIds()));
+    }
+
+    @Test
+    public void testMultipleValidationTagsValid()
+            throws StopProcessingException, PluginExecutionException {
+        metacardValidators.add(getMockPassingValidator());
+        CreateRequest request = getMockCreateRequest();
+        Metacard m1 = request.getMetacards().get(0);
+
+        Set<String> tags = m1.getTags();
+        tags.add(INVALID_TAG);
+        m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+
+        CreateRequest filteredRequest = plugin.process(request);
+        assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(VALID_TAG));
+        assertThat(filteredRequest.getMetacards().get(0).getTags(), not(hasItem(INVALID_TAG)));
+    }
+
+    @Test
+    public void testMultipleValidationTagsInvalid()
+            throws StopProcessingException, PluginExecutionException, ValidationException {
+        metacardValidators.add(getMockFailingValidatorWithErrorsAndWarnings());
+        CreateRequest request = getMockCreateRequest();
+        Metacard m1 = request.getMetacards().get(0);
+
+        Set<String> tags = m1.getTags();
+        tags.add(VALID_TAG);
+        m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+
+        CreateRequest filteredRequest = plugin.process(request);
+        assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(INVALID_TAG));
+        assertThat(filteredRequest.getMetacards().get(0).getTags(), not(hasItem(VALID_TAG)));
     }
 
     @Test

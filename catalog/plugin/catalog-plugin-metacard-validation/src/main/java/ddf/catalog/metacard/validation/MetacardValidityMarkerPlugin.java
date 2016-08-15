@@ -108,16 +108,19 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
 
         Metacard metacard = itemToMetacard.apply(item);
         Set<String> tags = metacard.getTags();
+        tags.remove(VALID_TAG);
+        tags.remove(INVALID_TAG);
+
+        String valid = VALID_TAG;
 
         for (MetacardValidator validator : metacardValidators) {
             try {
                 validator.validate(metacard);
-                tags.add(VALID_TAG);
             } catch (ValidationException e) {
                 String validatorName = getValidatorName(validator);
                 boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
                 boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
-                tags.add(INVALID_TAG);
+                valid = INVALID_TAG;
 
                 if ((isValidatorEnforced(validatorName) && validationErrorsExist && enforceErrors)
                         || isValidatorEnforced(validatorName) && validationWarningsExist
@@ -131,9 +134,10 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                     getValidationProblems(validatorName, e, errors, warnings, counter);
                 }
             }
-
-            metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
         }
+
+        tags.add(valid);
+        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
 
         metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
                 (List<Serializable>) new ArrayList<Serializable>(errors)));
