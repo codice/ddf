@@ -146,12 +146,14 @@ public class ConfigurationApplication implements SparkApplication {
         this.hiddenAttributes = hiddenAttributes;
     }
 
-    private List<String> readOnly = ImmutableList.of("id",
-            "checksum",
-            "created",
-            "effective",
-            "modified",
-            "resource-size");
+    private List<String> readOnly = ImmutableList.of("checksum",
+            "checksum-algorithm",
+            "id",
+            "metadata",
+            "source-id",
+            "^metacard\\.",
+            "^version\\.",
+            "^validation\\.");
 
     private List<String> summaryShow = Collections.emptyList();
 

@@ -24,6 +24,16 @@ define([
     'component/singletons/metacard-definitions'
 ], function (Marionette, _, $, CustomElements, PropertyView, PropertyCollection, properties, metacardDefinitions) {
 
+    function isReadOnly(readOnly, attribute) {
+        return readOnly
+            .map(function (str) {
+                return new RegExp(str);
+            })
+            .find(function (regex) {
+                return regex.exec(attribute);
+            }) !== undefined;
+    }
+
      return Marionette.CollectionView.extend({
         tagName: CustomElements.register('property-collection'),
         childView: PropertyView,
@@ -102,7 +112,7 @@ define([
                      propertyArray.push({
                          enum: metacardDefinitions.enums[property],
                          label: properties.attributeAliases[property],
-                         readOnly: properties.readOnly.indexOf(property) >= 0,
+                         readOnly: isReadOnly(properties.readOnly, property),
                          id: property,
                          type: types[0][property].format,
                          values: {},
@@ -116,7 +126,7 @@ define([
                  propertyArray.push({
                      enum: metacardDefinitions.enums[property],
                      label: properties.attributeAliases[property],
-                     readOnly: properties.readOnly.indexOf(property) >= 0,
+                     readOnly: isReadOnly(properties.readOnly, property),
                      id: property,
                      type: types[0][property].format,
                      values: {},
@@ -159,7 +169,7 @@ define([
                  propertyArray.push({
                      enum: metacardDefinitions.enums[property],
                      label: properties.attributeAliases[property],
-                     readOnly: properties.readOnly.indexOf(property) >= 0,
+                     readOnly: isReadOnly(properties.readOnly, property),
                      id: property,
                      type: types[0][property].format,
                      values: {},

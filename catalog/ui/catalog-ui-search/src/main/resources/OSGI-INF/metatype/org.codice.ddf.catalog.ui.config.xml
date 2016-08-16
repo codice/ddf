@@ -115,10 +115,10 @@
 
         <AD id="readOnly"
             name="Read Only Metacard Attributes"
-            description="List of metacard attributes that are read-only."
+            description="List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as Javascript regular expressions when matched against metacard attributes."
             type="String"
             cardinality="10000"
-            default="id,checksum,created,effective,modified,resource-size"
+            default="checksum,checksum-algorithm,id,metadata,source-id,^metacard\\.,^version\\.,^validation\\."
             required="false"/>
 
         <AD id="summaryShow"
