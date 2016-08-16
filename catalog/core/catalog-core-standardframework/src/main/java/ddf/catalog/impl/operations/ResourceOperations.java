@@ -411,6 +411,8 @@ public class ResourceOperations extends DescribableImpl {
                 LOGGER.info("Unable to download resource", e);
             }
 
+            resourceResponse = putPropertiesInResponse(resourceRequest, resourceResponse);
+
             resourceResponse = validateFixGetResourceResponse(resourceResponse, resourceReq);
 
             HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
@@ -450,6 +452,21 @@ public class ResourceOperations extends DescribableImpl {
             throw new ResourceNotSupportedException(FAILED_BY_GET_RESOURCE_PLUGIN + e.getMessage());
         }
 
+        return resourceResponse;
+    }
+
+    private ResourceResponse putPropertiesInResponse(ResourceRequest resourceRequest,
+            ResourceResponse resourceResponse) {
+        if (resourceResponse != null) {
+            // must add the request properties into response properties in case the source forgot to
+            Map<String, Serializable> properties =
+                    new HashMap<>(resourceResponse.getProperties());
+            resourceRequest.getProperties()
+                    .forEach(properties::putIfAbsent);
+            resourceResponse = new ResourceResponseImpl(resourceResponse.getRequest(),
+                    properties,
+                    resourceResponse.getResource());
+        }
         return resourceResponse;
     }
 
