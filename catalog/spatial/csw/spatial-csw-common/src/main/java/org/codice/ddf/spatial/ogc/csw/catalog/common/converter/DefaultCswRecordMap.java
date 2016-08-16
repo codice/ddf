@@ -25,7 +25,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.xml.sax.helpers.NamespaceSupport;
 
 import ddf.catalog.data.Metacard;
@@ -77,11 +77,11 @@ public class DefaultCswRecordMap {
         localNameMap.put(CswRecordMetacardType.CSW_DESCRIPTION, Metacard.DESCRIPTION);
 
         // GMD TYPES
-        localNameMap.put(GmdMetacardType.GMD_REVISION_DATE, Metacard.MODIFIED);
-        localNameMap.put(GmdMetacardType.GMD_ALTERNATE_TITLE, Metacard.TITLE);
-        localNameMap.put(GmdMetacardType.GMD_CREATION_DATE, Metacard.CREATED);
-        localNameMap.put(GmdMetacardType.GMD_PUBLICATION_DATE, Metacard.EFFECTIVE);
-        localNameMap.put(GmdMetacardType.GMD_ORGANIZATION_NAME, Metacard.POINT_OF_CONTACT);
+        localNameMap.put(GmdConstants.GMD_REVISION_DATE, Metacard.MODIFIED);
+        localNameMap.put(GmdConstants.GMD_ALTERNATE_TITLE, Metacard.TITLE);
+        localNameMap.put(GmdConstants.GMD_CREATION_DATE, Metacard.CREATED);
+        localNameMap.put(GmdConstants.GMD_PUBLICATION_DATE, Metacard.EFFECTIVE);
+        localNameMap.put(GmdConstants.GMD_ORGANIZATION_NAME, Metacard.POINT_OF_CONTACT);
 
         CSW_RECORD_LOCAL_NAME_MAPPING = Collections.unmodifiableMap(localNameMap);
 
@@ -110,11 +110,11 @@ public class DefaultCswRecordMap {
         qNameMap.put(CswRecordMetacardType.CSW_DESCRIPTION_QNAME, Metacard.DESCRIPTION);
 
         // GMD TYPES
-        qNameMap.put(GmdMetacardType.GMD_REVISION_DATE_QNAME, Metacard.MODIFIED);
-        qNameMap.put(GmdMetacardType.GMD_ALTERNATE_TITLE_QNAME, Metacard.TITLE);
-        qNameMap.put(GmdMetacardType.GMD_CREATION_DATE_QNAME, Metacard.CREATED);
-        qNameMap.put(GmdMetacardType.GMD_PUBLICATION_DATE_QNAME, Metacard.EFFECTIVE);
-        qNameMap.put(GmdMetacardType.GMD_ORGANIZATION_NAME_QNAME, Metacard.POINT_OF_CONTACT);
+        qNameMap.put(GmdConstants.GMD_REVISION_DATE_QNAME, Metacard.MODIFIED);
+        qNameMap.put(GmdConstants.GMD_ALTERNATE_TITLE_QNAME, Metacard.TITLE);
+        qNameMap.put(GmdConstants.GMD_CREATION_DATE_QNAME, Metacard.CREATED);
+        qNameMap.put(GmdConstants.GMD_PUBLICATION_DATE_QNAME, Metacard.EFFECTIVE);
+        qNameMap.put(GmdConstants.GMD_ORGANIZATION_NAME_QNAME, Metacard.POINT_OF_CONTACT);
 
         CSW_RECORD_QNAME_MAPPING = Collections.unmodifiableMap(qNameMap);
 
@@ -124,20 +124,20 @@ public class DefaultCswRecordMap {
                         CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME));
         metacardMap.put(Metacard.TITLE, Arrays.asList(CswRecordMetacardType.CSW_TITLE_QNAME,
                         CswRecordMetacardType.CSW_ALTERNATIVE_QNAME,
-                        GmdMetacardType.GMD_ALTERNATE_TITLE_QNAME));
+                        GmdConstants.GMD_ALTERNATE_TITLE_QNAME));
         metacardMap.put(Metacard.CONTENT_TYPE, Arrays.asList(CswRecordMetacardType.CSW_TYPE_QNAME));
         metacardMap.put(Metacard.MODIFIED, Arrays.asList(CswRecordMetacardType.CSW_DATE_QNAME,
                         CswRecordMetacardType.CSW_MODIFIED_QNAME,
                         CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME,
                         CswRecordMetacardType.CSW_ISSUED_QNAME,
-                        GmdMetacardType.GMD_REVISION_DATE_QNAME));
+                        GmdConstants.GMD_REVISION_DATE_QNAME));
 
         metacardMap.put(Metacard.CREATED, Arrays.asList(CswRecordMetacardType.CSW_CREATED_QNAME,
-                GmdMetacardType.GMD_CREATION_DATE_QNAME));
+                GmdConstants.GMD_CREATION_DATE_QNAME));
         metacardMap.put(Metacard.EFFECTIVE,
                 Arrays.asList(CswRecordMetacardType.CSW_DATE_ACCEPTED_QNAME,
                         CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME,
-                        GmdMetacardType.GMD_PUBLICATION_DATE_QNAME));
+                        GmdConstants.GMD_PUBLICATION_DATE_QNAME));
         metacardMap.put(Metacard.EXPIRATION, Arrays.asList(CswRecordMetacardType.CSW_VALID_QNAME));
         metacardMap.put(Metacard.RESOURCE_URI,
                 Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
@@ -145,7 +145,7 @@ public class DefaultCswRecordMap {
                 Arrays.asList(CswRecordMetacardType.CSW_PUBLISHER_QNAME,
                         CswRecordMetacardType.CSW_CONTRIBUTOR_QNAME,
                         CswRecordMetacardType.CSW_CREATED_QNAME,
-                        GmdMetacardType.GMD_ORGANIZATION_NAME_QNAME));
+                        GmdConstants.GMD_ORGANIZATION_NAME_QNAME));
         metacardMap.put(Metacard.RESOURCE_DOWNLOAD_URL,
                 Arrays.asList(CswRecordMetacardType.CSW_RELATION_QNAME));
 

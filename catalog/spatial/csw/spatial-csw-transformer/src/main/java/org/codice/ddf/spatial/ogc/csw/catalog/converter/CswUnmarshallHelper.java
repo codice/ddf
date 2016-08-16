@@ -132,8 +132,7 @@ public class CswUnmarshallHelper {
         cswAttrMap.putAll(convertedMappings);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Map contents: {}",
-                    Arrays.toString(cswAttrMap.entrySet()
+            LOGGER.debug("Map contents: {}", Arrays.toString(cswAttrMap.entrySet()
                             .toArray()));
         }
     }
@@ -312,13 +311,13 @@ public class CswUnmarshallHelper {
      * {@code cswAttributeValue} converted to the type of the attribute
      * {@code metacardAttributeName} in a {@link Metacard}.
      *
-     * @param cswAttributeName  the name of the CSW attribute
-     * @param cswAttributeValue  the value of the CSW attribute
-     * @param metacardAttributeName  the name of the {@code Metacard} attribute whose type
-     *                               {@code cswAttributeValue} will be converted to
+     * @param cswAttributeName      the name of the CSW attribute
+     * @param cswAttributeValue     the value of the CSW attribute
+     * @param metacardAttributeName the name of the {@code Metacard} attribute whose type
+     *                              {@code cswAttributeValue} will be converted to
      * @return an {@code Attribute} with the name {@code metacardAttributeName} and the value
-     *         {@code cswAttributeValue} converted to the type of the attribute
-     *         {@code metacardAttributeName} in a {@code Metacard}.
+     * {@code cswAttributeValue} converted to the type of the attribute
+     * {@code metacardAttributeName} in a {@code Metacard}.
      */
     public static Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
             Serializable cswAttributeValue, String metacardAttributeName) {
@@ -352,9 +351,9 @@ public class CswUnmarshallHelper {
      * strings, whereas MetacardImpl expresses them as java.util.Date types.
      *
      * @param attributeFormat the format of the attribute to be converted
-     * @param value the value to be converted
+     * @param value           the value to be converted
      * @return the value that was extracted from {@code reader} and is of the type described by
-     *         {@code attributeFormat}
+     * {@code attributeFormat}
      */
     public static Serializable convertStringValueToMetacardValue(
             AttributeType.AttributeFormat attributeFormat, String value) {
@@ -402,7 +401,7 @@ public class CswUnmarshallHelper {
     /**
      * Converts an attribute name to the csw:Record attribute it corresponds to.
      *
-     * @param attributeName  the name of the attribute
+     * @param attributeName the name of the attribute
      * @return the name of the csw:Record attribute that this attribute name corresponds to
      */
     static String getCswAttributeFromAttributeName(String attributeName) {
@@ -422,12 +421,12 @@ public class CswUnmarshallHelper {
      * Converts the CSW record property {@code reader} is currently at to the specified Metacard
      * attribute format.
      *
-     * @param attributeFormat  the {@link AttributeType.AttributeFormat} corresponding to the type that the value
-     *                         in {@code reader} should be converted to
-     * @param reader  the reader at the element whose value you want to convert
-     * @param cswAxisOrder  the order of the coordinates in the XML being read by {@code reader}
+     * @param attributeFormat the {@link AttributeType.AttributeFormat} corresponding to the type that the value
+     *                        in {@code reader} should be converted to
+     * @param reader          the reader at the element whose value you want to convert
+     * @param cswAxisOrder    the order of the coordinates in the XML being read by {@code reader}
      * @return the value that was extracted from {@code reader} and is of the type described by
-     *         {@code attributeFormat}
+     * {@code attributeFormat}
      */
     public static Serializable convertRecordPropertyToMetacardAttribute(
             AttributeType.AttributeFormat attributeFormat, HierarchicalStreamReader reader,

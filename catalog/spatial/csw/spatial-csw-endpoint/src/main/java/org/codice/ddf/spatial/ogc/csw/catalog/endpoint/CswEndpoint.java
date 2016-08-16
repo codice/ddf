@@ -61,7 +61,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
@@ -223,7 +223,7 @@ public class CswEndpoint implements Csw {
             "Unable to retrieve product for ID: %s";
 
     private static final List<String> TYPE_NAMES_LIST = Arrays.asList(CswConstants.CSW_RECORD,
-            GmdMetacardType.GMD_METACARD_TYPE_NAME,
+            GmdConstants.GMD_METACARD_TYPE_NAME,
             CswConstants.EBRIM_RECORD);
 
     private static Map<String, Element> documentElements = new HashMap<>();
@@ -860,16 +860,16 @@ public class CswEndpoint implements Csw {
 
         if (types.isEmpty()) {
             schemas.add(getSchemaComponentType(CswConstants.CSW_OUTPUT_SCHEMA));
-            schemas.add(getSchemaComponentType(GmdMetacardType.GMD_NAMESPACE));
+            schemas.add(getSchemaComponentType(GmdConstants.GMD_NAMESPACE));
         } else {
             if (types.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                     CswConstants.CSW_RECORD_LOCAL_NAME))) {
                 schemas.add(getSchemaComponentType(CswConstants.CSW_OUTPUT_SCHEMA));
             }
 
-            if (types.contains(new QName(GmdMetacardType.GMD_NAMESPACE,
-                    GmdMetacardType.GMD_LOCAL_NAME))) {
-                schemas.add(getSchemaComponentType(GmdMetacardType.GMD_NAMESPACE));
+            if (types.contains(new QName(GmdConstants.GMD_NAMESPACE,
+                    GmdConstants.GMD_LOCAL_NAME))) {
+                schemas.add(getSchemaComponentType(GmdConstants.GMD_NAMESPACE));
             }
 
             if (types.contains(new QName(CswConstants.EBRIM_SCHEMA,
@@ -950,7 +950,7 @@ public class CswEndpoint implements Csw {
 
         if (outputSchema.equals(CswConstants.CSW_OUTPUT_SCHEMA)) {
             listOfObject.add(getDocElementFromResourcePath("csw/2.0.2/record.xsd"));
-        } else if (outputSchema.equals(GmdMetacardType.GMD_NAMESPACE)) {
+        } else if (outputSchema.equals(GmdConstants.GMD_NAMESPACE)) {
             listOfObject.add(getDocElementFromResourcePath("gmd/record_gmd.xsd"));
         } else if (outputSchema.equals(CswConstants.EBRIM_SCHEMA)) {
             listOfObject.add(getDocElementFromResourcePath("csw-ebrim.1.0.2/csw-ebrim.xsd"));

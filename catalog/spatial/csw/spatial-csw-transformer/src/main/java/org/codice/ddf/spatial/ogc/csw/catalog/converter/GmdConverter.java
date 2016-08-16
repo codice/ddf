@@ -24,7 +24,7 @@ import javax.xml.datatype.DatatypeFactory;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,8 +76,8 @@ public class GmdConverter implements Converter {
                 .getClassLoader());
 
         xstream.registerConverter(this);
-        xstream.alias(GmdMetacardType.GMD_LOCAL_NAME, Metacard.class);
-        xstream.alias(GmdMetacardType.GMD_METACARD_TYPE_NAME, Metacard.class);
+        xstream.alias(GmdConstants.GMD_LOCAL_NAME, Metacard.class);
+        xstream.alias(GmdConstants.GMD_METACARD_TYPE_NAME, Metacard.class);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class GmdConverter implements Converter {
 
     protected XmlTree buildTree(Set<Path> paths) {
 
-        XmlTree gmdTree = new XmlTree(GmdMetacardType.GMD_LOCAL_NAME);
+        XmlTree gmdTree = new XmlTree(GmdConstants.GMD_LOCAL_NAME);
 
         XmlTree current = gmdTree;
 
@@ -119,7 +119,7 @@ public class GmdConverter implements Converter {
             String tree = path.toString();
             XmlTree root = current;
 
-            tree = StringUtils.substringAfter(tree, GmdMetacardType.GMD_LOCAL_NAME);
+            tree = StringUtils.substringAfter(tree, GmdConstants.GMD_LOCAL_NAME);
             for (String data : tree.split("/")) {
                 if (StringUtils.isNotBlank(data)) {
                     current = current.addChild(data);
@@ -142,18 +142,18 @@ public class GmdConverter implements Converter {
 
         XstreamPathValueTracker pathValueTracker = new XstreamPathValueTracker();
 
-        pathValueTracker.add(new Path("/MD_Metadata/@xmlns"), GmdMetacardType.GMD_NAMESPACE);
+        pathValueTracker.add(new Path("/MD_Metadata/@xmlns"), GmdConstants.GMD_NAMESPACE);
 
-        pathValueTracker.add(new Path("/MD_Metadata/@xmlns:" + GmdMetacardType.GCO_PREFIX),
-                GmdMetacardType.GCO_NAMESPACE);
-        pathValueTracker.add(new Path(GmdMetacardType.FILE_IDENTIFIER_PATH), metacard.getId());
+        pathValueTracker.add(new Path("/MD_Metadata/@xmlns:" + GmdConstants.GCO_PREFIX),
+                GmdConstants.GCO_NAMESPACE);
+        pathValueTracker.add(new Path(GmdConstants.FILE_IDENTIFIER_PATH), metacard.getId());
 
-        pathValueTracker.add(new Path(GmdMetacardType.CODE_LIST_VALUE_PATH),
+        pathValueTracker.add(new Path(GmdConstants.CODE_LIST_VALUE_PATH),
                 StringUtils.defaultIfEmpty(metacard.getContentTypeName(), "dataset"));
-        pathValueTracker.add(new Path(GmdMetacardType.CODE_LIST_PATH),
-                GmdMetacardType.METACARD_URI);
+        pathValueTracker.add(new Path(GmdConstants.CODE_LIST_PATH),
+                GmdConstants.METACARD_URI);
 
-        pathValueTracker.add(new Path(GmdMetacardType.CONTACT_PATH), (String) null);
+        pathValueTracker.add(new Path(GmdConstants.CONTACT_PATH), (String) null);
 
         GregorianCalendar modifiedCal = new GregorianCalendar();
         if (metacard.getModifiedDate() != null) {
@@ -162,7 +162,7 @@ public class GmdConverter implements Converter {
         }
         modifiedCal.setTimeZone(UTC_TIME_ZONE);
 
-        pathValueTracker.add(new Path(GmdMetacardType.DATE_TIME_STAMP_PATH),
+        pathValueTracker.add(new Path(GmdConstants.DATE_TIME_STAMP_PATH),
                 XSD_FACTORY.newXMLGregorianCalendar(modifiedCal)
                         .toXMLFormat());
 
@@ -184,12 +184,12 @@ public class GmdConverter implements Converter {
         }
 
         if (StringUtils.isNotBlank(resourceUrl)) {
-            pathValueTracker.add(new Path(GmdMetacardType.LINKAGE_URI_PATH), resourceUrl);
+            pathValueTracker.add(new Path(GmdConstants.LINKAGE_URI_PATH), resourceUrl);
         } else {
             URI resourceUri = metacard.getResourceURI();
             if (resourceUri != null) {
 
-                pathValueTracker.add(new Path(GmdMetacardType.LINKAGE_URI_PATH),
+                pathValueTracker.add(new Path(GmdConstants.LINKAGE_URI_PATH),
                         resourceUri.toASCIIString());
             }
         }
@@ -199,7 +199,7 @@ public class GmdConverter implements Converter {
     protected void addIdentificationInfo(MetacardImpl metacard,
             XstreamPathValueTracker pathValueTracker) {
 
-        pathValueTracker.add(new Path(GmdMetacardType.TITLE_PATH), StringUtils.defaultString(
+        pathValueTracker.add(new Path(GmdConstants.TITLE_PATH), StringUtils.defaultString(
                 metacard.getTitle()));
 
         GregorianCalendar createdCal = new GregorianCalendar();
@@ -209,23 +209,23 @@ public class GmdConverter implements Converter {
             createdCal.setTime(metacard.getCreatedDate());
         }
         createdCal.setTimeZone(UTC_TIME_ZONE);
-        pathValueTracker.add(new Path(GmdMetacardType.CREATED_DATE_PATH),
+        pathValueTracker.add(new Path(GmdConstants.CREATED_DATE_PATH),
                 XSD_FACTORY.newXMLGregorianCalendar(createdCal)
                         .toXMLFormat());
 
-        pathValueTracker.add(new Path(GmdMetacardType.CREATED_DATE_TYPE_CODE_PATH),
-                GmdMetacardType.METACARD_URI);
-        pathValueTracker.add(new Path(GmdMetacardType.CREATED_DATE_TYPE_CODE_VALUE_PATH),
+        pathValueTracker.add(new Path(GmdConstants.CREATED_DATE_TYPE_CODE_PATH),
+                GmdConstants.METACARD_URI);
+        pathValueTracker.add(new Path(GmdConstants.CREATED_DATE_TYPE_CODE_VALUE_PATH),
                 Metacard.CREATED);
 
-        pathValueTracker.add(new Path(GmdMetacardType.ABSTRACT_PATH), StringUtils.defaultString(
+        pathValueTracker.add(new Path(GmdConstants.ABSTRACT_PATH), StringUtils.defaultString(
                 metacard.getDescription()));
-        pathValueTracker.add(new Path(GmdMetacardType.POINT_OF_CONTACT_PATH),
+        pathValueTracker.add(new Path(GmdConstants.POINT_OF_CONTACT_PATH),
                 StringUtils.defaultString(metacard.getPointOfContact()));
 
-        pathValueTracker.add(new Path(GmdMetacardType.POINT_OF_CONTACT_ROLE_PATH), (String) null);
+        pathValueTracker.add(new Path(GmdConstants.POINT_OF_CONTACT_ROLE_PATH), (String) null);
 
-        pathValueTracker.add(new Path(GmdMetacardType.LANGUAGE_PATH), StringUtils.defaultIfEmpty(
+        pathValueTracker.add(new Path(GmdConstants.LANGUAGE_PATH), StringUtils.defaultIfEmpty(
                 Locale.getDefault()
                         .getLanguage(),
                 Locale.ENGLISH.getLanguage()));
@@ -252,14 +252,12 @@ public class GmdConverter implements Converter {
                 String eastLon = Double.toString(bounds.getMaxX());
                 String southLat = Double.toString(bounds.getMinY());
                 String northLat = Double.toString(bounds.getMaxY());
-                pathValueTracker.add(new Path(GmdMetacardType.BBOX_WEST_LON_PATH), westLon);
-                pathValueTracker.add(new Path(GmdMetacardType.BBOX_EAST_LON_PATH), eastLon);
-                pathValueTracker.add(new Path(GmdMetacardType.BBOX_SOUTH_LAT_PATH), southLat);
-                pathValueTracker.add(new Path(GmdMetacardType.BBOX_NORTH_LAT_PATH), northLat);
+                pathValueTracker.add(new Path(GmdConstants.BBOX_WEST_LON_PATH), westLon);
+                pathValueTracker.add(new Path(GmdConstants.BBOX_EAST_LON_PATH), eastLon);
+                pathValueTracker.add(new Path(GmdConstants.BBOX_SOUTH_LAT_PATH), southLat);
+                pathValueTracker.add(new Path(GmdConstants.BBOX_NORTH_LAT_PATH), northLat);
 
             }
-
         }
     }
-
 }

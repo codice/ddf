@@ -63,7 +63,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
@@ -162,7 +162,7 @@ public class TestCswEndpoint {
             CONTEXTUAL_TEST_ATTRIBUTE + " Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
     private static final String GMD_CONTEXTUAL_LIKE_QUERY =
-            GmdMetacardType.APISO_PREFIX + "title Like '" + CQL_CONTEXTUAL_PATTERN + "'";
+            GmdConstants.APISO_PREFIX + "title Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
     private static final String RANGE_VALUE = "bytes=100-";
 
@@ -658,7 +658,7 @@ public class TestCswEndpoint {
     public void testPostDescribeRecordRequestGMDTypePassed() {
         DescribeRecordType drt = createDefaultDescribeRecordType();
         List<QName> typeNames = new ArrayList<>();
-        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, GmdMetacardType.GMD_LOCAL_NAME, GmdMetacardType.GMD_PREFIX));
+        typeNames.add(new QName(GmdConstants.GMD_NAMESPACE, GmdConstants.GMD_LOCAL_NAME, GmdConstants.GMD_PREFIX));
         drt.setTypeName(typeNames);
         DescribeRecordResponseType drrt = null;
 
@@ -1093,7 +1093,7 @@ public class TestCswEndpoint {
         grr.setResultType(ResultType.RESULTS);
         QueryType query = new QueryType();
         List<QName> typeNames = new ArrayList<>();
-        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, GmdMetacardType.GMD_LOCAL_NAME, GmdMetacardType.GMD_PREFIX));
+        typeNames.add(new QName(GmdConstants.GMD_NAMESPACE, GmdConstants.GMD_LOCAL_NAME, GmdConstants.GMD_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(GMD_CONTEXTUAL_LIKE_QUERY);
@@ -1970,7 +1970,7 @@ public class TestCswEndpoint {
                             assertThat(parameter.getValue(), contains(CswConstants.CSW_RECORD));
                         } else {
                             assertThat(parameter.getValue(), hasItems(CswConstants.CSW_RECORD,
-                                    GmdMetacardType.GMD_METACARD_TYPE_NAME));
+                                    GmdConstants.GMD_METACARD_TYPE_NAME));
                         }
                     }
                 }
