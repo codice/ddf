@@ -112,9 +112,7 @@ include::${project.build.directory}/doc-contents/_contents/_admin-contents/manag
 == Managing ${ddf-catalog}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_contents/_catalog-contents/installing-catalog-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_contents/_catalog-contents/configuring-catalog-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/managing-catalog-contents.adoc[]
 
 <<<
 
@@ -378,6 +376,9 @@ include::${project.build.directory}/doc-contents/_contents/_sources/example-cata
 include::${project.build.directory}/doc-contents/_contents/_sources/solr-catalog-provider-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_sources/solr-http-catalog-provider-contents.adoc[]
+
+//Storage Providers
+include::${project.build.directory}/doc-contents/_contents/_sources/storage-provider-intro-contents.adoc[]
 
 //Catalog Stores
 include::${project.build.directory}/doc-contents/_contents/_sources/catalog-stores-contents.adoc[]
@@ -723,9 +724,14 @@ include::${project.build.directory}/doc-contents/_contents/_formats/file-types-s
 
 = Developing ${branding}
 
-include::${project.build.directory}/doc-contents/_contents/_developing/building-ddf-intro-contents.adoc[]
-
 include::${project.build.directory}/doc-contents/_contents/_developing/developing-intro-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_developing/developing-catalog-api-contents.adoc[]
+
+== Building from Source Code
+
+include::${project.build.directory}/doc-contents/_contents/_developing/building-ddf-contents.adoc[]
+
 
 == APIs
 
@@ -737,18 +743,18 @@ include::${project.build.directory}/doc-contents/_contents/_apis/application-ser
 
 == Application Whitelists
 
-include::${project.build.directory}/doc-contents/_contents/_admin-contents/admin-whitelist-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_app-whitelists/admin-whitelist-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_catalog-contents/catalog-whitelist-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_app-whitelists/catalog-whitelist-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_platform-contents/platform-whitelist-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_app-whitelists/platform-whitelist-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_registry-contents/registry-whitelist-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_app-whitelists/registry-whitelist-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_security-contents/security-whitelist-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_app-whitelists/security-whitelist-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_solr-contents/solr-whitelist-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_app-whitelists/solr-whitelist-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_spatial-contents/spatial-whitelist-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_app-whitelists/spatial-whitelist-contents.adoc[]
 
-include::${project.build.directory}/doc-contents/_contents/_ui-contents/ui-whitelist-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_app-whitelists/ui-whitelist-contents.adoc[]

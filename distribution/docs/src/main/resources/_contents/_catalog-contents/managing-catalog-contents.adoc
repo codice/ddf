@@ -1,3 +1,13 @@
+=== Installing ${ddf-catalog}
+
+==== Prerequisites
+
+Before the ${ddf-catalog} application can be installed:
+
+* the ${branding} Platform application must be installed
+
+The ${ddf-catalog} is pre-installed with a standard installation.
+
 === Configuring ${ddf-catalog}
 
 .Available Configurations
@@ -426,3 +436,4 @@ The X value will be the value that is placed within the security attribute on th
 |No
 
 |===
+

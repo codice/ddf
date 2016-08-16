@@ -1,3 +1,4 @@
+
 === Developing Filter Delegates
 
 Filter Delegates help reduce the complexity of parsing OGC Filters.

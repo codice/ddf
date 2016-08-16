@@ -1,6 +1,0 @@
-
-=== Whitelist
-
-The following packages have been exported by the ${ddf-solr} application and are approved for use by third parties:
-
-None.

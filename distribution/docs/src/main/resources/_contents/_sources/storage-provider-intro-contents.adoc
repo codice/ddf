@@ -1,6 +1,6 @@
 
-.Transformers
-[ditaa, catalog_architecture_transformers, png, ${image-width}]
+.Storage Providers
+[ditaa, catalog_architecture_storage_providers, png, ${image-width}]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
