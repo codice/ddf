@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.transformer.zip;
 
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -21,15 +22,12 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipInputStream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,11 +37,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestZipDecompression {
 
-    private static final String ZIP_FILE_NAME = "signed.zip";
-
-    private static final String ZIP_FILE_PATH = TestZipCompression.class.getResource(
-            File.separator + ZIP_FILE_NAME)
-            .getPath();
+    private static final String ZIP_FILE_NAME = "/signed.zip";
 
     private ZipDecompression zipDecompression;
 
@@ -51,17 +45,14 @@ public class TestZipDecompression {
 
     private Map<String, Serializable> arguments;
 
-    private List<String> zipContentList = Arrays.asList("id1",
-            "id2",
-            "id3",
-            "id3-localresource.txt");
+    private List<String> zipContentList = Arrays.asList("id1", "id2", "id3");
 
     private ZipValidator zipValidator;
 
     @Before
     public void setUp() throws Exception {
         zipDecompression = new ZipDecompression();
-        zipInputStream = new ZipInputStream(new FileInputStream(ZIP_FILE_PATH));
+        zipInputStream = getClass().getResourceAsStream(ZIP_FILE_NAME);
         arguments = new HashMap<>();
         arguments.put(ZipDecompression.FILE_PATH, "target/");
         arguments.put(ZipDecompression.FILE_NAME, ZIP_FILE_NAME);
@@ -70,20 +61,25 @@ public class TestZipDecompression {
         zipDecompression.setZipValidator(zipValidator);
     }
 
+    @Test
+    public void testGetZipValidator() {
+        assertThat(zipDecompression.getZipValidator(), is(zipValidator));
+    }
+
     @Test(expected = CatalogTransformerException.class)
-    public void testTransformWithNullArguments() throws Exception {
+    public void testDecompressionWithNullArguments() throws Exception {
         List<Metacard> result = zipDecompression.transform(zipInputStream, null);
         assertThat(result, nullValue());
     }
 
     @Test(expected = CatalogTransformerException.class)
-    public void testTransformWithEmptyArguments() throws Exception {
+    public void testDecompressionWithEmptyArguments() throws Exception {
         List<Metacard> result = zipDecompression.transform(zipInputStream, new HashMap<>());
         assertThat(result, nullValue());
     }
 
     @Test(expected = CatalogTransformerException.class)
-    public void testTransformWithBadArguments() throws Exception {
+    public void testDecompressionWithNoValidArguments() throws Exception {
         Map<String, Serializable> badMap = new HashMap<>();
         badMap.put("bad", "arg");
         List<Metacard> result = zipDecompression.transform(zipInputStream, badMap);
@@ -92,13 +88,28 @@ public class TestZipDecompression {
     }
 
     @Test(expected = CatalogTransformerException.class)
-    public void testTransformWithNullStream() throws Exception {
+    public void testDecompressionWithNoFileNameArgument() throws Exception {
+        Map<String, Serializable> badMap = new HashMap<>();
+        badMap.put(ZipDecompression.FILE_PATH, "arg");
+        List<Metacard> result = zipDecompression.transform(zipInputStream, badMap);
+        assertThat(result, nullValue());
+
+    }
+
+    @Test(expected = CatalogTransformerException.class)
+    public void testDecompressionWithNullStream() throws Exception {
         List<Metacard> result = zipDecompression.transform(null, arguments);
         assertThat(result, nullValue());
     }
 
+    @Test(expected = CatalogTransformerException.class)
+    public void testDecompressionInvalidZip() throws Exception {
+        when(zipValidator.validateZipFile(anyString())).thenThrow(ZipValidationException.class);
+        zipDecompression.transform(zipInputStream, arguments);
+    }
+
     @Test
-    public void testTransform() throws Exception {
+    public void testDecompressionValidZip() throws Exception {
         List<Metacard> result = zipDecompression.transform(zipInputStream, arguments);
         assertThat(result, notNullValue());
         assertMetacardList(result);
@@ -108,5 +119,6 @@ public class TestZipDecompression {
         for (Metacard metacard : metacardList) {
             assertThat(zipContentList, hasItem(metacard.getId()));
         }
+        assertThat(metacardList.size(), is(zipContentList.size()));
     }
 }

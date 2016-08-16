@@ -22,6 +22,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.platform.util.PathBuilder;
 import org.codice.ddf.security.common.Security;
 
 import ddf.security.service.SecurityServiceException;
@@ -54,10 +55,15 @@ public class ExportCommand extends MigrationCommands {
     String exportDirectoryArgument;
 
     public ExportCommand(ConfigurationMigrationService configurationMigrationService,
-            Security security, Path defaultExportDirectory) {
+            Security security, PathBuilder pathBuilder) {
+        this(configurationMigrationService, security, pathBuilder.build());
+    }
+
+    ExportCommand(ConfigurationMigrationService configurationMigrationService,
+            Security security, Path path) {
         this.configurationMigrationService = configurationMigrationService;
         this.security = security;
-        this.defaultExportDirectory = defaultExportDirectory;
+        this.defaultExportDirectory = path;
     }
 
     @Override
