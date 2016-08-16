@@ -138,7 +138,6 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceInfoResponseImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.operation.impl.UpdateResponseImpl;
 import ddf.catalog.plugin.AccessPlugin;
@@ -1807,7 +1806,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             queryResponse = doQuery(queryReq, fedStrategy);
 
-            validateFixQueryResponse(queryResponse, queryReq, overrideFanoutRename);
+            queryResponse = validateFixQueryResponse(queryResponse, overrideFanoutRename);
 
             HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
             unmodifiableProperties = Collections.unmodifiableMap(queryResponse.getProperties());
@@ -2849,34 +2848,27 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Validates that the {@link QueryResponse} has a non-null list of {@link Result}s in it, and
      * that the original {@link QueryRequest} is included in the response.
      *
-     * @param sourceResponse       the original {@link ddf.catalog.operation.SourceResponse} returned from the source
-     * @param queryRequest         the original {@link ddf.catalog.operation.QueryRequest} sent to the source
+     * @param queryResponse        the original {@link QueryResponse} returned from the source
      * @param overrideFanoutRename
      * @return the updated {@link QueryResponse}
      * @throws UnsupportedQueryException if the original {@link QueryResponse} is null or the results list is null
      */
-    protected SourceResponse validateFixQueryResponse(SourceResponse sourceResponse,
-            QueryRequest queryRequest, boolean overrideFanoutRename)
-            throws UnsupportedQueryException {
-        SourceResponse sourceResp = sourceResponse;
-        if (fanoutEnabled && !overrideFanoutRename) {
-            sourceResp = replaceSourceId((QueryResponse) sourceResponse);
-        }
-        if (sourceResp != null) {
-            if (sourceResp.getResults() == null) {
-                throw new UnsupportedQueryException(
-                        "CatalogProvider returned null list of results from query method.");
-            }
-            if (sourceResp.getRequest() == null) {
-                sourceResp = new SourceResponseImpl(queryRequest,
-                        sourceResp.getProperties(),
-                        sourceResp.getResults());
-            }
-        } else {
+    protected QueryResponse validateFixQueryResponse(QueryResponse queryResponse,
+            boolean overrideFanoutRename) throws UnsupportedQueryException {
+        if (queryResponse == null) {
             throw new UnsupportedQueryException(
                     "CatalogProvider returned null QueryResponse Object.");
         }
-        return sourceResp;
+        if (queryResponse.getResults() == null) {
+            throw new UnsupportedQueryException(
+                    "CatalogProvider returned null list of results from query method.");
+        }
+
+        if (fanoutEnabled && !overrideFanoutRename) {
+            queryResponse = replaceSourceId(queryResponse);
+        }
+
+        return queryResponse;
     }
 
     /**
