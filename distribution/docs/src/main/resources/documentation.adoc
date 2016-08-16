@@ -721,7 +721,9 @@ include::${project.build.directory}/doc-contents/_contents/_formats/formats-intr
 
 include::${project.build.directory}/doc-contents/_contents/_formats/file-types-supported-contents.adoc[]
 
-= Extending ${branding}
+= Developing ${branding}
+
+include::${project.build.directory}/doc-contents/_contents/_developing/building-ddf-intro-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/_contents/_developing/developing-intro-contents.adoc[]
 

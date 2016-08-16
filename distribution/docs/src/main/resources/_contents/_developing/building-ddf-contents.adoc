@@ -1,6 +1,7 @@
+
 Follow these procedures to build ${branding} from source code.
 
-==== Prerequisites
+==== Building ${ddf-branding} Prerequisites
 
 * Install http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK].
 * Verify that the `JAVA_HOME` environment variable is set to the newly installed JDK location, and that the PATH includes `%JAVA_HOME%\bin` (for Windows) or `$JAVA_HOME$/bin` (*nix).
@@ -29,7 +30,7 @@ For more help on how to use the `settings.xml` file, refer to the http://maven.a
 See this http://maven.apache.org/guides/mini/guide-encryption.html[Maven guide] on how to encrypt the passwords in your `settings.xml`.
 ====
 
-==== Procedures
+==== Building ${ddf-branding} Procedures
 
 ===== Clone the ${ddf-branding} Repository
 
@@ -48,8 +49,7 @@ git@github.com:codice/ddf.git
 Generally, SSH is faster than HTTPS, but requires setting an SSH git and passphrase with http://github.com[Github]. Additionally, there may be restrictions on the use of SSH on some networks.
 ====
 
-===== Run the Build
-
+===== Running the ${ddf-branding} Build
 
 * Build command example for one individual repository.
 ----
