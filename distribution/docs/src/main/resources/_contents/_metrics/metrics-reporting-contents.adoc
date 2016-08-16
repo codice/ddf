@@ -41,7 +41,6 @@ The average min and max of all of the metrics data is summarized in the lower le
 The user can also specify custom time ranges by adjusting the URL used to access the metric's graph.
 The Catalog Queries metric data may also be graphed for a specific time range by specifying the `startDate` and `endDate` query parameters in the URL.
 
-
 For example, to map the Catalog Queries metric data for March 31, 6:00 am, to April 1, 2013, 11:00 am, (Arizona timezone, which is -07:00) the URL would be: 
 
 [source,http]
