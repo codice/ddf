@@ -59,7 +59,7 @@
         <feature version='${camel.version}'>camel-spring</feature>
         <feature version='${camel.version}'>camel-blueprint</feature>
     </feature>
-    <feature name='camel-amqp' version='${project.version}' start-level='50'>
+    <feature name='camel-amqp' version='${camel.version}' start-level='50'>
     <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
     <bundle dependency='true'>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.mina/${servicemix.bundles.mina.version}</bundle>
@@ -1045,6 +1045,43 @@
         <feature>platform-migratable-api</feature>
         <feature>platform-migration</feature>
         <feature>platform-migratable</feature>
+    </feature>
+
+    <feature name="artemis-core" install="manual" version="${artemis.version}" description="ActiveMQ Artemis broker libraries">
+        <feature prerequisite="true">transaction</feature>
+        <feature prerequisite="true">netty-core</feature>
+        <feature prerequisite="true">scr</feature>
+        <configfile finalname="etc/org.apache.activemq.artemis.cfg">mvn:org.apache.activemq/artemis-features/${artemis.version}/cfg</configfile>
+        <configfile finalname="etc/artemis.xml">mvn:org.apache.activemq/artemis-features/${artemis.version}/xml/artemis</configfile>
+
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms_2_spec.version}</bundle>
+        <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
+        <bundle>mvn:io.netty/netty-codec-http/${netty.version}</bundle>
+        <bundle>mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
+        <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+
+        <bundle>mvn:org.jboss.logging/jboss-logging/${jboss-logging.version}</bundle>
+        <bundle>mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
+
+        <bundle>mvn:org.apache.activemq/artemis-native/${artemis.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-server-osgi/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="artemis-amqp" install="manual" version="${artemis.version}" description="ActiveMQ Artemis AMQP protocol libraries">
+        <feature prerequisite="true">wrap</feature>
+        <feature prerequisite="true">artemis-core</feature>
+        <bundle>wrap:mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
+        <bundle>wrap:mvn:org.apache.qpid/qpid-jms-client/${qpid-jms.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-proton-plug/${artemis.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="netty-core" install="manual" version="${netty.version}" description="Netty libraries">
+        <bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-transport/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-handler/${netty.version}</bundle>
     </feature>
 
 </features>
