@@ -14,14 +14,13 @@
 
 package org.codice.ddf.commands.catalog;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.codice.ddf.commands.catalog.validation.ValidatePrinter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,6 +56,8 @@ public class TestValidateCommand extends TestAbstractCommand {
     MetacardValidator badValidator;
 
     CatalogFramework mockCatalog;
+
+    ValidatePrinter mockPrinter;
 
     @Before
     public void setup() throws Exception {
@@ -86,39 +88,35 @@ public class TestValidateCommand extends TestAbstractCommand {
         }).when(badValidator)
                 .validate(anyObject());
 
+        //mock out printer
+        mockPrinter = mock(ValidatePrinter.class);
+
         //mock out catalog
-        command = new ValidateCommand();
+        command = new ValidateCommand(mockPrinter);
         mockCatalog = mock(CatalogFrameworkImpl.class);
-        command.catalog = mockCatalog;
+        command.setCatalog(mockCatalog);
     }
 
     //test having no validators
     @Test
     public void testNoValidators() throws Exception {
-        //capture console output
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
+        command.setPath(testFolder.getRoot()
+                .getAbsolutePath() + "aFileThatDoesntExist.xml");
+        command.execute();
 
-        command.path = testFolder.getRoot()
-                .getAbsolutePath() + "aFileThatDoesntExist.xml";
-        command.execute(); //execute with null validators list
-        assertThat(consoleOutput.getOutput(), containsString("No validators have been configured"));
-
-        command.validators = Collections.emptyList();
+        command.setValidators(Collections.emptyList());
         command.execute(); //execute with empty validators list
-        assertThat(consoleOutput.getOutput(), containsString("No validators have been configured"));
 
-        consoleOutput.resetSystemOut();
-        consoleOutput.closeBuffer();
+        verify(mockPrinter, times(2)).printError("No validators have been configured");
     }
 
     //test invalid file
     @Test(expected = FileNotFoundException.class)
     public void testInvalidFile() throws Exception {
-        command.path = testFolder.getRoot()
-                .getAbsolutePath() + "aFileThatDoesntExist.xml";
-        command.validators = new ArrayList<>();
-        command.validators.add(goodValidator);
+        command.setPath(testFolder.getRoot()
+                .getAbsolutePath() + "aFileThatDoesntExist.xml");
+        command.setValidators(new ArrayList<>());
+        command.getValidators().add(goodValidator);
 
         command.execute();
     }
@@ -126,89 +124,88 @@ public class TestValidateCommand extends TestAbstractCommand {
     //test a single valid file
     @Test
     public void testValidFile() throws Exception {
-        int fileCount = 1;
         File newFile = testFolder.newFile("temp.xml");
-        command.path = newFile.getAbsolutePath();
+        command.setPath(newFile.getAbsolutePath());
 
-        command.validators = new ArrayList<>();
-        command.validators.add(goodValidator);
+        command.setValidators(new ArrayList<>());
+        command.getValidators().add(goodValidator);
 
-        assertThat(fileCount - (int) command.execute(), equalTo(fileCount));
+        command.execute();
+        verify(mockPrinter).printSummary(0, 1); //0 errors, one message saying so
     }
 
     //test valid file that fails validation
     @Test
     public void testValidFileFailedValidation() throws Exception {
-        int fileCount = 1;
         File newFile = testFolder.newFile("temp.xml");
-        command.path = newFile.getAbsolutePath();
+        command.setPath(newFile.getAbsolutePath());
 
-        command.validators = new ArrayList<>();
-        command.validators.add(badValidator);
+        command.setValidators(new ArrayList<>());
+        command.getValidators().add(badValidator);
 
-        assertThat(fileCount - (int) command.execute(), equalTo(0));
+        command.execute();
+        verify(mockPrinter).printSummary(1, 1);
     }
 
     //test empty directory
     @Test
     public void testEmptyDirectory() throws Exception {
-        int fileCount = 0;
-        command.path = testFolder.getRoot()
-                .getAbsolutePath();
+        command.setPath(testFolder.getRoot()
+                .getAbsolutePath());
 
-        command.validators = new ArrayList<>();
-        command.validators.add(goodValidator);
+        command.setValidators(new ArrayList<>());
+        command.getValidators().add(goodValidator);
 
-        assertThat(fileCount - (int) command.execute(), equalTo(fileCount));
+        command.execute();
+        verify(mockPrinter).printSummary(0, 0);
     }
 
     //test directory with one file
     @Test
     public void testSingleFileDirectory() throws Exception {
-        int fileCount = 1;
         testFolder.newFile("temp.xml");
-        command.path = testFolder.getRoot()
-                .getAbsolutePath();
+        command.setPath(testFolder.getRoot()
+                .getAbsolutePath());
 
-        command.validators = new ArrayList<>();
-        command.validators.add(goodValidator);
+        command.setValidators(new ArrayList<>());
+        command.getValidators().add(goodValidator);
 
-        assertThat(fileCount - (int) command.execute(), equalTo(fileCount));
+        command.execute();
+        verify(mockPrinter).printSummary(0, 1);
     }
 
     //test directory with multiple files
     @Test
     public void testMultipleFileDirectory() throws Exception {
-        int fileCount = 4;
         testFolder.newFile("temp1.xml");
         testFolder.newFile("temp2.xml");
         testFolder.newFile("temp3.xml");
         testFolder.newFile("temp4.xml");
-        command.path = testFolder.getRoot()
-                .getAbsolutePath();
+        command.setPath(testFolder.getRoot()
+                .getAbsolutePath());
+        command.setValidators(new ArrayList<>());
+        command.getValidators().add(goodValidator);
 
-        command.validators = new ArrayList<>();
-        command.validators.add(goodValidator);
-
-        assertThat(fileCount - (int) command.execute(), equalTo(fileCount));
+        command.execute();
+        verify(mockPrinter).printSummary(0, 4);
     }
 
     //test directory with multiple files with a good and bad validator
     @Test
     public void testMultipleFileDirectoryGoodBadValidation() throws Exception {
-        int fileCount = 4;
         testFolder.newFile("temp1.xml");
         testFolder.newFile("temp2.xml");
         testFolder.newFile("temp3.xml");
         testFolder.newFile("temp4.xml");
-        command.path = testFolder.getRoot()
-                .getAbsolutePath();
+        command.setPath(testFolder.getRoot()
+                .getAbsolutePath());
 
-        command.validators = new ArrayList<>();
-        command.validators.add(goodValidator);
-        command.validators.add(badValidator);
+        command.setValidators(new ArrayList<>());
+        command.getValidators().add(goodValidator);
+        command.getValidators().add(badValidator);
 
-        assertThat(fileCount - (int) command.execute(), equalTo(0));
+        command.execute();
+        verify(mockPrinter).printSummary(4, 4);
     }
 
     //helper methods to set up mock catalog for cqlQuery tests
@@ -241,11 +238,12 @@ public class TestValidateCommand extends TestAbstractCommand {
     public void testQueryNoResults() throws Exception {
         setupEmptyCatalog();
 
-        command.cqlQuery = "title like 'fake'";
-        command.validators = new ArrayList<>();
-        command.validators.add(badValidator);
+        command.setCqlQuery("title like 'fake'");
+        command.setValidators(new ArrayList<>());
+        command.getValidators().add(badValidator);
 
-        assertThat(command.execute(), equalTo(0));
+        command.execute();
+        verify(mockPrinter).printSummary(0, 0);
     }
 
     //test cqlQuery with results
@@ -253,10 +251,11 @@ public class TestValidateCommand extends TestAbstractCommand {
     public void testQueryWithResults() throws Exception {
         setupNonEmptyCatalog();
 
-        command.cqlQuery = "title like 'fake'";
-        command.validators = new ArrayList<>();
-        command.validators.add(badValidator);
+        command.setCqlQuery("title like 'fake'");
+        command.setValidators(new ArrayList<>());
+        command.getValidators().add(badValidator);
 
-        assertThat(command.execute(), equalTo(1));
+        command.execute();
+        verify(mockPrinter).printSummary(1, 1);
     }
 }

@@ -59,44 +59,54 @@ public class ValidateCommand implements Action {
 
     @Option(name = "--path", aliases = "-p", description = "The path to the file to be validated")
     @Completion(FileCompleter.class)
-    String path;
+    private String path;
 
     @Option(name = "--cqlQuery", aliases = "-q", description =
             "Search using CQL Filter expressions.\n" + "CQL Examples:\n"
-                    + "\tTextual:   search --cql \"title like 'some text'\"\n"
-                    + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
-                    + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
-                    + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
-    String cqlQuery;
+                    + "\tTextual:   catalog:validate --cqlQuery \"title like 'some text'\"\n"
+                    + "\tTemporal:  catalog:validate --cqlQuery \"modified before 2012-09-01T12:30:00Z\"\n"
+                    + "\tSpatial:   catalog:validate --cqlQuery \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
+                    + "\tComplex:   catalog:validate --cqlQuery \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
+    private String cqlQuery;
 
     @Option(name = "--recurse", aliases = "-r", description = "Allows for searching subdirectories "
             + "of the specified directory to be searched for metacards.")
-    boolean recurse = false;
+    private boolean recurse = false;
 
-    @Option(name = "--include-extensions", multiValued = true,
-            description = "List of file extensions to use in the path search. Leave blank for all "
+    @Option(name = "--include-extensions", multiValued = true, description =
+            "List of file extensions to use in the path search. Leave blank for all "
                     + "file extensions to be included.")
-    List<String> filteredExtensions;
+    private List<String> filteredExtensions;
 
     @Reference
-    List<MetacardValidator> validators;
+    private List<MetacardValidator> validators;
 
     @Reference
-    CatalogFramework catalog;
+    private CatalogFramework catalog;
+
+    private ValidatePrinter printer;
+
+    public ValidateCommand() {
+        printer = new ValidatePrinter();
+    }
+
+    ValidateCommand(ValidatePrinter printer) {
+        this.printer = printer;
+    }
 
     @Override
     public Object execute() throws Exception {
         int numMetacardsWithErrorsOrWarnings = 0;
         if (validators == null || validators.size() == 0) {
-            ValidatePrinter.printError("No validators have been configured");
+            printer.printError("No validators have been configured");
         } else {
             List<Metacard> metacards;
             if (path != null) {
-                metacards = createMetacards();
+                metacards = createMetacardsFromFiles();
             } else if (cqlQuery != null) {
                 metacards = getMetacardsFromCatalog();
             } else {
-                ValidatePrinter.printError(
+                printer.printError(
                         "Usage: catalog:validate < --path filePath > < --cqlQuery cqlQuery >");
                 return null;
             }
@@ -106,16 +116,16 @@ public class ValidateCommand implements Action {
                 if (report.getEntries()
                         .size() > 0) {
                     numMetacardsWithErrorsOrWarnings++;
-                    ValidatePrinter.print(report);
+                    printer.print(report);
                 }
             }
-            ValidatePrinter.printSummary(numMetacardsWithErrorsOrWarnings, reports.size());
+            printer.printSummary(numMetacardsWithErrorsOrWarnings, reports.size());
         }
 
-        return numMetacardsWithErrorsOrWarnings;
+        return null;
     }
 
-    private List<Metacard> createMetacards() throws IOException {
+    private List<Metacard> createMetacardsFromFiles() throws IOException {
         Collection<File> files = getFiles();
         List<Metacard> metacards = new ArrayList<>();
         for (File file : files) {
@@ -153,6 +163,7 @@ public class ValidateCommand implements Action {
         File file = new File(path);
 
         if (!file.exists()) {
+            printer.printError("File not found.");
             throw new FileNotFoundException(String.format("File or directory %s does not exist",
                     path));
         }
@@ -169,5 +180,45 @@ public class ValidateCommand implements Action {
         }
 
         return files;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getCqlQuery() {
+        return cqlQuery;
+    }
+
+    public void setCqlQuery(String cqlQuery) {
+        this.cqlQuery = cqlQuery;
+    }
+
+    public boolean isRecurse() {
+        return recurse;
+    }
+
+    public void setRecurse(boolean recurse) {
+        this.recurse = recurse;
+    }
+
+    public List<MetacardValidator> getValidators() {
+        return validators;
+    }
+
+    public void setValidators(List<MetacardValidator> validators) {
+        this.validators = validators;
+    }
+
+    public CatalogFramework getCatalog() {
+        return catalog;
+    }
+
+    public void setCatalog(CatalogFramework catalog) {
+        this.catalog = catalog;
     }
 }
