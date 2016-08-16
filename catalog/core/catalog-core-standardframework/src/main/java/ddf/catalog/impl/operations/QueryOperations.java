@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,16 +36,15 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.Request;
-import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PolicyPlugin;
@@ -110,57 +110,15 @@ public class QueryOperations extends DescribableImpl {
         FederationStrategy fedStrategy = strategy;
         QueryResponse queryResponse;
 
-        setFlagsOnRequest(queryRequest);
-
-        QueryRequest queryReq = queryRequest;
+        queryRequest = setFlagsOnRequest(queryRequest);
 
         try {
-            validateQueryRequest(queryReq, fanoutEnabled);
-
-            if (fanoutEnabled) {
-                // Force an enterprise query
-                queryReq = new QueryRequestImpl(queryRequest.getQuery(),
-                        true,
-                        null,
-                        queryRequest.getProperties());
-            }
-
-            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            Map<String, Serializable> unmodifiableProperties =
-                    Collections.unmodifiableMap(queryReq.getProperties());
-            for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                try {
-                    PolicyResponse policyResponse = plugin.processPreQuery(queryReq.getQuery(),
-                            unmodifiableProperties);
-                    opsSecuritySupport.buildPolicyMap(requestPolicyMap,
-                            policyResponse.operationPolicy()
-                                    .entrySet());
-                } catch (StopProcessingException e) {
-                    throw new FederationException("Query could not be executed.", e);
-                }
-            }
-            queryReq.getProperties()
-                    .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                try {
-                    queryReq = plugin.processPreQuery(queryReq);
-                } catch (StopProcessingException e) {
-                    throw new FederationException("Query could not be executed.", e);
-                }
-            }
-
-            for (PreQueryPlugin service : frameworkProperties.getPreQuery()) {
-                try {
-                    queryReq = service.process(queryReq);
-                } catch (PluginExecutionException see) {
-                    LOGGER.warn("Error executing PreQueryPlugin: {}", see.getMessage(), see);
-                } catch (StopProcessingException e) {
-                    throw new FederationException("Query could not be executed.", e);
-                }
-            }
-
-            validateQueryRequest(queryReq, fanoutEnabled);
+            queryRequest = validateQueryRequest(queryRequest, fanoutEnabled);
+            queryRequest = getFanoutQuery(queryRequest, fanoutEnabled);
+            queryRequest = populateQueryRequestPolicyMap(queryRequest);
+            queryRequest = processPreQueryAccessPlugins(queryRequest);
+            queryRequest = processPreQueryPlugins(queryRequest);
+            queryRequest = validateQueryRequest(queryRequest, fanoutEnabled);
 
             if (fedStrategy == null) {
                 if (frameworkProperties.getFederationStrategy() == null) {
@@ -174,53 +132,14 @@ public class QueryOperations extends DescribableImpl {
                 }
             }
 
-            queryResponse = doQuery(queryReq, fedStrategy, fanoutEnabled);
-
+            queryResponse = doQuery(queryRequest, fedStrategy, fanoutEnabled);
             queryResponse = injectAttributes(queryResponse);
-
-            validateFixQueryResponse(queryResponse, queryReq, overrideFanoutRename, fanoutEnabled);
-
-            HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
-            unmodifiableProperties = Collections.unmodifiableMap(queryResponse.getProperties());
-            for (Result result : queryResponse.getResults()) {
-                HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-                for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                    try {
-                        PolicyResponse policyResponse = plugin.processPostQuery(result,
-                                unmodifiableProperties);
-                        opsSecuritySupport.buildPolicyMap(itemPolicyMap,
-                                policyResponse.itemPolicy()
-                                        .entrySet());
-                        opsSecuritySupport.buildPolicyMap(responsePolicyMap,
-                                policyResponse.operationPolicy()
-                                        .entrySet());
-                    } catch (StopProcessingException e) {
-                        throw new FederationException("Query could not be executed.", e);
-                    }
-                }
-                result.getMetacard()
-                        .setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-            }
-            queryResponse.getProperties()
-                    .put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
-
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                try {
-                    queryResponse = plugin.processPostQuery(queryResponse);
-                } catch (StopProcessingException e) {
-                    throw new FederationException("Query could not be executed.", e);
-                }
-            }
-
-            for (PostQueryPlugin service : frameworkProperties.getPostQuery()) {
-                try {
-                    queryResponse = service.process(queryResponse);
-                } catch (PluginExecutionException see) {
-                    LOGGER.warn("Error executing PostQueryPlugin: {}", see.getMessage(), see);
-                } catch (StopProcessingException e) {
-                    throw new FederationException("Query could not be executed.", e);
-                }
-            }
+            queryResponse = validateFixQueryResponse(queryResponse,
+                    overrideFanoutRename,
+                    fanoutEnabled);
+            queryResponse = populateQueryResponsePolicyMap(queryResponse);
+            queryResponse = processPostQueryAccessPlugins(queryResponse);
+            queryResponse = processPostQueryPlugins(queryResponse);
 
         } catch (RuntimeException re) {
             LOGGER.warn("Exception during runtime while performing query", re);
@@ -358,7 +277,7 @@ public class QueryOperations extends DescribableImpl {
         return addProcessingDetails(exceptions, response);
     }
 
-    void setFlagsOnRequest(Request request) {
+    <T extends Request> T setFlagsOnRequest(T request) {
         if (request != null) {
             Set<String> ids = getCombinedIdSet(request);
 
@@ -372,6 +291,17 @@ public class QueryOperations extends DescribableImpl {
                             (Requests.isLocal(request) && ids.size() > 1) || (!Requests.isLocal(
                                     request) && !ids.isEmpty()));
         }
+
+        return request;
+    }
+
+    Filter getFilterWithAdditionalFilters(List<Filter> originalFilter) {
+        return frameworkProperties.getFilterBuilder()
+                .allOf(getTagsQueryFilter(),
+                        frameworkProperties.getValidationQueryFactory()
+                                .getFilterWithValidationFilter(),
+                        frameworkProperties.getFilterBuilder()
+                                .anyOf(originalFilter));
     }
 
     /**
@@ -403,6 +333,119 @@ public class QueryOperations extends DescribableImpl {
         return newResponse;
     }
 
+    private QueryResponse processPostQueryPlugins(QueryResponse queryResponse)
+            throws FederationException {
+        for (PostQueryPlugin service : frameworkProperties.getPostQuery()) {
+            try {
+                queryResponse = service.process(queryResponse);
+            } catch (PluginExecutionException see) {
+                LOGGER.warn("Error executing PostQueryPlugin: {}", see.getMessage(), see);
+            } catch (StopProcessingException e) {
+                throw new FederationException("Query could not be executed.", e);
+            }
+        }
+        return queryResponse;
+    }
+
+    private QueryResponse processPostQueryAccessPlugins(QueryResponse queryResponse)
+            throws FederationException {
+        for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+            try {
+                queryResponse = plugin.processPostQuery(queryResponse);
+            } catch (StopProcessingException e) {
+                throw new FederationException("Query could not be executed.", e);
+            }
+        }
+        return queryResponse;
+    }
+
+    private QueryResponse populateQueryResponsePolicyMap(QueryResponse queryResponse)
+            throws FederationException {
+        HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
+        Map<String, Serializable> unmodifiableProperties =
+                Collections.unmodifiableMap(queryResponse.getProperties());
+        for (Result result : queryResponse.getResults()) {
+            HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
+            for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
+                try {
+                    PolicyResponse policyResponse = plugin.processPostQuery(result,
+                            unmodifiableProperties);
+                    opsSecuritySupport.buildPolicyMap(itemPolicyMap,
+                            policyResponse.itemPolicy()
+                                    .entrySet());
+                    opsSecuritySupport.buildPolicyMap(responsePolicyMap,
+                            policyResponse.operationPolicy()
+                                    .entrySet());
+                } catch (StopProcessingException e) {
+                    throw new FederationException("Query could not be executed.", e);
+                }
+            }
+            result.getMetacard()
+                    .setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
+        }
+        queryResponse.getProperties()
+                .put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
+
+        return queryResponse;
+    }
+
+    private QueryRequest processPreQueryPlugins(QueryRequest queryReq) throws FederationException {
+        for (PreQueryPlugin service : frameworkProperties.getPreQuery()) {
+            try {
+                queryReq = service.process(queryReq);
+            } catch (PluginExecutionException see) {
+                LOGGER.warn("Error executing PreQueryPlugin: {}", see.getMessage(), see);
+            } catch (StopProcessingException e) {
+                throw new FederationException("Query could not be executed.", e);
+            }
+        }
+        return queryReq;
+    }
+
+    private QueryRequest processPreQueryAccessPlugins(QueryRequest queryReq)
+            throws FederationException {
+        for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+            try {
+                queryReq = plugin.processPreQuery(queryReq);
+            } catch (StopProcessingException e) {
+                throw new FederationException("Query could not be executed.", e);
+            }
+        }
+        return queryReq;
+    }
+
+    private QueryRequest populateQueryRequestPolicyMap(QueryRequest queryReq)
+            throws FederationException {
+        HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+        Map<String, Serializable> unmodifiableProperties =
+                Collections.unmodifiableMap(queryReq.getProperties());
+        for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
+            try {
+                PolicyResponse policyResponse = plugin.processPreQuery(queryReq.getQuery(),
+                        unmodifiableProperties);
+                opsSecuritySupport.buildPolicyMap(requestPolicyMap,
+                        policyResponse.operationPolicy()
+                                .entrySet());
+            } catch (StopProcessingException e) {
+                throw new FederationException("Query could not be executed.", e);
+            }
+        }
+        queryReq.getProperties()
+                .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+        return queryReq;
+    }
+
+    private QueryRequest getFanoutQuery(QueryRequest queryRequest, boolean fanoutEnabled) {
+        if (!fanoutEnabled) {
+            return queryRequest;
+        }
+        return new QueryRequestImpl(queryRequest.getQuery(),
+                true,
+                null,
+                queryRequest.getProperties());
+    }
+
     /**
      * Validates that the {@link QueryRequest} is non-null and that the query in it is non-null.
      *
@@ -410,7 +453,7 @@ public class QueryOperations extends DescribableImpl {
      * @param fanoutEnabled
      * @throws UnsupportedQueryException if the {@link QueryRequest} is null or the query in it is null
      */
-    private void validateQueryRequest(QueryRequest queryRequest, boolean fanoutEnabled)
+    private QueryRequest validateQueryRequest(QueryRequest queryRequest, boolean fanoutEnabled)
             throws UnsupportedQueryException {
         if (queryRequest == null) {
             throw new UnsupportedQueryException(
@@ -439,6 +482,8 @@ public class QueryOperations extends DescribableImpl {
                 }
             }
         }
+
+        return queryRequest;
     }
 
     private QueryResponse injectAttributes(QueryResponse response) {
@@ -466,35 +511,28 @@ public class QueryOperations extends DescribableImpl {
      * Validates that the {@link QueryResponse} has a non-null list of {@link Result}s in it, and
      * that the original {@link QueryRequest} is included in the response.
      *
-     * @param sourceResponse       the original {@link SourceResponse} returned from the source
-     * @param queryRequest         the original {@link QueryRequest} sent to the source
+     * @param queryResponse        the original {@link QueryResponse} returned from the source
      * @param overrideFanoutRename
      * @param fanoutEnabled
      * @return the updated {@link QueryResponse}
      * @throws UnsupportedQueryException if the original {@link QueryResponse} is null or the results list is null
      */
-    private SourceResponse validateFixQueryResponse(SourceResponse sourceResponse,
-            QueryRequest queryRequest, boolean overrideFanoutRename, boolean fanoutEnabled)
-            throws UnsupportedQueryException {
-        SourceResponse sourceResp = sourceResponse;
-        if (fanoutEnabled && !overrideFanoutRename) {
-            sourceResp = replaceSourceId((QueryResponse) sourceResponse);
-        }
-        if (sourceResp != null) {
-            if (sourceResp.getResults() == null) {
-                throw new UnsupportedQueryException(
-                        "CatalogProvider returned null list of results from query method.");
-            }
-            if (sourceResp.getRequest() == null) {
-                sourceResp = new SourceResponseImpl(queryRequest,
-                        sourceResp.getProperties(),
-                        sourceResp.getResults());
-            }
-        } else {
+    private QueryResponse validateFixQueryResponse(QueryResponse queryResponse,
+            boolean overrideFanoutRename, boolean fanoutEnabled) throws UnsupportedQueryException {
+        if (queryResponse == null) {
             throw new UnsupportedQueryException(
                     "CatalogProvider returned null QueryResponse Object.");
         }
-        return sourceResp;
+        if (queryResponse.getResults() == null) {
+            throw new UnsupportedQueryException(
+                    "CatalogProvider returned null list of results from query method.");
+        }
+
+        if (fanoutEnabled && !overrideFanoutRename) {
+            queryResponse = replaceSourceId(queryResponse);
+        }
+
+        return queryResponse;
     }
 
     private boolean canAccessSource(FederatedSource source, QueryRequest request) {
@@ -611,5 +649,17 @@ public class QueryOperations extends DescribableImpl {
 
         LOGGER.trace("hasCatalogProvider() returning false");
         return false;
+    }
+
+    private Filter getTagsQueryFilter() {
+        return frameworkProperties.getFilterBuilder()
+                .anyOf(frameworkProperties.getFilterBuilder()
+                                .attribute(Metacard.TAGS)
+                                .is()
+                                .like()
+                                .text(FilterDelegate.WILDCARD_CHAR),
+                        frameworkProperties.getFilterBuilder()
+                                .attribute(Metacard.TAGS)
+                                .empty());
     }
 }

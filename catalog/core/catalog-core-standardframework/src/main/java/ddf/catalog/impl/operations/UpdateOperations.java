@@ -43,6 +43,7 @@ import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -73,6 +74,8 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 
 public class UpdateOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateOperations.class);
@@ -93,20 +96,25 @@ public class UpdateOperations {
 
     private final OperationsMetacardSupport opsMetacardSupport;
 
-    private final OperationsCrudSupport opsCrudSupport;
+    private final OperationsCatalogStoreSupport opsCatStoreSupport;
+
+    private final OperationsStorageSupport opsStorageSupport;
 
     private Historian historian;
 
     public UpdateOperations(FrameworkProperties frameworkProperties,
             QueryOperations queryOperations, SourceOperations sourceOperations,
             OperationsSecuritySupport opsSecuritySupport,
-            OperationsMetacardSupport opsMetacardSupport, OperationsCrudSupport opsCrudSupport) {
+            OperationsMetacardSupport opsMetacardSupport,
+            OperationsCatalogStoreSupport opsCatStoreSupport,
+            OperationsStorageSupport opsStorageSupport) {
         this.frameworkProperties = frameworkProperties;
         this.queryOperations = queryOperations;
         this.sourceOperations = sourceOperations;
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
-        this.opsCrudSupport = opsCrudSupport;
+        this.opsCatStoreSupport = opsCatStoreSupport;
+        this.opsStorageSupport = opsStorageSupport;
     }
 
     public void setHistorian(Historian historian) {
@@ -118,146 +126,40 @@ public class UpdateOperations {
     //
     public UpdateResponse update(UpdateRequest updateRequest)
             throws IngestException, SourceUnavailableException {
-        boolean catalogStoreRequest = opsCrudSupport.isCatalogStoreRequest(updateRequest);
-        queryOperations.setFlagsOnRequest(updateRequest);
+        updateRequest = queryOperations.setFlagsOnRequest(updateRequest);
+        updateRequest = validateUpdateRequest(updateRequest);
+        updateRequest = validateLocalSource(updateRequest);
 
-        validateUpdateRequest(updateRequest);
-
-        if (Requests.isLocal(updateRequest)
-                && !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
-            throw new SourceUnavailableException(
-                    "Local provider is not available, cannot perform update operation.");
-        }
-
-        UpdateResponse updateResponse = null;
         try {
-            injectAttributes(updateRequest);
+            updateRequest = injectAttributes(updateRequest);
+            updateRequest = setDefaultValues(updateRequest);
 
-            setDefaultValues(updateRequest);
+            Map<String, Metacard> metacardMap = populateMetacards(updateRequest);
 
-            List<Filter> idFilters = new ArrayList<>(updateRequest.getUpdates()
-                    .size());
-            for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
-                idFilters.add(frameworkProperties.getFilterBuilder()
-                        .attribute(updateRequest.getAttributeName())
-                        .is()
-                        .equalTo()
-                        .text(update.getKey()
-                                .toString()));
-            }
-
-            QueryImpl queryImpl = new QueryImpl(opsCrudSupport.getFilterWithAdditionalFilters(
-                    idFilters));
-            queryImpl.setStartIndex(1);
-            queryImpl.setPageSize(updateRequest.getUpdates()
-                    .size());
-            QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl,
-                    updateRequest.getStoreIds());
-
-            QueryResponse query;
-            Map<String, Metacard> metacardMap = new HashMap<>(updateRequest.getUpdates()
-                    .size());
-            if (!frameworkProperties.getPolicyPlugins()
-                    .isEmpty()) {
-                try {
-                    query = queryOperations.doQuery(queryRequest,
-                            frameworkProperties.getFederationStrategy(),
-                            false);
-                    List<Result> results = query.getResults();
-                    if (results.size() != updateRequest.getUpdates()
-                            .size()) {
-                        throw new IngestException("Unable to find all metacards in update request.");
-                    }
-                    for (Result result : results) {
-                        metacardMap.put(opsCrudSupport.getAttributeStringValue(result.getMetacard(),
-                                updateRequest.getAttributeName()), result.getMetacard());
-                    }
-                } catch (FederationException e) {
-                    LOGGER.warn("Unable to complete query for updated metacards.", e);
-                }
-            }
-            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
-                HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-                HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
-                Metacard oldMetacard = metacardMap.get(update.getKey());
-                for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                    PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
-                            Collections.unmodifiableMap(updateRequest.getProperties()));
-                    PolicyResponse oldPolicyResponse = plugin.processPreUpdate(oldMetacard,
-                            Collections.unmodifiableMap(updateRequest.getProperties()));
-
-                    opsSecuritySupport.buildPolicyMap(itemPolicyMap,
-                            updatePolicyResponse.itemPolicy()
-                                    .entrySet());
-                    opsSecuritySupport.buildPolicyMap(oldItemPolicyMap,
-                            oldPolicyResponse.itemPolicy()
-                                    .entrySet());
-                    opsSecuritySupport.buildPolicyMap(requestPolicyMap,
-                            updatePolicyResponse.operationPolicy()
-                                    .entrySet());
-                }
-                update.getValue()
-                        .setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-                if (oldMetacard != null) {
-                    oldMetacard.setAttribute(new AttributeImpl(Metacard.SECURITY,
-                            oldItemPolicyMap));
-                }
-            }
-            updateRequest.getProperties()
-                    .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
-            }
+            updateRequest = populateUpdateRequestPolicyMap(updateRequest, metacardMap);
+            updateRequest = processPreUpdateAccessPlugins(updateRequest, metacardMap);
 
             updateRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
                             new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
                                     metacardMap.values()));
 
-            for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
-                try {
-                    updateRequest = plugin.process(updateRequest);
-                } catch (PluginExecutionException e) {
-                    LOGGER.warn("error processing update in PreIngestPlugin", e);
-                }
-            }
-            validateUpdateRequest(updateRequest);
+            updateRequest = processPreIngestPlugins(updateRequest);
+            updateRequest = validateUpdateRequest(updateRequest);
 
             // Call the update on the catalog
             LOGGER.debug("Calling catalog.update() with {} updates.",
                     updateRequest.getUpdates()
                             .size());
 
-            if (Requests.isLocal(updateRequest)) {
-                updateResponse = sourceOperations.getCatalog()
-                        .update(updateRequest);
-                updateResponse = historian.version(updateResponse);
-            }
-
-            if (catalogStoreRequest) {
-                UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateRequest);
-                if (updateResponse == null) {
-                    updateResponse = remoteUpdateResponse;
-                } else {
-                    updateResponse.getProperties()
-                            .putAll(remoteUpdateResponse.getProperties());
-                    updateResponse.getProcessingErrors()
-                            .addAll(remoteUpdateResponse.getProcessingErrors());
-                }
-            }
+            UpdateResponse updateResponse = performLocalUpdate(updateRequest);
+            updateResponse = performRemoteUpdate(updateRequest, updateResponse);
 
             // Handle the posting of messages to pubsub
             updateResponse = validateFixUpdateResponse(updateResponse, updateRequest);
-            for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
-                try {
-                    updateResponse = plugin.process(updateResponse);
-                } catch (PluginExecutionException e) {
-                    LOGGER.info("Plugin exception", e);
-                }
-            }
+            updateResponse = processPostIngestPlugins(updateResponse);
 
+            return updateResponse;
         } catch (StopProcessingException see) {
             LOGGER.warn(PRE_INGEST_ERROR, see);
             throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
@@ -265,48 +167,39 @@ public class UpdateOperations {
             LOGGER.warn("Exception during runtime while performing update", re);
             throw new InternalIngestException("Exception during runtime while performing update");
         }
-
-        return updateResponse;
     }
 
     public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
             throws IngestException, SourceUnavailableException {
-        opsCrudSupport.prepareStorageRequest(streamUpdateRequest,
-                streamUpdateRequest::getContentItems);
-
         Optional<String> historianTransactionKey = Optional.empty();
-
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamUpdateRequest.getContentItems()
                 .size());
         HashMap<String, Path> tmpContentPaths = new HashMap<>(streamUpdateRequest.getContentItems()
                 .size());
-        opsCrudSupport.generateMetacardAndContentItems(streamUpdateRequest,
-                streamUpdateRequest.getContentItems(),
-                metacardMap,
-                contentItems,
-                tmpContentPaths);
-        streamUpdateRequest.getProperties()
-                .put(CONTENT_PATHS, tmpContentPaths);
-
         UpdateResponse updateResponse = null;
         UpdateStorageRequest updateStorageRequest = null;
         UpdateStorageResponse updateStorageResponse;
+
+        streamUpdateRequest = opsStorageSupport.prepareStorageRequest(streamUpdateRequest,
+                streamUpdateRequest::getContentItems);
+
+        // Operation populates the metacardMap, contentItems, and tmpContentPaths
+        opsMetacardSupport.generateMetacardAndContentItems(streamUpdateRequest.getContentItems(),
+                (Subject) streamUpdateRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                metacardMap,
+                contentItems,
+                tmpContentPaths);
+
+        streamUpdateRequest.getProperties()
+                .put(CONTENT_PATHS, tmpContentPaths);
+
         try {
             if (!contentItems.isEmpty()) {
                 updateStorageRequest = new UpdateStorageRequestImpl(contentItems,
                         streamUpdateRequest.getId(),
                         streamUpdateRequest.getProperties());
-
-                for (final PreUpdateStoragePlugin plugin : frameworkProperties.getPreUpdateStoragePlugins()) {
-                    try {
-                        updateStorageRequest = plugin.process(updateStorageRequest);
-                    } catch (PluginExecutionException e) {
-                        LOGGER.warn(
-                                "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                                e);
-                    }
-                }
+                updateStorageRequest = processPreUpdateStoragePlugins(updateStorageRequest);
 
                 try {
                     updateStorageResponse = sourceOperations.getStorage()
@@ -323,15 +216,7 @@ public class UpdateOperations {
                         updateStorageResponse,
                         tmpContentPaths);
 
-                for (final PostUpdateStoragePlugin plugin : frameworkProperties.getPostUpdateStoragePlugins()) {
-                    try {
-                        updateStorageResponse = plugin.process(updateStorageResponse);
-                    } catch (PluginExecutionException e) {
-                        LOGGER.warn(
-                                "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                                e);
-                    }
-                }
+                updateStorageResponse = processPostUpdateStoragePlugins(updateStorageResponse);
 
                 for (ContentItem contentItem : updateStorageResponse.getUpdatedContentItems()) {
                     metacardMap.put(contentItem.getId(), contentItem.getMetacard());
@@ -347,11 +232,21 @@ public class UpdateOperations {
             updateRequest.setProperties(streamUpdateRequest.getProperties());
             updateResponse = update(updateRequest);
         } catch (Exception e) {
-            opsCrudSupport.handleStorageException(updateStorageRequest,
-                    streamUpdateRequest.getId(),
-                    e);
+            if (updateStorageRequest != null) {
+                try {
+                    sourceOperations.getStorage()
+                            .rollback(updateStorageRequest);
+                } catch (StorageException e1) {
+                    LOGGER.error("Unable to remove temporary content for id: {}",
+                            updateStorageRequest.getId(),
+                            e1);
+                }
+            }
+            throw new IngestException(
+                    "Unable to store products for request: " + streamUpdateRequest.getId(), e);
+
         } finally {
-            opsCrudSupport.commitAndCleanup(updateStorageRequest,
+            opsStorageSupport.commitAndCleanup(updateStorageRequest,
                     historianTransactionKey,
                     tmpContentPaths);
         }
@@ -362,7 +257,7 @@ public class UpdateOperations {
     //
     // Private helper methods
     //
-    private void injectAttributes(UpdateRequest request) {
+    private UpdateRequest injectAttributes(UpdateRequest request) {
         request.getUpdates()
                 .forEach(updateEntry -> {
                     Metacard original = updateEntry.getValue();
@@ -370,15 +265,19 @@ public class UpdateOperations {
                             frameworkProperties.getAttributeInjectors());
                     updateEntry.setValue(metacard);
                 });
+
+        return request;
     }
 
-    private void setDefaultValues(UpdateRequest updateRequest) {
+    private UpdateRequest setDefaultValues(UpdateRequest updateRequest) {
         updateRequest.getUpdates()
                 .stream()
                 .filter(Objects::nonNull)
                 .map(Map.Entry::getValue)
                 .filter(Objects::nonNull)
-                .forEach(opsCrudSupport::setDefaultValues);
+                .forEach(opsMetacardSupport::setDefaultValues);
+
+        return updateRequest;
     }
 
     /**
@@ -390,7 +289,8 @@ public class UpdateOperations {
      * @throws IngestException if the {@link UpdateRequest} is null, or has null or empty {@link Metacard} list,
      *                         or a null attribute name.
      */
-    private void validateUpdateRequest(UpdateRequest updateRequest) throws IngestException {
+    private UpdateRequest validateUpdateRequest(UpdateRequest updateRequest)
+            throws IngestException {
         if (updateRequest == null) {
             throw new IngestException(
                     "UpdateRequest was null, either passed in from endpoint, or as output from PreIngestPlugins");
@@ -401,13 +301,15 @@ public class UpdateOperations {
                     "Cannot perform update with null/empty attribute value list or null attributeName, "
                             + "either passed in from endpoint, or as output from PreIngestPlugins");
         }
+
+        return updateRequest;
     }
 
     private UpdateResponse doRemoteUpdate(UpdateRequest updateRequest) {
         HashSet<ProcessingDetails> exceptions = new HashSet<>();
         Map<String, Serializable> properties = new HashMap<>();
 
-        List<CatalogStore> stores = opsCrudSupport.getCatalogStoresForRequest(updateRequest,
+        List<CatalogStore> stores = opsCatStoreSupport.getCatalogStoresForRequest(updateRequest,
                 exceptions);
 
         List<Update> updates = new ArrayList<>();
@@ -464,4 +366,194 @@ public class UpdateOperations {
         return updateResp;
     }
 
+    private UpdateResponse processPostIngestPlugins(UpdateResponse updateResponse) {
+        for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
+            try {
+                updateResponse = plugin.process(updateResponse);
+            } catch (PluginExecutionException e) {
+                LOGGER.info("Plugin exception", e);
+            }
+        }
+        return updateResponse;
+    }
+
+    private UpdateResponse performRemoteUpdate(UpdateRequest updateRequest,
+            UpdateResponse updateResponse) {
+        if (opsCatStoreSupport.isCatalogStoreRequest(updateRequest)) {
+            UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateRequest);
+            if (updateResponse == null) {
+                updateResponse = remoteUpdateResponse;
+            } else {
+                updateResponse.getProperties()
+                        .putAll(remoteUpdateResponse.getProperties());
+                updateResponse.getProcessingErrors()
+                        .addAll(remoteUpdateResponse.getProcessingErrors());
+            }
+        }
+
+        return updateResponse;
+    }
+
+    private UpdateResponse performLocalUpdate(UpdateRequest updateRequest)
+            throws IngestException, SourceUnavailableException {
+        if (!Requests.isLocal(updateRequest)) {
+            return null;
+        }
+
+        UpdateResponse updateResponse = sourceOperations.getCatalog()
+                .update(updateRequest);
+        updateResponse = historian.version(updateResponse);
+        return updateResponse;
+    }
+
+    private UpdateRequest processPreIngestPlugins(UpdateRequest updateRequest)
+            throws StopProcessingException {
+        for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
+            try {
+                updateRequest = plugin.process(updateRequest);
+            } catch (PluginExecutionException e) {
+                LOGGER.warn("error processing update in PreIngestPlugin", e);
+            }
+        }
+        return updateRequest;
+    }
+
+    private UpdateRequest processPreUpdateAccessPlugins(UpdateRequest updateRequest,
+            Map<String, Metacard> metacardMap) throws StopProcessingException {
+        for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+            updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
+        }
+        return updateRequest;
+    }
+
+    private UpdateRequest populateUpdateRequestPolicyMap(UpdateRequest updateRequest,
+            Map<String, Metacard> metacardMap) throws StopProcessingException {
+        HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+        for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
+            HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
+            HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
+            Metacard oldMetacard = metacardMap.get(update.getKey().toString());
+
+            for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
+                PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
+                        Collections.unmodifiableMap(updateRequest.getProperties()));
+                PolicyResponse oldPolicyResponse = plugin.processPreUpdate(oldMetacard,
+                        Collections.unmodifiableMap(updateRequest.getProperties()));
+
+                opsSecuritySupport.buildPolicyMap(itemPolicyMap,
+                        updatePolicyResponse.itemPolicy()
+                                .entrySet());
+                opsSecuritySupport.buildPolicyMap(oldItemPolicyMap,
+                        oldPolicyResponse.itemPolicy()
+                                .entrySet());
+                opsSecuritySupport.buildPolicyMap(requestPolicyMap,
+                        updatePolicyResponse.operationPolicy()
+                                .entrySet());
+            }
+            update.getValue()
+                    .setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
+            if (oldMetacard != null) {
+                oldMetacard.setAttribute(new AttributeImpl(Metacard.SECURITY, oldItemPolicyMap));
+            }
+        }
+        updateRequest.getProperties()
+                .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+        return updateRequest;
+    }
+
+    private Map<String, Metacard> populateMetacards(UpdateRequest updateRequest)
+            throws IngestException {
+        if (frameworkProperties.getPolicyPlugins()
+                .isEmpty()) {
+            return new HashMap<>();
+        }
+
+        QueryRequestImpl queryRequest = createQueryRequest(updateRequest);
+
+        try {
+            QueryResponse query = queryOperations.doQuery(queryRequest,
+                    frameworkProperties.getFederationStrategy(),
+                    false);
+            List<Result> results = query.getResults();
+            if (results.size() != updateRequest.getUpdates()
+                    .size()) {
+                throw new IngestException("Unable to find all metacards in update request.");
+            }
+
+            return results.stream()
+                    .map(Result::getMetacard)
+                    .collect(Collectors.toMap(metacard -> getAttributeStringValue(metacard,
+                            updateRequest.getAttributeName()), m -> m));
+        } catch (FederationException e) {
+            LOGGER.warn("Unable to complete query for updated metacards.", e);
+        }
+
+        return new HashMap<>();
+    }
+
+    private QueryRequestImpl createQueryRequest(UpdateRequest updateRequest) {
+        List<Filter> idFilters = updateRequest.getUpdates()
+                .stream()
+                .map(update -> frameworkProperties.getFilterBuilder()
+                        .attribute(updateRequest.getAttributeName())
+                        .is()
+                        .equalTo()
+                        .text(update.getKey()
+                                .toString()))
+                .collect(Collectors.toList());
+
+        QueryImpl queryImpl =
+                new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters));
+        queryImpl.setStartIndex(1);
+        queryImpl.setPageSize(updateRequest.getUpdates()
+                .size());
+        return new QueryRequestImpl(queryImpl, updateRequest.getStoreIds());
+    }
+
+    private UpdateRequest validateLocalSource(UpdateRequest updateRequest)
+            throws SourceUnavailableException {
+        if (Requests.isLocal(updateRequest)
+                && !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
+            throw new SourceUnavailableException(
+                    "Local provider is not available, cannot perform update operation.");
+        }
+
+        return updateRequest;
+    }
+
+    private UpdateStorageResponse processPostUpdateStoragePlugins(
+            UpdateStorageResponse updateStorageResponse) {
+        for (final PostUpdateStoragePlugin plugin : frameworkProperties.getPostUpdateStoragePlugins()) {
+            try {
+                updateStorageResponse = plugin.process(updateStorageResponse);
+            } catch (PluginExecutionException e) {
+                LOGGER.warn("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        e);
+            }
+        }
+        return updateStorageResponse;
+    }
+
+    private UpdateStorageRequest processPreUpdateStoragePlugins(
+            UpdateStorageRequest updateStorageRequest) {
+        for (final PreUpdateStoragePlugin plugin : frameworkProperties.getPreUpdateStoragePlugins()) {
+            try {
+                updateStorageRequest = plugin.process(updateStorageRequest);
+            } catch (PluginExecutionException e) {
+                LOGGER.warn("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        e);
+            }
+        }
+        return updateStorageRequest;
+    }
+
+    private String getAttributeStringValue(Metacard mcard, String attribute) {
+        Attribute attr = mcard.getAttribute(attribute);
+        if (attr != null && attr.getValue() != null) {
+            return attr.getValue()
+                    .toString();
+        }
+        return "";
+    }
 }

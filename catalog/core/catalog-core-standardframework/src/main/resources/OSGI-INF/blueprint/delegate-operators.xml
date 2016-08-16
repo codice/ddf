@@ -25,7 +25,15 @@
 
     <bean id="cfOpsSecurity" class="ddf.catalog.impl.operations.OperationsSecuritySupport"/>
 
-    <bean id="cfOpsMetacard" class="ddf.catalog.impl.operations.OperationsMetacardSupport"/>
+    <bean id="cfOpsMetacard" class="ddf.catalog.impl.operations.OperationsMetacardSupport">
+        <argument ref="frameworkProperties"/>
+    </bean>
+
+    <bean id="cfOpsStorage" class="ddf.catalog.impl.operations.OperationsStorageSupport">
+        <argument ref="cfSourceOps"/>
+        <argument ref="cfQueryOps"/>
+        <property name="historian" ref="historian"/>
+    </bean>
 
     <bean id="cfSourceOps" class="ddf.catalog.impl.operations.SourceOperations">
         <argument ref="frameworkProperties"/>
@@ -44,11 +52,9 @@
         <argument ref="cfOpsSecurity"/>
     </bean>
 
-    <bean id="cfOpsCrud" class="ddf.catalog.impl.operations.OperationsCrudSupport">
+    <bean id="cfOpsCatStore" class="ddf.catalog.impl.operations.OperationsCatalogStoreSupport">
         <argument ref="frameworkProperties"/>
-        <argument ref="cfQueryOps"/>
         <argument ref="cfSourceOps"/>
-        <property name="historian" ref="historian"/>
     </bean>
 
     <bean id="cfCreateOps" class="ddf.catalog.impl.operations.CreateOperations">
@@ -57,7 +63,8 @@
         <argument ref="cfSourceOps"/>
         <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
-        <argument ref="cfOpsCrud"/>
+        <argument ref="cfOpsCatStore"/>
+        <argument ref="cfOpsStorage"/>
         <property name="historian" ref="historian"/>
     </bean>
 
@@ -67,7 +74,8 @@
         <argument ref="cfSourceOps"/>
         <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
-        <argument ref="cfOpsCrud"/>
+        <argument ref="cfOpsCatStore"/>
+        <argument ref="cfOpsStorage"/>
         <property name="historian" ref="historian"/>
     </bean>
 
@@ -77,7 +85,7 @@
         <argument ref="cfSourceOps"/>
         <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
-        <argument ref="cfOpsCrud"/>
+        <argument ref="cfOpsCatStore"/>
         <property name="historian" ref="historian"/>
     </bean>
 

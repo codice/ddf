@@ -121,9 +121,10 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
-import ddf.catalog.impl.operations.OperationsCrudSupport;
+import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
+import ddf.catalog.impl.operations.OperationsStorageSupport;
 import ddf.catalog.impl.operations.QueryOperations;
 import ddf.catalog.impl.operations.ResourceOperations;
 import ddf.catalog.impl.operations.SourceOperations;
@@ -353,7 +354,7 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setAttributeInjectors(Collections.singletonList(attributeInjector));
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport();
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
         TransformOperations transformOperations = new TransformOperations(frameworkProperties);
         Historian historian = new Historian();
@@ -363,27 +364,32 @@ public class CatalogFrameworkImplTest {
                 sourceOperations,
                 opsSecurity,
                 opsMetacard);
-        OperationsCrudSupport opsCrud = new OperationsCrudSupport(frameworkProperties,
-                queryOperations,
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
+                queryOperations);
+        opsStorage.setHistorian(historian);
+
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(frameworkProperties,
                 sourceOperations);
         CreateOperations createOperations = new CreateOperations(frameworkProperties,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard,
-                opsCrud);
+                opsCatStore,
+                opsStorage);
         UpdateOperations updateOperations = new UpdateOperations(frameworkProperties,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard,
-                opsCrud);
+                opsCatStore,
+                opsStorage);
         DeleteOperations deleteOperations = new DeleteOperations(frameworkProperties,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard,
-                opsCrud);
+                opsCatStore);
 
         ResourceOperations resOps = new ResourceOperations(frameworkProperties,
                 queryOperations,
@@ -405,7 +411,6 @@ public class CatalogFrameworkImplTest {
             }
         };
 
-        opsCrud.setHistorian(historian);
         createOperations.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
@@ -1157,33 +1162,37 @@ public class CatalogFrameworkImplTest {
 
     private CatalogFrameworkImpl createFramework(FrameworkProperties frameworkProperties) {
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport();
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
         QueryOperations queryOperations = new QueryOperations(frameworkProperties,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard);
-        OperationsCrudSupport opsCrud = new OperationsCrudSupport(frameworkProperties,
-                queryOperations,
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(
+                sourceOperations,
+                queryOperations);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(frameworkProperties,
                 sourceOperations);
         CreateOperations createOperations = new CreateOperations(frameworkProperties,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard,
-                opsCrud);
+                opsCatStore,
+                opsStorage);
         UpdateOperations updateOperations = new UpdateOperations(frameworkProperties,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard,
-                opsCrud);
+                opsCatStore,
+                opsStorage);
         DeleteOperations deleteOperations = new DeleteOperations(frameworkProperties,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
                 opsMetacard,
-                opsCrud);
+                opsCatStore);
         ResourceOperations resourceOperations = new ResourceOperations(frameworkProperties,
                 queryOperations,
                 opsSecurity);
@@ -1192,7 +1201,7 @@ public class CatalogFrameworkImplTest {
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
 
-        opsCrud.setHistorian(historian);
+        opsStorage.setHistorian(historian);
         createOperations.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
@@ -2746,10 +2755,7 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
 
         SourceOperations sourceOps = new SourceOperations(frameworkProperties);
-        QueryOperations queryOps = new QueryOperations(frameworkProperties,
-                sourceOps,
-                null,
-                null);
+        QueryOperations queryOps = new QueryOperations(frameworkProperties, sourceOps, null, null);
         ResourceOperations resOps = new ResourceOperations(frameworkProperties, queryOps, null);
         resOps.setId(DDF);
 
