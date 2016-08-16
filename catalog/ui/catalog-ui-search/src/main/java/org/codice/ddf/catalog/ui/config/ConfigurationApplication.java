@@ -38,6 +38,7 @@ import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import spark.servlet.SparkApplication;
@@ -145,7 +146,12 @@ public class ConfigurationApplication implements SparkApplication {
         this.hiddenAttributes = hiddenAttributes;
     }
 
-    private List<String> readOnly = Collections.emptyList();
+    private List<String> readOnly = ImmutableList.of("id",
+            "checksum",
+            "created",
+            "effective",
+            "modified",
+            "resource-size");
 
     private List<String> summaryShow = Collections.emptyList();
 

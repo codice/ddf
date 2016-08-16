@@ -118,6 +118,7 @@
             description="List of metacard attributes that are read-only."
             type="String"
             cardinality="10000"
+            default="id,checksum,created,effective,modified,resource-size"
             required="false"/>
 
         <AD id="summaryShow"
