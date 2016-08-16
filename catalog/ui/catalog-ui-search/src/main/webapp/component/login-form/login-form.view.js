@@ -31,7 +31,7 @@ define([
         checkSubmit: function (e) {
           // check if the enter key was pressed
           if (e.which === 13) {
-            this.login();
+            this.login(e);
           }
         },
         logout: function () {
