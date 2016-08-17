@@ -14,13 +14,16 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="Registry Federation Admin Service" name="Registry Federation Admin Service"
-         id="Registry_Federation_Admin_Service">
-        <AD name="Registry Refresh Interval" id="registrySubPollerInterval" required="true"
+    <OCD description="Registry subscription poller" name="Refresh Registry Subscriptions"
+         id="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries">
+        <AD name="Registry Refresh Interval" id="refreshInterval" required="true"
             type="String" default="30"
             description="The refresh interval for the registry subscriptions/updates. In seconds."/>
+        <AD name="Enable Stale Metacard Deletion" id="enableDelete" required="true"
+            type="Boolean" default="true"
+            description="When selected, a registry metacard from a remote registry that is no longer available will be automatically deleted"/>
     </OCD>
-    <Designate pid="Registry_Federation_Admin_Service">
-        <Object ocdref="Registry_Federation_Admin_Service"/>
+    <Designate pid="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries">
+        <Object ocdref="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries"/>
     </Designate>
 </metatype:MetaData>
