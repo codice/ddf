@@ -65,6 +65,7 @@ public class PptxInputTransformer implements InputTransformer {
      * is null, then a {@link NullPointerException} will be thrown.
      *
      * @param inputTransformer must be non-null
+     * @param usePptTitleAsTitle when true, use the PowerPoint metadata title as the metacard title
      * @throws NullPointerException
      */
     public PptxInputTransformer(InputTransformer inputTransformer, boolean usePptTitleAsTitle) {

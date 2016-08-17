@@ -36,12 +36,12 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.input.tika.TikaInputTransformer;
 
-public class TestPptxInputTransformer {
+public class PptxInputTransformerTest {
 
     private final InputTransformer inputTransformer = new TikaInputTransformer(null);
 
     private InputStream getResource(String resourceName) {
-        return TestPptxInputTransformer.class.getResourceAsStream(resourceName);
+        return PptxInputTransformerTest.class.getResourceAsStream(resourceName);
     }
 
     @Test(expected = CatalogTransformerException.class)
