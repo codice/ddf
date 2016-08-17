@@ -63,6 +63,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.io.ByteSource;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.core.TreeMarshaller;
@@ -253,7 +254,7 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
             Metacard metacard = toMetacard(pathValueTracker, id);
             metacard.setAttribute(new AttributeImpl(Core.METADATA, xml));
             return metacard;
-        } catch (XMLStreamException | IOException e) {
+        } catch (XStreamException | XMLStreamException | IOException e) {
             throw new CatalogTransformerException(TRANSFORM_EXCEPTION_MSG, e);
         } finally {
             IOUtils.closeQuietly(inputStream);
