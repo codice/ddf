@@ -119,7 +119,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                         "(objectclass=org.apache.karaf.features.BootFinished)");
             }
         } catch (InvalidSyntaxException e) {
-            LOGGER.error("Failed to create service listener filter", e);
+            LOGGER.warn("Failed to create service listener filter", e);
         }
     }
 
@@ -376,7 +376,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                         parentApp = findCommonParent(depAppSet, appMap);
                         if (parentApp == null) {
                             if (reportDebug) {
-                                LOGGER.warn(
+                                LOGGER.debug(
                                         "Found more than 1 application dependency for application {}. Could not determine which one is the correct parent. Application will be sent back as root application.",
                                         curAppNode.getKey()
                                                 .getName());
@@ -474,7 +474,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                     .sorted((f1, f2) -> Integer.compare(f1.getStartLevel(), f2.getStartLevel()))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            LOGGER.error(
+            LOGGER.warn(
                     "Encountered an error while trying to obtain the installation profile features.",
                     e);
         }
@@ -504,7 +504,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                                 + "Skipping and checking other applications.", curApp, e);
             }
         }
-        LOGGER.warn("Could not find feature {} in any known application, returning null.",
+        LOGGER.debug("Could not find feature {} in any known application, returning null.",
                 feature.getName());
 
         return null;
@@ -851,7 +851,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                 }
             }
         } catch (ApplicationServiceException ase) {
-            LOGGER.error("Error obtaining feature list from application", ase);
+            LOGGER.warn("Error obtaining feature list from application", ase);
         }
     }
 
@@ -957,7 +957,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                     .runWithSubjectOrElevate(() -> SecurityUtils.getSubject()
                             .isPermitted(serviceToCheck));
         } catch (SecurityServiceException | InvocationTargetException e) {
-            LOGGER.error("Failed to elevate subject", e);
+            LOGGER.warn("Failed to elevate subject", e);
             return false;
         }
     }

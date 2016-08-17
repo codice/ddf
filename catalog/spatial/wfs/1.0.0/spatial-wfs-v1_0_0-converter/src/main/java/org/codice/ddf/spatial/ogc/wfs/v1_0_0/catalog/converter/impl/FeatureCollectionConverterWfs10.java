@@ -78,7 +78,7 @@ public class FeatureCollectionConverterWfs10 implements Converter {
     @Override
     public boolean canConvert(Class clazz) {
         if (!WfsFeatureCollection.class.isAssignableFrom(clazz)) {
-            LOGGER.warn("Cannot convert: {}", clazz.getName());
+            LOGGER.debug("Cannot convert: {}", clazz.getName());
         }
         return WfsFeatureCollection.class.isAssignableFrom(clazz);
     }
@@ -160,7 +160,7 @@ public class FeatureCollectionConverterWfs10 implements Converter {
                     new GeometryFactory());
             return allGeometry;
         } else {
-            LOGGER.error("List of metacards was null.");
+            LOGGER.debug("List of metacards was null.");
             return null;
         }
     }

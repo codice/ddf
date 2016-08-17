@@ -131,7 +131,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     @Override
     public Object visit(PropertyName expression, Object extraData) {
         if (expression == null) {
-            LOGGER.warn("Attempting to visit a null expression");
+            LOGGER.debug("Attempting to visit a null expression");
             return null;
         }
         String propertyName = expression.getPropertyName();

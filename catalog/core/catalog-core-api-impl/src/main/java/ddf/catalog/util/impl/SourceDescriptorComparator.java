@@ -39,7 +39,7 @@ public class SourceDescriptorComparator implements Comparator<SourceDescriptor> 
                     .compareTo(two.getSourceId()
                             .toLowerCase());
         } else {
-            LOGGER.warn("Error comparing results, at least one was null.  Returning 1: ");
+            LOGGER.debug("Error comparing results, at least one was null.  Returning 1: ");
             return 1;
         }
     }

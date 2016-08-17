@@ -146,7 +146,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
             return metacard;
         } catch (IOException e) {
-            LOGGER.warn("IO Exception during parsing", e);
+            LOGGER.debug("IO Exception during parsing", e);
             throw new CatalogTransformerException(
                     "Could not finish transforming metacard because of IOException",
                     e);

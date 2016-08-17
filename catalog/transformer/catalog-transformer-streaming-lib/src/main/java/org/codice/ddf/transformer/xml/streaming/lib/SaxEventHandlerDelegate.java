@@ -112,7 +112,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
             List<Serializable> errorsAndWarnings =
                     Arrays.asList(inputTransformerErrorHandler.getParseWarningsErrors());
             if (!((String) errorsAndWarnings.get(0)).isEmpty()) {
-                LOGGER.warn((String) errorsAndWarnings.get(0));
+                LOGGER.debug((String) errorsAndWarnings.get(0));
                 Attribute attr;
                 List<Serializable> values;
                 if ((attr = metacard.getAttribute(Validation.VALIDATION_ERRORS)) != null
@@ -124,7 +124,6 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
             }
 
         } catch (IOException | SAXException e) {
-            LOGGER.debug("Exception thrown during parsing of inputStream", e);
             throw new CatalogTransformerException("Could not properly parse metacard", e);
         }
 

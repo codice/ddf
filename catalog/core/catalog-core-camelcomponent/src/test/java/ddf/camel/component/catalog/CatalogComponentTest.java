@@ -353,7 +353,7 @@ public class CatalogComponentTest extends CamelTestSupport {
             refs = bundleContext.getServiceReferences(InputTransformer.class.getName(), filter);
         } catch (Exception e) {
             String msg = "Invalid input transformer for mime type: " + mimeType;
-            LOGGER.warn(msg, e);
+            LOGGER.debug(msg, e);
             throw new Exception(msg);
         }
 

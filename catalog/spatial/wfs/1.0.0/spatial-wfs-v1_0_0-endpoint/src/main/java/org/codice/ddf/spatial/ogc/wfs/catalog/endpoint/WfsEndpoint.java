@@ -406,14 +406,8 @@ public class WfsEndpoint implements Wfs {
                             .add(result.getMetacard());
                 }
 
-            } catch (UnsupportedQueryException e) {
-                LOGGER.warn("Unable to query", e);
-                throw new WfsException(e);
-            } catch (SourceUnavailableException e) {
-                LOGGER.warn("Unable to query", e);
-                throw new WfsException(e);
-            } catch (FederationException e) {
-                LOGGER.warn("Unable to query", e);
+            } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+                LOGGER.debug("Unable to query", e);
                 throw new WfsException(e);
             }
 

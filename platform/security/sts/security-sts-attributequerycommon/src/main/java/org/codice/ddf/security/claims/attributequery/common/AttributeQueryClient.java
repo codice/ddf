@@ -227,7 +227,7 @@ public class AttributeQueryClient {
         }
         String response = XMLUtils.format(streamSource, transformerProperties);
         if (StringUtils.isBlank(response)) {
-            LOGGER.warn("Response is empty.");
+            LOGGER.debug("Response is empty.");
             return null;
         }
 
@@ -257,26 +257,26 @@ public class AttributeQueryClient {
                 .getValue();
         switch (statusCodeValue) {
         case SAML2_UNKNOWN_ATTR_PROFILE:
-            LOGGER.error(
+            LOGGER.debug(
                     "Error in the response: {}. Incorrect version number or incorrect parsing error.",
                     statusCodeValue);
             break;
         case SAML2_INVALID_ATTR_NAME_VALUE:
-            LOGGER.error("Error in the response: {}. Request attribute name is unknown.",
+            LOGGER.debug("Error in the response: {}. Request attribute name is unknown.",
                     statusCodeValue);
             break;
         case SAML2_UNKNOWN_PRINCIPAL:
-            LOGGER.error(
+            LOGGER.debug(
                     "Error in the response: {}. Unknown principal name, user is not recognized.",
                     statusCodeValue);
             break;
         default:
-            LOGGER.error("Error in the response: {}", statusCodeValue);
+            LOGGER.debug("Error in the response: {}", statusCodeValue);
             break;
         }
         if (status.getStatusMessage() != null && status.getStatusMessage()
                 .getMessage() != null) {
-            LOGGER.error(status.getStatusMessage()
+            LOGGER.debug(status.getStatusMessage()
                     .getMessage());
         }
         // Allow bad response to go through.

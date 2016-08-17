@@ -108,7 +108,7 @@ public class Security {
             try {
                 return securityManager.getSubject(token);
             } catch (SecurityServiceException | RuntimeException e) {
-                LOGGER.error("Unable to request subject for {} user.", username, e);
+                LOGGER.info("Unable to request subject for {} user.", username, e);
             }
         }
         return null;
@@ -208,12 +208,12 @@ public class Security {
                 cert = keyStore.getCertificate(alias);
             }
         } catch (KeyStoreException e) {
-            LOGGER.error("Unable to get certificate for alias [{}]", alias, e);
+            LOGGER.warn("Unable to get certificate for alias [{}]", alias, e);
             return null;
         }
 
         if (cert == null) {
-            LOGGER.error("Unable to get certificate for alias [{}]", alias);
+            LOGGER.warn("Unable to get certificate for alias [{}]", alias);
             return null;
         }
 
@@ -226,7 +226,7 @@ public class Security {
                 try {
                     cachedSystemSubject = securityManager.getSubject(pkiToken);
                 } catch (SecurityServiceException sse) {
-                    LOGGER.error("Unable to request subject for system user.", sse);
+                    LOGGER.warn("Unable to request subject for system user.", sse);
                 }
             }
         }
@@ -247,7 +247,7 @@ public class Security {
         try {
             subject = getSecurityManager().getSubject(token);
         } catch (SecurityServiceException sse) {
-            LOGGER.warn("Unable to request subject for guest user.", sse);
+            LOGGER.info("Unable to request subject for guest user.", sse);
         }
 
         return subject;
@@ -297,7 +297,7 @@ public class Security {
                     context.getServiceReference(SecurityManager.class);
             return (SecurityManager) context.getService(securityManagerRef);
         }
-        LOGGER.warn("Unable to get Security Manager");
+        LOGGER.warn("Unable to get Security Manager. Authentication and Authorization mechanisms will not work correctly. A restart of the system may be necessary.");
         return null;
     }
 
@@ -344,7 +344,7 @@ public class Security {
             keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
 
         } catch (KeyStoreException e) {
-            LOGGER.error("Unable to create keystore instance of type {}",
+            LOGGER.warn("Unable to create keystore instance of type {}",
                     System.getProperty("javax.net.ssl.keyStoreType"),
                     e);
             return null;
@@ -360,14 +360,14 @@ public class Security {
         String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
 
         if (!Files.isReadable(keyStoreFile)) {
-            LOGGER.error("Unable to read system key/trust store files: [ {} ] ", keyStoreFile);
+            LOGGER.warn("Unable to read system key/trust store files: [ {} ] ", keyStoreFile);
             return null;
         }
 
         try (InputStream kfis = Files.newInputStream(keyStoreFile)) {
             keyStore.load(kfis, keyStorePassword.toCharArray());
         } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
-            LOGGER.error("Unable to load system key file.", e);
+            LOGGER.warn("Unable to load system key file.", e);
         }
 
         return keyStore;

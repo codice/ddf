@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -101,7 +100,7 @@ public class CswUnmarshallHelper {
         }
 
         // default to current date
-        LOGGER.warn("Unable to convert {} to a date object, defaulting to current time", value);
+        LOGGER.debug("Unable to convert {} to a date object, defaulting to current time", value);
         return new Date();
     }
 
@@ -290,10 +289,6 @@ public class CswUnmarshallHelper {
                 url = new URL(thumbnail);
                 is = url.openStream();
                 mc.setThumbnail(IOUtils.toByteArray(url.openStream()));
-            } catch (MalformedURLException e) {
-                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}",
-                        thumbnail,
-                        e);
             } catch (IOException e) {
                 LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}",
                         thumbnail,
@@ -469,7 +464,7 @@ public class CswUnmarshallHelper {
             try {
                 ser = bboxReader.getWkt();
             } catch (CswException cswException) {
-                LOGGER.error(
+                LOGGER.debug(
                         "CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(): could not read BoundingBox.",
                         cswException);
             }
@@ -482,7 +477,7 @@ public class CswUnmarshallHelper {
                 ser = reader.getValue()
                         .getBytes(UTF8_ENCODING);
             } catch (UnsupportedEncodingException e) {
-                LOGGER.warn("Error encoding the binary value into the metacard.", e);
+                LOGGER.debug("Error encoding the binary value into the metacard.", e);
             }
 
             break;

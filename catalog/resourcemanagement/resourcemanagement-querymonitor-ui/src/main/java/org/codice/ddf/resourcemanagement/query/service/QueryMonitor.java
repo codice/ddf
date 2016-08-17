@@ -72,7 +72,7 @@ public class QueryMonitor implements QueryMonitorMBean {
             objectName = new ObjectName(QueryMonitor.class.getName() + ":service=querymonitor");
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
-            LOGGER.error("Unable to create Query Monitor Configuration MBean.", e);
+            LOGGER.info("Unable to create Query Monitor Configuration MBean.", e);
         }
         if (mBeanServer == null) {
             return;
@@ -80,17 +80,17 @@ public class QueryMonitor implements QueryMonitorMBean {
         try {
             try {
                 mBeanServer.registerMBean(this, objectName);
-                LOGGER.info("Registered Query Monitor Configuration MBean under object name: {}",
+                LOGGER.debug("Registered Query Monitor Configuration MBean under object name: {}",
                         objectName.toString());
             } catch (InstanceAlreadyExistsException e) {
                 // Try to remove and re-register
                 mBeanServer.unregisterMBean(objectName);
                 mBeanServer.registerMBean(this, objectName);
-                LOGGER.info("Re-registered Query Monitor Configuration MBean");
+                LOGGER.debug("Re-registered Query Monitor Configuration MBean");
             }
         } catch (MBeanRegistrationException | InstanceNotFoundException |
                 InstanceAlreadyExistsException | NotCompliantMBeanException e) {
-            LOGGER.error("Could not register MBean [{}].", objectName.toString(), e);
+            LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
         }
     }
 

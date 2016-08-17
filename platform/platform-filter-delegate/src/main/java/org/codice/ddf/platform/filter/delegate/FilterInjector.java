@@ -145,8 +145,9 @@ public class FilterInjector {
 
             filterReg.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, ALL_URLS);
         } catch (IllegalStateException ise) {
-            LOGGER.warn("Could not inject filter into " + refBundle.getSymbolicName()
-                    + " because the servlet was already initialized.", ise);
+            LOGGER.warn(
+                    "Could not inject filter into {} because the servlet was already initialized.",
+                    refBundle.getSymbolicName(), ise);
         }
 
         if (matchAfterField != null && matchAfterValue != null) {

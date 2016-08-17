@@ -122,12 +122,12 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 mBeanServer.registerMBean(this, objectName);
             } catch (InstanceAlreadyExistsException iaee) {
                 // Try to remove and re-register
-                LOGGER.info("Re-registering SchemaLookup MBean");
+                LOGGER.debug("Re-registering SchemaLookup MBean");
                 mBeanServer.unregisterMBean(objectName);
                 mBeanServer.registerMBean(this, objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("Exception during initialization: ", e);
+            LOGGER.info("Exception during initialization: ", e);
             throw new RuntimeException(e);
         }
     }
@@ -141,7 +141,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 mBeanServer.unregisterMBean(objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("Exception unregistering mbean: ", e);
+            LOGGER.debug("Exception unregistering mbean: ", e);
             throw new RuntimeException(e);
         }
     }
@@ -192,7 +192,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             if (module.isValid()) {
                 modules.add(module.toMap());
             } else {
-                LOGGER.warn("Couldn't add invalid module, {}", module.getName());
+                LOGGER.debug("Couldn't add invalid module, {}", module.getName());
             }
         }
 
@@ -684,7 +684,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private static IllegalArgumentException loggedException(String message) {
         IllegalArgumentException exception = new IllegalArgumentException(message);
-        LOGGER.error(message, exception);
+        LOGGER.info(message, exception);
         return exception;
     }
 

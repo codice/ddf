@@ -63,7 +63,7 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
                     throw new AccessDeniedException("No certificate provided.");
                 }
                 if (!(matches(cert[0], subjectDNPatterns))) {
-                    logger.warn("Certificate does not match Subject DN Certificate Constraints");
+                    logger.debug("Certificate does not match Subject DN Certificate Constraints");
                     throw new AccessDeniedException(
                             "Certificate DN does not match allowed pattern(s).");
                 }

@@ -54,7 +54,7 @@ public class ValidationQueryFactory {
             }
 
         } catch (UnsupportedQueryException e) {
-            LOGGER.warn("This attribute filter is not supported by ValidationQueryDelegate.", e);
+            LOGGER.info("This attribute filter is not supported by ValidationQueryDelegate.", e);
         }
         List<Filter> filters = new ArrayList<>();
         if (!showErrors) {

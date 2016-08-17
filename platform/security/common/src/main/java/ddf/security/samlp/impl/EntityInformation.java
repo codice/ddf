@@ -152,7 +152,7 @@ public class EntityInformation {
 
         public EntityInformation build() {
             if (spssoDescriptor == null) {
-                LOGGER.warn("Unable to build EntityInformation without a descriptor");
+                LOGGER.debug("Unable to build EntityInformation without a descriptor");
                 return null;
             }
             return new EntityInformation(parseSigningCertificate().parseEncryptionCertificate()
@@ -164,7 +164,7 @@ public class EntityInformation {
             SPSSODescriptor spssoDescriptor =
                     ed.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
             if (spssoDescriptor == null) {
-                LOGGER.warn("Unable to find supported protocol in EntityDescriptor {}",
+                LOGGER.debug("Unable to find supported protocol in EntityDescriptor {}",
                         ed.getEntityID());
             }
             return spssoDescriptor;

@@ -241,11 +241,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                                 sourceQueryRequest = service.process(source,
                                         sourceQueryRequest);
                             } catch (PluginExecutionException e) {
-                                logger.warn("Error executing PreFederatedQueryPlugin", e);
+                                logger.info("Error executing PreFederatedQueryPlugin", e);
                             }
                         }
                     } catch (StopProcessingException e) {
-                        logger.warn("Plugin stopped processing", e);
+                        logger.info("Plugin stopped processing", e);
                     }
 
                     if (source instanceof CatalogProvider && SystemInfo.getSiteName()
@@ -261,7 +261,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     futures.put(queryCompletion.submit(new CallableSourceResponse(source,
                             sourceQueryRequest)), source);
                 } else {
-                    logger.warn("Duplicate source found with name {}. Ignoring second one.",
+                    logger.info("Duplicate source found with name {}. Ignoring second one.",
                             source.getId());
                 }
             }
@@ -299,11 +299,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 try {
                     queryResponse = service.process(queryResponse);
                 } catch (PluginExecutionException e) {
-                    logger.warn("Error executing PostFederatedQueryPlugin", e);
+                    logger.info("Error executing PostFederatedQueryPlugin", e);
                 }
             }
         } catch (StopProcessingException e) {
-            logger.warn("Plugin stopped processing", e);
+            logger.info("Plugin stopped processing", e);
         }
 
         logger.debug("returning Query Results: {}", queryResponse);

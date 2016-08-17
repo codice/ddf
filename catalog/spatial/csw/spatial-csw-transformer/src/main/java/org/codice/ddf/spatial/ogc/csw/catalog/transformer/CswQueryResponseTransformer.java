@@ -413,7 +413,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 ack.setTimeStamp(DatatypeFactory.newInstance()
                         .newXMLGregorianCalendar(new GregorianCalendar()));
             } catch (DatatypeConfigurationException e) {
-                LOGGER.warn("Failed to set timestamp on Acknowledgement, Exception {}", e);
+                LOGGER.debug("Failed to set timestamp on Acknowledgement, Exception {}", e);
             }
 
             JAXBElement<AcknowledgementType> jaxBAck =
@@ -472,7 +472,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                 @Override
                 public void uncaughtException(Thread t, Throwable e) {
-                    LOGGER.error("UNCAUGHT exception in thread " + t.getName(), e);
+                    LOGGER.debug("UNCAUGHT exception in thread {}", t.getName(), e);
                 }
             });
             return thread;

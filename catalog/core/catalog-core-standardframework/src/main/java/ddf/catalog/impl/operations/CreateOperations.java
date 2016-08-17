@@ -154,13 +154,11 @@ public class CreateOperations {
             ingestError = iee;
             throw iee;
         } catch (StopProcessingException see) {
-            LOGGER.warn(PRE_INGEST_ERROR, see);
             ingestError = see;
-            throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
+            throw new IngestException(PRE_INGEST_ERROR, see);
         } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing create", re);
             ingestError = re;
-            throw new InternalIngestException("Exception during runtime while performing create");
+            throw new InternalIngestException("Exception during runtime while performing create", re);
         } finally {
             if (ingestError != null && INGEST_LOGGER.isWarnEnabled()) {
                 INGEST_LOGGER.warn("Error on create operation. {} metacards failed to ingest. {}",
@@ -175,8 +173,8 @@ public class CreateOperations {
             createResponse = validateFixCreateResponse(createResponse, createRequest);
             createResponse = processPostIngestPlugins(createResponse);
         } catch (RuntimeException re) {
-            LOGGER.warn(
-                    "Exception during runtime while performing post create operations (plugins and pubsub)",
+            LOGGER.info(
+                    "Exception during runtime while performing doing post create operations (plugins and pubsub)",
                     re);
         }
 
@@ -254,7 +252,7 @@ public class CreateOperations {
                     sourceOperations.getStorage()
                             .rollback(createStorageRequest);
                 } catch (StorageException e1) {
-                    LOGGER.error("Unable to remove temporary content for id: {}",
+                    LOGGER.info("Unable to remove temporary content for id: {}",
                             createStorageRequest.getId(),
                             e1);
                 }

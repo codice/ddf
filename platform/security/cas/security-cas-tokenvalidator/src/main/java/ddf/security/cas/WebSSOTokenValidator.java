@@ -162,7 +162,7 @@ public class WebSSOTokenValidator implements TokenValidator {
             }
         } catch (WSSecurityException wsse) {
             String msg = "Unable to decode BST into ticket and service for validation to CAS.";
-            LOGGER.error(msg, wsse);
+            LOGGER.info(msg, wsse);
             return response;
         }
 
@@ -183,7 +183,7 @@ public class WebSSOTokenValidator implements TokenValidator {
             validateTarget.setState(STATE.VALID);
 
         } catch (TicketValidationException e) {
-            LOGGER.error("Unable to validate CAS token.", e);
+            LOGGER.debug("Unable to validate CAS token.", e);
         }
 
         return response;

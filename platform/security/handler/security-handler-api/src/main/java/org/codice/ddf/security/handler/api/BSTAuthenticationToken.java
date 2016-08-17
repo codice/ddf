@@ -70,7 +70,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         try {
             return JAXBContext.newInstance(BinarySecurityTokenType.class);
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create BinarySecurityToken JAXB context.", e);
+            LOGGER.info("Unable to create BinarySecurityToken JAXB context.", e);
         }
         return null;
     }
@@ -173,14 +173,14 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
                 marshaller = BINARY_TOKEN_CONTEXT.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             } catch (JAXBException e) {
-                LOGGER.error("Exception while creating UsernameToken marshaller.", e);
+                LOGGER.debug("Exception while creating UsernameToken marshaller.", e);
             }
 
             if (marshaller != null) {
                 try {
                     marshaller.marshal(binarySecurityTokenElement, writer);
                 } catch (JAXBException e) {
-                    LOGGER.error("Exception while writing username token.", e);
+                    LOGGER.debug("Exception while writing username token.", e);
                 }
             }
         }

@@ -228,7 +228,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         try {
             videoDuration = getVideoDuration(videoFilePath);
         } catch (Exception e) {
-            LOGGER.warn("Couldn't get video duration from FFmpeg output.", e);
+            LOGGER.debug("Couldn't get video duration from FFmpeg output.", e);
         }
 
         /* Realistically, to get good thumbnails by dividing a video into segments, the video

@@ -126,7 +126,7 @@ public class TestAtomTransformer {
         try {
             parser = documentBuilderFactory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            LOGGER.warn("Parser exception during static setup", e);
+            LOGGER.info("Parser exception during static setup", e);
         }
 
     }
@@ -142,7 +142,7 @@ public class TestAtomTransformer {
             Schema schema = schemaFactory.newSchema(schemas);
             validator = schema.newValidator();
         } catch (SAXException e) {
-            LOGGER.warn("SAX exception creating validator", e);
+            LOGGER.info("SAX exception creating validator", e);
         }
 
     }

@@ -129,7 +129,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
             String msg =
                     "Invalid parameter value for init-parameter ignoreDuplicateServletName with value: "
                             + ignore;
-            LOG.error(msg);
+            LOG.debug(msg);
             throw new ServletException(msg);
         }
 
@@ -146,16 +146,16 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
                         + ". Its advised to use unique ServletName per Camel application.";
                 // always log so people can see it easier
                 if (isIgnoreDuplicateServletName()) {
-                    LOG.warn(msg);
+                    LOG.debug(msg);
                 } else {
-                    LOG.error(msg);
+                    LOG.debug(msg);
                     throw new ServletException(msg);
                 }
             }
             httpRegistry.register(this);
         }
 
-        LOG.info("Initialized CamelHttpTransportServlet[name={}, contextPath={}]",
+        LOG.debug("Initialized CamelHttpTransportServlet[name={}, contextPath={}]",
                 getServletName(),
                 contextPath);
     }
@@ -167,7 +167,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
             httpRegistry.unregister(this);
             httpRegistry = null;
         }
-        LOG.info("Destroyed CamelHttpTransportServlet[{}]", getServletName());
+        LOG.debug("Destroyed CamelHttpTransportServlet[{}]", getServletName());
     }
 
     @Override
@@ -262,7 +262,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
         try {
             consumer.createUoW(exchange);
         } catch (Exception e) {
-            log.error("Error processing request", e);
+            log.debug("Error processing request", e);
             throw new ServletException(e);
         }
 
@@ -291,10 +291,10 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
             consumer.getBinding()
                     .writeResponse(exchange, response);
         } catch (IOException e) {
-            log.error("Error processing request", e);
+            log.debug("Error processing request", e);
             throw e;
         } catch (Exception e) {
-            log.error("Error processing request", e);
+            log.debug("Error processing request", e);
             throw new ServletException(e);
         } finally {
             consumer.doneUoW(exchange);

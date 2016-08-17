@@ -73,55 +73,53 @@ public class ApplicationUploadEndpoint {
     public Response update(MultipartBody multipartBody, @Context UriInfo requestUriInfo) {
         LOGGER.trace("ENTERING: update");
 
-        Response response = null;
+        Response response;
 
         List<Attachment> attachmentList = multipartBody.getAllAttachments();
         File newFile = null;
         for (Attachment attachment : attachmentList) {
-            newFile = createFileFromAttachement(attachment, response);
+            newFile = createFileFromAttachement(attachment);
         }
 
-        if (response == null) {
-            try {
-                if (newFile != null) {
-                    ZipFileApplicationDetails appDetails = ApplicationFileInstaller.getAppDetails(
-                            newFile);
+        try {
+            if (newFile != null) {
+                ZipFileApplicationDetails appDetails = ApplicationFileInstaller.getAppDetails(
+                        newFile);
 
-                    if (appDetails != null) {
-                        // lets get the existing app if it exists.
-                        Application existingApplication =
-                                appService.getApplication(appDetails.getName());
-                        boolean wasExistingAppStarted = false; // assume false until proved
-                        // otherwise.
-                        if (existingApplication != null) {
-                            wasExistingAppStarted = appService.isApplicationStarted(
-                                    existingApplication);
-                            appService.removeApplication(existingApplication);
-                        }
-                        appService.addApplication(newFile.toURI());
+                if (appDetails != null) {
+                    // lets get the existing app if it exists.
+                    Application existingApplication =
+                            appService.getApplication(appDetails.getName());
+                    boolean wasExistingAppStarted = false; // assume false until proved
+                    // otherwise.
+                    if (existingApplication != null) {
+                        wasExistingAppStarted = appService.isApplicationStarted(
+                                existingApplication);
+                        appService.removeApplication(existingApplication);
+                    }
+                    appService.addApplication(newFile.toURI());
 
-                        // if application was started before it was removed, lets try and start it.
-                        if (wasExistingAppStarted) {
-                            appService.startApplication(appDetails.getName());
-                        }
-                    } else {
-                        throw new ApplicationServiceException(
-                                "No Application details could be extracted from the provided file.");
+                    // if application was started before it was removed, lets try and start it.
+                    if (wasExistingAppStarted) {
+                        appService.startApplication(appDetails.getName());
                     }
                 } else {
-                    throw new ApplicationServiceException("No file attachment provided.");
+                    throw new ApplicationServiceException(
+                            "No Application details could be extracted from the provided file.");
                 }
-
-                // we need to output valid JSON to the client so fileupload can correctly call
-                // done/fail callbacks correctly.
-                Response.ResponseBuilder responseBuilder = Response.ok("{\"status\":\"success\"}")
-                        .type("application/json");
-                response = responseBuilder.build();
-            } catch (ApplicationServiceException e) {
-                LOGGER.error("Unable to update an application on the server: {}", newFile, e);
-                Response.ResponseBuilder responseBuilder = Response.serverError();
-                response = responseBuilder.build();
+            } else {
+                throw new ApplicationServiceException("No file attachment provided.");
             }
+
+            // we need to output valid JSON to the client so fileupload can correctly call
+            // done/fail callbacks correctly.
+            Response.ResponseBuilder responseBuilder = Response.ok("{\"status\":\"success\"}")
+                    .type("application/json");
+            response = responseBuilder.build();
+        } catch (ApplicationServiceException e) {
+            LOGGER.warn("Unable to update an application on the server: {}", newFile, e);
+            Response.ResponseBuilder responseBuilder = Response.serverError();
+            response = responseBuilder.build();
         }
 
         LOGGER.trace("EXITING: update");
@@ -134,27 +132,25 @@ public class ApplicationUploadEndpoint {
     public Response create(MultipartBody multipartBody, @Context UriInfo requestUriInfo) {
         LOGGER.trace("ENTERING: create");
 
-        Response response = null;
+        Response response;
 
         List<Attachment> attachmentList = multipartBody.getAllAttachments();
         File newFile = null;
         for (Attachment attachment : attachmentList) {
-            newFile = createFileFromAttachement(attachment, response);
+            newFile = createFileFromAttachement(attachment);
         }
 
-        if (response == null) {
-            try {
-                if (newFile != null) {
-                    appService.addApplication(newFile.toURI());
-                }
-
-                Response.ResponseBuilder responseBuilder = Response.ok();
-                response = responseBuilder.build();
-            } catch (ApplicationServiceException e) {
-                LOGGER.error("Unable to add the application to the server: " + newFile, e);
-                Response.ResponseBuilder responseBuilder = Response.serverError();
-                response = responseBuilder.build();
+        try {
+            if (newFile != null) {
+                appService.addApplication(newFile.toURI());
             }
+
+            Response.ResponseBuilder responseBuilder = Response.ok();
+            response = responseBuilder.build();
+        } catch (ApplicationServiceException e) {
+            LOGGER.warn("Unable to add the application to the server: {}", newFile, e);
+            Response.ResponseBuilder responseBuilder = Response.serverError();
+            response = responseBuilder.build();
         }
 
         LOGGER.trace("EXITING: create");
@@ -168,11 +164,9 @@ public class ApplicationUploadEndpoint {
      *
      * @param attachment
      *            the attachment to copy and extract.
-     * @param response
-     *            the response object to manipulate if anything goes wrong.
      * @return The file of the copied attachment.
      */
-    private File createFileFromAttachement(Attachment attachment, Response response) {
+    private File createFileFromAttachement(Attachment attachment) {
         InputStream inputStream = null;
         String filename = null;
         File newFile = null;
@@ -196,7 +190,7 @@ public class ApplicationUploadEndpoint {
                 inputStream.reset();
             }
         } catch (IOException e) {
-            LOGGER.warn("IOException reading stream from file attachment in multipart body", e);
+            LOGGER.debug("IOException reading stream from file attachment in multipart body", e);
             IOUtils.closeQuietly(inputStream);
         }
 
@@ -206,7 +200,7 @@ public class ApplicationUploadEndpoint {
                     File uploadDir = new File(defaultFileLocation);
                     if (!uploadDir.exists()) {
                         if (uploadDir.mkdirs()) {
-                            LOGGER.warn("Unable to make directory");
+                            LOGGER.info("Unable to make directory {}", uploadDir.getAbsolutePath());
                         }
                     }
 
@@ -215,7 +209,7 @@ public class ApplicationUploadEndpoint {
                     FileUtils.copyInputStreamToFile(inputStream, newFile);
 
                 } catch (IOException e) {
-                    LOGGER.warn("Unable to write file.", e);
+                    LOGGER.debug("Unable to write file.", e);
                     newFile = null;
                 } finally {
                     IOUtils.closeQuietly(inputStream);

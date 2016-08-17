@@ -239,7 +239,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                 mc.setTargetNamespace(namespaceUri);
             }
         } catch (URISyntaxException e) {
-            LOGGER.error("Error setting target namespace uri on metacard.  Exception {}", e);
+            LOGGER.debug("Error setting target namespace uri on metacard.", e);
         }
 
         return mc;
@@ -279,12 +279,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             Geometry geo = null;
             try {
                 geo = gmlReader.read(xml, null);
-            } catch (SAXException e) {
-                LOGGER.warn(ERROR_PARSING_MESSAGE, e);
-            } catch (IOException e) {
-                LOGGER.warn(ERROR_PARSING_MESSAGE, e);
-            } catch (ParserConfigurationException e) {
-                LOGGER.warn(ERROR_PARSING_MESSAGE, e);
+            } catch (SAXException | IOException | ParserConfigurationException e) {
+                LOGGER.debug(ERROR_PARSING_MESSAGE, e);
             }
             if (geo != null) {
                 WKTWriter wktWriter = new WKTWriter();
@@ -296,7 +292,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                 ser = reader.getValue()
                         .getBytes(UTF8_ENCODING);
             } catch (UnsupportedEncodingException e) {
-                LOGGER.warn("Error encoding the binary value into the metacard.", e);
+                LOGGER.debug("Error encoding the binary value into the metacard.", e);
             }
             break;
         case DATE:

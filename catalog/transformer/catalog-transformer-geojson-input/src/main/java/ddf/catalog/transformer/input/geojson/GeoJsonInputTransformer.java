@@ -141,7 +141,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
                         geometryJson);
 
             } else {
-                LOGGER.warn("Could not find geometry type.");
+                LOGGER.debug("Could not find geometry type.");
             }
         }
 
@@ -158,7 +158,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
             if (geoAttributeName != null) {
                 metacard.setAttribute(geoAttributeName, geoJsonGeometry.toWkt());
             } else {
-                LOGGER.warn("Loss of data, could not place geometry [{}] in metacard",
+                LOGGER.info("Loss of data, could not place geometry [{}] in metacard",
                         geoJsonGeometry.toWkt());
             }
         }

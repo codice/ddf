@@ -140,7 +140,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
         List<Metacard> createdMetacards = ingestMetacards(ingestFacade, queryMetacards);
         int failed = queryMetacards.size() - createdMetacards.size();
         if (failed != 0) {
-            LOGGER.warn("Not all records were ingested. [{}] failed", failed);
+            LOGGER.info("Not all records were ingested. [{}] failed", failed);
             failedCount.addAndGet(failed);
             failedMetacards.addAll(subtract(queryMetacards, createdMetacards));
         }
@@ -163,17 +163,17 @@ public abstract class DuplicateCommands extends CatalogCommands {
         } catch (IngestException e) {
             printErrorMessage(String.format("Received error while ingesting: %s%n",
                     e.getMessage()));
-            LOGGER.warn("Error during ingest. Attempting to ingest batch individually.");
+            LOGGER.debug("Error during ingest. Attempting to ingest batch individually.");
             return ingestSingly(provider, metacards);
         } catch (SourceUnavailableException e) {
             printErrorMessage(String.format("Received error while ingesting: %s%n",
                     e.getMessage()));
-            LOGGER.warn("Error during ingest:", e);
+            LOGGER.debug("Error during ingest:", e);
             return createdMetacards;
         } catch (Exception e) {
             printErrorMessage(String.format("Unexpected Exception received while ingesting: %s%n",
                     e.getMessage()));
-            LOGGER.warn("Unexpected Exception during ingest:", e);
+            LOGGER.debug("Unexpected Exception during ingest:", e);
             return createdMetacards;
         }
 
@@ -194,9 +194,9 @@ public abstract class DuplicateCommands extends CatalogCommands {
                 createResponse = provider.create(createRequest);
                 createdMetacards.addAll(createResponse.getCreatedMetacards());
             } catch (IngestException | SourceUnavailableException e) {
-                LOGGER.warn("Error during ingest:", e);
+                LOGGER.debug("Error during ingest:", e);
             } catch (Exception e) {
-                LOGGER.warn("Unexpected Exception during ingest:", e);
+                LOGGER.debug("Unexpected Exception during ingest:", e);
             }
         }
         return createdMetacards;

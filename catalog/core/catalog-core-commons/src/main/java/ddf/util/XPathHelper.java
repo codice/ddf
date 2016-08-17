@@ -24,7 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -130,12 +129,8 @@ public class XPathHelper {
             } finally {
                 thread.setContextClassLoader(loader);
             }
-        } catch (ParserConfigurationException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (SAXException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
     }
 
@@ -184,10 +179,8 @@ public class XPathHelper {
             serializer.write(n, lsOut);
 
             return stringOut.toString();
-        } catch (DOMException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (LSException e) {
-            LOGGER.error(e.getMessage(), e);
+        } catch (DOMException | LSException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
 
         return null;
@@ -286,12 +279,8 @@ public class XPathHelper {
             StringWriter writer = new StringWriter();
             serializer.transform(new DOMSource(document), new StreamResult(writer));
             return writer.toString();
-        } catch (TransformerConfigurationException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (TransformerFactoryConfigurationError e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (TransformerException e) {
-            LOGGER.error(e.getMessage(), e);
+        } catch (TransformerFactoryConfigurationError | TransformerException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
 
         return null;

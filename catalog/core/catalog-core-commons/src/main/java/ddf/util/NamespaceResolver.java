@@ -137,12 +137,12 @@ public class NamespaceResolver implements NamespaceContext {
                 refs = bundleContext.getServiceReferences(NamespaceContext.class.getName(), null);
                 LOGGER.debug("num NamespaceContexts service refs found = " + refs.length);
             } catch (InvalidSyntaxException e) {
-                LOGGER.warn("Invalid NamespaceContext syntax", e);
+                LOGGER.debug("Invalid NamespaceContext syntax", e);
             }
 
             // If no NamespaceMaps found, nothing further to be done
             if (refs == null || refs.length == 0) {
-                LOGGER.warn("No NamespaceContext services found");
+                LOGGER.debug("No NamespaceContext services found");
             } else {
                 // For each NamespaceMap found, add its namespace mappings to the two HashMaps
                 // maintained for prefix-to-uri and uri=to-prefix
@@ -157,7 +157,7 @@ public class NamespaceResolver implements NamespaceContext {
                 }
             }
         } else {
-            LOGGER.warn("BundleContext is NULL");
+            LOGGER.debug("BundleContext is NULL");
         }
     }
 }

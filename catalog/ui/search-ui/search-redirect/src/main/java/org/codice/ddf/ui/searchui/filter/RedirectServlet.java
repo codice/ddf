@@ -46,10 +46,10 @@ public class RedirectServlet extends HttpServlet {
         if (StringUtils.isNotBlank(redirectConfiguration.getDefaultUri())) {
             URI uri = URI.create(redirectConfiguration.getDefaultUri());
             if (uri.isAbsolute()) {
-                LOGGER.warn("Redirecting /search to an absolute URI: {}",
+                LOGGER.debug("Redirecting /search to an absolute URI: {}",
                         redirectConfiguration.getDefaultUri());
             } else {
-                LOGGER.info("Redirecting /search to a relative URI: {}",
+                LOGGER.debug("Redirecting /search to a relative URI: {}",
                         redirectConfiguration.getDefaultUri());
             }
             servletResponse.sendRedirect(redirectConfiguration.getDefaultUri());

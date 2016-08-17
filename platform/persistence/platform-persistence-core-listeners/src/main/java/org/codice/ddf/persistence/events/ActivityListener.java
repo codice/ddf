@@ -76,7 +76,7 @@ public class ActivityListener implements EventHandler {
         try {
             persistentStore.add(PersistentStore.ACTIVITY_TYPE, activityToStore);
         } catch (PersistenceException e) {
-            LOGGER.info("Caught PersistenceException {}", e.getMessage());
+            LOGGER.info("Error while handling activity event", e);
         }
     }
 

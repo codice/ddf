@@ -124,12 +124,11 @@ public class SolrClientFactory {
         try {
             client = getSolrClient(url, coreName, configFile, coreUrl);
         } catch (Exception ex) {
-            LOGGER.info("Returning future for HTTP Solr client ({})", coreName);
-            LOGGER.debug("Failed to create Solr client (" + coreName + ")", ex);
+            LOGGER.debug("Failed to create Solr client ({})", coreName, ex);
             return pool.submit(new SolrClientFetcher(url, coreName, configFile, coreUrl));
         }
 
-        LOGGER.info("Created HTTP Solr client ({})", coreName);
+        LOGGER.debug("Created HTTP Solr client ({})", coreName);
         return Futures.immediateFuture(client);
     }
 
@@ -206,7 +205,7 @@ public class SolrClientFactory {
                     .build();
         } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
                 KeyManagementException e) {
-            LOGGER.error("Unable to create secure HttpClient", e);
+            LOGGER.warn("Unable to create secure HttpClient. The Solr Client should not be used in this state.", e);
             return null;
         }
 
@@ -227,7 +226,7 @@ public class SolrClientFactory {
             keyStore.load(storeStream, password.toCharArray());
         } catch (CertificateException | IOException
                 | NoSuchAlgorithmException | KeyStoreException e) {
-            LOGGER.error("Unable to load keystore at " + location, e);
+            LOGGER.warn("Unable to load keystore at {}", location, e);
         }
 
         return keyStore;
@@ -303,9 +302,9 @@ public class SolrClientFactory {
             while (true) {
                 int retryIndex = retryCount + 1;
                 try {
-                    LOGGER.info("Retry {} to create Solr client for ({})", retryIndex, coreName);
+                    LOGGER.debug("Retry {} to create Solr client for ({})", retryIndex, coreName);
                     SolrClient client = getSolrClient(url, coreName, configFile, coreUrl);
-                    LOGGER.info("Future for HTTP Solr client ({}) finished", coreName);
+                    LOGGER.debug("Future for HTTP Solr client ({}) finished", coreName);
                     return client;
                 } catch (Exception e) {
                     retryCount = Math.min(retryCount + 1, MAX_RETRY_COUNT);

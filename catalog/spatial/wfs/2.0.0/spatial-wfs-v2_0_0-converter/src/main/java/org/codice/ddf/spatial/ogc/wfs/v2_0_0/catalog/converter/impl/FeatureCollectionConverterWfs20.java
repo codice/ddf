@@ -78,7 +78,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
     @Override
     public boolean canConvert(Class clazz) {
         if (!WfsFeatureCollection.class.isAssignableFrom(clazz)) {
-            LOGGER.warn("Cannot convert: {}", clazz.getName());
+            LOGGER.debug("Cannot convert: {}", clazz.getName());
         }
         return Wfs20FeatureCollection.class.isAssignableFrom(clazz);
     }
@@ -111,7 +111,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
                 writer.endNode();
             }
         } else {
-            LOGGER.warn("Incoming value was null");
+            LOGGER.debug("Incoming value was null");
         }
     }
 
@@ -147,7 +147,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
             }
             return schemaLocation.toString();
         } else {
-            LOGGER.warn("Metacard list is null");
+            LOGGER.debug("Metacard list is null");
             return null;
         }
     }
@@ -164,11 +164,10 @@ public class FeatureCollectionConverterWfs20 implements Converter {
                 }
             }
 
-            Geometry allGeometry = new GeometryCollection(geometries.toArray(new Geometry[0]),
+            return new GeometryCollection(geometries.toArray(new Geometry[0]),
                     new GeometryFactory());
-            return allGeometry;
         } else {
-            LOGGER.warn("Metacard list is null");
+            LOGGER.debug("Metacard list is null");
             return null;
         }
     }

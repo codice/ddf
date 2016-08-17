@@ -231,7 +231,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
     private String format(Element unformattedXml) {
         if (unformattedXml == null) {
-            logger.error("Unable to transform xml: null");
+            logger.debug("Unable to transform xml: null");
             return null;
         }
 

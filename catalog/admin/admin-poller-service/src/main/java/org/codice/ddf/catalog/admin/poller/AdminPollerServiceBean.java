@@ -107,7 +107,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         try {
             objName = new ObjectName(AdminPollerServiceBean.class.getName() + SERVICE_NAME);
         } catch (MalformedObjectNameException e) {
-            LOGGER.error("Unable to create Admin Source Poller Service MBean with name [{}].",
+            LOGGER.info("Unable to create Admin Source Poller Service MBean with name [{}].",
                     AdminPollerServiceBean.class.getName() + SERVICE_NAME,
                     e);
         }
@@ -118,17 +118,17 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         try {
             try {
                 mBeanServer.registerMBean(this, objectName);
-                LOGGER.info(
+                LOGGER.debug(
                         "Registered Admin Source Poller Service Service MBean under object name: {}",
                         objectName.toString());
             } catch (InstanceAlreadyExistsException e) {
                 // Try to remove and re-register
                 mBeanServer.unregisterMBean(objectName);
                 mBeanServer.registerMBean(this, objectName);
-                LOGGER.info("Re-registered Admin Source Poller Service Service MBean");
+                LOGGER.debug("Re-registered Admin Source Poller Service Service MBean");
             }
         } catch (Exception e) {
-            LOGGER.error("Could not register MBean [{}].", objectName.toString(), e);
+            LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
         }
     }
 
@@ -136,10 +136,10 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         try {
             if (objectName != null && mBeanServer != null) {
                 mBeanServer.unregisterMBean(objectName);
-                LOGGER.info("Unregistered Admin Source Poller Service Service MBean");
+                LOGGER.debug("Unregistered Admin Source Poller Service Service MBean");
             }
         } catch (Exception e) {
-            LOGGER.error("Exception unregistering MBean [{}].", objectName.toString(), e);
+            LOGGER.info("Exception unregistering MBean [{}].", objectName.toString(), e);
         }
     }
 
@@ -158,20 +158,20 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
                             try {
                                 return source.isAvailable();
                             } catch (Exception e) {
-                                LOGGER.warn("Couldn't get availability on source {}: {}",
+                                LOGGER.info("Couldn't get availability on source {}: {}",
                                         servicePID,
                                         e);
                             }
                         }
                     } catch (IOException e) {
-                        LOGGER.warn("Couldn't find configuration for source '{}'", source.getId());
+                        LOGGER.info("Couldn't find configuration for source '{}'", source.getId());
                     }
                 } else {
-                    LOGGER.warn("Source '{}' not a configured service", source.getId());
+                    LOGGER.info("Source '{}' not a configured service", source.getId());
                 }
             }
         } catch (InvalidSyntaxException e) {
-            LOGGER.error("Could not get service reference list");
+            LOGGER.info("Could not get service reference list");
         }
 
         return false;
@@ -222,7 +222,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
                     metatype.put(MAP_ENTRY_CONFIGURATIONS, configurations);
                 }
             } catch (Exception e) {
-                LOGGER.warn("Error getting source info: {}", e.getMessage());
+                LOGGER.info("Error getting source info: {}", e.getMessage());
             }
         }
 

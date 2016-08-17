@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.operation.Query;
@@ -142,16 +143,14 @@ public class RefreshRegistryEntries {
                 response = store.query(new QueryRequestImpl(getBasicRegistryQuery()));
                 remoteRegistryMetacards.putAll(response.getResults()
                         .stream()
-                        .map(e -> e.getMetacard())
+                        .map(Result::getMetacard)
                         .filter(e -> !localMetacardRegIds.contains(RegistryUtility.getRegistryId(e)))
                         .collect(Collectors.toMap(Metacard::getId, Function.identity())));
             } catch (UnsupportedQueryException e) {
-                LOGGER.warn("Unable to contact {} for registry subscription query", store.getId());
                 LOGGER.debug("Unable to contact {} for registry subscription query",
                         store.getId(),
                         e);
                 failedQueries.add(store.getRegistryId());
-                continue;
             }
         }
         return new RemoteRegistryResults(remoteRegistryMetacards, failedQueries);
@@ -168,7 +167,7 @@ public class RefreshRegistryEntries {
             });
         } catch (PrivilegedActionException e) {
             String message = "Error writing remote updates.";
-            LOGGER.error("{} Metacard IDs: {}", message, remoteMetacardsToUpdate);
+            LOGGER.debug("{} Metacard IDs: {}", message, remoteMetacardsToUpdate);
             throw new FederationAdminException(message, e);
         }
     }

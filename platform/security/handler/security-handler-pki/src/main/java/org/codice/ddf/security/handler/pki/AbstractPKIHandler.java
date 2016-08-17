@@ -82,7 +82,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
 
         // The httpResponse was null, return no action and try to process with other handlers
         if (httpResponse == null && resolve) {
-            LOGGER.error("HTTP Response was null for request {}", path);
+            LOGGER.debug("HTTP Response was null for request {}", path);
             return handlerResult;
         }
 
@@ -97,7 +97,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
             handlerResult.setStatus(HandlerResult.Status.COMPLETED);
         } else {
             String errorMsg = "The certificate used to complete the request has been revoked.";
-            LOGGER.error(errorMsg);
+            LOGGER.info(errorMsg);
             throw new ServletException(errorMsg);
         }
 

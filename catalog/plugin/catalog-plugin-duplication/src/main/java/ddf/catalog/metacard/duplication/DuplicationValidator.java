@@ -239,7 +239,7 @@ public class DuplicationValidator
         try {
             response = catalogFramework.query(request);
         } catch (FederationException | SourceUnavailableException | UnsupportedQueryException e) {
-            LOGGER.warn("Query failed ", e);
+            LOGGER.debug("Query failed ", e);
         }
         return response;
     }

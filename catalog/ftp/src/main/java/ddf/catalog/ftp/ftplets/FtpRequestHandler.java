@@ -118,11 +118,11 @@ public class FtpRequestHandler extends DefaultFtplet {
             ftpFile = session.getFileSystemView()
                     .getFile(fileName);
         } catch (FtpException e) {
-            LOGGER.error("Failed to retrieve file from FTP session");
+            LOGGER.debug("Failed to retrieve file from FTP session");
         }
 
         if (ftpFile == null) {
-            LOGGER.error(
+            LOGGER.debug(
                     "Sending FTP status code 501 to client - syntax errors in request parameters");
             session.write(new DefaultFtpReply(FtpReply.REPLY_501_SYNTAX_ERROR_IN_PARAMETERS_OR_ARGUMENTS,
                     STOR_REQUEST));
@@ -136,7 +136,7 @@ public class FtpRequestHandler extends DefaultFtplet {
             if (address == null) {
                 session.write(new DefaultFtpReply(FtpReply.REPLY_503_BAD_SEQUENCE_OF_COMMANDS,
                         "PORT or PASV must be issued first"));
-                LOGGER.error(
+                LOGGER.debug(
                         "Sending FTP status code 503 to client - PORT or PASV must be issued before STOR");
                 throw new FtpException("FTP client address was null");
             }
@@ -145,7 +145,7 @@ public class FtpRequestHandler extends DefaultFtplet {
         if (!ftpFile.isWritable()) {
             session.write(new DefaultFtpReply(FtpReply.REPLY_550_REQUESTED_ACTION_NOT_TAKEN,
                     "Insufficient permissions"));
-            LOGGER.error(
+            LOGGER.debug(
                     "Sending FTP status code 550 to client - insufficient permissions to write file.");
             throw new FtpException("Insufficient permissions to write file");
         }
@@ -179,14 +179,16 @@ public class FtpRequestHandler extends DefaultFtplet {
                 try {
                     createResponse = catalogFramework.create(createRequest);
                 } catch (IngestException | SourceUnavailableException e) {
-                    LOGGER.error("Failure to ingest file {}", fileName, e);
+                    LOGGER.info("Failure to ingest file {}", fileName, e);
                 }
 
                 if (createResponse != null) {
                     List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
 
-                    for (Metacard metacard : createdMetacards) {
-                        LOGGER.info("Content item created with id = {}", metacard.getId());
+                    if (LOGGER.isDebugEnabled()) {
+                        for (Metacard metacard : createdMetacards) {
+                            LOGGER.debug("Content item created with id = {}", metacard.getId());
+                        }
                     }
                 } else {
                     throw new FtpException();
@@ -194,10 +196,10 @@ public class FtpRequestHandler extends DefaultFtplet {
                 return null;
             });
         } catch (FtpException fe) {
-            LOGGER.error("Failure to create metacard for file {}", fileName);
+            LOGGER.debug("Failure to create metacard for file {}", fileName, fe);
             throw new FtpException("Failure to create metacard for file " + fileName);
         } catch (Exception e) {
-            LOGGER.error("Error getting the output data stream from the FTP session");
+            LOGGER.debug("Error getting the output data stream from the FTP session", e);
             throw new IOException("Error getting the output stream from FTP session");
         } finally {
             session.getDataConnection()
@@ -220,11 +222,11 @@ public class FtpRequestHandler extends DefaultFtplet {
                 }
 
             } catch (MimeTypeResolutionException | IOException e) {
-                LOGGER.warn(
+                LOGGER.info(
                         "Did not find the MimeTypeMapper service. Proceeding with empty mimetype");
             }
         } else {
-            LOGGER.warn("Did not find the MimeTypeMapper service. Proceeding with empty mimetype");
+            LOGGER.info("Did not find the MimeTypeMapper service. Proceeding with empty mimetype");
         }
 
         return mimeType;

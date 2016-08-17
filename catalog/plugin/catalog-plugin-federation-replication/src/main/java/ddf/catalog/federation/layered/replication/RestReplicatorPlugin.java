@@ -205,10 +205,10 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
             client.type(getValidMimeType(binaryContent.getMimeTypeValue()));
             return new String(binaryContent.getByteArray(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            LOGGER.warn("Could not understand metacard.", e);
+            LOGGER.debug("Could not understand metacard.", e);
             throw new PluginExecutionException("Could not send metacard.");
         } catch (CatalogTransformerException e) {
-            LOGGER.warn("Could not transform metacard.", e);
+            LOGGER.debug("Could not transform metacard.", e);
             throw new PluginExecutionException("Could not send metacard.");
         }
     }

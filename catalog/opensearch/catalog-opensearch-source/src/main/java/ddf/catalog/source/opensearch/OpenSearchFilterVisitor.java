@@ -152,7 +152,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
             filters.add(filter);
         } else {
-            logger.warn(ONLY_AND_MSG);
+            logger.debug(ONLY_AND_MSG);
         }
 
         logger.trace("EXITING: DWithin filter");
@@ -201,10 +201,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
                 filters.add(filter);
 
             } else {
-                logger.warn("Only POLYGON geometry WKT for Contains filter is supported");
+                logger.debug("Only POLYGON geometry WKT for Contains filter is supported");
             }
         } else {
-            logger.warn(ONLY_AND_MSG);
+            logger.debug(ONLY_AND_MSG);
         }
 
         logger.trace("EXITING: Contains filter");
@@ -252,10 +252,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
                 filters.add(filter);
             } else {
-                logger.warn("Only POLYGON geometry WKT for Intersects filter is supported");
+                logger.debug("Only POLYGON geometry WKT for Intersects filter is supported");
             }
         } else {
-            logger.warn(ONLY_AND_MSG);
+            logger.debug(ONLY_AND_MSG);
         }
 
         logger.trace("EXITING: Intersects filter");
@@ -272,7 +272,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
         if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             handleTemporal(filter);
         } else {
-            logger.warn(ONLY_AND_MSG);
+            logger.debug(ONLY_AND_MSG);
         }
         logger.trace("EXITING: TOverlaps filter");
 
@@ -288,7 +288,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
         if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             handleTemporal(filter);
         } else {
-            logger.warn(ONLY_AND_MSG);
+            logger.debug(ONLY_AND_MSG);
         }
         logger.trace("EXITING: TOverlaps filter");
 

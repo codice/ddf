@@ -243,7 +243,7 @@ public class LandingPage extends HttpServlet {
             final Template template = handlebars.compile(LANDING_PAGE_FILE);
             landingPageHtml = template.apply(context);
         } catch (IOException e) {
-            LOGGER.info("Unable to compile template.", e);
+            LOGGER.info("Unable to compile Landing Page template.", e);
             landingPageHtml =
                     "<p>We are experiencing some issues. Please contact an administrator.</p>";
         }

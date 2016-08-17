@@ -92,7 +92,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     public void marshal(Object source, HierarchicalStreamWriter writer,
             MarshallingContext context) {
         if (source == null || !(source instanceof Metacard)) {
-            LOGGER.warn("Failed to marshal Metacard: {}", source);
+            LOGGER.debug("Failed to marshal Metacard: {}", source);
             return;
         }
 

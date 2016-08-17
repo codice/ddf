@@ -92,7 +92,7 @@ public class SourcePoller {
      */
     public void cancel(CatalogFramework framework, Map properties) {
 
-        LOGGER.info("Cancelling scheduled polling.");
+        LOGGER.debug("Cancelling scheduled polling.");
 
         runner.shutdown();
 

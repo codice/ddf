@@ -336,7 +336,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         LOGGER.trace("ENTERING: deletingSource");
 
         if (source == null || StringUtils.isBlank(source.getId())) {
-            LOGGER.info("Not deleting metrics for NULL or blank source");
+            LOGGER.debug("Not deleting metrics for NULL or blank source");
             return;
         }
 
@@ -358,7 +358,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     void createSourceMetrics(final Source source) {
 
         if (source == null || StringUtils.isBlank(source.getId())) {
-            LOGGER.info("Not adding metrics for NULL or blank source");
+            LOGGER.debug("Not adding metrics for NULL or blank source");
             return;
         }
 

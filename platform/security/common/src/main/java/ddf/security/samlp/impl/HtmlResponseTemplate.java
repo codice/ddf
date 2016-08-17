@@ -39,7 +39,7 @@ public class HtmlResponseTemplate {
             submitTemplate = IOUtils.toString(submitFormStream);
             redirectTemplate = IOUtils.toString(redirectPageStream);
         } catch (Exception e) {
-            LOGGER.error("Unable to load index page for IDP.", e);
+            LOGGER.warn("Unable to load index page for IDP.", e);
         }
     }
 

@@ -77,12 +77,12 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
             WKTWriter wktWriter = new WKTWriter();
             return wktWriter.write(jtsGeo);
         } catch (ParserException e) {
-            LOGGER.error("Cannot parse gml", e);
+            LOGGER.debug("Cannot parse gml", e);
             throw new ValidationExceptionImpl(e,
                     Collections.singletonList("Cannot parse gml"),
                     new ArrayList<String>());
         } catch (ConversionFailedException e) {
-            LOGGER.error("Cannot convert gml311 geo object {} to jts", geometry, e);
+            LOGGER.debug("Cannot convert gml311 geo object {} to jts", geometry, e);
             throw new ValidationExceptionImpl(e,
                     Collections.singletonList("Cannot convert geo object"),
                     new ArrayList<String>());

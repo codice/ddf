@@ -208,7 +208,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 client = factory.getWebClient();
                 response = client.head();
             } catch (Exception e) {
-                LOGGER.warn("Web Client was unable to connect to endpoint.", e);
+                LOGGER.debug("Web Client was unable to connect to endpoint.", e);
                 return false;
             }
 
@@ -348,7 +348,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             String errorMsg =
                     "Received error code from remote source (status " + clientResponse.getStatus()
                             + "): " + error;
-            LOGGER.warn(errorMsg);
             throw new UnsupportedQueryException(errorMsg);
         }
 
@@ -416,7 +415,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         try {
             syndFeed = syndFeedInput.build(new InputStreamReader(is, StandardCharsets.UTF_8));
         } catch (FeedException e) {
-            LOGGER.error("Unable to read RSS/Atom feed.", e);
+            LOGGER.debug("Unable to read RSS/Atom feed.", e);
         }
 
         List<SyndEntry> entries = null;
@@ -531,9 +530,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                     return inputTransformer.transform(new ByteArrayInputStream(content.getBytes(
                             StandardCharsets.UTF_8)), id);
                 } catch (IOException e) {
-                    LOGGER.warn("Unable to read metacard content from Atom feed.", e);
+                    LOGGER.debug("Unable to read metacard content from Atom feed.", e);
                 } catch (CatalogTransformerException e) {
-                    LOGGER.warn(
+                    LOGGER.debug(
                             "Unable to convert metacard content from Atom feed into Metacard object.",
                             e);
                 }
@@ -615,14 +614,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 }
             }
         } catch (XMLStreamException | InvalidSyntaxException e) {
-            LOGGER.error("Failed to parse transformer namespace", e);
+            LOGGER.debug("Failed to parse transformer namespace", e);
         } finally {
             try {
                 if (xmlStreamReader != null) {
                     xmlStreamReader.close();
                 }
             } catch (XMLStreamException e) {
-                LOGGER.error("failed to close namespace reader", e);
+                LOGGER.debug("failed to close namespace reader", e);
             }
         }
         return null;
@@ -854,7 +853,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                             shouldConvertToBBox,
                             parameters);
                 } catch (UnsupportedQueryException e) {
-                    LOGGER.warn("Problem with populating geospatial criteria. ", e);
+                    LOGGER.debug("Problem with populating geospatial criteria. ", e);
                 }
             } else {
                 try {
@@ -863,7 +862,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                             shouldConvertToBBox,
                             parameters);
                 } catch (UnsupportedQueryException e) {
-                    LOGGER.warn("Problem with populating geospatial criteria. ", e);
+                    LOGGER.debug("Problem with populating geospatial criteria. ", e);
                 }
             }
         }

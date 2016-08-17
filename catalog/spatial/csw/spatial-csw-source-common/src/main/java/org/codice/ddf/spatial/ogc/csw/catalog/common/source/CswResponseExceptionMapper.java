@@ -87,7 +87,7 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
                             "Error received from remote Csw server" + (msg != null ?
                                     ": " + msg :
                                     ""));
-                    LOGGER.warn("Unable to parse exception report: {}", e.getMessage());
+                    LOGGER.info("Unable to parse exception report: {}", e.getMessage());
                     LOGGER.debug("Unable to parse exception report: {}", e);
                 }
                 if (msg != null) {
@@ -103,7 +103,7 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
                     } catch (JAXBException e) {
                         cswException = new CswException(
                                 "Error received from remote Csw server: " + msg, e);
-                        LOGGER.warn("Error parsing the exception report: {}", e.getMessage());
+                        LOGGER.info("Error parsing the exception report: {}", e.getMessage());
                         LOGGER.debug("Error parsing the exception report", e);
                     }
                 }

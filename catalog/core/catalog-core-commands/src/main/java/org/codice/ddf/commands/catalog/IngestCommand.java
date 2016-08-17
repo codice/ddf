@@ -264,7 +264,7 @@ public class IngestCommand extends CatalogCommands {
             try {
                 TimeUnit.SECONDS.sleep(2);
             } catch (InterruptedException e) {
-                LOGGER.error("Ingest 'Waiting for processing to finish' thread interrupted: {}", e);
+                LOGGER.info("Ingest 'Waiting for processing to finish' thread interrupted: {}", e);
             }
         }
 
@@ -273,7 +273,7 @@ public class IngestCommand extends CatalogCommands {
             executorService.shutdown();
             batchScheduler.shutdown();
         } catch (SecurityException e) {
-            LOGGER.error("Executor service shutdown was not permitted: {}", e);
+            LOGGER.info("Executor service shutdown was not permitted: {}", e);
         }
 
         printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
@@ -284,7 +284,7 @@ public class IngestCommand extends CatalogCommands {
         console.println();
         console.printf(" %d file(s) ingested in %s %n", ingestCount.get(), elapsedTime);
 
-        LOGGER.info("{} file(s) ingested in {} [{} records/sec]",
+        LOGGER.debug("{} file(s) ingested in {} [{} records/sec]",
                 ingestCount.get(),
                 elapsedTime,
                 calculateRecordsPerSecond(ingestCount.get(), start, end));
@@ -496,13 +496,13 @@ public class IngestCommand extends CatalogCommands {
                         metacardQueue.addAll(metacardList);
                     }
                 } catch (IOException | CatalogTransformerException e) {
-                    LOGGER.error("Unable to transform zip file into metacard list.", e);
-                    INGEST_LOGGER.error("Unable to transform zip file into metacard list.", e);
+                    LOGGER.info("Unable to transform zip file into metacard list.", e);
+                    INGEST_LOGGER.warn("Unable to transform zip file into metacard list.", e);
                 }
             } else {
-                LOGGER.error(
+                LOGGER.info(
                         "No Zip Transformer found.  Unable to transform zip file into metacard list.");
-                INGEST_LOGGER.error(
+                INGEST_LOGGER.warn(
                         "No Zip Transformer found.  Unable to transform zip file into metacard list.");
             }
 
@@ -676,7 +676,7 @@ public class IngestCommand extends CatalogCommands {
             fileMap.get(fileName[0])
                     .add(file);
         } else if (!file.isHidden()) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "Filename {} does not follow expected convention : ID-Filename, and will be skipped.",
                     file.getName());
         }
@@ -688,7 +688,7 @@ public class IngestCommand extends CatalogCommands {
             inputCollectionTransformerList = getAllServices(InputCollectionTransformer.class,
                     "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_DECOMPRESSION + ")" + ")");
         } catch (InvalidSyntaxException e) {
-            LOGGER.error("Unable to get transformer id={}", ZIP_DECOMPRESSION, e);
+            LOGGER.info("Unable to get transformer id={}", ZIP_DECOMPRESSION, e);
         }
 
         if (inputCollectionTransformerList != null && inputCollectionTransformerList.size() > 0) {

@@ -161,11 +161,9 @@ public class UpdateOperations {
 
             return updateResponse;
         } catch (StopProcessingException see) {
-            LOGGER.warn(PRE_INGEST_ERROR, see);
-            throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
+            throw new IngestException(PRE_INGEST_ERROR, see);
         } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing update", re);
-            throw new InternalIngestException("Exception during runtime while performing update");
+            throw new InternalIngestException("Exception during runtime while performing update", re);
         }
     }
 
@@ -237,7 +235,7 @@ public class UpdateOperations {
                     sourceOperations.getStorage()
                             .rollback(updateStorageRequest);
                 } catch (StorageException e1) {
-                    LOGGER.error("Unable to remove temporary content for id: {}",
+                    LOGGER.info("Unable to remove temporary content for id: {}",
                             updateStorageRequest.getId(),
                             e1);
                 }

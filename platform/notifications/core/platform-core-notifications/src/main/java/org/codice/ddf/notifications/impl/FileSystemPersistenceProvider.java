@@ -67,7 +67,7 @@ public class FileSystemPersistenceProvider
         File dir = new File(getPersistencePath());
         if (!dir.exists()) {
             if (!dir.mkdir()) {
-                LOGGER.warn("Unable to create directory: {}", dir.getAbsolutePath());
+                LOGGER.info("Unable to create directory: {}", dir.getAbsolutePath());
             }
         }
     }
@@ -99,7 +99,7 @@ public class FileSystemPersistenceProvider
             File dir = new File(getMapStorePath());
             if (!dir.exists()) {
                 if (!dir.mkdir()) {
-                    LOGGER.warn("Unable to create directory: {}", dir.getAbsolutePath());
+                    LOGGER.info("Unable to create directory: {}", dir.getAbsolutePath());
                 }
             }
             file = new FileOutputStream(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
@@ -107,7 +107,7 @@ public class FileSystemPersistenceProvider
             output = new ObjectOutputStream(buffer);
             output.writeObject(value);
         } catch (IOException e) {
-            LOGGER.info("IOException storing value in cache with key = " + key, e);
+            LOGGER.info("IOException storing value in cache with key = {}", key, e);
         } finally {
             IOUtils.closeQuietly(output);
             IOUtils.closeQuietly(file);
@@ -126,7 +126,7 @@ public class FileSystemPersistenceProvider
         File file = new File(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
         if (file.exists()) {
             if (!file.delete()) {
-                LOGGER.warn("File was unable to be deleted: {}", file.getAbsolutePath());
+                LOGGER.info("File was unable to be deleted: {}", file.getAbsolutePath());
             }
         }
     }
@@ -214,7 +214,7 @@ public class FileSystemPersistenceProvider
         if (files != null) {
             for (File file : files) {
                 if (!file.delete()) {
-                    LOGGER.warn("File was unable to be deleted: {}", file.getAbsolutePath());
+                    LOGGER.info("File was unable to be deleted: {}", file.getAbsolutePath());
                 }
             }
         }

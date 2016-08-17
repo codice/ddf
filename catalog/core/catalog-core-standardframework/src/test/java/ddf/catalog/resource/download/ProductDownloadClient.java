@@ -95,7 +95,7 @@ public class ProductDownloadClient implements Callable<ByteArrayOutputStream> {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(bos);
         } catch (IOException e) {
-            LOGGER.error("Exception", e);
+            LOGGER.info("Exception", e);
         }
         LOGGER.info("Client DONE - size = {}", size);
         return bos;

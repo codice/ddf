@@ -123,7 +123,7 @@ public class LogoutRequestService {
             submitForm = IOUtils.toString(submitStream);
             redirectPage = IOUtils.toString(redirectStream);
         } catch (Exception e) {
-            LOGGER.error("Unable to load index page for SP.", e);
+            LOGGER.debug("Unable to load index page for SP.", e);
         }
     }
 
@@ -141,7 +141,7 @@ public class LogoutRequestService {
                     String msg = String.format(
                             "Logout request was older than %sms old so it was rejected. Please refresh page and request again.",
                             logOutPageTimeOut);
-                    LOGGER.error(msg);
+                    LOGGER.info(msg);
                     return buildLogoutResponse(msg);
                 }
                 logout();
@@ -152,13 +152,13 @@ public class LogoutRequestService {
                 return getLogoutRequest(relayState, logoutRequest);
             } catch (Exception e) {
                 String msg = "Failed to create logout request.";
-                LOGGER.error(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             }
 
         } else {
             String msg = "Failed to decrypt logout request params. Invalid number of params.";
-            LOGGER.error(msg);
+            LOGGER.info(msg);
             return buildLogoutResponse(msg);
         }
 
@@ -178,7 +178,7 @@ public class LogoutRequestService {
             }
         } catch (Exception e) {
             String msg = "Failed to create logout request";
-            LOGGER.error(msg, e);
+            LOGGER.debug(msg, e);
             return buildLogoutResponse(msg);
         }
     }
@@ -230,7 +230,7 @@ public class LogoutRequestService {
                         encodedSamlRequest));
                 if (logoutRequest == null) {
                     String msg = "Unable to parse logout request.";
-                    LOGGER.error(msg);
+                    LOGGER.debug(msg);
                     return buildLogoutResponse(msg);
                 }
 
@@ -244,15 +244,15 @@ public class LogoutRequestService {
                 return getLogoutResponse(relayState, logoutResponse);
             } catch (WSSecurityException e) {
                 String msg = "Failed to sign logout response.";
-                LOGGER.error(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             } catch (ValidationException e) {
                 String msg = "Unable to validate";
-                LOGGER.error(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             } catch (XMLStreamException e) {
                 String msg = "Unable to parse logout request.";
-                LOGGER.error(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             }
         } else {
@@ -261,18 +261,18 @@ public class LogoutRequestService {
                         logoutMessage.extractSamlLogoutResponse(decodeBase64(encodedSamlResponse));
                 if (logoutResponse == null) {
                     String msg = "Unable to parse logout response.";
-                    LOGGER.error(msg);
+                    LOGGER.info(msg);
                     return buildLogoutResponse(msg);
                 }
                 new SamlValidator.Builder(simpleSign).buildAndValidate(request.getRequestURL()
                         .toString(), SamlProtocol.Binding.HTTP_POST, logoutResponse);
             } catch (ValidationException e) {
                 String msg = "Unable to validate";
-                LOGGER.error(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             } catch (WSSecurityException | XMLStreamException e) {
                 String msg = "Unable to parse logout response.";
-                LOGGER.warn(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             }
             String nameId = "You";
@@ -314,15 +314,15 @@ public class LogoutRequestService {
                 return getLogoutResponse(relayState, logoutResponse);
             } catch (IOException e) {
                 String msg = "Unable to decode and inflate logout request.";
-                LOGGER.warn(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             } catch (ValidationException e) {
                 String msg = "Unable to validate";
-                LOGGER.warn(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             } catch (WSSecurityException | XMLStreamException e) {
                 String msg = "Unable to parse logout request.";
-                LOGGER.warn(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             }
         } else {
@@ -333,7 +333,7 @@ public class LogoutRequestService {
                                 deflatedSamlResponse));
                 if (logoutResponse == null) {
                     String msg = "Unable to parse logout response.";
-                    LOGGER.error(msg);
+                    LOGGER.debug(msg);
                     return buildLogoutResponse(msg);
                 }
                 buildAndValidateSaml(deflatedSamlResponse,
@@ -349,15 +349,15 @@ public class LogoutRequestService {
                 return buildLogoutResponse(nameId + " logged out successfully.");
             } catch (IOException e) {
                 String msg = "Unable to decode and inflate logout response.";
-                LOGGER.warn(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             } catch (ValidationException e) {
                 String msg = "Unable to validate";
-                LOGGER.warn(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             } catch (WSSecurityException | XMLStreamException e) {
                 String msg = "Unable to parse logout response.";
-                LOGGER.warn(msg, e);
+                LOGGER.info(msg, e);
                 return buildLogoutResponse(msg);
             }
         }
@@ -422,7 +422,7 @@ public class LogoutRequestService {
             }
         } catch (Exception e) {
             String msg = "Failed to create logout response";
-            LOGGER.error(msg, e);
+            LOGGER.debug(msg, e);
             return buildLogoutResponse(msg);
         }
 

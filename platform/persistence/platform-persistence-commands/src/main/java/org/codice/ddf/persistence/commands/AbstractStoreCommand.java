@@ -67,7 +67,7 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
         } catch (PersistenceException pe) {
             console.println(
                     "Encountered an error when trying to perform the command. Check log for more details.");
-            logger.warn("Error while performing command.", pe);
+            logger.debug("Error while performing command.", pe);
         } finally {
             if (persistentStoreRef != null) {
                 try {

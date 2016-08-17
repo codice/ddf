@@ -119,7 +119,6 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         SecurityAssertion assertion = principalCollection.oneByType(SecurityAssertion.class);
         if (assertion == null) {
             String msg = "No assertion found, cannot retrieve authorization info.";
-            LOGGER.warn(msg);
             throw new AuthorizationException(msg);
         }
         List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
@@ -189,7 +188,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
             if (curValue instanceof XSString) {
                 attributeSet.add(((XSString) curValue).getValue());
             } else {
-                LOGGER.info(
+                LOGGER.debug(
                         "Unexpected attribute type (non-string) for attribute named {} - ignored",
                         attributeName);
             }

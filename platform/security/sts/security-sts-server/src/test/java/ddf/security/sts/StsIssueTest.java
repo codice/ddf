@@ -359,7 +359,7 @@ public class StsIssueTest {
             }
             assert (confirmMethod != null);
         } catch (WSSecurityException e) {
-            LOGGER.warn("Error validating the SecurityToken.", e);
+            LOGGER.info("Error validating the SecurityToken.", e);
         }
     }
 
@@ -403,7 +403,7 @@ public class StsIssueTest {
         try {
             token = stsClient.requestSecurityToken(endpointAddress);
         } catch (Exception e) {
-            LOGGER.warn("Error requesting the SecurityToken.", e);
+            LOGGER.info("Error requesting the SecurityToken.", e);
         }
         return token;
     }

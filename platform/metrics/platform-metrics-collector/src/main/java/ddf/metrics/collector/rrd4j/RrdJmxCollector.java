@@ -265,7 +265,7 @@ public class RrdJmxCollector implements JmxCollector {
         LOGGER.trace("ENTERING: configureCollector() for collector {}", mbeanAttributeName);
 
         if (!isMbeanAccessible()) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "MBean attribute {} is not accessible - no collector will be configured for it.",
                     mbeanAttributeName);
             throw new CollectorException("MBean attribute " + mbeanAttributeName
@@ -273,7 +273,7 @@ public class RrdJmxCollector implements JmxCollector {
         }
 
         if (rrdDataSourceType == null) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "Unable to configure collector for MBean attribute {}\nData Source type for the RRD file cannot be null - must be either DERIVE, COUNTER or GAUGE.",
                     mbeanAttributeName);
             throw new CollectorException(
@@ -313,7 +313,7 @@ public class RrdJmxCollector implements JmxCollector {
                 pool.release(rrdDb);
             }
         } catch (IOException e) {
-            LOGGER.warn("Unable to close RRD DB", e);
+            LOGGER.info("Unable to close RRD DB", e);
         }
 
         LOGGER.trace("EXITING: destroy()");
@@ -413,7 +413,7 @@ public class RrdJmxCollector implements JmxCollector {
                     .exists()) {
                 if (!file.getParentFile()
                         .mkdirs()) {
-                    LOGGER.warn("Could not create parent file: {}",
+                    LOGGER.debug("Could not create parent file: {}",
                             file.getParentFile()
                                     .getAbsolutePath());
                 }
@@ -584,20 +584,12 @@ public class RrdJmxCollector implements JmxCollector {
                                     sampleSkipCount);
                         }
                     } catch (IllegalArgumentException iae) {
-                        LOGGER.error("Dropping sample of datasource {}", rrdDataSourceName, iae);
+                        LOGGER.info("Dropping sample of datasource {}", rrdDataSourceName, iae);
                     }
-                } catch (MalformedObjectNameException e) {
-                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
-                } catch (AttributeNotFoundException e) {
-                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
-                } catch (InstanceNotFoundException e) {
-                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
-                } catch (MBeanException e) {
-                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
-                } catch (ReflectionException e) {
-                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
+                } catch (MalformedObjectNameException | AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
+                    LOGGER.info("Problems getting MBean attribute {}", mbeanAttributeName, e);
                 } catch (IOException e) {
-                    LOGGER.warn("Error updating RRD", e);
+                    LOGGER.info("Error updating RRD", e);
                 }
             }
         };

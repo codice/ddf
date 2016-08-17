@@ -239,7 +239,7 @@ public class SecureStubServer extends StubServer {
 
                 if (!processed) {
                     response.setStatus(HttpStatus.NOT_FOUND_404);
-                    log.warn("Request {} hasn't been covered by any of {} stubs.",
+                    log.debug("Request {} hasn't been covered by any of {} stubs.",
                             request.getRequestURI(),
                             stubs.size());
                 }

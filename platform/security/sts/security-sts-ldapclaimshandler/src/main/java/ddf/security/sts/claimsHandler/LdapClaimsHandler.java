@@ -83,7 +83,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
         String user = AttributeMapLoader.getUser(principal);
         if (user == null) {
-            LOGGER.warn(
+            LOGGER.info(
                     "Could not determine user name, possible authentication error. Returning no claims.");
             return new ProcessedClaimCollection();
         }
@@ -164,16 +164,16 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
                     }
                 } else {
-                    LOGGER.error("LDAP Connection failed.");
+                    LOGGER.info("LDAP Connection failed.");
                 }
 
             }
         } catch (LdapException e) {
-            LOGGER.warn(
+            LOGGER.info(
                     "Cannot connect to server, therefore unable to set user attributes. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information");
             LOGGER.debug("Cannot connect to server, therefore unable to set user attributes.", e);
         } catch (SearchResultReferenceIOException e) {
-            LOGGER.warn("Unable to set user attributes. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information");
+            LOGGER.info("Unable to set user attributes. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information");
             LOGGER.debug("Unable to set user attributes.", e);
         } finally {
             if (connection != null) {

@@ -148,9 +148,9 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
             }
         } catch (org.osgi.framework.InvalidSyntaxException ise) {
             // this should never happen because the filter is always null
-            LOGGER.error("Error reading LDAP service filter", ise);
+            LOGGER.debug("Error reading LDAP service filter", ise);
         } catch (SourceUnavailableException sue) {
-            LOGGER.error("Unable to retrieve sources from Catalog Framework", sue);
+            LOGGER.info("Unable to retrieve sources from Catalog Framework", sue);
         }
 
         return statusMap;

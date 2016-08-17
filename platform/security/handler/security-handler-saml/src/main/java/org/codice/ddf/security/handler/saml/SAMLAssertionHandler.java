@@ -110,7 +110,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                             thisToken = StaxUtils.read(new StringReader(tokenString))
                                     .getDocumentElement();
                         } catch (XMLStreamException e) {
-                            LOGGER.warn(
+                            LOGGER.info(
                                     "Unexpected error converting XML string to element - proceeding without SAML token.",
                                     e);
                         }
@@ -125,7 +125,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                     handlerResult.setToken(samlToken);
                     handlerResult.setStatus(HandlerResult.Status.COMPLETED);
                 } catch (IOException e) {
-                    LOGGER.warn("Unexpected error converting header value to string", e);
+                    LOGGER.info("Unexpected error converting header value to string", e);
                 }
                 return handlerResult;
             }
@@ -150,11 +150,11 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 handlerResult.setToken(samlToken);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
             } catch (IOException e) {
-                LOGGER.warn(
+                LOGGER.info(
                         "Unexpected error converting cookie value to string - proceeding without SAML token.",
                         e);
             } catch (XMLStreamException e) {
-                LOGGER.warn(
+                LOGGER.info(
                         "Unexpected error converting XML string to element - proceeding without SAML token.",
                         e);
             }
@@ -219,7 +219,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 result = ((Element) root.getChildNodes()
                         .item(0));
             } catch (ParserConfigurationException | SAXException | IOException ex) {
-                LOGGER.warn("Unable to parse SAML assertion", ex);
+                LOGGER.info("Unable to parse SAML assertion", ex);
             } finally {
                 thread.setContextClassLoader(loader);
             }

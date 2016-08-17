@@ -18,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.JmxReporter;
@@ -33,8 +31,6 @@ import com.codahale.metrics.SlidingTimeWindowReservoir;
  *
  */
 public abstract class AbstractMetricsInterceptor extends AbstractPhaseInterceptor<Message> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMetricsInterceptor.class);
 
     private static final String REGISTRY_NAME = "ddf.METRICS.services";
 
@@ -93,8 +89,6 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
         if (null != ltr) {
             ltr.endHandling();
             increaseCounter(ex, ltr);
-        } else {
-            LOGGER.info("can't get the MessageHandling Info");
         }
     }
 

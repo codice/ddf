@@ -155,11 +155,11 @@ public class KmlEndpoint {
                 styleUrl = url;
                 styleDoc = Kml.unmarshal(new URL(styleUrl).openStream());
             } catch (MalformedURLException e) {
-                LOGGER.warn(
+                LOGGER.debug(
                         "StyleUrl is not a valid URL. Unable to serve up custom KML de.micromata.opengis.kml.v_2_2_0.Style.",
                         e);
             } catch (IOException e) {
-                LOGGER.warn(
+                LOGGER.debug(
                         "Unable to open de.micromata.opengis.kml.v_2_2_0.Style Document from StyleUrl.",
                         e);
             }
@@ -281,7 +281,7 @@ public class KmlEndpoint {
             descriptionHtml = template.apply(this);
             LOGGER.debug(descriptionHtml);
         } catch (IOException e) {
-            LOGGER.error("Failed to apply description Template", e);
+            LOGGER.debug("Failed to apply description Template", e);
         }
         rootNetworkLink.setDescription(descriptionHtml);
         rootNetworkLink.setOpen(true);
@@ -434,14 +434,14 @@ public class KmlEndpoint {
                     .getResourceAsStream(icon)) {
 
                 if (iconStream == null) {
-                    LOGGER.warn("Resource not found for icon {}", icon);
+                    LOGGER.debug("Resource not found for icon {}", icon);
                     throw new WebApplicationException(new FileNotFoundException(
                             "Resource not found for icon " + icon), Status.NOT_FOUND);
                 }
 
                 iconBytes = IOUtils.toByteArray(iconStream);
             } catch (IOException e) {
-                LOGGER.warn("Failed to read resource for icon " + icon, e);
+                LOGGER.debug("Failed to read resource for icon {}", icon, e);
                 throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
             }
         } else {
@@ -450,10 +450,10 @@ public class KmlEndpoint {
             try (InputStream message = new FileInputStream(icon)) {
                 iconBytes = IOUtils.toByteArray(message);
             } catch (FileNotFoundException e) {
-                LOGGER.warn("File not found for icon " + icon, e);
+                LOGGER.debug("File not found for icon {}", icon, e);
                 throw new WebApplicationException(e, Status.NOT_FOUND);
             } catch (IOException e) {
-                LOGGER.warn("Failed to read bytes for icon " + icon, e);
+                LOGGER.debug("Failed to read bytes for icon {}", icon, e);
                 throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
             }
         }

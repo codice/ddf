@@ -611,7 +611,7 @@ public class CswEndpoint implements Csw {
                     geometry = reader.read(bbox);
                 }
             } catch (ParseException e) {
-                LOGGER.warn("Unable to parse BoundingBox : {}", bbox, e);
+                LOGGER.debug("Unable to parse BoundingBox : {}", bbox, e);
             }
             BriefRecordType briefRecordType = new BriefRecordType();
             if (geometry != null) {
@@ -929,14 +929,8 @@ public class CswEndpoint implements Csw {
                 LOGGER.debug("Attempting to execute query: {}", response.getRequest());
                 QueryResponse queryResponse = framework.query(queryRequest);
                 response.setSourceResponse(queryResponse);
-            } catch (UnsupportedQueryException e) {
-                LOGGER.warn("Unable to query", e);
-                throw new CswException(e);
-            } catch (SourceUnavailableException e) {
-                LOGGER.warn("Unable to query", e);
-                throw new CswException(e);
-            } catch (FederationException e) {
-                LOGGER.warn("Unable to query", e);
+            } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+                LOGGER.debug("Unable to query", e);
                 throw new CswException(e);
             }
         }

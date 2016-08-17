@@ -35,24 +35,24 @@ public class SolrHttpRequestRetryHandler implements HttpRequestRetryHandler {
     @Override
     public boolean retryRequest(IOException e, int retryCount, HttpContext httpContext) {
         if (e instanceof InterruptedIOException) {
-            LOGGER.error("Connection timeout.");
+            LOGGER.debug("Connection timeout.");
         }
         if (e instanceof UnknownHostException) {
-            LOGGER.error("Unknown host.");
+            LOGGER.warn("Solr Client: Unknown host.");
         }
         if (e instanceof SSLException) {
-            LOGGER.error("SSL handshake exception.");
+            LOGGER.warn("Solr Client: SSL handshake exception.");
         }
         LOGGER.debug("Connection failed", e);
         try {
             long waitTime = (long) Math.pow(2, Math.min(retryCount, MAX_RETRY_COUNT)) * 50;
-            LOGGER.warn("Connection failed, waiting {} before retrying.",
+            LOGGER.debug("Solr Client: Connection failed, waiting {} before retrying.",
                     DurationFormatUtils.formatDurationWords(waitTime, true, true));
             synchronized (this) {
                 wait(waitTime);
             }
         } catch (InterruptedException ie) {
-            LOGGER.error("Exception while waiting.", ie);
+            LOGGER.debug("Exception while waiting.", ie);
         }
         return true;
     }

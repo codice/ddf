@@ -352,13 +352,8 @@ public class AtomTransformer implements QueryResponseTransformer {
                 try {
                     binaryContent = metacardTransformer.transform(metacard, new HashMap<>());
 
-                    // If the transformer cannot handle the data appropriately
-                } catch (CatalogTransformerException e) {
-                    LOGGER.warn(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
-
-                    // If the transformer service is unavailable
-                } catch (RuntimeException e) {
-                    LOGGER.info(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
+                } catch (CatalogTransformerException | RuntimeException e) {
+                    LOGGER.debug(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
                 }
 
                 if (binaryContent != null) {
@@ -370,7 +365,7 @@ public class AtomTransformer implements QueryResponseTransformer {
                             atomContentType = Type.XML;
                         }
                     } catch (IOException e) {
-                        LOGGER.warn(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
+                        LOGGER.debug(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
                     }
                 }
             }
@@ -440,7 +435,7 @@ public class AtomTransformer implements QueryResponseTransformer {
                             Long length = Long.parseLong(metacard.getResourceSize(), 10);
                             viewLink.setLength(length);
                         } catch (NumberFormatException e) {
-                            LOGGER.info("Could not cast {} as Long type.",
+                            LOGGER.debug("Could not cast {} as Long type.",
                                     metacard.getResourceSize());
                         }
 
@@ -502,7 +497,7 @@ public class AtomTransformer implements QueryResponseTransformer {
                             if (null != formatter) {
                                 georssPositions.addAll(formatter.toGeoRssPositions());
                             } else {
-                                LOGGER.info(
+                                LOGGER.debug(
                                         "When cycling through geometries, could not get composite geometry [{}]",
                                         geo);
                             }

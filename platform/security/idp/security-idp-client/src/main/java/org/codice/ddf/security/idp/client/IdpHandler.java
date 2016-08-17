@@ -200,14 +200,14 @@ public class IdpHandler implements AuthenticationHandler {
             redirectUrl = idpUri.build()
                     .toString();
         } catch (UnsupportedEncodingException e) {
-            LOGGER.warn("Unable to encode relay state: " + relayState, e);
+            LOGGER.info("Unable to encode relay state: {}", relayState, e);
             throw new ServletException("Unable to create return location");
         } catch (SimpleSign.SignatureException e) {
             String msg = "Unable to sign request";
-            LOGGER.warn(msg, e);
+            LOGGER.info(msg, e);
             throw new ServletException(msg);
         } catch (URISyntaxException e) {
-            LOGGER.warn("Unable to parse IDP request location: " + idpRequest, e);
+            LOGGER.info("Unable to parse IDP request location: {}", idpRequest, e);
             throw new ServletException("Unable to determine IDP location.");
         }
 
@@ -215,7 +215,7 @@ public class IdpHandler implements AuthenticationHandler {
             response.sendRedirect(redirectUrl);
             response.flushBuffer();
         } catch (IOException e) {
-            LOGGER.warn("Unable to redirect AuthnRequest to " + redirectUrl, e);
+            LOGGER.info("Unable to redirect AuthnRequest to {}", redirectUrl, e);
             throw new ServletException("Unable to redirect to IdP");
         }
     }
@@ -231,7 +231,7 @@ public class IdpHandler implements AuthenticationHandler {
             response.setStatus(200);
             response.flushBuffer();
         } catch (IOException e) {
-            LOGGER.warn("Unable to post AuthnRequest to IdP", e);
+            LOGGER.info("Unable to post AuthnRequest to IdP", e);
             throw new ServletException("Unable to post to IdP");
         }
     }
@@ -289,10 +289,10 @@ public class IdpHandler implements AuthenticationHandler {
                 return encodeRedirectRequest(requestMessage);
             }
         } catch (WSSecurityException | IOException e) {
-            LOGGER.warn(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST, e);
+            LOGGER.info(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST, e);
             throw new ServletException(UNABLE_TO_ENCODE_SAML_AUTHN_REQUEST);
         } catch (SimpleSign.SignatureException e) {
-            LOGGER.warn(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST, e);
+            LOGGER.info(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST, e);
             throw new ServletException(UNABLE_TO_SIGN_SAML_AUTHN_REQUEST);
         }
     }

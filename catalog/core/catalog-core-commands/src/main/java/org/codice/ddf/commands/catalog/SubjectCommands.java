@@ -105,13 +105,13 @@ public abstract class SubjectCommands extends CommandSupport {
 
             return subject.execute(this::executeWithSubject);
         } catch (ExecutionException e) {
-            LOGGER.error("Failed to run command: {}",
+            LOGGER.info("Failed to run command: {}",
                     e.getCause()
                             .getMessage(),
                     e.getCause());
             throw new InvocationTargetException(e.getCause());
         } catch (IOException e) {
-            LOGGER.error("Failed to run command", e);
+            LOGGER.info("Failed to run command", e);
             printErrorMessage("Failed to read password");
         }
 

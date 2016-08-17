@@ -108,7 +108,7 @@ public class GeoNamesWebService implements GeoCoder {
                     .accept("application/json")
                     .get(String.class);
         } catch (WebApplicationException e) {
-            LOGGER.error("Error while making geonames request.", e);
+            LOGGER.debug("Error while making geonames request.", e);
             return null;
         }
 
@@ -118,7 +118,7 @@ public class GeoNamesWebService implements GeoCoder {
             JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
             result = parser.parse(response);
         } catch (ParseException e) {
-            LOGGER.error("Error while parsing JSON message from Geonames service.", e);
+            LOGGER.debug("Error while parsing JSON message from Geonames service.", e);
         }
 
         return result;
@@ -133,7 +133,7 @@ public class GeoNamesWebService implements GeoCoder {
         try {
             location = URLEncoder.encode(location, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error("Unable to encode location.", e);
+            LOGGER.debug("Unable to encode location.", e);
         }
 
         return location;
@@ -184,7 +184,7 @@ public class GeoNamesWebService implements GeoCoder {
             Point center = shape.getCenter();
             return center;
         } catch (java.text.ParseException parseException) {
-            LOGGER.error(parseException.getMessage(), parseException);
+            LOGGER.debug(parseException.getMessage(), parseException);
         }
 
         return null;

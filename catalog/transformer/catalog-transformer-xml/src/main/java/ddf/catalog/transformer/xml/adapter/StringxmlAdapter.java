@@ -68,7 +68,7 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
         try {
             templates = transFactory.newTemplates(xsltSource);
         } catch (TransformerConfigurationException e) {
-            LOGGER.error("Unable to create transformer.", e);
+            LOGGER.debug("Unable to create transformer.", e);
         }
 
     }

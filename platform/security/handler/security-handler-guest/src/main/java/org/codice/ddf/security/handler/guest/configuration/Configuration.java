@@ -146,7 +146,7 @@ public class Configuration {
         try {
             mime = new MimeType(mimeType);
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to create mimetype: {}.", mimeType);
+            LOGGER.info("Failed to create mimetype: {}.", mimeType);
         }
 
         this.mimeType = mime;

@@ -51,7 +51,7 @@ public class ManagedServiceConfigurationFile extends ConfigurationFile {
         } catch (IOException e) {
             String message = String.format("Unable to get or update Configuration for pid [%s].",
                     servicePid);
-            LOGGER.error(message, e);
+            LOGGER.info(message, e);
             throw new ConfigurationFileException(message, e);
         }
     }

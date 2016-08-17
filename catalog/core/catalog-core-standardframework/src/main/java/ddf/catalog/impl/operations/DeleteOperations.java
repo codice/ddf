@@ -153,7 +153,7 @@ public class DeleteOperations {
             throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
 
         } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing delete", re);
+            LOGGER.info("Exception during runtime while performing delete", re);
             throw new InternalIngestException("Exception during runtime while performing delete");
 
         } finally {
@@ -162,7 +162,7 @@ public class DeleteOperations {
                     sourceOperations.getStorage()
                             .commit(deleteStorageRequest);
                 } catch (StorageException e) {
-                    LOGGER.error("Unable to remove stored content items.", e);
+                    LOGGER.info("Unable to remove stored content items.", e);
                 }
             }
         }
@@ -248,7 +248,7 @@ public class DeleteOperations {
             sourceOperations.getStorage()
                     .delete(deleteStorageRequest);
         } catch (StorageException e) {
-            LOGGER.error("Unable to delete stored content items. Not removing stored metacards", e);
+            LOGGER.info("Unable to delete stored content items. Not removing stored metacards", e);
             throw new InternalIngestException(
                     "Unable to delete stored content items. Not removing stored metacards.",
                     e);
@@ -326,7 +326,7 @@ public class DeleteOperations {
 
             return metacards;
         } catch (FederationException e) {
-            LOGGER.warn("Unable to complete query for updated metacards.", e);
+            LOGGER.debug("Unable to complete query for updated metacards.", e);
             throw new IngestException("Exception during runtime while performing delete");
         }
     }

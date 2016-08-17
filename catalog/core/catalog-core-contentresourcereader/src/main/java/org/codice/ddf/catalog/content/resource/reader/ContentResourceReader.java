@@ -151,7 +151,6 @@ public class ContentResourceReader implements ResourceReader {
         ResourceResponse response = null;
 
         if (resourceUri == null) {
-            LOGGER.warn("Resource URI was null");
             throw new ResourceNotFoundException("Unable to find resource - resource URI was null");
         }
 

@@ -85,7 +85,7 @@ public final class XSLTUtil {
                         }
                     }
                 } else {
-                    LOGGER.warn(
+                    LOGGER.debug(
                             "All properties were null.  Using \"last-resort\" defaults: U, USA, MTS");
                 }
 
@@ -99,10 +99,8 @@ public final class XSLTUtil {
 
             return resultDoc;
         } catch (TransformerException e) {
-            LOGGER.warn(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            LOGGER.warn(e.getMessage(), e);
             throw new TransformerException("Error while transforming document: " + e.getMessage(),
                     e);
         }

@@ -61,7 +61,7 @@ public class HtmlMetacardTransformer implements MetacardTransformer {
         try {
             mimeType = new MimeType("text/html");
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to parse mimeType", e);
+            LOGGER.info("Failed to parse mimeType", e);
         }
         DEFAULT_MIME_TYPE = mimeType;
 
@@ -86,7 +86,7 @@ public class HtmlMetacardTransformer implements MetacardTransformer {
             handlebars.compile(RECORD_TEMPLATE);
             template = handlebars.compile(RECORD_HTML_TEMPLATE);
         } catch (IOException e) {
-            LOGGER.error("Failed to load templates", e);
+            LOGGER.debug("Failed to load templates", e);
         }
     }
 
@@ -116,7 +116,7 @@ public class HtmlMetacardTransformer implements MetacardTransformer {
                     .build();
             return template.apply(context);
         } catch (IOException e) {
-            LOGGER.error("Failed to apply template", e);
+            LOGGER.debug("Failed to apply template", e);
         }
 
         return null;

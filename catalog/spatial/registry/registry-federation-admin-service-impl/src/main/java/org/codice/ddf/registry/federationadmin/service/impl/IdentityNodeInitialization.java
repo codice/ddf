@@ -95,7 +95,7 @@ public class IdentityNodeInitialization {
                 return null;
             });
         } catch (PrivilegedActionException e) {
-            LOGGER.warn("Error checking for local registry identity node. Will try again later");
+            LOGGER.debug("Error checking for local registry identity node. Will try again later");
             executorService.schedule(this::init, RETRY_INTERVAL, TimeUnit.SECONDS);
         }
     }
@@ -171,7 +171,7 @@ public class IdentityNodeInitialization {
             System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, registryPackageId);
             federationAdminService.addRegistryEntry(identityMetacard);
         }
-        LOGGER.info("Successfully created registry identity node: {}", registryPackageId);
+        LOGGER.debug("Successfully created registry identity node: {}", registryPackageId);
     }
 
     private Metacard getRegistryMetacardFromRegistryPackage(RegistryPackageType registryPackage)
@@ -184,7 +184,7 @@ public class IdentityNodeInitialization {
 
         } catch (IOException | CatalogTransformerException | ParserException e) {
             String message = "Error creating metacard from registry package.";
-            LOGGER.error("{} Registry id: {}", message, registryPackage.getId());
+            LOGGER.debug("{} Registry id: {}", message, registryPackage.getId());
             throw new FederationAdminException(message, e);
         }
 

@@ -55,7 +55,7 @@ public class CookieCache {
     public void addActiveSp(String key, String activeSp) {
         DataWrapper dataWrapper = cache.getIfPresent(key);
         if (dataWrapper == null) {
-            LOGGER.error("Cannot add sp [{}] for [{}]: does not exist", activeSp, key);
+            LOGGER.warn("Cannot add sp [{}] for [{}]: does not exist", activeSp, key);
             return;
         }
         synchronized (dataWrapper) {

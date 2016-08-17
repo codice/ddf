@@ -156,7 +156,7 @@ public class SolrCache implements SolrCacheMBean {
             client.add(updatedMetacards, false);
             dirty.set(true);
         } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
-            LOGGER.warn("Solr server exception caching metacard(s)", e);
+            LOGGER.info("Solr server exception caching metacard(s)", e);
         }
     }
 
@@ -167,7 +167,7 @@ public class SolrCache implements SolrCacheMBean {
 
         String attributeName = deleteRequest.getAttributeName();
         if (StringUtils.isBlank(attributeName)) {
-            LOGGER.warn("Attribute name cannot be empty. Cannot delete from cache.");
+            LOGGER.debug("Attribute name cannot be empty. Cannot delete from cache.");
             return;
         }
 
@@ -180,7 +180,7 @@ public class SolrCache implements SolrCacheMBean {
             client.deleteByIds(fieldName, deleteRequest.getAttributeValues(), false);
             dirty.set(true);
         } catch (SolrServerException | IOException e) {
-            LOGGER.error("Solr server exception while deleting from cache", e);
+            LOGGER.info("Solr server exception while deleting from cache", e);
         }
     }
 
@@ -195,7 +195,7 @@ public class SolrCache implements SolrCacheMBean {
 
     private void configureCacheExpirationScheduler() {
         shutdownCacheExpirationScheduler();
-        LOGGER.info(
+        LOGGER.debug(
                 "Configuring cache expiration scheduler with an expiration interval of {} minute(s).",
                 expirationIntervalInMinutes);
         scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -206,7 +206,7 @@ public class SolrCache implements SolrCacheMBean {
     }
 
     private void configureMBean() {
-        LOGGER.info("Registering Cache Manager Service MBean");
+        LOGGER.debug("Registering Cache Manager Service MBean");
         mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
         try {
@@ -215,13 +215,13 @@ public class SolrCache implements SolrCacheMBean {
                 mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class),
                         objectName);
             } catch (InstanceAlreadyExistsException e) {
-                LOGGER.info("Re-registering Cache Manager MBean");
+                LOGGER.debug("Re-registering Cache Manager MBean");
                 mbeanServer.unregisterMBean(objectName);
                 mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class),
                         objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("Could not register MBean.", e);
+            LOGGER.debug("Could not register MBean.", e);
         }
     }
 
@@ -235,7 +235,7 @@ public class SolrCache implements SolrCacheMBean {
                     scheduler.shutdownNow();
                     // Wait up to 60 seconds for tasks to respond to being cancelled
                     if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
-                        LOGGER.warn("Cache expiration scheduler did not terminate.");
+                        LOGGER.debug("Cache expiration scheduler did not terminate.");
                     }
                 }
             } catch (InterruptedException e) {
@@ -251,7 +251,7 @@ public class SolrCache implements SolrCacheMBean {
     }
 
     public void updateServer(String newUrl) {
-        LOGGER.info("New url {}", newUrl);
+        LOGGER.debug("New url {}", newUrl);
 
         if (newUrl != null) {
             if (!StringUtils.equalsIgnoreCase(newUrl.trim(), url) || server == null) {
@@ -259,11 +259,11 @@ public class SolrCache implements SolrCacheMBean {
                 this.url = newUrl.trim();
 
                 if (server != null) {
-                    LOGGER.info(
+                    LOGGER.debug(
                             "Shutting down the connection manager to the Solr Server and releasing allocated resources.");
                     try {
                         server.close();
-                        LOGGER.info("Shutdown complete.");
+                        LOGGER.debug("Shutdown complete.");
                     } catch (IOException e) {
                         LOGGER.info("Failed to shutdown Solr server.", e);
                     }
@@ -273,7 +273,7 @@ public class SolrCache implements SolrCacheMBean {
                     server = SolrClientFactory.getHttpSolrClient(url, METACARD_CACHE_CORE_NAME)
                             .get();
                 } catch (InterruptedException | ExecutionException e) {
-                    LOGGER.error("Failed to get solr server from future", e);
+                    LOGGER.info("Failed to get solr server from future", e);
                 }
                 client = new CacheSolrMetacardClient(this.server,
                         filterAdapter,
@@ -290,7 +290,7 @@ public class SolrCache implements SolrCacheMBean {
                 server.commit();
             }
         } catch (SolrServerException | IOException e) {
-            LOGGER.warn("Unable to commit changes to cache.", e);
+            LOGGER.info("Unable to commit changes to cache.", e);
         }
     }
 
@@ -305,9 +305,9 @@ public class SolrCache implements SolrCacheMBean {
     }
 
     public void shutdown() {
-        LOGGER.info("Shutting down cache expiration scheduler.");
+        LOGGER.debug("Shutting down cache expiration scheduler.");
         shutdownCacheExpirationScheduler();
-        LOGGER.info("Shutting down Solr server.");
+        LOGGER.debug("Shutting down Solr server.");
         try {
             server.close();
         } catch (IOException e) {
@@ -359,7 +359,7 @@ public class SolrCache implements SolrCacheMBean {
                 server.deleteByQuery(
                         CACHED_DATE + ":[* TO NOW-" + expirationAgeInMinutes + "MINUTES]");
             } catch (SolrServerException | IOException e) {
-                LOGGER.warn("Unable to expire cache.", e);
+                LOGGER.info("Unable to expire cache.", e);
             }
         }
     }

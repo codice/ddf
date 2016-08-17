@@ -123,7 +123,7 @@ public class CswFilterFactory {
                     CswJAXBElementProvider.class.getClassLoader());
             LOGGER.debug(jaxbContext.toString());
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
+            LOGGER.info("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
         return jaxbContext;
@@ -518,13 +518,13 @@ public class CswFilterFactory {
             if (object instanceof JAXBElement) {
                 abstractGeometry = (JAXBElement<? extends AbstractGeometryType>) object;
             } else {
-                LOGGER.error(
+                LOGGER.debug(
                         "Unable to cast to JAXBElement<? extends AbstractGeometryType>.  Object is of type [{}].",
                         object.getClass()
                                 .getName());
             }
         } catch (JAXBException e) {
-            LOGGER.error("Unable to unmarshal geometry [{}]",
+            LOGGER.debug("Unable to unmarshal geometry [{}]",
                     geometry.getClass()
                             .getName(),
                     e);

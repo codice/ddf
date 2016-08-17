@@ -77,9 +77,9 @@ public class SpatialFilter {
             }
 
         } catch (ParseException e) {
-            LOGGER.warn("Unable to compute geometry for WKT = " + this.geometryWkt, e);
+            LOGGER.debug("Unable to compute geometry for WKT = {}", this.geometryWkt, e);
         } catch (com.vividsolutions.jts.io.ParseException e) {
-            LOGGER.warn("Unable to read multi geometry for WKT = " + this.geometryWkt, e);
+            LOGGER.debug("Unable to read multi geometry for WKT = {}", this.geometryWkt, e);
         }
 
         return geometry;

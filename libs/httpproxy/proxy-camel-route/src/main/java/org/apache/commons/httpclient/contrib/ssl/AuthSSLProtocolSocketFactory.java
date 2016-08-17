@@ -341,17 +341,17 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
             sslcontext.init(keymanagers, trustmanagers, null);
             return sslcontext;
         } catch (NoSuchAlgorithmException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.debug(e.getMessage(), e);
             throw new AuthSSLInitializationError(
                     "Unsupported algorithm exception: " + e.getMessage());
         } catch (KeyStoreException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.debug(e.getMessage(), e);
             throw new AuthSSLInitializationError("Keystore exception: " + e.getMessage());
         } catch (GeneralSecurityException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.debug(e.getMessage(), e);
             throw new AuthSSLInitializationError("Key management exception: " + e.getMessage());
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.debug(e.getMessage(), e);
             throw new AuthSSLInitializationError(
                     "I/O error reading keystore/truststore file: " + e.getMessage());
         }

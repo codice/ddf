@@ -97,7 +97,7 @@ public class SourceQueryRunnable extends QueryRunnable {
                     search.transform(request.getId()),
                     session);
         } catch (CatalogTransformerException e) {
-            LOGGER.error("Failed to transform federated search results.", e);
+            LOGGER.debug("Failed to transform federated search results.", e);
         }
     }
 
@@ -105,7 +105,7 @@ public class SourceQueryRunnable extends QueryRunnable {
         try {
             cacheFuture.get(FUTURE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            LOGGER.error("Cache query failed", e);
+            LOGGER.debug("Cache query failed", e);
         }
     }
 
@@ -142,11 +142,11 @@ public class SourceQueryRunnable extends QueryRunnable {
 
                 normalizeRelevance(indexResults, results);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                LOGGER.warn("Failed to get index for relevance normalization", e);
+                LOGGER.debug("Failed to get index for relevance normalization", e);
             } catch (UnsupportedQueryException e) {
-                LOGGER.warn("Failed to parse query for relevance normalization", e);
+                LOGGER.debug("Failed to parse query for relevance normalization", e);
             } catch (IngestException e) {
-                LOGGER.warn("Failed to ingest results for relevance normalization", e);
+                LOGGER.debug("Failed to ingest results for relevance normalization", e);
             }
         } else if (shouldNormalizeDistance) {
             normalizeDistances(query, results);

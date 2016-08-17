@@ -159,7 +159,7 @@ public class AdminConfigPolicy implements PolicyExtension {
             }
 
             if (newPolicyPermissions.containsKey(permissionName)) {
-                LOGGER.warn("Policy extension settings for {} already exist, overwriting",
+                LOGGER.debug("Policy extension settings for {} already exist, overwriting",
                         permissionName);
             }
             newPolicyPermissions.put(permissionName, permissionAttributeMap);

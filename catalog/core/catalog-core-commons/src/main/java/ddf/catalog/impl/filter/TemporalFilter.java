@@ -93,8 +93,8 @@ public class TemporalFilter {
                 returnDate = formatter.parseDateTime(date)
                         .toDate();
             } catch (IllegalArgumentException iae) {
-                LOGGER.warn(
-                        "Could not parse out updated date in response, date will not being passed back.");
+                LOGGER.debug(
+                        "Could not parse out updated date in response, date will not be passed back.", iae);
             }
         }
         return returnDate;

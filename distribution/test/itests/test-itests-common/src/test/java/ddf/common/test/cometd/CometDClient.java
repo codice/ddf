@@ -182,7 +182,7 @@ public class CometDClient {
             clientSessionChannel.subscribe(messageListener);
             messageListeners.add(messageListener);
         } else {
-            LOGGER.warn("Already subscribed to channel {}", channel);
+            LOGGER.debug("Already subscribed to channel {}", channel);
         }
     }
 

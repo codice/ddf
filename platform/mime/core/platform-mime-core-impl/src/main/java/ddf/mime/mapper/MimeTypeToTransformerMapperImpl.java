@@ -68,7 +68,7 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
             return list;
         }
         if (clazz == null) {
-            LOGGER.warn("Cannot find matches, service argument is null.");
+            LOGGER.debug("Cannot find matches, service argument is null.");
             throw new IllegalArgumentException("Invalid argument supplied, null service argument");
         }
 
@@ -78,7 +78,6 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
         try {
             refs = bundleContext.getServiceReferences(clazz.getName(), null);
         } catch (InvalidSyntaxException e) {
-            LOGGER.warn("Invalid filter syntax ", e);
             throw new IllegalArgumentException(
                     "Invalid syntax supplied: " + userMimeType.toString());
         }

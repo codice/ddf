@@ -120,7 +120,7 @@ public class XacmlClient {
             // functionality should be re-evaluated
             FileUtils.forceMkdir(xacmlPoliciesDirectory);
         } catch (IOException e) {
-            LOGGER.error("Unable to create directory: {}",
+            LOGGER.warn("Unable to create directory: {}",
                     xacmlPoliciesDirectory.getAbsolutePath());
         }
         checkXacmlPoliciesDirectory(xacmlPoliciesDirectory);
@@ -270,7 +270,7 @@ public class XacmlClient {
             };
         } catch (SAXException e) {
             String message = "Unable to read XACML response:\n" + xacmlResponse;
-            LOGGER.error(message);
+            LOGGER.info(message);
             throw new PdpException(message, e);
         }
 
@@ -289,7 +289,7 @@ public class XacmlClient {
                     new InputSource(new StringReader(xacmlResponse))), domResult);
         } catch (TransformerException e) {
             String message = "Unable to transform XACML response:\n" + xacmlResponse;
-            LOGGER.error(message);
+            LOGGER.info(message);
             throw new PdpException(message, e);
         } finally {
             Thread.currentThread()
@@ -323,7 +323,7 @@ public class XacmlClient {
             xacmlRequest = os.toString("UTF-8");
         } catch (ParserException | UnsupportedEncodingException e) {
             String message = "Unable to marshal XACML request.";
-            LOGGER.error(message, e);
+            LOGGER.info(message, e);
             throw new PdpException(message, e);
         }
 
@@ -359,7 +359,7 @@ public class XacmlClient {
 
         } catch (ParserException e) {
             String message = "Unable to unmarshal XACML response.";
-            LOGGER.error(message);
+            LOGGER.info(message);
             throw new PdpException(message, e);
         }
     }

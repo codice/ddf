@@ -76,7 +76,7 @@ public class XmlInputTransformer extends AbstractXmlTransformer implements Input
 
             return metacard;
         } catch (ParserException e) {
-            LOGGER.error("Error parsing metacard", e);
+            LOGGER.debug("Error parsing metacard", e);
             throw new CatalogTransformerException(FAILED_TRANSFORMATION, e);
         }
     }

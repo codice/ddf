@@ -169,7 +169,7 @@ public class DynamicSchemaResolver {
      */
     public void addFieldsFromClient(SolrClient client) {
         if (client == null) {
-            LOGGER.warn("Solr client is null, could not add fields to cache.");
+            LOGGER.debug("Solr client is null, could not add fields to cache.");
             return;
         }
 
@@ -196,7 +196,7 @@ public class DynamicSchemaResolver {
                 }
             }
         } catch (SolrServerException | SolrException | IOException e) {
-            LOGGER.warn("Could not update cache for field names.", e);
+            LOGGER.info("Could not update cache for field names.", e);
         }
     }
 
@@ -255,8 +255,7 @@ public class DynamicSchemaResolver {
                                 out.reset();
                             }
                         } catch (IOException e) {
-                            LOGGER.warn(COULD_NOT_SERIALIZE_OBJECT_MESSAGE, e);
-                            throw new MetacardCreationException(COULD_NOT_SERIALIZE_OBJECT_MESSAGE);
+                            throw new MetacardCreationException(COULD_NOT_SERIALIZE_OBJECT_MESSAGE, e);
                         }
 
                         attributeValues = byteArrays;
@@ -278,9 +277,9 @@ public class DynamicSchemaResolver {
                     byte[] luxXml = createTinyBinary(metacard.getMetadata());
                     solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
                 } catch (XMLStreamException | SaxonApiException e) {
-                    LOGGER.warn(
-                            "Unable to parse metadata field.  XPath support unavailable for metacard "
-                                    + metacard.getId());
+                    LOGGER.debug(
+                            "Unable to parse metadata field.  XPath support unavailable for metacard {}",
+                            metacard.getId());
                 }
             }
         }
@@ -369,9 +368,9 @@ public class DynamicSchemaResolver {
                 in = new ObjectInputStream(bais);
                 return (Serializable) in.readObject();
             } catch (IOException e) {
-                LOGGER.warn("IO exception loading input document", e);
+                LOGGER.info("IO exception loading input document", e);
             } catch (ClassNotFoundException e) {
-                LOGGER.warn("Could not create object to return.", e);
+                LOGGER.info("Could not create object to return.", e);
                 // TODO which exception to throw?
             } finally {
                 IOUtils.closeQuietly(bais);
@@ -500,11 +499,11 @@ public class DynamicSchemaResolver {
 
         } catch (IOException e) {
 
-            LOGGER.warn("IO exception loading cached metacard type", e);
+            LOGGER.info("IO exception loading cached metacard type", e);
 
             throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
         } catch (ClassNotFoundException e) {
-            LOGGER.warn("Class exception loading cached metacard type", e);
+            LOGGER.info("Class exception loading cached metacard type", e);
 
             throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
         } finally {
@@ -589,8 +588,7 @@ public class DynamicSchemaResolver {
 
             return bytes;
         } catch (IOException e) {
-            LOGGER.warn("IO exception reading metacard type message", e);
-            throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
+            throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE, e);
         }
 
     }
@@ -671,7 +669,7 @@ public class DynamicSchemaResolver {
                 builder.setLength(0);
             }
         } catch (XMLStreamException e1) {
-            LOGGER.warn(
+            LOGGER.info(
                     "Failure occurred in parsing the xml data. No data has been stored or indexed.",
                     e1);
         } finally {

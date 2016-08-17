@@ -62,7 +62,7 @@ public class GmdConverter implements Converter {
         try {
             factory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
-            LOGGER.error("Failed to create xsdFactory", e);
+            LOGGER.info("Failed to create xsdFactory", e);
         }
 
         XSD_FACTORY = factory;
@@ -94,7 +94,7 @@ public class GmdConverter implements Converter {
     public void marshal(Object source, HierarchicalStreamWriter inWriter,
             MarshallingContext context) {
         if (source == null || !(source instanceof Metacard)) {
-            LOGGER.warn("Failed to marshal Metacard: {}", source);
+            LOGGER.debug("Failed to marshal Metacard: {}", source);
             return;
         }
         MetacardImpl metacard = new MetacardImpl((Metacard) source);
@@ -243,7 +243,7 @@ public class GmdConverter implements Converter {
             try {
                 geometry = reader.read(wkt);
             } catch (ParseException e) {
-                LOGGER.warn("Unable to parse geometry {}", wkt, e);
+                LOGGER.debug("Unable to parse geometry {}", wkt, e);
             }
 
             if (geometry != null) {

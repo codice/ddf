@@ -95,6 +95,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.SecurityConstants;
+import ddf.security.common.audit.SecurityLogger;
 
 public class KeystoreEditor implements KeystoreEditorMBean {
 
@@ -131,7 +132,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             keyStore = SecurityConstants.newKeystore();
             trustStore = SecurityConstants.newTruststore();
         } catch (KeyStoreException e) {
-            LOGGER.error("Unable to create keystore instance of type {}",
+            LOGGER.info("Unable to create keystore instance of type {}",
                     System.getProperty(SecurityConstants.KEYSTORE_TYPE),
                     e);
         }
@@ -147,7 +148,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         String keyStorePassword = SecurityConstants.getKeystorePassword();
         String trustStorePassword = SecurityConstants.getTruststorePassword();
         if (!Files.isReadable(keyStoreFile) || !Files.isReadable(trustStoreFile)) {
-            LOGGER.error("Unable to read system key/trust store files: [ {} ] [ {} ]",
+            LOGGER.info("Unable to read system key/trust store files: [ {} ] [ {} ]",
                     keyStoreFile,
                     trustStoreFile);
             return;
@@ -155,7 +156,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         try (InputStream kfis = Files.newInputStream(keyStoreFile)) {
             keyStore.load(kfis, keyStorePassword.toCharArray());
         } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
-            LOGGER.error("Unable to load system key file.", e);
+            LOGGER.info("Unable to load system key file.", e);
             try {
                 keyStore.load(null, null);
             } catch (NoSuchAlgorithmException | CertificateException | IOException ignore) {
@@ -164,7 +165,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         try (InputStream tfis = Files.newInputStream(trustStoreFile)) {
             trustStore.load(tfis, trustStorePassword.toCharArray());
         } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
-            LOGGER.error("Unable to load system trust file.", e);
+            LOGGER.info("Unable to load system trust file.", e);
             try {
                 trustStore.load(null, null);
             } catch (NoSuchAlgorithmException | CertificateException | IOException ignore) {
@@ -179,22 +180,22 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             objectName = new ObjectName(KeystoreEditor.class.getName() + ":service=keystore");
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
-            LOGGER.error("Unable to create Keystore Editor MBean.", e);
+            LOGGER.info("Unable to create Keystore Editor MBean.", e);
         }
         if (mBeanServer != null) {
             try {
                 try {
                     mBeanServer.registerMBean(this, objectName);
-                    LOGGER.info("Registered Keystore Editor MBean under object name: {}",
+                    LOGGER.debug("Registered Keystore Editor MBean under object name: {}",
                             objectName.toString());
                 } catch (InstanceAlreadyExistsException e) {
                     // Try to remove and re-register
                     mBeanServer.unregisterMBean(objectName);
                     mBeanServer.registerMBean(this, objectName);
-                    LOGGER.info("Re-registered Keystore Editor MBean");
+                    LOGGER.debug("Re-registered Keystore Editor MBean");
                 }
             } catch (Exception e) {
-                LOGGER.error("Could not register MBean [{}].", objectName.toString(), e);
+                LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
             }
         }
     }
@@ -230,7 +231,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 storeEntries.add(aliasMap);
             }
         } catch (KeyStoreException e) {
-            LOGGER.error("Unable to read entries from keystore.", e);
+            LOGGER.info("Unable to read entries from keystore.", e);
         }
         return storeEntries;
     }
@@ -238,7 +239,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     @Override
     public void addPrivateKey(String alias, String keyPassword, String storePassword, String data,
             String type, String fileName) throws KeystoreEditorException {
-        LOGGER.info("Adding alias {} to private key", alias);
+        SecurityLogger.audit("Adding alias {} to private key", alias);
         LOGGER.trace("Received data {}", data);
         Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
         if (!keyStoreFile.isAbsolute()) {
@@ -260,7 +261,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     @Override
     public void addTrustedCertificate(String alias, String keyPassword, String storePassword,
             String data, String type, String fileName) throws KeystoreEditorException {
-        LOGGER.info("Adding alias {} to trust store", alias);
+        SecurityLogger.audit("Adding alias {} to trust store", alias);
         LOGGER.trace("Received data {}", data);
         Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
         if (!trustStoreFile.isAbsolute()) {
@@ -301,7 +302,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                     resultList.add(Collections.singletonMap("success", true));
                 } catch (CertificateEncodingException e) {
                     resultList.add(Collections.singletonMap("success", false));
-                    LOGGER.error("Unable to store certificate: {}", certificate.toString(), e);
+                    LOGGER.info("Unable to store certificate: {}", certificate.toString(), e);
                 }
             }
             Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
@@ -313,7 +314,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             OutputStream fos = Files.newOutputStream(trustStoreFile);
             trustStore.store(fos, keyStorePassword.toCharArray());
         } catch (IOException | GeneralSecurityException e) {
-            LOGGER.error("Unable to add certificate(s) to trust store from URL: {}",
+            LOGGER.info("Unable to add certificate(s) to trust store from URL: {}",
                     (decodedUrl != null) ? decodedUrl : url, e);
         } finally {
             IOUtils.closeQuietly(socket);
@@ -347,7 +348,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 certificates.add(certMap);
             }
         } catch (IOException | GeneralSecurityException e) {
-            LOGGER.error("Unable to parse certificate from URL: {}",
+            LOGGER.info("Unable to parse certificate from URL: {}",
                     (decodedUrl != null) ? decodedUrl : url, e);
         } finally {
             IOUtils.closeQuietly(socket);
@@ -416,7 +417,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                     null,
                     truststoreFileName);
         } catch (Exception e) {
-            LOGGER.error("Unable to replace system stores.", e);
+            LOGGER.info("Unable to replace system stores.", e);
             errors.add(
                     "Unable to replace system stores. Most likely due to invalid password or invalid store type");
         }
@@ -443,7 +444,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 valid = ks.containsAlias(alias);
             }
         } catch (Exception e) {
-            LOGGER.error("Unable read keystore data.", e);
+            LOGGER.info("Unable read keystore data.", e);
             throw new KeystoreEditorException("Unable read keystore data.", e);
         }
         return valid;
@@ -607,7 +608,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                                         chain);
                                 setEntry = true;
                             } catch (GeneralSecurityException e) {
-                                LOGGER.error(
+                                LOGGER.info(
                                         "Unable to add PKCS8 key to keystore with secondary method. Throwing original exception.",
                                         e);
                                 throw keyEx;
@@ -621,7 +622,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Unable to add entry {} to store", alias, e);
+            LOGGER.info("Unable to add entry {} to store", alias, e);
             throw new KeystoreEditorException("Unable to add entry " + alias + " to store", e);
         } finally {
             if (fos != null) {
@@ -718,7 +719,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
 
     @Override
     public void deletePrivateKey(String alias) {
-        LOGGER.info("Removing {} from System keystore.", alias);
+        SecurityLogger.audit("Removing {} from System keystore.", alias);
         Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
         if (!keyStoreFile.isAbsolute()) {
             Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
@@ -730,7 +731,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
 
     @Override
     public void deleteTrustedCertificate(String alias) {
-        LOGGER.info("Removing {} from System truststore.", alias);
+        SecurityLogger.audit("Removing {} from System truststore.", alias);
         Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
         if (!trustStoreFile.isAbsolute()) {
             Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
@@ -750,7 +751,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             store.deleteEntry(alias);
             store.store(fos, pass.toCharArray());
         } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException e) {
-            LOGGER.error("Unable to remove entry {} from store", alias, e);
+            LOGGER.info("Unable to remove entry {} from store", alias, e);
         }
     }
 

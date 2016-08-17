@@ -68,7 +68,7 @@ public class StsStaticService extends StaticService {
                 try {
                     endpointPatterns.add(Pattern.compile(endpoint.trim()));
                 } catch (PatternSyntaxException ex) {
-                    LOGGER.error(ex.getMessage());
+                    LOGGER.info(ex.getMessage());
                     throw ex;
                 }
             }

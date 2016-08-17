@@ -204,12 +204,12 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      * Shutdown the connection to Solr and releases resources.
      */
     public void shutdown() {
-        LOGGER.info("Closing connection to solr client.");
+        LOGGER.debug("Closing connection to solr client.");
         if (getClient() != null) {
             try {
                 getClient().close();
             } catch (IOException e) {
-                LOGGER.warn("Unable to close Solr client", e);
+                LOGGER.info("Unable to close Solr client", e);
             }
         }
     }
@@ -235,21 +235,21 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      * @param urlValue - url to the Solr Server
      */
     public void updateClient(String urlValue) {
-        LOGGER.info("New url {}", urlValue);
+        LOGGER.debug("New url {}", urlValue);
 
         if (urlValue != null) {
             if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url) || getClient() == null) {
                 url = urlValue.trim();
 
                 if (getClient() != null) {
-                    LOGGER.info(
+                    LOGGER.debug(
                             "Shutting down the connection manager to the Solr Server and releasing allocated resources.");
                     try {
                         getClient().close();
                     } catch (IOException e) {
-                        LOGGER.warn("Unable to close Solr client", e);
+                        LOGGER.info("Unable to close Solr client", e);
                     }
-                    LOGGER.info("Shutdown complete.");
+                    LOGGER.debug("Shutdown complete.");
                 }
 
                 updateClient();
@@ -299,7 +299,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
              * if we get any type of exception, whether declared by Solr or not, we do not want to
              * fail, we just want to return false
              */
-            LOGGER.warn(PING_ERROR_MESSAGE, e);
+            LOGGER.info(PING_ERROR_MESSAGE, e);
         }
         return false;
     }

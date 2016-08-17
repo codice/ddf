@@ -120,7 +120,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
         try {
             this.datatypeFactory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
-            LOGGER.error("Error initializing datatypeFactory", e);
+            LOGGER.debug("Error initializing datatypeFactory", e);
         }
     }
 
@@ -383,7 +383,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
             return metacards;
         } catch (IOException | CatalogTransformerException e) {
             String msg = "Could not parse SearchResults in getRecordsResponse";
-            LOGGER.error(msg, e);
+            LOGGER.debug(msg, e);
             throw new CswException(msg, e);
         }
     }
@@ -541,15 +541,14 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
                     LOGGER.debug("subscriptionConfig is NULL for ID = {}", subscriptionId);
                 }
             } catch (IOException e) {
-                LOGGER.error(
-                        "IOException trying to delete subscription's configuration for subscription ID "
-                                + subscriptionId,
-                        e);
+                LOGGER.debug(
+                        "IOException trying to delete subscription's configuration for subscription ID {}",
+                        subscriptionId, e);
             }
 
-            LOGGER.info("Subscription removal complete");
+            LOGGER.debug("Subscription removal complete");
         } catch (Exception e) {
-            LOGGER.error("Could not delete subscription for " + subscriptionId, e);
+            LOGGER.debug("Could not delete subscription for {}", subscriptionId, e);
         }
 
         LOGGER.trace("EXITING: {}    (status = {})", methodName, false);
@@ -593,7 +592,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
                 config.update(props);
             }
         } catch (JAXBException | IOException e) {
-            LOGGER.warn("Unable to persist subscription " + subscriptionUuid, e);
+            LOGGER.debug("Unable to persist subscription {}", subscriptionUuid, e);
         }
 
         LOGGER.trace("EXITING: {}", methodName);
@@ -636,9 +635,9 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
                 config = configs[0];
             }
         } catch (InvalidSyntaxException e) {
-            LOGGER.warn("Invalid syntax for filter used for searching configuration instances", e);
+            LOGGER.debug("Invalid syntax for filter used for searching configuration instances", e);
         } catch (IOException e) {
-            LOGGER.warn("IOException trying to list configurations for filter {}", filterStr, e);
+            LOGGER.debug("IOException trying to list configurations for filter {}", filterStr, e);
         }
 
         LOGGER.trace("EXITING: {}", methodName);

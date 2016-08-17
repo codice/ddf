@@ -135,7 +135,7 @@ class SortedQueryMonitor implements Runnable {
                 SourceResponse sourceResponse = future.get();
 
                 if (sourceResponse == null) {
-                    logger.info("Source {} returned null response", sourceId);
+                    logger.debug("Source {} returned null response", sourceId);
                     processingDetails.add(new ProcessingDetailsImpl(sourceId,
                             new NullPointerException()));
                 } else {
@@ -150,7 +150,7 @@ class SortedQueryMonitor implements Runnable {
             } catch (InterruptedException e) {
                 if (source != null) {
                     // First, add interrupted processing detail for this source
-                    logger.info("Search interrupted for {}", source.getId());
+                    logger.debug("Search interrupted for {}", source.getId());
                     processingDetails.add(new ProcessingDetailsImpl(source.getId(), e));
                 }
 
@@ -158,7 +158,7 @@ class SortedQueryMonitor implements Runnable {
                 interruptRemainingSources(processingDetails, e);
                 break;
             } catch (ExecutionException e) {
-                logger.warn("Couldn't get results from completed federated query. {}, {}",
+                logger.info("Couldn't get results from completed federated query. {}, {}",
                         sourceId,
                         Exceptions.getFullMessage(e),
                         e);

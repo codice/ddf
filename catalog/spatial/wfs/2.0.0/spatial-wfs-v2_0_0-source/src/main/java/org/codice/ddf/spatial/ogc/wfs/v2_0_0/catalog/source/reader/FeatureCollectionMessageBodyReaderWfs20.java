@@ -97,7 +97,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
             jaxbContext = JAXBContext.newInstance(contextPath,
                     FeatureCollectionMessageBodyReaderWfs20.class.getClassLoader());
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
+            LOGGER.info("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
         return jaxbContext;
@@ -107,7 +107,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
     public boolean isReadable(Class<?> clazz, Type type, Annotation[] annotations,
             MediaType mediaType) {
         if (!Wfs20FeatureCollection.class.isAssignableFrom(clazz)) {
-            LOGGER.warn("{} class is not readable.", clazz);
+            LOGGER.debug("{} class is not readable.", clazz);
         }
         return Wfs20FeatureCollection.class.isAssignableFrom(clazz);
     }
@@ -138,7 +138,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
                 wfsFeatureCollectionType =
                         (JAXBElement<FeatureCollectionType>) unmarshaller.unmarshal(reader);
             } catch (ClassCastException e1) {
-                LOGGER.warn(
+                LOGGER.debug(
                         "Exception unmarshalling {}, could be an OWS Exception Report from server.",
                         e1.getMessage());
 
@@ -159,9 +159,9 @@ public class FeatureCollectionMessageBodyReaderWfs20
                 Response response = responseBuilder.build();
                 throw new WebApplicationException(e1, response);
             } catch (JAXBException e1) {
-                LOGGER.error("Error in retrieving feature collection.", e1);
+                LOGGER.debug("Error in retrieving feature collection.", e1);
             } catch (RuntimeException | Error e) {
-                LOGGER.error("Error processing collection", e);
+                LOGGER.debug("Error processing collection", e);
                 throw e;
             }
 
@@ -183,7 +183,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
                     featureCollection.setNumberReturned(numberReturned);
 
                 } catch (XStreamException e) {
-                    LOGGER.error("Exception unmarshalling {}", e);
+                    LOGGER.debug("Exception unmarshalling {}", e);
                 } finally {
                     IOUtils.closeQuietly(inStream);
                 }

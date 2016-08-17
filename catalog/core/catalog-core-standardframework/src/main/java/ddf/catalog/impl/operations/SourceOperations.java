@@ -111,7 +111,7 @@ public class SourceOperations extends DescribableImpl {
      */
     public void bind(StorageProvider storageProvider) {
         List<StorageProvider> storageProviders = frameworkProperties.getStorageProviders();
-        LOGGER.info("storage providers list size = {}", storageProviders.size());
+        LOGGER.debug("storage providers list size = {}", storageProviders.size());
 
         // The list of storage providers is sorted by OSGi service ranking, hence should
         // always set the local storage provider to the first item in the list.
@@ -131,14 +131,14 @@ public class SourceOperations extends DescribableImpl {
     public void unbind(StorageProvider storageProvider) {
         List<StorageProvider> storageProviders = this.frameworkProperties.getStorageProviders();
         if (!storageProviders.isEmpty()) {
-            LOGGER.info("storage providers list size = {}", storageProviders.size());
-            LOGGER.info("Setting storage to first provider in list");
+            LOGGER.debug("storage providers list size = {}", storageProviders.size());
+            LOGGER.debug("Setting storage to first provider in list");
 
             // The list of storage providers is sorted by OSGi service ranking, hence should
             // always set the local storage provider to the first item in the list.
             this.storage = storageProviders.get(0);
         } else {
-            LOGGER.info("Setting storage = NULL");
+            LOGGER.debug("Setting storage = NULL");
             this.storage = null;
         }
     }
@@ -230,8 +230,6 @@ public class SourceOperations extends DescribableImpl {
             response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
 
         } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing getSourceInfo: {}",
-                    re.getMessage());
             LOGGER.debug("Exception during runtime while performing getSourceInfo", re);
             throw new SourceUnavailableException(
                     "Exception during runtime while performing getSourceInfo");
@@ -253,7 +251,7 @@ public class SourceOperations extends DescribableImpl {
      */
     boolean isSourceAvailable(Source source) {
         if (source == null) {
-            LOGGER.warn("source is null, therefore not available");
+            LOGGER.debug("source is null, therefore not available");
             return false;
         }
         try {
@@ -270,14 +268,14 @@ public class SourceOperations extends DescribableImpl {
             }
 
             if (!available) {
-                LOGGER.warn("source \"{}\" is not available", source.getId());
+                LOGGER.info("source \"{}\" is not available", source.getId());
             }
             return available;
         } catch (ServiceUnavailableException e) {
-            LOGGER.warn("Caught ServiceUnavaiableException", e);
+            LOGGER.info("Caught ServiceUnavaiableException", e);
             return false;
         } catch (Exception e) {
-            LOGGER.warn("Caught Exception", e);
+            LOGGER.info("Caught Exception", e);
             return false;
         }
     }
@@ -311,7 +309,7 @@ public class SourceOperations extends DescribableImpl {
                     if (!id.equals(this.getId())) {
                         SourceUnavailableException sourceUnavailableException =
                                 new SourceUnavailableException("Unknown source: " + id);
-                        LOGGER.warn("Throwing SourceUnavailableException for unknown source: {}",
+                        LOGGER.debug("Throwing SourceUnavailableException for unknown source: {}",
                                 id,
                                 sourceUnavailableException);
                         throw sourceUnavailableException;
@@ -338,7 +336,6 @@ public class SourceOperations extends DescribableImpl {
             response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
 
         } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing create", re);
             throw new SourceUnavailableException(
                     "Exception during runtime while performing getSourceInfo",
                     re);

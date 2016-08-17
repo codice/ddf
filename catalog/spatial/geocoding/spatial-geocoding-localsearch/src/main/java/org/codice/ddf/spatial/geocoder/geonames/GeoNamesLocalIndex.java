@@ -60,7 +60,7 @@ public class GeoNamesLocalIndex implements GeoCoder {
                         population);
             }
         } catch (GeoEntryQueryException e) {
-            LOGGER.error("Error querying the local GeoNames index", e);
+            LOGGER.debug("Error querying the local GeoNames index", e);
         }
 
         return null;
@@ -77,8 +77,7 @@ public class GeoNamesLocalIndex implements GeoCoder {
                 return locations.get(0);
             }
         } catch (ParseException parseException) {
-            LOGGER.error(String.format("Error parsing the supplied wkt: %s", location),
-                    parseException);
+            LOGGER.debug("Error parsing the supplied wkt: {}", location, parseException);
         }
 
         return null;

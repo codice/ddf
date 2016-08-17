@@ -222,17 +222,17 @@ public class CswQueryFactory {
         SortBy[] sortByArr = parseSortBy(sort);
 
         if (sortByArr.length > 1) {
-            LOGGER.warn("Query request has multiple sort criteria, only primary will be used");
+            LOGGER.debug("Query request has multiple sort criteria, only primary will be used");
         }
 
         SortBy sortBy = sortByArr[0];
 
         if (sortBy.getPropertyName() == null) {
-            LOGGER.warn("No property name in primary sort criteria");
+            LOGGER.debug("No property name in primary sort criteria");
             return null;
         }
 
-        if (!DefaultCswRecordMap.getDefaultCswRecordMap()
+        if (!DefaultCswRecordMap
                 .hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
                                 .getPropertyName(),
                         sortBy.getPropertyName()
@@ -243,7 +243,7 @@ public class CswQueryFactory {
                     "SortProperty");
         }
 
-        String name = DefaultCswRecordMap.getDefaultCswRecordMap()
+        String name = DefaultCswRecordMap
                 .getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
                                 .getPropertyName(),
                         sortBy.getPropertyName()

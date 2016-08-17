@@ -138,7 +138,7 @@ public class UsernameTokenValidator implements TokenValidator {
      * Validate a Token using the given TokenValidatorParameters.
      */
     public TokenValidatorResponse validateToken(TokenValidatorParameters tokenParameters) {
-        LOGGER.info("Validating UsernameToken");
+        LOGGER.debug("Validating UsernameToken");
 
         if (parser == null) {
             throw new IllegalStateException("XMLParser must be configured.");
@@ -189,7 +189,7 @@ public class UsernameTokenValidator implements TokenValidator {
             parser.marshal(configurator, tokenType, rootElement);
             usernameTokenElement = (Element) rootElement.getFirstChild();
         } catch (ParserException ex) {
-            LOGGER.warn("", ex);
+            LOGGER.info("Unable to parse username token", ex);
             return response;
         }
 
@@ -242,7 +242,7 @@ public class UsernameTokenValidator implements TokenValidator {
             validateTarget.setState(ReceivedToken.STATE.VALID);
             validateTarget.setPrincipal(principal);
         } catch (WSSecurityException ex) {
-            LOGGER.warn("", ex);
+            LOGGER.debug("Unable to validate token.", ex);
         }
 
         return response;

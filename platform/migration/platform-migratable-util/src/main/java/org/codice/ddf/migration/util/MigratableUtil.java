@@ -117,7 +117,7 @@ public class MigratableUtil {
             String message = String.format("Unable to copy [%s] to [%s].",
                     source.toString(),
                     exportDirectory.toString());
-            LOGGER.error(message, e);
+            LOGGER.info(message, e);
             throw new ExportMigrationException(message, e);
         }
 
@@ -215,7 +215,7 @@ public class MigratableUtil {
 
         if (StringUtils.isBlank(prop)) {
             String message = String.format("System property [%s] is not set", property);
-            LOGGER.error(message);
+            LOGGER.info(message);
             throw new ExportMigrationException(message);
         }
 
@@ -238,7 +238,7 @@ public class MigratableUtil {
             String message = String.format("Unable to copy [%s] to [%s]",
                     sourceFile.toString(),
                     exportDirectory.toString());
-            LOGGER.error(message, e);
+            LOGGER.info(message, e);
             throw new ExportMigrationException(message, e);
         }
     }
@@ -252,7 +252,7 @@ public class MigratableUtil {
         } catch (IOException e) {
             String message = String.format("Unable to read properties file [%s]",
                     propertiesFile.toString());
-            LOGGER.error(message, e);
+            LOGGER.info(message, e);
             throw new ExportMigrationException(message, e);
         }
     }

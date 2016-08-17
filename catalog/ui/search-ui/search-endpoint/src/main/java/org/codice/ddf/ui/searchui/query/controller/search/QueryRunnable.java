@@ -250,13 +250,13 @@ public abstract class QueryRunnable implements Runnable {
                         .query(request);
             }
         } catch (UnsupportedQueryException | FederationException e) {
-            LOGGER.warn("Error executing query. {}. Set log level to DEBUG for more information",
+            LOGGER.info("Error executing query. {}. Set log level to DEBUG for more information",
                     e.getMessage());
             LOGGER.debug("Error executing query", e);
             response.getProcessingDetails()
                     .add(new ProcessingDetailsImpl(sourceId, e));
         } catch (SourceUnavailableException e) {
-            LOGGER.warn(
+            LOGGER.info(
                     "Error executing query because the underlying source was unavailable. {}. Set log level to DEBUG for more information",
                     e.getMessage());
             LOGGER.debug("Error executing query because the underlying source was unavailable.", e);
@@ -266,7 +266,7 @@ public abstract class QueryRunnable implements Runnable {
             // Account for any runtime exceptions and send back a server error
             // this prevents full stacktraces returning to the client
             // this allows for a graceful server error to be returned
-            LOGGER.warn(
+            LOGGER.info(
                     "RuntimeException on executing query. {}. Set log level to DEBUG for more information",
                     e.getMessage());
             LOGGER.debug("RuntimeException on executing query", e);

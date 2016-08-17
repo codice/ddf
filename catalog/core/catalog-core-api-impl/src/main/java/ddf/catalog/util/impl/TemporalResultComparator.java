@@ -121,7 +121,7 @@ public class TemporalResultComparator implements Comparator<Result> {
         } else if (SortOrder.DESCENDING.equals(sortOrder)) {
             return dateB.compareTo(dateA);
         } else {
-            LOGGER.warn("Unknown order type. Returning 0.");
+            LOGGER.debug("Unknown order type. Returning 0.");
             return 0;
         }
 

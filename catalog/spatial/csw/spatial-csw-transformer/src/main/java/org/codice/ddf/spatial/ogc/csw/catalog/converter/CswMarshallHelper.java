@@ -65,7 +65,7 @@ class CswMarshallHelper {
         try {
             factory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
-            LOGGER.error("Failed to create xsdFactory: {}", e.getMessage());
+            LOGGER.info("Failed to create xsdFactory: {}", e.getMessage());
         }
 
         XSD_FACTORY = factory;

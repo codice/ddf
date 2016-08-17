@@ -58,7 +58,7 @@ public class Configuration {
         try {
             mime = new MimeType(JSON_MIME_TYPE_STRING);
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to create json mimetype.");
+            LOGGER.info("Failed to create json mimetype.");
         }
         jsonMimeType = mime;
     }

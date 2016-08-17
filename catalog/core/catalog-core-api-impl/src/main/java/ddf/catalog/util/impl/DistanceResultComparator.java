@@ -72,12 +72,12 @@ public class DistanceResultComparator implements Comparator<Result> {
                 LOGGER.debug("Descending sort");
                 return distanceB.compareTo(distanceA);
             } else {
-                LOGGER.warn("Unknown order type. Returning 0.");
+                LOGGER.debug("Unknown order type. Returning 0.");
                 return 0;
             }
 
         } else {
-            LOGGER.warn("Error comparing results, at least one was null.  Returning -1: ");
+            LOGGER.debug("Error comparing results, at least one was null.  Returning -1: ");
             return -1;
         }
     }

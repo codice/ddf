@@ -90,7 +90,11 @@ public class HttpProxy {
                         InetAddress.getLocalHost()
                                 .getHostName();
             } catch (UnknownHostException e) {
-                LOGGER.warn("Unable to determine hostname, using localhost instead.", e);
+                LOGGER.warn(
+                        "Unable to determine hostname, using localhost instead. Check the configuration of the system. Set logging to DEBUG for more details.");
+                LOGGER.debug(
+                        "Unable to determine hostname, using localhost instead. Check the configuration of the system.",
+                        e);
                 host = "localhost";
             }
             endpointName = ((HttpProxyServiceImpl) httpProxyService).start("0.0.0.0:" + httpPort,
@@ -187,7 +191,7 @@ public class HttpProxy {
                     }
                 }
             } catch (Exception e) {
-                LOGGER.error("Exception occurred while processing policy removal bean.", e);
+                LOGGER.debug("Exception occurred while processing policy removal bean.", e);
             }
         }
     }

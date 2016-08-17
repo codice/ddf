@@ -58,7 +58,7 @@ public class VideoInputTransformer implements InputTransformer {
                     .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
                             "/metadata.xslt")));
         } catch (TransformerConfigurationException e) {
-            LOGGER.warn("Couldn't create XML transformer", e);
+            LOGGER.debug("Couldn't create XML transformer", e);
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
         }
@@ -94,7 +94,7 @@ public class VideoInputTransformer implements InputTransformer {
             transformer.transform(new StreamSource(new StringReader(xhtml)), new StreamResult(xml));
             return xml.toString();
         } catch (TransformerException e) {
-            LOGGER.warn("Unable to transform metadata from XHTML to XML.", e);
+            LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
             return xhtml;
         }
     }

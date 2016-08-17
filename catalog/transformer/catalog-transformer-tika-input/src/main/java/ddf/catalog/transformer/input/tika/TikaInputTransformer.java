@@ -118,14 +118,14 @@ public class TikaInputTransformer implements InputTransformer {
                             .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
                                     "/metadata.xslt")));
         } catch (TransformerConfigurationException e) {
-            LOGGER.warn("Couldn't create XML transformer", e);
+            LOGGER.debug("Couldn't create XML transformer", e);
         } finally {
             Thread.currentThread()
                     .setContextClassLoader(tccl);
         }
 
         if (bundleContext == null) {
-            LOGGER.error("Bundle context is null. Unable to register {} as an osgi service.",
+            LOGGER.info("Bundle context is null. Unable to register {} as an osgi service.",
                     TikaInputTransformer.class.getSimpleName());
             return;
         }
@@ -280,10 +280,10 @@ public class TikaInputTransformer implements InputTransformer {
                     metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbBytes));
                 }
             } else {
-                LOGGER.warn("Unable to read image from input stream to create thumbnail.");
+                LOGGER.debug("Unable to read image from input stream to create thumbnail.");
             }
         } catch (Exception e) {
-            LOGGER.warn("Unable to read image from input stream to create thumbnail.", e);
+            LOGGER.debug("Unable to read image from input stream to create thumbnail.", e);
         }
     }
 
@@ -295,7 +295,7 @@ public class TikaInputTransformer implements InputTransformer {
             transformer.transform(new StreamSource(new StringReader(xhtml)), new StreamResult(xml));
             return xml.toString();
         } catch (TransformerException e) {
-            LOGGER.warn("Unable to transform metadata from XHTML to XML.", e);
+            LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
             return xhtml;
         }
     }

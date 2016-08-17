@@ -112,19 +112,14 @@ public class SolrMetacardClient {
                     tmpResult = createResult(doc, sortProperty);
                     // TODO: register metacard type???
                 } catch (MetacardCreationException e) {
-                    LOGGER.warn("Metacard creation exception creating result", e);
-                    throw new UnsupportedQueryException("Could not create metacard(s).");
+                    throw new UnsupportedQueryException("Could not create metacard(s).", e);
                 }
 
                 results.add(tmpResult);
             }
 
-        } catch (SolrServerException | IOException e) {
-            LOGGER.warn("Failure in Solr query.", e);
-            throw new UnsupportedQueryException("Could not complete solr query.");
-        } catch (SolrException e) {
-            LOGGER.error("Could not complete Solr query.", e);
-            throw new UnsupportedQueryException("Could not complete solr query.");
+        } catch (SolrServerException | IOException | SolrException e) {
+            throw new UnsupportedQueryException("Could not complete solr query.", e);
         }
 
         SourceResponseImpl sourceResponseImpl = new SourceResponseImpl(request, results);
@@ -147,15 +142,13 @@ public class SolrMetacardClient {
                 try {
                     results.add(createMetacard(doc));
                 } catch (MetacardCreationException e) {
-                    LOGGER.warn("Metacard creation exception creating result", e);
-                    throw new UnsupportedQueryException("Could not create metacard(s).");
+                    throw new UnsupportedQueryException("Could not create metacard(s).", e);
                 }
             }
 
             return results;
         } catch (SolrServerException | IOException e) {
-            LOGGER.warn("Failure in Solr query.", e);
-            throw new UnsupportedQueryException("Could not complete solr query.");
+            throw new UnsupportedQueryException("Could not complete solr query.", e);
         }
 
     }
@@ -335,7 +328,7 @@ public class SolrMetacardClient {
 
                     query.add("fl", "*," + RELEVANCE_SORT_FIELD);
                 } else {
-                    LOGGER.info(
+                    LOGGER.debug(
                             "No schema field was found for sort property [{}]. No sort field was added to the query.",
                             sortProperty);
                 }

@@ -138,7 +138,7 @@ public class ResourceDownloadEndpoint {
 
         if (!downloadManager.isCacheEnabled()) {
             String message = "Caching of products is not enabled.";
-            LOGGER.error(message);
+            LOGGER.info(message);
             throw new DownloadToCacheOnlyException(Status.BAD_REQUEST, message);
         }
 
@@ -152,7 +152,7 @@ public class ResourceDownloadEndpoint {
 
             if (resourceResponse == null) {
                 String message = String.format(ERROR_MESSAGE_TEMPLATE, metacardId, sourceId);
-                LOGGER.error(message);
+                LOGGER.info(message);
                 throw new DownloadToCacheOnlyException(Status.INTERNAL_SERVER_ERROR, message);
             }
 
@@ -164,14 +164,14 @@ public class ResourceDownloadEndpoint {
                     .build();
         } catch (IOException | ResourceNotSupportedException e) {
             String message = String.format(ERROR_MESSAGE_TEMPLATE, metacardId, sourceId);
-            LOGGER.error(message, e);
+            LOGGER.info(message, e);
             throw new DownloadToCacheOnlyException(Status.INTERNAL_SERVER_ERROR, message);
         } catch (ResourceNotFoundException e) {
             String message = String.format(
                     ERROR_MESSAGE_TEMPLATE + " The product could not be found.",
                     metacardId,
                     sourceId);
-            LOGGER.error(message, e);
+            LOGGER.info(message, e);
             throw new DownloadToCacheOnlyException(Status.NOT_FOUND, message);
         }
     }
@@ -188,7 +188,7 @@ public class ResourceDownloadEndpoint {
             return Response.ok(objectMapper.toJson(downloadsInProgress))
                     .build();
         } catch (RuntimeException e) {
-            LOGGER.error("Unable to get list of downloads.", e);
+            LOGGER.info("Unable to get list of downloads.", e);
             throw new DownloadToCacheOnlyException(Status.INTERNAL_SERVER_ERROR,
                     "Unable to get list of downloads");
         }

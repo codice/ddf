@@ -283,7 +283,7 @@ public class ReliableResourceDownloader implements Runnable {
                     downloadStarted.set(Boolean.TRUE);
                     reliableResourceStatus = downloadFuture.get();
                 } catch (InterruptedException | CancellationException | ExecutionException e) {
-                    LOGGER.error("{} - Unable to store product file {}",
+                    LOGGER.info("{} - Unable to store product file {}",
                             e.getClass()
                                     .getSimpleName(),
                             filePath,
@@ -489,7 +489,7 @@ public class ReliableResourceDownloader implements Runnable {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Unable to store product file {}", filePath, e);
+            LOGGER.info("Unable to store product file {}", filePath, e);
             downloadState.setDownloadState(DownloadState.FAILED);
             eventPublisher.postRetrievalStatus(resourceResponse,
                     ProductRetrievalStatus.FAILED,
@@ -531,7 +531,7 @@ public class ReliableResourceDownloader implements Runnable {
             // So that Callable can account for bytes read in previous download attempt(s)
             reliableResourceCallable.setBytesRead(bytesRead);
         } catch (ResourceNotFoundException | ResourceNotSupportedException | IOException e) {
-            LOGGER.warn("Unable to re-retrieve product; cannot download product file {}", filePath);
+            LOGGER.info("Unable to re-retrieve product; cannot download product file {}", filePath);
         }
 
         return reliableResourceCallable;

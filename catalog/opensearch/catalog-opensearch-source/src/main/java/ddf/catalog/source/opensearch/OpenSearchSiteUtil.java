@@ -197,7 +197,7 @@ public final class OpenSearchSiteUtil {
         } else if (Result.TEMPORAL.equals(sortByField.getPropertyName())) {
             openSearchSortStr = SORT_TEMPORAL + SORT_DELIMITER + orderType;
         } else {
-            LOGGER.warn(
+            LOGGER.debug(
                     "Couldn't determine sort policy, not adding sorting in request to federated site.");
         }
 
@@ -219,7 +219,7 @@ public final class OpenSearchSiteUtil {
             try {
                 queryStr = URLEncoder.encode(queryStr, "UTF-8");
             } catch (UnsupportedEncodingException uee) {
-                LOGGER.warn("Could not encode contextual string: {}", uee.getMessage());
+                LOGGER.debug("Could not encode contextual string", uee);
             }
         }
 
@@ -294,7 +294,7 @@ public final class OpenSearchSiteUtil {
                     radiusStr = "";
                 }
             } else {
-                LOGGER.warn("WKT ({}) not supported for POINT-RADIUS search, use POINT.", wktStr);
+                LOGGER.debug("WKT ({}) not supported for POINT-RADIUS search, use POINT.", wktStr);
             }
         }
 
@@ -340,7 +340,7 @@ public final class OpenSearchSiteUtil {
                     }
                 }
             } else {
-                LOGGER.warn("WKT ({}) not supported for SPATIAL search, use POLYGON.", wktStr);
+                LOGGER.debug("WKT ({}) not supported for SPATIAL search, use POLYGON.", wktStr);
             }
         }
 

@@ -269,7 +269,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
             try {
                 result = queue.poll(timeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                LOGGER.warn(
+                LOGGER.debug(
                         "QueryResponseImpl queue thread was interrputed.  Returning null for last result");
             }
         }
@@ -306,7 +306,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
                 result = null;
             }
         } catch (InterruptedException e) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "QueryResponseImpl queue thread was interrputed.  Returning null for last result");
         }
         return result;

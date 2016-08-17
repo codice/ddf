@@ -265,7 +265,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
                 try {
                     registryInfoQuery();
                 } catch (UnsupportedQueryException e) {
-                    LOGGER.error("Unable to query registry configurations, ", e);
+                    LOGGER.debug("Unable to query registry configurations, ", e);
                 }
             }
 
@@ -312,7 +312,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             currentProperties.put(RegistryObjectMetacardType.REGISTRY_ID, registryId);
             currentConfig.update(currentProperties);
         } catch (IOException e) {
-            LOGGER.error("Unable to update registry configurations, ", e);
+            LOGGER.debug("Unable to update registry configurations, ", e);
         }
     }
 

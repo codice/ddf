@@ -242,7 +242,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             }
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error updating registry entry.";
-            LOGGER.error("{} Metacard ID: {}", message, updateMetacard.getId());
+            LOGGER.debug("{} Metacard ID: {}", message, updateMetacard.getId());
             throw new FederationAdminException(message, e);
         }
 
@@ -294,7 +294,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             }
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error deleting registry entries by registry id.";
-            LOGGER.error("{} Registry Ids provided: {}", message, registryIds);
+            LOGGER.debug("{} Registry Ids provided: {}", message, registryIds);
             throw new FederationAdminException(message, e);
         }
     }
@@ -329,7 +329,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             }
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error deleting registry entries by metacard ids.";
-            LOGGER.error("{} Metacard Ids provided: {}", message, metacardIds);
+            LOGGER.debug("{} Metacard Ids provided: {}", message, metacardIds);
             throw new FederationAdminException(message, e);
         }
     }
@@ -473,7 +473,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         if (metacards.size() > 1) {
             String message =
                     "Error getting registry object by metacard id. More than one metacards were returned.";
-            LOGGER.error("{} For metacard ID: {}, optional sources: {}",
+            LOGGER.debug("{} For metacard ID: {}, optional sources: {}",
                     message,
                     registryId,
                     sourceIds);
@@ -498,7 +498,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             if (identityMetacards.size() > 1) {
                 String message =
                         "Error getting registry identity metacard. More than one result found.";
-                LOGGER.error("{} Found these: {}", message, identityMetacards);
+                LOGGER.debug("{} Found these: {}", message, identityMetacards);
                 throw new FederationAdminException(message);
             }
 
@@ -565,7 +565,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
                     .collect(Collectors.toList());
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error querying for registry metacards.";
-            LOGGER.error("{} For Filter: {}", message, filter);
+            LOGGER.debug("{} For Filter: {}", message, filter);
             throw new FederationAdminException(message, e);
         }
         return registryMetacards;
@@ -582,7 +582,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             metacard = registryTransformer.transform(IOUtils.toInputStream(xml));
         } catch (IOException | CatalogTransformerException e) {
             String message = "Error transforming xml string to metacard.";
-            LOGGER.error("{}. XML: {}", message, xml);
+            LOGGER.debug("{}. XML: {}", message, xml);
             throw new FederationAdminException(message);
         }
 
