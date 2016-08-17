@@ -25,13 +25,11 @@ import java.util.Date;
 import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.opengis.filter.FilterFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -42,15 +40,10 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.source.UnsupportedQueryException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RefreshRegistryEntriesTest {
-
-    private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
-
-    private static final String TEST_SITE_NAME = "Slate Rock and Gravel Company";
-
-    private static final String TEST_VERSION = "FF 2.0";
 
     private static final String TEST_METACARD_ID = "MetacardId";
 
@@ -130,6 +123,73 @@ public class RefreshRegistryEntriesTest {
 
         verify(federationAdminService, never()).addRegistryEntries(Collections.singletonList(
                 remoteMetacard), null);
+    }
+
+    @Test
+    public void testSubscriptionEntityRemovalNoRemoteEntries() throws Exception {
+        Metacard localMetacard = getPopulatedTestRegistryMetacard("mcardId", "testRegId", 0, true);
+        when(federationAdminService.getInternalRegistryMetacards()).thenReturn(Collections.singletonList(
+                localMetacard));
+
+        SourceResponse response = new SourceResponseImpl(null, Collections.emptyList());
+        when(registryStore.query(any(QueryRequest.class))).thenReturn(response);
+
+        when(registryStore.isPullAllowed()).thenReturn(true);
+        when(registryStore.getId()).thenReturn(TEST_ID);
+        when(registryStore.getRegistryId()).thenReturn("remoteRegId");
+        when(registryStore.isAvailable()).thenReturn(true);
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
+
+        refreshRegistryEntries.refreshRegistryEntries();
+
+        verify(federationAdminService).deleteRegistryEntriesByMetacardIds(Collections.singletonList(
+                localMetacard.getId()));
+    }
+
+    @Test
+    public void testSubscriptionEntityRemoval() throws Exception {
+        Metacard localMetacard = getPopulatedTestRegistryMetacard("mcardId", "testRegId", 0, true);
+        when(federationAdminService.getInternalRegistryMetacards()).thenReturn(Collections.singletonList(
+                localMetacard));
+        Metacard remoteMetacard = getPopulatedTestRegistryMetacard("mcardId2",
+                "testRegId2",
+                0,
+                true);
+        SourceResponse response = new SourceResponseImpl(null,
+                Collections.singletonList(new ResultImpl(remoteMetacard)));
+        when(registryStore.query(any(QueryRequest.class))).thenReturn(response);
+
+        when(registryStore.isPullAllowed()).thenReturn(true);
+        when(registryStore.getId()).thenReturn(TEST_ID);
+        when(registryStore.getRegistryId()).thenReturn("remoteRegId");
+        when(registryStore.isAvailable()).thenReturn(true);
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
+
+        refreshRegistryEntries.refreshRegistryEntries();
+
+        verify(federationAdminService).deleteRegistryEntriesByMetacardIds(Collections.singletonList(
+                localMetacard.getId()));
+    }
+
+    @Test
+    public void testSubscriptionEntityRemovalFailedQuery() throws Exception {
+        Metacard localMetacard = getPopulatedTestRegistryMetacard("mcardId", "testRegId", 0, true);
+        when(federationAdminService.getInternalRegistryMetacards()).thenReturn(Collections.singletonList(
+                localMetacard));
+
+        when(registryStore.query(any(QueryRequest.class))).thenThrow(new UnsupportedQueryException(
+                "query error"));
+
+        when(registryStore.isPullAllowed()).thenReturn(true);
+        when(registryStore.getId()).thenReturn(TEST_ID);
+        when(registryStore.getRegistryId()).thenReturn("remoteRegId");
+        when(registryStore.isAvailable()).thenReturn(true);
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
+
+        refreshRegistryEntries.refreshRegistryEntries();
+
+        verify(federationAdminService,
+                never()).deleteRegistryEntriesByMetacardIds(Collections.singletonList(localMetacard.getId()));
     }
 
     @Test
@@ -226,6 +286,11 @@ public class RefreshRegistryEntriesTest {
 
     private MetacardImpl getPopulatedTestRegistryMetacard(String id, String regId, long dateOffset,
             boolean internal) {
+        return getPopulatedTestRegistryMetacard(id, regId, dateOffset, internal, "remoteMcardId");
+    }
+
+    private MetacardImpl getPopulatedTestRegistryMetacard(String id, String regId, long dateOffset,
+            boolean internal, String remoteMcardId) {
         MetacardImpl registryMetacard = new MetacardImpl(new RegistryObjectMetacardType());
         registryMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
                 regId));
@@ -233,7 +298,7 @@ public class RefreshRegistryEntriesTest {
                 new Date(new Date().getTime() + dateOffset)));
         if (internal) {
             registryMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REMOTE_METACARD_ID,
-                    "remoteMcardId"));
+                    remoteMcardId));
             registryMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REMOTE_REGISTRY_ID,
                     "remoteRegId"));
             registryMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,

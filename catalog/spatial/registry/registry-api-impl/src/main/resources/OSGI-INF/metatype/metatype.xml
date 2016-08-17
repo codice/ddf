@@ -41,8 +41,20 @@
 
     </OCD>
 
+    <OCD name="Registry Store Cleanup" id="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler" description="Configuration for Registry Store Cleanup Handler">
+
+        <AD description="If selected, when a registry store is deleted, all of the metacards associated with that store will be deleted"
+            name="Cleanup Metacards On Delete" id="cleanupRelatedMetacards" required="true"
+            type="Boolean" default="true"/>
+
+    </OCD>
+
     <Designate pid="Csw_Registry_Store" factoryPid="Csw_Registry_Store">
         <Object ocdref="Csw_Registry_Store"/>
+    </Designate>
+
+    <Designate pid="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler">
+        <Object ocdref="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler"/>
     </Designate>
 
 </metatype:MetaData>
