@@ -1,0 +1,6 @@
+
+Federation is the ability of the ${branding} to query other data sources, including other ${branding}s.
+By default, the ${branding} is able to federate using http://www.opensearch.org/Home[OpenSearch] and http://www.opengeospatial.org/standards/cat[CSW] protocols.
+The minimum configuration necessary to configure those federations is to supply a query address.
+
+Federation enables constructing dynamic networks of data sources that can be queried individually, or aggregated into specific configuration to enable a wider range of accessibility for data and data products.

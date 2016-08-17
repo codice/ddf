@@ -37,3 +37,6 @@ _${ddf-branding} version ${ddf.version}_ Provides KML transformer and a KML netw
 ${ddf-branding} Standard Search UI::
 _${ddf-branding} version ${ddf.version}_ Allows a user to search for records in the local Catalog (provider) and federated sources.
 Results of the search are returned and displayed on a globe or map, providing a visual representation of where the records were found.
+
+${ddf-Resource-Management}::
+_${ddf-branding} version ${ddf.version}_ Provides administrative functionality to impose data usage limits on users, as well as the ability to view and terminate searches that are in progress.
