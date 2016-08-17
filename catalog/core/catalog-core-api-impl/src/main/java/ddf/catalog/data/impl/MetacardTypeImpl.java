@@ -31,6 +31,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.SecurityAttributes;
 
 /**
  * Default implementation of the {@link MetacardType}, used by {@link BasicTypes} to create the
@@ -121,6 +122,7 @@ public class MetacardTypeImpl implements MetacardType {
         this.name = name;
         List<String> attributeNames = new ArrayList<>();
         addAttributeDescriptors(attributeNames, new CoreAttributes().getAttributeDescriptors());
+        addAttributeDescriptors(attributeNames, new SecurityAttributes().getAttributeDescriptors());
 
         if (metacardTypes != null) {
             metacardTypes.forEach(metacardType -> addAttributeDescriptors(attributeNames,

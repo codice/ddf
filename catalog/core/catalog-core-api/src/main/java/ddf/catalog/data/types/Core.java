@@ -148,8 +148,4 @@ public interface Core {
      */
     String METACARD_TAGS = Metacard.TAGS;
 
-    /**
-     * {@link ddf.catalog.data.Attribute} name for accessing the security permissions of the {@link Metacard}. <br/>
-     */
-    String METACARD_PERMISSIONS = "metacard.permissions";
 }
