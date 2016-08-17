@@ -147,7 +147,6 @@ public class CreateOperations {
             createRequest = processPreIngestPlugins(createRequest);
             createRequest = validateCreateRequest(createRequest);
             createResponse = getCreateResponse(createRequest);
-            createResponse = historian.version(createResponse);
             createResponse = performRemoteCreate(createRequest, createResponse);
 
         } catch (IngestException iee) {
@@ -514,8 +513,9 @@ public class CreateOperations {
             return null;
         }
 
-        return sourceOperations.getCatalog()
+        CreateResponse createResponse = sourceOperations.getCatalog()
                 .create(createRequest);
+        return historian.version(createResponse);
     }
 
     private CreateRequest processPreIngestPlugins(CreateRequest createRequest)
