@@ -766,10 +766,6 @@ button.ui-multiselect {
     transform-origin: 50% 50% 0;
 }
 
-.cesium-viewer-toolbar {
-    top: 50px;
-}
-
 .panel-collapse {
     position: absolute;
     left: 5px;

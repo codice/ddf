@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,11 +9,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44">
-    {{#if this.selected}}
-        <circle fill="{{this.fill}}" cx="50%" cy="50%" r="25%" stroke="rgba(0, 0, 0, 1)" stroke-width="3%"></circle>
-    {{else}}
-        <circle fill="{{this.fill}}" cx="50%" cy="50%" r="25%" stroke="rgba(255, 255, 255, 1)" stroke-width="3%"></circle>
-    {{/if}} 
-</svg>
+/*global require*/
+
+var ClusterModel = require('./cluster');
+var Backbone = require('backbone');
+
+var ClusterCollection = Backbone.Collection.extend({
+    model: ClusterModel,
+    isClustered: function(result){
+        return Boolean(this.find(function(cluster){
+            return Boolean(cluster.get('results').get(result));
+        }));
+    }
+});
+
+module.exports = ClusterCollection;

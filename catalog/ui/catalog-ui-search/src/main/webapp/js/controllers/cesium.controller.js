@@ -20,15 +20,13 @@ define(['underscore',
         'wreqr',
         'js/store',
         'properties',
-        'component/visualization/cesium/geometry.collection.view',
         'jquery',
         'imports?Cesium=cesium!exports?DrawHelper!drawHelper',
         'js/controllers/cesium.layerCollection.controller',
-        'js/widgets/cesium.mapclustering',
         'component/singletons/user-instance',
         'js/model/User'
-    ], function (_, Backbone, Marionette, Cesium, Q, wreqr, store, properties, GeometryColletionView,
-                 $, DrawHelper, LayerCollectionController, MapClustering, user, User) {
+    ], function (_, Backbone, Marionette, Cesium, Q, wreqr, store, properties,
+                 $, DrawHelper, LayerCollectionController, user, User) {
         "use strict";
         
         function getDestinationForVisiblePan(rectangle, geocontroller){
@@ -45,8 +43,6 @@ define(['underscore',
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
 
-         var mapclustering = new MapClustering();
-
         var CesiumLayerCollectionController = LayerCollectionController.extend({
             initialize: function () {
                 this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexLayers);
@@ -61,24 +57,36 @@ define(['underscore',
             initialize: function(options){
                 this.selectionInterface = options.selectionInterface || this.selectionInterface;
                 this.overlays = {};
-                this.listenTo(wreqr.vent, 'metacard:overlay', this.overlayImage);
-                this.listenTo(wreqr.vent, 'metacard:overlay:remove', this.removeOverlay);
-                this.clustering = false;
 
                 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
                 this.mapViewer = this.createMap();
                 this.drawHelper = new DrawHelper(this.mapViewer);
 
                 this.scene = this.mapViewer.scene;
-                //this.scene.backgroundColor = Cesium.Color.WHITE.clone();
                 this.ellipsoid = this.mapViewer.scene.globe.ellipsoid;
                 this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
-                this.setupEvents();
-                this._billboardPromise = this.preloadBillboards();
-            },
 
-            toggleClustering: function() {
-                mapclustering.toggleClustering();
+                this.setupEvents();
+                this.setupBillboard();
+                this.setupListeners();
+            },
+            setupBillboard: function(){
+                this.billboardCollection = new Cesium.BillboardCollection();
+                this.scene.primitives.add(this.billboardCollection);
+            },
+            setupListeners: function(){
+                this.listenTo(wreqr.vent, 'metacard:overlay', this.overlayImage);
+                this.listenTo(wreqr.vent, 'metacard:overlay:remove', this.removeOverlay);
+                this.listenTo(this.selectionInterface, 'reset:activeSearchResults', this.removeAllOverlays);
+
+                this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update', this.zoomToSelected);
+                this.listenTo(this.options.selectionInterface.getSelectedResults(), 'add', this.zoomToSelected);
+                this.listenTo(this.options.selectionInterface.getSelectedResults(), 'remove', this.zoomToSelected);
+                this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
+
+                if (this.selectionInterface.getSelectedResults()) {
+                    this.zoomToSelected(this.selectionInterface.getSelectedResults());
+                }
             },
 
             createMap: function () {
@@ -109,19 +117,7 @@ define(['underscore',
                     }
                 );
 
-                viewer.camera.moveEnd.addEventListener(function() {
-                    if(mapclustering.clustering) {
-                        var cartographic = new Cesium.Cartographic();
-                        var metersToKm = 0.001;
-                        viewer.scene.mapProjection.ellipsoid.cartesianToCartographic(viewer.camera.positionWC, cartographic);
-                        var cameraHeight = (cartographic.height * metersToKm).toFixed(1);
-                        mapclustering.cluster(cameraHeight);
-                    }
-                });
-
-                 mapclustering.setViewer(viewer);
-
-                if (properties.terrainProvider) {
+                if (properties.terrainProvider && properties.terrainProvider.type) {
                     var type = imageryProviderTypes[properties.terrainProvider.type];
                     var initObj = _.omit(properties.terrainProvider, 'type');
                     viewer.scene.terrainProvider = new type(initObj);
@@ -136,36 +132,15 @@ define(['underscore',
                         scene: viewer.scene
                     });
                 }
-                $(this.options.element).find('.cesium-viewer-toolbar').append("<button class='cesium-button cesium-toolbar-button cesium-home-button'><span class='cluster-results'></span></button>");
+                $(this.options.element).find('.cesium-viewer-toolbar')
+                    .append("<button class='cesium-button cesium-toolbar-button cesium-cluster-button' " +
+                    "data-help='Toggles whether or not results on the map are clustered.'>" +
+                    "<span class='fa fa-cubes'></span>" +
+                    "</span><span class='fa fa-cube'></span>" +
+                    "</button>");
 
                 return viewer;
             },
-
-            billboards: [
-                'images/default.png',
-                'images/default-selected.png'
-                // add extra here if you want to switch
-            ],
-            // since we only need a single global collection of these billboards, we can prepare them here, if it
-            // gets more complex, this should be pushed to individual collection views or views.
-            preloadBillboards: function () {
-                var controller = this;
-                controller.billboardCollection = new Cesium.BillboardCollection();
-                // cesium loads the images asynchronously, so we need to use promises
-                this.billboardPromise = Q.all(_.map(this.billboards, function (billboard) {
-                    return Q(Cesium.loadImage(billboard));
-                }))
-                    .then(function (images) {
-                        var texAtlas = new Cesium.TextureAtlas({
-                            context: controller.scene.context,
-                            images: images
-                        });
-                        controller.billboardCollection.textureAtlas = texAtlas;
-                        controller.scene.primitives.add(controller.billboardCollection);
-                    });
-                return this.billboardPromise;
-            },
-
             setupEvents: function () {
                 var controller = this;
                 //Left button events
@@ -470,18 +445,6 @@ define(['underscore',
                 this.overlays = {};
             },
 
-
-            newActiveSearchResults: function (results) {
-                this.newResults(results);
-            },
-
-            newResults: function (results, zoomOnResults) {
-                this.showResults(results);
-                if (zoomOnResults) {
-                    this.flyToCenterPoint(results);
-                }
-                this.removeAllOverlays();
-            },
             zoomToSelected: function(){
                 if (this.selectionInterface.getSelectedResults().length === 1){
                     this.panToResults(this.selectionInterface.getSelectedResults());
@@ -490,40 +453,6 @@ define(['underscore',
 
             zoomToResult: function(result){
                 this.flyToCenterPoint(new Backbone.Collection([result]));
-            },
-
-            showResults: function (results) {
-                if (!this.mapViews) {
-                  this.mapViews = new GeometryColletionView({
-                      collection: results,
-                      geoController: this,
-                      selectionInterface: this.selectionInterface
-                  });
-                } else {
-                  this.mapViews.collection = results;
-                }
-                mapclustering.setResultLists(this.mapViews);
-
-                if(this.clustering && typeof results !== "undefined") {
-                    mapclustering.cluster();
-                }
-            },
-            
-            showResult: function(result){
-                if (!this.mapViews) {
-                  this.mapViews = new GeometryColletionView({
-                      collection: new Backbone.Collection([result]),
-                      geoController: this,
-                      selectionInterface: this.selectionInterface
-                  });
-                } else {
-                  this.mapViews.collection = new Backbone.Collection([result]);
-                }
-                mapclustering.setResultLists(this.mapViews);
-
-                if(this.clustering && typeof result !== "undefined") {
-                    mapclustering.cluster();
-                }
             }
 
         });

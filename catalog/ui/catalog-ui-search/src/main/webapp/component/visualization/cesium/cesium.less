@@ -6,4 +6,39 @@
   canvas.is-hovering {
       cursor: pointer;
   }
+
+  canvas {
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+  }
+
+  canvas:active:not(.is-hovering) {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
+
+  .fa-cube {
+    display: none;
+  }
+}
+
+@{customElementNamespace}cesium.is-drawing {
+
+  canvas,
+  canvas:active {
+    cursor: crosshair;
+  }
+}
+
+@{customElementNamespace}cesium.is-clustering {
+  .fa-cubes {
+    display: none;
+  }
+
+  .fa-cube {
+    display: inline-block;
+  }
 }

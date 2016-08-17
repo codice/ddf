@@ -10,6 +10,7 @@
  *
  **/
 /*global require*/
+var Backbone = require('backbone');
 var Marionette = require('marionette');
 var $ = require('jquery');
 var _ = require('underscore');
@@ -18,16 +19,15 @@ var GeometryView = require('./geometry.view');
 
 var GeometryCollectionView = Marionette.CollectionView.extend({
   childView: GeometryView,
-  selectionInterface: store,
   childViewOptions: function () {
     return {
       geoController: this.options.geoController,
-      selectionInterface: this.selectionInterface
+      selectionInterface: this.options.selectionInterface,
+      clusterCollection: this.options.clusterCollection
     };
   },
   initialize: function (options) {
-    this.render = _.debounce(this.render, 200);
-    this.selectionInterface = options.selectionInterface || this.selectionInterface;
+    this.render = _.throttle(this.render, 200);
     this.listenTo(this.options.geoController, 'click:left', this.onMapLeftClick);
     this.listenTo(this.options.geoController, 'hover', this.onMapHover);
     this.render();
@@ -47,14 +47,14 @@ var GeometryCollectionView = Marionette.CollectionView.extend({
     }
   },
   handleClick: function (id) {
-    this.selectionInterface.clearSelectedResults();
-    this.selectionInterface.addSelectedResult(this.collection.get(id));
+    this.options.selectionInterface.clearSelectedResults();
+    this.options.selectionInterface.addSelectedResult(this.collection.get(id));
   },
   handleCtrlClick: function (id) {
-    this.selectionInterface.addSelectedResult(this.collection.get(id));
+    this.options.selectionInterface.addSelectedResult(this.collection.get(id));
   },
   handleShiftClick: function (id) {
-    this.selectionInterface.addSelectedResult(this.collection.get(id));
+    this.options.selectionInterface.addSelectedResult(this.collection.get(id));
   }
 });
 

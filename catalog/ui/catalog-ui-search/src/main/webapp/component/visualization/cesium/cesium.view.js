@@ -18,9 +18,9 @@ define([
     'marionette',
     'js/CustomElements',
     './cesium.hbs',
-    'component/loading-companion/loading-companion.view'
-], function (wreqr, Marionette, CustomElements, template, LoadingCompanionView) {
-
+    'component/loading-companion/loading-companion.view',
+    'js/store'
+], function (wreqr, Marionette, CustomElements, template, LoadingCompanionView, store) {
     return Marionette.LayoutView.extend({
         tagName: CustomElements.register('cesium'),
         template: template,
@@ -28,69 +28,78 @@ define([
             mapDrawingPopup: '#mapDrawingPopup'
         },
         events: {
-            'click .cluster-results': 'toggleClustering'
+            'click .cesium-cluster-button': 'toggleClustering'
+        },
+        clusterCollection: undefined,
+        clusterCollectionView: undefined,
+        geometryCollectionView: undefined,
+        geocontroller: undefined,
+        initialize: function(){
+            this.listenTo(store.get('content'), 'change:drawing', this.handleDrawing);
+            this.handleDrawing();
         },
         onShow: function () {
             LoadingCompanionView.beginLoading(this);
-            setTimeout(function() {
+            setTimeout(function () {
                 require([
                     'js/controllers/cesium.controller',
                     'js/widgets/cesium.bbox',
                     'js/widgets/cesium.circle',
                     'js/widgets/cesium.polygon',
                     'js/widgets/cesium.line',
-                    'js/widgets/filter.cesium.geometry.group'
-                ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, DrawLine, FilterCesiumGeometryGroup) {
-                    var geoController = new GeoController({
+                    'js/widgets/filter.cesium.geometry.group',
+                    'component/visualization/cesium/geometry.collection.view',
+                    'component/visualization/cesium/cluster.collection.view',
+                    'component/visualization/cesium/cluster.collection'
+                ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, DrawLine, FilterCesiumGeometryGroup,
+                             GeometryCollectionView, ClusterCollectionView, ClusterCollection) {
+                    this.geocontroller = new GeoController({
                         element: this.el.querySelector('#cesiumContainer'),
                         selectionInterface: this.options.selectionInterface
                     });
-                    geoController._billboardPromise.then(function () {
-                        this.setupListeners(geoController);
-                        LoadingCompanionView.endLoading(this);
-                    }.bind(this));
-                    new FilterCesiumGeometryGroup.Controller({geoController: geoController});
+                    new FilterCesiumGeometryGroup.Controller({geoController: this.geocontroller});
                     new DrawBbox.Controller({
-                        scene: geoController.scene,
+                        scene: this.geocontroller.scene,
                         notificationEl: this.mapDrawingPopup.el
                     });
                     new DrawCircle.Controller({
-                        scene: geoController.scene,
+                        scene: this.geocontroller.scene,
                         notificationEl: this.mapDrawingPopup.el
                     });
                     new DrawPolygon.Controller({
-                        scene: geoController.scene,
+                        scene: this.geocontroller.scene,
                         notificationEl: this.mapDrawingPopup.el,
-                        drawHelper: geoController.drawHelper,
-                        geoController: geoController
+                        drawHelper: this.geocontroller.drawHelper,
+                        geoController: this.geocontroller
                     });
                     new DrawLine.Controller({
-                        scene: geoController.scene,
+                        scene: this.geocontroller.scene,
                         notificationEl: this.mapDrawingPopup.el,
-                        drawHelper: geoController.drawHelper,
-                        geoController: geoController
+                        drawHelper: this.geocontroller.drawHelper,
+                        geoController: this.geocontroller
                     });
-                    this.geoController = geoController;
+                    this.clusterCollection = new ClusterCollection();
+                    this.geometryCollectionView = new GeometryCollectionView({
+                        collection: this.options.selectionInterface.getActiveSearchResults(),
+                        geoController: this.geocontroller,
+                        selectionInterface: this.options.selectionInterface,
+                        clusterCollection: this.clusterCollection
+                    });
+                    this.clusterCollectionView = new ClusterCollectionView({
+                        collection: this.clusterCollection,
+                        geoController: this.geocontroller,
+                        selectionInterface: this.options.selectionInterface
+                    });
+                    LoadingCompanionView.endLoading(this);
                 }.bind(this));
             }.bind(this), 1000);
         },
         toggleClustering: function () {
-            this.geoController.toggleClustering();
+            this.$el.toggleClass('is-clustering');
+            this.clusterCollectionView.toggleActive();
         },
-        setupListeners: function (geoController) {
-            geoController.listenTo(this.options.selectionInterface, 'reset:activeSearchResults', geoController.newActiveSearchResults);
-            geoController.listenTo(this.options.selectionInterface.getSelectedResults(), 'update', geoController.zoomToSelected);
-            geoController.listenTo(this.options.selectionInterface.getSelectedResults(), 'add', geoController.zoomToSelected);
-            geoController.listenTo(this.options.selectionInterface.getSelectedResults(), 'remove', geoController.zoomToSelected);
-            geoController.listenTo(wreqr.vent, 'search:mapshow', geoController.flyToLocation);
-
-            if (this.options.selectionInterface.getActiveSearchResults()) {
-                geoController.newActiveSearchResults(this.options.selectionInterface.getActiveSearchResults());
-            }
-            if (this.options.selectionInterface.getSelectedResults()) {
-                geoController.zoomToSelected(this.options.selectionInterface.getSelectedResults());
-            }
+        handleDrawing: function(){
+            this.$el.toggleClass('is-drawing', store.get('content').get('drawing'));
         }
     });
-
 });

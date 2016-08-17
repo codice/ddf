@@ -55,6 +55,7 @@ module.exports = function (grunt) {
                 ]
             },
             options: {
+                asi: true,            // tolerate automatic semicolon insertion
                 bitwise: true,        // Prohibits the use of bitwise operators such as ^ (XOR), | (OR) and others.
                 forin: true,          // Requires all for in loops to filter object's items.
                 latedef: true,        // Prohibits the use of a variable before it was defined.
