@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.net.URL;
 import java.util.EnumSet;
+import java.util.concurrent.Callable;
 
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.FeaturesService.Option;
@@ -32,12 +33,14 @@ import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
+import ddf.security.Subject;
 
 /**
  * Tests the application config installer code
@@ -79,7 +82,7 @@ public class ApplicationConfigInstallerTest {
         URL fileURL = this.getClass()
                 .getResource("/" + GOOD_FILE);
         ApplicationConfigInstaller configInstaller =
-                new ApplicationConfigInstaller(fileURL.getFile(),
+                getApplicationConfigInstaller(fileURL.getFile(),
                         appService,
                         featuresService,
                         START_FEATURE,
@@ -111,7 +114,7 @@ public class ApplicationConfigInstallerTest {
         URL fileURL = this.getClass()
                 .getResource("/" + INSTALL_FILE);
         ApplicationConfigInstaller configInstaller =
-                new ApplicationConfigInstaller(fileURL.getFile(),
+                getApplicationConfigInstaller(fileURL.getFile(),
                         appService,
                         featuresService,
                         START_FEATURE,
@@ -144,7 +147,7 @@ public class ApplicationConfigInstallerTest {
         URL fileURL = this.getClass()
                 .getResource("/" + EMPTY_FILE);
         ApplicationConfigInstaller configInstaller =
-                new ApplicationConfigInstaller(fileURL.getFile(),
+                getApplicationConfigInstaller(fileURL.getFile(),
                         appService,
                         featuresService,
                         START_FEATURE,
@@ -169,7 +172,7 @@ public class ApplicationConfigInstallerTest {
     public void testFileNotValid() throws Exception {
         FeaturesService featuresService = mock(FeaturesService.class);
 
-        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(BAD_FILE,
+        ApplicationConfigInstaller configInstaller = getApplicationConfigInstaller(BAD_FILE,
                 null,
                 featuresService,
                 START_FEATURE,
@@ -206,7 +209,7 @@ public class ApplicationConfigInstallerTest {
         URL fileURL = this.getClass()
                 .getResource("/" + GOOD_FILE);
         ApplicationConfigInstaller configInstaller =
-                new ApplicationConfigInstaller(fileURL.getFile(),
+                getApplicationConfigInstaller(fileURL.getFile(),
                         testAppService,
                         featuresService,
                         START_FEATURE,
@@ -238,7 +241,7 @@ public class ApplicationConfigInstallerTest {
         root.addAppender(mockAppender);
         root.setLevel(Level.ALL);
 
-        ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(BAD_FILE,
+        ApplicationConfigInstaller configInstaller = getApplicationConfigInstaller(BAD_FILE,
                 null,
                 null,
                 START_FEATURE,
@@ -274,7 +277,7 @@ public class ApplicationConfigInstallerTest {
         URL fileURL = this.getClass()
                 .getResource("/" + INVALID_FILE);
         ApplicationConfigInstaller configInstaller =
-                new ApplicationConfigInstaller(fileURL.getFile(),
+                getApplicationConfigInstaller(fileURL.getFile(),
                         testAppService,
                         null,
                         START_FEATURE,
@@ -289,5 +292,26 @@ public class ApplicationConfigInstallerTest {
                         .contains(RUN_INVALID_URI);
             }
         }));
+    }
+
+    ApplicationConfigInstaller getApplicationConfigInstaller(String fileName,
+            ApplicationService appService, FeaturesService featuresService,
+            String postInstallFeatureStart, String postInstallFeatureStop) {
+        return new ApplicationConfigInstaller(fileName,
+                appService,
+                featuresService,
+                postInstallFeatureStart,
+                postInstallFeatureStop) {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Subject getSystemSubject() {
+                Subject subject = mock(Subject.class);
+                when(subject.execute(Matchers.<Callable<Object>>any())).thenAnswer(invocation -> {
+                    Callable<Object> callable = (Callable<Object>) invocation.getArguments()[0];
+                    return callable.call();
+                });
+                return subject;
+            }
+        };
     }
 }
