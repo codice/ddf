@@ -90,15 +90,28 @@ public class CqlResult {
 
     private List<Action> actions;
 
-    private boolean hasThumbnail = false;
+    private boolean hasThumbnail;
+
+    private boolean isResourceLocal;
 
     public CqlResult(Result result, Set<SearchTerm> searchTerms, QueryRequest queryRequest,
             boolean normalize, FilterAdapter filterAdapter, ActionRegistry actionRegistry) {
 
         Metacard mc = result.getMetacard();
-        if (mc.getThumbnail() != null && mc.getThumbnail().length > 0) {
-            hasThumbnail = true;
-        }
+
+        hasThumbnail = Optional.of(mc)
+                .map(Metacard::getThumbnail)
+                .filter(Objects::nonNull)
+                .map(thumb -> thumb.length > 0)
+                .orElse(false);
+
+        isResourceLocal = Optional.of(mc)
+                .map(m -> m.getAttribute("internal.local-resource"))
+                .filter(Objects::nonNull)
+                .map(Attribute::getValue)
+                .filter(Boolean.class::isInstance)
+                .map(Boolean.class::cast)
+                .orElse(false);
 
         distance = normalizeDistance(result, queryRequest.getQuery(), filterAdapter);
 
@@ -244,6 +257,10 @@ public class CqlResult {
 
     public boolean getHasThumbnail() {
         return hasThumbnail;
+    }
+
+    public boolean getIsResourceLocal() {
+        return isResourceLocal;
     }
 
     public Map<String, Integer> getMatches() {
