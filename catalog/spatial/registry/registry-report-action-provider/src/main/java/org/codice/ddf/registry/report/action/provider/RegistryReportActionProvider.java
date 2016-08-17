@@ -42,7 +42,7 @@ import ddf.catalog.source.Source;
 
 public class RegistryReportActionProvider implements MultiActionProvider {
 
-    private static final String REGISTRY_PATH = "/registries";
+    private static final String REGISTRY_PATH = "/internal/registries";
 
     private static final String REPORT_PATH = "/report";
 

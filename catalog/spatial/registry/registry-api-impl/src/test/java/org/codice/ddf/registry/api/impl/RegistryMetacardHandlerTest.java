@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

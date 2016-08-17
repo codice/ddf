@@ -26,7 +26,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,10 +49,10 @@ import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
-import org.codice.ddf.registry.api.RegistryStore;
+import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.transformer.RegistryTransformer;
@@ -63,6 +62,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
@@ -174,7 +174,7 @@ public class FederationAdminServiceImplTest {
     @Before
     public void setUp() throws Exception {
         when(parser.configureParser(anyList(), any(ClassLoader.class))).thenReturn(configurator);
-        federationAdminServiceImpl = spy(new FederationAdminServiceImpl(security));
+        federationAdminServiceImpl = Mockito.spy(new FederationAdminServiceImpl(security));
         federationAdminServiceImpl.setRegistryTransformer(registryTransformer);
         federationAdminServiceImpl.setCatalogFramework(catalogFramework);
         federationAdminServiceImpl.setMetacardMarshaller(new MetacardMarshaller(parser));

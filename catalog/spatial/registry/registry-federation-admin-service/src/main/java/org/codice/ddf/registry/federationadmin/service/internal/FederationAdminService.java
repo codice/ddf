@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.registry.federationadmin.service;
+package org.codice.ddf.registry.federationadmin.service.internal;
 
 import java.util.List;
 import java.util.Optional;

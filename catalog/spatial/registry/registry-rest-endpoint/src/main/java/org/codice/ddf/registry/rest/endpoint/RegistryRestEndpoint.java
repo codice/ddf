@@ -33,9 +33,9 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
-import org.codice.ddf.registry.federationadmin.service.RegistryPublicationService;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService;
 import org.codice.ddf.registry.rest.endpoint.report.RegistryReportBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

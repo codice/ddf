@@ -11,12 +11,12 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.registry.federationadmin;
+package org.codice.ddf.registry.federationadmin.internal;
 
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 
 /**
  * This is the external facing interface for the FederationAdminService. This is what should be used by the UI,

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.registry.api.RegistryStore;
+import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.publication.manager.RegistryPublicationManager;
@@ -49,7 +49,7 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
     private static final Logger LOGGER =
             LoggerFactory.getLogger(RegistryPublicationActionProvider.class);
 
-    private static final String REGISTRY_PATH = "/registries";
+    private static final String REGISTRY_PATH = "/internal/registries";
 
     private static final String PUBLICATION_PATH = "publication";
 
