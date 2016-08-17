@@ -3,9 +3,11 @@
 
 The documentation is divided by user needs, with users categorized as Users, Administrators, Integrators, and Developers. 
 
-Users::
-Users are end users interacting with the applications at the most basic level.
-User help is available through the *Help* link in the User Interface.
+Introduction::
+This introduction section is intended to give a high level overview of the concepts and capabilities of ${branding}.
+
+${branding} Core Concepts::
+This section provides extensive detail on the architecture and design of ${branding}.
 
 Administrators::
 <<Managing ${branding}>> |
@@ -14,16 +16,13 @@ Sections titled with Managing support administrators.
 
 Integrators::
 <<Integrating ${branding}>> |
-Integrators will use the existing applications to support their external frameworks.
-Sections titled with Integrating support integrators.
+Integrators will use the existing applications to support their external frameworks. This section will provide details for finding, accessing and using the components of ${branding}.
 
 Developers::
-<<Extending ${branding}>> |
+<<Developing ${branding}>> |
 Developers will build or extend the functionality of the applications. 
-Sections titled with Extending support developers.
 
-
-=== Conventions
+=== Documentation Conventions
 
 The following conventions are used within this documentation:
 
@@ -68,4 +67,4 @@ Questions about ${ddf-branding} should be posted to the https://groups.google.co
 
 ====  Documentation Updates
 
-The most current ${ddf-branding} documentation is available at https://codice.atlassian.net/wiki/display/${ddf-branding}/${ddf-branding}+Documentation[${ddf-branding} Documentation].
+The most current ${ddf-branding} documentation is available at http://codice.org/ddf/Documentation-versions[${ddf-branding} Documentation].

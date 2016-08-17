@@ -742,8 +742,6 @@ include::{adoc-include}/_web-applications/landing-page-contents.adoc[]
 
 include::{adoc-include}/_formats/formats-intro-contents.adoc[]
 
-include::{adoc-include}/_formats/file-types-supported-contents.adoc[]
-
 = Developing ${branding}
 
 include::{adoc-include}/_developing/developing-intro-contents.adoc[]
@@ -753,7 +751,6 @@ include::{adoc-include}/_developing/developing-catalog-api-contents.adoc[]
 == Building from Source Code
 
 include::{adoc-include}/_developing/building-ddf-contents.adoc[]
-
 
 == APIs
 
@@ -780,3 +777,8 @@ include::{adoc-include}/_app-whitelists/solr-whitelist-contents.adoc[]
 include::{adoc-include}/_app-whitelists/spatial-whitelist-contents.adoc[]
 
 include::{adoc-include}/_app-whitelists/ui-whitelist-contents.adoc[]
+
+[appendix]
+== File Types Supported
+
+include::{adoc-include}/_formats/file-types-supported-contents.adoc[]
