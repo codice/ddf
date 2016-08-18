@@ -549,10 +549,10 @@ public class UpdateOperations {
     }
 
     private String getAttributeStringValue(Metacard mcard, String attribute) {
-         return Optional.of(mcard)
-                 .map(m -> m.getAttribute(attribute))
-                 .map(Attribute::getValue)
-                 .map(Object::toString)
-                 .orElse("");
+        return Optional.of(mcard)
+                .map(m -> m.getAttribute(attribute))
+                .map(Attribute::getValue)
+                .map(Object::toString)
+                .orElse("");
     }
 }
