@@ -65,6 +65,9 @@ public class WorkspaceTransformer {
             query.setEnterprise((Boolean) map.get(QueryMetacardTypeImpl.QUERY_ENTERPRISE));
         } else if (check(map.get(QueryMetacardTypeImpl.QUERY_SOURCES), List.class)) {
             query.setSources((List) map.get(QueryMetacardTypeImpl.QUERY_SOURCES));
+            // the front-end uses src everywhere instead of sources, this should provide a quick and simple fix
+        } else if (check(map.get("src"), List.class)) {
+            query.setSources((List) map.get("src"));
         }
 
         return query;
@@ -155,7 +158,9 @@ public class WorkspaceTransformer {
                         continue;
                     }
 
-                    if (Metacard.RELATED.equals(ad.getName())) {
+                    if (QueryMetacardTypeImpl.QUERY_SOURCES.equals(ad.getName())) {
+                        h.put("src", attr.getValues());
+                    } else if (Metacard.RELATED.equals(ad.getName())) {
                         h.put(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS, attr.getValues());
                     } else if (WorkspaceMetacardTypeImpl.WORKSPACE_SHARING.equals(ad.getName())) {
                         h.put(ad.getName(),
