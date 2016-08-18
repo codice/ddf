@@ -549,11 +549,10 @@ public class UpdateOperations {
     }
 
     private String getAttributeStringValue(Metacard mcard, String attribute) {
-        Attribute attr = mcard.getAttribute(attribute);
-        if (attr != null && attr.getValue() != null) {
-            return attr.getValue()
-                    .toString();
-        }
-        return "";
+         return Optional.of(mcard)
+                 .map(m -> m.getAttribute(attribute))
+                 .map(Attribute::getValue)
+                 .map(Object::toString)
+                 .orElse("");
     }
 }
