@@ -13,8 +13,6 @@
  */
 package ddf.catalog.transformer.input.pdf;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -22,30 +20,50 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.ToTextContentHandler;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.ContentHandler;
 
+import com.google.common.html.HtmlEscapers;
+import com.google.common.io.FileBackedOutputStream;
 import com.google.common.net.MediaType;
 
+import ddf.catalog.content.operation.ContentMetadataExtractor;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.types.Contact;
-import ddf.catalog.data.types.Core;
-import ddf.catalog.data.types.Media;
-import ddf.catalog.data.types.Topic;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
+import ddf.catalog.util.impl.ServiceComparator;
 
 public class PdfInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfInputTransformer.class);
@@ -63,55 +81,200 @@ public class PdfInputTransformer implements InputTransformer {
     private static final FastDateFormat DATE_FORMAT = FastDateFormat.getInstance(
             "yyyy-MM-dd'T'HH:mm:ssZZ");
 
-    private final CheckedFunction<InputStream, PDDocument> inputStreamPDDocumentFunction;
+    private Map<ServiceReference, ContentMetadataExtractor> contentMetadataExtractors =
+            Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
 
-    private final CheckedFunction<PDDocument, String> geoParserFunction;
+    public void addContentMetadataExtractors(
+            ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
+        Bundle bundle = getBundle();
+        if (bundle != null) {
+            ContentMetadataExtractor cme = bundle.getBundleContext()
+                    .getService(contentMetadataExtractorRef);
+            contentMetadataExtractors.put(contentMetadataExtractorRef, cme);
+        }
+    }
 
-    private final CheckedFunction<PDDocument, byte[]> thumbnailFunction;
+    Bundle getBundle() {
+        return FrameworkUtil.getBundle(PdfInputTransformer.class);
+    }
 
-    private MetacardType metacardType;
+    public void removeContentMetadataExtractor(
+            ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
+        contentMetadataExtractors.remove(contentMetadataExtractorRef);
+    }
 
-    private boolean usePdfTitleAsTitle;
+    @Override
+    public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
+        return transform(input, null);
+    }
 
-    /**
-     * @param metacardType       must be non-null
-     * @param usePdfTitleAsTitle must be non-null
-     */
-    public PdfInputTransformer(MetacardType metacardType, Boolean usePdfTitleAsTitle) {
-        this(metacardType,
-                usePdfTitleAsTitle,
-                PDDocument::load,
-                GEO_PDF_PARSER::getWktFromPDF,
-                PdfInputTransformer::generatePdfThumbnail);
+    @Override
+    public Metacard transform(InputStream input, String id)
+            throws IOException, CatalogTransformerException {
+        if (contentMetadataExtractors.isEmpty()) {
+            return transformWithoutExtractors(input, id);
+        } else {
+            return transformWithExtractors(input, id);
+        }
+    }
+
+    private Metacard transformWithoutExtractors(InputStream input, String id) throws IOException {
+        try (PDDocument pdfDocument = PDDocument.load(input)) {
+            return transformPdf(id, pdfDocument);
+        } catch (InvalidPasswordException e) {
+            LOGGER.warn("Cannot transform encrypted pdf", e);
+            return initializeMetacard(id);
+        }
+    }
+
+    private Metacard transformWithExtractors(InputStream input, String id)
+            throws IOException, CatalogTransformerException {
+        try (FileBackedOutputStream fbos = new FileBackedOutputStream(1000000)) {
+            try {
+                IOUtils.copy(input, fbos);
+            } catch (IOException e) {
+                throw new CatalogTransformerException("Could not copy bytes of content message.",
+                        e);
+            }
+
+            String plainText = null;
+            try (InputStream isCopy = fbos.asByteSource()
+                    .openStream()) {
+                Parser parser = new AutoDetectParser();
+                ContentHandler contentHandler = new ToTextContentHandler();
+                TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser,
+                        contentHandler);
+                tikaMetadataExtractor.parseMetadata(isCopy, new ParseContext());
+                plainText = contentHandler.toString();
+            } catch (CatalogTransformerException e) {
+                LOGGER.warn("Cannot extract metadata from pdf", e);
+            }
+
+            try (InputStream isCopy = fbos.asByteSource()
+                    .openStream(); PDDocument pdfDocument = PDDocument.load(isCopy)) {
+
+                return transformPdf(id, pdfDocument, plainText);
+            } catch (InvalidPasswordException e) {
+                LOGGER.warn("Cannot transform encrypted pdf", e);
+                return initializeMetacard(id);
+            }
+        }
+    }
+
+    private MetacardImpl initializeMetacard(String id) {
+        return initializeMetacard(id, null);
+    }
+
+    private MetacardImpl initializeMetacard(String id, String contentInput) {
+        MetacardImpl metacard;
+
+        if (StringUtils.isNotBlank(contentInput)) {
+            Set<AttributeDescriptor> attributes = contentMetadataExtractors.values()
+                    .stream()
+                    .map(ContentMetadataExtractor::getMetacardAttributes)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+
+            metacard = new MetacardImpl(new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
+                    BasicTypes.BASIC_METACARD,
+                    attributes));
+            for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
+                contentMetadataExtractor.process(contentInput, metacard);
+            }
+        } else {
+            metacard = new MetacardImpl();
+        }
+
+        metacard.setId(id);
+        metacard.setContentTypeName(MediaType.PDF.subtype());
+
+        return metacard;
+    }
+
+    private Metacard transformPdf(String id, PDDocument pdfDocument) throws IOException {
+        return transformPdf(id, pdfDocument, null);
+    }
+
+    private Metacard transformPdf(String id, PDDocument pdfDocument, String contentInput)
+            throws IOException {
+        MetacardImpl metacard = initializeMetacard(id, contentInput);
+
+        if (pdfDocument.isEncrypted()) {
+            LOGGER.debug("Cannot transform encrypted pdf");
+            return metacard;
+        }
+
+        extractPdfMetadata(pdfDocument, metacard);
+
+        metacard.setThumbnail(generatePdfThumbnail(pdfDocument));
+
+        Optional.ofNullable(GEO_PDF_PARSER.getWktFromPDF(pdfDocument))
+                .ifPresent(metacard::setLocation);
+
+        return metacard;
     }
 
     /**
-     * Note: direct use of this constructor is meant for unit testing only
-     *
-     * @param metacardType                  must be non-null
-     * @param usePdfTitleAsTitle            must be non-null
-     * @param inputStreamPDDocumentFunction must be non-null
-     * @param geoParserFunction             must be non-null
-     * @param thumbnailFunction             must be non-null
+     * @param pdfDocument PDF document
+     * @param metacard    A mutable metacard to add the extracted data to
      */
-    PdfInputTransformer(MetacardType metacardType, Boolean usePdfTitleAsTitle,
-            CheckedFunction<InputStream, PDDocument> inputStreamPDDocumentFunction,
-            CheckedFunction<PDDocument, String> geoParserFunction,
-            CheckedFunction<PDDocument, byte[]> thumbnailFunction) {
-        notNull(metacardType, "metacardType must be non-null");
-        notNull(usePdfTitleAsTitle, "usePdfTitleAsTitle must be non-null");
-        notNull(inputStreamPDDocumentFunction, "inputStreamPDDocumentFunction must be non-null");
-        notNull(geoParserFunction, "geoParserFunction must be non-null");
-        notNull(thumbnailFunction, "thumbnailFunction must be non-null");
+    private void extractPdfMetadata(PDDocument pdfDocument, MetacardImpl metacard) {
+        StringBuilder metadataField = new StringBuilder("<pdf>");
 
-        this.metacardType = metacardType;
-        this.usePdfTitleAsTitle = usePdfTitleAsTitle;
-        this.inputStreamPDDocumentFunction = inputStreamPDDocumentFunction;
-        this.geoParserFunction = geoParserFunction;
-        this.thumbnailFunction = thumbnailFunction;
+        PDMetadata documentCatalogMetadata = pdfDocument.getDocumentCatalog()
+                .getMetadata();
+        if (documentCatalogMetadata != null) {
+            try (InputStream inputStream = documentCatalogMetadata.createInputStream()) {
+                metadataField.append(IOUtils.toString(inputStream));
+            } catch (IOException e) {
+                LOGGER.warn("Couldn't read the PDF document catalog's metadata", e);
+            }
+        }
+
+        PDDocumentInformation documentInformation = pdfDocument.getDocumentInformation();
+
+        Calendar creationDate = documentInformation.getCreationDate();
+        if (creationDate != null) {
+            metacard.setCreatedDate(creationDate.getTime());
+            addXmlElement("creationDate", DATE_FORMAT.format(creationDate), metadataField);
+            LOGGER.debug("PDF Creation date was: {}", DATE_FORMAT.format(creationDate));
+        }
+
+        Calendar modificationDate = documentInformation.getModificationDate();
+        if (modificationDate != null) {
+            metacard.setModifiedDate(modificationDate.getTime());
+            addXmlElement("modificationDate", DATE_FORMAT.format(modificationDate), metadataField);
+            LOGGER.debug("PDF Modification date was: {}", DATE_FORMAT.format(modificationDate));
+        }
+
+        String title = documentInformation.getTitle();
+        if (StringUtils.isNotBlank(title)) {
+            metacard.setTitle(title);
+            addXmlElement("title", title, metadataField);
+        }
+
+        addXmlElement("author", documentInformation.getAuthor(), metadataField);
+        addXmlElement("creator", documentInformation.getCreator(), metadataField);
+        addXmlElement("keywords", documentInformation.getKeywords(), metadataField);
+        addXmlElement("producer", documentInformation.getProducer(), metadataField);
+        addXmlElement("subject", documentInformation.getSubject(), metadataField);
+        addXmlElement("pageCount", String.valueOf(pdfDocument.getNumberOfPages()), metadataField);
+
+        metadataField.append("</pdf>");
+        metacard.setMetadata(metadataField.toString());
     }
 
-    private static byte[] generatePdfThumbnail(PDDocument pdfDocument) throws IOException {
+    private void addXmlElement(String name, String value, StringBuilder metadata) {
+        if (StringUtils.isNotBlank(value)) {
+            metadata.append(String.format("<%s>%s</%s>",
+                    name,
+                    HtmlEscapers.htmlEscaper()
+                            .escape(value),
+                    name));
+        }
+    }
+
+    private byte[] generatePdfThumbnail(PDDocument pdfDocument) throws IOException {
 
         PDFRenderer pdfRenderer = new PDFRenderer(pdfDocument);
 
@@ -124,6 +287,8 @@ public class PdfInputTransformer implements InputTransformer {
              * behavior without knowing how it will impact the system.
              */
         }
+
+        PDPage page = pdfDocument.getPage(0);
 
         BufferedImage image = pdfRenderer.renderImageWithDPI(0, RESOLUTION_DPI, ImageType.RGB);
 
@@ -149,118 +314,6 @@ public class PdfInputTransformer implements InputTransformer {
                     IMAGE_QUALITY);
             return outputStream.toByteArray();
         }
-    }
-
-    public boolean isUsePdfTitleAsTitle() {
-        return usePdfTitleAsTitle;
-    }
-
-    /**
-     * @param usePdfTitleAsTitle must be non-null
-     */
-    public void setUsePdfTitleAsTitle(Boolean usePdfTitleAsTitle) {
-        notNull(usePdfTitleAsTitle, "usePdfTitleAsTitle must be non-null");
-        this.usePdfTitleAsTitle = usePdfTitleAsTitle;
-    }
-
-    @Override
-    public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
-        return transform(input, null);
-    }
-
-    @Override
-    public Metacard transform(InputStream input, String id)
-            throws IOException, CatalogTransformerException {
-        return transformWithoutExtractors(input, id);
-    }
-
-    private Metacard transformWithoutExtractors(InputStream input, String id) throws IOException {
-        try (PDDocument pdfDocument = inputStreamPDDocumentFunction.apply(input)) {
-            return transformPdf(id, pdfDocument);
-        } catch (InvalidPasswordException e) {
-            LOGGER.warn("Cannot transform encrypted pdf", e);
-            return initializeMetacard(id);
-        }
-    }
-
-    private MetacardImpl initializeMetacard(String id) {
-        MetacardImpl metacard;
-
-        metacard = new MetacardImpl(metacardType);
-
-        metacard.setId(id);
-        metacard.setContentTypeName(MediaType.PDF.toString());
-        metacard.setAttribute(Media.TYPE, MediaType.PDF.toString());
-        metacard.setAttribute(Core.DATATYPE, "Document");
-
-        return metacard;
-    }
-
-    private Metacard transformPdf(String id, PDDocument pdfDocument) throws IOException {
-        MetacardImpl metacard = initializeMetacard(id);
-
-        if (pdfDocument.isEncrypted()) {
-            LOGGER.debug("Cannot transform encrypted pdf");
-            return metacard;
-        }
-
-        extractPdfMetadata(pdfDocument, metacard);
-
-        metacard.setThumbnail(thumbnailFunction.apply(pdfDocument));
-
-        Optional.ofNullable(geoParserFunction.apply(pdfDocument))
-                .ifPresent(metacard::setLocation);
-
-        return metacard;
-    }
-
-    /**
-     * @param pdfDocument PDF document
-     * @param metacard    A mutable metacard to add the extracted data to
-     */
-    private void extractPdfMetadata(PDDocument pdfDocument, MetacardImpl metacard) {
-
-        PDDocumentInformation documentInformation = pdfDocument.getDocumentInformation();
-
-        Calendar creationDate = documentInformation.getCreationDate();
-        if (creationDate != null) {
-            metacard.setCreatedDate(creationDate.getTime());
-            LOGGER.debug("PDF Creation date was: {}", DATE_FORMAT.format(creationDate));
-        }
-
-        Calendar modificationDate = documentInformation.getModificationDate();
-        if (modificationDate != null) {
-            metacard.setModifiedDate(modificationDate.getTime());
-            LOGGER.debug("PDF Modification date was: {}", DATE_FORMAT.format(modificationDate));
-        }
-
-        if (usePdfTitleAsTitle) {
-            String title = documentInformation.getTitle();
-            if (StringUtils.isNotBlank(title)) {
-                metacard.setTitle(title);
-            }
-        }
-
-        String author = documentInformation.getAuthor();
-        if (StringUtils.isNotBlank(author)) {
-            metacard.setAttribute(Contact.CREATOR_NAME, author);
-        }
-
-        String subject = documentInformation.getSubject();
-        if (StringUtils.isNotBlank(subject)) {
-            metacard.setDescription(subject);
-        }
-
-        String keywords = documentInformation.getKeywords();
-        if (StringUtils.isNotBlank(keywords)) {
-            metacard.setAttribute(Topic.KEYWORD, keywords);
-        }
-
-    }
-
-    @FunctionalInterface
-    public interface CheckedFunction<T, R> {
-        R apply(T t) throws IOException;
     }
 
 }

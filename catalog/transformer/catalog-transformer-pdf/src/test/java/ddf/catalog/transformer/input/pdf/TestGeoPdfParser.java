@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.Test;
 
-public class GeoPdfParserTest {
+public class TestGeoPdfParser {
 
     public static final String WKT_POLYGON =
             "POLYGON ((-75.15840498869015 43.93500189524018, -75.15840498868951 37.63917521983974, -80.50866091541451 37.639175219841135, -80.50866091541393 43.93500189523885, -75.15840498869015 43.93500189524018, -75.15840498869015 43.93500189524018))";
