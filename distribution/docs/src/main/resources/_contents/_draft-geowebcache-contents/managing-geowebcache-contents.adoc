@@ -90,9 +90,9 @@ Add layers to the local cache:
 
 Storage usage for a GeoWebCache server is managed by a `diskquota.xml` file with configuration details to prevent image-intensive data from filling the available storage.
 
-To view the disk quota XML representative: \${secure_url}/geowebcache/rest/diskquota.xml"
+To view the disk quota XML representative: ${secure_url}/geowebcache/rest/diskquota.xml"
 
-To update the disk quota, a client can post a new XML configuration: `curl -v -k -XPUT -H "Content-type: text/xml" -d @diskquota.xml "${secure_url}/geowebcache/rest/diskquota.xml"`
+To update the disk quota, a client can post a new XML configuration: `curl -v -k -XPUT -H "Content-type: text/xml" -d ${at-symbol}diskquota.xml "${secure_url}/geowebcache/rest/diskquota.xml"`
 
 .Example `diskquota.xml`
 [source,xml,linenums]
