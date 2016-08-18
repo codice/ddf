@@ -37,7 +37,7 @@ public class AttributesStoreImpl implements AttributesStore {
 
     private static final String EMPTY_USERNAME_ERROR = "Empty username specified";
 
-    private Long defaultLimit;
+    private static final long NO_DATA_LIMIT = -1L;
 
     public AttributesStoreImpl(PersistentStore persistentStore) {
         this.persistentStore = persistentStore;
@@ -65,7 +65,7 @@ public class AttributesStoreImpl implements AttributesStore {
 
     @Override
     public long getDataLimitByUser(final String username) throws PersistenceException {
-        long dataLimit = defaultLimit;
+        long dataLimit = NO_DATA_LIMIT;
 
         if (StringUtils.isEmpty(username)) {
             throw new PersistenceException(EMPTY_USERNAME_ERROR);
@@ -122,9 +122,8 @@ public class AttributesStoreImpl implements AttributesStore {
                         .lock();
 
                 LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
-                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username,
-                        dataUsage,
-                        defaultLimit));
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE,
+                        toPersistentItem(username, dataUsage, NO_DATA_LIMIT));
             } finally {
                 readWriteLock.writeLock()
                         .unlock();
@@ -140,15 +139,14 @@ public class AttributesStoreImpl implements AttributesStore {
         if (StringUtils.isEmpty(username)) {
             throw new PersistenceException(EMPTY_USERNAME_ERROR);
         }
-        if (dataLimit >= 0) {
+        if (dataLimit >= NO_DATA_LIMIT) {
             try {
                 readWriteLock.writeLock()
                         .lock();
 
                 LOGGER.debug("Updating user {} data limit to {}", username, dataLimit);
-                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username,
-                        getCurrentDataUsageByUser(username),
-                        dataLimit));
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE,
+                        toPersistentItem(username, getCurrentDataUsageByUser(username), dataLimit));
             } finally {
                 readWriteLock.writeLock()
                         .unlock();
@@ -182,9 +180,8 @@ public class AttributesStoreImpl implements AttributesStore {
                         .lock();
 
                 LOGGER.debug("Resetting Data usage for user : {}", username);
-                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username,
-                        0L,
-                        dataLimit));
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE,
+                        toPersistentItem(username, 0L, dataLimit));
             } finally {
                 readWriteLock.writeLock()
                         .unlock();
@@ -228,12 +225,10 @@ public class AttributesStoreImpl implements AttributesStore {
     }
 
     private long getDataLimitByUserNoLock(final String username) throws PersistenceException {
-        long dataLimit = defaultLimit;
+        long dataLimit = NO_DATA_LIMIT;
         List<Map<String, Object>> attributesList;
-        attributesList = persistentStore.get(PersistentStore.USER_ATTRIBUTE_TYPE, String.format(
-                "%s = '%s'",
-                USER_KEY,
-                username));
+        attributesList = persistentStore.get(PersistentStore.USER_ATTRIBUTE_TYPE,
+                String.format("%s = '%s'", USER_KEY, username));
 
         if (attributesList != null && attributesList.size() == 1) {
             Map<String, Object> attributes = PersistentItem.stripSuffixes(attributesList.get(0));
@@ -242,13 +237,5 @@ public class AttributesStoreImpl implements AttributesStore {
             LOGGER.debug("User {} data limit {} ", username, String.valueOf(dataLimit));
         }
         return dataLimit;
-    }
-
-    public void setDefaultLimit(Long defaultLimit) {
-        this.defaultLimit = defaultLimit;
-    }
-
-    public Long getDefaultLimit() {
-        return this.defaultLimit;
     }
 }

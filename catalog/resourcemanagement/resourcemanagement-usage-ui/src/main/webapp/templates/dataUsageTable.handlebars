@@ -32,9 +32,10 @@
             </td>
             <td>{{usageRemaining}}</td>
             <td class="data-limit-td">
+            {{#gt displayLimit -2}}
                 <input name="{{user}}"
                        type="number"
-                       min="0"
+                       min="-1"
                        max="1000"
                        step="1"
                        value={{displayLimit}}>
@@ -44,6 +45,7 @@
                      <option value="GB">GB</option>
                      {{/select}}
                 </select>
+            {{/gt}}
             </td>
         </tr>
     {{/each}}

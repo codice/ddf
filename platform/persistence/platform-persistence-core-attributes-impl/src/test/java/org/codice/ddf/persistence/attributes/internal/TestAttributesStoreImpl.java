@@ -62,12 +62,9 @@ public class TestAttributesStoreImpl {
 
     private static final Long LONG_5 = 500L;
 
-    private static final Long DEFAULT_USAGE_LIMIT = 750L;
-
     @Before
     public void setup() {
         attributesStore = new AttributesStoreImpl(persistentStore);
-        attributesStore.setDefaultLimit(DEFAULT_USAGE_LIMIT);
     }
 
     @Test
@@ -204,10 +201,23 @@ public class TestAttributesStoreImpl {
     }
 
     @Test
-    public void testSetDataLimitSizeLessThanZero() throws PersistenceException {
-        long dataUsage = -1L;
+    public void testSetInvalidDataLimit() throws PersistenceException {
+        long dataUsage = -2L; // -1 indicates unlimited data limit
         attributesStore.setDataLimit(USER, dataUsage);
         verify(persistentStore, never()).add(anyString(), anyMap());
+    }
+
+    @Test
+    public void testSetNoDataLimit() throws PersistenceException {
+        final long DATA_LIMIT = -1;
+        ArgumentCaptor<String> keyArg = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
+        attributesStore.setDataLimit(USER, DATA_LIMIT);
+        verify(persistentStore).add(keyArg.capture(), itemArg.capture());
+        assertThat(keyArg.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
+
+        assertThat(itemArg.getValue()
+                .getLongProperty(AttributesStore.DATA_USAGE_LIMIT_KEY), is(DATA_LIMIT));
     }
 
     @Test(expected = PersistenceException.class)

@@ -20,6 +20,8 @@ define(['backbone',
 
         var MB_SIZE = (1000 * 1000);
 
+        var KB_SIZE = (1000);
+
         var CONFIGURATION_ADMIN_URL = "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/";
 
         var DataUsage = {};
@@ -80,9 +82,13 @@ define(['backbone',
 
                     var dataUsage = value[0];
                     var dataLimit = value[1];
-                    var usagePercent = Math.round((dataUsage / dataLimit) * 100);
-                    if(usagePercent > 100) {
-                        usagePercent = 100;
+
+                    var usagePercent = 0;
+                    if (dataLimit >= 0) {
+                        usagePercent = Math.round((dataUsage / dataLimit) * 100);
+                        if(usagePercent > 100) {
+                            usagePercent = 100;
+                        }
                     }
 
                     var usageRemaining = that.constructUsageRemainingString(dataLimit, dataUsage);
@@ -100,8 +106,8 @@ define(['backbone',
                     }
 
                     var object = {user : key, usagePercent : usagePercent, usageRemaining : usageRemaining,
-                        usageLimit : dataLimit, displayLimit: displayLimit, displaySize : displaySize,
-                        notify : (usageRemaining === "0 MB" || usageRemaining === "0 GB"),
+                        usageLimit : dataLimit, displayLimit : displayLimit, displaySize : displaySize,
+                        notify : (usagePercent >= 100),
                         usage: displayUsage};
                     dataModel.push(object);
                 }));
@@ -151,32 +157,40 @@ define(['backbone',
             isLimitChanged : function(user, value, dataSize) {
                 var model = this.get('users');
                 var dataInBytes = value;
-
                 var isLimitChanged = false;
-                if(dataSize === "GB") {
-                    dataInBytes = dataInBytes * GB_SIZE;
-                } else {
-                    dataInBytes = dataInBytes * MB_SIZE;
+
+                if(dataInBytes !== -1) {
+                    if(dataSize === "GB") {
+                        dataInBytes = dataInBytes * GB_SIZE;
+                    } else {
+                        dataInBytes = dataInBytes * MB_SIZE;
+                    }
                 }
 
                 $.each(model, function(index, object) {
                     if(object.user === user && dataInBytes !== object.usageLimit) {
                         isLimitChanged = true;
                     }
-
                 });
                 return isLimitChanged;
             },
             constructUsageRemainingString : function(dataLimit, dataUsage) {
+                var usageRemaining = "Unlimited";
+
+                if (dataLimit >= 0) {
                     var bytesRemaining = dataLimit - dataUsage;
-                    var usageRemaining;
+
                     if(bytesRemaining >= GB_SIZE) {
-                         usageRemaining = (bytesRemaining / GB_SIZE).toFixed(1) + " GB";
+                        usageRemaining = (bytesRemaining / GB_SIZE).toFixed(1) + " GB";
+                    } else if(bytesRemaining >= MB_SIZE) {
+                        usageRemaining = Math.round(bytesRemaining / MB_SIZE) + " MB";
                     } else if(bytesRemaining >= 0) {
-                         usageRemaining = Math.round(bytesRemaining / MB_SIZE) + " MB";
+                        usageRemaining = Math.round(bytesRemaining / KB_SIZE) + " KB";
                     } else {
-                         usageRemaining = "0 MB";
+                        usageRemaining = "0 MB";
                     }
+                }
+
                 return usageRemaining;
             },
             updateMonitorLocalSources: function(updateMonitorLocalSources) {
