@@ -13,22 +13,33 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
 public class GmdConstants {
 
     public static final String GMD_REVISION_DATE = "RevisionDate";
 
+    public static final String GMD_LANGUAGE = "Language";
+
+    public static final String GMD_ABSTRACT = "Abstract";
+
+    public static final String GMD_SUBJECT = "Subject";
+
     public static final String GMD_ALTERNATE_TITLE = "AlternateTitle";
+
+    public static final String GMD_RESOURCE_LANGUAGE =  "ResourceLanguage";
 
     public static final String GMD_CREATION_DATE = "CreationDate";
 
     public static final String GMD_PUBLICATION_DATE = "PublicationDate";
 
     public static final String GMD_ORGANIZATION_NAME = "OrganisationName";
+
+    public static final String GMD_TYPE = "Type";
+
+    public static final String GMD_MODIFIED = "Modified";
+
+    public static final String GMD_FORMAT = "Format";
 
     public static final String GMD_PREFIX = "gmd";
 
@@ -63,6 +74,8 @@ public class GmdConstants {
     public static final String GCO_PREFIX = "gco";
 
     public static final String RESOURCE_STATUS = "ext.resource-status";
+
+    public static final String METADATA_LANGUAGE_PATH = "/MD_Metadata/language/gco:CharacterString";
 
     public static final String CODE_LIST_VALUE_PATH =
             "/MD_Metadata/hierarchyLevel/MD_ScopeCode/@codeListValue";
@@ -115,8 +128,6 @@ public class GmdConstants {
     public static final String FILE_IDENTIFIER_PATH =
             "/MD_Metadata/fileIdentifier/gco:CharacterString";
 
-    public static final String CONTACT_PATH = "/MD_Metadata/contact";
-
     public static final String CONTACT_ORGANISATION_PATH =
             "/MD_Metadata/contact/CI_ResponsibleParty/organisationName/gco:CharacterString";
 
@@ -164,9 +175,6 @@ public class GmdConstants {
 
     public static final String POINT_OF_CONTACT_PATH =
             "/MD_Metadata/identificationInfo/MD_DataIdentification/pointOfContact/CI_ResponsibleParty/organisationName/gco:CharacterString";
-
-    public static final String POINT_OF_CONTACT_ROLE_PATH =
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/pointOfContact/CI_ResponsibleParty/role";
 
     public static final String LANGUAGE_PATH =
             "/MD_Metadata/identificationInfo/MD_DataIdentification/language/gco:CharacterString";
@@ -219,11 +227,17 @@ public class GmdConstants {
     public static final String RESOURCE_DATE_PATH =
             "//MD_Metadata/identificationInfo/MD_DataIdentification/citation/CI_Citation/date";
 
-    public static final List<QName> QNAME_LIST;
-
     public static final QName GMD_REVISION_DATE_QNAME;
 
+    public static final QName GMD_ABSTRACT_QNAME;
+
+    public static final QName GMD_LANGUAGE_QNAME;
+
+    public static final QName GMD_RESOURCE_LANGUAGE_QNAME;
+
     public static final QName GMD_ALTERNATE_TITLE_QNAME;
+
+    public static final QName GMD_SUBJECT_QNAME;
 
     public static final QName GMD_CREATION_DATE_QNAME;
 
@@ -231,10 +245,24 @@ public class GmdConstants {
 
     public static final QName GMD_ORGANIZATION_NAME_QNAME;
 
+    public static final QName GMD_FORMAT_QNAME;
+
+    public static final QName GMD_MODIFIED_QNAME;
+
+    public static final QName GMD_TYPE_QNAME;
+
     static {
         GMD_REVISION_DATE_QNAME = createGMDQName(GMD_REVISION_DATE);
 
         GMD_ALTERNATE_TITLE_QNAME = createGMDQName(GMD_ALTERNATE_TITLE);
+
+        GMD_LANGUAGE_QNAME = createGMDQName(GMD_LANGUAGE);
+
+        GMD_RESOURCE_LANGUAGE_QNAME = createGMDQName(GMD_RESOURCE_LANGUAGE);
+
+        GMD_ABSTRACT_QNAME = createGMDQName(GMD_ABSTRACT);
+
+        GMD_SUBJECT_QNAME = createGMDQName(GMD_SUBJECT);
 
         GMD_CREATION_DATE_QNAME = createGMDQName(GMD_CREATION_DATE);
 
@@ -242,7 +270,12 @@ public class GmdConstants {
 
         GMD_ORGANIZATION_NAME_QNAME = createGMDQName(GMD_ORGANIZATION_NAME);
 
-        QNAME_LIST = Arrays.asList(GMD_REVISION_DATE_QNAME, GMD_ALTERNATE_TITLE_QNAME);
+        GMD_FORMAT_QNAME = createGMDQName(GMD_FORMAT);
+
+        GMD_MODIFIED_QNAME = createGMDQName(GMD_MODIFIED);
+
+        GMD_TYPE_QNAME = createGMDQName(GMD_TYPE);
+
     }
 
     private static QName createGMDQName(final String field) {

@@ -36,8 +36,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -45,13 +43,11 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 import ddf.catalog.data.Metacard;
+
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.filter.v_1_1_0.FilterType;
 
 public class TestTransactionMessageBodyReader {
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(TestTransactionMessageBodyReader.class);
-
     private static final int COUNT = 100;
 
     private static final String INSERT_REQUEST_START =
@@ -393,14 +389,14 @@ public class TestTransactionMessageBodyReader {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = simpleDateFormat.parse("2008-08-10");
 
-        assertThat((Date) metacard.getAttribute("date")
+        assertThat(metacard.getAttribute("date")
                 .getValue(), is(date));
 
         // A csw:Record "date" maps to a basic metacard's "modified".
         assertThat(metacard.getModifiedDate(), is(date));
 
-        assertThat(metacard.getLocation(),
-                is("POLYGON((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
+        assertThat(metacard.getLocation(), is(
+                "POLYGON((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
 
         assertThat(request.getService(), is(CswConstants.CSW));
         assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
@@ -432,28 +428,27 @@ public class TestTransactionMessageBodyReader {
 
         Map<String, Serializable> recordProperties = updateAction.getRecordProperties();
         assertThat(recordProperties, notNullValue());
-        assertThat(recordProperties.size(), is(5));
+        assertThat(recordProperties.size(), is(7));
 
         Serializable newSubjectValue = recordProperties.get("subject");
         assertThat(newSubjectValue, notNullValue());
-        assertThat((String) newSubjectValue, is("Foo"));
+        assertThat(newSubjectValue, is("Foo"));
 
         Serializable newDateValue = recordProperties.get("date");
         assertThat(newDateValue, notNullValue());
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = simpleDateFormat.parse("2015-07-21");
-        assertThat((Date) newDateValue, is(date));
+        assertThat(newDateValue, is(date));
 
         // A csw:Record "date" maps to a basic metacard's "modified".
         Serializable newModifiedValue = recordProperties.get("modified");
         assertThat(newModifiedValue, notNullValue());
-        assertThat((Date) newModifiedValue, is(date));
+        assertThat(newModifiedValue, is(date));
 
         Serializable newLocationValue = recordProperties.get("location");
         assertThat(newLocationValue, notNullValue());
-        assertThat((String) newLocationValue,
-                is("POLYGON((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
+        assertThat(newLocationValue, is("POLYGON((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
 
         Serializable newFormatValue = recordProperties.get("format");
         // No <Value> was specified in the request.
@@ -503,14 +498,14 @@ public class TestTransactionMessageBodyReader {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = simpleDateFormat.parse("2008-08-10");
 
-        assertThat((Date) metacard.getAttribute("date")
+        assertThat(metacard.getAttribute("date")
                 .getValue(), is(date));
 
         // A csw:Record "date" maps to a basic metacard's "modified".
         assertThat(metacard.getModifiedDate(), is(date));
 
-        assertThat(metacard.getLocation(),
-                is("POLYGON((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
+        assertThat(metacard.getLocation(), is(
+                "POLYGON((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
 
         assertThat(firstUpdateAction.getHandle(), is("handle1"));
         assertThat(firstUpdateAction.getTypeName(), is(CswConstants.CSW_RECORD));
@@ -522,10 +517,10 @@ public class TestTransactionMessageBodyReader {
 
         Map<String, Serializable> recordProperties = secondUpdateAction.getRecordProperties();
         assertThat(recordProperties, notNullValue());
-        assertThat(recordProperties.size(), is(1));
+        assertThat(recordProperties.size(), is(2));
 
         Serializable newSubject = recordProperties.get("subject");
-        assertThat((String) newSubject, is("foo"));
+        assertThat(newSubject, is("foo"));
 
         QueryConstraintType constraint = secondUpdateAction.getConstraint();
         assertThat(constraint, notNullValue());
@@ -544,24 +539,16 @@ public class TestTransactionMessageBodyReader {
     public void testConversionExceptionWhenNoNameInUpdateRecordProperty() throws IOException {
         TransactionMessageBodyReader reader =
                 new TransactionMessageBodyReader(mock(Converter.class));
-        reader.readFrom(CswTransactionRequest.class,
-                null,
-                null,
-                null,
-                null,
-                IOUtils.toInputStream(UPDATE_REQUEST_NO_RECORDPROPERTY_NAME_XML));
+        reader.readFrom(CswTransactionRequest.class, null, null, null, null, IOUtils.toInputStream(
+                UPDATE_REQUEST_NO_RECORDPROPERTY_NAME_XML));
     }
 
     @Test(expected = ConversionException.class)
     public void testConversionExceptionWhenNoConstraintInUpdate() throws IOException {
         TransactionMessageBodyReader reader =
                 new TransactionMessageBodyReader(mock(Converter.class));
-        reader.readFrom(CswTransactionRequest.class,
-                null,
-                null,
-                null,
-                null,
-                IOUtils.toInputStream(UPDATE_REQUEST_NO_CONSTRAINT_XML));
+        reader.readFrom(CswTransactionRequest.class, null, null, null, null, IOUtils.toInputStream(
+                UPDATE_REQUEST_NO_CONSTRAINT_XML));
     }
 
     private String getInsertRequest(int count) {

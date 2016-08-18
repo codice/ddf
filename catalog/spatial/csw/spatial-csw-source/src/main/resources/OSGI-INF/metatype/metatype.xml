@@ -168,7 +168,7 @@
         <AD description="Mapping of the Metacard Attribute names to their CSW property names. The format should be 'title=dc:title'."
             name="Metacard Mappings" id="metacardMappings" required="false" type="String"
             cardinality="100"
-            default="id=apiso:Identifier,effective=apiso:PublicationDate,created=apiso:CreationDate,modified=apiso:RevisionDate,title=apiso:AlternateTitle,AnyText=apiso:AnyText,ows:BoundingBox=apiso:BoundingBox">
+            default="id=apiso:Identifier,effective=apiso:PublicationDate,created=apiso:CreationDate,modified=apiso:RevisionDate,title=apiso:AlternateTitle,AnyText=apiso:AnyText,ows:BoundingBox=apiso:BoundingBox,language=apiso:Language,language=apiso:ResourceLanguage,datatype=apiso:Type,description=apiso:Abstract,contact.point-of-contact-name=apiso:OrganisationName,topic.keyword=apiso:Subject,media.format=apiso:Format,modified=apiso:Modified">
         </AD>
 
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."

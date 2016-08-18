@@ -1,15 +1,58 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco">
+<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml">
     <fileIdentifier>
-        <gco:CharacterString>ID</gco:CharacterString>
+        <gco:CharacterString>1234</gco:CharacterString>
     </fileIdentifier>
+    <language>
+        <gco:CharacterString>ger</gco:CharacterString>
+    </language>
     <hierarchyLevel>
         <MD_ScopeCode codeListValue="jpeg" codeList="urn:catalog:metacard"/>
     </hierarchyLevel>
-    <contact/>
+    <contact>
+        <CI_ResponsibleParty>
+            <organisationName>
+                <gco:CharacterString>John Doe</gco:CharacterString>
+            </organisationName>
+            <contactInfo>
+                <CI_Contact>
+                    <address>
+                        <CI_Address>
+                            <electronicMailAddress>
+                                <gco:CharacterString>john.doe@example.com</gco:CharacterString>
+                            </electronicMailAddress>
+                            <deliveryPoint>
+                                <gco:CharacterString>123 Fake Street Springfield MO 12345</gco:CharacterString>
+                            </deliveryPoint>
+                        </CI_Address>
+                    </address>
+                    <phone>
+                        <CI_Telephone>
+                            <voice>
+                                <gco:CharacterString>12345</gco:CharacterString>
+                            </voice>
+                        </CI_Telephone>
+                    </phone>
+                </CI_Contact>
+            </contactInfo>
+        </CI_ResponsibleParty>
+    </contact>
     <dateStamp>
         <gco:DateTime>2016-11-01T00:00:00.000Z</gco:DateTime>
     </dateStamp>
+    <referenceSystemInfo>
+        <MD_ReferenceSystem>
+            <referenceSystemIdentifier>
+                <RS_Identifier>
+                    <code>
+                        <gco:CharacterString>4326</gco:CharacterString>
+                    </code>
+                    <codeSpace>
+                        <gco:CharacterString>EPSG</gco:CharacterString>
+                    </codeSpace>
+                </RS_Identifier>
+            </referenceSystemIdentifier>
+        </MD_ReferenceSystem>
+    </referenceSystemInfo>
     <identificationInfo>
         <MD_DataIdentification>
             <citation>
@@ -35,17 +78,60 @@
             <pointOfContact>
                 <CI_ResponsibleParty>
                     <organisationName>
-                        <gco:CharacterString>John Doe</gco:CharacterString>
+                        <gco:CharacterString>Jane Doe</gco:CharacterString>
                     </organisationName>
-                    <role/>
+                    <contactInfo>
+                        <CI_Contact>
+                            <address>
+                                <CI_Address>
+                                    <electronicMailAddress>
+                                        <gco:CharacterString>jane.doe@example.com</gco:CharacterString>
+                                    </electronicMailAddress>
+                                </CI_Address>
+                            </address>
+                            <phone>
+                                <CI_Telephone>
+                                    <voice>
+                                        <gco:CharacterString>6789</gco:CharacterString>
+                                    </voice>
+                                </CI_Telephone>
+                            </phone>
+                        </CI_Contact>
+                    </contactInfo>
                 </CI_ResponsibleParty>
             </pointOfContact>
+            <descriptiveKeywords>
+                <MD_Keywords>
+                    <keyword>
+                        <gco:CharacterString>keyword</gco:CharacterString>
+                    </keyword>
+                </MD_Keywords>
+            </descriptiveKeywords>
             <language>
-                <gco:CharacterString>en</gco:CharacterString>
+                <gco:CharacterString>ger</gco:CharacterString>
             </language>
+            <topicCategory>
+                <MD_TopicCategoryCode>category</MD_TopicCategoryCode>
+            </topicCategory>
             <extent>
                 <EX_Extent>
+                    <verticalElement>
+                        <EX_VerticalExtent>
+                            <maximumValue>
+                                <gco:Real>123.0</gco:Real>
+                            </maximumValue>
+                        </EX_VerticalExtent>
+                    </verticalElement>
                     <geographicElement>
+                        <EX_GeographicDescription>
+                            <geographicIdentifier>
+                                <RS_Identifier>
+                                    <code>
+                                        <gco:CharacterString>FRA</gco:CharacterString>
+                                    </code>
+                                </RS_Identifier>
+                            </geographicIdentifier>
+                        </EX_GeographicDescription>
                         <EX_GeographicBoundingBox>
                             <westBoundLongitude>
                                 <gco:Decimal>117.6326370239258</gco:Decimal>
@@ -61,12 +147,32 @@
                             </northBoundLatitude>
                         </EX_GeographicBoundingBox>
                     </geographicElement>
+                    <temporalElement>
+                        <EX_TemporalExtent>
+                            <extent>
+                                <gml:TimePeriod>
+                                    <gml:beginPosition>2015-11-01T00:00:00.000Z</gml:beginPosition>
+                                    <gml:endPosition>2015-11-01T00:00:00.000Z</gml:endPosition>
+                                </gml:TimePeriod>
+                            </extent>
+                        </EX_TemporalExtent>
+                    </temporalElement>
                 </EX_Extent>
             </extent>
         </MD_DataIdentification>
     </identificationInfo>
     <distributionInfo>
         <MD_Distribution>
+            <distributionFormat>
+                <MD_Format>
+                    <name>
+                        <gco:CharacterString>gzip</gco:CharacterString>
+                    </name>
+                    <version>
+                        <gco:CharacterString>2.0</gco:CharacterString>
+                    </version>
+                </MD_Format>
+            </distributionFormat>
             <transferOptions>
                 <MD_DigitalTransferOptions>
                     <onLine>
