@@ -677,6 +677,42 @@ include::{adoc-include}/_web-applications/landing-page-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/ui-help/standard-${ddf.version}/help-contents.adoc[]
 
+= Developing ${branding}
+
+== Contributing to the ${ddf-branding-expanded}
+
+include::{adoc-include}/_developing/contributing-intro-contents.adoc[]
+
+== ${branding} Development Guidelines
+
+include::{adoc-include}/_developing/developing-intro-contents.adoc[]
+
+include::{adoc-include}/_developing/developing-catalog-api-contents.adoc[]
+
+== APIs
+
+include::{adoc-include}/_apis/migration-api-contents.adoc[]
+
+include::{adoc-include}/_apis/application-service-api-contents.adoc[]
+
+== Application Whitelists
+
+include::{adoc-include}/_app-whitelists/admin-whitelist-contents.adoc[]
+
+include::{adoc-include}/_app-whitelists/catalog-whitelist-contents.adoc[]
+
+include::{adoc-include}/_app-whitelists/platform-whitelist-contents.adoc[]
+
+include::{adoc-include}/_app-whitelists/registry-whitelist-contents.adoc[]
+
+include::{adoc-include}/_app-whitelists/security-whitelist-contents.adoc[]
+
+include::{adoc-include}/_app-whitelists/solr-whitelist-contents.adoc[]
+
+include::{adoc-include}/_app-whitelists/spatial-whitelist-contents.adoc[]
+
+include::{adoc-include}/_app-whitelists/ui-whitelist-contents.adoc[]
+
 [appendix]
 == All File Formats Supported
 
