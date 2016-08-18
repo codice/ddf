@@ -77,6 +77,13 @@ include::${project.build.directory}/doc-contents/_contents/_registry-contents/ma
 
 <<<
 
+== Managing ${ddf-resource-management}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_resource-management-contents/managing-resource-management-contents.adoc[]
+
+<<<
+
 == Managing ${ddf-security}
 [small]#Version: ${project.version}#
 

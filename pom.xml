@@ -145,6 +145,7 @@
         <ddf-geowebcache>DDF GeoWebCache</ddf-geowebcache>
         <ddf-platform>DDF Platform</ddf-platform>
         <ddf-registry>DDF Registry</ddf-registry>
+        <ddf-resource-management>DDF Resource Management</ddf-resource-management>
         <ddf-security>DDF Security</ddf-security>
         <ddf-solr>DDF Solr</ddf-solr>
         <ddf-spatial>DDF Spatial</ddf-spatial>
