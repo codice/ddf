@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -33,6 +34,8 @@ import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
+import ddf.catalog.core.versioning.MetacardVersion;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -44,6 +47,8 @@ import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
@@ -60,6 +65,7 @@ import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
 
 public class DeleteOperations {
@@ -131,6 +137,7 @@ public class DeleteOperations {
 
             deleteRequest = processPreIngestPlugins(deleteRequest);
             deleteRequest = validateDeleteRequest(deleteRequest);
+            deleteRequest = rewriteQuery(deleteRequest);
 
             // Call the Provider delete method
             LOGGER.debug("Calling catalog.delete() with {} entries.",
@@ -148,7 +155,7 @@ public class DeleteOperations {
             deleteResponse = validateFixDeleteResponse(deleteResponse, deleteRequest);
             deleteResponse = processPostIngestPlugins(deleteResponse);
 
-        } catch (StopProcessingException see) {
+        } catch (StopProcessingException | UnsupportedQueryException see) {
             LOGGER.warn(PRE_INGEST_ERROR + see.getMessage(), see);
             throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
 
@@ -260,6 +267,53 @@ public class DeleteOperations {
         return deleteResponse;
     }
 
+    //
+    // Private helper methods
+    //
+    private DeleteRequest rewriteQuery(DeleteRequest deleteRequest)
+            throws StopProcessingException, UnsupportedQueryException {
+
+        final String attributeName = deleteRequest.getAttributeName();
+        if (Metacard.ID.equals(attributeName)) {
+            return deleteRequest;
+        }
+
+        Filter filter = frameworkProperties.getFilterBuilder()
+                .anyOf(deleteRequest.getAttributeValues()
+                        .stream()
+                        .map(e -> frameworkProperties.getFilterBuilder()
+                                .attribute(attributeName)
+                                .is()
+                                .equalTo()
+                                .text(e.toString()))
+                        .collect(Collectors.toList()));
+        SourceResponse response = sourceOperations.getCatalog().query(new QueryRequestImpl(new QueryImpl(filter), false));
+        Map<Serializable, Metacard> updateMap = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .filter(MetacardVersion::isNotVersion)
+                .collect(Collectors.toMap(m -> (Serializable) m.getId(), Function.identity()));
+
+        // confirm every item from original update list is present.
+        Set<String> updatedIds = updateMap.values()
+                .stream()
+                .map(m -> m.getAttribute(attributeName))
+                .map(Attribute::getValue)
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+
+        if(!deleteRequest.getAttributeValues()
+                .stream()
+                .allMatch(updatedIds::contains)){
+            throw new StopProcessingException("Could not obtain metacard ID's for all items in Delete Request.");
+        }
+
+
+        return new DeleteRequestImpl(new ArrayList<>(updateMap.keySet()),
+                Metacard.ID,
+                deleteRequest.getProperties(),
+                deleteRequest.getStoreIds());
+    }
     private DeleteRequest processPreIngestPlugins(DeleteRequest deleteRequest)
             throws StopProcessingException {
         for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
