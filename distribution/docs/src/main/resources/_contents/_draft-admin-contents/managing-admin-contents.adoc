@@ -1,0 +1,38 @@
+
+The ${ddf-admin} Application contains components that are integral for the installation and configuration ${branding} applications.
+
+It contains various services and interfaces that allow administrators more control over their systems and enhances administrative capabilities when installing and managing ${branding}.
+
+The ${ddf-admin} application contains an application service that handles all operations that are performed on applications.
+This includes adding, removing, starting, stopping, and showing status.
+
+=== ${ddf-admin} Application Prerequisites
+
+None.
+
+=== Installing the ${ddf-admin} Application
+
+The ${ddf-admin} application is installed by default with a standard installation.
+
+=== Configuring the ${ddf-admin} Application
+
+* Navigate to the ${admin-console}.
+* Select the *${ddf-admin}* application.
+* Select the *Configuration* tab.
+
+.${ddf-admin} Configurations
+[cols="3" options="header"]
+|===
+|Name
+|Property
+|Description
+
+include::{adoc-include}/_tables/conf-org.codice.ddf.admin.config.policy.AdminConfigPolicy-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-org.codice.admin.ui.configuration-table-contents.adoc[]
+
+|===
+
+include::{adoc-include}/_tables/org.codice.ddf.admin.config.policy.AdminConfigPolicy-table-contents.adoc[]
+
+include::{adoc-include}/_tables/org.codice.admin.ui.configuration-table-contents.adoc[]
