@@ -20,7 +20,7 @@ define(['underscore',
     "use strict";
 
     var imageryProviderTypes = {
-        OSM: Cesium.OpenStreetMapImageryProvider,
+        OSM: Cesium.createOpenStreetMapImageryProvider,
         AGM: Cesium.ArcGisMapServerImageryProvider,
         BM: Cesium.BingMapsImageryProvider,
         WMS: Cesium.WebMapServiceImageryProvider,
@@ -49,6 +49,7 @@ define(['underscore',
             this.map.imageryLayers.removeAll();
 
             this.collection.forEach(function (model) {
+                console.log(Cesium);
                 var type = imageryProviderTypes[model.get('type')];
                 var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid');
                 var provider = new type(initObj);
