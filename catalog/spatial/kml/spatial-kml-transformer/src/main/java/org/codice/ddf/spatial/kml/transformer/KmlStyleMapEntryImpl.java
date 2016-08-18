@@ -127,7 +127,7 @@ public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
                 String metacardDate = dateFormat.format((Date) attribute.getValue());
                 return mappedDate.equals(metacardDate);
             } catch (ParseException e) {
-                LOGGER.warn("Unable to parese date and perform comparison.", e);
+                LOGGER.debug("Unable to parse date and perform comparison.", e);
                 return false;
             }
         case SHORT:
@@ -148,7 +148,7 @@ public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
         case BINARY:
         case OBJECT:
         default:
-            LOGGER.warn("Unsupported Attribute Format was attempted for KML Style Mapping.");
+            LOGGER.debug("Unsupported Attribute Format was attempted for KML Style Mapping.");
             return false;
         }
 

@@ -75,7 +75,7 @@ public class XmlNode {
         try {
             geo = wktReader.read(value);
         } catch (ParseException e) {
-            LOGGER.warn("Failed to parse geometry information.", e);
+            LOGGER.debug("Failed to parse geometry information.", e);
         }
         return geo;
     }

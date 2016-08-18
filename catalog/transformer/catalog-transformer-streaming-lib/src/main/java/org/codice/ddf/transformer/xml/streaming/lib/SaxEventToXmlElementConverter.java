@@ -208,7 +208,7 @@ public class SaxEventToXmlElementConverter {
             return outputStream.toString(String.valueOf(StandardCharsets.UTF_8));
 
         } catch (XMLStreamException | UnsupportedEncodingException e) {
-            LOGGER.warn("Could not convert XML Stream writer to String");
+            LOGGER.debug("Could not convert XML Stream writer to String");
             return "";
         }
     }
@@ -225,7 +225,7 @@ public class SaxEventToXmlElementConverter {
         try {
             out = xmlOutputFactory.createXMLStreamWriter(outputStream);
         } catch (XMLStreamException e) {
-            LOGGER.warn("Could not reset XMLStreamWriter");
+            LOGGER.debug("Could not reset XMLStreamWriter");
         }
         return this;
     }

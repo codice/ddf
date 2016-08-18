@@ -91,9 +91,9 @@ public class ResourceImpl extends BinaryContentImpl implements Resource {
         try {
             mimeType = mimeTypeString == null ? null : new MimeType(mimeTypeString);
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Could not assign the MimeType to the Resource named '" + name
-                    + "' because the following " + "MimeType could not be parsed properly: "
-                    + mimeTypeString);
+            LOGGER.debug(
+                    "Could not assign the MimeType to the Resource named '{}' because the following MimeType could not be parsed properly: {}",
+                    name, mimeTypeString);
         }
         return mimeType;
     }

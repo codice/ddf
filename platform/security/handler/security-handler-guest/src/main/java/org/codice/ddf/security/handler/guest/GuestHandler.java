@@ -111,7 +111,7 @@ public class GuestHandler implements AuthenticationHandler {
                 return handlerResult.getToken();
             }
         } catch (ServletException e) {
-            LOGGER.warn("Encountered an exception while checking for PKI auth info.", e);
+            LOGGER.info("Encountered an exception while checking for PKI auth info.", e);
         }
 
         //if everything fails, the user is guest, log in as such

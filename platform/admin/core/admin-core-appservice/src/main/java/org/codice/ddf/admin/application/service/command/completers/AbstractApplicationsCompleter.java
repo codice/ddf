@@ -52,7 +52,8 @@ public abstract class AbstractApplicationsCompleter implements Completer {
                 addAppNames(currentApp, delegate);
             }
         } else {
-            LOGGER.info("No application service - cannot complete");
+            LOGGER.info(
+                    "No application service - cannot complete. Check application service bundles.");
         }
         return delegate.complete(session, commandLine, candidates);
     }

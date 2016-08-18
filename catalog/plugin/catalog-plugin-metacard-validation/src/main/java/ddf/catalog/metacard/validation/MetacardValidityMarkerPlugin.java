@@ -161,7 +161,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 counter.merge(Validation.VALIDATION_WARNINGS, 1, Integer::sum);
             }
         } else {
-            LOGGER.warn(
+            LOGGER.debug(
                     "Metacard validator {} did not have any warnings or errors but it threw a validation exception."
                             + " There is likely something wrong with your implementation. This will result in the metacard not"
                             + " being properly marked as invalid.",
@@ -196,7 +196,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 .collect(Collectors.toList());
 
         if (validatorsNoDescribable.size() > 0) {
-            LOGGER.warn("Metacard validators SHOULD implement Describable. Validators in error: {}",
+            LOGGER.debug("Metacard validators SHOULD implement Describable. Validators in error: {}",
                     validatorsNoDescribable);
         }
     }

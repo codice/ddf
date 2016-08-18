@@ -341,7 +341,7 @@ public class FeatureTypeSchemaCache {
             // Ignore this. We should never get this exception since we are
             // doing an enterprise
             // request.
-            LOGGER.error("Found Source unavailable: {}", e);
+            LOGGER.debug("Found Source unavailable: {}", e);
         }
         if (response != null) {
             Set<SourceDescriptor> sourceDescriptors = response.getSourceInfo();

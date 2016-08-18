@@ -82,7 +82,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 LOGGER.debug("Removing {} routes", routeCollection.size());
                 camelContext.removeRouteDefinitions(routeCollection);
             } catch (Exception e) {
-                LOGGER.warn(e.getMessage());
+                LOGGER.info("Unable to remove Camel routes from Content Directory Monitor", e);
             }
         } else {
             LOGGER.debug("No routes to remove before configuring a new route");
@@ -210,7 +210,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 dumpCamelContext("after configureCamelRoute()");
             }
         } catch (Exception e) {
-            LOGGER.error(
+            LOGGER.warn(
                     "Unable to configure Camel route - this Content Directory Monitor will be unusable",
                     e);
         }
@@ -246,7 +246,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("Unable to start Camel route with route ID = {}", routeId, e);
+            LOGGER.info("Unable to start Camel route with route ID = {}", routeId, e);
         }
     }
 
@@ -267,7 +267,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                     camelContext.removeRouteDefinition(routeDef);
                 }
             } catch (Exception e) {
-                LOGGER.warn("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
+                LOGGER.info("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
             }
         }
 

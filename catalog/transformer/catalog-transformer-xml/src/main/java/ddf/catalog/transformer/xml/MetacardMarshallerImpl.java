@@ -212,7 +212,7 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
             return value.toString()
                     .replaceAll("[<][?]xml.*[?][>]", "");
         default:
-            LOGGER.warn("Unsupported attribute: {}", format);
+            LOGGER.debug("Unsupported attribute: {}", format);
             return value.toString();
         }
     }

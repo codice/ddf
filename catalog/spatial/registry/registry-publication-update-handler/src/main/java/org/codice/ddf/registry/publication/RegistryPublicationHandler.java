@@ -59,7 +59,7 @@ public class RegistryPublicationHandler implements EventHandler {
             if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
                 if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-                    LOGGER.error("Thread pool didn't terminate");
+                    LOGGER.debug("Thread pool didn't terminate");
                 }
             }
         } catch (InterruptedException e) {
@@ -98,7 +98,7 @@ public class RegistryPublicationHandler implements EventHandler {
                     return null;
                 });
             } catch (PrivilegedActionException e) {
-                LOGGER.warn("Unable to send update for {}", mcard.getTitle());
+                LOGGER.debug("Unable to send update for {}", mcard.getTitle());
             }
         }
 

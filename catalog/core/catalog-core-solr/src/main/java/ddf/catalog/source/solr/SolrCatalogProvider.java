@@ -156,7 +156,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
              * if we get any type of exception, whether declared by Solr or not, we do not want to
              * fail, we just want to return false
              */
-            LOGGER.warn("Solr ping request/response failed.", e);
+            LOGGER.info("Solr ping request/response failed.", e);
         }
 
         return false;
@@ -235,6 +235,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         try {
             client.add(output, isForcedAutoCommit());
         } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
+            LOGGER.debug("Solr could not ingest metacard(s).", e);
             throw new IngestException("Solr could not ingest metacard(s).");
         }
         return new CreateResponseImpl(request, request.getProperties(), output);
@@ -285,14 +286,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         try {
             idResults = solr.query(query, METHOD.POST);
         } catch (SolrServerException | IOException e) {
-            LOGGER.warn("Solr exception during query", e);
+            LOGGER.info("Solr exception during query", e);
         }
 
         // CHECK if we got any results back
         if (idResults != null && idResults.getResults() != null && idResults.getResults()
                 .size() != 0) {
 
-            LOGGER.info("Found {} current metacard(s).",
+            LOGGER.debug("Found {} current metacard(s).",
                     idResults.getResults()
                             .size());
 
@@ -304,7 +305,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             }
 
         } else {
-            LOGGER.info("No results found for given attribute values.");
+            LOGGER.debug("No results found for given attribute values.");
 
             // return an empty list
             return new UpdateResponseImpl(updateRequest, null, new ArrayList<Update>());
@@ -519,7 +520,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     }
 
     public void shutdown() {
-        LOGGER.info("Closing down Solr client.");
+        LOGGER.debug("Closing down Solr client.");
         try {
             solr.close();
         } catch (IOException e) {

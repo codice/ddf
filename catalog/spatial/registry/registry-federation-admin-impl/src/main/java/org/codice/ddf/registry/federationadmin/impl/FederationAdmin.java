@@ -227,7 +227,7 @@ public class FederationAdmin implements FederationAdminMBean {
 
         if (CollectionUtils.isEmpty(existingMetacards)) {
             String message = "Error updating local registry entry. Registry metacard not found.";
-            LOGGER.error("{} Registry ID: {}", message, registryPackage.getId());
+            LOGGER.debug("{} Registry ID: {}", message, registryPackage.getId());
             throw new FederationAdminException(message);
         }
 
@@ -259,7 +259,7 @@ public class FederationAdmin implements FederationAdminMBean {
                 .collect(Collectors.toList()));
         if (ids.size() != metacardIds.size()) {
             String message = "Error deleting local registry entries. ";
-            LOGGER.error("{} Registry Ids provided: {}. Registry metacard ids found: {}",
+            LOGGER.debug("{} Registry Ids provided: {}. Registry metacard ids found: {}",
                     message,
                     ids,
                     metacardIds);
@@ -310,20 +310,20 @@ public class FederationAdmin implements FederationAdminMBean {
                             try {
                                 return source.isAvailable();
                             } catch (Exception e) {
-                                LOGGER.warn("Couldn't get availability on registry {}: {}",
+                                LOGGER.info("Couldn't get availability on registry {}:",
                                         servicePID,
                                         e);
                             }
                         }
                     } catch (IOException e) {
-                        LOGGER.warn("Couldn't find configuration for source '{}'", source.getId());
+                        LOGGER.info("Couldn't find configuration for source '{}'", source.getId());
                     }
                 } else {
-                    LOGGER.warn("Source '{}' not a configured service", source.getId());
+                    LOGGER.info("Source '{}' not a configured service", source.getId());
                 }
             }
         } catch (InvalidSyntaxException e) {
-            LOGGER.error("Could not get service reference list");
+            LOGGER.info("Could not get service reference list");
         }
 
         return false;
@@ -370,7 +370,7 @@ public class FederationAdmin implements FederationAdminMBean {
                     metatype.put(MAP_ENTRY_CONFIGURATIONS, configurations);
                 }
             } catch (InvalidSyntaxException | IOException e) {
-                LOGGER.warn("Error getting registry info: {}", e.getMessage());
+                LOGGER.info("Error getting registry info:", e);
             }
         }
 
@@ -395,7 +395,7 @@ public class FederationAdmin implements FederationAdminMBean {
                     metacardByRegistryIdMap);
 
         } catch (FederationAdminException e) {
-            LOGGER.warn("Couldn't get remote registry metacards '{}'", e);
+            LOGGER.info("Couldn't get remote registry metacards ", e);
         }
 
         if (customSlots != null) {
@@ -444,7 +444,7 @@ public class FederationAdmin implements FederationAdminMBean {
                             registryPackage));
         } catch (IOException | CatalogTransformerException | ParserException e) {
             String message = "Error creating metacard from registry package.";
-            LOGGER.error("{} Registry id: {}", message, registryPackage.getId());
+            LOGGER.debug("{} Registry id: {}", message, registryPackage.getId());
             throw new FederationAdminException(message, e);
         }
 
@@ -559,7 +559,7 @@ public class FederationAdmin implements FederationAdminMBean {
         try {
             objectName = new ObjectName(FederationAdminMBean.OBJECT_NAME);
         } catch (MalformedObjectNameException e) {
-            LOGGER.warn("Exception while creating object name: " + FederationAdminMBean.OBJECT_NAME,
+            LOGGER.info("Exception while creating object name: " + FederationAdminMBean.OBJECT_NAME,
                     e);
         }
 
@@ -573,7 +573,7 @@ public class FederationAdmin implements FederationAdminMBean {
                         objectName);
             }
         } catch (Exception e) {
-            LOGGER.error("Could not register mbean.", e);
+            LOGGER.info("Could not register mbean.", e);
         }
     }
 
@@ -583,7 +583,7 @@ public class FederationAdmin implements FederationAdminMBean {
                 mbeanServer.unregisterMBean(objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("Exception un registering mbean: ", e);
+            LOGGER.info("Exception un registering mbean: ", e);
             throw new RuntimeException(e);
         }
     }
@@ -602,7 +602,7 @@ public class FederationAdmin implements FederationAdminMBean {
                 customSlots = (Map<String, Object>) gson.fromJson(registryFieldsJsonString,
                         customSlots.getClass());
             } catch (IOException e) {
-                LOGGER.error(
+                LOGGER.debug(
                         "Error reading {}. This will result in no custom fields being shown for registry node editing",
                         path.toString(),
                         e);

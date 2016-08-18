@@ -345,10 +345,8 @@ class GeotoolsBuilder {
                 geometry = parser.parse(wkt);
             }
 
-        } catch (ParseException e) {
-            LOGGER.warn("Unable to compute geometry for WKT = " + wkt, e);
-        } catch (java.text.ParseException e) {
-            LOGGER.warn("Unable to compute geometry for WKT = " + wkt, e);
+        } catch (ParseException | java.text.ParseException e) {
+            LOGGER.debug("Unable to compute geometry for WKT = {}", wkt, e);
         }
 
         return geometry;

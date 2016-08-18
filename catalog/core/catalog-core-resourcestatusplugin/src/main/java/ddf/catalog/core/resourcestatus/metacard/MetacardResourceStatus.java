@@ -108,9 +108,8 @@ public class MetacardResourceStatus implements PostQueryPlugin {
                     .toLowerCase();
             return sourceIdLowerCase.equals(getLocalSiteName());
         } else {
-            LOGGER.warn(
-                    "Unable to determine if the source id in metacard {} matches the local site name because the " +
-                    " metacard did not contain a source id attribute.",
+            LOGGER.debug(
+                    "Unable to determine if the source id in metacard {} matches the local site name because the metacard did not contain a source id attribute.",
                     metacard.getId());
             return false;
         }

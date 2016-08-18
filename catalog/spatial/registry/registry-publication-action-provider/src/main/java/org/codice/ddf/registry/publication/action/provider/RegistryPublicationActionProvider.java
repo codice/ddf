@@ -131,7 +131,7 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
             url = uri.toURL();
 
         } catch (MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-            LOGGER.error("Malformed URL exception", e);
+            LOGGER.debug("Malformed URL exception", e);
             return null;
         }
         String id = String.format("%s.%s.%s", getId(), operation, httpOp);
@@ -156,7 +156,7 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
                         .orElse(null);
 
             } catch (IOException | InvalidSyntaxException e) {
-                LOGGER.warn("Couldn't get configuration for {}", ((Source) subject).getId(), e);
+                LOGGER.info("Couldn't get configuration for {}", ((Source) subject).getId(), e);
             }
         } else if (subject instanceof Configuration) {
             return (String) ((Configuration) subject).getProperties()

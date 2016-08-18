@@ -162,7 +162,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                     .newSchema(schemaURL)
                     .newValidator();
         } catch (SAXException e) {
-            LOGGER.warn("Exception creating validator. ", e);
+            LOGGER.debug("Exception creating validator. ", e);
         }
 
         // If the xml is invalid, then we want to fail completely

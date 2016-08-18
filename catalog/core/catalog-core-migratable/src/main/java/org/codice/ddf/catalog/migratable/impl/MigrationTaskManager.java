@@ -165,7 +165,7 @@ class MigrationTaskManager implements AutoCloseable {
         try {
             isGracefulTermination = taskExecutor.awaitTermination(1L, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
-            LOGGER.warn("Executor was interrupted during shutdown: " + e.getMessage(), e);
+            LOGGER.info("Executor was interrupted during shutdown: ", e);
         } finally {
             if (!isGracefulTermination) {
                 taskExecutor.shutdownNow();
@@ -192,7 +192,7 @@ class MigrationTaskManager implements AutoCloseable {
 
             @Override
             public void onFailure(@Nonnull Throwable throwable) {
-                LOGGER.error("File writing thread threw an exception: ", throwable);
+                LOGGER.info("File writing thread threw an exception: ", throwable);
                 taskExecutor.shutdownNow();
                 failureFlag = true;
             }

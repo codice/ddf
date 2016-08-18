@@ -108,7 +108,7 @@ public class ConfigurationFileProxy {
                         }
                     }
                 } catch (IOException e) {
-                    LOGGER.warn("IO exception copying out file", e);
+                    LOGGER.debug("IO exception copying out file", e);
                 }
             }
         }
@@ -131,7 +131,7 @@ public class ConfigurationFileProxy {
                                 + "/conf"), name).toURI()
                         .toURL();
             } catch (MalformedURLException e) {
-                LOGGER.warn("Malformed URL exception getting SOLR configuration file", e);
+                LOGGER.info("Malformed URL exception getting SOLR configuration file", e);
             }
         }
 

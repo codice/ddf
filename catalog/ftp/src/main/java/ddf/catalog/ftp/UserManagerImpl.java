@@ -116,7 +116,7 @@ public class UserManagerImpl implements UserManager {
                     return user;
                 }
             } catch (SecurityServiceException e) {
-                LOGGER.error("Failure to retrieve subject.", e);
+                LOGGER.info("Failure to retrieve subject.", e);
                 throw new AuthenticationFailedException("Failure to retrieve subject.");
             }
         }
@@ -208,7 +208,7 @@ public class UserManagerImpl implements UserManager {
     private void notNull(Object object, String name) {
         if (object == null) {
             String msg = name + " cannot be null";
-            LOGGER.error(msg);
+            LOGGER.debug(msg);
             throw new IllegalArgumentException(msg);
         }
     }

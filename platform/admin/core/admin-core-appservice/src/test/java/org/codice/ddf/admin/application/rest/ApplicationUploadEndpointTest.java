@@ -301,7 +301,7 @@ public class ApplicationUploadEndpointTest {
             @Override
             public boolean matches(final Object argument) {
                 return ((LoggingEvent) argument).getFormattedMessage()
-                        .contains(IOEX_STRING);
+                        .contains("ddf.home");
             }
         }));
     }

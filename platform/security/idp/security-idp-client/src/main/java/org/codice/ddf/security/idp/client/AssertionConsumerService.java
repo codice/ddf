@@ -132,7 +132,7 @@ public class AssertionConsumerService {
                         relayState);
             } catch (IOException e) {
                 String msg = "Unable to decode and inflate AuthN response.";
-                LOGGER.warn(msg, e);
+                LOGGER.info(msg, e);
                 return Response.serverError()
                         .entity(msg)
                         .build();
@@ -167,7 +167,7 @@ public class AssertionConsumerService {
                 }
             }
         } else {
-            LOGGER.warn(
+            LOGGER.info(
                     "Received unsigned AuthN response.  Could not verify IDP identity or response integrity.");
             signaturePasses = true;
         }
@@ -208,7 +208,7 @@ public class AssertionConsumerService {
         try {
             relayUri = new URI(redirectLocation);
         } catch (URISyntaxException e) {
-            LOGGER.warn("Unable to parse relay state.", e);
+            LOGGER.info("Unable to parse relay state.", e);
             return Response.serverError()
                     .entity("Unable to redirect back to original location.")
                     .build();
@@ -224,7 +224,7 @@ public class AssertionConsumerService {
             AuthnResponseValidator validator = new AuthnResponseValidator(simpleSign);
             validator.validate(samlResponse);
         } catch (ValidationException e) {
-            LOGGER.warn("Invalid AuthN response received from " + samlResponse.getIssuer(), e);
+            LOGGER.info("Invalid AuthN response received from {}", samlResponse.getIssuer(), e);
             return false;
         }
 
@@ -252,7 +252,7 @@ public class AssertionConsumerService {
         try {
             encodedAssertion = RestSecurity.deflateAndBase64Encode(assertionValue);
         } catch (IOException e) {
-            LOGGER.warn("Unable to deflate and encode assertion.", e);
+            LOGGER.info("Unable to deflate and encode assertion.", e);
             return false;
         }
 

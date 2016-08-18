@@ -42,7 +42,7 @@ public class ThumbnailSupplier
                 final BufferedImage image = ImageIO.read(inputStream);
                 return Optional.ofNullable(image);
             } catch (IOException e) {
-                LOGGER.error("Could not read thumbnail bytes.", e);
+                LOGGER.debug("Could not read thumbnail bytes.", e);
             }
         }
 

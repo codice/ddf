@@ -145,7 +145,7 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
         if (cachedFile.exists()) {
             boolean success = cachedFile.delete();
             if (!success) {
-                logger.error("Could not delete file {}", cachedFile.getAbsolutePath());
+                logger.info("Could not delete file {}", cachedFile.getAbsolutePath());
             }
         }
         cacheDirSize.addAndGet(-rr.getSize());

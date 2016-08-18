@@ -76,7 +76,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             monitor.start();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 
@@ -84,7 +84,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             SecurityLogger.audit("Directory {} changed.", changedDir.getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
 
         reloadPolicies();
@@ -94,7 +94,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             SecurityLogger.audit("Directory {} was created.", createdDir.getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 
@@ -102,7 +102,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             SecurityLogger.audit("Directory {} was deleted.", deletedDir.getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 
@@ -113,7 +113,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
                     new String(Files.readAllBytes(Paths.get(changedFile.getCanonicalPath())),
                             StandardCharsets.UTF_8));
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
 
         reloadPolicies();
@@ -126,7 +126,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
                     new String(Files.readAllBytes(Paths.get(createdFile.getCanonicalPath())),
                             StandardCharsets.UTF_8));
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
 
         reloadPolicies();
@@ -136,7 +136,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             SecurityLogger.audit("File {} was deleted.", deleteFile.getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
 
         reloadPolicies();
@@ -154,7 +154,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
                 LOGGER.warn("No XACML Policies found in: {}", directoryPath);
             }
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 
@@ -163,7 +163,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
             LOGGER.trace("Done checking directory " + observer.getDirectory()
                     .getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 

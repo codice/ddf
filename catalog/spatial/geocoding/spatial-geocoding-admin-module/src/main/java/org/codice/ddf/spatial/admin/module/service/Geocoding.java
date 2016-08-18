@@ -53,22 +53,22 @@ public class Geocoding implements GeocodingMBean {
             objectName = new ObjectName(Geocoding.class.getName() + ":service=geocoding");
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
-            LOGGER.error("Unable to create Geocoding Configuration MBean.", e);
+            LOGGER.info("Unable to create Geocoding Configuration MBean.", e);
         }
         if (mBeanServer != null) {
             try {
                 try {
                     mBeanServer.registerMBean(this, objectName);
-                    LOGGER.info("Registered Geocoding Configuration MBean under object name: {}",
+                    LOGGER.debug("Registered Geocoding Configuration MBean under object name: {}",
                             objectName.toString());
                 } catch (InstanceAlreadyExistsException e) {
                     // Try to remove and re-register
                     mBeanServer.unregisterMBean(objectName);
                     mBeanServer.registerMBean(this, objectName);
-                    LOGGER.info("Re-registered Geocoding Configuration MBean");
+                    LOGGER.debug("Re-registered Geocoding Configuration MBean");
                 }
             } catch (Exception e) {
-                LOGGER.error("Could not register MBean [{}].", objectName.toString(), e);
+                LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
             }
         }
     }
@@ -117,13 +117,13 @@ public class Geocoding implements GeocodingMBean {
             LOGGER.debug("Done Updating GeoNames Index with : {}", resource);
             return true;
         } catch (GeoEntryExtractionException e) {
-            LOGGER.error("Error extracting GeoNames data from resource {}", resource, e);
+            LOGGER.debug("Error extracting GeoNames data from resource {}", resource, e);
             return false;
         } catch (GeoEntryIndexingException e) {
-            LOGGER.error("Error indexing GeoNames data", e);
+            LOGGER.debug("Error indexing GeoNames data", e);
             return false;
         } catch (GeoNamesRemoteDownloadException e) {
-            LOGGER.error("Error downloading resource from remote source {}", resource, e);
+            LOGGER.debug("Error downloading resource from remote source {}", resource, e);
             return false;
         }
     }

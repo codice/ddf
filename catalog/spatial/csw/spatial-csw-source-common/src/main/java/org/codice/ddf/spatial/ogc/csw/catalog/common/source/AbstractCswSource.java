@@ -342,7 +342,7 @@ public abstract class AbstractCswSource extends MaskableImpl
             jaxbContext = JAXBContext.newInstance(contextPath,
                     AbstractCswSource.class.getClassLoader());
         } catch (JAXBException e) {
-            LOGGER.error("Failed to initialize JAXBContext", e);
+            LOGGER.info("Failed to initialize JAXBContext", e);
         }
 
         return jaxbContext;
@@ -607,7 +607,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     public void refresh(Map<String, Object> configuration) {
         LOGGER.debug("{}: Entering refresh()", cswSourceConfiguration.getId());
         if (configuration == null || configuration.isEmpty()) {
-            LOGGER.error("Received null or empty configuration during refresh for {}: {}",
+            LOGGER.info("Received null or empty configuration during refresh for {}: {}",
                     this.getClass()
                             .getSimpleName(),
                     cswSourceConfiguration.getId());
@@ -808,7 +808,7 @@ public abstract class AbstractCswSource extends MaskableImpl
             results = createResults(cswRecordCollection);
             totalHits = cswRecordCollection.getNumberOfRecordsMatched();
         } catch (CswException cswe) {
-            LOGGER.error(CSW_SERVER_ERROR, cswe);
+            LOGGER.info(CSW_SERVER_ERROR, cswe);
             throw new UnsupportedQueryException(CSW_SERVER_ERROR, cswe);
         } catch (WebApplicationException wae) {
             String msg = handleWebApplicationException(wae);
@@ -970,7 +970,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
         try {
             if (requestedBytesToSkip > responseBytesSkipped) {
-                LOGGER.warn("Server returned incorrect byte range, skipping first [{}] bytes",
+                LOGGER.debug("Server returned incorrect byte range, skipping first [{}] bytes",
                         misalignment);
                 if (in.skip(misalignment) != misalignment) {
                     throw new IOException(String.format(
@@ -1122,7 +1122,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                 }
             }
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Unable to parse query type QName of {}.  Defaulting to CSW Record",
+            LOGGER.debug("Unable to parse query type QName of {}.  Defaulting to CSW Record",
                     cswSourceConfiguration.getQueryTypeName());
         }
         if (queryTypeQName == null) {
@@ -1131,7 +1131,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                     CswConstants.CSW_NAMESPACE_PREFIX);
         }
 
-        queryType.setTypeNames(Arrays.asList(new QName[] {queryTypeQName}));
+        queryType.setTypeNames(Arrays.asList(queryTypeQName));
         if (null != elementSetType) {
             queryType.setElementSetName(createElementSetName(elementSetType));
         } else if (!CollectionUtils.isEmpty(elementNames)) {
@@ -1209,11 +1209,11 @@ public abstract class AbstractCswSource extends MaskableImpl
     private FilterType createFilter(Query query) throws UnsupportedQueryException {
         OperationsMetadata operationsMetadata = capabilities.getOperationsMetadata();
         if (null == operationsMetadata) {
-            LOGGER.error("{}: CSW Source contains no operations", cswSourceConfiguration.getId());
+            LOGGER.debug("{}: CSW Source contains no operations", cswSourceConfiguration.getId());
             return new FilterType();
         }
         if (null == capabilities.getFilterCapabilities()) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "{}: CSW Source did not provide Filter Capabilities, unable to preform query.",
                     cswSourceConfiguration.getId());
             throw new UnsupportedQueryException(cswSourceConfiguration.getId()
@@ -1284,7 +1284,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         try {
             return transformer.transform(metacard);
         } catch (CatalogTransformerException e) {
-            LOGGER.warn("{} :Metadata Transformation Failed for metacard: {}",
+            LOGGER.debug("{} :Metadata Transformation Failed for metacard: {}",
                     cswSourceConfiguration.getId(),
                     metacard.getId(),
                     e);
@@ -1300,13 +1300,13 @@ public abstract class AbstractCswSource extends MaskableImpl
             refs = context.getServiceReferences(MetadataTransformer.class.getName(),
                     "(" + Constants.SERVICE_ID + "=" + transformerId + ")");
         } catch (InvalidSyntaxException e) {
-            LOGGER.warn(cswSourceConfiguration.getId() + ": Invalid transformer ID.", e);
+            LOGGER.debug("{}: Invalid transformer ID.", cswSourceConfiguration.getId(), e);
             return null;
         }
 
         if (refs == null || refs.length == 0) {
-            LOGGER.info("{}: Metadata Transformer " + transformerId + " not found.",
-                    cswSourceConfiguration.getId());
+            LOGGER.debug("{}: Metadata Transformer {} not found.",
+                    cswSourceConfiguration.getId(), transformerId);
             return null;
         } else {
             return (MetadataTransformer) context.getService(refs[0]);
@@ -1324,7 +1324,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                     CswConstants.GET_RECORDS), GetRecordsType.class, getRecordsType);
             marshaller.marshal(jaxbElement, writer);
         } catch (JAXBException e) {
-            LOGGER.error("{}: Unable to marshall {} to XML.",
+            LOGGER.debug("{}: Unable to marshall {} to XML.",
                     cswSourceConfiguration.getId(),
                     GetRecordsType.class,
                     e);
@@ -1343,14 +1343,13 @@ public abstract class AbstractCswSource extends MaskableImpl
                     CswConstants.VERSION_2_0_2 + "," + CswConstants.VERSION_2_0_1);
             caps = csw.getCapabilities(request);
         } catch (CswException cswe) {
-            LOGGER.warn(CSW_SERVER_ERROR
-                            + " Received HTTP code '{}' from server for source with id='{}'",
+            LOGGER.info(CSW_SERVER_ERROR
+                            + " Received HTTP code '{}' from server for source with id='{}'. Set Logging to DEBUG for details.",
                     cswe.getHttpStatus(),
                     cswSourceConfiguration.getId());
             LOGGER.debug(CSW_SERVER_ERROR, cswe);
         } catch (WebApplicationException wae) {
-            LOGGER.error(wae.getMessage(), wae);
-            handleWebApplicationException(wae);
+            LOGGER.debug(handleWebApplicationException(wae), wae);
         } catch (Exception ce) {
             handleClientException(ce);
         }
@@ -1376,7 +1375,7 @@ public abstract class AbstractCswSource extends MaskableImpl
             loadContentTypes();
             LOGGER.debug("{}: {}", cswSourceConfiguration.getId(), capabilities.toString());
         } else {
-            LOGGER.error("{}: CSW Server did not return any capabilities.",
+            LOGGER.info("{}: CSW Server did not return any capabilities.",
                     cswSourceConfiguration.getId());
         }
     }
@@ -1388,7 +1387,7 @@ public abstract class AbstractCswSource extends MaskableImpl
             }
         }
 
-        LOGGER.error("{}: CSW Server did not contain getRecords operation",
+        LOGGER.info("{}: CSW Server did not contain getRecords operation",
                 cswSourceConfiguration.getId());
         return null;
 
@@ -1438,7 +1437,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     private void readGetRecordsOperation(CapabilitiesType capabilitiesType) {
         OperationsMetadata operationsMetadata = capabilitiesType.getOperationsMetadata();
         if (null == operationsMetadata) {
-            LOGGER.error("{}: CSW Source contains no operations", cswSourceConfiguration.getId());
+            LOGGER.info("{}: CSW Source contains no operations", cswSourceConfiguration.getId());
             return;
         }
 
@@ -1448,7 +1447,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         Operation getRecordsOp = getOperation(operationsMetadata, CswConstants.GET_RECORDS);
 
         if (null == getRecordsOp) {
-            LOGGER.error("{}: CSW Source contains no getRecords Operation",
+            LOGGER.info("{}: CSW Source contains no getRecords Operation",
                     cswSourceConfiguration.getId());
             return;
         }
@@ -1542,7 +1541,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                 try {
                     detailLevels.add(ElementSetType.fromValue(esn.toLowerCase()));
                 } catch (IllegalArgumentException iae) {
-                    LOGGER.warn("{}: \"{}\" is not a ElementSetType, Error: {}",
+                    LOGGER.debug("{}: \"{}\" is not a ElementSetType, Error: {}",
                             cswSourceConfiguration.getId(),
                             esn,
                             iae);
@@ -1562,7 +1561,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         try {
             query(queryReq);
         } catch (UnsupportedQueryException e) {
-            LOGGER.error("{}: Failed to read Content-Types from CSW Server, Error: {}", getId(), e);
+            LOGGER.info("{}: Failed to read Content-Types from CSW Server, Error: {}", getId(), e);
         }
     }
 
@@ -1599,10 +1598,8 @@ public abstract class AbstractCswSource extends MaskableImpl
                 return parameter;
             }
         }
-        if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn("{}: CSW Operation \"{}\" did not contain the \"{}\" parameter",
-                    new Object[] {cswSourceConfiguration.getId(), operation.getName(), name});
-        }
+        LOGGER.debug("{}: CSW Operation \"{}\" did not contain the \"{}\" parameter",
+                cswSourceConfiguration.getId(), operation.getName(), name);
         return null;
     }
 
@@ -1615,11 +1612,9 @@ public abstract class AbstractCswSource extends MaskableImpl
         // meaningful since it will not show the root cause of the exception
         // because the ExceptionReport was sent from CSW as an "OK" JAX-RS
         // status rather than an error status.
-        String msg = CSW_SERVER_ERROR + " " + cswSourceConfiguration.getId() + "\n"
-                + cswException.getMessage();
-        LOGGER.warn(msg, wae.getMessage());
 
-        return msg;
+        return CSW_SERVER_ERROR + " " + cswSourceConfiguration.getId() + "\n"
+                + cswException.getMessage();
     }
 
     protected String handleClientException(Exception ce) {
@@ -1643,7 +1638,7 @@ public abstract class AbstractCswSource extends MaskableImpl
             msg = CSW_SERVER_ERROR + " Source '" + sourceId + "'\n" + ce;
         }
 
-        LOGGER.warn(msg);
+        LOGGER.info(msg);
         LOGGER.debug(msg, ce);
         return msg;
     }
@@ -1651,9 +1646,9 @@ public abstract class AbstractCswSource extends MaskableImpl
     private void availabilityChanged(boolean isAvailable) {
 
         if (isAvailable) {
-            LOGGER.info("CSW source {} is available.", cswSourceConfiguration.getId());
+            LOGGER.debug("CSW source {} is available.", cswSourceConfiguration.getId());
         } else {
-            LOGGER.info("CSW source {} is unavailable.", cswSourceConfiguration.getId());
+            LOGGER.debug("CSW source {} is unavailable.", cswSourceConfiguration.getId());
         }
 
         for (SourceMonitor monitor : this.sourceMonitors) {
@@ -1801,7 +1796,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                 filterlessSubscriptionId = acknowledgementType.getRequestId();
             }
         } catch (CswException e) {
-            LOGGER.error("Failed to register a subscription for events from csw source with id of "
+            LOGGER.info("Failed to register a subscription for events from csw source with id of "
                     + this.getId());
         }
 
@@ -1838,8 +1833,9 @@ public abstract class AbstractCswSource extends MaskableImpl
                 cswSubscribe.deleteRecordsSubscription(filterlessSubscriptionId);
 
             } catch (CswException e) {
-                LOGGER.error("Failed to remove filterless subscription registered for id "
-                        + filterlessSubscriptionId + " for csw source with id of " + this.getId());
+                LOGGER.info(
+                        "Failed to remove filterless subscription registered for id {} for csw source with id of {}",
+                        filterlessSubscriptionId, this.getId());
             }
             filterlessSubscriptionId = null;
 

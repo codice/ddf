@@ -55,7 +55,7 @@ public class GuestValidator implements TokenValidator {
                         GuestPrincipal.parseAddressFromName(base.getPrincipal()
                                 .toString()));
             } catch (WSSecurityException e) {
-                LOGGER.warn("Unable to parse {} from encodedToken.",
+                LOGGER.info("Unable to parse {} from encodedToken.",
                         GuestAuthenticationToken.class.getSimpleName(),
                         e);
                 return null;

@@ -72,7 +72,7 @@ public class DescribableServiceMap<V extends Describable> implements Map<String,
                 serviceMap.put(service.getId(), service);
                 pidToNameMap.put((String) ref.getProperty(Constants.SERVICE_PID), service.getId());
             } catch (ClassCastException e) {
-                LOGGER.warn("Service {} could not be added to service map {} due to incorrect type",
+                LOGGER.debug("Service {} could not be added to service map {} due to incorrect type",
                         ref,
                         this,
                         e);

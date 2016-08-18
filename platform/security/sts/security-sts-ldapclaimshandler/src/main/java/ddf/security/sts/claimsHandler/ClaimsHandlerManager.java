@@ -145,7 +145,7 @@ public class ClaimsHandlerManager {
 
         } catch (Exception e) {
             LOGGER.warn(
-                    "Experienced error while configuring claims handlers. Handlers are NOT configured and claim retrieval will not work.",
+                    "Experienced error while configuring claims handlers. Handlers are NOT configured and claim retrieval will not work. Check LDAP configuration.",
                     e);
         }
         this.props = props;
@@ -187,7 +187,7 @@ public class ClaimsHandlerManager {
                 lo.setSSLContext(sslContext);
             }
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
-            LOGGER.error("Error encountered while configuring SSL. Secure connection will fail.",
+            LOGGER.error("Error encountered while configuring SSL. Secure connection to LDAP will fail.",
                     e);
         }
 

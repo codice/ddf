@@ -72,7 +72,7 @@ public class SolrHttpWrapper implements HttpWrapper {
             keyStore.load(storeStream, password.toCharArray());
         } catch (CertificateException | IOException
                 | NoSuchAlgorithmException | KeyStoreException e) {
-            LOGGER.error("Unable to load keystore at " + location, e);
+            LOGGER.warn("Unable to load keystore at {}", location, e);
         }
 
         return keyStore;
@@ -92,7 +92,7 @@ public class SolrHttpWrapper implements HttpWrapper {
         HttpResponse httpResponse;
         HttpGet get = new HttpGet(uri);
         try {
-            LOGGER.info("Executing uri: {}", uri.toString());
+            LOGGER.debug("Executing uri: {}", uri.toString());
             httpResponse = solrClient.execute(get);
             return new ResponseWrapper(httpResponse);
         } catch (IOException e) {
@@ -128,7 +128,7 @@ public class SolrHttpWrapper implements HttpWrapper {
                     .build();
         } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
                 KeyManagementException e) {
-            LOGGER.error("Unable to create secure HttpClient", e);
+            LOGGER.error("Unable to create secure HttpClient for Solr. The server should not be used in this state.", e);
             return null;
         }
 

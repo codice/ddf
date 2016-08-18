@@ -68,7 +68,7 @@ public class CswSubscriptionConfigFactory {
                 subscriptionService.addOrUpdateSubscription(request, false);
             }
         } catch (JAXBException | CswException e) {
-            LOGGER.error("Error restoring subscription: {} with delivery URL: {} XML: {}",
+            LOGGER.info("Error restoring subscription: {} with delivery URL: {} XML: {}",
                     new Object[] {subscriptionId, deliveryMethodUrl, filterXml},
                     e);
         }

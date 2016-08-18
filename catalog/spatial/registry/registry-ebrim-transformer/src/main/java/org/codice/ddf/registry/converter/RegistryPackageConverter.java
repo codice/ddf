@@ -128,7 +128,7 @@ public class RegistryPackageConverter {
         } else if (registryObject instanceof PersonType) {
             parseRegistryPerson((PersonType) registryObject, metacard);
         } else {
-            LOGGER.warn("Unexpected object found: {}", registryObject);
+            LOGGER.debug("Unexpected object found: {}", registryObject);
         }
 
         return metacard;

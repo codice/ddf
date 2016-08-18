@@ -116,7 +116,7 @@ public class XmlAttributeSecurityPolicyPlugin implements PolicyPlugin {
             }
         } catch (XMLStreamException e) {
             //if this happens and message redacting is enabled, the message will be excluded from results
-            LOGGER.warn("Unable to parse security from XML metadata.", e);
+            LOGGER.info("Unable to parse security from XML metadata.", e);
         } finally {
             if (xmlStreamReader != null) {
                 try {

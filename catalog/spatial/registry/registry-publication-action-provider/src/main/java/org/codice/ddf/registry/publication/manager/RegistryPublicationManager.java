@@ -84,7 +84,7 @@ public class RegistryPublicationManager implements EventHandler {
             for (Metacard metacard : metacards) {
                 String registryId = RegistryUtility.getRegistryId(metacard);
                 if (registryId == null) {
-                    LOGGER.warn("Warning metacard (id: {}} did not contain a registry id.",
+                    LOGGER.debug("Warning metacard (id: {}} did not contain a registry id.",
                             metacard.getId());
                     continue;
                 }
@@ -98,7 +98,7 @@ public class RegistryPublicationManager implements EventHandler {
                 }
             }
         } catch (PrivilegedActionException e) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "Error reading from local catalog. Catalog is probably not up yet. Will try again later");
             executorService.schedule(this::init, RETRY_INTERVAL, TimeUnit.SECONDS);
         }

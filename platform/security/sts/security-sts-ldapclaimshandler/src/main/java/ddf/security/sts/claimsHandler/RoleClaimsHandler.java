@@ -75,7 +75,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
         try {
             uri = new URI(roleClaimType);
         } catch (URISyntaxException e) {
-            LOGGER.warn("Unable to add role claim type. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
+            LOGGER.info("Unable to add role claim type. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
             LOGGER.debug("Unable to add role claim type.", e);
         }
         return uri;
@@ -192,7 +192,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
             String user = AttributeMapLoader.getUser(principal);
             if (user == null) {
-                LOGGER.warn(
+                LOGGER.info(
                         "Could not determine user name, possible authentication error. Returning no claims.");
                 return new ProcessedClaimCollection();
             }
@@ -239,14 +239,14 @@ public class RoleClaimsHandler implements ClaimsHandler {
                         }
                     }
                 } else {
-                    LOGGER.error("LDAP Connection failed.");
+                    LOGGER.info("LDAP Connection failed.");
                 }
             }
         } catch (LdapException e) {
-            LOGGER.warn("Cannot connect to server, therefore unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
+            LOGGER.info("Cannot connect to server, therefore unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
             LOGGER.debug("Cannot connect to server, therefore unable to set role claims.", e);
         } catch (SearchResultReferenceIOException e) {
-            LOGGER.warn("Unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
+            LOGGER.info("Unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
             LOGGER.debug("Unable to set role claims.", e);
         } finally {
             if (connection != null) {

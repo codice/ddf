@@ -185,7 +185,7 @@ public class SearchController {
                 LOGGER.info("Query timed out for source {}", sourceId, e);
                 failSource(request, session, search, sourceId, e);
             } catch (ExecutionException e) {
-                LOGGER.warn("Query failed for source {}", sourceId, e.getCause());
+                LOGGER.info("Query failed for source {}", sourceId, e.getCause());
                 failSource(request, session, search, sourceId, e);
             }
         }
@@ -197,7 +197,7 @@ public class SearchController {
         try {
             publishResults(request.getId(), search.transform(request.getId()), session);
         } catch (CatalogTransformerException e) {
-            LOGGER.error("Failed to transform failed search results.", e);
+            LOGGER.info("Failed to transform failed search results.", e);
         }
     }
 

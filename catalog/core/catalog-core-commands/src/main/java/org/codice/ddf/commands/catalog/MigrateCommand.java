@@ -181,7 +181,7 @@ public class MigrateCommand extends DuplicateCommands {
                 ingestCount.get(),
                 failedCount.get(),
                 (end - start) / MS_PER_SECOND);
-        LOGGER.info("Replication Complete: {}", completed);
+        LOGGER.debug("Replication Complete: {}", completed);
         console.println(completed);
 
         return null;

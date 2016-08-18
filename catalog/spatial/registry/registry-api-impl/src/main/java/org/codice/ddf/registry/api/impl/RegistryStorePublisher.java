@@ -82,7 +82,7 @@ public class RegistryStorePublisher implements EventHandler {
             if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
                 if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-                    LOGGER.error("Thread pool failed to terminate");
+                    LOGGER.debug("Thread pool failed to terminate");
                 }
             }
         } catch (InterruptedException e) {
@@ -95,7 +95,6 @@ public class RegistryStorePublisher implements EventHandler {
 
         if (reference == null || bundleContext == null
                 || bundleContext.getService(reference) == null) {
-            LOGGER.warn("Reference or BundleContext was null/unset.");
             return;
         }
 
@@ -139,7 +138,7 @@ public class RegistryStorePublisher implements EventHandler {
 
         if (registryStore.getRegistryId()
                 .isEmpty()) {
-            LOGGER.warn(String.format("RegistryStore missing id. Unable to complete %s request.",
+            LOGGER.info(String.format("RegistryStore missing id. Unable to complete %s request.",
                     publish));
             return;
         }
@@ -168,7 +167,7 @@ public class RegistryStorePublisher implements EventHandler {
                 }
 
             } catch (Exception e) {
-                LOGGER.error("Failed to {} registry configuration to {}",
+                LOGGER.debug("Failed to {} registry configuration to {}",
                         publish,
                         ((RegistryStoreImpl) registryStore).getRemoteName());
             }

@@ -135,7 +135,7 @@ public class RemoveCommand extends CatalogCommands {
             LOGGER.info(ids + " removed using catalog:remove command");
         } else {
             printErrorMessage(ids + " could not be deleted.");
-            LOGGER.error(ids + " could not be deleted using catalog:remove command");
+            LOGGER.info(ids + " could not be deleted using catalog:remove command");
         }
 
         return null;

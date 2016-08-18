@@ -41,7 +41,7 @@ public class ApplicationModule implements AdminModule {
         try {
             return new URI("js/modules/Application.module.js");
         } catch (URISyntaxException e) {
-            logger.warn("Must set the JS location to a valid URI.", e);
+            logger.debug("Must set the JS location to a valid URI.", e);
         }
         return null;
     }

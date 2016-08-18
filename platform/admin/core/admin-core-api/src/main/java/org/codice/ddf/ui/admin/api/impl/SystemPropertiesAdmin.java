@@ -118,7 +118,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     @Override
     public List<SystemPropertyDetails> readSystemProperties() {
-        LOGGER.info("get system properties");
+        LOGGER.debug("get system properties");
 
         ArrayList<SystemPropertyDetails> properties = new ArrayList<>();
         properties.add(getSystemPropertyDetails(SystemBaseUrl.PROTOCOL,
@@ -230,14 +230,14 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
                 json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
             }
         } catch (IOException e) {
-            LOGGER.error("Unable to read system user attribute file for hostname update.", e);
+            LOGGER.warn("Unable to read system user attribute file for hostname update.", e);
         }
 
         if (json != null) {
             try (OutputStream stream = Files.newOutputStream(Paths.get(userAttributesFile.toURI()))) {
                 MAPPER.writeValue(stream, json);
             } catch (IOException e) {
-                LOGGER.error("Unable to write system user attribute file for hostname update.", e);
+                LOGGER.warn("Unable to write system user attribute file for hostname update.", e);
             }
         }
 
@@ -294,7 +294,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
         try {
             objectName = new ObjectName(SystemPropertiesAdminMBean.OBJECT_NAME);
         } catch (MalformedObjectNameException e) {
-            LOGGER.warn("Exception while creating object name: "
+            LOGGER.debug("Exception while creating object name: "
                     + SystemPropertiesAdminMBean.OBJECT_NAME, e);
         }
 
@@ -308,7 +308,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
                         objectName);
             }
         } catch (Exception e) {
-            LOGGER.error("Could not register mbean.", e);
+            LOGGER.info("Could not register mbean.", e);
         }
     }
 
@@ -318,7 +318,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
                 mbeanServer.unregisterMBean(objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("Exception unregistering mbean: ", e);
+            LOGGER.debug("Exception unregistering mbean: ", e);
             throw new RuntimeException(e);
         }
     }

@@ -83,7 +83,6 @@ public class NotificationController extends AbstractEventController {
                 .isEmpty()) {
             String message = String.format("Event [%s] property is null or empty",
                     Notification.NOTIFICATION_KEY_APPLICATION);
-            LOGGER.warn(message);
             throw new IllegalArgumentException(message);
         }
 
@@ -93,14 +92,12 @@ public class NotificationController extends AbstractEventController {
                 .isEmpty()) {
             String message = String.format("Event [%s] property is null or empty",
                     Notification.NOTIFICATION_KEY_MESSAGE);
-            LOGGER.warn(message);
             throw new IllegalArgumentException(message);
         }
 
         if (null == event.getProperty(Notification.NOTIFICATION_KEY_TIMESTAMP)) {
             String message = String.format("Event [%s] property is null",
                     Notification.NOTIFICATION_KEY_TIMESTAMP);
-            LOGGER.warn(message);
             throw new IllegalArgumentException(message);
         }
 
@@ -110,7 +107,6 @@ public class NotificationController extends AbstractEventController {
                 .isEmpty()) {
             String message = String.format("Event [%s] property is null or empty",
                     Notification.NOTIFICATION_KEY_TITLE);
-            LOGGER.warn(message);
             throw new IllegalArgumentException(message);
         }
 
@@ -120,7 +116,6 @@ public class NotificationController extends AbstractEventController {
         if (StringUtils.isBlank(userId) && StringUtils.isBlank(sessionId)) {
             String message =
                     "No user information was provided in the event object. userId and sessionId properties were null";
-            LOGGER.error(message);
             throw new IllegalArgumentException(message);
         }
 

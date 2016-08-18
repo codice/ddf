@@ -40,7 +40,7 @@ public class BananaSolrProvisioner {
                             "banana")
                             .get();
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.warn("Failed to provision Banana Solr core", e);
+            LOGGER.debug("Failed to provision Banana Solr core", e);
         }
         return client;
     }
@@ -50,7 +50,7 @@ public class BananaSolrProvisioner {
             try {
                 client.close();
             } catch (IOException e) {
-                LOGGER.warn("Failed to close Banana Solr core", e);
+                LOGGER.debug("Failed to close Banana Solr core", e);
             }
         }
     }

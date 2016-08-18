@@ -66,7 +66,7 @@ public class PrintActiveSearchesCommand implements Action {
         try {
             printActiveSearchesToConsole();
         } catch (Exception e) {
-            LOGGER.warn("Exception encountered in doExecute of PrintActiveSearchesCommand.java.",
+            LOGGER.debug("Exception encountered in doExecute of PrintActiveSearchesCommand.java.",
                     e);
         }
         return null;
@@ -104,7 +104,7 @@ public class PrintActiveSearchesCommand implements Action {
     void printActiveSearchesToConsole() {
 
         if (queryMonitor == null) {
-            LOGGER.error(
+            LOGGER.debug(
                     "QueryMonitorImpl not yet instantiated. Cannot printActiveSearchesToConsole().");
             return;
         }
@@ -124,7 +124,7 @@ public class PrintActiveSearchesCommand implements Action {
                 .reset()
                 .toString());
         if (activeSearchMap == null) {
-            LOGGER.error(
+            LOGGER.debug(
                     "Retrieving ActiveSearch information from queryMonitor returned null. Cannot printActiveSearchesToConsole().");
             return;
         }

@@ -81,15 +81,15 @@ public class AuthSSLX509TrustManager implements X509TrustManager {
      */
     public void checkClientTrusted(X509Certificate[] certificates, String authType)
             throws CertificateException {
-        if (LOG.isInfoEnabled() && certificates != null) {
+        if (LOG.isDebugEnabled() && certificates != null) {
             for (int c = 0; c < certificates.length; c++) {
                 X509Certificate cert = certificates[c];
-                LOG.info(" Client certificate " + (c + 1) + ":");
-                LOG.info("  Subject DN: " + cert.getSubjectDN());
-                LOG.info("  Signature Algorithm: " + cert.getSigAlgName());
-                LOG.info("  Valid from: " + cert.getNotBefore());
-                LOG.info("  Valid until: " + cert.getNotAfter());
-                LOG.info("  Issuer: " + cert.getIssuerDN());
+                LOG.debug(" Client certificate " + (c + 1) + ":");
+                LOG.debug("  Subject DN: " + cert.getSubjectDN());
+                LOG.debug("  Signature Algorithm: " + cert.getSigAlgName());
+                LOG.debug("  Valid from: " + cert.getNotBefore());
+                LOG.debug("  Valid until: " + cert.getNotAfter());
+                LOG.debug("  Issuer: " + cert.getIssuerDN());
             }
         }
         defaultTrustManager.checkClientTrusted(certificates, authType);
@@ -100,15 +100,15 @@ public class AuthSSLX509TrustManager implements X509TrustManager {
      */
     public void checkServerTrusted(X509Certificate[] certificates, String authType)
             throws CertificateException {
-        if (LOG.isInfoEnabled() && certificates != null) {
+        if (LOG.isDebugEnabled() && certificates != null) {
             for (int c = 0; c < certificates.length; c++) {
                 X509Certificate cert = certificates[c];
-                LOG.info(" Server certificate " + (c + 1) + ":");
-                LOG.info("  Subject DN: " + cert.getSubjectDN());
-                LOG.info("  Signature Algorithm: " + cert.getSigAlgName());
-                LOG.info("  Valid from: " + cert.getNotBefore());
-                LOG.info("  Valid until: " + cert.getNotAfter());
-                LOG.info("  Issuer: " + cert.getIssuerDN());
+                LOG.debug(" Server certificate " + (c + 1) + ":");
+                LOG.debug("  Subject DN: " + cert.getSubjectDN());
+                LOG.debug("  Signature Algorithm: " + cert.getSigAlgName());
+                LOG.debug("  Valid from: " + cert.getNotBefore());
+                LOG.debug("  Valid until: " + cert.getNotAfter());
+                LOG.debug("  Issuer: " + cert.getIssuerDN());
             }
         }
         defaultTrustManager.checkServerTrusted(certificates, authType);

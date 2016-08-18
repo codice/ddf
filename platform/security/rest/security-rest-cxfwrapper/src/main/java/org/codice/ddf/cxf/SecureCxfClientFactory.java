@@ -300,12 +300,12 @@ public class SecureCxfClientFactory<T> {
         if (httpClientPolicy.isSetConnectionTimeout()) {
             LOGGER.debug("Connection timeout has been set.");
         } else {
-            LOGGER.error("Connection timeout has NOT been set.");
+            LOGGER.debug("Connection timeout has NOT been set.");
         }
         if (httpClientPolicy.isSetReceiveTimeout()) {
             LOGGER.debug("Receive timeout has been set.");
         } else {
-            LOGGER.error("Receive timeout has NOT been set.");
+            LOGGER.debug("Receive timeout has NOT been set.");
         }
 
         httpConduit.setClient(httpClientPolicy);

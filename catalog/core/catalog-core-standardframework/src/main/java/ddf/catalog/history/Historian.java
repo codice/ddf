@@ -315,7 +315,7 @@ public class Historian {
     public List<Exception> commit(String historianTransactionKey) {
         List<Callable<Boolean>> ops = staged.remove(historianTransactionKey);
         if (ops == null) {
-            LOGGER.warn("There was no operations staged for historian transaction key [{}]",
+            LOGGER.debug("There were no operations staged for historian transaction key [{}]",
                     historianTransactionKey);
             return null;
         }
@@ -389,7 +389,7 @@ public class Historian {
                                 .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
                                         ci.getSize()));
                     } catch (IOException e) {
-                        LOGGER.warn("Could not get size", e);
+                        LOGGER.debug("Could not get size", e);
                     }
 
                 });
@@ -420,7 +420,7 @@ public class Historian {
                                 .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
                                         ci.getSize()));
                     } catch (IOException e) {
-                        LOGGER.warn("Could not get size of content item", e);
+                        LOGGER.debug("Could not get size of content item", e);
                     }
                 });
     }
@@ -468,7 +468,7 @@ public class Historian {
         try {
             size = rootItem.getSize();
         } catch (IOException e) {
-            LOGGER.warn("Could not get size of item [{}].", rootItem.getId(), e);
+            LOGGER.debug("Could not get size of item [{}].", rootItem.getId(), e);
         }
         resultItems.add(new ContentItemImpl(rootVersion.getId(),
                 Files.asByteSource(tmpContentPaths.get(rootItem.getId())
@@ -484,7 +484,7 @@ public class Historian {
             try {
                 size = contentItem.getSize();
             } catch (IOException e) {
-                LOGGER.warn("Could not get size of item [{}].", rootItem.getId(), e);
+                LOGGER.debug("Could not get size of item [{}].", rootItem.getId(), e);
             }
             resultItems.add(new ContentItemImpl(rootVersion.getId(),
                     contentItem.getQualifier(),

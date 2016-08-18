@@ -89,7 +89,7 @@ public class SortedServiceReferenceListTest {
         for (ServiceReference s : refList) {
 
             Integer ranking = (Integer) s.getProperty(Constants.SERVICE_RANKING);
-            logger.info(
+            logger.debug(
                     "service is ranked [" + ranking + "], lowest current ranking [" + lowestRanking
                             + "]");
             assertThat(ranking, lessThanOrEqualTo(lowestRanking));

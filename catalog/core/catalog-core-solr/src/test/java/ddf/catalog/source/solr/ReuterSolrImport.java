@@ -97,12 +97,10 @@ public class ReuterSolrImport implements Runnable {
         try {
             localFile = new File(paramArrayOfString[0]);
             if ((!localFile.exists()) || (!localFile.isDirectory())) {
-                LOGGER.warn("Second argument needs to be an existing directory!");
-                LOGGER.warn(str);
+                LOGGER.info("Second argument needs to be an existing directory: {}", str);
             }
         } catch (Exception localException2) {
-            LOGGER.warn("Second argument needs to be an existing directory!");
-            LOGGER.warn(str);
+            LOGGER.info("Second argument needs to be an existing directory: {}", str);
         }
 
         if ((localFile != null) && (localFile.exists()) && (localFile.isDirectory())) {
@@ -110,20 +108,8 @@ public class ReuterSolrImport implements Runnable {
             File[] allFiles = null;
             try {
                 allFiles = readDirectory(localFile);
-            } catch (XPathExpressionException e) {
-                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
-            } catch (IOException e) {
-
-                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
-            } catch (ParserConfigurationException e) {
-
-                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
-            } catch (SAXException e) {
-
-                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
-            } catch (ParseException e) {
-
-                LOGGER.error(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
+            } catch (XPathExpressionException | IOException | ParserConfigurationException | SAXException | ParseException e) {
+                LOGGER.info(UNABLE_TO_READ_DIR_EXCEPTION_MSG, e);
             }
 
             // int threadCount = 1;
@@ -203,15 +189,14 @@ public class ReuterSolrImport implements Runnable {
                 return null;
             }
         } catch (Exception e) {
-            LOGGER.error("Unable to read file", e);
+            LOGGER.info("Unable to read file", e);
         }
         return null;
     }
 
     public void run() {
         List<Metacard> metacards = new ArrayList<Metacard>();
-        for (int i = 0; i < arrayOfFile.length; i++) {
-            File localFile = arrayOfFile[i];
+        for (File localFile : arrayOfFile) {
             Metacard mc = readFile(localFile);
             if (mc != null) {
                 metacards.add(mc);
@@ -223,20 +208,19 @@ public class ReuterSolrImport implements Runnable {
 
         } catch (IngestException e) {
 
-            LOGGER.error("Unexpected IngestException", e);
+            LOGGER.info("Unexpected IngestException", e);
         }
         try {
             solr.close();
         } catch (IOException e) {
-            LOGGER.error("Unable to close Solr client.", e);
+            LOGGER.info("Unable to close Solr client.", e);
         }
 
     }
 
     public void ingest() throws IOException {
         List<Metacard> metacards = new ArrayList<Metacard>();
-        for (int i = 0; i < arrayOfFile.length; i++) {
-            File localFile = arrayOfFile[i];
+        for (File localFile : arrayOfFile) {
             Metacard mc = readFile(localFile);
             if (mc != null) {
                 metacards.add(mc);
@@ -248,7 +232,7 @@ public class ReuterSolrImport implements Runnable {
 
         } catch (IngestException e) {
 
-            LOGGER.error("Unexpected IngestException", e);
+            LOGGER.info("Unexpected IngestException", e);
         }
         solr.close();
 

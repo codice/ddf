@@ -156,16 +156,15 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
      * @return boolean indicating validity.
      */
     private boolean isValid(Metacard metacard) {
-        boolean valid = true;
         if (metacard == null) {
-            LOGGER.warn("Metacard cannot be null");
+            LOGGER.debug("Metacard cannot be null");
             return false;
         }
         if (metacard.getId() == null) {
-            LOGGER.warn("Metacard id cannot be null");
+            LOGGER.debug("Metacard id cannot be null");
             return false;
         }
-        return valid;
+        return true;
     }
 
     private String retrieveResourceFailureMessage(final String id, final String sourceId,

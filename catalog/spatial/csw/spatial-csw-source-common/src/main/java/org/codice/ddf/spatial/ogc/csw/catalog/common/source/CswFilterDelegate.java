@@ -1373,7 +1373,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
                         SpatialOperatorNameType.class));
         logicalOps = true;
         if (null == filterCapabilities) {
-            LOGGER.error("CSW Service doesn't support any filters");
+            LOGGER.info("CSW Service doesn't support any filters");
             return;
         }
 

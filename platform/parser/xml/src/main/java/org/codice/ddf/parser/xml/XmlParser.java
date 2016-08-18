@@ -65,7 +65,7 @@ public class XmlParser implements Parser {
                     try {
                         jaxbContext = JAXBContext.newInstance(cacheKey.joinedPath, cacheKey.loader);
                     } catch (JAXBException e) {
-                        LOGGER.error("Unable to create JAXB context using context path: {}",
+                        LOGGER.info("Unable to create JAXB context using context path: {}",
                                 cacheKey.joinedPath,
                                 e);
                         throw e;
@@ -173,10 +173,10 @@ public class XmlParser implements Parser {
 
             marshallerConsumer.accept(marshaller);
         } catch (RuntimeException e) {
-            LOGGER.error("Error marshalling ", e);
+            LOGGER.debug("Error marshalling ", e);
             throw new ParserException("Error marshalling ", e);
         } catch (JAXBException e) {
-            LOGGER.error("Error marshalling ", e);
+            LOGGER.debug("Error marshalling ", e);
             throw new ParserException("Error marshalling", e);
         } finally {
             Thread.currentThread()
@@ -208,11 +208,8 @@ public class XmlParser implements Parser {
             }
 
             return func.apply(unmarshaller);
-        } catch (RuntimeException e) {
-            LOGGER.error("Error unmarshalling ", e);
-            throw new ParserException("Error unmarshalling", e);
-        } catch (JAXBException e) {
-            LOGGER.error("Error unmarshalling ", e);
+        } catch (RuntimeException | JAXBException e) {
+            LOGGER.debug("Error unmarshalling ", e);
             throw new ParserException("Error unmarshalling", e);
         } finally {
             Thread.currentThread()
@@ -229,7 +226,7 @@ public class XmlParser implements Parser {
         try {
             jaxbContext = jaxbContextCache.get(new CacheKey(joinedPath, loader));
         } catch (ExecutionException e) {
-            LOGGER.error("Unable to create JAXB context using context path: {}", joinedPath, e);
+            LOGGER.info("Unable to create JAXB context using context path: {}", joinedPath, e);
             throw new ParserException("Unable to create XmlParser", e.getCause());
         }
 

@@ -161,20 +161,19 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                             entry.getValue()
                                     .get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
-                    logger.warn(
-                            "Couldn't get results from completed federated query on site with ShortName "
-                                    + site.getId(),
-                            e);
+                    logger.info(
+                            "Couldn't get results from completed federated query on site with ShortName {}",
+                            site.getId(), e);
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 } catch (ExecutionException e) {
-                    logger.warn("Couldn't get results from completed federated query on site "
-                            + site.getId(), e);
+                    logger.info("Couldn't get results from completed federated query on site {}",
+                            site.getId(), e);
                     if (logger.isDebugEnabled()) {
                         logger.debug("Adding exception to response.");
                     }
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 } catch (TimeoutException e) {
-                    logger.warn("search timed out: " + new Date() + " on site " + site.getId());
+                    logger.info("search timed out: {} on site {}", new Date(), site.getId());
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 }
                 if (sourceResponse != null) {

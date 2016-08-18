@@ -111,7 +111,7 @@ public class KMLTransformerImpl implements KMLTransformer {
             KML_MIMETYPE.setPrimaryType("application");
             KML_MIMETYPE.setSubType("vnd.google-earth.kml+xml");
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Unable to parse KML MimeType.", e);
+            LOGGER.info("Unable to parse KML MimeType.", e);
         }
     }
 
@@ -139,7 +139,7 @@ public class KMLTransformerImpl implements KMLTransformer {
             this.jaxbContext = JAXBContext.newInstance(Kml.class);
             unmarshaller = jaxbContext.createUnmarshaller();
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB Context.  Setting to null.");
+            LOGGER.info("Unable to create JAXB Context.  Setting to null.");
             this.jaxbContext = null;
         }
 
@@ -156,9 +156,9 @@ public class KMLTransformerImpl implements KMLTransformer {
                 }
             }
         } catch (JAXBException e) {
-            LOGGER.warn("Exception while unmarshalling default style resource.", e);
+            LOGGER.debug("Exception while unmarshalling default style resource.", e);
         } catch (IOException e) {
-            LOGGER.warn("Exception while opening default style resource.", e);
+            LOGGER.debug("Exception while opening default style resource.", e);
         }
 
         templateLoader = new ClassPathTemplateLoader();
@@ -306,7 +306,7 @@ public class KMLTransformerImpl implements KMLTransformer {
             LOGGER.debug(description);
 
         } catch (IOException e) {
-            LOGGER.error("Failed to apply description Template", e);
+            LOGGER.debug("Failed to apply description Template", e);
         }
         kmlPlacemark.setDescription(description);
 
@@ -422,7 +422,7 @@ public class KMLTransformerImpl implements KMLTransformer {
 
             return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
         } catch (Exception e) {
-            LOGGER.error("Error transforming metacard ({}) to KML: {}",
+            LOGGER.debug("Error transforming metacard ({}) to KML: {}",
                     metacard.getId(),
                     e.getMessage());
             throw new CatalogTransformerException("Error transforming metacard to KML.", e);
@@ -457,9 +457,10 @@ public class KMLTransformerImpl implements KMLTransformer {
                 kmlDoc.getFeature()
                         .add(placemark);
             } catch (CatalogTransformerException e) {
-                LOGGER.warn("Error transforming current metacard (" + result.getMetacard()
-                        .getId() + ") to KML and will continue with remaining query responses.", e);
-                continue;
+                LOGGER.debug(
+                        "Error transforming current metacard ({}) to KML and will continue with remaining query responses.",
+                        result.getMetacard()
+                                .getId(), e);
             }
         }
 
@@ -494,7 +495,7 @@ public class KMLTransformerImpl implements KMLTransformer {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8);
             marshaller.marshal(kmlResult, writer);
         } catch (JAXBException e) {
-            LOGGER.warn("Failed to marshal KML: ", e);
+            LOGGER.debug("Failed to marshal KML: ", e);
         }
 
         kmlResultString = writer.toString();

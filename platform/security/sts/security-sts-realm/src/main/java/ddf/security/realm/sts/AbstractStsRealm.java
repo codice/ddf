@@ -170,7 +170,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         }
         if (credential == null) {
             String msg = "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
-            LOGGER.error(msg);
+            LOGGER.info(msg);
             throw new AuthenticationException(msg);
         } else {
             //removed the credentials from the log message for now, I don't think we should be dumping user/pass into log
@@ -225,7 +225,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             }
         } catch (Exception e) {
             String msg = "Error requesting the security token from STS at: " + stsAddress + ".";
-            LOGGER.error(msg, e);
+            LOGGER.debug(msg, e);
             throw new AuthenticationException(msg, e);
         }
 
@@ -260,7 +260,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             }
         } catch (Exception e) {
             String msg = "Error renewing the security token from STS at: " + stsAddress + ".";
-            LOGGER.error(msg, e);
+            LOGGER.debug(msg, e);
             throw new AuthenticationException(msg, e);
         }
 
@@ -453,8 +453,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
                 claimsElement = writer.getDocument()
                         .getDocumentElement();
             } catch (XMLStreamException e) {
-                String msg = "Unable to create claims.";
-                LOGGER.error(msg, e);
+                String msg = "Unable to create claims. Subjects will not have any attributes. Check STS Client configuration.";
+                LOGGER.warn(msg, e);
                 claimsElement = null;
             } finally {
                 if (writer != null) {

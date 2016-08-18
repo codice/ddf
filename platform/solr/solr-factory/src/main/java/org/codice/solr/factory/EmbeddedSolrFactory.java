@@ -130,7 +130,7 @@ public class EmbeddedSolrFactory extends SolrClientFactory {
             } else {
                 PluginInfo info = solrConfig.getPluginInfo(DirectoryFactory.class.getName());
                 if (!"solr.RAMDirectoryFactory".equals(info.className)) {
-                    LOGGER.warn("Using in-memory configuration without RAMDirectoryFactory.");
+                    LOGGER.debug("Using in-memory configuration without RAMDirectoryFactory.");
                 }
             }
             CoreDescriptor coreDescriptor = new CoreDescriptor(container,

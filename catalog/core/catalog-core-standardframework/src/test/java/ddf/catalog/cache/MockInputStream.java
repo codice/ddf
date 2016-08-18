@@ -49,7 +49,7 @@ public class MockInputStream extends InputStream {
         try {
             this.is = new FileInputStream(name);
         } catch (FileNotFoundException e) {
-            LOGGER.error("FileNotFoundException", e);
+            LOGGER.info("FileNotFoundException", e);
         }
 
         this.readSlow = readSlow;

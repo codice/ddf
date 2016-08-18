@@ -69,7 +69,7 @@ public final class CswCqlTextFilter {
                     "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
                     AbstractCswSource.class.getClassLoader());
         } catch (JAXBException e) {
-            LOGGER.error("Failed to initialize JAXBContext", e);
+            LOGGER.info("Failed to initialize JAXBContext", e);
         }
 
         return jaxbContext;
@@ -89,13 +89,7 @@ public final class CswCqlTextFilter {
             } else {
                 throw new UnsupportedQueryException("Query did not produce a valid filter.");
             }
-        } catch (IOException e) {
-            throw new UnsupportedQueryException("Unable to create CQL Filter.", e);
-        } catch (SAXException e) {
-            throw new UnsupportedQueryException("Unable to create CQL Filter.", e);
-        } catch (ParserConfigurationException e) {
-            throw new UnsupportedQueryException("Unable to create CQL Filter.", e);
-        } catch (JAXBException e) {
+        } catch (IOException | SAXException | ParserConfigurationException | JAXBException e) {
             throw new UnsupportedQueryException("Unable to create CQL Filter.", e);
         }
     }

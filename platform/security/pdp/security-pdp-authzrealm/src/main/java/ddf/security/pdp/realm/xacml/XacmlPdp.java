@@ -212,7 +212,7 @@ public class XacmlPdp {
                     .getDecision() == DecisionType.PERMIT;
             LOGGER.debug("Permitted: " + permitted);
         } catch (PdpException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
             permitted = false;
         }
 

@@ -69,7 +69,7 @@ public class SourcePollerRunner implements Runnable {
      */
     public SourcePollerRunner() {
 
-        LOGGER.info("Creating source poller runner.");
+        LOGGER.debug("Creating source poller runner.");
         sources = new CopyOnWriteArrayList<Source>();
     }
 
@@ -147,7 +147,7 @@ public class SourcePollerRunner implements Runnable {
      */
     public void bind(Source source) {
 
-        LOGGER.info("Binding source: {}", source);
+        LOGGER.debug("Binding source: {}", source);
         if (source != null) {
             LOGGER.debug("Marking new source {} as UNCHECKED.", source);
             sources.add(source);
@@ -166,7 +166,7 @@ public class SourcePollerRunner implements Runnable {
      *            the source to remove from the list
      */
     public void unbind(Source source) {
-        LOGGER.info("Unbinding source [{}]", source);
+        LOGGER.debug("Unbinding source [{}]", source);
         if (source != null) {
             cachedSources.remove(source);
             sources.remove(source);

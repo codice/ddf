@@ -134,7 +134,7 @@ public class FtpServerStarter {
         try {
             listenerFactory.setSslConfiguration(sslConfigurationFactory.createSslConfiguration());
         } catch (FtpServerConfigurationException e) {
-            LOGGER.error(
+            LOGGER.warn(
                     "Failed to create an SSL configuration, server will not start. Verify keystore and trustore paths and passwords are correct");
             throw new FtpServerConfigurationException();
         }
@@ -179,9 +179,9 @@ public class FtpServerStarter {
         if (isStopped() || isSuspended()) {
             try {
                 server.start();
-                LOGGER.info("FTP server started on port {}", port);
+                LOGGER.debug("FTP server started on port {}", port);
             } catch (Exception e) {
-                LOGGER.error("Failed to start FTP server", e);
+                LOGGER.warn("Failed to start FTP server", e);
             }
         }
     }
@@ -213,21 +213,21 @@ public class FtpServerStarter {
         int totalWait = 0;
 
         while (serverStatistics.getCurrentConnectionNumber() > 0) {
-            LOGGER.warn("Waiting for {} connections to close before updating configuration",
+            LOGGER.debug("Waiting for {} connections to close before updating configuration",
                     serverStatistics.getCurrentConnectionNumber());
             try {
                 if (totalWait <= maxSleepTimeMillis) {
                     totalWait += resetWaitTimeMillis;
                     Thread.sleep(resetWaitTimeMillis);
                 } else {
-                    LOGGER.warn(
+                    LOGGER.debug(
                             "Waited {} seconds for connections to close, updating FTP configuration",
                             TimeUnit.MILLISECONDS.toSeconds(totalWait));
                     break;
                 }
             } catch (InterruptedException e) {
                 Thread.interrupted();
-                LOGGER.error("Thread interrupted while waiting for FTP connections to close", e);
+                LOGGER.info("Thread interrupted while waiting for FTP connections to close", e);
             }
         }
     }
@@ -261,7 +261,7 @@ public class FtpServerStarter {
             clientAuth = ClientAuth.NEED;
             break;
         default:
-            LOGGER.warn("Invalid clientAuth configuration, defaulting to WANT");
+            LOGGER.debug("Invalid clientAuth configuration, defaulting to WANT");
             clientAuth = ClientAuth.WANT;
         }
     }

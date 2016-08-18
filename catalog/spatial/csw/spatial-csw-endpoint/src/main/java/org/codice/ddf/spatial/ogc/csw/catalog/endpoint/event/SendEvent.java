@@ -137,7 +137,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
             }
         } else {
             String msg = "Subscriptions require a ResponseHandler URL to be specified";
-            LOGGER.error(msg);
+            LOGGER.debug(msg);
             throw new CswException(msg);
         }
         this.transformerManager = transformerManager;
@@ -170,7 +170,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
             InetAddress address = InetAddress.getByName(callbackUrl.getHost());
             ip = address.getHostAddress();
         } catch (UnknownHostException e) {
-            LOGGER.error("Unable to resolve callback address", e);
+            LOGGER.debug("Unable to resolve callback address", e);
         }
         ping();
     }
@@ -238,7 +238,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
             retryCount.set(0);
             return true;
         } catch (Exception e) {
-            LOGGER.error("Error contacting event callback url " + callbackUrl, e);
+            LOGGER.debug("Error contacting event callback url {}", callbackUrl, e);
             lastPing = System.currentTimeMillis();
             retryCount.incrementAndGet();
         }

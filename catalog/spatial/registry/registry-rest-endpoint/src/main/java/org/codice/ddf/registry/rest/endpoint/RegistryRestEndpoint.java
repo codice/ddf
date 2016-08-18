@@ -129,7 +129,7 @@ public class RegistryRestEndpoint {
                     sourceIdsSet);
         } catch (FederationAdminException e) {
             String message = "Error getting registry package.";
-            LOGGER.error("{} For registry id: '{}', optional sources: {}",
+            LOGGER.debug("{} For registry id: '{}', optional sources: {}",
                     message,
                     registryId,
                     sourceIds);
@@ -140,7 +140,7 @@ public class RegistryRestEndpoint {
 
         if (registryPackage == null) {
             String message = "No registry package was found.";
-            LOGGER.error("{} For registry id: '{}', optional source ids: {}.",
+            LOGGER.debug("{} For registry id: '{}', optional source ids: {}.",
                     message,
                     registryId,
                     sourceIds);
@@ -154,7 +154,7 @@ public class RegistryRestEndpoint {
                     registryReportBuilder.REPORT);
         } catch (IOException e) {
             String message = "Error in compiling and applying report template.";
-            LOGGER.error("{} For registry id: '{}'", message, registryId);
+            LOGGER.debug("{} For registry id: '{}'", message, registryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(getErrorHtmlString(message))
                     .build();
@@ -185,14 +185,14 @@ public class RegistryRestEndpoint {
                 metacard = metacardList.get(0);
             } else {
                 String message = "Could not retrieve Metacard";
-                LOGGER.error("{} For registry id: '{}'", message, registryId);
+                LOGGER.debug("{} For registry id: '{}'", message, registryId);
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity(getErrorHtmlString(message))
                         .build();
             }
         } catch (FederationAdminException e) {
             String message = "Error getting Metacard.";
-            LOGGER.error("{} For registry id: '{}'", message, registryId);
+            LOGGER.debug("{} For registry id: '{}'", message, registryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(getErrorHtmlString(message))
                     .build();
@@ -202,7 +202,7 @@ public class RegistryRestEndpoint {
             html = registryReportBuilder.getSummaryHtmlFromMetacard(metacard);
         } catch (IOException e) {
             String message = "Error in compiling and applying summary template.";
-            LOGGER.error("{} For registry id: '{}'", message, registryId);
+            LOGGER.debug("{} For registry id: '{}'", message, registryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(getErrorHtmlString(message))
                     .build();
@@ -232,7 +232,7 @@ public class RegistryRestEndpoint {
                     String.format("'%s' is an unknown section name. Valid Sections are: %s",
                             section,
                             validSections);
-            LOGGER.error("{} For registry id: '{}'", message, registryId);
+            LOGGER.debug("{} For registry id: '{}'", message, registryId);
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(getErrorHtmlString(message))
                     .build();
@@ -247,7 +247,7 @@ public class RegistryRestEndpoint {
                     sourceIdsSet);
         } catch (FederationAdminException e) {
             String message = "Error getting registry package.";
-            LOGGER.error("{} For registry id: '{}', optional sources: {}",
+            LOGGER.debug("{} For registry id: '{}', optional sources: {}",
                     message,
                     registryId,
                     sourceIds);
@@ -258,7 +258,7 @@ public class RegistryRestEndpoint {
 
         if (registryPackage == null) {
             String message = "No registry package was found.";
-            LOGGER.error("{} For registry id: '{}', optional source ids: {}.",
+            LOGGER.debug("{} For registry id: '{}', optional source ids: {}.",
                     message,
                     registryId,
                     sourceIds);
@@ -272,7 +272,7 @@ public class RegistryRestEndpoint {
         } catch (IOException e) {
             String message = String.format("Error when compiling and applying %s template.",
                     section);
-            LOGGER.error("{} For registry id: '{}'", message, registryId);
+            LOGGER.debug("{} For registry id: '{}'", message, registryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(getErrorHtmlString(message))
                     .build();
@@ -287,7 +287,7 @@ public class RegistryRestEndpoint {
             return registryReportBuilder.getErrorHtml(message);
         } catch (IOException e) {
             String errorMessage = "Error when compiling and applying error template.";
-            LOGGER.error(message);
+            LOGGER.debug(message);
             return errorMessage;
         }
     }

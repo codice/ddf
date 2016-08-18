@@ -165,7 +165,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
                                         metacard.getResourceURI()
                                                 .toString()));
                             } catch (DOMException e) {
-                                LOGGER.warn(" Unable to create resource uri element", e);
+                                LOGGER.debug(" Unable to create resource uri element", e);
                             }
                         }
                         if (metacard.getThumbnail() != null) {
@@ -229,7 +229,6 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
                     } else {
                         LOGGER.debug(
                                 "Null content/document returned to XSLT ResponseQueueTransformer");
-                        continue;
                     }
                 }
             }
@@ -262,17 +261,13 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
                 transformer = templates.newTransformer();
             } catch (TransformerConfigurationException tce) {
                 throw new CatalogTransformerException(
-                        "Could not perform Xslt transform: " + tce.getException(), tce.getCause());
+                        "Could not perform Xslt transform: ", tce);
             }
 
-            if (mergedMap != null && !mergedMap.isEmpty()) {
-                for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Adding parameter to transform {" + entry.getKey() + ":"
-                                + entry.getValue() + "}");
-                    }
-                    transformer.setParameter(entry.getKey(), entry.getValue());
-                }
+            for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
+                LOGGER.trace("Adding parameter to transform {{}:{}}", entry.getKey(),
+                        entry.getValue());
+                transformer.setParameter(entry.getKey(), entry.getValue());
             }
 
             try {
@@ -281,19 +276,15 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
                 LOGGER.debug("Transform complete.");
                 resultContent = new XsltTransformedContent(bytes, mimeType);
             } catch (TransformerException te) {
-                LOGGER.error("Could not perform Xslt transform: " + te.getException(),
-                        te.getCause());
+                LOGGER.debug("Could not perform Xslt transform: ",
+                        te);
                 throw new CatalogTransformerException(
-                        "Could not perform Xslt transform: " + te.getException(), te.getCause());
-            } finally {
-                // transformer.reset();
-                // don't need to do that unless we are putting it back into a
-                // pool -- which we should do, but that can wait until later.
+                        "Could not perform Xslt transform: ", te);
             }
 
             return resultContent;
         } catch (ParserConfigurationException e) {
-            LOGGER.warn("Error creating new document: " + e.getMessage(), e.getCause());
+            LOGGER.debug("Error creating new document: ", e);
             throw new CatalogTransformerException("Error merging entries to xml feed.", e);
         }
     }

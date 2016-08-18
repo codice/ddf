@@ -140,7 +140,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
                             .newPullParser());
             cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
         } catch (XmlPullParserException e) {
-            LOGGER.error("Unable to create XmlPullParser, and cannot parse CSW Response.", e);
+            LOGGER.debug("Unable to create XmlPullParser, and cannot parse CSW Response.", e);
         } catch (XStreamException e) {
             // If an ExceptionReport is sent from the remote CSW site it will be sent with an
             // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.

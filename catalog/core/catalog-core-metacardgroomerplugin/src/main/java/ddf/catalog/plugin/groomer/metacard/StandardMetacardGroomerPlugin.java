@@ -102,7 +102,7 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
                 .toString()
                 .equals(aMetacard.getId())) {
 
-            LOGGER.info(
+            LOGGER.debug(
                     "{} in metacard must match the Update {}, overwriting metacard {} [{}] with the update identifier [{}]",
                     Metacard.ID,
                     Metacard.ID,
@@ -114,7 +114,7 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
         }
 
         if (aMetacard.getCreatedDate() == null) {
-            LOGGER.info(
+            LOGGER.debug(
                     "{} date should match the original metacard. Changing date to current timestamp so it is at least not null.",
                     Metacard.CREATED);
             aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));

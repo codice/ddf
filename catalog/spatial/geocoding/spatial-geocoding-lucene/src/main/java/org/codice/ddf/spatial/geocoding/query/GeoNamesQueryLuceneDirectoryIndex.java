@@ -56,8 +56,9 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
             directory = openDirectory();
             if (!indexExists(directory)) {
                 directory.close();
-                LOGGER.warn("There is no index at " + indexLocation
-                        + ". Load a Geonames file into the offline gazetteer");
+                LOGGER.debug(
+                        "There is no index at {}. Load a Geonames file into the offline gazetteer",
+                        indexLocation);
                 return null;
             }
 

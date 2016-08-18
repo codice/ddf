@@ -85,7 +85,7 @@ public final class PropertiesLoader {
                 properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile);
             } catch (IOException e) {
                 error = true;
-                LOGGER.error("Unable to load properties using default Spring properties loader.",
+                LOGGER.debug("Unable to load properties using default Spring properties loader.",
                         e);
             }
             if (error || properties.isEmpty()) {
@@ -99,7 +99,7 @@ public final class PropertiesLoader {
                         error = false;
                     } catch (IOException e) {
                         error = true;
-                        LOGGER.error(
+                        LOGGER.debug(
                                 "Unable to load properties using default Spring properties loader.",
                                 e);
                     }
@@ -113,7 +113,7 @@ public final class PropertiesLoader {
                         error = false;
                     } catch (IOException e) {
                         error = true;
-                        LOGGER.error(
+                        LOGGER.debug(
                                 "Unable to load properties using default Spring properties loader.",
                                 e);
                     }
@@ -148,12 +148,12 @@ public final class PropertiesLoader {
                     properties.load(reader);
                 } catch (FileNotFoundException e) {
                     error = true;
-                    LOGGER.error("Could not find properties file: {}",
+                    LOGGER.debug("Could not find properties file: {}",
                             propFile.getAbsolutePath(),
                             e);
                 } catch (IOException e) {
                     error = true;
-                    LOGGER.error("Error reading properties file: {}",
+                    LOGGER.debug("Error reading properties file: {}",
                             propFile.getAbsolutePath(),
                             e);
                 }
@@ -166,7 +166,7 @@ public final class PropertiesLoader {
                         properties.load(ins);
                         ins.close();
                     } catch (IOException e) {
-                        LOGGER.error("Unable to load properties: {}", propertiesFile, e);
+                        LOGGER.debug("Unable to load properties: {}", propertiesFile, e);
                     } finally {
                         IOUtils.closeQuietly(ins);
                     }

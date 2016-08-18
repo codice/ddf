@@ -70,7 +70,7 @@ public class MetacardStub extends MetacardImpl {
         try {
             this.setResourceURI(new URI("http://example.com"));
         } catch (URISyntaxException e) {
-            LOGGER.error("URI Syntax error", e);
+            LOGGER.info("URI Syntax error", e);
         }
     }
 

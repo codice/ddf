@@ -406,7 +406,7 @@ public class ServiceManagerImpl implements ServiceManager {
                 FeatureState state = featuresService.getState(
                         feature.getName() + "/" + feature.getVersion());
                 if (state == null) {
-                    LOGGER.warn("No Feature found for featureName: {}", featureName);
+                    LOGGER.debug("No Feature found for featureName: {}", featureName);
                     return;
                 } else if (predicate.test(state)) {
                     ready = true;

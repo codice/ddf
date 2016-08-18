@@ -320,7 +320,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                 }
             }
         } catch (XMLStreamException e) {
-            LOGGER.error("Unable to parse security token.", e);
+            LOGGER.info("Unable to parse security token.", e);
         } finally {
             try {
                 xmlStreamReader.close();

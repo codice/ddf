@@ -135,7 +135,7 @@ public class ActiveSearch {
         startTime = new Date();
         if (uniqueID == null) {
             this.uniqueID = java.util.UUID.randomUUID();
-            LOGGER.warn("uniqueID for new ActiveSearch is null. Setting the ID as {}", uniqueID);
+            LOGGER.debug("uniqueID for new ActiveSearch is null. Setting the ID as {}", uniqueID);
         } else {
             this.uniqueID = uniqueID;
         }
@@ -151,14 +151,7 @@ public class ActiveSearch {
         if (request == null) {
             return "";
         } else {
-            cqlQuery = request.toString();
-            String tempCqlString = org.geotools.filter.text.cql2.CQL.toCQL(request.getQuery());
-            if (tempCqlString == null) {
-                LOGGER.warn(
-                        "Unable to determine start and end of query terms. Using entire queryRequest String instead.");
-            } else {
-                cqlQuery = tempCqlString;
-            }
+            cqlQuery = org.geotools.filter.text.cql2.CQL.toCQL(request.getQuery());
 
         }
         return cqlQuery;
@@ -185,7 +178,7 @@ public class ActiveSearch {
     public ActiveSearch(Source source, QueryRequest request) {
         this(getCqlFromQueryRequest(request), source, UUID.randomUUID(), "client");
         if (request == null) {
-            LOGGER.warn("QueryRequest in ActiveSearch Constructor was null.");
+            LOGGER.debug("QueryRequest in ActiveSearch Constructor was null.");
         } else {
             clientInfo =
                     SubjectUtils.getName((Subject) request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),

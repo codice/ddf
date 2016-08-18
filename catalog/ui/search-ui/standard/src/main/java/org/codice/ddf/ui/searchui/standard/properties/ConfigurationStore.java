@@ -80,7 +80,7 @@ public class ConfigurationStore {
             String jsonMimeType_STRING = "application/json";
             mime = new MimeType(jsonMimeType_STRING);
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to create json mimetype.");
+            LOGGER.info("Failed to create json mimetype.");
         }
         jsonMimeType = mime;
     }
@@ -141,7 +141,7 @@ public class ConfigurationStore {
             try {
                 httpProxy.stop(terrainEndpoint);
             } catch (Exception e) {
-                LOGGER.error("Unable to stop proxy endpoint.", e);
+                LOGGER.info("Unable to stop proxy endpoint.", e);
             }
         }
     }
@@ -304,7 +304,7 @@ public class ConfigurationStore {
                 httpProxy.stop(endpoint);
                 imageryEndpoints.remove(endpoint);
             } catch (Exception e) {
-                LOGGER.error("Unable to stop proxy endpoint: {}", endpoint, e);
+                LOGGER.info("Unable to stop proxy endpoint: {}", endpoint, e);
             }
         }
     }
@@ -319,7 +319,7 @@ public class ConfigurationStore {
                 urlToProxyMap.put(url, endpointName);
                 imageryEndpoints.add(endpointName);
             } catch (Exception e) {
-                LOGGER.error("Unable to configure proxy for: {}", url, e);
+                LOGGER.info("Unable to configure proxy for: {}", url, e);
             }
         }
     }
@@ -329,7 +329,7 @@ public class ConfigurationStore {
             try {
                 httpProxy.stop(terrainEndpoint);
             } catch (Exception e) {
-                LOGGER.error("Unable to stop proxy endpoint.", e);
+                LOGGER.info("Unable to stop proxy endpoint.", e);
             }
         }
 
@@ -356,7 +356,7 @@ public class ConfigurationStore {
                 terrainEndpoint = endpointName;
                 config.put(URL, SERVLET_PATH + "/" + endpointName);
             } catch (Exception e) {
-                LOGGER.error("Unable to configure proxy for: {}", url, e);
+                LOGGER.info("Unable to configure proxy for: {}", url, e);
             }
         }
 
@@ -378,7 +378,7 @@ public class ConfigurationStore {
                 return null;
             }
         } catch (EdnSyntaxException | EdnIOException e) {
-            LOGGER.warn("Unable to parse provider configuration: " + provider, e);
+            LOGGER.warn("Unable to parse provider configuration: {}", provider, e);
             return null;
         }
         return config;

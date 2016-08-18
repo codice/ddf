@@ -152,7 +152,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         try {
             connection = ldapConnectionFactory.getConnection();
         } catch (LdapException e) {
-            LOGGER.error("Unable to get LDAP Connection from factory.", e);
+            LOGGER.info("Unable to get LDAP Connection from factory.", e);
             return false;
         }
         if (connection != null) {
@@ -162,11 +162,11 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                             connectionPassword.toCharArray());
 
                     if (!bindResult.isSuccess()) {
-                        LOGGER.error("Bind failed");
+                        LOGGER.debug("Bind failed");
                         return false;
                     }
                 } catch (LdapException e) {
-                    LOGGER.error("Unable to bind to LDAP server.", e);
+                    LOGGER.debug("Unable to bind to LDAP server.", e);
                     return false;
                 }
                 SearchScope scope;
@@ -182,7 +182,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                         userFilter);
                 try {
                     if (!entryReader.hasNext()) {
-                        LOGGER.warn("User " + user + " not found in LDAP.");
+                        LOGGER.info("User {} not found in LDAP.", user);
                         return false;
                     }
                     SearchResultEntry searchResultEntry = entryReader.readEntry();
@@ -191,7 +191,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                             .toString();
 
                 } catch (LdapException | SearchResultReferenceIOException e) {
-                    LOGGER.error("Unable to read contents of LDAP user search.", e);
+                    LOGGER.info("Unable to read contents of LDAP user search.", e);
                     return false;
                 }
             } finally {
@@ -204,7 +204,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         try {
             connection = ldapConnectionFactory.getConnection();
         } catch (LdapException e) {
-            LOGGER.error("Unable to get LDAP Connection from factory.", e);
+            LOGGER.info("Unable to get LDAP Connection from factory.", e);
             return false;
         }
 
@@ -213,11 +213,11 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 BindResult bindResult = connection.bind(userDn, tmpPassword);
 
                 if (!bindResult.isSuccess()) {
-                    LOGGER.error("Bind failed");
+                    LOGGER.info("Bind failed");
                     return false;
                 }
             } catch (Exception e) {
-                LOGGER.error("Unable to bind user to LDAP server.", e);
+                LOGGER.info("Unable to bind user to LDAP server.", e);
                 return false;
             } finally {
                 connection.close();
@@ -230,7 +230,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         try {
             connection = ldapConnectionFactory.getConnection();
         } catch (LdapException e) {
-            LOGGER.error("Unable to get LDAP Connection from factory.", e);
+            LOGGER.info("Unable to get LDAP Connection from factory.", e);
             return false;
         }
 
@@ -241,11 +241,11 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                             connectionPassword.toCharArray());
 
                     if (!bindResult.isSuccess()) {
-                        LOGGER.error("Bind failed");
+                        LOGGER.info("Bind failed");
                         return false;
                     }
                 } catch (LdapException e) {
-                    LOGGER.error("Unable to bind to LDAP server.", e);
+                    LOGGER.info("Unable to bind to LDAP server.", e);
                     return false;
                 }
                 SearchScope scope;
@@ -328,11 +328,11 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                             option.get(CONNECTION_PASSWORD));
                     option.put(CONNECTION_PASSWORD, decryptedPassword);
                 } else {
-                    LOGGER.error("Encryption service reference for ldap was null.");
+                    LOGGER.info("Encryption service reference for ldap was null.");
                 }
 
             } catch (SecurityException | IllegalStateException e) {
-                LOGGER.error(
+                LOGGER.info(
                         "Error decrypting connection password passed into ldap configuration: ", e);
             } finally {
                 if (ref != null) {
@@ -358,12 +358,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             try {
                 ldapConnectionFactory = createLdapConnectionFactory(connectionURL, startTls);
             } catch (LdapException e) {
-                LOGGER.error(
+                LOGGER.info(
                         "Unable to create LDAP Connection Factory. LDAP log in will not be possible.",
                         e);
             }
         } else {
-            LOGGER.error("Unable to retrieve Bundle Context!");
+            LOGGER.info("Unable to retrieve Bundle Context!");
         }
     }
 
@@ -380,7 +380,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 lo.setSSLContext(sslContext);
             }
         } catch (GeneralSecurityException e) {
-            LOGGER.error("Error encountered while configuring SSL. Secure connection will fail.",
+            LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.",
                     e);
         }
 

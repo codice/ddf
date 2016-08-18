@@ -189,7 +189,7 @@ public class SeedCommand extends SubjectCommands implements Action {
                     EXECUTOR.execute(new ResourceCloseHandler(response));
                 } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
                     ++downloadErrors;
-                    LOGGER.warn("Could not download resource for metacard [id={}]",
+                    LOGGER.debug("Could not download resource for metacard [id={}]",
                             request.getAttributeValue(),
                             e);
                 }

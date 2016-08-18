@@ -176,12 +176,11 @@ public class MetricsEndpoint {
             @QueryParam("dateOffset") String dateOffset,
             @QueryParam("yAxisLabel") String yAxisLabel, @QueryParam("title") String title,
             @Context UriInfo uriInfo) throws MetricsEndpointException {
-        LOGGER.trace(
-                "ENTERING: getMetricsData  -  metricName = " + metricName + ",    outputFormat = "
-                        + outputFormat);
-        LOGGER.trace("request url: " + uriInfo.getRequestUri());
-        LOGGER.trace("startDate = " + startDate + ",     endDate = " + endDate);
-        LOGGER.trace("dateOffset = " + dateOffset);
+        LOGGER.trace("ENTERING: getMetricsData  -  metricName = {},    outputFormat = {}",
+                metricName, outputFormat);
+        LOGGER.trace("request url: {}", uriInfo.getRequestUri());
+        LOGGER.trace("startDate = {},     endDate = {}", startDate, endDate);
+        LOGGER.trace("dateOffset = {}", dateOffset);
 
         Response response = null;
 
@@ -196,12 +195,12 @@ public class MetricsEndpoint {
         long endTime;
         if (!StringUtils.isBlank(endDate)) {
             endTime = parseDate(endDate);
-            LOGGER.trace("Parsed endTime = " + endTime);
+            LOGGER.trace("Parsed endTime = {}", endTime);
         } else {
             // Default end time for metrics graphing to now (in seconds)
             Calendar now = getCalendar();
             endTime = now.getTimeInMillis() / MILLISECONDS_PER_SECOND;
-            LOGGER.trace("Defaulted endTime to " + endTime);
+            LOGGER.trace("Defaulted endTime to {}", endTime);
 
             // Set endDate to new calculated endTime (so that endDate is displayed properly
             // in graph's title)
@@ -211,10 +210,10 @@ public class MetricsEndpoint {
         long startTime;
         if (!StringUtils.isBlank(startDate)) {
             startTime = parseDate(startDate);
-            LOGGER.trace("Parsed startTime = " + startTime);
+            LOGGER.trace("Parsed startTime = {}", startTime);
         } else if (!StringUtils.isBlank(dateOffset)) {
             startTime = endTime - Long.parseLong(dateOffset);
-            LOGGER.trace("Offset-computed startTime = " + startTime);
+            LOGGER.trace("Offset-computed startTime = {}", startTime);
 
             // Set startDate to new calculated startTime (so that startDate is displayed properly
             // in graph's title)
@@ -224,7 +223,7 @@ public class MetricsEndpoint {
         } else {
             // Default start time for metrics graphing to end time last 24 hours (in seconds)
             startTime = endTime - ONE_DAY_IN_SECONDS;
-            LOGGER.trace("Defaulted startTime to " + startTime);
+            LOGGER.trace("Defaulted startTime to {}", startTime);
 
             // Set startDate to new calculated startTime (so that startDate is displayed properly
             // in graph's title)
@@ -233,7 +232,7 @@ public class MetricsEndpoint {
             startDate = dateFormatter.format(cal.getTime());
         }
 
-        LOGGER.trace("startDate = " + startDate + ",   endDate = " + endDate);
+        LOGGER.trace("startDate = {},   endDate = {}", startDate, endDate);
 
         if (StringUtils.isBlank(yAxisLabel)) {
             yAxisLabel = RrdMetricsRetriever.convertCamelCase(metricName);
@@ -249,7 +248,7 @@ public class MetricsEndpoint {
         String rrdFilename = metricsDir + metricName + RRD_FILE_EXTENSION;
 
         if (outputFormat.equalsIgnoreCase(PNG_FORMAT)) {
-            LOGGER.trace("Retrieving PNG-formatted data for metric " + metricName);
+            LOGGER.trace("Retrieving PNG-formatted data for metric {}", metricName);
             try {
                 byte[] metricsGraphBytes = metricsRetriever.createGraph(metricName,
                         rrdFilename,
@@ -261,7 +260,7 @@ public class MetricsEndpoint {
                 response = Response.ok(bis, PNG_MIME_TYPE)
                         .build();
             } catch (IOException | MetricsGraphException e) {
-                LOGGER.warn("Could not create graph for metric " + metricName);
+                LOGGER.info("Could not create graph for metric {}", metricName);
                 throw new MetricsEndpointException(
                         "Cannot create metrics graph for specified metric.",
                         Response.Status.BAD_REQUEST);
@@ -273,13 +272,13 @@ public class MetricsEndpoint {
                 responseBuilder.type("text/csv");
                 response = responseBuilder.build();
             } catch (IOException | MetricsGraphException e) {
-                LOGGER.warn("Could not create CSV data for metric " + metricName);
+                LOGGER.info("Could not create CSV data for metric {}", metricName);
                 throw new MetricsEndpointException(
                         "Cannot create CSV data for specified metric.",
                         Response.Status.BAD_REQUEST);
             }
         } else if (outputFormat.equalsIgnoreCase("xls")) {
-            LOGGER.trace("Retrieving XLS-formatted data for metric " + metricName);
+            LOGGER.trace("Retrieving XLS-formatted data for metric {}", metricName);
             try {
                 OutputStream os = metricsRetriever.createXlsData(metricName,
                         rrdFilename,
@@ -291,13 +290,13 @@ public class MetricsEndpoint {
                 responseBuilder.type("application/vnd.ms-excel");
                 response = responseBuilder.build();
             } catch (IOException | MetricsGraphException e) {
-                LOGGER.warn("Could not create XLS data for metric " + metricName);
+                LOGGER.info("Could not create XLS data for metric {}", metricName);
                 throw new MetricsEndpointException(
                         "Cannot create XLS data for specified metric.",
                         Response.Status.BAD_REQUEST);
             }
         } else if (outputFormat.equalsIgnoreCase("ppt")) {
-            LOGGER.trace("Retrieving PPT-formatted data for metric " + metricName);
+            LOGGER.trace("Retrieving PPT-formatted data for metric {}", metricName);
             try {
                 OutputStream os = metricsRetriever.createPptData(metricName,
                         rrdFilename,
@@ -309,13 +308,13 @@ public class MetricsEndpoint {
                 responseBuilder.type("application/vnd.ms-powerpoint");
                 response = responseBuilder.build();
             } catch (IOException | MetricsGraphException e) {
-                LOGGER.warn("Could not create PPT data for metric " + metricName);
+                LOGGER.info("Could not create PPT data for metric {}", metricName);
                 throw new MetricsEndpointException(
                         "Cannot create PPT data for metric for specified metric.",
                         Response.Status.BAD_REQUEST);
             }
         } else if (outputFormat.equalsIgnoreCase("xml")) {
-            LOGGER.trace("Retrieving XML-formatted data for metric " + metricName);
+            LOGGER.trace("Retrieving XML-formatted data for metric {}", metricName);
             try {
                 String xmlData = metricsRetriever.createXmlData(metricName,
                         rrdFilename,
@@ -325,13 +324,13 @@ public class MetricsEndpoint {
                 responseBuilder.type("text/xml");
                 response = responseBuilder.build();
             } catch (IOException | MetricsGraphException e) {
-                LOGGER.warn("Could not create XML data for metric " + metricName);
+                LOGGER.info("Could not create XML data for metric {}", metricName);
                 throw new MetricsEndpointException(
                         "Cannot create XML data for specified metric.",
                         Response.Status.BAD_REQUEST);
             }
         } else if (outputFormat.equalsIgnoreCase("json")) {
-            LOGGER.trace("Retrieving JSON-formatted data for metric " + metricName);
+            LOGGER.trace("Retrieving JSON-formatted data for metric {}", metricName);
             try {
                 String jsonData = metricsRetriever.createJsonData(metricName,
                         rrdFilename,
@@ -341,7 +340,7 @@ public class MetricsEndpoint {
                 responseBuilder.type("application/json");
                 response = responseBuilder.build();
             } catch (IOException | MetricsGraphException e) {
-                LOGGER.warn("Could not create JSON data for metric " + metricName);
+                LOGGER.info("Could not create JSON data for metric {}", metricName);
                 throw new MetricsEndpointException(
                         "Cannot create JSON data for specified metric.",
                         Response.Status.BAD_REQUEST);
@@ -427,9 +426,9 @@ public class MetricsEndpoint {
             @QueryParam("summaryInterval") String summaryInterval, @Context UriInfo uriInfo)
             throws MetricsEndpointException {
         LOGGER.debug("ENTERING: getMetricsReport  -  outputFormat = " + outputFormat);
-        LOGGER.debug("request url: " + uriInfo.getRequestUri());
-        LOGGER.debug("startDate = " + startDate + ",     endDate = " + endDate);
-        LOGGER.debug("dateOffset = " + dateOffset);
+        LOGGER.debug("request url: {}", uriInfo.getRequestUri());
+        LOGGER.debug("startDate = {},     endDate = {}", startDate, endDate);
+        LOGGER.debug("dateOffset = {}", dateOffset);
 
         Response response = null;
 
@@ -444,12 +443,12 @@ public class MetricsEndpoint {
         long endTime;
         if (!StringUtils.isBlank(endDate)) {
             endTime = parseDate(endDate);
-            LOGGER.debug("Parsed endTime = " + endTime);
+            LOGGER.debug("Parsed endTime = {}", endTime);
         } else {
             // Default end time for metrics graphing to now (in seconds)
             Calendar now = getCalendar();
             endTime = now.getTimeInMillis() / MILLISECONDS_PER_SECOND;
-            LOGGER.debug("Defaulted endTime to " + endTime);
+            LOGGER.debug("Defaulted endTime to {}", endTime);
 
             // Set endDate to new calculated endTime (so that endDate is displayed properly
             // in graph's title)
@@ -459,10 +458,10 @@ public class MetricsEndpoint {
         long startTime;
         if (!StringUtils.isBlank(startDate)) {
             startTime = parseDate(startDate);
-            LOGGER.debug("Parsed startTime = " + startTime);
+            LOGGER.debug("Parsed startTime = {}", startTime);
         } else if (!StringUtils.isBlank(dateOffset)) {
             startTime = endTime - Long.parseLong(dateOffset);
-            LOGGER.debug("Offset-computed startTime = " + startTime);
+            LOGGER.debug("Offset-computed startTime = {}", startTime);
 
             // Set startDate to new calculated startTime (so that startDate is displayed properly
             // in graph's title)
@@ -472,7 +471,7 @@ public class MetricsEndpoint {
         } else {
             // Default start time for metrics graphing to end time last 24 hours (in seconds)
             startTime = endTime - ONE_DAY_IN_SECONDS;
-            LOGGER.debug("Defaulted startTime to " + startTime);
+            LOGGER.debug("Defaulted startTime to {}", startTime);
 
             // Set startDate to new calculated startTime (so that startDate is displayed properly
             // in graph's title)
@@ -481,7 +480,7 @@ public class MetricsEndpoint {
             startDate = dateFormatter.format(cal.getTime());
         }
 
-        LOGGER.debug("startDate = " + startDate + ",   endDate = " + endDate);
+        LOGGER.debug("startDate = {},   endDate = {}", startDate, endDate);
 
         List<String> metricNames = getMetricsNames();
 
@@ -520,7 +519,7 @@ public class MetricsEndpoint {
                 response = responseBuilder.build();
             }
         } catch (IOException | MetricsGraphException e) {
-            LOGGER.warn("Could not create " + outputFormat + " report", e);
+            LOGGER.debug("Could not create {} report", outputFormat, e);
             throw new MetricsEndpointException("Could not create report in specified output format.",
                     Response.Status.BAD_REQUEST);
         }
@@ -575,7 +574,7 @@ public class MetricsEndpoint {
         // 12 hours, 1 day, 3 days, 1 week, 1 month, and 1 year
         Calendar cal = getCalendar();
         long endTime = cal.getTimeInMillis() / 1000;
-        LOGGER.trace("Defaulted endTime to " + endTime);
+        LOGGER.trace("Defaulted endTime to {}", endTime);
 
         String[] supportedFormats = new String[] {"png", "csv", "xls"};
 
@@ -665,7 +664,7 @@ public class MetricsEndpoint {
 
         Collections.sort(metricNames);
 
-        LOGGER.trace("Returning " + metricNames.size() + " metrics");
+        LOGGER.trace("Returning {} metrics", metricNames.size());
 
         return metricNames;
     }
@@ -679,8 +678,8 @@ public class MetricsEndpoint {
     }
 
     public void setMetricsMaxThreshold(double metricsMaxThreshold) {
-        LOGGER.info("Creating new RrdMetricsRetriever with metricsMaxThreshold = "
-                + metricsMaxThreshold);
+        LOGGER.debug("Creating new RrdMetricsRetriever with metricsMaxThreshold = {}",
+                metricsMaxThreshold);
         this.metricsMaxThreshold = metricsMaxThreshold;
         metricsRetriever = new RrdMetricsRetriever(metricsMaxThreshold);
     }

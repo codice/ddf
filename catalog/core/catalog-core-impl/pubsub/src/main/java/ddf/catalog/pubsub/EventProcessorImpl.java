@@ -145,7 +145,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                     properties.put(PubSubConstants.HEADER_DAD_KEY, productUri);
                 }
             } catch (Exception e) {
-                LOGGER.warn("Unable to obtain resource URL, will not be considered in subscription",
+                LOGGER.debug("Unable to obtain resource URL, will not be considered in subscription",
                         e);
             }
 
@@ -189,7 +189,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                     contextualMap.put("METADATA", metacard.getMetadata());
                     properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
                 } catch (Exception e) {
-                    LOGGER.error("Exception updating context map", e);
+                    LOGGER.info("Exception updating context map", e);
                 }
             }
 
@@ -197,10 +197,10 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                 eventAdmin.postEvent(new Event(PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME,
                         properties));
             } else {
-                LOGGER.warn("Unable to post event since eventAdmin is null.");
+                LOGGER.debug("Unable to post event since eventAdmin is null.");
             }
         } else {
-            LOGGER.warn("Unable to post null metacard.");
+            LOGGER.debug("Unable to post null metacard.");
         }
 
         LOGGER.debug("EXITING: {}", methodName);
@@ -270,7 +270,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         String methodName = "createSubscription";
         LOGGER.debug("ENTERING: {}", methodName);
 
-        LOGGER.info("Creating Evaluation Criteria... ");
+        LOGGER.debug("Creating Evaluation Criteria... ");
 
         try {
             for (PreSubscriptionPlugin plugin : preSubscription) {
@@ -299,7 +299,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
             LOGGER.debug("Subscription {} created.", subscriptionId);
         } catch (Exception e) {
-            LOGGER.error("Error while creating subscription predicate: ", e);
+            LOGGER.info("Error while creating subscription predicate: ", e);
             throw new InvalidSubscriptionException(e);
         }
 
@@ -319,7 +319,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
             LOGGER.debug("Updated {}", subscriptionId);
         } catch (Exception e) {
-            LOGGER.error("Could not update subscription", e);
+            LOGGER.info("Could not update subscription", e);
             throw new SubscriptionNotFoundException(e);
         }
 
@@ -332,7 +332,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         LOGGER.debug("ENTERING: {}", methodName);
 
         try {
-            LOGGER.info("Removing subscription: {}", subscriptionId);
+            LOGGER.debug("Removing subscription: {}", subscriptionId);
             ServiceRegistration sr =
                     (ServiceRegistration) existingSubscriptions.get(subscriptionId);
             if (sr != null) {
@@ -340,27 +340,16 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                 LOGGER.debug("Removal complete");
                 existingSubscriptions.remove(subscriptionId);
             } else {
-                LOGGER.info("Unable to find existing subscription: {}.  May already be deleted.",
+                LOGGER.debug("Unable to find existing subscription: {}.  May already be deleted.",
                         subscriptionId);
             }
 
         } catch (Exception e) {
             LOGGER.debug("Could not delete subscription for {}", subscriptionId);
-            LOGGER.error("Exception deleting subscription", e);
+            LOGGER.info("Exception deleting subscription", e);
         }
 
         LOGGER.debug("EXITING: " + methodName);
-    }
-
-    public Predicate createFinalPredicate(Subscription subscription) {
-        String methodName = "createFinalPredicate";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        Predicate finalPredicate = null;
-
-        LOGGER.debug("EXITING: {}", methodName);
-
-        return finalPredicate;
     }
 
     @Override

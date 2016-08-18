@@ -122,7 +122,7 @@ public class TemporalPredicate implements Predicate {
                 date = entry.getExpirationDate();
                 break;
             default:
-                LOGGER.warn("unsupported type: {}", type);
+                LOGGER.debug("unsupported type: {}", type);
                 throw new IllegalArgumentException("Unsupported date type for TemporalPredicate");
             }
 

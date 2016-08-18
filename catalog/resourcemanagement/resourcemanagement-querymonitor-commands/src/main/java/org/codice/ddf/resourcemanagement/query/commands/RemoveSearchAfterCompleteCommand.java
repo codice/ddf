@@ -84,7 +84,7 @@ public class RemoveSearchAfterCompleteCommand implements Action {
      */
     public boolean setRemoveSearchAfterComplete(boolean b) {
         if (queryMonitor == null) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "QueryMonitor not yet instantiated. Cannot set RemoveSearchAfterComplete({}).",
                     b);
             return false;
@@ -116,7 +116,7 @@ public class RemoveSearchAfterCompleteCommand implements Action {
             } else {
                 console.println(
                         "Incorrect argument! Argument to removesearchaftercomplete command must have a value of either 'true' or 'false'.");
-                LOGGER.warn(
+                LOGGER.debug(
                         "Incorrect argument! Argument to removesearchaftercomplete command must have a value of either 'true' or 'false'.");
             }
         }

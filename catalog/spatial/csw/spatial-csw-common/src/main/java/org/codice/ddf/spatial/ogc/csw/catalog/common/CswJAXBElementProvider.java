@@ -78,7 +78,7 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
             jaxbContext = JAXBContext.newInstance(contextPath,
                     CswJAXBElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
+            LOGGER.info("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
         return jaxbContext;

@@ -177,12 +177,12 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
                         configurationFileFactory.createConfigurationFile(configuration.getProperties())
                                 .exportConfig(exportedFilePath.toString());
                     } catch (ConfigurationFileException e) {
-                        LOGGER.error("Could not create configuration file {} for configuration {}.",
+                        LOGGER.info("Could not create configuration file {} for configuration {}.",
                                 exportedFilePath,
                                 configuration.getPid());
                         throw new ExportMigrationException(e);
                     } catch (IOException e) {
-                        LOGGER.error("Could not export configuration {} to {}.",
+                        LOGGER.info("Could not export configuration {} to {}.",
                                 configuration.getPid(),
                                 exportedFilePath);
                         throw new ExportMigrationException(e);
@@ -190,10 +190,10 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
                 }
             }
         } catch (InvalidSyntaxException e) {
-            LOGGER.error("Invalid filter string {}", FILTER, e);
+            LOGGER.info("Invalid filter string {}", FILTER, e);
             throw new UnexpectedMigrationException("Export failed", e);
         } catch (IOException e) {
-            LOGGER.error("There was an issue retrieving configurations from ConfigurationAdmin: {}",
+            LOGGER.info("There was an issue retrieving configurations from ConfigurationAdmin: {}",
                     e.getMessage());
             throw new UnexpectedMigrationException("Export failed", e);
         }
@@ -223,9 +223,8 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
         try {
             moveFile(source, destination);
         } catch (IOException e) {
-            LOGGER.warn(String.format("Failed to move %s to %s directory",
-                    source.toString(),
-                    destination.toString()), e);
+            LOGGER.info("Failed to move %s to %s directory", source.toString(),
+                    destination.toString(), e);
         }
     }
 
@@ -240,7 +239,7 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
                 configFile = configurationFileFactory.createConfigurationFile(file);
                 configurationFiles.add(configFile);
             } catch (ConfigurationFileException e) {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.info(e.getMessage(), e);
                 moveConfigurationFile(file, failedDirectory);
             }
         }

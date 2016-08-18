@@ -169,9 +169,9 @@ public class ConfigurationAdminExt {
                     return configs[0];
                 }
             } catch (InvalidSyntaxException ise) {
-                logger.error("Invalid LDAP filter", ise);
+                logger.info("Invalid LDAP filter", ise);
             } catch (IOException ioe) {
-                logger.error("Unable to retrieve list of configurations.", ioe);
+                logger.info("Unable to retrieve list of configurations.", ioe);
             }
         }
 
@@ -266,15 +266,19 @@ public class ConfigurationAdminExt {
 
             serviceList.addAll(serviceFactoryList);
         } catch (IOException e) {
-            logger.error("Unable to obtain list of Configuration objects from ConfigurationAdmin.",
+            logger.warn("Unable to obtain list of Configuration objects from ConfigurationAdmin.",
                     e);
         } catch (InvalidSyntaxException e) {
-            logger.error("Provided LDAP filter is incorrect: " + serviceFilter, e);
+            logger.info("Provided LDAP filter is incorrect: {}", serviceFilter, e);
         }
 
-        return serviceList.stream()
-                .filter(service -> isPermittedToViewService((String) service.get("id")))
-                .collect(Collectors.toList());
+        if (serviceList != null) {
+            return serviceList.stream()
+                    .filter(service -> isPermittedToViewService((String) service.get("id")))
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     private void addConfigurationData(Map<String, Object> service, Configuration[] configs) {

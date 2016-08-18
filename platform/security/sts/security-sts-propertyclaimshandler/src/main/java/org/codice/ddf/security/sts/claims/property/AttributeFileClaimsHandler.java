@@ -88,7 +88,7 @@ public class AttributeFileClaimsHandler implements ClaimsHandler, RealmSupport {
                         .map(URI::create)
                         .collect(Collectors.toList()));
             } catch (IOException e) {
-                LOGGER.warn("Unable to read attribute file for system users. Set log level for \"org.codice.ddf.security.sts.claims.property\" to DEBUG for more information.");
+                LOGGER.info("Unable to read attribute file for system users. Set log level for \"org.codice.ddf.security.sts.claims.property\" to DEBUG for more information.");
                 LOGGER.debug("Unable to read attribute file for system users.", e);
             }
         }

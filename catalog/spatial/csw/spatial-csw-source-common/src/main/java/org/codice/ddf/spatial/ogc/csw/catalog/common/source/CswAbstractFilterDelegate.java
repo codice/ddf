@@ -84,7 +84,7 @@ public abstract class CswAbstractFilterDelegate<T> extends FilterDelegate<T> {
                 try {
                     resultTypes.add(ResultType.fromValue(rt.toLowerCase()));
                 } catch (IllegalArgumentException iae) {
-                    LOGGER.warn("\"{}\" is not a ResultType.  Exception: {}", rt, iae);
+                    LOGGER.debug("\"{}\" is not a ResultType.  Exception: {}", rt, iae);
                 }
             }
         }

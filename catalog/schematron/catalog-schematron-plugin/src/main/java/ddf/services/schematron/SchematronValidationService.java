@@ -327,7 +327,7 @@ public class SchematronValidationService implements MetacardValidator, Describab
 
         @Override
         public void warning(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}",
+            LOGGER.debug("Transformer warning: '{}' on file: {}",
                     e.getMessage(),
                     this.schematronFileNames);
             LOGGER.debug("Saxon exception", e);
@@ -335,7 +335,7 @@ public class SchematronValidationService implements MetacardValidator, Describab
 
         @Override
         public void error(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}",
+            LOGGER.debug("Transformer warning: '{}' on file: {}",
                     e.getMessage(),
                     this.schematronFileNames);
             LOGGER.debug("Saxon exception", e);
@@ -343,7 +343,7 @@ public class SchematronValidationService implements MetacardValidator, Describab
 
         @Override
         public void fatalError(TransformerException e) throws TransformerException {
-            LOGGER.error("Transformer error: (Schematron file = {}):", this.schematronFileNames, e);
+            LOGGER.info("Transformer error: (Schematron file = {}):", this.schematronFileNames, e);
         }
     }
 

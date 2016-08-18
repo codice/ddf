@@ -58,7 +58,7 @@ public class HazelcastNotificationStore implements NotificationStore {
     private IMap<Object, Object> notificationsCache;
 
     public HazelcastNotificationStore(BundleContext context, String xmlConfigFilename) {
-        LOGGER.info("Creating {} cache", NOTIFICATION_CACHE_NAME);
+        LOGGER.debug("Creating {} cache", NOTIFICATION_CACHE_NAME);
         if (this.instance == null) {
             Config cfg = getHazelcastConfig(context, xmlConfigFilename);
             cfg.setClassLoader(getClass().getClassLoader());
@@ -89,7 +89,7 @@ public class HazelcastNotificationStore implements NotificationStore {
             try {
                 xmlConfigBuilder = new XmlConfigBuilder(xmlConfigFileUrl.openStream());
                 cfg = xmlConfigBuilder.build();
-                LOGGER.info("Successfully built hazelcast config from XML config file {}",
+                LOGGER.debug("Successfully built hazelcast config from XML config file {}",
                         xmlConfigFilename);
             } catch (FileNotFoundException e) {
                 LOGGER.info("FileNotFoundException trying to build hazelcast config from XML file "

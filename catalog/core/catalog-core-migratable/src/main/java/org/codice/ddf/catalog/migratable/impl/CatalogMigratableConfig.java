@@ -70,7 +70,7 @@ public class CatalogMigratableConfig {
                     1,
                     MAX_CARDS_PER_FILE);
 
-            LOGGER.error(errorMsgBounds);
+            LOGGER.info(errorMsgBounds);
             throw new IllegalArgumentException(errorMsgBounds);
         }
 
@@ -80,7 +80,7 @@ public class CatalogMigratableConfig {
                     exportCardsPerFile,
                     this.exportQueryPageSize);
 
-            LOGGER.error(errorMsgLessThanQuery);
+            LOGGER.info(errorMsgLessThanQuery);
             throw new IllegalArgumentException(errorMsgLessThanQuery);
         }
 
@@ -100,7 +100,7 @@ public class CatalogMigratableConfig {
                     MIN_QUERY_PAGE_SIZE,
                     MAX_QUERY_PAGE_SIZE);
 
-            LOGGER.error(errorMsgBounds);
+            LOGGER.info(errorMsgBounds);
             throw new IllegalArgumentException(errorMsgBounds);
         }
 
@@ -119,7 +119,7 @@ public class CatalogMigratableConfig {
                     1,
                     MAX_THREADS);
 
-            LOGGER.error(errorMsgBounds);
+            LOGGER.info(errorMsgBounds);
             throw new IllegalArgumentException(errorMsgBounds);
         }
 

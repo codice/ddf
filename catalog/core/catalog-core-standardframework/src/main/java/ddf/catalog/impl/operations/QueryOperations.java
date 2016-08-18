@@ -142,8 +142,7 @@ public class QueryOperations extends DescribableImpl {
             queryResponse = processPostQueryPlugins(queryResponse);
 
         } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing query", re);
-            throw new UnsupportedQueryException("Exception during runtime while performing query");
+            throw new UnsupportedQueryException("Exception during runtime while performing query", re);
         }
 
         return queryResponse;
@@ -244,12 +243,8 @@ public class QueryOperations extends DescribableImpl {
                 if (sourceOperations.isSourceAvailable(source)) {
                     sourcesToQuery.add(source);
                 } else {
-                    // do nothing -- we don't care if a connected source is
-                    // unavailable.
-                    if (LOGGER.isWarnEnabled()) {
-                        LOGGER.warn("Connected Source {} is unavailable and will not be queried.",
-                                source.getId());
-                    }
+                    LOGGER.debug("Connected Source {} is unavailable and will not be queried.",
+                            source.getId());
                 }
             }
         }
@@ -596,7 +591,7 @@ public class QueryOperations extends DescribableImpl {
         if (!exceptions.isEmpty()) {
             // we have exceptions to merge in
             if (response == null) {
-                LOGGER.error(
+                LOGGER.warn(
                         "Could not add Query exceptions to a QueryResponse because the list of ProcessingDetails was null -- according to the API this should not happen");
             } else {
                 // need to merge them together.

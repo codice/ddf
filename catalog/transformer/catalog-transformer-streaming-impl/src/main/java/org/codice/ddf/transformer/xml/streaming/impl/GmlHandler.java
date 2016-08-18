@@ -73,7 +73,7 @@ public class GmlHandler implements SaxEventHandler {
         try {
             gml3Element = new SaxEventToXmlElementConverter();
         } catch (UnsupportedEncodingException | XMLStreamException e) {
-            LOGGER.warn("Error constructing new SaxEventToXmlElementConverter()", e);
+            LOGGER.debug("Error constructing new SaxEventToXmlElementConverter()", e);
         }
         state = new Stack<>();
     }
@@ -106,7 +106,7 @@ public class GmlHandler implements SaxEventHandler {
         try {
             gml3Element.addNamespace(prefix, uri);
         } catch (XMLStreamException e) {
-            LOGGER.warn("Error adding namespace to SaxEventToXmlConverter()", e);
+            LOGGER.debug("Error adding namespace to SaxEventToXmlConverter()", e);
         }
     }
 
@@ -132,7 +132,7 @@ public class GmlHandler implements SaxEventHandler {
             try {
                 gml3Element.toElement(uri, localName, attributes);
             } catch (XMLStreamException e) {
-                LOGGER.warn("Error writing toElement in SaxEventToXmlConverter()", e);
+                LOGGER.debug("Error writing toElement in SaxEventToXmlConverter()", e);
             }
             if (localName.equalsIgnoreCase("pos")) {
                 readingGml3 = true;
@@ -164,7 +164,7 @@ public class GmlHandler implements SaxEventHandler {
             try {
                 gml3Element.toElement(namespaceURI, localName);
             } catch (XMLStreamException e) {
-                LOGGER.warn("Error writing to element in SaxEventToXmlConverter()", e);
+                LOGGER.debug("Error writing to element in SaxEventToXmlConverter()", e);
             }
             if (!readingGml3) {
                 try {
@@ -210,7 +210,7 @@ public class GmlHandler implements SaxEventHandler {
             try {
                 gml3Element.toElement(ch, start, length);
             } catch (XMLStreamException e) {
-                LOGGER.warn("Error writing to element in SaxEventToXmlConverter()", e);
+                LOGGER.debug("Error writing to element in SaxEventToXmlConverter()", e);
             }
             if (!readingGml3) {
                 try {

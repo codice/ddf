@@ -474,7 +474,7 @@ public class MetacardImpl implements Metacard {
             try {
                 uri = new URI(data);
             } catch (URISyntaxException e) {
-                LOGGER.warn("failed parsing URI string, returning null");
+                LOGGER.debug("Failed parsing resource URI string {}", data);
             }
         }
         return uri;

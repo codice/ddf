@@ -96,7 +96,7 @@ public class CswRequest {
     public Map<String, String> parseNamespaces(String namespaces) throws CswException {
         Map<String, String> namespaceMap = new HashMap<String, String>();
         if (namespaces == null) {
-            LOGGER.warn("Namespaces list is null");
+            LOGGER.debug("Namespaces list is null");
             return namespaceMap;
         }
 

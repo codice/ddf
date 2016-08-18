@@ -145,7 +145,7 @@ public class XMLUtils {
                 }
             }
         } catch (XMLStreamException e) {
-            LOGGER.warn("Unable to parse root namespace from XML", e);
+            LOGGER.debug("Unable to parse root namespace from XML", e);
         } finally {
             if (xmlStreamReader != null) {
                 try {
@@ -188,7 +188,7 @@ public class XMLUtils {
             }
             transformer.transform(sourceXml, result);
         } catch (TransformerException e) {
-            LOGGER.warn("Unable to transform XML.", e);
+            LOGGER.debug("Unable to transform XML.", e);
         } finally {
             Thread.currentThread()
                     .setContextClassLoader(tccl);

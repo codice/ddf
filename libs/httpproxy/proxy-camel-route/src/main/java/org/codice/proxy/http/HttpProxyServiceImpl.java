@@ -138,7 +138,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
                             trustStorePassword),
                     443);
         } catch (MalformedURLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.debug(e.getMessage());
         }
 
         if (authhttps != null) {
@@ -247,7 +247,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         try {
             camelContext.stop();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.debug(e.getMessage());
         }
         camelContext.removeComponent(SERVLET_COMPONENT);
     }

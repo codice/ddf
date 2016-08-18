@@ -105,7 +105,7 @@ public class EXIOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 xmlStream = getInputStream();
                 EXIEncoder.encode(xmlStream, outStream);
             } catch (Exception exp) {
-                LOGGER.warn(
+                LOGGER.debug(
                         "Encountered exception when trying to encode outgoing response into EXI. Sending back uncompressed response.",
                         exp);
                 resetOut(outStream, true);

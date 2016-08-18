@@ -156,12 +156,11 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
                                 modifiedQueryRequest = service.process(source,
                                         modifiedQueryRequest);
                             } catch (PluginExecutionException e) {
-                                LOGGER.warn("Error executing PreFederatedQueryPlugin: "
-                                        + e.getMessage(), e);
+                                LOGGER.info("Error executing PreFederatedQueryPlugin: ", e);
                             }
                         }
                     } catch (StopProcessingException e) {
-                        LOGGER.warn("Plugin stopped processing: ", e);
+                        LOGGER.info("Plugin stopped processing: ", e);
                     }
 
                     futures.put(source,
@@ -169,8 +168,8 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
                                     modifiedQueryRequest.getQuery(),
                                     modifiedQueryRequest.getProperties())));
                 } else {
-                    LOGGER.warn("Duplicate source found with name " + source.getId()
-                            + ". Ignoring second one.");
+                    LOGGER.info("Duplicate source found with name {}. Ignoring second one.",
+                            source.getId());
                 }
             }
         }
@@ -207,11 +206,11 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
                 try {
                     queryResponse = service.process(queryResponse);
                 } catch (PluginExecutionException e) {
-                    LOGGER.warn("Error executing PostFederatedQueryPlugin: " + e.getMessage(), e);
+                    LOGGER.info("Error executing PostFederatedQueryPlugin: ", e);
                 }
             }
         } catch (StopProcessingException e) {
-            LOGGER.warn("Plugin stopped processing: ", e);
+            LOGGER.info("Plugin stopped processing: ", e);
         }
 
         LOGGER.debug("returning Query Results: {}", queryResponse);

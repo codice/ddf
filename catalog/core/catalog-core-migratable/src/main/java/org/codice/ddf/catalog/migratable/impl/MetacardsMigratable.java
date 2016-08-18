@@ -144,7 +144,7 @@ public class MetacardsMigratable extends DescribableBean implements DataMigratab
         try {
             executeQueryLoop(exportQuery, exportQueryRequest);
         } catch (Exception e) {
-            LOGGER.error("Internal error occurred when exporting catalog: {}", e);
+            LOGGER.info("Internal error occurred when exporting catalog: {}", e);
             throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
         } finally {
             cleanup();
@@ -157,10 +157,10 @@ public class MetacardsMigratable extends DescribableBean implements DataMigratab
         try {
             taskManager.close();
         } catch (MigrationException e) {
-            LOGGER.error("Migration exception when closing the task manager: {}", e);
+            LOGGER.info("Migration exception when closing the task manager: {}", e);
             throw e;
         } catch (Exception e) {
-            LOGGER.error("Internal error when closing the task manager: {}", e);
+            LOGGER.info("Internal error when closing the task manager: {}", e);
             throw new MigrationException("Error closing task manager: {}", e);
         }
     }
@@ -182,13 +182,13 @@ public class MetacardsMigratable extends DescribableBean implements DataMigratab
         do {
             response = framework.query(exportQueryRequest);
             if (response == null) {
-                LOGGER.error("Response came back null from the query");
+                LOGGER.info("Response came back null from the query");
                 throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
             }
 
             results = response.getResults();
             if (results == null) {
-                LOGGER.error("Results came back null from the response");
+                LOGGER.info("Results came back null from the response");
                 throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
             }
 

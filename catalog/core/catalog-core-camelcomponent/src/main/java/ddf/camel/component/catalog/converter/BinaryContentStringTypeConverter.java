@@ -53,7 +53,7 @@ public class BinaryContentStringTypeConverter extends TypeConverterSupport {
         try {
             mimeType = new MimeType(mimeTypeString);
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to parse mimetype: " + mimeTypeString, e);
+            LOGGER.debug("Failed to parse mimetype: " + mimeTypeString, e);
         }
 
         T result = null;
@@ -61,7 +61,7 @@ public class BinaryContentStringTypeConverter extends TypeConverterSupport {
             result = type.cast(new BinaryContentImpl(exchange.getOut()
                     .getBody(InputStream.class), mimeType));
         } catch (ClassCastException e) {
-            LOGGER.error("Failed to create BinaryContent", e);
+            LOGGER.debug("Failed to create BinaryContent", e);
         }
 
         return result;

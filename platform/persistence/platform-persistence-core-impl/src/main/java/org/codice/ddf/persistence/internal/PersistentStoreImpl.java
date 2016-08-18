@@ -75,7 +75,7 @@ public class PersistentStoreImpl implements PersistentStore {
                     try {
                         server.close();
                     } catch (IOException e) {
-                        LOGGER.warn("Unable to close Solr client", e);
+                        LOGGER.info("Unable to close Solr client", e);
                     }
                 }
             }
@@ -215,7 +215,7 @@ public class PersistentStoreImpl implements PersistentStore {
                     } else if (name.endsWith(PersistentItem.DATE_SUFFIX)) {
                         result.addProperty(name, (Date) doc.getFirstValue(name));
                     } else {
-                        LOGGER.info("Not adding field {} because it has invalid suffix", name);
+                        LOGGER.debug("Not adding field {} because it has invalid suffix", name);
                     }
                 }
                 results.add(result);
@@ -250,7 +250,7 @@ public class PersistentStoreImpl implements PersistentStore {
 
         if (!idsToDelete.isEmpty()) {
             try {
-                LOGGER.info("Deleting {} items by ID", idsToDelete.size());
+                LOGGER.debug("Deleting {} items by ID", idsToDelete.size());
                 coreSolrClient.deleteById(idsToDelete);
             } catch (SolrServerException e) {
                 LOGGER.info(
@@ -289,7 +289,7 @@ public class PersistentStoreImpl implements PersistentStore {
 
     private SolrClient getSolrCore(String storeName) {
         if (coreSolrClients.containsKey(storeName)) {
-            LOGGER.info("Returning core {} from map of coreSolrClients", storeName);
+            LOGGER.debug("Returning core {} from map of coreSolrClients", storeName);
             return coreSolrClients.get(storeName);
         }
 
@@ -304,7 +304,7 @@ public class PersistentStoreImpl implements PersistentStore {
             LOGGER.trace("EXITING: getSolrCore");
 
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            LOGGER.warn("Error getting solr server from future", e);
+            LOGGER.debug("Error getting solr server from future", e);
         }
         return coreSolrClient;
     }

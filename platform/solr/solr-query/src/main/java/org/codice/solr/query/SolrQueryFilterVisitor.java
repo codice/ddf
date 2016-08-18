@@ -112,24 +112,24 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
         SchemaField schemaField = null;
         String cacheKey = solrCoreName + "." + propertyName;
         if (schemaFieldsCache.containsKey(cacheKey)) {
-            LOGGER.info("Getting SchemaField for propertyName {} from cache", propertyName);
+            LOGGER.debug("Getting SchemaField for propertyName {} from cache", propertyName);
             schemaField = schemaFieldsCache.get(cacheKey);
         } else {
-            LOGGER.info("Using SchemaFieldResolver for propertyName {}", propertyName);
+            LOGGER.debug("Using SchemaFieldResolver for propertyName {}", propertyName);
             schemaField = schemaFieldResolver.getSchemaField(propertyName, true);
             schemaFieldsCache.put(cacheKey, schemaField);
         }
 
         if (schemaField != null) {
             mappedPropertyName = schemaField.getName();
-            LOGGER.info("propertyName = {},    mappedPropertyName = {},   schemaField = {}",
+            LOGGER.debug("propertyName = {},    mappedPropertyName = {},   schemaField = {}",
                     propertyName,
                     mappedPropertyName,
                     schemaField);
         } else {
             // Fallback - treat all fields as String
             mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING, true);
-            LOGGER.info("Used fallback to get mappedPropertyName of {}", mappedPropertyName);
+            LOGGER.debug("Used fallback to get mappedPropertyName of {}", mappedPropertyName);
         }
 
         return mappedPropertyName;

@@ -97,9 +97,8 @@ public class CrlChecker {
      */
     public void setCrlLocation(String location) {
         if (location == null) {
-            String errorMsg = "CRL property in " + encryptionPropertiesLocation
-                    + "is not set. Certs will not be checked against a CRL";
-            LOGGER.warn(errorMsg);
+            LOGGER.info("CRL property in {} is not set. Certs will not be checked against a CRL",
+                    encryptionPropertiesLocation);
             crl = null;
         } else {
             crl = createCrl(location);
@@ -117,10 +116,12 @@ public class CrlChecker {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             return cf.generateCRL(fis);
         } catch (IOException e) {
-            LOGGER.error("An error occurred while accessing {}", location, e);
+            LOGGER.debug("An error occurred while accessing {}", location, e);
             return null;
         } catch (GeneralSecurityException e) {
-            LOGGER.error("Encountered an error while generating CRL from file {}", location, e);
+            LOGGER.warn(
+                    "Encountered an error while generating CRL from file {}. CRL checking may not work correctly. Check the CRL file.",
+                    location, e);
             return null;
         }
     }

@@ -63,7 +63,7 @@ public class QueryMonitorPluginImpl implements QueryMonitorPlugin {
     @Override
     public boolean addActiveSearch(ActiveSearch activeSearch) {
         if (activeSearch == null) {
-            LOGGER.warn("Cannot add null ActiveSearch to map.");
+            LOGGER.debug("Cannot add null ActiveSearch to map.");
             return false;
         }
         activeSearches.put(activeSearch.getUniqueID(), activeSearch);
@@ -76,7 +76,7 @@ public class QueryMonitorPluginImpl implements QueryMonitorPlugin {
     @Override
     public boolean removeActiveSearch(UUID uniqueID) {
         if (uniqueID == null) {
-            LOGGER.warn("Can't remove active search with null ID.");
+            LOGGER.debug("Can't remove active search with null ID.");
             return false;
         }
         return (activeSearches.remove(uniqueID) != null);
@@ -96,10 +96,10 @@ public class QueryMonitorPluginImpl implements QueryMonitorPlugin {
     public QueryRequest process(Source source, QueryRequest input)
             throws PluginExecutionException, StopProcessingException {
         if (source == null) {
-            LOGGER.warn("Source given was null.");
+            LOGGER.debug("Source given was null.");
         }
         if (input == null) {
-            LOGGER.error("QueryRequest in process was null. Cannot add active search to map.");
+            LOGGER.debug("QueryRequest in process was null. Cannot add active search to map.");
         } else {
             ActiveSearch tempAS = new ActiveSearch(source, input);
             UUID uniqueID = tempAS.getUniqueID();
@@ -129,9 +129,9 @@ public class QueryMonitorPluginImpl implements QueryMonitorPlugin {
             return input;
         }
         if (input == null) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "Cannot remove ActiveSearch from the ActiveSearch Map. QueryResponse received in QueryMonitorPluginImpl was null.");
-            return input;
+            return null;
         }
         if (!removeActiveSearch((UUID) input.getRequest()
                 .getPropertyValue(SEARCH_ID))) {

@@ -126,7 +126,7 @@ public class ValidationParser implements ArtifactInstaller {
             LOGGER.debug("Installing file [{}]. Contents:\n{}", file.getAbsolutePath(), data);
         }
         if (StringUtils.isEmpty(data)) {
-            LOGGER.warn("File is empty [{}]. Nothing to install.", file.getAbsolutePath());
+            LOGGER.debug("File is empty [{}]. Nothing to install.", file.getAbsolutePath());
             return; /* nothing to install */
         }
 
@@ -180,7 +180,7 @@ public class ValidationParser implements ArtifactInstaller {
             try {
                 staged.call();
             } catch (RuntimeException e) {
-                LOGGER.warn("Error adding staged item {}", staged, e);
+                LOGGER.debug("Error adding staged item {}", staged, e);
             }
         }
     }

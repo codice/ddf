@@ -248,7 +248,7 @@ public class ContextualPredicate implements Predicate {
                         this.textPaths.toArray(new String[this.textPaths.size()]),
                         (String) contextualMap.get("METADATA"));
             } catch (IOException e) {
-                LOGGER.error("IO exception during context evaluation", e);
+                LOGGER.debug("IO exception during context evaluation", e);
                 return false;
             }
 
@@ -267,9 +267,9 @@ public class ContextualPredicate implements Predicate {
         try {
             return ContextualEvaluator.evaluate(cec);
         } catch (IOException e) {
-            LOGGER.error("IO Exception evaluating context criteria", e);
+            LOGGER.debug("IO Exception evaluating context criteria", e);
         } catch (ParseException e) {
-            LOGGER.error("Parse Exception evaluating context criteria", e);
+            LOGGER.debug("Parse Exception evaluating context criteria", e);
         }
 
         LOGGER.debug("EXITING: {}", methodName);

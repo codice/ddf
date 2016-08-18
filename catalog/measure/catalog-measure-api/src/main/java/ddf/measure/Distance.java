@@ -126,7 +126,7 @@ public final class Distance {
                     .convert(distanceInMeters);
             break;
         default:
-            LOGGER.warn("Could not convert distance units, assuming distance is in meters.");
+            LOGGER.debug("Could not convert distance units, assuming distance is in meters.");
             result = distanceInMeters;
             break;
         }

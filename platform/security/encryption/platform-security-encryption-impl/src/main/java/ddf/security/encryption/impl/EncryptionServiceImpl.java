@@ -44,7 +44,7 @@ public class EncryptionServiceImpl implements EncryptionService {
             try {
                 crypter = new Crypter(passwordDirectory);
             } catch (Exception e) {
-                LOGGER.error(e.getMessage());
+                LOGGER.debug(e.getMessage());
             }
 
             this.crypter = crypter;
@@ -61,8 +61,7 @@ public class EncryptionServiceImpl implements EncryptionService {
             return crypter.encrypt(plainTextValue);
 
         } catch (Exception e) {
-            LOGGER.error("Key and encryption service failed to set up. Failed to encrypt.");
-            LOGGER.error(e.getMessage());
+            LOGGER.debug("Key and encryption service failed to set up. Failed to encrypt.", e);
             return plainTextValue;
         }
     }
@@ -76,8 +75,7 @@ public class EncryptionServiceImpl implements EncryptionService {
         try {
             return crypter.decrypt(encryptedValue);
         } catch (Exception e) {
-            LOGGER.error("Key and encryption service failed to set up. Failed to decrypt.");
-            LOGGER.error(e.getMessage());
+            LOGGER.debug("Key and encryption service failed to set up. Failed to decrypt.", e);
             return encryptedValue;
         }
     }
@@ -105,10 +103,10 @@ public class EncryptionServiceImpl implements EncryptionService {
         String encryptedValue = unwrapEncryptedValue(wrappedEncryptedValue);
 
         if (wrappedEncryptedValue == null) {
-            LOGGER.error("A null password was provided.");
+            LOGGER.debug("A null password was provided.");
             decryptedValue = null;
         } else if (wrappedEncryptedValue.isEmpty()) {
-            LOGGER.warn("A blank password was provided in the configuration.");
+            LOGGER.debug("A blank password was provided in the configuration.");
             decryptedValue = "";
         } else if (!wrappedEncryptedValue.equals(encryptedValue)) {
             LOGGER.debug("Unwrapped encrypted password is now being decrypted");
@@ -155,7 +153,7 @@ public class EncryptionServiceImpl implements EncryptionService {
 
             return unwrappedEncryptedValue;
         } else {
-            LOGGER.warn("You have provided a null password in your configuration.");
+            LOGGER.debug("You have provided a null password in your configuration.");
 
             return null;
         }

@@ -100,7 +100,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
             objectName = new ObjectName(MBEAN_NAME);
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
-            LOGGER.error("Unable to create Insecure Defaults Service MBean with name [{}].",
+            LOGGER.info("Unable to create Insecure Defaults Service MBean with name [{}].",
                     MBEAN_NAME,
                     e);
         }
@@ -136,17 +136,17 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         try {
             try {
                 mBeanServer.registerMBean(this, objectName);
-                LOGGER.info("Registered Insecure Defaults Service MBean under object name: {}",
+                LOGGER.debug("Registered Insecure Defaults Service MBean under object name: {}",
                         objectName.toString());
             } catch (InstanceAlreadyExistsException e) {
                 // Try to remove and re-register
                 mBeanServer.unregisterMBean(objectName);
                 mBeanServer.registerMBean(this, objectName);
-                LOGGER.info("Re-registered Insecure Defaults Service MBean");
+                LOGGER.debug("Re-registered Insecure Defaults Service MBean");
             }
         } catch (MBeanRegistrationException | InstanceNotFoundException |
                 InstanceAlreadyExistsException | NotCompliantMBeanException e) {
-            LOGGER.error("Could not register MBean [{}].", objectName.toString(), e);
+            LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
         }
     }
 
@@ -154,10 +154,10 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         try {
             if (objectName != null && mBeanServer != null) {
                 mBeanServer.unregisterMBean(objectName);
-                LOGGER.info("Unregistered Insecure Defaults Service MBean");
+                LOGGER.debug("Unregistered Insecure Defaults Service MBean");
             }
         } catch (InstanceNotFoundException | MBeanRegistrationException e) {
-            LOGGER.error("Exception unregistering MBean [{}].", objectName.toString(), e);
+            LOGGER.info("Exception unregistering MBean [{}].", objectName.toString(), e);
         }
     }
 

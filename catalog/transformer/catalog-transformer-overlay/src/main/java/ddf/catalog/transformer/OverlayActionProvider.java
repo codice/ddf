@@ -89,7 +89,7 @@ public class OverlayActionProvider implements ActionProvider {
                         DESCRIPTION + overlayName + " overlay transformer",
                         uri.toURL());
             } catch (URISyntaxException | MalformedURLException | UnsupportedEncodingException e) {
-                LOGGER.warn("Error constructing URL", e);
+                LOGGER.debug("Error constructing URL", e);
             }
         } else {
             LOGGER.debug("Cannot handle the input [{}]", subject);

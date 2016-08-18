@@ -97,7 +97,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                 supportedClaimTypes.add(new URI(claim));
             }
         } catch (URISyntaxException e) {
-            LOGGER.warn("Not a valid URI for claim type {}.", e);
+            LOGGER.info("Not a valid URI for claim type {}.", e);
         }
         return supportedClaimTypes;
     }
@@ -129,7 +129,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                 }
             }
         } catch (URISyntaxException e) {
-            LOGGER.warn(
+            LOGGER.info(
                     ERROR_RETRIEVING_ATTRIBUTES + "Set log level to DEBUG for more information.",
                     externalAttributeStoreUrl,
                     nameId);
@@ -176,7 +176,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                 createClaims(claimCollection, assertion);
             }
         } catch (AttributeQueryException ex) {
-            LOGGER.warn("Error occurred in AttributeQueryClient, did not retrieve response. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
+            LOGGER.info("Error occurred in AttributeQueryClient, did not retrieve response. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
             LOGGER.debug("Error occurred in AttributeQueryClient, did not retrieve response.", ex);
         }
 
@@ -275,8 +275,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                 wsdlURL = uriResolver.isResolved() ? uriResolver.getURL() : new URL(wsdlLocation);
                 service = Service.create(wsdlURL, QName.valueOf(serviceName));
             } catch (Exception e) {
-                LOGGER.warn("Unable to create service from WSDL location. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
-                LOGGER.error("Unable to create service from WSDL location.", e);
+                LOGGER.info("Unable to create service from WSDL location. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
+                LOGGER.debug("Unable to create service from WSDL location.", e);
             }
         }
         return service;

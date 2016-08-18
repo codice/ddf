@@ -118,7 +118,7 @@ public class EscapingPrintWriter extends PrettyPrintWriter implements PrintWrite
         try {
             writer.flush();
         } catch (IOException e) {
-            LOGGER.error("Error flushing.", e);
+            LOGGER.debug("Error flushing.", e);
         }
         return writer.toString();
     }

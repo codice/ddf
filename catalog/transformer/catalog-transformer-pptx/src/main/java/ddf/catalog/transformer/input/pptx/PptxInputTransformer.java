@@ -197,7 +197,7 @@ public class PptxInputTransformer implements InputTransformer {
 
         if (slideShow.getSlides()
                 .isEmpty()) {
-            LOGGER.info(
+            LOGGER.debug(
                     "the powerpoint file does not contain any slides, skipping thumbnail generation");
             return null;
         }
@@ -240,7 +240,7 @@ public class PptxInputTransformer implements InputTransformer {
             }
         } catch (RuntimeException e) {
             if (e.getCause() instanceof javax.imageio.IIOException) {
-                LOGGER.warn("unable to generate thumbnail for PPTX file", e);
+                LOGGER.debug("unable to generate thumbnail for PPTX file", e);
             } else {
                 throw e;
             }

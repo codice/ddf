@@ -109,7 +109,7 @@ public class TagsFilterQueryPlugin implements PreFederatedQueryPlugin {
                     request.getSourceIds(),
                     request.getProperties());
         } catch (UnsupportedQueryException uqe) {
-            LOGGER.error("Unable to update query with default tags filter");
+            LOGGER.info("Unable to update query with default tags filter");
         }
         return request;
     }

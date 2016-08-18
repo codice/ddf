@@ -56,7 +56,7 @@ public class GeospatialPredicate implements Predicate {
             WKTReader2 wktreader = new WKTReader2();
             this.geoCriteria = wktreader.read(wkt);
         } catch (Exception e) {
-            LOGGER.error("Exception reading WKT", e);
+            LOGGER.debug("Exception reading WKT", e);
         }
     }
 
@@ -117,7 +117,7 @@ public class GeospatialPredicate implements Predicate {
                     distance);
             return GeospatialEvaluator.evaluate(gec);
         } catch (ParseException e) {
-            LOGGER.warn("Error parsing WKT string.  Unable to compare geos.  Returning false.");
+            LOGGER.debug("Error parsing WKT string.  Unable to compare geos.  Returning false.");
             return false;
         }
     }

@@ -102,7 +102,7 @@ public class MetadataConfigurationParser {
                                 readEntityDescriptor(new InputStreamReader(fileInputStream,
                                         "UTF-8"));
 
-                        LOGGER.error("parseEntityDescriptions:91 entityId = {}",
+                        LOGGER.info("entityId = {}",
                                 entityDescriptor.getEntityID());
                         entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
                         if (updateCallback != null) {
@@ -143,7 +143,7 @@ public class MetadataConfigurationParser {
                             String parsedResponse = httpResponse.parseAsString();
                             buildEntityDescriptor(parsedResponse);
                         } catch (IOException e) {
-                            LOGGER.error("Unable to parse metadata from: {}",
+                            LOGGER.info("Unable to parse metadata from: {}",
                                     httpResponse.getRequest()
                                             .getUrl()
                                             .toString(),
@@ -154,7 +154,7 @@ public class MetadataConfigurationParser {
 
                 @Override
                 public void onFailure(Throwable throwable) {
-                    LOGGER.error("Unable to retrieve metadata.", throwable);
+                    LOGGER.info("Unable to retrieve metadata.", throwable);
                 }
             });
             service.shutdown();
@@ -170,7 +170,7 @@ public class MetadataConfigurationParser {
         } else if (entityDescription.startsWith("<") && entityDescription.endsWith(">")) {
             entityDescriptor = readEntityDescriptor(new StringReader(entityDescription));
         } else {
-            LOGGER.warn("Skipping unknown metadata configuration value: " + entityDescription);
+            LOGGER.info("Skipping unknown metadata configuration value: {}", entityDescription);
         }
 
         if (entityDescriptor != null) {

@@ -82,7 +82,7 @@ public class RegistryMetacardHandler implements EventHandler {
                 return null;
             });
         } catch (PrivilegedActionException e) {
-            LOGGER.error("Error processing registry metacard event.", e);
+            LOGGER.debug("Error processing registry metacard event.", e);
         }
     }
 
@@ -155,7 +155,7 @@ public class RegistryMetacardHandler implements EventHandler {
             if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
                 if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-                    LOGGER.error("Thread pool didn't terminate");
+                    LOGGER.debug("Thread pool didn't terminate");
                 }
             }
         } catch (InterruptedException e) {

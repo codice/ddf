@@ -81,12 +81,12 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
         Metacard metacard = (Metacard) subject;
 
         if (StringUtils.isBlank(metacard.getId())) {
-            LOGGER.warn("Cannot create Action: No metacard ID.");
+            LOGGER.debug("Cannot create Action: No metacard ID.");
             return null;
         }
 
         if (isHostUnset(SystemBaseUrl.getHost())) {
-            LOGGER.warn("Cannot create Action URL for metacard {}: Host name/IP not set.",
+            LOGGER.debug("Cannot create Action URL for metacard {}: Host name/IP not set.",
                     metacard.getId());
             return null;
         }
@@ -94,7 +94,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
         try {
             return getMetacardAction(getSource(metacard), metacard);
         } catch (Exception e) {
-            LOGGER.warn("Cannot create Action URL for metacard {}.", metacard.getId(), e);
+            LOGGER.debug("Cannot create Action URL for metacard {}.", metacard.getId(), e);
             return null;
         }
     }

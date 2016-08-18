@@ -89,21 +89,21 @@ public class OperationsStorageSupport {
                         .commit(storageRequest);
                 historianTransactionKey.ifPresent(historian::commit);
             } catch (StorageException e) {
-                LOGGER.error("Unable to commit content changes for id: {}",
+                LOGGER.info("Unable to commit content changes for id: {}",
                         storageRequest.getId(),
                         e);
                 try {
                     sourceOperations.getStorage()
                             .rollback(storageRequest);
                 } catch (StorageException e1) {
-                    LOGGER.error("Unable to remove temporary content for id: {}",
+                    LOGGER.info("Unable to remove temporary content for id: {}",
                             storageRequest.getId(),
                             e1);
                 } finally {
                     try {
                         historianTransactionKey.ifPresent(historian::rollback);
                     } catch (RuntimeException re) {
-                        LOGGER.error(
+                        LOGGER.info(
                                 "Unable to commit versioned items for historian transaction: {}",
                                 historianTransactionKey.orElseGet(String::new),
                                 re);

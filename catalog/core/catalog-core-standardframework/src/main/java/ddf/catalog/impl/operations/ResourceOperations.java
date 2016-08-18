@@ -138,17 +138,17 @@ public class ResourceOperations extends DescribableImpl {
             }
 
         } catch (UnsupportedQueryException e) {
-            LOGGER.warn("Error finding metacard {}", metacardId, e);
+            LOGGER.debug("Error finding metacard {}", metacardId, e);
             LOGGER.trace("EXITING: getEnterpriseResourceOptions");
             throw new ResourceNotFoundException("Error finding metacard due to Unsuppported Query",
                     e);
         } catch (FederationException e) {
-            LOGGER.warn("Error federating query for metacard {}", metacardId, e);
+            LOGGER.debug("Error federating query for metacard {}", metacardId, e);
             LOGGER.trace("EXITING: getEnterpriseResourceOptions");
             throw new ResourceNotFoundException("Error finding metacard due to Federation issue",
                     e);
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Metacard couldn't be found {}", metacardId, e);
+            LOGGER.debug("Metacard couldn't be found {}", metacardId, e);
             LOGGER.trace("EXITING: getEnterpriseResourceOptions");
             throw new ResourceNotFoundException("Query returned null metacard", e);
         }
@@ -202,17 +202,17 @@ public class ResourceOperations extends DescribableImpl {
                 throw resourceNotFoundException;
             }
         } catch (UnsupportedQueryException e) {
-            LOGGER.warn("Error finding metacard {}", metacardId, e);
+            LOGGER.debug("Error finding metacard {}", metacardId, e);
             LOGGER.trace("EXITING: getLocalResourceOptions");
             throw new ResourceNotFoundException("Error finding metacard due to Unsuppported Query",
                     e);
         } catch (FederationException e) {
-            LOGGER.warn("Error federating query for metacard {}", metacardId, e);
+            LOGGER.debug("Error federating query for metacard {}", metacardId, e);
             LOGGER.trace("EXITING: getLocalResourceOptions");
             throw new ResourceNotFoundException("Error finding metacard due to Federation issue",
                     e);
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Metacard couldn't be found {}", metacardId, e);
+            LOGGER.debug("Metacard couldn't be found {}", metacardId, e);
             LOGGER.trace("EXITING: getLocalResourceOptions");
             throw new ResourceNotFoundException("Query returned null metacard", e);
         }
@@ -272,15 +272,15 @@ public class ResourceOperations extends DescribableImpl {
                 throw new ResourceNotFoundException(message);
             }
         } catch (UnsupportedQueryException e) {
-            LOGGER.warn("Error finding metacard {}", metacardId, e);
+            LOGGER.debug("Error finding metacard {}", metacardId, e);
             throw new ResourceNotFoundException("Error finding metacard due to Unsuppported Query",
                     e);
         } catch (FederationException e) {
-            LOGGER.warn("Error federating query for metacard {}", metacardId, e);
+            LOGGER.debug("Error federating query for metacard {}", metacardId, e);
             throw new ResourceNotFoundException("Error finding metacard due to Federation issue",
                     e);
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Metacard couldn't be found {}", metacardId, e);
+            LOGGER.debug("Metacard couldn't be found {}", metacardId, e);
             throw new ResourceNotFoundException("Query returned null metacard", e);
         } finally {
             LOGGER.trace("EXITING: getResourceOptions");
@@ -395,7 +395,7 @@ public class ResourceOperations extends DescribableImpl {
                     LOGGER.debug("Retrieving product from remote source {}", source.getId());
                     retriever = new RemoteResourceRetriever(source, responseURI, requestProperties);
                 } else {
-                    LOGGER.warn("Could not find federatedSource: {}", resourceSourceName);
+                    LOGGER.debug("Could not find federatedSource: {}", resourceSourceName);
                 }
             } else {
                 LOGGER.debug("Retrieving product from local source {}", resourceSourceName);
@@ -440,13 +440,13 @@ public class ResourceOperations extends DescribableImpl {
             resourceResponse.getProperties()
                     .put(Constants.METACARD_PROPERTY, metacard);
         } catch (DataUsageLimitExceededException e) {
-            LOGGER.error("RuntimeException caused by: ", e);
+            LOGGER.info("RuntimeException caused by: ", e);
             throw e;
         } catch (RuntimeException e) {
-            LOGGER.error("RuntimeException caused by: ", e);
+            LOGGER.info("RuntimeException caused by: ", e);
             throw new ResourceNotFoundException("Unable to find resource");
         } catch (StopProcessingException e) {
-            LOGGER.error("Resource not supported", e);
+            LOGGER.info("Resource not supported", e);
             throw new ResourceNotSupportedException(FAILED_BY_GET_RESOURCE_PLUGIN + e.getMessage());
         }
 

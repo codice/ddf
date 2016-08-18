@@ -391,7 +391,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             // Write the content into xml stringwriter
             xmlString = XMLUtils.prettyFormat(doc);
         } catch (ParserConfigurationException pce) {
-            LOGGER.error("Parsing error while creating xml data", pce);
+            LOGGER.debug("Parsing error while creating xml data", pce);
         }
 
         LOGGER.trace("xml = {}", xmlString);

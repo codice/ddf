@@ -122,7 +122,7 @@ public class PdfInputTransformer implements InputTransformer {
         try (PDDocument pdfDocument = PDDocument.load(input)) {
             return transformPdf(id, pdfDocument);
         } catch (InvalidPasswordException e) {
-            LOGGER.warn("Cannot transform encrypted pdf", e);
+            LOGGER.debug("Cannot transform encrypted pdf", e);
             return initializeMetacard(id);
         }
     }

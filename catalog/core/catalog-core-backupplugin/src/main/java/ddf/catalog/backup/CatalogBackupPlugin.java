@@ -191,7 +191,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 TEMP_FILE_EXTENSION));
         boolean success = source.renameTo(destination);
         if (!success) {
-            LOGGER.warn("Failed to move {} to {}.",
+            LOGGER.debug("Failed to move {} to {}.",
                     source.getAbsolutePath(),
                     destination.getAbsolutePath());
         }

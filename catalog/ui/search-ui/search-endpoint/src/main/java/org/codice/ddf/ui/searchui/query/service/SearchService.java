@@ -194,7 +194,7 @@ public class SearchService {
         try {
             filter = ECQL.toFilter(cql);
         } catch (CQLException e) {
-            LOGGER.warn("Unable to parse CQL filter", e);
+            LOGGER.debug("Unable to parse CQL filter", e);
             return;
         }
 
@@ -205,7 +205,7 @@ public class SearchService {
             // Hand off to the search controller for the actual query
             searchController.executeQuery(searchRequest, serverSession, subject);
         } catch (Exception e) {
-            LOGGER.warn("Exception while executing a query", e);
+            LOGGER.debug("Exception while executing a query", e);
         }
 
     }

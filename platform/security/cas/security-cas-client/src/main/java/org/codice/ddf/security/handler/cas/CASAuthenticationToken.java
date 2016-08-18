@@ -53,7 +53,7 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
             user = (String) principal;
         }
         if (user == null) {
-            LOGGER.warn("Unexpected null user.");
+            LOGGER.debug("Unexpected null user.");
         }
         return user;
     }

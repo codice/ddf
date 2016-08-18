@@ -153,7 +153,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                 mBeanServer.registerMBean(this, objectName);
             } catch (InstanceAlreadyExistsException iaee) {
                 // Try to remove and re-register
-                logger.info("Re-registering Application Service MBean");
+                logger.debug("Re-registering Application Service MBean");
                 mBeanServer.unregisterMBean(objectName);
                 mBeanServer.registerMBean(this, objectName);
             }

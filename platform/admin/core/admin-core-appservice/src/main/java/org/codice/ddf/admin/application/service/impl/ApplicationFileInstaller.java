@@ -135,7 +135,7 @@ public class ApplicationFileInstaller {
             ZipEntry curEntry = (ZipEntry) entries.nextElement();
             if (!curEntry.isDirectory()) {
                 if (isFeatureFile(curEntry)) {
-                    LOGGER.info(
+                    LOGGER.debug(
                             "Found a feature in the application: {} which verifies this is a Karaf ARchive.",
                             curEntry.getName());
                     return true;
@@ -164,7 +164,7 @@ public class ApplicationFileInstaller {
                     InputStream is = appZip.getInputStream(curEntry);
                     String outputName = curEntry.getName()
                             .substring("repository/".length());
-                    LOGGER.info("Writing out {}", curEntry.getName());
+                    LOGGER.debug("Writing out {}", curEntry.getName());
                     org.apache.aries.util.io.IOUtils.writeOut(new File(REPO_LOCATION),
                             outputName,
                             is);

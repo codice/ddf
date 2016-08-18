@@ -40,7 +40,7 @@ public class Wfs20JaxbElementProvider<T> extends JAXBElementProvider<T> {
             jaxbContext = JAXBContext.newInstance(contextPath,
                     Wfs20JaxbElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
+            LOGGER.debug("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
         return jaxbContext;

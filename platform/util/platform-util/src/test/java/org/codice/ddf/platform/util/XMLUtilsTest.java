@@ -123,17 +123,17 @@ public class XMLUtilsTest {
         transformerProperties.setErrorListener(new ErrorListener() {
             @Override
             public void warning(TransformerException exception) throws TransformerException {
-                LOGGER.warn("Problem occurred during transformation.", exception);
+                LOGGER.debug("Problem occurred during transformation.", exception);
             }
 
             @Override
             public void error(TransformerException exception) throws TransformerException {
-                LOGGER.error("Error occurred during transformation.", exception);
+                LOGGER.debug("Error occurred during transformation.", exception);
             }
 
             @Override
             public void fatalError(TransformerException exception) throws TransformerException {
-                LOGGER.error("Fatal error occurred during transformation.", exception);
+                LOGGER.debug("Fatal error occurred during transformation.", exception);
             }
         });
         return transformerProperties;
