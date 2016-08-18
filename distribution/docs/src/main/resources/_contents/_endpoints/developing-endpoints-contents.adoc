@@ -1,0 +1,52 @@
+
+=== Developing Endpoints
+
+Complete the following procedure to create an endpoint. 
+
+. Create a Java class that implements the endpoint's business logic. Example: Creating a web service that external clients can invoke.
+
+. Add the endpoint's business logic, invoking `CatalogFramework` calls as needed.  
+
+. Import the ${branding} packages to the bundle's manifest for run-time (in addition to any other required packages): +
+`Import-Package: ddf.catalog, ddf.catalog.*`
+
+. Retrieve an instance of `CatalogFramework` from the OSGi registry. (Refer to <<_working_with_osgi_-_service_registry,Working with OSGi - Service Registry>> for examples.)
+
+Deploy the packaged service to ${branding}.
+(Refer to <<_working_with_osgi_-_bundles,Working with OSGi - Bundles>>.)
+
+[NOTE]
+====
+It is recommended to use the maven bundle plugin to create the Endpoint bundle's manifest as opposed to directly editing the manifest file.
+====
+
+[TIP]
+====
+*No implementation of an interface is required* +
+Unlike other ${branding} components that require you to implement a standard interface, no implementation of an interface is required in order to create an endpoint.
+====
+
+.Common Endpoint Business Logic
+[cols="1m,2", options="header"]
+|===
+|Methods
+|Use
+
+|Ingest
+|Add, modify, and remove metadata using the ingest-related `CatalogFramework` methods: 
+
+create, update, and delete. 
+
+|Query
+|Request metadata using the `query` method.
+
+|Source
+|Get available `Source` information.
+
+|Resource
+|Retrieve products referenced in Metacards from Sources.
+
+|Transform
+|Convert common Catalog Framework data types to and from other data formats.
+
+|===

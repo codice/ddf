@@ -1,0 +1,16 @@
+
+==== Application Upload Endpoint
+
+The Application Upload Endpoint enables uploading new and upgraded applications to the system.
+
+===== Installing Application Upload Endpoint
+
+The Application Upload Endpoint is installed by default with a standard installation as part of the ${ddf-admin} application.
+
+===== Application Upload Endpoint
+
+The Application endpoint is available at <${secure_url}/services/application.
+
+===== Configuring Application Upload Endpoint
+
+No configuration necessary.

@@ -240,3 +240,33 @@ include::{adoc-include}/_catalog-frameworks/attribute-type-definition-contents.a
 include::{adoc-include}/_catalog-frameworks/default-attribute-values-contents.adoc[]
 
 include::{adoc-include}/_catalog-frameworks/attribute-injection-definition-contents.adoc[]
+
+== Endpoints
+
+include::{adoc-include}/_endpoints/endpoints-intro-contents.adoc[]
+
+// summary list of endpoints
+include::{adoc-include}/_endpoints/available-endpoints-contents.adoc[]
+
+// endpoint details
+include::{adoc-include}/_endpoints/application-endpoint-contents.adoc[]
+
+include::{adoc-include}/_endpoints/cometd-endpoint-contents.adoc[]
+
+include::{adoc-include}/_endpoints/catalog-rest-endpoint-contents.adoc[]
+
+include::{adoc-include}/_endpoints/csw-endpoint-contents.adoc[]
+
+include::{adoc-include}/_endpoints/ftp-endpoint-contents.adoc[]
+
+include::{adoc-include}/_endpoints/kml-endpoint-contents.adoc[]
+
+include::{adoc-include}/_endpoints/metrics-endpoint-contents.adoc[]
+
+include::{adoc-include}/_endpoints/opensearch-endpoint-contents.adoc[]
+
+include::{adoc-include}/_endpoints/endpoint-utilities-intro-contents.adoc[]
+
+include::{adoc-include}/_endpoints/compression-services-contents.adoc[]
+
+include::{adoc-include}/_endpoints/developing-endpoints-contents.adoc[]

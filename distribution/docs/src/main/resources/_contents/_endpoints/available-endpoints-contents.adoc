@@ -1,0 +1,15 @@
+
+=== Available Endpoints
+
+The following endpoints are available in a standard installation of ${branding}:
+
+<<_application_upload_endpoint,Application Upload Endpoint>>:: Uploads new/upgraded applications to the system.
+<<_catalog_rest_endpoint,Catalog REST Endpoint>>:: Allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. _Implements_ https://www.w3.org/2001/sw/wiki/REST[REST specification].
+<<_cometd_endpoint,CometD Endpoint>>:: Enables asynchronous search capabilities. _Implements_ https://docs.cometd.org/current/reference/[CometD].
+<<_csw_endpoint,CSW Endpoint>>:: Enables a client to search collections of descriptive information (metadata) about geospatial data and services. _Implements_ http://www.opengeospatial.org/standards/cat2eoext4ebrim[Catalogue Services for Web (CSW) standard], http://xmlrpc.scripting.com/spec.html[XML-RPC], https://portal.opengeospatial.org/modules/admin/license_agreement.php?suppressHeaders=0&access_license_id=3&target=http://portal.opengeospatial.org/files/%3fartifact_id=12597[ISO 19115/ISO191119].
+<<_ftp_endpoint,FTP Endpoint>>:: Provides a method for ingesting files directly into the ${branding} Catalog using the FTP protocol. _Implements_ https://tools.ietf.org/html/rfc959[FTP].
+<<_idp_endpoint,IdP Endpoint>>:: Enables configuration of ${branding} as an IdP server. _Implements_ https://www.oasis-open.org/standards#samlv2.0[SAML 2.0].
+<<_kml_endpoint, KML Endpoint>>:: Allows a user to generate a view-based KML Query Results Network Link. This network link can be opened with Google Earth, establishing a dynamic connection between Google Earth and ${branding}. _Implements_ https://developers.google.com/kml/documentation/kmlreference[Keyhole Markup Language].
+<<_metrics_endpoint, Metrics Endpoint>>:: Used by the <<_metrics_collection_application,Metrics Collection Application>> to report on system metrics.
+<<_opensearch_endpoint,OpenSearch Endpoint>>:: Provides an endpoint that a client accesses to send query parameters and receive search results. _Implements_ https://jax-rs-spec.java.net/[JAX-RS], [CDR IPT BrokeredSearch], https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-brokered-search[CDR IPT OpenSearch], https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-brokered-search[CDR REST Brokered Search 1.1], https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-search[CDR REST Search v3.0],
+and http://www.opensearch.org/Home[OpenSearch].
