@@ -13,7 +13,7 @@
  *
  **/
 /*global require*/
-var utility = require('component/visualization/cesium/utility');
+var utility = require('component/visualization/maps/cesium/utility');
 var clustering = require('density-clustering');
 var Cesium = require('cesium');
 var dbscan = new clustering.DBSCAN();

@@ -48,9 +48,9 @@ define([
                     'js/widgets/cesium.polygon',
                     'js/widgets/cesium.line',
                     'js/widgets/filter.cesium.geometry.group',
-                    'component/visualization/cesium/geometry.collection.view',
-                    'component/visualization/cesium/cluster.collection.view',
-                    'component/visualization/cesium/cluster.collection'
+                    'component/visualization/maps/cesium/geometry.collection.view',
+                    'component/visualization/maps/cesium/cluster.collection.view',
+                    'component/visualization/maps/cesium/cluster.collection'
                 ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, DrawLine, FilterCesiumGeometryGroup,
                              GeometryCollectionView, ClusterCollectionView, ClusterCollection) {
                     this.geocontroller = new GeoController({

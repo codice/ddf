@@ -25,7 +25,7 @@ define(['underscore',
         BM: Cesium.BingMapsImageryProvider,
         WMS: Cesium.WebMapServiceImageryProvider,
         WMT: Cesium.WebMapTileServiceImageryProvider,
-        TMS: Cesium.TileMapServiceImageryProvider,
+        TMS: Cesium.createTileMapServiceImageryProvider,
         GE: Cesium.GoogleEarthImageryProvider,
         CT: Cesium.CesiumTerrainProvider,
         AGS: Cesium.ArcGisImageServerTerrainProvider,
@@ -49,7 +49,6 @@ define(['underscore',
             this.map.imageryLayers.removeAll();
 
             this.collection.forEach(function (model) {
-                console.log(Cesium);
                 var type = imageryProviderTypes[model.get('type')];
                 var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid');
                 var provider = new type(initObj);

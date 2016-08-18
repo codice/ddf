@@ -18,8 +18,8 @@ define([
     'marionette',
     'js/CustomElements',
     './visualization.hbs',
-    'component/visualization/cesium/cesium.view',
-    'component/visualization/openlayers/openlayers.view',
+    'component/visualization/maps/cesium/cesium.view',
+    'component/visualization/maps/openlayers/openlayers.view',
     'component/visualization/histogram/histogram.view',
     'component/singletons/user-instance',
     'maptype'

@@ -12,7 +12,7 @@
 /*global require*/
 var Marionette = require('marionette');
 var store = require('js/store');
-var shapes = require('component/visualization/cesium/shapes');
+var shapes = require('component/visualization/maps/cesium/shapes');
 var _ = require('underscore');
 
 var GeometryView = Marionette.ItemView.extend({
