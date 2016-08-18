@@ -1,0 +1,27 @@
+
+=== Security Encryption
+
+The ${ddf-security} Encryption application offers an encryption framework and service implementation for other applications to use.
+This service is commonly used to encrypt and decrypt default passwords that are located within the metatype and Administration Web Console.
+
+.Security Encryption Components
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Feature Located In
+|Description/Link to Bundle Page
+
+|`security-encryption-api`
+|`security-encryption`
+|<<_security_encryption_api,Security Encryption API>>
+
+|`security-encryption-impl`
+|`security-encryption`
+|<<_security_encryption_implementation,Security Encryption Implementation>>
+
+|`security-encryption-commands`
+|`security-encryption`
+|<<_security_encryption_commands,Security Encryption Commands>>
+
+|===

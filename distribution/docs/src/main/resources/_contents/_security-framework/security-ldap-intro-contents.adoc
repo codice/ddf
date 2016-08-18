@@ -1,0 +1,18 @@
+=== Security LDAP
+
+The ${ddf-branding} LDAP application allows the user to configure either an embedded or a standalone LDAP server.
+The provided features contain a default set of schemas and users loaded to help facilitate authentication and authorization testing.
+
+.Security LDAP Components
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Feature Located In
+|Description/Link to Bundle Page
+
+|`opendj-embedded-server`
+|`opendj-embedded`
+|<<_Embedded_LDAP_Configuration,Embedded LDAP Configuration>>
+
+|===

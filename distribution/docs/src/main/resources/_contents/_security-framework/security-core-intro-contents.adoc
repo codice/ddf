@@ -1,0 +1,26 @@
+
+=== Security Core
+
+The Security Core application contains all of the necessary components that are used to perform security operations (authentication, authorization, and auditing) required in the framework.
+
+.Security Core Components
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Located in Feature
+|Description / Link to Bundle Page
+
+|`security-core-api`
+|`security-core`
+|<<_security_core_api,Security Core API>>
+
+|`security-core-impl`
+|`security-core`
+|<<_security_core_implementation,Security Core Implementation>>
+
+|`security-core-commons`
+|`security-core`
+|<<_security_core_commons,Security Core Commons>>
+
+|===

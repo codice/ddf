@@ -578,3 +578,70 @@ include::{adoc-include}/_queries/developing-filter-delegates-contents.adoc[]
 
 include::{adoc-include}/_console-commands/developing-console-commands-contents.adoc[]
 
+= DRAFT Distributed Data Framework Documentation
+include::${project.build.directory}/doc-contents/_contents/config.adoc[]
+
+== Security Framework
+
+include::{adoc-include}/_security-framework/security-framework-intro-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-core-intro-contents.adoc[]
+// security core
+include::{adoc-include}/_security-framework/security-core-api-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-core-implementation-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-core-commons-contents.adoc[]
+
+// security idp
+include::{adoc-include}/_security-framework/security-idp-intro-contents.adoc[]
+
+// security encryption
+include::{adoc-include}/_security-framework/security-encryption-intro-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-encryption-api-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-encryption-implementation-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-encryption-commands-contents.adoc[]
+
+// security ldap
+include::{adoc-include}/_security-framework/security-ldap-intro-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-ldap-embedded-server-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-pdp-intro-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-pdp-authz-realm-contents.adoc[]
+
+// security guest interceptor
+include::{adoc-include}/_security-framework/guest-interceptor-contents.adoc[]
+
+// security sts
+include::{adoc-include}/_security-framework/security-sts-intro-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-sts-client-config-contents.adoc[]
+
+include::{adoc-include}/_security-framework/external-ws-s-sts-support-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-sts-ldap-login-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-sts-ldap-claims-handler-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-sts-server-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-sts-service-contents.adoc[]
+
+// security wss
+include::{adoc-include}/_security-framework/security-wss-intro-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-rest-intro-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-soap-intro-contents.adoc[]
+
+include::{adoc-include}/_security-framework/developing-token-validators-contents.adoc[]
+
+// security pep
+include::{adoc-include}/_security-framework/security-pep-intro-contents.adoc[]
+
+include::{adoc-include}/_security-framework/security-pep-interceptor-contents.adoc[]
