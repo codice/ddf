@@ -19,6 +19,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,7 +52,6 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Though refreshRegistrySubscriptions in this class is a public method, it should never be called by any
@@ -54,11 +59,12 @@ import ddf.catalog.source.UnsupportedQueryException;
  * route and should avoid elevating privileges for any other service or being exposed to any
  * other endpoint.
  */
-@SuppressWarnings("PackageAccessibility")
 public class RefreshRegistryEntries {
     private static final Logger LOGGER = LoggerFactory.getLogger(RefreshRegistryEntries.class);
 
     private static final int PAGE_SIZE = 1000;
+
+    private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
 
     private List<RegistryStore> registryStores;
 
@@ -68,8 +74,26 @@ public class RefreshRegistryEntries {
 
     private boolean enableDelete = true;
 
+    private ScheduledExecutorService executor;
+
+    private int taskWaitTimeSeconds = 30;
+
+    private int refreshIntervalSeconds = 30;
+
+    private Future scheduledTask;
+
     public RefreshRegistryEntries() {
 
+    }
+
+    public void init() {
+        scheduledTask = executor.scheduleWithFixedDelay(() -> {
+            try {
+                refreshRegistryEntries();
+            } catch (FederationAdminException e) {
+                LOGGER.error("Problem refreshing registry entries.", e);
+            }
+        }, 10, refreshIntervalSeconds, TimeUnit.SECONDS);
     }
 
     /**
@@ -80,6 +104,10 @@ public class RefreshRegistryEntries {
      * @throws FederationAdminException
      */
     public void refreshRegistryEntries() throws FederationAdminException {
+
+        if (!registriesAvailable()) {
+            return;
+        }
 
         RemoteRegistryResults remoteResults = getRemoteRegistryMetacardsMap();
         Map<String, Metacard> remoteRegistryMetacardsMap =
@@ -148,6 +176,13 @@ public class RefreshRegistryEntries {
                 .isPresent();
     }
 
+    private boolean registriesAvailable() {
+        return registryStores.stream()
+                .filter(RegistryStore::isAvailable)
+                .findFirst()
+                .isPresent();
+    }
+
     private Map<String, List<Metacard>> getMetacardRegistryIdMap(Collection<Metacard> metacards) {
         Map<String, List<Metacard>> map = new HashMap<>();
         for (Metacard mcard : metacards) {
@@ -179,38 +214,68 @@ public class RefreshRegistryEntries {
         Map<String, Metacard> remoteRegistryMetacards = new HashMap<>();
         List<String> failedQueries = new ArrayList<>();
         List<String> storesQueried = new ArrayList<>();
-        List<String> localMetacardRegIds;
+        List<String> localMetacardRegIds = getLocalRegistryIds();
+
+        //Create the remote query task to be run.
+        List<Callable<RemoteResult>> tasks = new ArrayList<>();
+        for (RegistryStore store : registryStores) {
+            if (!store.isPullAllowed() || !store.isAvailable()) {
+                continue;
+            }
+            storesQueried.add(store.getRegistryId());
+            tasks.add(() -> {
+                SourceResponse response =
+                        store.query(new QueryRequestImpl(getBasicRegistryQuery()));
+                Map<String, Metacard> results = response.getResults()
+                        .stream()
+                        .map(Result::getMetacard)
+                        .filter(e -> !localMetacardRegIds.contains(RegistryUtility.getRegistryId(e)))
+                        .collect(Collectors.toMap(Metacard::getId, Function.identity()));
+                return new RemoteResult(store.getRegistryId(), results);
+
+            });
+        }
+
+        failedQueries.addAll(storesQueried);
+        List<RemoteResult> results = executeTasks(tasks);
+        results.stream()
+                .forEach(result -> {
+                    failedQueries.remove(result.getRegistryId());
+                    remoteRegistryMetacards.putAll(result.getRemoteRegistryMetacards());
+                });
+
+        return new RemoteRegistryResults(remoteRegistryMetacards, failedQueries, storesQueried);
+    }
+
+    private List<RemoteResult> executeTasks(List<Callable<RemoteResult>> tasks) {
+        List<RemoteResult> results = new ArrayList<>();
+        try {
+            List<Future<RemoteResult>> futures = executor.invokeAll(tasks);
+            for (Future<RemoteResult> future : futures) {
+                try {
+                    results.add(future.get(taskWaitTimeSeconds, TimeUnit.SECONDS));
+                } catch (ExecutionException e) {
+                    LOGGER.debug("Error executing query on a remote registry.", e);
+                } catch (TimeoutException e) {
+                    LOGGER.debug("Timeout occurred when querying a remote registry");
+                }
+            }
+        } catch (InterruptedException e) {
+            LOGGER.debug("Remote registry queries interrupted", e);
+        }
+        return results;
+    }
+
+    private List<String> getLocalRegistryIds() throws FederationAdminException {
         try {
             List<Metacard> localMetacards =
                     Security.runAsAdminWithException(() -> federationAdminService.getLocalRegistryMetacards());
-            localMetacardRegIds = localMetacards.stream()
+            return localMetacards.stream()
                     .map(e -> RegistryUtility.getRegistryId(e))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new FederationAdminException("Error querying for local metacards ", e);
         }
-        SourceResponse response;
-        for (RegistryStore store : registryStores) {
-            if (!store.isPullAllowed() || !store.isAvailable()) {
-                continue;
-            }
-
-            try {
-                storesQueried.add(store.getRegistryId());
-                response = store.query(new QueryRequestImpl(getBasicRegistryQuery()));
-                remoteRegistryMetacards.putAll(response.getResults()
-                        .stream()
-                        .map(Result::getMetacard)
-                        .filter(e -> !localMetacardRegIds.contains(RegistryUtility.getRegistryId(e)))
-                        .collect(Collectors.toMap(Metacard::getId, Function.identity())));
-            } catch (UnsupportedQueryException e) {
-                LOGGER.debug("Unable to contact {} for registry subscription query",
-                        store.getId(),
-                        e);
-                failedQueries.add(store.getRegistryId());
-            }
-        }
-        return new RemoteRegistryResults(remoteRegistryMetacards, failedQueries, storesQueried);
     }
 
     private void writeRemoteUpdates(List<Metacard> remoteMetacardsToUpdate)
@@ -292,13 +357,67 @@ public class RefreshRegistryEntries {
         this.enableDelete = enableDelete;
     }
 
+    public void setExecutor(ScheduledExecutorService executor) {
+        this.executor = executor;
+    }
+
+    public void setRefreshIntervalSeconds(int refreshIntervalSeconds) {
+        if (this.refreshIntervalSeconds == refreshIntervalSeconds) {
+            return;
+        }
+        this.refreshIntervalSeconds = refreshIntervalSeconds;
+        if (scheduledTask != null) {
+            this.scheduledTask.cancel(false);
+            this.init();
+        }
+    }
+
+    public void setTaskWaitTimeSeconds(Integer taskWaitTimeSeconds) {
+        this.taskWaitTimeSeconds = taskWaitTimeSeconds;
+    }
+
+    public void destroy() {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+                if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                    LOGGER.error("Thread pool didn't terminate");
+                }
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
+    }
+
+    static class RemoteResult {
+
+        private String registryId;
+
+        private Map<String, Metacard> remoteRegistryMetacards;
+
+        public RemoteResult(String registryId, Map<String, Metacard> remoteRegistryMetacards) {
+            this.registryId = registryId;
+            this.remoteRegistryMetacards = remoteRegistryMetacards;
+        }
+
+        public String getRegistryId() {
+            return registryId;
+        }
+
+        public Map<String, Metacard> getRemoteRegistryMetacards() {
+            return remoteRegistryMetacards;
+        }
+
+    }
+
     private static class RemoteRegistryResults {
 
-        Map<String, Metacard> remoteRegistryMetacards;
+        private Map<String, Metacard> remoteRegistryMetacards;
 
-        List<String> registryStoresQueried;
+        private List<String> registryStoresQueried;
 
-        List<String> failureList;
+        private List<String> failureList;
 
         public RemoteRegistryResults(Map<String, Metacard> remoteRegistryMetacards,
                 List<String> failureList, List<String> storesQueried) {
@@ -308,15 +427,15 @@ public class RefreshRegistryEntries {
         }
 
         public Map<String, Metacard> getRemoteRegistryMetacards() {
-            return remoteRegistryMetacards;
+            return new HashMap<>(remoteRegistryMetacards);
         }
 
         public List<String> getRegistryStoresQueried() {
-            return registryStoresQueried;
+            return new ArrayList<>(registryStoresQueried);
         }
 
         public List<String> getFailureList() {
-            return failureList;
+            return new ArrayList<>(failureList);
         }
     }
 }
