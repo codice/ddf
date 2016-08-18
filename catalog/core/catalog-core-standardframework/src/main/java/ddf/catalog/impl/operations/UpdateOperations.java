@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.opengis.filter.Filter;
+import org.opengis.filter.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -262,6 +263,42 @@ public class UpdateOperations {
     //
     // Private helper methods
     //
+
+    private UpdateRequest rewriteRequestToAvoidHistoryConflicts(UpdateRequest updateRequest)
+            throws UnsupportedQueryException {
+        final String attributeName = updateRequest.getAttributeName();
+        if (Metacard.ID.equals(attributeName)) {
+            return updateRequest;
+        }
+
+        Filter filter = updateRequest.getUpdates()
+                .stream()
+                .map(Map.Entry::getKey)
+                .map(Object::toString)
+                .map((val) -> getNonhistoryFilter(attributeName, val))
+                .collect(Collectors.collectingAndThen(Collectors.toList(),
+                        frameworkProperties.getFilterBuilder()::anyOf));
+
+
+    }
+
+    private Filter getNonhistoryFilter(String attributeName, String value) {
+        Filter attr = frameworkProperties.getFilterBuilder()
+                .attribute(attributeName)
+                .is()
+                .equalTo()
+                .text(value);
+        Filter notHistory = frameworkProperties.getFilterBuilder()
+                .not(frameworkProperties.getFilterBuilder()
+                        .attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(MetacardVersion.VERSION_TAG));
+
+        return frameworkProperties.getFilterBuilder()
+                .allOf(attr, notHistory);
+    }
+
     private UpdateRequest rewriteQuery(UpdateRequest updateRequest)
             throws UnsupportedQueryException {
         final String attributeName = updateRequest.getAttributeName();
@@ -304,8 +341,8 @@ public class UpdateOperations {
                 .collect(Collectors.toSet());
         if (!originalKeys.stream()
                 .allMatch(updatedKeys::contains)) {
-            LOGGER.warn("Could not obtain metacard ID's for all items in Update Request!");
-            throw new UnsupportedQueryException("Unable to complete query");
+            throw new UnsupportedQueryException(
+                    "Could not obtain metacard ID's for all items in Update Request");
         }
 
         return new UpdateRequestImpl(updateList,

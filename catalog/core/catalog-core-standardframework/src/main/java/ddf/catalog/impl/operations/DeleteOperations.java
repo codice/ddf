@@ -305,8 +305,7 @@ public class DeleteOperations {
         if(!deleteRequest.getAttributeValues()
                 .stream()
                 .allMatch(updatedIds::contains)){
-            LOGGER.warn("Could not obtain metacard ID's for all items in Delete Request!");
-            throw new StopProcessingException("Unable to complete query.");
+            throw new StopProcessingException("Could not obtain metacard ID's for all items in Delete Request.");
         }
 
 
