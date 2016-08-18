@@ -14,13 +14,25 @@
 package org.codice.ddf.registry.federationadmin.service.impl;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -32,6 +44,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
@@ -49,10 +62,15 @@ public class RefreshRegistryEntriesTest {
 
     private static final String TEST_ID = "TestId";
 
+    private static final String TEST_REG_ID = "TestRegId";
+
     private static final String TEST_XML_STRING = "SomeValidStringVersionOfXml";
 
     @Mock
     private FederationAdminServiceImpl federationAdminService;
+
+    @Mock
+    private ScheduledExecutorService executorService;
 
     private RefreshRegistryEntries refreshRegistryEntries;
 
@@ -67,6 +85,10 @@ public class RefreshRegistryEntriesTest {
         refreshRegistryEntries.setFederationAdminService(federationAdminService);
         refreshRegistryEntries.setRegistryStores(Collections.emptyList());
         refreshRegistryEntries.setFilterBuilder(filterBuilder);
+        refreshRegistryEntries.setExecutor(executorService);
+        when(registryStore.getId()).thenReturn(TEST_ID);
+        when(registryStore.getRegistryId()).thenReturn(TEST_REG_ID);
+        setupSerialExecutor();
     }
 
     @Test
@@ -78,7 +100,6 @@ public class RefreshRegistryEntriesTest {
         when(registryStore.query(any(QueryRequest.class))).thenReturn(response);
         refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
-        when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
         refreshRegistryEntries.refreshRegistryEntries();
@@ -97,7 +118,6 @@ public class RefreshRegistryEntriesTest {
 
         refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
-        when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(false);
 
         refreshRegistryEntries.refreshRegistryEntries();
@@ -116,7 +136,6 @@ public class RefreshRegistryEntriesTest {
 
         refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(false);
-        when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
         refreshRegistryEntries.refreshRegistryEntries();
@@ -210,7 +229,6 @@ public class RefreshRegistryEntriesTest {
 
         refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
-        when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
         refreshRegistryEntries.refreshRegistryEntries();
@@ -237,7 +255,6 @@ public class RefreshRegistryEntriesTest {
 
         refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
-        when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
         refreshRegistryEntries.refreshRegistryEntries();
@@ -263,12 +280,110 @@ public class RefreshRegistryEntriesTest {
 
         refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
         when(registryStore.isPullAllowed()).thenReturn(true);
-        when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.isAvailable()).thenReturn(true);
 
         refreshRegistryEntries.refreshRegistryEntries();
 
         verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
+    }
+
+    @Test
+    public void testMultipleStores() throws Exception {
+        Metacard mcard = getPopulatedTestRegistryMetacard();
+        RegistryStore registryStore2 = mock(
+                RegistryStore.class);
+        when(registryStore2.getId()).thenReturn("id2");
+        when(registryStore2.getRegistryId()).thenReturn("regId2");
+        when(registryStore2.isAvailable()).thenReturn(true);
+        when(registryStore2.isPullAllowed()).thenReturn(true);
+        SourceResponse response = new SourceResponseImpl(null,
+                Collections.singletonList(new ResultImpl(mcard)));
+        when(registryStore2.query(any(QueryRequest.class))).thenReturn(response);
+        when(registryStore.query(any(QueryRequest.class))).thenThrow(new UnsupportedQueryException());
+        when(registryStore.isAvailable()).thenReturn(true);
+        when(registryStore.isPullAllowed()).thenReturn(true);
+
+        when(registryStore2.query(any(QueryRequest.class))).thenReturn(response);
+
+        List<RegistryStore> stores = new ArrayList<>();
+        stores.add(registryStore);
+        stores.add(registryStore2);
+        refreshRegistryEntries.setRegistryStores(stores);
+        refreshRegistryEntries.refreshRegistryEntries();
+        verify(federationAdminService).addRegistryEntries(Collections.singletonList(mcard), null);
+    }
+
+    @Test
+    public void testAddUpdateAndDeleteAtOnce() throws Exception {
+        //returned metacards
+        Metacard createdMetacard = getPopulatedTestRegistryMetacard("createId",
+                "createRegId",
+                0,
+                true);
+        Metacard updatedMetacard = getPopulatedTestRegistryMetacard("updateId",
+                "updateRegId",
+                5000,
+                true);
+        //local metacards
+        Metacard localUpdatedMetacard = getPopulatedTestRegistryMetacard("localUpdateId",
+                "updateRegId",
+                0,
+                true,
+                "updateId");
+        Metacard localDeletedMetacard = getPopulatedTestRegistryMetacard("localDeleteId",
+                "deleteRegId",
+                0,
+                true,
+                "deleteRemoteMcardId");
+
+        List<Result> remoteMcards = new ArrayList<>();
+        remoteMcards.add(new ResultImpl(createdMetacard));
+        remoteMcards.add(new ResultImpl(updatedMetacard));
+        List<Metacard> localMcards = new ArrayList<>();
+        localMcards.add(localDeletedMetacard);
+        localMcards.add(localUpdatedMetacard);
+        when(federationAdminService.getInternalRegistryMetacards()).thenReturn(localMcards);
+        when(registryStore.getRegistryId()).thenReturn("remoteRegId");
+
+        SourceResponse response = new SourceResponseImpl(null, remoteMcards);
+        when(registryStore.query(any(QueryRequest.class))).thenReturn(response);
+
+        refreshRegistryEntries.setRegistryStores(Collections.singletonList(registryStore));
+        when(registryStore.isPullAllowed()).thenReturn(true);
+        when(registryStore.isAvailable()).thenReturn(true);
+
+        refreshRegistryEntries.refreshRegistryEntries();
+
+        verify(federationAdminService).addRegistryEntries(Collections.singletonList(createdMetacard),
+                null);
+        verify(federationAdminService).updateRegistryEntry(updatedMetacard);
+        verify(federationAdminService).deleteRegistryEntriesByMetacardIds(Collections.singletonList(
+                "localDeleteId"));
+    }
+
+    @Test
+    public void testDestroy() throws Exception {
+        when(executorService.awaitTermination(anyLong(), any(TimeUnit.class))).thenReturn(true);
+        refreshRegistryEntries.destroy();
+        verify(executorService, times(1)).awaitTermination(60L, TimeUnit.SECONDS);
+        verify(executorService, times(0)).shutdownNow();
+    }
+
+    @Test
+    public void testDestroyTerminateTasks() throws Exception {
+        when(executorService.awaitTermination(anyLong(), any(TimeUnit.class))).thenReturn(false);
+        refreshRegistryEntries.destroy();
+        verify(executorService, times(2)).awaitTermination(anyLong(), any(TimeUnit.class));
+        verify(executorService, times(1)).shutdownNow();
+    }
+
+    @Test
+    public void testDestroyInterupt() throws Exception {
+        when(executorService.awaitTermination(anyLong(),
+                any(TimeUnit.class))).thenThrow(new InterruptedException("interrupt"));
+        refreshRegistryEntries.destroy();
+        verify(executorService, times(1)).awaitTermination(anyLong(), any(TimeUnit.class));
+        verify(executorService, times(1)).shutdownNow();
     }
 
     private MetacardImpl getPopulatedTestRegistryMetacard() {
@@ -310,6 +425,51 @@ public class RefreshRegistryEntriesTest {
         registryMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
         registryMetacard.setAttribute(new AttributeImpl(Metacard.METADATA, TEST_XML_STRING));
         return registryMetacard;
+    }
+
+    private void setupSerialExecutor() throws InterruptedException {
+        doAnswer((args) -> {
+            List<Callable<RefreshRegistryEntries.RemoteResult>> callables =
+                    ((List<Callable<RefreshRegistryEntries.RemoteResult>>) args.getArguments()[0]);
+            List<Future<RefreshRegistryEntries.RemoteResult>> results = new ArrayList<>();
+            for (Callable<RefreshRegistryEntries.RemoteResult> callable : callables) {
+
+                results.add(new Future<RefreshRegistryEntries.RemoteResult>() {
+                    @Override
+                    public boolean cancel(boolean mayInterruptIfRunning) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isCancelled() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isDone() {
+                        return false;
+                    }
+
+                    @Override
+                    public RefreshRegistryEntries.RemoteResult get()
+                            throws InterruptedException, ExecutionException {
+                        return null;
+                    }
+
+                    @Override
+                    public RefreshRegistryEntries.RemoteResult get(long timeout, TimeUnit unit)
+                            throws InterruptedException, ExecutionException, TimeoutException {
+                        try {
+                            return callable.call();
+                        } catch (Exception e) {
+                            throw new ExecutionException(e);
+                        }
+                    }
+                });
+            }
+            return results;
+        }).when(executorService)
+                .invokeAll(any());
     }
 
 }
