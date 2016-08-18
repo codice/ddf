@@ -1,0 +1,4 @@
+|<<Gmd_Csw_Federated_Source,GMD CSW ISO Federated Source>>
+|Gmd_Csw_Federated_Source
+|CSW Federated Source using the Geographic MetaData (GMD) format (ISO 19115:2003)
+

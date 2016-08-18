@@ -1,0 +1,39 @@
+
+The ${ddf-solr} contains the Solr Catalog Provider (SCP), an implementation of the `CatalogProvider` interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+
+=== ${ddf-solr} Prerequisites
+
+To use the ${ddf-solr} application, the following apps/features must be installed:
+
+* <<_ddf_platform_application_reference,${ddf-platform}>>
+* <<_ddf_catalog_application_reference,${ddf-catalog}>>
+
+=== Installing ${ddf-solr}
+
+The ${ddf-solr} application is installed by default with a standard installation.
+
+=== Configuring ${ddf-solr}
+
+These configurations are available from the ${ddf-solr} application in the ${admin-console}.
+
+.${ddf-solr} Default Configurations
+[cols="1,3m,3" options="header"]
+|===
+|Name
+|Configuration ID
+|Description
+
+include::{adoc-include}/_tables/conf-ddf.catalog.solr.external.SolrHttpCatalogProvider-table-contents.adoc[]
+
+|===
+
+.${ddf-solr} Optional Configurations
+[cols="1,3m,3" options="header"]
+|===
+|Name
+|Configuration ID
+|Description
+
+include::{adoc-include}/_tables/conf-ddf.catalog.source.solr.SolrCatalogProvider-table-contents.adoc[]
+
+|===

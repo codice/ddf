@@ -16,9 +16,9 @@ The ${ddf-admin} application is installed by default with a standard installatio
 
 === Configuring the ${ddf-admin} Application
 
-* Navigate to the ${admin-console}.
-* Select the *${ddf-admin}* application.
-* Select the *Configuration* tab.
+. Navigate to the ${admin-console}.
+. Select the *${ddf-admin}* application.
+. Select the *Configuration* tab.
 
 .${ddf-admin} Configurations
 [cols="3" options="header"]

@@ -1,0 +1,4 @@
+|<<Csw_Federation_Profile_Source,CSW Federation Profile Source>>
+|Csw_Federation_Profile_Source
+|DDF's full fidelity CSW Federation Profile. Use this when federating to a DDF based system.
+

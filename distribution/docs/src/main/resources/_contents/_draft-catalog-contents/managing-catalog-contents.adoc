@@ -17,6 +17,7 @@ The ${ddf-catalog} is pre-installed with a standard installation.
 
 === Configuring the ${ddf-catalog} Application
 
+These configurations are available throught the ${ddf-catalog} application.
 .${ddf-catalog} Available Configurations
 [cols="1,1m,2" options="header"]
 |===

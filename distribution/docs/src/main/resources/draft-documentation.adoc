@@ -168,3 +168,40 @@ include::{adoc-include}/_draft-geowebcache-contents/managing-geowebcache-content
 include::{adoc-include}/_draft-platform-contents/managing-platform-contents.adoc[]
 
 <<<
+
+== ${ddf-registry} Application Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_draft-registry-contents/managing-registry-contents.adoc[]
+
+<<<
+
+== ${ddf-security} Application Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_draft-security-contents/managing-security-contents.adoc[]
+
+<<<
+
+== ${ddf-solr} Application Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_draft-solr-contents/managing-solr-contents.adoc[]
+
+<<<
+
+== ${ddf-spatial} Application Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_draft-spatial-contents/managing-spatial-contents.adoc[]
+
+<<<
+
+== ${ddf-ui} Application Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_draft-ui-contents/managing-ui-contents.adoc[]
+
+<<<
+
+
