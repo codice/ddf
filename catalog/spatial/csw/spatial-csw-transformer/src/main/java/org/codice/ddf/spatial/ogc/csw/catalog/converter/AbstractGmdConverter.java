@@ -56,7 +56,7 @@ public abstract class AbstractGmdConverter implements Converter {
         try {
             factory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
-            LOGGER.error("Failed to create xsdFactory", e);
+            LOGGER.debug("Failed to create xsdFactory", e);
         }
 
         XSD_FACTORY = factory;
@@ -94,7 +94,7 @@ public abstract class AbstractGmdConverter implements Converter {
     public final void marshal(Object source, HierarchicalStreamWriter inWriter,
             MarshallingContext context) {
         if (!(source instanceof Metacard)) {
-            LOGGER.warn("Failed to marshal Metacard: {}", source);
+            LOGGER.debug("Failed to marshal Metacard: {}", source);
             return;
         }
         MetacardImpl metacard = new MetacardImpl((Metacard) source);
