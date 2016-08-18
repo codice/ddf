@@ -1,5 +1,5 @@
 Version ${project.version}. Copyright (c) Codice Foundation
-:imagesdir: target/doc-contents/images
+:imagesdir: ${project.build.directory}/doc-contents/images
 :toc: left
 :toclevels: 3
 :example-caption:
@@ -13,10 +13,14 @@ Version ${project.version}. Copyright (c) Codice Foundation
 :download-url: https://github.com/codice/ddf/releases
 :adoc-include: ${project.build.directory}/doc-contents/_contents
 :title-logo: logo_ddf.png
-:adoc-include: ${project.build.directory}/doc-contents/_contents
+ifdef::backend-html[]
+:image-width: 500
+endif::[]
+ifdef::backend-pdf[]
+:image-width: 100
+endif::[]
 :last-update-label: Copyright (c) Codice Foundation. +
 This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). +
-
 This page last updated:
 
 ifdef::backend-pdf[]

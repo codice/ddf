@@ -356,3 +356,54 @@ include::{adoc-include}/_transformers/tika-mime-type-resolver-contents.adoc[]
 include::{adoc-include}/_transformers/custom-mime-type-resolver-contents.adoc[]
 
 include::{adoc-include}/_transformers/developing-query-response-transformers-contents.adoc[]
+
+== Federation
+
+include::{adoc-include}/_federation/federation-intro-contents.adoc[]
+
+== Sources
+
+include::{adoc-include}/_sources/sources-intro-contents.adoc[]
+
+// Federated Sources
+include::{adoc-include}/_sources/federated-sources-contents.adoc[]
+
+include::{adoc-include}/_sources/csw-federated-source-contents.adoc[]
+
+include::{adoc-include}/_sources/csw-federation-profile-source-contents.adoc[]
+
+include::{adoc-include}/_sources/gmd-csw-source-contents.adoc[]
+
+include::{adoc-include}/_sources/opensearch-source-contents.adoc[]
+
+include::{adoc-include}/_sources/wfs-10-source-contents.adoc[]
+
+include::{adoc-include}/_sources/wfs-20-source-contents.adoc[]
+
+include::{adoc-include}/_sources/wfs-sources-services-contents.adoc[]
+
+// Connected Sources
+include::{adoc-include}/_sources/connected-sources-contents.adoc[]
+
+include::{adoc-include}/_sources/csw-connected-source-contents.adoc[]
+
+
+//Catalog Providers
+include::{adoc-include}/_sources/catalog-providers-contents.adoc[]
+
+
+include::{adoc-include}/_sources/solr-catalog-provider-contents.adoc[]
+
+include::{adoc-include}/_sources/solr-http-catalog-provider-contents.adoc[]
+
+//Storage Providers
+include::{adoc-include}/_sources/storage-provider-intro-contents.adoc[]
+
+//Catalog Stores
+include::{adoc-include}/_sources/catalog-stores-contents.adoc[]
+
+include::{adoc-include}/_sources/registry-store-contents.adoc[]
+
+//Developing Sources
+include::{adoc-include}/_sources/developing-sources-contents.adoc[]
+

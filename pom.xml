@@ -143,7 +143,6 @@
         <!--This property allows using the '${variable-name}' syntax in code blocks
             without accidental filtering/replacement-->
         <variable-prefix>${</variable-prefix>
-        <image-width>500</image-width>
         <!--Individual application names-->
         <ddf-admin>DDF Admin</ddf-admin>
         <admin-console>Admin Console</admin-console>
