@@ -162,7 +162,9 @@ define([
             if (currentWorkspace){
                 workspaceJSON = currentWorkspace.toJSON()
             }
+            var result = resultJSON[0];
             return {
+                remoteResourceCached: result.isResourceLocal && result.metacard.properties['source-id'] !== 'ddf.distribution',
                 result: resultJSON,
                 workspace: workspaceJSON
             }
