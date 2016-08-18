@@ -94,6 +94,9 @@ define([
                     this.filter = cql.read(resp.cql);
                     _.extend(resp, this.defaultsFromFilter(this.filter, {}));
                 }
+                if (resp.src) {
+                    resp.federation = 'selected';
+                }
                 return resp;
             },
 
