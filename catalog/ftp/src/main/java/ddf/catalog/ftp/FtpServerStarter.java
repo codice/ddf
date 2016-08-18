@@ -29,6 +29,7 @@ import org.apache.ftpserver.listener.Listener;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.ssl.ClientAuth;
 import org.apache.ftpserver.ssl.SslConfigurationFactory;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class FtpServerStarter {
 
     private static int resetWaitTimeMillis = 5000;
 
-    private int port = 8021;
+    private int port;
 
     private ClientAuth clientAuth = ClientAuth.WANT;
 
@@ -117,7 +118,10 @@ public class FtpServerStarter {
         LOGGER.debug("Updating FTP Endpoint configuration");
 
         if (properties != null) {
-            int port = (Integer) properties.get("port");
+            //using PropertyResolver in case properties.get("port") is ${org.codice.ddf.catalog.ftp.port}
+            PropertyResolver propertyResolver = new PropertyResolver((String) properties.get("port"));
+            int port = Integer.parseInt(propertyResolver.getResolvedString());
+
             String clientAuth = ((String) properties.get("clientAuth")).toLowerCase();
 
             if ((this.port != port) || (!this.clientAuth.toString()
@@ -253,7 +257,7 @@ public class FtpServerStarter {
     }
 
     public void setClientAuth(String newClientAuth) {
-        switch (newClientAuth) {
+        switch (newClientAuth.toLowerCase()) {
         case "want":
             clientAuth = ClientAuth.WANT;
             break;

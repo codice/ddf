@@ -1119,7 +1119,7 @@ The configurable properties for the FTP Endpoint are accessed from the *FTP Endp
 |`port`
 |Integer
 |Specifies the port for the server to listen on for connections.
-|8021
+|${org.codice.ddf.catalog.ftp.port}
 |Yes
 
 |Client Authentication
@@ -1144,7 +1144,7 @@ After creating a custom Ftplet, it needs to be added to the FTP server’s Ftple
 
 ====== From an FTP client:
 
-The FTP endpoint can be accessed from any FTP client of choice. Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal. The default port number is *8021*. If FTPS is enabled with 2-way TLS, a client that supports client authentication is required.
+The FTP endpoint can be accessed from any FTP client of choice. Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal. The default port number is *${org.codice.ddf.catalog.ftp.port}*. If FTPS is enabled with 2-way TLS, a client that supports client authentication is required.
 
 ===== Implementation Details
 
