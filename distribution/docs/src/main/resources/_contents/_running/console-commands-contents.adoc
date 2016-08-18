@@ -1,0 +1,610 @@
+
+==== Console Commands
+
+Once the distribution has started, users will have access to a powerful command line console, the ${command-console}.
+This ${command-console} can be used to manage services, install new features and applications, and manage the state of the system.
+
+===== Accessing the System Console
+
+The Command Line Console is the console that is available to the user when the distribution is started manually.
+It may also be accessed by using the `bin/client.bat` or `bin/client.sh` scripts.
+For more information on how to use the `client` scripts or how to remote into the the shell console, see <<_using_remote_instances, Using Remote Instances>>.
+
+[NOTE]
+====
+The majority of functionality and information available on the ${admin-console} is also available on the Command Line Console.
+====
+
+===== Available System Console Commands
+
+To get a list of commands, type in the namespace of the desired extension then press the *Tab* key.
+
+For example, type `catalog`, then press *Tab*.
+
+===== System Console Command Help
+
+For details on any command, type `help` then the command.
+For example, `help search` (see results of this command in the example below).
+
+.Example Help
+----
+${branding-lowercase}${at-symbol}local>help search
+DESCRIPTION
+        catalog:search
+        Searches records in the catalog provider.
+SYNTAX
+        catalog:search [options] SEARCH_PHRASE [NUMBER_OF_ITEMS]
+ARGUMENTS
+        SEARCH_PHRASE
+                Phrase to query the catalog provider.
+        NUMBER_OF_ITEMS
+                Number of maximum records to display.
+                (defaults to -1)
+OPTIONS
+        --help
+                Display this help message
+        case-sensitive, -c
+                Makes the search case sensitive
+        -p, -provider
+                Interacts with the provider directly instead of the framework.
+
+----
+
+The `help` command provides a description of the provided command, along with the syntax in how to use it, arguments it accepts, and available options.
+
+.[[available_console_commands]]Available Console Commands
+[cols="1,1,8" options="header"]
+|===
+|Title
+|Namespace
+|Description
+
+|${ddf-branding}:: Catalog :: Core :: Commands
+|<<catalog_command_descriptions, catalog>>
+|The Catalog Shell Commands are meant to be used with any `CatalogProvider` implementations.
+They provide general useful queries and functions against the Catalog API that can be used for debugging, printing, or scripting.
+
+|${ddf-branding} :: Admin :: Application Service
+|<<app_command_descriptions, app>>
+|The ${ddf-admin} Application Service contains operations to work with applications.
+
+|`${ddf-branding} :: Catalog :: Core :: PubSub Commands`
+|<<subscription_command_descriptions, subscription>>
+|The ${branding} PubSub shell commands provide functions to list the registered subscriptions in ${branding} and to delete subscriptions.
+
+|${branding} Platform Commands
+|<<platform_command_descriptions, platform>>
+|The ${branding} Platform Shell Commands provide generic platform management functions
+
+|${branding}:: Persistence :: Core :: Commands
+|<<store_command_descriptions, store>>
+|The Persistence Shell Commands are meant to be used with any PersistentStore implementations. They provide the ability to query and delete entries from the persistence store.
+
+|===
+
+===== Catalog Commands
+
+[WARNING]
+====
+Most commands can bypass the Catalog framework and interact directly with the Catalog provider if given the `--provider` option, if available.
+No pre/post plugins are executed and no message validation is performed if the `--provider` option is used.
+====
+
+.[[catalog_command_descriptions]]Catalog Command Descriptions
+[cols="1m,9a" options="header"]
+|===
+
+|Command
+|Description
+
+|catalog:describe
+|Provides a basic description of the Catalog implementation.
+
+|catlog:dump
+|Exports metacards from the local Catalog. Does not remove them. See <<_date_filtering_options,date filtering options>> below.
+
+|catalog:envlist
+|[IMPORTANT]
+====
+Deprecated as of ddf-catalog 2.5.0. Please use `platform:envlist`.
+====
+
+Provides a list of environment variables.
+
+|catalog:ingest
+|Ingests data files into the Catalog.
+
+|catalog:inspect
+|Provides the various fields of a metacard for inspection.
+
+|catalog:latest
+|Retrieves the latest records from the Catalog based on the Metacard.MODIFIED date.
+
+|catalog:migrate
+|Allows two `CatalogProvider` s to be configured and migrates the data from the primary to the secondary.
+
+|catalog:range
+|Searches by the given range arguments (exclusively).
+
+|catalog:remove
+|Deletes a record from the local Catalog.
+
+|catalog:removeall
+|Attempts to delete all records from the local Catalog.
+
+|catalog:replicate
+|Replicates data from a federated source into the local Catalog.
+
+|catalog:search
+|Searches records in the local Catalog.
+
+|catalog:spatial
+|Searches spatially the local Catalog.
+
+|catalog:validate
+|Validates an XML file against all installed validators and prints out human readable errors and warnings.
+
+|===
+
+===== catalog:dump Options
+
+The `catalog:dump` command was extended in ${branding} version 2.5.0 to provide selective export of metacards based on date ranges.
+The `--created-after` and `--created-before` options allow filtering on the date and time that the metacard was created, while `--modified-after` and `--modified-before` options allow filtering on the date and time that the metacard was last modified (which is the created date if no other modifications were made).
+These date ranges are exclusive (i.e., if the date and time match exactly, the metacard will not be included).
+[[_date_filtering_options]]The date filtering options (`--created-after`, `--created-before`, `--modified-after`, and `--modified-before`) can be used in any combination, with the export result including only metacards that match all of the provided conditions.
+
+If no date filtering options are provided, created and modified dates are ignored, so that all metacards match.
+
+===== Date Syntax
+
+Supported dates are taken from the common subset of ISO8601, matching the datetime from the following syntax:
+----
+datetime          = time | date-opt-time
+time              = 'T' time-element [offset]
+date-opt-time     = date-element ['T' [time-element] [offset]]
+date-element      = std-date-element | ord-date-element | week-date-element
+std-date-element  = yyyy ['-' MM ['-' dd]]
+ord-date-element  = yyyy ['-' DDD]
+week-date-element = xxxx '-W' ww ['-' e]
+time-element      = HH [minute-element] | [fraction]
+minute-element    = ':' mm [second-element] | [fraction]
+second-element    = ':' ss [fraction]
+fraction          = ('.' | ',') digit+
+offset            = 'Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]]
+----
+
+====== catalog:dump Examples
+
+----
+${branding-lowercase}${at-symbol}local>// Given we've ingested a few metacards
+${branding-lowercase}${at-symbol}local>catalog:latest
+#       ID                                Modified Date              Title
+1       a6e9ae09c792438e92a3c9d7452a449f  2014-06-13T09:56:18+10:00
+2       b4aced45103a400da42f3b319e58c3ed  2014-06-13T09:52:12+10:00
+3       a63ab22361e14cee9970f5284e8eb4e0  2014-06-13T09:49:36+10:00  myTitle
+
+${branding-lowercase}${at-symbol}local>// Filter out older files
+${branding-lowercase}${at-symbol}local>catalog:dump --created-after 2014-06-13T09:55:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.015 seconds
+
+${branding-lowercase}${at-symbol}local>// Filter out new file
+${branding-lowercase}${at-symbol}local>catalog:dump --created-before 2014-06-13T09:55:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 2 file(s) dumped in 0.023 seconds
+
+${branding-lowercase}${at-symbol}local>// Choose middle file
+${branding-lowercase}${at-symbol}local>catalog:dump --created-after 2014-06-13T09:50:00+10:00 --created-before 2014-06-13T09:55:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.020 seconds
+
+${branding-lowercase}${at-symbol}local>// Modified dates work the same way
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-13T09:55:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.015 seconds
+
+${branding-lowercase}${at-symbol}local>// Can mix and match, most restrictive limits apply
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:45:00+10:00 --modified-before 2014-06-13T09:55:00+10:00 --created-before 2014-06-13T09:50:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.024 seconds
+
+${branding-lowercase}${at-symbol}local>// Can use UTC instead of (or in combination with) explicit timezone offset
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-13T09:55:00Z /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 2 file(s) dumped in 0.020 seconds
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-12T23:55:00Z /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.015 seconds
+
+${branding-lowercase}${at-symbol}local>// Can leave off timezone, but default (local time on server) may not match what you expect!
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:50:00 --modified-before 2014-06-13T09:55:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.018 seconds
+
+${branding-lowercase}${at-symbol}local>// Can leave off trailing minutes / seconds
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09 --modified-before 2014-06-13T09:55 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 2 file(s) dumped in 0.024 seconds
+
+${branding-lowercase}${at-symbol}local>// Can use year and day number
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-164T09:50:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+ 2 file(s) dumped in 0.027 seconds
+----
+
+===== Application Commands
+
+Application commands are used from the ${ddf-branding} Admin application to manage applications in the ${branding}.
+
+[NOTE]
+====
+The Application Commands are installed automatically with the Admin Application.
+====
+
+.[[app_command_descriptions]]App Command Descriptions
+[cols="1m,1m,5" options="header"]
+|===
+
+|Command
+|Syntax
+|Description
+
+|add
+|app:add appUri
+|Adds an application with the given uri.
+
+|remove
+|app:remove appName
+|Removes an application with the given name.
+
+|start
+|app:start appName
+|Starts an application with the given name.
+
+|stop
+|app:stop appName
+|Stops an application with the given name.
+
+|list
+|app:list
+|Lists the applications that are in the system and gives their current state.
+
+|status
+|app:status appName
+|Shows status of an application.
+Gives information on the current state, features within the application, what required features are not started and what required bundles are not started.
+
+|tree
+|app:tree
+|Creates a hierarchy tree of all of the applications.
+
+|===
+
+====== Application Command Usage
+
+.Listing All Applications
+[source]
+----
+${branding-lowercase}${at-symbol}local>app:list
+State      Name
+[ACTIVE  ] catalog-app-<VERSION>
+[ACTIVE  ] distribution-<VERSION>
+[ACTIVE  ] platform-app-<VERSION>
+
+[...]
+----
+
+This list shows all of the applications installed in ${branding}.
+From here, use the name of an application to get more information on its status.
+
+.Get Status for a Specific Application
+[source]
+----
+${ddf-branding-lowercase}${at-symbol}local>app:status catalog-app-<VERSION>
+catalog-app-<VERSION>
+
+Current State is: ACTIVE
+
+Features Located within this Application:
+    catalog-security-filter
+    catalog-transformer-resource
+    catalog-rest-endpoint
+    abdera
+    catalog-transformer-xml
+    catalog-transformer-thumbnail
+    catalog-transformer-metadata
+    catalog-transformer-xsltengine
+    catalog-core-fanoutframework
+    catalog-transformer-tika
+    catalog-core-api
+    catalog-opensearch-source
+    catalog-plugin-federationreplication
+    catalog-opensearch-endpoint
+    catalog-schematron-plugin
+    catalog-transformer-geoformatter
+    catalog-transformer-atom
+    catalog-core-sourcemetricsplugin
+    catalog-core-metricsplugin
+    catalog-app
+    catalog-transformer-json
+    catalog-core-standardframework
+    catalog-core
+
+Required Features Not Started
+    NONE
+
+Required Bundles Not Started
+    NONE
+
+----
+
+====== Application in Failed State
+
+If an application is in a 'FAILED' state, it means that there is a required feature or bundle that is not started.
+
+.App in Failed State
+[source]
+----
+${ddf-branding-lowercase}${at-symbol}local>app:list
+State      Name
+[FAILED  ] catalog-app-<VERSION>
+[ACTIVE  ] distribution-<VERSION>
+[ACTIVE  ] platform-app-<VERSION>
+----
+
+In the above case, the catalog app is in a failed state.
+Checking the status of that application will show what did not start correctly.
+
+.Check Application Status
+[source]
+----
+${ddf-branding-lowercase}${at-symbol}local>app:status catalog-app-<VERSION>
+catalog-app-<VERSION>
+
+Current State is: FAILED
+
+Features Located within this Application:
+    catalog-security-filter
+    catalog-transformer-resource
+    catalog-rest-endpoint
+    abdera
+    catalog-transformer-xml
+    catalog-transformer-thumbnail
+    catalog-transformer-metadata
+    catalog-transformer-xsltengine
+    catalog-core-fanoutframework
+    catalog-transformer-tika
+    catalog-core-api
+    catalog-opensearch-source
+    catalog-plugin-federationreplication
+    catalog-opensearch-endpoint
+    catalog-schematron-plugin
+    catalog-transformer-geoformatter
+    catalog-transformer-atom
+    catalog-core-sourcemetricsplugin
+    catalog-core-metricsplugin
+    catalog-app
+    catalog-transformer-json
+    catalog-core-standardframework
+    catalog-core
+
+Required Features Not Started
+    NONE
+
+Required Bundles Not Started
+    [261]   catalog-opensearch-endpoint
+----
+
+This status shows that bundle &amp;261, the catalog-opensearch-endpoint, did not start. Performing a 'list' on the console verifies this:
+
+[source]
+----
+[ 261] [Resolved   ] [            ] [       ] [   80] DDF :: Catalog :: OpenSearch :: Endpoint (<VERSION>)
+----
+
+Once that bundle is started by fixing its error, the catalog application will show as being in an ACTIVE state.
+
+===== Subscriptions Commands
+
+[NOTE]
+====
+The subscriptions commands are installed when the Catalog application is installed.
+====
+
+.[[subscription_command_descriptions]]Subscription Command Descriptions
+[cols="1m,4" options="header"]
+|===
+
+|Command
+|Description
+
+|subscription:delete
+|Deletes the subscription(s) specified by the search phrase or LDAP filter.
+
+|subscription:list
+|List the subscription(s) specified by the search phrase or LDAP filter.
+|===
+
+===== subscriptions:list Command Usage Examples
+
+Note that no arguments are required for the `subscriptions:list` command.
+If no argument is provided, all subscriptions will be listed.
+A count of the subscriptions found matching the list command's search phrase (or LDAP filter) is displayed first followed by each subscription's ID.
+
+.List All Subscriptions
+[source]
+----
+${branding-lowercase}${at-symbol}local>subscriptions:list
+
+Total subscriptions found: 3
+
+Subscription ID
+my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
+my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
+----
+
+.List a Specific Subscription by ID
+[source]
+----
+${branding-lowercase}${at-symbol}local>subscriptions:list "my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL"
+
+Total subscriptions found: 1
+
+Subscription ID
+my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
+----
+
+[WARNING]
+====
+It is recommended to always quote the search phrase (or LDAP filter) argument to the command so that any special characters are properly processed.
+====
+
+.List Subscriptions Using Wildcards
+[source]
+----
+${branding-lowercase}${at-symbol}local>subscriptions:list "my*"
+
+Total subscriptions found: 3
+
+Subscription ID
+my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
+my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
+
+
+${branding-lowercase}${at-symbol}local>subscriptions:list "*json*"
+
+Total subscriptions found: 1
+
+Subscription ID
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
+
+
+${branding-lowercase}${at-symbol}local>subscriptions:list "*WSDL"
+
+Total subscriptions found: 2
+
+Subscription ID
+my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
+my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
+
+----
+
+The example below illustrates searching for any subscription that has "json" or "v20" anywhere in its subscription ID.
+
+.List Subscriptions Using an LDAP Filter
+[source]
+----
+${branding-lowercase}${at-symbol}local>subscriptions:list -f "(|(subscription-id=*json*) (subscription-id=*v20*))"
+
+Total subscriptions found: 2
+
+Subscription ID
+my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
+----
+
+The example below illustrates searching for any subscription that has `json` and `172.18.14.169` in its subscription ID. This could be a handy way of finding all subscriptions for a specific site.
+
+----
+${branding-lowercase}${at-symbol}local>subscriptions:list -f "(&(subscription-id=*json*) (subscription-id=*172.18.14.169*))"
+
+Total subscriptions found: 1
+
+Subscription ID
+my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
+----
+
+===== subscriptions:delete Command Usage
+
+The arguments for the `subscriptions:delete` command are the same as for the `list` command, except that a search phrase or LDAP filter must be specified.
+If one of these is not specified an error will be displayed.
+When the `delete` command is executed it will display each subscription ID it is deleting.
+If a subscription matches the search phrase but cannot be deleted, a message in red will be displayed with the ID.
+After all matching subscriptions are processed, a summary line is displayed indicating how many subscriptions were deleted out of how many matching subscriptions were found.
+
+.Delete a Specific Subscription Using Its Exact ID
+[source]
+----
+${branding-lowercase}${at-symbol}local>subscriptions:delete "my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification"
+
+Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
+
+Deleted 1 subscriptions out of 1 subscriptions found.
+----
+
+.Delete Subscriptions Using Wildcards
+[source]
+----
+${branding-lowercase}${at-symbol}local>subscriptions:delete "my*"
+
+Deleted subscription for ID = my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
+Deleted subscription for ID = my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
+
+Deleted 2 subscriptions out of 2 subscriptions found.
+
+${branding-lowercase}${at-symbol}local>subscriptions:delete "*json*"
+
+Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
+
+Deleted 1 subscriptions out of 1 subscriptions found.
+----
+
+.Delete All Subscriptions
+[source]
+----
+${branding-lowercase}${at-symbol}local>subscriptions:delete *
+
+Deleted subscription for ID = my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
+Deleted subscription for ID = my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
+Deleted subscription for ID = my.contextual.id.json|http://172.18.14.169:8088/services/json/local/event/notification
+
+Deleted 3 subscriptions out of 3 subscriptions found.
+----
+
+.Delete Subscriptions Using an LDAP Filter
+[source]
+----
+${branding-lowercase}${at-symbol}local>subscriptions:delete -f "(&(subscription-id=*WSDL) (subscription-id=*172.18.14.169*))"
+
+Deleted subscription for ID = my.contextual.id.v20|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL
+Deleted subscription for ID = my.contextual.id.v30|http://172.18.14.169:8088/mockEventConsumerBinding?WSDL
+
+Deleted 2 subscriptions out of 2 subscriptions found.
+----
+
+===== Platform Commands
+
+[NOTE]
+====
+The Platform Commands are installed when the ${ddf-platform} application is installed.
+====
+
+.[[platform_command_descriptions]]Platform Command Descriptions
+[cols="2" options="header"]
+|===
+
+|Command
+|Description
+
+|config-export
+|Exports the current configurations.
+
+|config-status
+|Lists import status of configuration files.
+
+|describe
+|Shows the current platform configuration.
+
+|envlist
+|Provides a list of environment variables.
+
+|===
+
+===== Persistence Store Commands
+
+.[[store_command_descriptions]]Persistence Store Command Descriptions
+[cols="2m,6"]
+|===
+
+|Command
+|Description
+
+|store:delete
+|Delete entries from the persistence store that match a given CQL statement
+
+|store:list
+|Lists entries that are stored in the persistence store.
+
+|===

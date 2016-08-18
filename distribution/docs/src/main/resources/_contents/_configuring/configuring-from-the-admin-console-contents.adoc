@@ -1,0 +1,156 @@
+
+The ${branding} configuration can be performed through the ${admin-console} User Interface.
+
+==== Accessing the ${admin-console}
+
+Access the ${admin-console} from a web browser to configure the system.
+
+* Navigate to the ${admin-console}. (Default: \${secure_url}/admin)
+* Enter Username and Password. (Default: `admin/admin`)
+
+==== Initial Configuration
+
+The first time the ${branding} ${admin-console} runs, the initial configuration steps appear.
+
+. Click *Start* to begin.
+. On the next screen, set any attributes for Guest users on the system. These are the default attributes assigned to all users of the system. See <<_guest_attributes,Guest Attributes>> for more information.
+. On the next screen, general configuration settings such as host address, port and site name can all be configured. (See <<Configuring ${branding} Global Settings>> for important settings to configure)
+. Next, choose an <<_installation_profiles,Installation Profile>> to install.
++
+[WARNING]
+====
+${ddf-platform}, ${ddf-admin}, and ${ddf-security} App CANNOT be selected or unselected as they are installed by default and can cause errors if removed.
+====
++
+. Select *Next*
+. Once all applications have installed, select *Finish* to be directed to the ${admin-console}.
+
+==== Viewing Currently Active Applications from ${admin-console}
+
+${branding} displays all active applications in the ${admin-console}.
+This view can be configured according to preference.
+Either view has an `>` arrow icon to view more information about the application as currently configured.
+
+.${admin-console} Views
+[cols="1,4", options="header"]
+|===
+|View
+|Description
+
+|Tile View
+|The first view presented is the Tile View, displaying all active applications as individual tiles.
+
+|List View
+|Optionally, active applications can be displayed in a list format by clicking the list view button.
+
+|===
+
+===== Application Detailed View
+
+Each individual application has a detailed view to view information specific to that application, adjust configurations or enable/disable features.
+All applications have a standard set of tabs, although some apps may have additional ones with further information.
+
+.Individual Application Views
+[cols="1,4", options="header"]
+|===
+|Tab
+|Explanation
+
+|Configuration
+|The Configuration tab lists all bundles associated with the application as links to configure any configurable properties of that bundle.
+
+|Details
+|The Details tab gives a description, version, status, and list of other applications that are required by, or rely on, the current application.
+
+|Features
+|The features tab breaks down the individual features of the application that can be installed or uninstalled as configurable features.
+
+|===
+
+==== Managing Applications
+
+The *Manage* button enables activation/deactivation and adding/removing applications.
+
+===== Activating / Deactivating Applications
+
+The *Deactivate* button stops individual applications and any dependent apps.
+Certain applications are central to overall functionality and cannot be deactivated.
+These will have the *Deactivate* button disabled.
+Disabled apps will be moved to a list at the bottom of the page, with an enable button to reactivate, if desired.
+
+[IMPORTANT]
+====
+Deactivating ${ddf-admin}, ${ddf-platform}, and ${ddf-security} will cause errors within the system, so the capabilities to do so have been DISABLED.
+====
+
+===== Adding Applications
+
+The *Add Application* button is at the end of the list of currently active applications.
+
+===== Removing Applications
+
+To remove an application, it must first be deactivated.
+This enables the *Remove Application* button.
+
+===== Upgrading Applications
+
+Each application tile includes an *Upgrade* button to select a new version to install.
+
+==== System Settings Tab
+
+The configuration and features installed can be viewed and edited from the System tab as well, however, it is recommended that configuration be managed from the applications tab.
+
+[IMPORTANT]
+====
+In general, applications should be managed via the applications tab.
+Configuration via this page could result in an unstable system.
+Proceed with caution!
+====
+
+==== Configuring HTTP Port from ${admin-console}
+
+[IMPORTANT]
+====
+Do not use the ${admin-console} to change the HTTP port.
+While the ${admin-console}'s Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
+Use the <<_configuring_the_http_port_from_the_command_console, ${command-console}>> instead.
+====
+
+===== Configuring HTTP to HTTPS Proxy From the ${admin-console}
+
+The `platform-http-proxy` feature proxies https to http for clients that cannot use HTTPS and should not have HTTP enabled for the entire container via the `etc/org.ops4j.pax.web.cfg` file.
+
+. Click the *${ddf-platform}* application tile.
+. Choose the *Features* tab.
+. Select `platform-http-proxy`.
+. Click on the *Play* button to the right of the word “Uninstalled”
+
+====== Configuring the proxy:
+
+[NOTE]
+====
+The hostname should be set by default.
+Only configure the proxy if this is not working.
+====
+
+. Select *Configuration* tab.
+. Select *HTTP to HTTPS Proxy Settings*
+.. Enter the Hostname to use for HTTPS connection in the proxy.
+. Click *Save changes*.
+
+==== Configuring the Product Cache
+
+All caching properties are part of the <<ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings>>.
+
+===== Invalidating the Product Cache
+
+. The product cache directory can be administratively invalidated by turning off the product caching using the Enable Product Caching configuration.
+. Alternatively, an administrator may manually invalidate products by removing them from the file system. Products are cached at the directory specified in the Product Cache Directory configuration.
+
+Format:
+
+`<INSTALL-DIR>/data/product-cache/<source-id>-<metacard-id>`
+
+Example:
+
+`<INSTALL-DIR>/data/product-cache/abc123`

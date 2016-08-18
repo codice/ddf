@@ -1,0 +1,648 @@
+
+As most configurations are stored in configuration files, in some instances it may make sense to edit those configuration files directly.
+Additionally, configuration files may be pre-created and copied into a ${branding} installation.
+Finally, in an environment hardened for security purposes, access to the ${admin-console} or the ${command-console} might be denied and using the latter in such an environment may cause configuration errors.
+It is necessary to configure ${branding} (e.g., providers, Schematron rulesets, etc.) using `.config` files.
+
+==== Configuring Global Settings
+
+Global configuration settings are configured via the properties file `system.properties`.
+These properties can be manually set by editing this file or set via the initial configuration from the ${admin-console}.
+
+[NOTE]
+====
+Any changes made to this file require a restart of the system to take effect.
+====
+modify
+[IMPORTANT]
+====
+The passwords configured in this section reflect the passwords used to decrypt JKS (Java KeyStore) files.
+Changing these values without also changing the passwords of the JKS causes undesirable behavior.
+====
+
+.Global Settings
+[cols="2,3m,2,3,3m,1" options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+6+^h|Keystore and truststore java properties
+
+|Keystore
+|javax.net.ssl.keyStore
+|String
+|Path to server keystore
+|etc/keystores/serverKeystore.jks
+|Yes
+
+|Keystore Password
+|javax.net.ssl.keyStorePassword
+|String
+|Password for accessing keystore
+|changeit
+|Yes
+
+|Truststore
+|javax.net.ssl.trustStore
+|String
+|The trust store used for SSL/TLS connections. Path is relative to `<${branding}_HOME>`.
+|etc/keystores/serverTruststore.jks
+|Yes
+
+|Truststore Password
+|javax.net.ssl.trustStorePassword
+|String
+|Password for server Truststore
+|changeit
+|Yes
+
+|Keystore Type
+|javax.net.ssl.keyStoreType
+|String
+|File extension to use with server keystore
+|jks
+|Yes
+
+|Truststore Type
+|javax.net.ssl.trustStoreType
+|String
+|File extension to use with server truststore
+|jks
+|Yes
+
+6+^h|Headless mode
+|Headless Mode
+|java.awt.headless
+|Boolean
+|Force java to run in headless mode for when the server doesn't have a display device
+|true
+|No
+
+6+^h| Global URL Properties
+
+|Default Protocol
+|org.codice.ddf.system.protocol
+|String
+|Default protocol that should be used to connect to this machine.
+|https://
+|Yes
+
+|Host
+|org.codice.ddf.system.hostname
+|String
+a|The hostname or IP address used to advertise the system. Do not enter `localhost`. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment.
+
+[IMPORTANT]
+====
+If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided. See <<_configuring_new_certificates,Configuring New Certificates>> for details.
+====
+
+[NOTE]
+====
+Does not change the address the system runs on.
+====
+
+|localhost
+|Yes
+
+|HTTPS Port
+|org.codice.ddf.system.httpsPort
+|String
+|The https port used by the system.
+
+NOTE: This *DOES* change the port the system runs on.
+|8993
+|Yes
+
+|HTTP Port
+|org.codice.ddf.system.httpPort
+|String
+|The http port used by the system.
+
+NOTE: This *DOES* change the port the system runs on.
+|8181
+|Yes
+
+|Default Port
+|org.codice.ddf.system.port
+|String
+|The default port used to advertise the system. This should match either the http or https port.
+
+NOTE: Does not change the port the system runs on.
+|8993
+|Yes
+
+|Root Context
+|org.codice.ddf.system.rootContext
+|String
+|The the base or root context that services will be made available under.
+|/services
+|Yes
+
+6+^h|System Information Properties
+
+|Site Name
+|org.codice.ddf.system.siteName
+|String
+|The site name for ${branding}.
+|ddf.distribution
+|Yes
+
+|Site Contact
+|org.codice.ddf.system.siteContact
+|String
+|The email address of the site contact.
+|
+|No
+
+|Version
+|org.codice.ddf.system.version
+|String
+|The version of ${branding} that is running.
+
+This value should not be changed from the factory default.
+|${project.version}
+|Yes
+
+|Organization
+|org.codice.ddf.system.organization
+|String
+|The organization responsible for this installation of ${branding}.
+|Codice Foundation
+|Yes
+
+6+^h|Thread Pool Settings
+
+|Thread Pool Size
+|org.codice.ddf.system.threadPoolSize
+|Integer
+|Size of thread pool used for handling UI queries, federating requests, and downloading resources. See <<_configuring_thread_pools,Configuring Thread Pools>>
+|128
+|Yes
+
+6+^h|HTTPS Specific Settings
+
+|Cipher Suites
+|https.cipherSuites
+|String
+|Cipher suites to use with secure sockets. If using the JCE unlimited strength policy, use this list in place of the defaults:
+
+.
+|TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,
+
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,
+
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
+
+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+
+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+|No
+
+|Https Protocols
+|https.protocols
+|String
+|Protocols to allow for secure connections
+|TLSv1.1,TLSv1.2
+|No
+
+|Allow Basic Auth Over Http
+|org.codice.allowBasicAuthOverHttp
+|Boolean
+|Set to true to allow Basic Auth credentials to be sent over HTTP unsecurely. This should only be done in a test environment. These events will be audited.
+|false
+|Yes
+
+|Restrict the Security Token Service to allow connections only from DNs matching these patterns
+|ws-security.subject.cert.constraints
+|String
+|Set to a comma separated list of regex patterns to define which hosts are allowed to connect to the STS
+|.*
+|Yes
+
+6+^h|XML Settings
+
+|Parse XML documents into DOM object trees
+|javax.xml.parsers.DocumentBuilderFactory
+|String
+|Enables Xerces-J implementation of `DocumentBuilderFactory`
+|org.apache.xerces.jaxp.DocumentBuilderFactoryImpl
+|Yes
+
+6+^h|File Upload Settings
+
+|File extensions flagged as potentially dangerous to the host system or external clients
+|bad.file.extensions
+|String
+|Files uploaded with these bad file extensions will have their file names sanitized before being saved
+|.exe,
+.jsp,
+.html,
+.js,
+.php,
+.phtml,
+.php3,
+.php4,
+.php5,
+.phps,
+.shtml,
+.jhtml,
+.pl,
+.py,
+.cgi,
+.msi,
+.com,
+.scr,
+.gadget,
+.application,
+.pif,
+.hta,
+.cpl,
+.msc,
+.jar,
+.kar,
+.bat,
+.cmd,
+.vb,
+.vbs,
+.vbe,
+.jse,
+.ws,
+.wsf,
+.wsc,
+.wsh,
+.ps1,
+.ps1xml,
+.ps2,
+.ps2xml,
+.psc1,
+.psc2,
+.msh,
+.msh1,
+.msh2,
+.mshxml,
+.msh1xml,
+.msh2xml,
+.scf,
+.lnk,
+.inf,
+.reg,
+.dll,
+.vxd,
+.cpl,
+.cfg,
+.config,
+.crt,
+.cert,
+.pem,
+.jks,
+.p12,
+.p7b,
+.key,
+.der,
+.csr,
+.jsb,
+.mhtml,
+.mht,
+.xhtml,
+.xht
+|Yes
+
+|File names flagged as potentially dangerous to the host system or external clients
+|bad.files
+|String
+|Files uploaded with these bad file names will have their file names sanitized before being saved
+|crossdomain.xml,
+clientaccesspolicy.xml,
+.htaccess,
+.htpasswd,
+hosts,
+passwd,
+group,
+resolv.conf,
+nfs.conf,
+ftpd.conf,
+ntp.conf,
+web.config,
+robots.txt
+|Yes
+
+|Mime types flagged as potentially dangerous to external clients
+|bad.mime.types
+|String
+|Files uploaded with these mime types will be rejected from the upload
+|text/html,
+text/javascript,
+text/x-javascript,
+application/x-shellscript,
+text/scriptlet,
+application/x-msdownload,
+application/x-msmetafile
+|Yes
+
+|===
+
+These properties are available to be used as variable parameters in input url fields within the ${admin-console}.
+For example, the url for the local csw service (\${secure_url}/services/csw) could be defined as:
+
+[source]
+----
+${variable-prefix}org.codice.ddf.system.protocol}${variable-prefix}org.codice.ddf.system.hostname}:${variable-prefix}org.codice.ddf.system.port}${variable-prefix}org.codice.ddf.system.rootContext}/csw
+----
+
+This variable version is more verbose, but will not need to be changed if the system `host`, `port` or `root` context changes.
+
+[WARNING]
+====
+Only root can access ports < 1024 on Unix systems.
+====
+
+==== Configuring with .config Files
+
+The ${branding} is configured using `.config` files.
+Like the Karaf `.cfg` files, these configuration files must be located in the `<${ddf-branding}_HOME>/etc/` directory, have a name that matches the _configuration persistence ID_ (PID) they represent, and have a `service.pid` property set to the configuration PID.
+
+As opposed to `.cfg` however, this type of configuration file supports lists within configuration values (metatype `cardinality` attribute greater than 1).
+
+[IMPORTANT]
+====
+This new configuration file format *must* be used for any configuration that makes use of lists.
+Examples include Web Context Policy Manager (PID: `org.codice.ddf.security.policy.context.impl.PolicyManager`)
+and Security STS Guest Claims Handler (PID: `ddf.security.sts.guestclaims`).
+====
+
+[WARNING]
+====
+Only one configuration file should exist for any given PID.
+The result of having both a `.cfg` and a `.config` file for the same PID is undefined and could cause the application to fail.
+====
+
+The main purpose of the configuration files is to allow administrators to pre-configure ${branding} without having to use the ${admin-console}.
+In order to do so, the configuration files need to be copied to the `<${branding}_HOME>/etc` directory after ${branding} zip has been extracted.
+
+Upon start up, all the `.config` files located in `<${branding}_HOME>/etc` are automatically read and processed.
+Files that have been processed successfully are moved to `<${branding}_HOME>/etc/processed` so they will not be processed again when the system is restarted.
+Files that could not be processed are moved to the `<${branding}_HOME>/etc/failed` directory.
+
+${branding} also monitors the `<${branding}_HOME>/etc` directory for any new `.config` file that gets added.
+As soon as a new file is detected, it is read, processed and moved to the appropriate directory based on whether it was successfully processed or not.
+
+==== Configuring Managed Service Factory Bundles
+
+Services that are created using a Managed Service Factory can be configured using `.config` files as well.
+The configuration files follow a different naming convention however.
+The files must start with the Managed Service Factory PID, be followed by a unique identifier and have a `.config` extension.
+For instance, assuming that the Managed Service Factory PID is `org.codice.ddf.factory.pid` and two instances of the service need to be configured, files `org.codice.ddf.factory.pid.<UNIQUE ID 1>.config` and `org.codice.ddf.factory.pid.<UNIQUE ID 2>.config` should be created and added to `<${branding}_HOME>/etc`.
+
+The unique identifiers used in the file names have no impact on the order in which the configuration files are processed.
+No specific processing order should be assumed.
+Also, a new service will be created and configured every time a configuration file matching the Managed Service Factory PID is added to the directory, regardless of the _unique id_ used.
+
+These configuration files must also contain a `service.factoryPid` property set to the factory PID (without the sequential number).
+They should not however contain the `service.pid` property.
+
+===== File Format
+
+The basic syntax of the `.config` configuration files is similar to the older `.cfg` files but introduces support for lists and types other than simple strings.
+The type associated with a property must match the `type` attribute used in the corresponding `metatype.xml` file when applicable.
+
+The following table shows the format to use for each property type supported.
+
+[cols="1,2,4" options="header"]
+|===
+
+|Type
+|Format
+|Example
+
+|Service PID
+|`service.pid = "servicePid"`
+|`service.pid = "org.codice.ddf.security.policy.context.impl.PolicyManager"`
+
+|Factory PID
+|`service.factoryPid = "serviceFactoryPid"`
+|`service.factoryPid = "Csw_Federated_Source"`
+
+|Strings
+|`name = "value"`
+|`name = "john"`
+
+|Booleans
+|`name = B"true\|false"`
+|`authorized = B"true"`
+
+|Integers
+|`name = I"value"`
+|`timeout=I"60"`
+
+|Longs
+|`name = L"value"`
+|`diameter = L"10000"`
+
+|Floats
+|`name = F"value"`
+|`cost = F"10.50"`
+
+|Doubles
+|`name = D"value"`
+|`latitude = D"45.0234"`
+
+|Lists of Strings
+|`name = [ "value1", "value2", ... ]`
+a|
+----
+`complexStringArray = [
+	"{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\ {\"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}",
+	"{\"url\"\ \"http://test.sample.com"\ 0.5}",
+	"/solr\=SAML\|PKI\|basic", "/security-config\=SAML\|basic"
+]`
+----
+
+|Lists of Integers
+|`name = I[ "value1", "value1", ... ]`
+|`sizes = I[ "10", "20", "30" ]`
+
+|===
+
+[NOTE]
+====
+* Lists of values can be prefixed with any of the supported types (`B`, `I`, `L`, `F` or `D`)
+* To prevent any configuration issues, the `=` signs used in values should be escaped using a backslash (`\`)
+* Boolean values will default to `false` if any value other than `true` is provided
+* Escape character in values must be used for double quotes (`"`) and spaces, but cannot be used with `{` `}` or `[` `]` pairings
+====
+
+.Sample configuration file
+[source,java,linenums]
+----
+service.pid="org.codice.ddf.security.policy.context.impl.PolicyManager"
+
+authenticationTypes=["/\=SAML|GUEST","/admin\=SAML|basic","/system\=basic","/solr\=SAML|PKI|basic","/sources\=SAML|basic","/security-config\=SAML|basic","/search\=basic"]
+
+realms=["/\=karaf"]
+
+requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}"]
+
+whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
+----
+
+==== Installing Multiple ${branding} on the Same Host
+
+To have multiple ${branding} instances on the same host, it is necessary to edit the port numbers in the files in the ${branding} install folder.
+
+[cols="4" options="header"]
+|===
+
+|File to Edit
+|Property(ies)
+|Original Value
+|Example of New Value
+
+|`bin/karaf.bat`
+|`address`
+|`5005`
+|`5006`
+
+.2+|`etc/org.apache.karaf.management.cfg`
+|`rmiRegistryPort`
+|`1099`
+|`1199`
+
+
+|`rmiServerPort`
+|`44444`
+|`44445`
+
+.2+|`etc/system.properties`
+|`httpsPort`,`port`
+|`8993`
+|`8994`
+
+|`httpPort`
+|`8181`
+|`8281`
+
+|===
+
+==== Configuring Files in HOME Directory Hierarchy
+
+Many important configuration settings are stored in the `<${branding}_HOME>` directory.
+
+
+[NOTE]
+====
+Depending on the environment, it may be easier for integrators and administrators to configure ${branding} using the ${admin-console} prior to disabling it for hardening purposes.
+The ${admin-console} can be re-enabled for additional configuration changes.
+====
+
+In an environment hardened for security purposes, access to the ${admin-console} or the ${command-console} might be denied and using the latter in such an environment may cause configuration errors.
+It is necessary to configure ${branding} (e.g., providers, Schematron rulesets, etc.) using `.config` files.
+
+A template file is provided for some configurable ${branding} items so that they can be copied/renamed then modified with the appropriate settings.
+
+[WARNING]
+====
+If the ${admin-console} is enabled again, all of the configuration done via `.config` files will be loaded and displayed.
+However, note that the name of the `.config` file is not used in the ${admin-console}.
+Rather, a universally unique identifier (UUID) is added when the ${branding} item was created and displays this UUID in the console (e.g., `OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b`)
+====
+
+==== Configuring Using a .config File Template
+
+
+A template file is provided for some configurable ${branding} items so that they can be copied/renamed then modified with the appropriate settings.
+
+The following steps define the procedure for configuring a new source or feature using a `config` file:
+
+. Copy/rename the provided template file in the ``etc/templates` directory to the `etc` directory. (Refer to the table above to determine correct template.)
+.. Not required, but a good practice is to change the instance name (e.g., `OpenSearchSource.1.config`) of the file to something identifiable (`OpenSearchSource.remote-site-1.config`).
+. Edit the copied file to etc with the settings for the configuration. (Refer to the table above to determine the configurable properties).
+.. Consult the inline comments in the file for guidance on what to modify.
+
+The new service can now be used as if it was created using the ${admin-console}.
+
+.Templates included with ${branding}
+[cols="1,4,4,1" options="header"]
+|===
+
+|${ddf-branding} Service
+|Template File Name
+|Factory PID
+|Configurable Properties
+
+|${ddf-branding} Catalog Framework
+|`ddf.catalog.impl.service.CatalogFrameworkImpl.cfg`
+|`ddf.catalog.CatalogFrameworkImpl`
+|Standard Catalog Framework
+
+|===
+
+==== Configuring Solr Catalog Provider Data Directory
+
+The Solr Catalog Provider writes index files to the file system.
+By default, these files are stored under `${branding}_HOME/data/solr/catalog/data`.
+If there is inadequate space in `${branding}_HOME`, or if it is desired to maintain backups of the indexes only, this directory can be changed.
+
+In order to change the Data Directory, the `system.properties` file in `${branding}_HOME/etc` must be edited prior to starting ${branding}.
+
+.Edit the `system.properties` file
+[source]
+----
+# Uncomment the following line and set it to the desired path
+#solr.catalog.data.dir=/opt/solr/catalog/data
+----
+
+===== Changing the Data Directory
+
+It may become necessary to change the data directory after ${branding} has ingested data.
+
+. Shut down the ${branding}.
+. Create the new directory to hold the indexes.
++
+.Make new Data Directory
+[source,bash]
+----
+mkdir -p /path/to/new/data/dir
+----
++
+. Copy the indexes to the new directory.
++
+.Copy the indexes to the new Directory.
+[source,bash]
+----
+cp /path/to/old/data/dir/* /path/to/new/data/dir/.
+----
++
+. Set the `system.properties` file to use the new directory.
++
+.Update system.properties file
+[source,java]
+----
+solr.catalog.data.dir=/path/to/new/data/dir
+----
++
+. Restart the ${branding}.
+
+==== Configuring Thread Pools
+
+The `org.codice.ddf.system.threadPoolSize` property can be used to specify the size of thread pools used by:
+
+* Federating requests between ${branding} systems
+* Downloading resources
+* Handling asynchronous queries, such as queries from the UI
+
+By default, this value is set to 128.
+It is not recommended to set this value extremely high.
+If unsure, leave this setting at its default value of 128.
+
+
+==== Configuring ${branding} Web Service Providers
+
+By default Solr, STS server, STS client and the rest of the services use the system property `org.codice.ddf.system.hostname` which is defaulted to 'localhost' and not to the fully qualified domain name of the ${branding} instance.
+Assuming the ${branding} instance is providing these services, the configuration must be updated to use the *fully qualified domain name* as the service provider.
+
+This can be changed during <<Initial Configuration>> or later by editing the `<INSTALL_HOME>/etc/system.properties` file. See <<Editing ${branding} Web Service Providers Configuration Files>>.

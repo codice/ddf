@@ -1,0 +1,18 @@
+
+.Configuration Requirements
+[NOTE]
+====
+Because components can easily be installed and uninstalled, it's important to remember that for proper ${branding} functionality, at least the Catalog API, one Endpoint, and one Catalog Framework implementation must be active.
+====
+
+${branding} can be configured in several ways, depending on need:
+
+[NOTE]
+====
+While there are multiple ways to configure ${branding} for use, the recommended method is to use the ${admin-console}.
+====
+
+* RECOMMENDED: Using the browser and the ${admin-console}. <<_configuring_${branding-lowercase}_from_the_admin_console, Configuring ${branding} From the ${admin-console}>>
+* Using a terminal and the ${command-console}. <<_configuring_${branding-lowercase}_from_the_command_console, Configuring ${branding} From the ${command-console}>>
+* Editing configuration files. <<_configuring_${branding-lowercase}_from_configuration_files, Configuring ${branding} From Configuration Files>>
+* Importing the configurations from an existing ${branding} instance. <<_importing_configurations, Importing Configurations>>

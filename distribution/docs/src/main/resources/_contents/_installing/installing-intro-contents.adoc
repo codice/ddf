@@ -1,0 +1,302 @@
+
+[IMPORTANT]
+====
+Although ${branding} can be installed by any user, it is recommended for security reasons to have a non-`root` user execute the ${branding} installation.
+====
+
+=== ${branding} Installation Prerequisites
+
+These are the system/environment requirements to configure _prior_ to an installation.
+
+
+==== Java Requirements
+
+* Install/Upgrade to Java 8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
+** The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] or later.
+* Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
+* http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
+* The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
+
+.Setting `JAVA_HOME` on *NIX
+----
+JAVA_HOME=/usr/java/jdk1.8.0
+export JAVA_HOME
+----
+
+.Setting `JAVA_HOME` on Windows
+----
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
+----
+
+.*NIX
+[WARNING]
+====
+Unlink `/usr/bin/java` if it is already linked to a previous version of the JRE:
+`unlink /usr/bin/java`
+====
+
+* Verify that the `JAVA_HOME` was set correctly.
+
+.*NIX
+----
+echo $JAVA_HOME
+----
+
+.Windows
+----
+echo %JAVA_HOME%
+----
+
+* ${branding} installation zip file.
+* A web browser.
+* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include or change the following:
+
+.File Descriptor Limit
+----
+fs.file-max = 6815744
+----
+
+.Restart
+[WARNING]
+====
+For the change to take effect, a restart is required.
+====
+
+. *Nix Restart Command
+----
+init 6
+----
+
+=== Installing With the ${branding} Distribution Zip
+
+To install the ${branding} distribution zip, perform the following:
+
+* After the prerequisites have been met, as a root user if for *NIX, change the current directory to the desired install location.
+This will be referred to as `<INSTALL_DIRECTORY>`.
+
+.*NIX Tip
+[TIP]
+It is recommended that the root user create a new install directory that can be owned by a non-root user (e.g., ${branding-lowercase}-user).
+The non-root user (e.g., ${branding-lowercase}-user) can now be used for the remaining installation instructions.
+
+.Example: Create a Directory and Switch User on *NIX
+----
+mkdir new_installation
+chown ${branding-lowercase}-user:${branding-lowercase}-group new_installation
+
+su - ${branding-lowercase}-user
+----
+
+// add windows version per https://codice.atlassian.net/browse/DDF-2481
+
+* Change the current directory to the location of the zip file (${branding-lowercase}-X.Y.zip).
+
+.*NIX (Example assumes ${branding} has been downloaded to a CD/DVD)
+----
+cd /home/user/cdrom
+----
+
+.Windows (Example assumes ${branding} has been downloaded to the D drive)
+----
+cd D:\
+----
+* Copy ${branding-lowercase}-X.Y.zip to <INSTALL_DIRECTORY>.
+
+.*NIX
+----
+cp ${branding-lowercase}-X.Y.zip <INSTALL_DIRECTORY>
+----
+
+.Windows
+----
+copy ${branding-lowercase}-X.Y.zip <INSTALL_DIRECTORY>
+----
+
+* Change the current directory to the desired install location.
+
+.*NIX or Windows
+----
+cd <INSTALL_DIRECTORY>
+----
+
+* The ${branding} zip is now located within the `<INSTALL_DIRECTORY>`. Unzip ${branding-lowercase}-X.Y.zip.
+
+.*NIX
+----
+unzip ${branding-lowercase}-X.Y.zip
+----
+
+.Use Java to Unzip in Windows
+----
+"C:\Program Files\Java\jdk1.8.0\bin\jar.exe" xf ${branding-lowercase}-X.Y.zip
+----
+
+.*NIX
+----
+<INSTALL_DIRECTORY>/${branding-lowercase}-X.Y/bin/${branding-lowercase}
+----
+
+.Windows
+----
+<INSTALL_DIRECTORY>/${branding-lowercase}-X.Y/bin/${branding-lowercase}.bat
+----
+
+// Verify this step is still required.
+* If the ${branding} Standalone Solr Server will be installed later, an additional configuration step is required for the ${branding} kernel.
+Add the following lines to the bottom of the `<INSTALL_DIRECTORY>/etc/org.ops4j.pax.web.cfg` file:
+
+.Additional Configuration Step
+----
+# Jetty Configuration
+`org.ops4j.pax.web.config.file=<KARAF.HOME>/etc/jetty.xml`
+----
+
+==== Deployment Guidelines
+
+${branding} relies on the Directory Permissions of the host platform to protect the integrity of the ${branding} during operation.
+System administrators MUST perform the following steps prior to deploying bundles added to the ${branding}.
+
+. Check the available storage space on the system to ensure the deployment will not exceed the available space.
+. Set maximum storage space on the `<${branding}_HOME>/deploy` and `<${branding}_HOME>/system` directories to restrict the amount of space used by deployments.
+. Do not assume the deployment is from a trusted source; verify its origination.
+
+==== Directory Permissions
+
+Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.
+
+===== Directory Permissions on Windows
+
+Set directory permissions to protect the ${branding} from unauthorized access.
+
+. Right-click on the file or directory noted below then select *Full Control -> Administrators -> System*.
+. Click *Properties -> Security -> Advanced* and select `Creator Owner` for `<${branding}_HOME>` (e.g., `C:\${branding-lowercase}`).
+. Restrict access to sensitive files by ensuring that only *System* and *Administrators* have Full Control to the below files by right-clicking on the file or directory below then selecting *Properties -> Security -> Advanced*
+. Delete any other groups or users listed with access to `<${branding}_HOME>/etc` and `<${branding}_HOME>/deploy`.
+
+===== Directory Permissions on *NIX
+
+Set directory permissions to protect the ${branding} from unauthorized access.
+
+* Change ownership of ${branding}_HOME
+** `chown -R NON_ROOT_USER <${branding}_HOME>`
+* Change group ownership on sub-directories
+** `chgrp -R ${branding}_GROUP <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/deploy`
+* Change group permissions
+** `chmod -R g-w <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/deploy`
+* Remove permissions for users
+** `chmod -R o-rwx <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/deploy`
+
+
+[IMPORTANT]
+====
+The system administrator must restrict certain directories to ensure that the application (user) cannot access restricted directories on the system.
+For example the `NON_ROOT_USER` should only have read access to `<${branding}_HOME.
+====
+
+==== Initial Startup
+
+Run the ${branding} using the appropriate script.
+
+.*NIX
+----
+<${branding}_HOME/bin/${branding-lowercase}
+----
+
+.Windows
+----
+<${branding}_HOME>/bin/${branding-lowercase}.bat
+----
+
+The distribution takes a few moments to load depending on the hardware configuration.
+
+==== Verifying Installation
+
+At this point, ${branding} should be configured and running with a Solr Catalog Provider.
+New features (endpoints, services, and sites) can be added as needed.
+
+Verification is achieved by checking that all of the ${branding} bundles are in an *Active* state (excluding fragment bundles which remain in a *Resolved* state).
+
+[NOTE]
+====
+It may take a few moments for all bundles to start so it may be necessary to wait a few minutes before verifying installation.
+====
+
+Execute the following command to display the status of all the ${branding} bundles:
+
+.View Status
+----
+${branding-lowercase}${at-symbol}local>list  grep -i ${branding-lowercase}
+
+----
+
+[WARNING]
+====
+Entries in the *Resolved* state are expected, they are OSGi bundle fragments.
+Bundle fragments are distinguished from other bundles in the command line console list by a field named `Hosts`, followed by a bundle number.
+Bundle fragments remain in the *Resolved* state and can never move to the *Active* state.
+====
+
+.Example: Bundle Fragment in the Command Line Console
+----
+96 | Resolved |  80 | 2.10.0.SNAPSHOT | DDF :: Platform :: PaxWeb :: Jetty Config, Hosts: 90
+----
+
+After successfully completing these steps, the ${branding} is ready to be configured.
+
+==== ${branding} Directory Contents after Installation and Initial Startup
+
+During ${branding} installation, the major directories and files shown in the table below are created, modified, or replaced in the destination directory.
+
+Within the <INSTALL_DIRECTORY>, a directory is created named ${branding-lowercase}-${project.version}.
+This directory will be referred in the documentation as `<${branding}_HOME>`.
+
+.${branding} Directory Contents
+[cols="1,4" options="header"]
+|===
+
+|Directory Name
+|Description
+
+|`bin`
+|Scripts to start, stop, and connect to ${branding}.
+
+|`data`
+|The working directory of the system – installed bundles and their data
+
+|`data/log/${branding-lowercase}.log`
+|Log file for ${branding}, logging all errors, warnings, and (optionally) debug statements. This log rolls up to 10 times, frequency based on a configurable setting (default=1 MB)
+
+|`data/log/ingest_error.log`
+|Log file for any ingest errors that occur within ${branding}.
+
+|`data/log/security.log`
+|Log file that records user interactions with the system for auditing purposes.
+
+|`deploy`
+|Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon ${branding} installation)
+
+|`documentation`
+|HTML and PDF copies of ${branding} documentation.
+
+|`etc`
+|Directory monitored for addition/modification/deletion of `.config` configuration files or third party `.cfg` configuration files.
+
+|`etc/failed`
+|If there is a problem with any of the `.config` files, such as bad syntax or missing tokens, they will be moved here.
+
+|`etc/processed`
+|All successfully processed `.config` files will be moved here.
+
+|`etc/templates`
+|Template `.config` files for use in configuring ${branding} sources, settings, etc., by copying to the etc directory.
+
+|`lib`
+|The system's bootstrap libraries. Includes the `${branding-lowercase}-branding.jar` file which is used to brand the system console with the ${branding} logo.
+
+|`licenses`
+|Licensing information related to the system.
+
+|`system`
+|Local bundle repository. Contains all of the JARs required by ${branding}, including third-party JARs.
+
+|===

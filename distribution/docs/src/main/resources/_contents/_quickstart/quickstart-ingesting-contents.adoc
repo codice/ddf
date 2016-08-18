@@ -1,0 +1,27 @@
+=== Ingesting Quickstart
+
+Now that ${branding} has been configured, ingest some sample data to demonstrate search capabilities.
+
+This is one way to ingest into the catalog, for a complete list of the different methods, see <<_ingesting_data,Ingesting Data>>.
+
+==== Ingesting Sample Data
+
+. Download a sample valid https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[GeoJson file here].
+. Navigate in the browser to the Search UI at ${secure_url}/search.
+. Click the *upload* image:upload_icon.png[upload, title="upload"] icon in the upper right corner.
+. Select the file to upload.
+
+[NOTE]
+====
+XML metadata for text searching is not automatically generated from GeoJson fields.
+====
+
+Querying from the Search UI (${secure_url}/search) will return the record for the file ingested:
+
+* Enter `*` in the Text search box and click the *Search* button.
+
+[NOTE]
+====
+The sample data was selected as an example of well-formed metadata.
+Other data can and should be used to test other usage scenarios.
+====
