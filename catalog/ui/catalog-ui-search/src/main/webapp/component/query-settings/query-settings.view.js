@@ -203,7 +203,7 @@ define([
             this.$el.removeClass('is-editing');
             var federation = this.settingsFederation.currentView.getCurrentValue()[0];
             this.model.set({
-                title: this.settingsTitle.currentView.getCurrentValue()
+                title: this.settingsTitle.currentView.getCurrentValue()[0]
             });
             this.model.set({
                 src: federation === 'selected' ? this._srcDropdownModel.get('value') : undefined
