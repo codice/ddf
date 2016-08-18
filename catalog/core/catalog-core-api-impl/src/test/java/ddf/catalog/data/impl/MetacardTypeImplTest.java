@@ -39,6 +39,7 @@ import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.DateTimeAttributes;
 import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.data.impl.types.VersionAttributes;
@@ -72,6 +73,8 @@ public class MetacardTypeImplTest {
     private static final ValidationAttributes VALIDATION_ATTRIBUTES = new ValidationAttributes();
 
     private static final CoreAttributes CORE_ATTRIBUTES = new CoreAttributes();
+
+    private static final SecurityAttributes SECURITY_ATTRIBUTES = new SecurityAttributes();
 
     @Test
     public void testNullAttributeDescriptors() {
@@ -410,22 +413,26 @@ public class MetacardTypeImplTest {
 
     @Test
     public void testDuplicateAttributes() {
-        MetacardType duplicateAttributeMetacardType = new MetacardTypeImpl("testType", Collections.singleton(new AttributeDescriptorImpl(
-                Core.CHECKSUM,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.SHORT_TYPE)));
+        MetacardType duplicateAttributeMetacardType = new MetacardTypeImpl("testType",
+                Collections.singleton(new AttributeDescriptorImpl(Core.CHECKSUM,
+                        true /* indexed */,
+                        true /* stored */,
+                        false /* tokenized */,
+                        false /* multivalued */,
+                        BasicTypes.SHORT_TYPE)));
         List<MetacardType> metacardTypeList = new ArrayList<>();
         metacardTypeList.add(DATE_TIME_ATTRIBUTES);
         metacardTypeList.add(duplicateAttributeMetacardType);
 
         MetacardType metacardType = new MetacardTypeImpl(TEST_NAME, metacardTypeList);
 
-        int expectedSize = DATE_TIME_ATTRIBUTES.getAttributeDescriptors().size() + CORE_ATTRIBUTES.getAttributeDescriptors().size();
+        int expectedSize = DATE_TIME_ATTRIBUTES.getAttributeDescriptors()
+                .size() + CORE_ATTRIBUTES.getAttributeDescriptors()
+                .size() + SECURITY_ATTRIBUTES.getAttributeDescriptors()
+                .size();
 
-        assertThat(metacardType.getAttributeDescriptors().size(), is(expectedSize));
+        assertThat(metacardType.getAttributeDescriptors()
+                .size(), is(expectedSize));
     }
 
     private void assertMetacardAttributes(MetacardType metacardType,

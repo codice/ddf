@@ -165,12 +165,6 @@ public class CoreAttributes implements Core, MetacardType {
                 false /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(METACARD_PERMISSIONS,
-                true /* indexed */,
-                true /* stored */,
-                true /* tokenized */,
-                true /* multivalued */,
-                BasicTypes.XML_TYPE));
         descriptors.add(new AttributeDescriptorImpl(DATATYPE,
                 true /* indexed */,
                 true /* stored */,
