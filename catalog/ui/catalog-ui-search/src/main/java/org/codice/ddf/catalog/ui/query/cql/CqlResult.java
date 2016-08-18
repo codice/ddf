@@ -101,13 +101,11 @@ public class CqlResult {
 
         hasThumbnail = Optional.of(mc)
                 .map(Metacard::getThumbnail)
-                .filter(Objects::nonNull)
                 .map(thumb -> thumb.length > 0)
                 .orElse(false);
 
         isResourceLocal = Optional.of(mc)
                 .map(m -> m.getAttribute("internal.local-resource"))
-                .filter(Objects::nonNull)
                 .map(Attribute::getValue)
                 .filter(Boolean.class::isInstance)
                 .map(Boolean.class::cast)
