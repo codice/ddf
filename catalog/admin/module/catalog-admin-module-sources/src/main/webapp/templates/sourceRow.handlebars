@@ -42,9 +42,11 @@
     </div>
 </td>
 <td colspan="4">
-    {{#if available}}
-        <span class='label label-success'>Available</span>
-    {{else}}
-        <span class='label label-warning'>Unavailable</span>
+    {{#if currentConfiguration}}
+        {{#if available}}
+            <span class='label label-success'>Available</span>
+        {{else}}
+            <span class='label label-warning'>Unavailable</span>
+        {{/if}}
     {{/if}}
 </td>
