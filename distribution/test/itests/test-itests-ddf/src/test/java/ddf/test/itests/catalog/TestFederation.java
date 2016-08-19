@@ -253,6 +253,7 @@ public class TestFederation extends AbstractIntegrationTest {
             CswSourceProperties cswStubServerProperties =
                     new CswSourceProperties(CSW_STUB_SOURCE_ID);
             cswStubServerProperties.put("cswUrl", CSW_STUB_SERVER_PATH.getUrl());
+            cswStubServerProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
             getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
                     cswStubServerProperties);
 
@@ -1835,10 +1836,9 @@ public class TestFederation extends AbstractIntegrationTest {
                 .body(is(resourceData1));
         // @formatter:on
 
-        List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
-
         expect("Waiting for activities").within(10, SECONDS)
                 .until(() -> {
+                    List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
                     if (foundExpectedActivity(activities, filename1, ACTIVITES_STARTED_MESSAGE)
                             && foundExpectedActivity(activities,
                             failFilename,
