@@ -52,6 +52,8 @@ public class GuestValidatorTest {
 
     ReceivedToken receivedAnyRealmToken;
 
+    ReceivedToken receivedTokenIpv6Reachability;
+
     @Before
     public void setup() {
         validator = new GuestValidator();
@@ -64,6 +66,9 @@ public class GuestValidatorTest {
 
         GuestAuthenticationToken guestAuthenticationTokenIpv6 = new GuestAuthenticationToken("*",
                 "0:0:0:0:0:0:0:1");
+
+        GuestAuthenticationToken guestAuthenticationTokenIpv6Reachability =
+                new GuestAuthenticationToken("*", "0:0:0:0:0:0:0:1%4");
 
         GuestAuthenticationToken guestAuthenticationTokenBadIp = new GuestAuthenticationToken("*",
                 "123.abc.45.def");
@@ -80,60 +85,75 @@ public class GuestValidatorTest {
                         BinarySecurityTokenType.class,
                         binarySecurityTokenType);
 
-        BinarySecurityTokenType binarySecurityTokenType2 = new BinarySecurityTokenType();
-        binarySecurityTokenType2.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
-        binarySecurityTokenType2.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
-        binarySecurityTokenType2.setId(GuestAuthenticationToken.BST_GUEST_LN);
-        binarySecurityTokenType2.setValue(Base64.getEncoder()
+        BinarySecurityTokenType binarySecurityTokenTypeBadToken = new BinarySecurityTokenType();
+        binarySecurityTokenTypeBadToken.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
+        binarySecurityTokenTypeBadToken.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenTypeBadToken.setId(GuestAuthenticationToken.BST_GUEST_LN);
+        binarySecurityTokenTypeBadToken.setValue(Base64.getEncoder()
                 .encodeToString("NotGuest".getBytes()));
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement2 =
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElementBadToken =
                 new JAXBElement<BinarySecurityTokenType>(new QName(
                         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
                         "BinarySecurityToken"),
                         BinarySecurityTokenType.class,
-                        binarySecurityTokenType2);
+                        binarySecurityTokenTypeBadToken);
 
-        BinarySecurityTokenType binarySecurityTokenType3 = new BinarySecurityTokenType();
-        binarySecurityTokenType3.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
-        binarySecurityTokenType3.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
-        binarySecurityTokenType3.setId(GuestAuthenticationToken.BST_GUEST_LN);
-        binarySecurityTokenType3.setValue(guestAuthenticationTokenAnyRealm.getEncodedCredentials());
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement3 =
+        BinarySecurityTokenType binarySecurityTokenTypeAnyRealm = new BinarySecurityTokenType();
+        binarySecurityTokenTypeAnyRealm.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
+        binarySecurityTokenTypeAnyRealm.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenTypeAnyRealm.setId(GuestAuthenticationToken.BST_GUEST_LN);
+        binarySecurityTokenTypeAnyRealm.setValue(guestAuthenticationTokenAnyRealm.getEncodedCredentials());
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElementAnyRealm =
                 new JAXBElement<BinarySecurityTokenType>(new QName(
                         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
                         "BinarySecurityToken"),
                         BinarySecurityTokenType.class,
-                        binarySecurityTokenType3);
+                        binarySecurityTokenTypeAnyRealm);
 
-        BinarySecurityTokenType binarySecurityTokenType4 = new BinarySecurityTokenType();
-        binarySecurityTokenType4.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
-        binarySecurityTokenType4.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
-        binarySecurityTokenType4.setId(GuestAuthenticationToken.BST_GUEST_LN);
-        binarySecurityTokenType4.setValue(guestAuthenticationTokenIpv6.getEncodedCredentials());
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement4 =
+        BinarySecurityTokenType binarySecurityTokenTypeIpv6 = new BinarySecurityTokenType();
+        binarySecurityTokenTypeIpv6.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
+        binarySecurityTokenTypeIpv6.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenTypeIpv6.setId(GuestAuthenticationToken.BST_GUEST_LN);
+        binarySecurityTokenTypeIpv6.setValue(guestAuthenticationTokenIpv6.getEncodedCredentials());
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElementIpv6 =
                 new JAXBElement<BinarySecurityTokenType>(new QName(
                         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
                         "BinarySecurityToken"),
                         BinarySecurityTokenType.class,
-                        binarySecurityTokenType4);
+                        binarySecurityTokenTypeIpv6);
 
-        BinarySecurityTokenType binarySecurityTokenType5 = new BinarySecurityTokenType();
-        binarySecurityTokenType5.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
-        binarySecurityTokenType5.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
-        binarySecurityTokenType5.setId(GuestAuthenticationToken.BST_GUEST_LN);
-        binarySecurityTokenType5.setValue(guestAuthenticationTokenBadIp.getEncodedCredentials());
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement5 =
+        BinarySecurityTokenType binarySecurityTokenTypeIpv6Reachability =
+                new BinarySecurityTokenType();
+        binarySecurityTokenTypeIpv6Reachability.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
+        binarySecurityTokenTypeIpv6Reachability.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenTypeIpv6Reachability.setId(GuestAuthenticationToken.BST_GUEST_LN);
+        binarySecurityTokenTypeIpv6Reachability.setValue(guestAuthenticationTokenIpv6Reachability.getEncodedCredentials());
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElementIpv6Reachability =
                 new JAXBElement<BinarySecurityTokenType>(new QName(
                         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
                         "BinarySecurityToken"),
                         BinarySecurityTokenType.class,
-                        binarySecurityTokenType5);
+                        binarySecurityTokenTypeIpv6Reachability);
+
+        BinarySecurityTokenType binarySecurityTokenTypeBadIp = new BinarySecurityTokenType();
+        binarySecurityTokenTypeBadIp.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
+        binarySecurityTokenTypeBadIp.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenTypeBadIp.setId(GuestAuthenticationToken.BST_GUEST_LN);
+        binarySecurityTokenTypeBadIp.setValue(guestAuthenticationTokenBadIp.getEncodedCredentials());
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElementBadIp =
+                new JAXBElement<BinarySecurityTokenType>(new QName(
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                        "BinarySecurityToken"),
+                        BinarySecurityTokenType.class,
+                        binarySecurityTokenTypeBadIp);
 
         receivedToken = new ReceivedToken(binarySecurityTokenElement);
-        receivedAnyRealmToken = new ReceivedToken(binarySecurityTokenElement3);
-        receivedBadToken = new ReceivedToken(binarySecurityTokenElement2);
-        receivedTokenIpv6 = new ReceivedToken(binarySecurityTokenElement4);
-        receivedTokenBadIp = new ReceivedToken(binarySecurityTokenElement5);
+        receivedAnyRealmToken = new ReceivedToken(binarySecurityTokenElementAnyRealm);
+        receivedBadToken = new ReceivedToken(binarySecurityTokenElementBadToken);
+        receivedTokenIpv6 = new ReceivedToken(binarySecurityTokenElementIpv6);
+        receivedTokenIpv6Reachability =
+                new ReceivedToken(binarySecurityTokenElementIpv6Reachability);
+        receivedTokenBadIp = new ReceivedToken(binarySecurityTokenElementBadIp);
         parameters = new TokenValidatorParameters();
         parameters.setToken(receivedToken);
     }
@@ -179,6 +199,17 @@ public class GuestValidatorTest {
     public void testCanValidateIpv6Token() {
         TokenValidatorParameters params = new TokenValidatorParameters();
         params.setToken(receivedTokenIpv6);
+        TokenValidatorResponse response = validator.validateToken(params);
+
+        assertEquals(ReceivedToken.STATE.VALID,
+                response.getToken()
+                        .getState());
+    }
+
+    @Test
+    public void testCanValidateIpv6ReachabilityToken() {
+        TokenValidatorParameters params = new TokenValidatorParameters();
+        params.setToken(receivedTokenIpv6Reachability);
         TokenValidatorResponse response = validator.validateToken(params);
 
         assertEquals(ReceivedToken.STATE.VALID,
