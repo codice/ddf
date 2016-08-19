@@ -148,12 +148,12 @@ define([
         },
         handleAction: function (event) {
             var link = this.$(event.currentTarget);
-            var id = link.attr('id');
+            var id = link.attr('id').split('.').join('\\.');
             var failed = $(this.$('#' + id + '-failed')[0]);
             var success = $(this.$('#' + id + '-success')[0]);
             var spinner = $(this.$('#' + id + '-spinner')[0]);
             link.addClass('inactive-link');
-            spinner.show();
+            spinner.css('display','inline-block');
             failed.hide();
             success.hide();
 
