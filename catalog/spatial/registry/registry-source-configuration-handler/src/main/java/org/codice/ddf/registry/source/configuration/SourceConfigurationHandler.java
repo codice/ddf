@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.parser.ParserException;
-import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
@@ -138,8 +137,8 @@ public class SourceConfigurationHandler implements EventHandler {
     @Override
     public void handleEvent(Event event) {
         Metacard mcard = (Metacard) event.getProperty(METACARD_PROPERTY);
-        if (mcard == null || !mcard.getTags()
-                .contains(RegistryConstants.REGISTRY_TAG)) {
+        if (mcard == null || !RegistryUtility.isRegistryMetacard(mcard)
+                || RegistryUtility.isIdentityNode(mcard)) {
             return;
         }
 
@@ -583,8 +582,10 @@ public class SourceConfigurationHandler implements EventHandler {
         }
 
         String propertyValue = null;
-        if (config.getProperties().get(property) instanceof String) {
-            propertyValue = (String) config.getProperties().get(property);
+        if (config.getProperties()
+                .get(property) instanceof String) {
+            propertyValue = (String) config.getProperties()
+                    .get(property);
         }
 
         if (propertyValue == null) {
