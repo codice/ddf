@@ -19,6 +19,9 @@
             id="ddf.services.schematron.SchematronValidationService"
             factory-pid="ddf.services.schematron.SchematronValidationService"
             interface="ddf.catalog.validation.MetacardValidator">
+        <service-properties>
+            <cm:cm-properties persistent-id="ddf.services.schematron.SchematronValidationService"/>
+        </service-properties>
         <cm:managed-component class="ddf.services.schematron.SchematronValidationService"
                               init-method="init" destroy-method="destroy">
             <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
