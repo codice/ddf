@@ -13,13 +13,13 @@
  */
 package ddf.test.itests.catalog;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.options;
 import static com.jayway.restassured.RestAssured.given;
 import static ddf.test.itests.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +29,7 @@ import org.boon.json.JsonFactory;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -39,8 +40,9 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 
+import ddf.catalog.data.impl.types.SecurityAttributes;
+import ddf.catalog.data.types.Core;
 import ddf.common.test.BeforeExam;
-import ddf.security.permission.CollectionPermission;
 import ddf.test.itests.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
@@ -69,6 +71,20 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         }
     }
 
+    protected Option[] configureCustom() {
+        try {
+            return options(// extra config options
+                    installStartupFile(getClass().getResourceAsStream("/catalog-ui/users.properties"),
+                            "/etc/users.properties"),
+                    installStartupFile(getClass().getResourceAsStream("/catalog-ui/users.attributes"),
+                            "/etc/users.attributes"));
+        } catch (IOException e) {
+            LOGGER.error("Failed to deploy configuration files: ", e);
+            fail("Failed to deploy configuration files: " + e.getMessage());
+        }
+        return null;
+    }
+
     @After
     public void cleanUp() {
         ids.stream()
@@ -95,6 +111,15 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         return given().log()
                 .all()
                 .header("Content-Type", "application/json");
+    }
+
+    private static RequestSpecification asUser(String username, String password) {
+        return given().log()
+                .all()
+                .header("Content-Type", "application/json")
+                .auth()
+                .preemptive()
+                .basic(username, password);
     }
 
     private static RequestSpecification asAdmin() {
@@ -136,7 +161,10 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     @Test
     public void testGuestCanCreateWorkspacesForOthers() {
-        Map<String, String> workspace = ImmutableMap.of("title", "my workspace", "owner", "a@b.c");
+        Map<String, String> workspace = ImmutableMap.of("title",
+                "my workspace",
+                Core.METACARD_OWNER,
+                "a@b.c");
         Response res = expect(asGuest().body(stringify(workspace)), 201).post(api());
 
         Map body = parse(res);
@@ -173,13 +201,9 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCanShareViewWithGuestByRole() {
-        Map<String, String> guestPermission = makePermission("role",
-                CollectionPermission.READ_ACTION,
-                "guest");
-
-        Map<String, Object> workspace = ImmutableMap.of("metacard.sharing",
-                ImmutableList.of(guestPermission));
+    public void testCanShareByGroup() {
+        Map<String, Object> workspace = ImmutableMap.of(SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of("guest"));
 
         Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
 
@@ -193,14 +217,9 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCanShareEditWithGuestByRole() {
-
-        Map<String, String> guestPermission = makePermission("role",
-                CollectionPermission.UPDATE_ACTION,
-                "guest");
-
-        Map<String, Object> workspace = ImmutableMap.of("metacard.sharing",
-                ImmutableList.of(guestPermission));
+    public void testCanShareByEmail() {
+        Map<String, Object> workspace = ImmutableMap.of(SecurityAttributes.ACCESS_INDIVIDUALS,
+                ImmutableList.of("random@localhost.local"));
 
         Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
 
@@ -208,18 +227,26 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         String id = (String) body.get("id");
         assertNotNull(id);
 
-        String title = "from guest";
+        expect(asGuest(), 404).get(api() + "/" + id);
+        expect(asUser("random", "password"), 200).get(api() + "/" + id);
 
-        Map update = ImmutableMap.builder()
-                .putAll(body)
-                .put("title", title)
-                .build();
+        ids.add(id); // for cleanUp
+    }
 
-        res = expect(asGuest().body(stringify(update)), 200).put(api() + "/" + id);
-        body = parse(res);
+    @Test
+    public void testCanShareAndUnshare() {
+        Map<String, Object> workspace = ImmutableMap.of(SecurityAttributes.ACCESS_GROUPS,
+                ImmutableList.of("guest"));
 
-        assertThat(body.get("id"), is(id));
-        assertThat(body.get("title"), is(title));
+        Response res = expect(asUser("random", "password").body(stringify(workspace)),
+                201).post(api());
+
+        Map body = parse(res);
+        String id = (String) body.get("id");
+        assertNotNull(id);
+
+        expect(asUser("random", "password").body(stringify(ImmutableMap.of(Core.METACARD_OWNER,
+                "random@localhost.local"))), 200).put(api() + "/" + id);
 
         ids.add(id); // for cleanUp
     }

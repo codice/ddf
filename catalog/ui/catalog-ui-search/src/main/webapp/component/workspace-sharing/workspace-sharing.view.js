@@ -51,34 +51,14 @@ define([
     });
 
     var SharingByEmailView = Marionette.LayoutView.extend({
-        className: 'row',
         template: '<div class="email"></div>' +
                   '<div class="action"></div>',
         regions: {
             email: '.email',
             action: '.action'
         },
-        initialize: function () {
-            this.model.set('action', this.model.get('action') || 'view');
-        },
-        updateAction: function () {
-            this.model.set('action', this.action.currentView.model.get('value')[0]);
-        },
         onRender: function () {
             this.email.show(new Input({ model: this.model }));
-
-            this.action.show(DropdownView.createSimpleDropdown(
-                {
-                    list: [
-                        { icon: 'fa-eye',    label: 'Can view',  value: 'view' },
-                        { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' }
-                    ],
-                    defaultSelection: [this.model.get('action')],
-                    customChildView: IconView
-                }
-            ));
-
-            this.listenTo(this.action.currentView.model, 'change:value', this.updateAction);
         }
     });
 
@@ -104,8 +84,7 @@ define([
                 {
                     list: [
                         { icon: 'fa-ban',    label: 'No Access',  value: 'none' },
-                        { icon: 'fa-pencil', label: 'Can edit',  value: 'edit' },
-                        { icon: 'fa-eye',    label: 'Can view',  value: 'view' }
+                        { icon: 'fa-pencil', label: 'Can Access', value: 'access' }
                     ],
                     defaultSelection: [this.model.get('action')],
                     customChildView: IconView
@@ -119,56 +98,6 @@ define([
     var RoleSharingEditor = Marionette.CollectionView.extend({
         childView: SharingByRoleView
     });
-
-    // aggregates a list of action types
-    // read = view
-    // read + update = edit
-    var aggregateActions = function (actions) {
-        if (_.contains(actions, 'read')) {
-            if (_.contains(actions, 'update')) {
-                return 'edit'
-            }
-            return 'view';
-        }
-        return 'none';
-    };
-
-    var aggregatePermissions = function (permissions) {
-        return _.chain(permissions)
-            .groupBy(function (permission) {
-                return permission.attribute + permission.value;
-            })
-            .map(function (permissions) {
-                return _.extend({}, permissions[0], {
-                    action: aggregateActions(_.pluck(permissions, 'action'))
-                });
-            })
-            .value();
-    };
-
-    // explodes action type
-    // view = read
-    // edit = read + update
-    var explodeActions = function (action) {
-        if (action === 'edit') {
-            return ['read', 'update'];
-        } else if (action === 'view') {
-            return ['read'];
-        } else {
-            return [];
-        }
-    };
-
-    var explodePermissions = function (permissions) {
-        return _.chain(permissions)
-            .map(function (permission) {
-                return _.map(explodeActions(permission.action), function (action) {
-                    return _.extend({}, permission, { action: action })
-                });
-            })
-            .flatten(true)
-            .value();
-    };
 
     var WorkspaceSharing = Marionette.LayoutView.extend({
         template: template,
@@ -190,19 +119,20 @@ define([
                 link: window.location.href + '/' + this.model.get('id')
             }
         },
-        getSharing: function () {
-            return aggregatePermissions(this.model.get('metacard.sharing') || []);
-        },
         getSharingByEmail: function () {
-            return _.where(this.getSharing(), { attribute: 'email' });
+            return (this.model.get('security.access-individuals') || [])
+              .map(function (email) {
+                return { value: email };
+              });
         },
         getSharingByRole: function () {
+            var roles = this.model.get('security.access-groups') || []
             var view = this;
 
             return user.get('user').get('roles').map(function (role) {
-                return _.findWhere(view.getSharing(), { value: role }) || {
+                return {
                     attribute: 'role',
-                    action: 'none',
+                    action: (roles.indexOf(role) === -1) ? 'none' : 'access',
                     value: role
                 };
             });
@@ -228,17 +158,16 @@ define([
                 .filter(function (role) {
                     return role.get('action') !== 'none';
                 }).map(function (role) {
-                    return role.toJSON();
+                    return role.get('value');
                 }).value();
 
-            var emails = this.emailCollection.chain()
-                .map(function (email) {
-                    return _.extend(email.toJSON(), {
-                        attribute: 'email'
-                    });
-                }).value();
+            var emails = this.emailCollection.map(function (email) {
+                return email.get('value');
+            });
 
-            this.model.set('metacard.sharing', explodePermissions(roles.concat(emails)));
+            this.model.set('security.access-groups', roles);
+            this.model.set('security.access-individuals', emails);
+
             this.model.save()
         },
         cleanup: function () {

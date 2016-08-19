@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.shiro.authz.Permission;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableSet;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
@@ -83,7 +84,7 @@ public class WorkspaceAccessPluginTest {
 
         Map<String, Serializable> attrs = ImmutableMap.of(Metacard.ID,
                 id,
-                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                Core.METACARD_OWNER,
                 "guest");
 
         Map<String, Metacard> updates = ImmutableMap.of(id, WorkspaceMetacardImpl.from(attrs));
@@ -99,16 +100,16 @@ public class WorkspaceAccessPluginTest {
 
         WorkspaceMetacardImpl before = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
                 id,
-                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                Core.METACARD_OWNER,
                 "before",
-                WorkspaceMetacardTypeImpl.WORKSPACE_SHARING,
+                WorkspaceAttributes.WORKSPACE_SHARING,
                 ImmutableList.of()));
 
         WorkspaceMetacardImpl after = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
                 id,
-                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                Core.METACARD_OWNER,
                 "after",
-                WorkspaceMetacardTypeImpl.WORKSPACE_SHARING,
+                WorkspaceAttributes.WORKSPACE_SHARING,
                 ImmutableList.of("<xml/>")));
 
         UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));
@@ -136,16 +137,16 @@ public class WorkspaceAccessPluginTest {
 
         WorkspaceMetacardImpl before = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
                 id,
-                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                Core.METACARD_OWNER,
                 "owner",
-                WorkspaceMetacardTypeImpl.WORKSPACE_SHARING,
+                WorkspaceAttributes.WORKSPACE_SHARING,
                 ImmutableList.of()));
 
         WorkspaceMetacardImpl after = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
                 id,
-                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                Core.METACARD_OWNER,
                 "owner",
-                WorkspaceMetacardTypeImpl.WORKSPACE_SHARING,
+                WorkspaceAttributes.WORKSPACE_SHARING,
                 ImmutableList.of("<xml/>")));
 
         UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));
@@ -162,12 +163,12 @@ public class WorkspaceAccessPluginTest {
 
         WorkspaceMetacardImpl before = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
                 id,
-                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                Core.METACARD_OWNER,
                 "user1"));
 
         WorkspaceMetacardImpl after = WorkspaceMetacardImpl.from(ImmutableMap.of(Metacard.ID,
                 id,
-                WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+                Core.METACARD_OWNER,
                 "user2"));
 
         UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));

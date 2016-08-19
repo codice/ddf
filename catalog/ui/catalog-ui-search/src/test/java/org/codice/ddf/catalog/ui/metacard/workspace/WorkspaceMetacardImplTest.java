@@ -86,7 +86,7 @@ public class WorkspaceMetacardImplTest {
         workspace.setSharing(ImmutableSet.of("<xml1/>", "<xml2/>"));
 
         WorkspaceMetacardImpl m = WorkspaceMetacardImpl.from(ImmutableMap.of(
-                WorkspaceMetacardTypeImpl.WORKSPACE_SHARING,
+                WorkspaceAttributes.WORKSPACE_SHARING,
                 ImmutableList.of("<xml2/>", "<xml3/>")));
 
         Set<String> diff = ImmutableSet.of("<xml1/>", "<xml3/>");

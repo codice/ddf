@@ -29,6 +29,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
@@ -46,9 +47,11 @@ public class WorkspacePolicyExtensionTest {
 
     private static final Permission RANDOM = makePermission("random", VALUES);
 
-    private static final Permission ROLES = makePermission("role", VALUES);
+    private static final Permission ROLES = makePermission(SecurityAttributes.ACCESS_GROUPS,
+            VALUES);
 
-    private static final Permission EMAILS = makePermission("email", VALUES);
+    private static final Permission EMAILS = makePermission(SecurityAttributes.ACCESS_INDIVIDUALS,
+            VALUES);
 
     private PolicyExtension extension;
 

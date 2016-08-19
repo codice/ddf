@@ -15,10 +15,11 @@ package org.codice.ddf.catalog.ui.metacard.workspace;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -73,70 +74,34 @@ public class WorkspaceTransformer {
         return query;
     }
 
-    public SharingMetacardImpl toSharing(Map<String, Object> map) {
-        SharingMetacardImpl sharing = new SharingMetacardImpl();
-
-        Object type = map.get(SharingMetacardTypeImpl.SHARING_ATTRIBUTE);
-        if (check(type, String.class)) {
-            sharing.setSharingAttribute((String) type);
-        }
-
-        Object permission = map.get(SharingMetacardTypeImpl.SHARING_ACTION);
-        if (check(permission, String.class)) {
-            sharing.setAction((String) permission);
-        }
-
-        Object value = map.get(SharingMetacardTypeImpl.SHARING_VALUE);
-        if (check(value, String.class)) {
-            sharing.setValue((String) value);
-        }
-
-        return sharing;
-    }
-
     @SuppressWarnings("unchecked")
-    public WorkspaceMetacardImpl toWorkspace(Map<String, Object> w) {
+    private WorkspaceMetacardImpl toWorkspace(Map<String, Object> w) {
         WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
 
-        if (check(w.get(Metacard.ID), String.class)) {
-            workspace.setId((String) w.get(Metacard.ID));
-        }
+        w.entrySet()
+                .stream()
+                .map(entry -> {
+                    if (WorkspaceAttributes.WORKSPACE_QUERIES.equals(entry.getKey())) {
+                        List<Map<String, Object>> queries = (List) entry.getValue();
 
-        if (check(w.get(Metacard.TITLE), String.class)) {
-            workspace.setTitle((String) w.get(Metacard.TITLE));
-        }
+                        List<String> xmlQueries = queries.stream()
+                                .map(this::toQuery)
+                                .map(this::toMetacardXml)
+                                .collect(Collectors.toList());
 
-        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_OWNER), String.class)) {
-            workspace.setOwner((String) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_OWNER));
-        }
+                        return new AbstractMap.SimpleEntry<>(entry.getKey(), xmlQueries);
+                    }
 
-        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS), List.class)) {
-            workspace.setMetacards((List) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS));
-        }
-
-        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_SHARING), List.class)) {
-            List<Map<String, Object>> sharing = (List<Map<String, Object>>) w.get(
-                    WorkspaceMetacardTypeImpl.WORKSPACE_SHARING);
-
-            Set<String> xmlSharing = sharing.stream()
-                    .map(this::toSharing)
-                    .map(this::toMetacardXml)
-                    .collect(Collectors.toSet());
-
-            workspace.setSharing(xmlSharing);
-        }
-
-        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES), List.class)) {
-            List<Map<String, Object>> queries = (List<Map<String, Object>>) w.get(
-                    WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES);
-
-            List<String> xmlQueries = queries.stream()
-                    .map(this::toQuery)
-                    .map(this::toMetacardXml)
-                    .collect(Collectors.toList());
-
-            workspace.setQueries(xmlQueries);
-        }
+                    return entry;
+                })
+                .forEach(entry -> {
+                    Object value = entry.getValue();
+                    if (value instanceof Serializable) {
+                        workspace.setAttribute(entry.getKey(), (Serializable) value);
+                    } else if (value instanceof List) {
+                        workspace.setAttribute(entry.getKey(), new ArrayList<>((List) value));
+                    }
+                });
 
         return workspace;
     }
@@ -160,16 +125,14 @@ public class WorkspaceTransformer {
 
                     if (QueryMetacardTypeImpl.QUERY_SOURCES.equals(ad.getName())) {
                         h.put("src", attr.getValues());
-                    } else if (Metacard.RELATED.equals(ad.getName())) {
-                        h.put(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS, attr.getValues());
-                    } else if (WorkspaceMetacardTypeImpl.WORKSPACE_SHARING.equals(ad.getName())) {
+                    } else if (WorkspaceAttributes.WORKSPACE_SHARING.equals(ad.getName())) {
                         h.put(ad.getName(),
                                 attr.getValues()
                                         .stream()
                                         .map(this::toMetacardFromXml)
                                         .map(this::transform)
                                         .collect(Collectors.toList()));
-                    } else if (WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES.equals(ad.getName())) {
+                    } else if (WorkspaceAttributes.WORKSPACE_QUERIES.equals(ad.getName())) {
                         h.put(ad.getName(),
                                 attr.getValues()
                                         .stream()

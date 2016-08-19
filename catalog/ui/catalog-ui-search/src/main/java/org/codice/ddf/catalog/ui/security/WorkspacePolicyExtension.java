@@ -23,12 +23,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import ddf.catalog.data.impl.types.SecurityAttributes;
+import ddf.catalog.data.types.Core;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
@@ -37,22 +37,18 @@ import ddf.security.policy.extension.PolicyExtension;
 public class WorkspacePolicyExtension implements PolicyExtension {
 
     private Stream<KeyValuePermission> injectedPermissions() {
-        return ImmutableList.of(new KeyValuePermission("role", ImmutableSet.of("admin")))
+        return ImmutableList.of(new KeyValuePermission("admin", ImmutableSet.of("admin")))
                 .stream();
     }
 
     private Map<String, String> keyMapping = ImmutableMap.of("admin",
             Constants.ROLES_CLAIM_URI,
-            WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
+            Core.METACARD_OWNER,
             Constants.EMAIL_ADDRESS_CLAIM_URI,
-            "email",
+            SecurityAttributes.ACCESS_INDIVIDUALS,
             Constants.EMAIL_ADDRESS_CLAIM_URI,
-            "role",
+            SecurityAttributes.ACCESS_GROUPS,
             Constants.ROLES_CLAIM_URI);
-
-    private static <T> Predicate<T> not(Predicate<T> p) {
-        return (o) -> !p.test(o);
-    }
 
     private static Predicate<KeyValuePermission> byKeys(Set<String> keys) {
         return permission -> keys.contains(permission.getKey());
@@ -84,7 +80,7 @@ public class WorkspacePolicyExtension implements PolicyExtension {
 
         return new KeyValueCollectionPermission(match.getAction(),
                 permissions.stream()
-                        .filter(matched ? not(byKeys(keyMapping.keySet())) : p -> true)
+                        .filter(matched ? byKeys(keyMapping.keySet()).negate() : p -> true)
                         .collect(Collectors.toList()));
     }
 

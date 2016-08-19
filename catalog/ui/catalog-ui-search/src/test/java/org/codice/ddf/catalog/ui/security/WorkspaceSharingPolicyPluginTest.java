@@ -15,16 +15,12 @@ package org.codice.ddf.catalog.ui.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 import java.util.Map;
 
-import org.codice.ddf.catalog.ui.metacard.workspace.SharingMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,9 +28,9 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
-import ddf.security.permission.CollectionPermission;
 
 public class WorkspaceSharingPolicyPluginTest {
 
@@ -67,47 +63,6 @@ public class WorkspaceSharingPolicyPluginTest {
         workspace.setOwner(email);
         PolicyResponse response = plugin.processPreUpdate(workspace, properties);
         assertThat(response.itemPolicy(),
-                is(ImmutableMap.of(WorkspaceMetacardTypeImpl.WORKSPACE_OWNER,
-                        ImmutableSet.of(email))));
-    }
-
-    @Test
-    public void testSharingOnUpdate() throws Exception {
-        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
-        workspace.setSharing(ImmutableSet.of("<xml/>"));
-
-        SharingMetacardImpl sharing = new SharingMetacardImpl();
-
-        sharing.setAction(CollectionPermission.UPDATE_ACTION);
-        sharing.setSharingAttribute("attribute");
-        sharing.setValue("value");
-
-        doReturn(sharing).when(transformer)
-                .toMetacardFromXml(any(String.class));
-
-        PolicyResponse response = plugin.processPreUpdate(workspace, properties);
-
-        assertThat(response.itemPolicy(),
-                is(ImmutableMap.of("attribute", ImmutableSet.of("value"))));
-
-    }
-
-    @Test
-    public void testIgnoreDeleteActionOnUpdate() throws Exception {
-        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
-
-        SharingMetacardImpl sharing = new SharingMetacardImpl();
-
-        sharing.setAction(CollectionPermission.DELETE_ACTION);
-        sharing.setSharingAttribute("attribute");
-        sharing.setValue("value");
-
-        doReturn(sharing).when(transformer)
-                .toMetacardFromXml(any());
-
-        PolicyResponse response = plugin.processPreUpdate(workspace, properties);
-
-        assertThat(response.itemPolicy(), is(Collections.emptyMap()));
-
+                is(ImmutableMap.of(Core.METACARD_OWNER, ImmutableSet.of(email))));
     }
 }

@@ -49,7 +49,7 @@ import org.codice.ddf.catalog.ui.metacard.edit.MetacardChanges;
 import org.codice.ddf.catalog.ui.metacard.enumerations.ExperimentalEnumerationExtractor;
 import org.codice.ddf.catalog.ui.metacard.history.HistoryResponse;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -350,7 +350,7 @@ public class MetacardApplication implements SparkApplication {
         get("/workspaces", (req, res) -> {
             String email = getSubjectEmail();
             Map<String, Result> workspaceMetacards = util.getMetacardsByFilter(
-                    WorkspaceMetacardTypeImpl.WORKSPACE_TAG);
+                    WorkspaceAttributes.WORKSPACE_TAG);
 
             // NOTE: the isEmpty is to guard against users with no email (such as guest).
             Set<String> ids =

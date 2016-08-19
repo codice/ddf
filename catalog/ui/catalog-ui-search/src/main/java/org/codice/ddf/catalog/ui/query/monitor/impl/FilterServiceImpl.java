@@ -15,7 +15,7 @@ package org.codice.ddf.catalog.ui.query.monitor.impl;
 
 import java.util.Date;
 
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.opengis.filter.Filter;
 
@@ -35,7 +35,7 @@ public class FilterServiceImpl implements FilterService {
         return filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .like()
-                .text(WorkspaceMetacardTypeImpl.WORKSPACE_TAG);
+                .text(WorkspaceAttributes.WORKSPACE_TAG);
     }
 
     @Override

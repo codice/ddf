@@ -26,8 +26,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
@@ -98,7 +98,7 @@ public class TestWorkspaceServiceImpl {
         Attribute attribute = mock(Attribute.class);
         when(attribute.getValue()).thenReturn(id);
         when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
-        when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceMetacardTypeImpl.WORKSPACE_TAG));
+        when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
 
         when(result.getMetacard()).thenReturn(metacard);
 

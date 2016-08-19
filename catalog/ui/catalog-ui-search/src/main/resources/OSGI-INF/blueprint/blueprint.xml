@@ -53,15 +53,11 @@
     </bean>
 
     <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardTypeImpl"/>
+        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes"/>
     </service>
 
     <service interface="ddf.catalog.data.MetacardType">
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
-    </service>
-
-    <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.SharingMetacardTypeImpl"/>
     </service>
 
     <service interface="ddf.catalog.plugin.PreIngestPlugin">

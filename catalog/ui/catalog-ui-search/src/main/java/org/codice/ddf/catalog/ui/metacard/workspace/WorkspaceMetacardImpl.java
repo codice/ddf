@@ -22,19 +22,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 
 public class WorkspaceMetacardImpl extends MetacardImpl {
 
-    private static final WorkspaceMetacardTypeImpl TYPE = new WorkspaceMetacardTypeImpl();
+    private static final MetacardType TYPE = new MetacardTypeImpl(WorkspaceAttributes.WORKSPACE_TAG,
+            ImmutableList.of(new AssociationsAttributes(), new WorkspaceAttributes()));
 
     public WorkspaceMetacardImpl() {
         super(TYPE);
-        setTags(Collections.singleton(WorkspaceMetacardTypeImpl.WORKSPACE_TAG));
+        setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
     }
 
     public WorkspaceMetacardImpl(String id) {
@@ -93,7 +100,7 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
         if (metacard != null) {
             return metacard.getTags()
                     .stream()
-                    .filter(WorkspaceMetacardTypeImpl.WORKSPACE_TAG::equals)
+                    .filter(WorkspaceAttributes.WORKSPACE_TAG::equals)
                     .findFirst()
                     .isPresent();
         }
@@ -115,11 +122,11 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
     }
 
     public List<String> getMetacards() {
-        return getValues(Metacard.RELATED);
+        return getValues(Associations.RELATED);
     }
 
     public void setMetacards(List<String> items) {
-        setAttribute(Metacard.RELATED, new ArrayList<>(items));
+        setAttribute(Associations.RELATED, new ArrayList<>(items));
     }
 
     private List<String> getValues(String attribute) {
@@ -136,16 +143,16 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
     }
 
     public List<String> getQueries() {
-        return getValues(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES);
+        return getValues(WorkspaceAttributes.WORKSPACE_QUERIES);
     }
 
     public WorkspaceMetacardImpl setQueries(List<String> queries) {
-        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES, new ArrayList<>(queries));
+        setAttribute(WorkspaceAttributes.WORKSPACE_QUERIES, new ArrayList<>(queries));
         return this;
     }
 
     public String getOwner() {
-        List<String> values = getValues(WorkspaceMetacardTypeImpl.WORKSPACE_OWNER);
+        List<String> values = getValues(Core.METACARD_OWNER);
 
         if (!values.isEmpty()) {
             return values.get(0);
@@ -155,16 +162,16 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
     }
 
     public WorkspaceMetacardImpl setOwner(String email) {
-        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_OWNER, email);
+        setAttribute(Core.METACARD_OWNER, email);
         return this;
     }
 
     public Set<String> getSharing() {
-        return new HashSet<>(getValues(WorkspaceMetacardTypeImpl.WORKSPACE_SHARING));
+        return new HashSet<>(getValues(WorkspaceAttributes.WORKSPACE_SHARING));
     }
 
     public WorkspaceMetacardImpl setSharing(Set<String> sharing) {
-        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_SHARING, new ArrayList<>(sharing));
+        setAttribute(WorkspaceAttributes.WORKSPACE_SHARING, new ArrayList<>(sharing));
         return this;
     }
 

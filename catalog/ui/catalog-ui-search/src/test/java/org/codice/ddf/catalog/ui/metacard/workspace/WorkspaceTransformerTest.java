@@ -34,6 +34,8 @@ import org.mockito.Mockito;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.InputTransformer;
 
 public class WorkspaceTransformerTest {
@@ -82,8 +84,8 @@ public class WorkspaceTransformerTest {
 
         w.put(Metacard.TITLE, "test");
         w.put(Metacard.TAGS, new HashSet<>(Arrays.asList("first", "second")));
-        w.put(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS, Arrays.asList("id1", "id2"));
-        w.put(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES, Arrays.asList(getQueryAsMap()));
+        w.put(Associations.RELATED, Arrays.asList("id1", "id2"));
+        w.put(WorkspaceAttributes.WORKSPACE_QUERIES, Arrays.asList(getQueryAsMap()));
 
         return w;
     }
@@ -107,22 +109,20 @@ public class WorkspaceTransformerTest {
         WorkspaceMetacardImpl workspace = getWorkspace();
         Map<String, Object> map = wt.transform(workspace);
 
-        assertThat(map.get(Metacard.TITLE), is(workspace.getTitle()));
-        assertThat(map.get(Metacard.TAGS), nullValue()); // don't output metacard tags
-        assertThat(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES),
+        assertThat(map.get(Core.TITLE), is(workspace.getTitle()));
+        assertThat(map.get(Core.METACARD_TAGS), nullValue()); // don't output metacard tags
+        assertThat(map.get(WorkspaceAttributes.WORKSPACE_QUERIES),
                 is(Arrays.asList(getQueryAsMap())));
-        assertThat(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS),
-                is(workspace.getMetacards()));
+        assertThat(map.get(Associations.RELATED), is(workspace.getMetacards()));
     }
 
     @Test
     public void testMapToMetacard() {
         Map<String, Object> map = getWorkspaceAsMap();
-        WorkspaceMetacardImpl workspace = (WorkspaceMetacardImpl) wt.transform(map);
+        WorkspaceMetacardImpl workspace = wt.transform(map);
 
-        assertThat(workspace.getTitle(), is(map.get(workspace.TITLE)));
+        assertThat(workspace.getTitle(), is(map.get(Core.TITLE)));
         assertThat(workspace.getQueries(), is(Arrays.asList("<xml></xml>")));
-        assertThat(workspace.getMetacards(),
-                is(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS)));
+        assertThat(workspace.getMetacards(), is(map.get(Associations.RELATED)));
     }
 }
