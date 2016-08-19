@@ -65,6 +65,9 @@ import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 
+/**
+ * Javadocs go here.
+ */
 public class QueryOperations extends DescribableImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryOperations.class);
 
