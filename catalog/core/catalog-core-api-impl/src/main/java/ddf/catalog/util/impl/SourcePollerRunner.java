@@ -31,8 +31,8 @@ import ddf.catalog.source.Source;
 
 /**
  * The poller to check the availability of all configured sources. This class is instantiated by the
- * CatalogFramework's blueprint and is scheduled by the {@link SourcePoller} to execute at a fixed
- * rate, i.e., the polling interval.
+ * CatalogFramework's blueprint and is scheduled by the {@link SourcePoller} to execute at a
+ * configured rate, i.e., the polling interval.
  *
  * This class maintains a list of all of the sources to be polled for their availability. Sources
  * are added to this list when they come online and when they are deleted. A cached map is

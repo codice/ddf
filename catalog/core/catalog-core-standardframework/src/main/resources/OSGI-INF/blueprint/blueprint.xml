@@ -68,6 +68,8 @@
     </bean>
 
     <bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
+        <cm:managed-properties persistent-id="ddf.catalog.util.impl.SourcePoller"
+                               update-strategy="container-managed"/>
         <argument ref="sourcePollerRunner"/>
     </bean>
 
