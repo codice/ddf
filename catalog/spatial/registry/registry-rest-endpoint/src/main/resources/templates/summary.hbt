@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+    <!-- styles -->
+    <link href="/services/registries/assets/css/report.css" rel="stylesheet"/>
+    <link href="/services/registries/assets/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/services/registries/assets/css/bootstrap-theme.min.css" rel="stylesheet"/>
+</head>
+<body id="SummaryInfo">
+<h2>Summary</h2>
+<table class="table table-striped">
+    <tbody>
+    {{#each this}}
+        <tr class="ValuePair">
+            <td class="key"><strong>{{@key}}</strong></td>
+            <td class="value">{{#if this}}{{#each this}}{{join this " "}}<br/>{{/each}}{{/if}}</td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>
+</body>
+</html>

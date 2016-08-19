@@ -1,0 +1,25 @@
+        .panel {
+            color: black;
+            height: auto;
+            max-height: 600px;
+            overflow: auto;
+        }
+        .table {
+            margin-left: 50px;
+            border: 1px solid #ddd;
+        }
+        .column {
+            width: 250px;
+        }
+        h1 {
+             margin: 10px;
+        }
+         h2 {
+              margin-left: 15px;
+        }
+        h3 {
+            margin-left: 30px;
+        }
+        h4 {
+            margin-left: 50px;
+        }

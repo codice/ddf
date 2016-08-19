@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+    <!-- styles -->
+    <link href="/services/registries/assets/css/report.css" rel="stylesheet"/>
+    <link href="/services/registries/assets/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/services/registries/assets/css/bootstrap-theme.min.css" rel="stylesheet"/>
+</head>
+<body id="OrganizationsInfo">
+<h2>Organizations</h2>
+{{#each Organization}}
+    <h3 class="Name">{{Name}}</h3>
+    {{#each this}}
+        {{#ifeq @key 'TelephoneNumber'}}
+            <h4>Phone Numbers</h4>
+            {{#each this}}
+                <table class="table table-striped ">
+                    <tr>
+                        <td class="Phone">{{#if areaCode}}({{areaCode}})
+                        {{/if}}{{#if number}}{{number}}{{/if}}
+                            {{#if extension}}ext. {{extension}}{{/if}}</td>
+                    </tr>
+                </table>
+            {{/each}}
+        {{else}}
+            {{#ifeq @key 'EmailAddress'}}
+                <h4>Email Addresses</h4>
+                {{#each this}}
+                    <table class="table table-striped ">
+                        <tr>
+                            <td class="Email">{{address}}</td>
+                        </tr>
+                    </table>
+                {{/each}}
+            {{else}}
+                {{#ifeq @key 'Address'}}
+                    <h4>Addresses</h4>
+                    {{#each this}}
+                        <table class="table table-striped ">
+                            <tr>
+                                <td class="Address">{{street}} {{#if city}}{{city}},{{/if}}
+                                    {{stateOrProvince}} {{postalCode}}</td>
+                            </tr>
+                        </table>
+                    {{/each}}
+                {{else}}
+                    {{#ifeq @key 'Name'}}
+                    {{else}}
+                        {{#ifeq @key 'Slot'}}
+                            {{#each this}}
+                                <h4>{{name}}</h4>
+                                <table class="table table-striped">
+                                    <tr>
+                                        <td class="Slot">{{join value ", "}}</td>
+                                    </tr>
+                                </table>
+                            {{/each}}
+                        {{else}}
+                            {{#ifeq @key 'Classification'}}
+                                {{#each this}}
+                                    {{#each this}}
+                                        <h4>{{@key}}</h4>
+                                        <table class="table table-striped">
+                                            <tr>
+                                                <td class="Classifications">{{join this " "}}</td>
+                                            </tr>
+                                        </table>
+                                    {{/each}}
+                                {{/each}}
+                            {{else}}
+                                <div class="ValuePair">
+                                    <h4 class="key">{{@key}}</h4>
+                                    <table class="table table-striped ">
+                                        <tr>
+                                            <td class="value">{{this}}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            {{/ifeq}}
+                        {{/ifeq}}
+                    {{/ifeq}}
+                {{/ifeq}}
+            {{/ifeq}}
+        {{/ifeq}}
+    {{/each}}
+{{/each}}
+</body>
+</html>
