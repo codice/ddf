@@ -158,19 +158,21 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
     }
 
     private PolicyResponse getWritePolicy(Metacard input, Map<String, Serializable> properties) {
-        HashMap<String, Set<String>> operationPolicy = new HashMap<>();
-        if (Requests.isLocal(properties) && input != null && RegistryUtility.isRegistryMetacard(input)) {
+        HashMap<String, Set<String>> policy = new HashMap<>();
+        if (Requests.isLocal(properties) && input != null
+                && (RegistryUtility.isInternalRegistryMetacard(input)
+                || RegistryUtility.isRegistryMetacard(input))) {
             String registryBaseUrl = RegistryUtility.getStringAttribute(input,
                     RegistryObjectMetacardType.REGISTRY_BASE_URL,
                     null);
             if (isRegistryDisabled() || (registryBaseUrl != null && registryBaseUrl.startsWith(
                     SystemBaseUrl.getBaseUrl()))) {
-                operationPolicy.putAll(bypassAccessPolicy);
+                policy.putAll(bypassAccessPolicy);
             } else {
-                operationPolicy.putAll(writeAccessPolicy);
+                policy.putAll(writeAccessPolicy);
             }
         }
-        return new PolicyResponseImpl(operationPolicy, new HashMap<>());
+        return new PolicyResponseImpl(policy, policy);
     }
 
     @Override
@@ -217,7 +219,7 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
             throws StopProcessingException {
         HashMap<String, Set<String>> itemPolicy = new HashMap<>();
         Metacard metacard = input.getMetacard();
-        if (RegistryUtility.isRegistryMetacard(metacard)) {
+        if (RegistryUtility.isRegistryMetacard(metacard) || RegistryUtility.isInternalRegistryMetacard(metacard)) {
             if ((whiteList && !registryEntryIds.contains(metacard.getId())) || (!whiteList
                     && registryEntryIds.contains(metacard.getId()))) {
                 itemPolicy.putAll(bypassAccessPolicy);

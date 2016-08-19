@@ -161,7 +161,7 @@
         <argument ref="filterAdapter"/>
         <property name="schemaToTagsMapping">
             <array value-type="java.lang.String">
-                <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry</value>
+                <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry,registry-remote</value>
             </array>
         </property>
     </bean>

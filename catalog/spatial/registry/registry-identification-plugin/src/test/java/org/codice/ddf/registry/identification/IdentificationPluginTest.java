@@ -57,13 +57,8 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.operation.impl.CreateResponseImpl;
-import ddf.catalog.operation.impl.DeleteRequestImpl;
-import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.StopProcessingException;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -90,6 +85,7 @@ public class IdentificationPluginTest {
         Set<String> tags = new HashSet<>();
         tags.add("registry");
         sampleData.setTags(tags);
+        System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, "systemRegistryId");
     }
 
     //test ext IDs are not set (origin & local)
@@ -116,11 +112,12 @@ public class IdentificationPluginTest {
 
         for (ExternalIdentifierType singleExtId : extIdList) {
             if (singleExtId.getId()
-                    .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID)) {
-                assertThat(singleExtId.getValue(), is("testNewMetacardId"));
-            } else {
-                assertThat(singleExtId.getId(), is(RegistryConstants.REGISTRY_MCARD_ORIGIN_ID));
-                assertThat(singleExtId.getValue(), is("testNewMetacardId"));
+                    .equals(RegistryConstants.REGISTRY_MCARD_ID_LOCAL)) {
+                assertThat(singleExtId.getValue(), is(testMetacard.getId()));
+            } else if (singleExtId.getId()
+                    .equals(RegistryConstants.REGISTRY_MCARD_ID_ORIGIN)) {
+                assertThat(singleExtId.getId(), is(RegistryConstants.REGISTRY_MCARD_ID_ORIGIN));
+                assertThat(singleExtId.getValue(), is(testMetacard.getId()));
             }
         }
     }
@@ -149,11 +146,11 @@ public class IdentificationPluginTest {
 
         for (ExternalIdentifierType singleExtId : extIdList) {
             if (singleExtId.getId()
-                    .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID)) {
-                assertThat(singleExtId.getValue(), is("testNewMetacardId"));
+                    .equals(RegistryConstants.REGISTRY_MCARD_ID_LOCAL)) {
+                assertThat(singleExtId.getValue(), is(testMetacard.getId()));
             } else if (singleExtId.getId()
-                    .equals(RegistryConstants.REGISTRY_MCARD_ORIGIN_ID)) {
-                assertThat(singleExtId.getValue(), is("testNewMetacardId"));
+                    .equals(RegistryConstants.REGISTRY_MCARD_ID_ORIGIN)) {
+                assertThat(singleExtId.getValue(), is(testMetacard.getId()));
             }
         }
     }
@@ -182,10 +179,11 @@ public class IdentificationPluginTest {
 
         for (ExternalIdentifierType singleExtId : extIdList) {
             if (singleExtId.getId()
-                    .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID)) {
-                assertThat(singleExtId.getValue(), is("testNewMetacardId"));
-            } else {
-                assertThat(singleExtId.getId(), is(RegistryConstants.REGISTRY_MCARD_ORIGIN_ID));
+                    .equals(RegistryConstants.REGISTRY_MCARD_ID_LOCAL)) {
+                assertThat(singleExtId.getValue(), is(testMetacard.getId()));
+            } else if (singleExtId.getId()
+                    .equals(RegistryConstants.REGISTRY_MCARD_ID_ORIGIN)) {
+                assertThat(singleExtId.getId(), is(RegistryConstants.REGISTRY_MCARD_ID_ORIGIN));
                 assertThat(singleExtId.getValue(), is("registryPresetOriginValue"));
             }
         }
@@ -206,30 +204,6 @@ public class IdentificationPluginTest {
                 .getMetadata(), equalTo(xml));
     }
 
-    @Test(expected = StopProcessingException.class)
-    public void testDuplicateChecking() throws Exception {
-        String xml = convert("/registry-both-extid.xml");
-        sampleData.setAttribute(Metacard.METADATA, xml);
-        identificationPlugin.process(new CreateResponseImpl(new CreateRequestImpl(sampleData),
-                null,
-                Collections.singletonList(sampleData)));
-        identificationPlugin.process(new CreateRequestImpl(sampleData));
-    }
-
-    @Test
-    public void testDuplicateCheckingAfterDelete() throws Exception {
-        String xml = convert("/registry-both-extid.xml");
-        sampleData.setAttribute(Metacard.METADATA, xml);
-        identificationPlugin.process(new CreateResponseImpl(new CreateRequestImpl(sampleData),
-                null,
-                Collections.singletonList(sampleData)));
-        identificationPlugin.process(new DeleteResponseImpl(new DeleteRequestImpl(Collections.singletonList(
-                "abc123"), RegistryObjectMetacardType.REGISTRY_ID, null),
-                null,
-                Collections.singletonList(sampleData)));
-        identificationPlugin.process(new CreateRequestImpl(sampleData));
-    }
-
     private String convert(String path) throws Exception {
         InputStream inputStream = getClass().getResourceAsStream(path);
         BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream));
@@ -237,25 +211,11 @@ public class IdentificationPluginTest {
                 .collect(Collectors.joining("\n"));
     }
 
-    @Test(expected = PluginExecutionException.class)
-    public void testUpdateWithNullOperationTransaction() throws Exception {
-        String xml = convert("/registry-both-extid.xml");
-        sampleData.setAttribute(Metacard.METADATA, xml);
-
-        List<Map.Entry<Serializable, Metacard>> updatedEntries = new ArrayList<>();
-        updatedEntries.add(new AbstractMap.SimpleEntry<>(sampleData.getId(), sampleData));
-
-        UpdateRequest updateRequest = new UpdateRequestImpl(updatedEntries,
-                Metacard.ID,
-                new HashMap<>());
-        identificationPlugin.process(updateRequest);
-    }
-
     @Test
     public void testUpdateMetacardWithModifiedTimeSameAsCurrentMetacard() throws Exception {
         String xml = convert("/registry-both-extid.xml");
         sampleData.setAttribute(Metacard.METADATA, xml);
-
+        sampleData.setAttribute(RegistryObjectMetacardType.REMOTE_REGISTRY_ID, "remoteRegistryId");
         OperationTransaction operationTransaction = new OperationTransactionImpl(null,
                 Collections.singletonList(sampleData));
         Map<String, Serializable> properties = new HashMap<>();
@@ -279,7 +239,8 @@ public class IdentificationPluginTest {
         MetacardImpl previousMetacard = new MetacardImpl();
         previousMetacard.setAttribute(Metacard.ID, "MetacardId");
         previousMetacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "MetacardId");
-        previousMetacard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+        previousMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
+                RegistryConstants.REGISTRY_TAG));
         previousMetacard.setAttribute(RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
                 "Published Locations");
         previousMetacard.setAttribute(RegistryObjectMetacardType.LAST_PUBLISHED,
@@ -297,7 +258,8 @@ public class IdentificationPluginTest {
         MetacardImpl updateMetacard = new MetacardImpl();
         updateMetacard.setAttribute(Metacard.ID, "MetacardId");
         updateMetacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "MetacardId");
-        updateMetacard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+        updateMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
+                RegistryConstants.REGISTRY_TAG));
         updateMetacard.setAttribute(Metacard.MODIFIED, new Date().from(Instant.now()));
         updateMetacard.setAttribute(Metacard.METADATA, xml);
         updatedEntries.add(new AbstractMap.SimpleEntry<>(updateMetacard.getId(), updateMetacard));

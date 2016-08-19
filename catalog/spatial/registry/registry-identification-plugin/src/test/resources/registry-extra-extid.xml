@@ -18,7 +18,7 @@
                      home="https://somehost:someport"
                      objectType="urn:catalog.service">
 
-    <rim:ExternalIdentifier id="urn:mcard:random-id" registryObject="registryExtIdLocal" identificationScheme="MetacardId" value="registryPresetLocalValue"/>
+    <rim:ExternalIdentifier id="urn:registry:metacard:random-id" registryObject="registryExtIdLocal" identificationScheme="MetacardId" value="registryPresetLocalValue"/>
 
-    <rim:ExternalIdentifier id="urn:mcard:this-id" registryObject="registryExtIdOrigin" identificationScheme="MetacardId" value="registryPresetOriginValue"/>
+    <rim:ExternalIdentifier id="urn:registry:metacard:this-id" registryObject="registryExtIdOrigin" identificationScheme="MetacardId" value="registryPresetOriginValue"/>
 </rim:RegistryPackage>

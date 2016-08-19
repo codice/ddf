@@ -16,9 +16,9 @@
 
     <OCD description="Registry Federation Admin Service" name="Registry Federation Admin Service"
          id="Registry_Federation_Admin_Service">
-        <AD name="Registry Sub Poller Interval" id="registrySubPollerInterval" required="true"
+        <AD name="Registry Refresh Interval" id="registrySubPollerInterval" required="true"
             type="String" default="30"
-            description="The polling interval for the registry subscriptions. In seconds."/>
+            description="The refresh interval for the registry subscriptions/updates. In seconds."/>
     </OCD>
     <Designate pid="Registry_Federation_Admin_Service">
         <Object ocdref="Registry_Federation_Admin_Service"/>

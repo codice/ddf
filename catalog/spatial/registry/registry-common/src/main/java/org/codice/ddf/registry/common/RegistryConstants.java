@@ -16,6 +16,8 @@ package org.codice.ddf.registry.common;
 public class RegistryConstants {
     public static final String REGISTRY_TAG = "registry";
 
+    public static final String REGISTRY_TAG_INTERNAL = "registry-remote";
+
     public static final String REGISTRY_NODE_METACARD_TYPE_NAME = "registry.federation.node";
 
     public static final String XML_DATE_TIME_TYPE = "date";
@@ -24,22 +26,28 @@ public class RegistryConstants {
 
     public static final String XML_BOUNDS_TYPE = "GM_Envelope";
 
+    public static final String REGISTRY_ID_PROPERTY = "org.codice.ddf.registry.identity-id";
+
     //ebrim constants
     //Object types
     public static final String REGISTRY_NODE_OBJECT_TYPE = "urn:registry:federation:node";
 
     public static final String REGISTRY_SERVICE_OBJECT_TYPE = "urn:registry:federation:service";
 
-    public static final String REGISTRY_CONTENT_COLLECTION_OBJECT_TYPE =
-            "urn:registry:content:collection";
+    public static final String REGISTRY_CONTENT_COLLECTION_OBJECT_TYPE = "urn:registry:content:collection";
 
     //object ids
-    public static final String REGISTRY_MCARD_LOCAL_ID = "urn:mcard:local-id";
+    public static final String REGISTRY_MCARD_ID_LOCAL = "urn:registry:metacard:local-id";
 
-    public static final String REGISTRY_MCARD_ORIGIN_ID = "urn:mcard:origin-id";
+    public static final String REGISTRY_MCARD_ID_ORIGIN = "urn:registry:metacard:origin-id";
+
+    public static final String REGISTRY_ID_ORIGIN = "urn:registry:origin-id";
+
 
     //classifications
     public static final String REGISTRY_METACARD_ID_CLASS = "MetacardId";
+
+    public static final String REGISTRY_ID_CLASS = "RegistryId";
 
     public static final String REGISTRY_ASSOCIATION_CLASS = "RelatedTo";
 

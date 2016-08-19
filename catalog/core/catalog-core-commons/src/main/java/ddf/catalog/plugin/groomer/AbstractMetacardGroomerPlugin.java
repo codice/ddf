@@ -27,6 +27,7 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.util.impl.Requests;
 
 /**
  * Abstract class that can be extended to create another rule set for grooming a metacard.
@@ -45,7 +46,7 @@ public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
             throws PluginExecutionException, StopProcessingException {
 
         if (input == null || input.getMetacards() == null || input.getMetacards()
-                .isEmpty()) {
+                .isEmpty() || !Requests.isLocal(input)) {
             return input;
         }
 
@@ -65,7 +66,7 @@ public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
             throws PluginExecutionException, StopProcessingException {
 
         if (input == null || input.getUpdates() == null || input.getUpdates()
-                .isEmpty()) {
+                .isEmpty() || !Requests.isLocal(input)) {
             return input;
         }
 

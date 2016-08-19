@@ -19,17 +19,20 @@
      objects id should be a uuid that is globally unique-->
 <!-- top level registry object id is turned into the regsitry-id internally. metacard content type will be set using the lid.-->
 <!-- home attribute should be set by the framework to the base url of the originating instance -->
-<rim:RegistryPackage id="$id$" home="https://somehost:someport"
+<rim:RegistryPackage id="$regId$" home="https://somehost:someport"
                      objectType="urn:registry:federation:node"
                      xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
                      xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
                      xmlns:gml="http://www.opengis.net/gml">
 
     <!-- external identifiers are set by the framework to track the local metacard id and the origin-id. origin-id is the metacard id of the registry entry on the originating instance-->
-    <rim:ExternalIdentifier id="urn:mcard:local-id" registryObject="$id$"
-                            identificationScheme="MetacardId" value="$someUUID$"/>
-    <rim:ExternalIdentifier id="urn:mcard:origin-id" registryObject="$id$"
-                            identificationScheme="MetacardId" value="$someUUID$"/>
+    <rim:ExternalIdentifier id="urn:registry:metacard:local-id" registryObject="$regId$"
+                            identificationScheme="MetacardId" value="$mcardId$"/>
+    <rim:ExternalIdentifier id="urn:registry:metacard:origin-id" registryObject="$regId$"
+                            identificationScheme="MetacardId" value="$mcardId$"/>
+    <rim:ExternalIdentifier id="urn:registry:origin-id"
+                            registryObject="$regId$" identificationScheme="RegistryId"
+                            value="$remoteReg$"/>
 
     <!-- RegistryObjectList holds all the actual registry content-->
     <rim:RegistryObjectList>
@@ -331,7 +334,7 @@
         </rim:Service>
 
         <rim:Organization id="urn:organization:id0"
-                          parent="$id$">
+                          parent="$regId$">
             <rim:Name>
                 <rim:LocalizedString value="Codice"/>
             </rim:Name>
@@ -342,7 +345,7 @@
         </rim:Organization>
 
         <rim:Organization id="urn:organization:id1"
-                          parent="$id$">
+                          parent="$regId$">
             <rim:Name>
                 <rim:LocalizedString value="MyOrg"/>
             </rim:Name>
