@@ -40,6 +40,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.thoughtworks.xstream.converters.Converter;
 
 import ddf.catalog.Constants;
@@ -197,8 +198,8 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
         //This is a registry store so only allow registry requests through
         if (!filterAdapter.adapt(request.getQuery(),
-                new TagsFilterDelegate(Collections.singleton(RegistryConstants.REGISTRY_TAG),
-                        true))) {
+                new TagsFilterDelegate(ImmutableSet.of(RegistryConstants.REGISTRY_TAG,
+                        RegistryConstants.REGISTRY_TAG_INTERNAL), true))) {
             return new SourceResponseImpl(request, Collections.emptyList());
         }
 
