@@ -63,8 +63,8 @@ public class TestZipCompression {
 
     private static final String LOCAL_RESOURCE_FILENAME = "localresource.txt";
 
-    private static final String LOCAL_RESOURCE_PATH = TestZipCompression.class.getResource(
-            File.separator + LOCAL_RESOURCE_FILENAME)
+    private static final String LOCAL_RESOURCE_PATH = TestZipCompression.class.getClassLoader()
+            .getResource(LOCAL_RESOURCE_FILENAME)
             .getPath();
 
     private static final String CONTENT_SCHEME = "content:";

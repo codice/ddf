@@ -93,7 +93,9 @@ public class TestDumpCommand extends TestAbstractCommand {
 
         // then
         try {
-            String message = "Directory [nosuchdirectoryanywherehereman/] must exist.";
+            String message = String.format(
+                    "Directory [nosuchdirectoryanywherehereman%s] must exist.",
+                    File.separator);
             String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
             assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
 
@@ -291,7 +293,7 @@ public class TestDumpCommand extends TestAbstractCommand {
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
         command.dirPath = outputDirectoryPath;
         command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
-        
+
         // when
         command.doExecute();
 
