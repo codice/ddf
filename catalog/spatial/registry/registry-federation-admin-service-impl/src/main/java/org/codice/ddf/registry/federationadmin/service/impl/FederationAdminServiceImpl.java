@@ -547,7 +547,6 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             throw new FederationAdminException(
                     "Error getting registry metacards. Null filter provided.");
         }
-        List<Metacard> registryMetacards = new ArrayList<>();
         PropertyName propertyName = new PropertyNameImpl(Metacard.MODIFIED);
         SortBy sortBy = new SortByImpl(propertyName, SortOrder.ASCENDING);
         QueryImpl query = new QueryImpl(filter);
@@ -558,8 +557,8 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         try {
             QueryResponse queryResponse =
                     security.runWithSubjectOrElevate(() -> catalogFramework.query(queryRequest));
-            List<Result> results = queryResponse.getResults();
-            registryMetacards = results.stream()
+            return queryResponse.getResults()
+                    .stream()
                     .map(Result::getMetacard)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
@@ -568,7 +567,6 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             LOGGER.debug("{} For Filter: {}", message, filter);
             throw new FederationAdminException(message, e);
         }
-        return registryMetacards;
     }
 
     private Metacard getRegistryMetacardFromString(String xml) throws FederationAdminException {
