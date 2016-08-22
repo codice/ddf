@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.Test;
 
-public class TestGeoPdfParser {
+public class GeoPdfParserTest {
 
     public static final String WKT_POLYGON =
             "POLYGON ((-75.15840498869015 43.93500189524018, -75.15840498868951 37.63917521983974, -80.50866091541451 37.639175219841135, -80.50866091541393 43.93500189523885, -75.15840498869015 43.93500189524018, -75.15840498869015 43.93500189524018))";
@@ -31,12 +31,12 @@ public class TestGeoPdfParser {
     public static final String WKT_POLYGON_NO_NEATLINE =
             "POLYGON ((-80.77532309213824 36.77844766314338, -78.57704723006924 36.77844766314343, -78.5770472300693 39.623275249350364, -80.7753230921383 39.623275249350314, -80.77532309213824 36.77844766314338))";
 
-    private static final GeoPdfParser GEO_PDF_PARSER = new GeoPdfParser();
+    private static final GeoPdfParserImpl GEO_PDF_PARSER = new GeoPdfParserImpl();
 
     @Test
     public void testEmptyPdf() throws Exception {
         PDDocument pdfDocument = GeoPdfDocumentGenerator.generateEmptyPdf();
-        String wktString = GEO_PDF_PARSER.getWktFromPDF(pdfDocument);
+        String wktString = GEO_PDF_PARSER.apply(pdfDocument);
         assertThat(wktString, nullValue());
     }
 
@@ -44,8 +44,8 @@ public class TestGeoPdfParser {
     public void testSinglePageMultiFrameGeographicGeoPdf() throws Exception {
         PDDocument pdfDocument = GeoPdfDocumentGenerator.generateGeoPdf(1,
                 2,
-                GeoPdfParser.GEOGRAPHIC);
-        String wktString = GEO_PDF_PARSER.getWktFromPDF(pdfDocument);
+                GeoPdfParserImpl.GEOGRAPHIC);
+        String wktString = GEO_PDF_PARSER.apply(pdfDocument);
         assertThat(wktString, is(WKT_MULTIPOLYGON));
     }
 
@@ -53,54 +53,54 @@ public class TestGeoPdfParser {
     public void testSinglePageSingleMultiFrameGeographicGeoPdf() throws Exception {
         PDDocument pdfDocument = GeoPdfDocumentGenerator.generateGeoPdf(1,
                 1,
-                GeoPdfParser.GEOGRAPHIC);
-        String wktString = GEO_PDF_PARSER.getWktFromPDF(pdfDocument);
+                GeoPdfParserImpl.GEOGRAPHIC);
+        String wktString = GEO_PDF_PARSER.apply(pdfDocument);
         assertThat(wktString, is(WKT_POLYGON));
     }
 
     @Test
     public void testSinglePageMultiFrameNonGeographicGeoPdf() throws Exception {
         PDDocument pdfDocument = GeoPdfDocumentGenerator.generateGeoPdf(1, 2, "UT");
-        String wktString = GEO_PDF_PARSER.getWktFromPDF(pdfDocument);
+        String wktString = GEO_PDF_PARSER.apply(pdfDocument);
         assertThat(wktString, nullValue());
     }
 
     @Test
     public void testSinglePageMultiFrameNoProjectionGeoPdf() throws Exception {
         PDDocument pdfDocument = GeoPdfDocumentGenerator.generateGeoPdf(1, 2, "");
-        String wktString = GEO_PDF_PARSER.getWktFromPDF(pdfDocument);
+        String wktString = GEO_PDF_PARSER.apply(pdfDocument);
         assertThat(wktString, nullValue());
     }
 
     @Test
     public void testSinglePageSingleFrameGeographicGeoPdf() throws Exception {
         PDDocument pdfDocument = GeoPdfDocumentGenerator.generateGeoPdf(1,
-                GeoPdfParser.GEOGRAPHIC,
+                GeoPdfParserImpl.GEOGRAPHIC,
                 true);
-        String wktString = GEO_PDF_PARSER.getWktFromPDF(pdfDocument);
+        String wktString = GEO_PDF_PARSER.apply(pdfDocument);
         assertThat(wktString, is(WKT_POLYGON));
     }
 
     @Test
     public void testSinglePageSingleFrameNonGeographicGeoPdf() throws Exception {
         PDDocument pdfDocument = GeoPdfDocumentGenerator.generateGeoPdf(1, "UT", true);
-        String wktString = GEO_PDF_PARSER.getWktFromPDF(pdfDocument);
+        String wktString = GEO_PDF_PARSER.apply(pdfDocument);
         assertThat(wktString, nullValue());
     }
 
     @Test
     public void testSinglePageSingleFrameNoProjectionGeoPdf() throws Exception {
         PDDocument pdfDocument = GeoPdfDocumentGenerator.generateGeoPdf(1, "", true);
-        String wktString = GEO_PDF_PARSER.getWktFromPDF(pdfDocument);
+        String wktString = GEO_PDF_PARSER.apply(pdfDocument);
         assertThat(wktString, nullValue());
     }
 
     @Test
     public void testSinglePageSingleFrameNoNeatLineGeoPdf() throws Exception {
         PDDocument pdfDocument = GeoPdfDocumentGenerator.generateGeoPdf(1,
-                GeoPdfParser.GEOGRAPHIC,
+                GeoPdfParserImpl.GEOGRAPHIC,
                 false);
-        String wktString = GEO_PDF_PARSER.getWktFromPDF(pdfDocument);
+        String wktString = GEO_PDF_PARSER.apply(pdfDocument);
         assertThat(wktString, is(WKT_POLYGON_NO_NEATLINE));
     }
 }

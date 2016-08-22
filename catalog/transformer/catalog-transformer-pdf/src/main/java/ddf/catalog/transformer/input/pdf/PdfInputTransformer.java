@@ -13,10 +13,8 @@
  */
 package ddf.catalog.transformer.input.pdf;
 
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
+import static org.apache.commons.lang3.Validate.notNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
@@ -30,19 +28,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToTextContentHandler;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -50,39 +43,75 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 
-import com.google.common.html.HtmlEscapers;
-import com.google.common.io.FileBackedOutputStream;
 import com.google.common.net.MediaType;
 
 import ddf.catalog.content.operation.ContentMetadataExtractor;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Media;
+import ddf.catalog.data.types.Topic;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
 import ddf.catalog.util.impl.ServiceComparator;
 
 public class PdfInputTransformer implements InputTransformer {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfInputTransformer.class);
 
-    private static final int RESOLUTION_DPI = 44;
+    private final PDDocumentGenerator pdDocumentGenerator;
 
-    private static final float IMAGE_QUALITY = 1.0f;
+    private final GeoPdfParser geoParser;
 
-    private static final float IMAGE_HEIGHTWIDTH = 128;
-
-    private static final String FORMAT_NAME = "jpg";
-
-    private static final GeoPdfParser GEO_PDF_PARSER = new GeoPdfParser();
-
-    private static final FastDateFormat DATE_FORMAT = FastDateFormat.getInstance(
-            "yyyy-MM-dd'T'HH:mm:ssZZ");
+    private final PdfThumbnailGenerator pdfThumbnailGenerator;
 
     private Map<ServiceReference, ContentMetadataExtractor> contentMetadataExtractors =
             Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
+
+    private MetacardType metacardType;
+
+    private boolean usePdfTitleAsTitle;
+
+    /**
+     * @param metacardType          must be non-null
+     * @param usePdfTitleAsTitle    must be non-null
+     * @param pdDocumentGenerator   must be non-null
+     * @param geoParser             must be non-null
+     * @param pdfThumbnailGenerator must be non-null
+     */
+    public PdfInputTransformer(MetacardType metacardType, Boolean usePdfTitleAsTitle,
+            PDDocumentGenerator pdDocumentGenerator, GeoPdfParser geoParser,
+            PdfThumbnailGenerator pdfThumbnailGenerator) {
+        notNull(metacardType, "metacardType must be non-null");
+        notNull(usePdfTitleAsTitle, "usePdfTitleAsTitle must be non-null");
+        notNull(pdDocumentGenerator, "pdDocumentGenerator must be non-null");
+        notNull(geoParser, "geoParser must be non-null");
+        notNull(pdfThumbnailGenerator, "pdfThumbnailGenerator must be non-null");
+
+        this.metacardType = metacardType;
+        this.usePdfTitleAsTitle = usePdfTitleAsTitle;
+        this.pdDocumentGenerator = pdDocumentGenerator;
+        this.geoParser = geoParser;
+        this.pdfThumbnailGenerator = pdfThumbnailGenerator;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean isUsePdfTitleAsTitle() {
+        return usePdfTitleAsTitle;
+    }
+
+    /**
+     * @param usePdfTitleAsTitle must be non-null
+     */
+    public void setUsePdfTitleAsTitle(Boolean usePdfTitleAsTitle) {
+        notNull(usePdfTitleAsTitle, "usePdfTitleAsTitle must be non-null");
+        this.usePdfTitleAsTitle = usePdfTitleAsTitle;
+    }
 
     public void addContentMetadataExtractors(
             ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
@@ -119,7 +148,7 @@ public class PdfInputTransformer implements InputTransformer {
     }
 
     private Metacard transformWithoutExtractors(InputStream input, String id) throws IOException {
-        try (PDDocument pdfDocument = PDDocument.load(input)) {
+        try (PDDocument pdfDocument = pdDocumentGenerator.apply(input)) {
             return transformPdf(id, pdfDocument);
         } catch (InvalidPasswordException e) {
             LOGGER.debug("Cannot transform encrypted pdf", e);
@@ -129,7 +158,7 @@ public class PdfInputTransformer implements InputTransformer {
 
     private Metacard transformWithExtractors(InputStream input, String id)
             throws IOException, CatalogTransformerException {
-        try (FileBackedOutputStream fbos = new FileBackedOutputStream(1000000)) {
+        try (TemporaryFileBackedOutputStream fbos = new TemporaryFileBackedOutputStream()) {
             try {
                 IOUtils.copy(input, fbos);
             } catch (IOException e) {
@@ -151,11 +180,11 @@ public class PdfInputTransformer implements InputTransformer {
             }
 
             try (InputStream isCopy = fbos.asByteSource()
-                    .openStream(); PDDocument pdfDocument = PDDocument.load(isCopy)) {
+                    .openStream(); PDDocument pdfDocument = pdDocumentGenerator.apply(isCopy)) {
 
                 return transformPdf(id, pdfDocument, plainText);
             } catch (InvalidPasswordException e) {
-                LOGGER.warn("Cannot transform encrypted pdf", e);
+                LOGGER.debug("Cannot transform encrypted pdf", e);
                 return initializeMetacard(id);
             }
         }
@@ -175,18 +204,21 @@ public class PdfInputTransformer implements InputTransformer {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
 
-            metacard = new MetacardImpl(new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
-                    BasicTypes.BASIC_METACARD,
+            metacard = new MetacardImpl(new MetacardTypeImpl(metacardType.getName(),
+                    metacardType,
                     attributes));
+
             for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
                 contentMetadataExtractor.process(contentInput, metacard);
             }
         } else {
-            metacard = new MetacardImpl();
+            metacard = new MetacardImpl(metacardType);
         }
 
         metacard.setId(id);
-        metacard.setContentTypeName(MediaType.PDF.subtype());
+        metacard.setContentTypeName(MediaType.PDF.toString());
+        metacard.setAttribute(Media.TYPE, MediaType.PDF.toString());
+        metacard.setAttribute(Core.DATATYPE, "Document");
 
         return metacard;
     }
@@ -206,9 +238,10 @@ public class PdfInputTransformer implements InputTransformer {
 
         extractPdfMetadata(pdfDocument, metacard);
 
-        metacard.setThumbnail(generatePdfThumbnail(pdfDocument));
+        pdfThumbnailGenerator.apply(pdfDocument)
+                .ifPresent(metacard::setThumbnail);
 
-        Optional.ofNullable(GEO_PDF_PARSER.getWktFromPDF(pdfDocument))
+        Optional.ofNullable(geoParser.apply(pdfDocument))
                 .ifPresent(metacard::setLocation);
 
         return metacard;
@@ -219,100 +252,35 @@ public class PdfInputTransformer implements InputTransformer {
      * @param metacard    A mutable metacard to add the extracted data to
      */
     private void extractPdfMetadata(PDDocument pdfDocument, MetacardImpl metacard) {
-        StringBuilder metadataField = new StringBuilder("<pdf>");
-
-        PDMetadata documentCatalogMetadata = pdfDocument.getDocumentCatalog()
-                .getMetadata();
-        if (documentCatalogMetadata != null) {
-            try (InputStream inputStream = documentCatalogMetadata.createInputStream()) {
-                metadataField.append(IOUtils.toString(inputStream));
-            } catch (IOException e) {
-                LOGGER.warn("Couldn't read the PDF document catalog's metadata", e);
-            }
-        }
 
         PDDocumentInformation documentInformation = pdfDocument.getDocumentInformation();
 
-        Calendar creationDate = documentInformation.getCreationDate();
-        if (creationDate != null) {
-            metacard.setCreatedDate(creationDate.getTime());
-            addXmlElement("creationDate", DATE_FORMAT.format(creationDate), metadataField);
-            LOGGER.debug("PDF Creation date was: {}", DATE_FORMAT.format(creationDate));
+        setDateIfNotNull(documentInformation.getCreationDate(), metacard, Metacard.CREATED);
+
+        setDateIfNotNull(documentInformation.getModificationDate(), metacard, Metacard.MODIFIED);
+
+        if (usePdfTitleAsTitle) {
+            setIfNotBlank(documentInformation.getTitle(), metacard, Metacard.TITLE);
         }
 
-        Calendar modificationDate = documentInformation.getModificationDate();
-        if (modificationDate != null) {
-            metacard.setModifiedDate(modificationDate.getTime());
-            addXmlElement("modificationDate", DATE_FORMAT.format(modificationDate), metadataField);
-            LOGGER.debug("PDF Modification date was: {}", DATE_FORMAT.format(modificationDate));
-        }
+        setIfNotBlank(documentInformation.getAuthor(), metacard, Contact.CREATOR_NAME);
 
-        String title = documentInformation.getTitle();
-        if (StringUtils.isNotBlank(title)) {
-            metacard.setTitle(title);
-            addXmlElement("title", title, metadataField);
-        }
+        setIfNotBlank(documentInformation.getSubject(), metacard, Metacard.DESCRIPTION);
 
-        addXmlElement("author", documentInformation.getAuthor(), metadataField);
-        addXmlElement("creator", documentInformation.getCreator(), metadataField);
-        addXmlElement("keywords", documentInformation.getKeywords(), metadataField);
-        addXmlElement("producer", documentInformation.getProducer(), metadataField);
-        addXmlElement("subject", documentInformation.getSubject(), metadataField);
-        addXmlElement("pageCount", String.valueOf(pdfDocument.getNumberOfPages()), metadataField);
+        setIfNotBlank(documentInformation.getKeywords(), metacard, Topic.KEYWORD);
 
-        metadataField.append("</pdf>");
-        metacard.setMetadata(metadataField.toString());
     }
 
-    private void addXmlElement(String name, String value, StringBuilder metadata) {
-        if (StringUtils.isNotBlank(value)) {
-            metadata.append(String.format("<%s>%s</%s>",
-                    name,
-                    HtmlEscapers.htmlEscaper()
-                            .escape(value),
-                    name));
+    private void setDateIfNotNull(Calendar calendar, MetacardImpl metacard, String attributeName) {
+        if (calendar != null) {
+            metacard.setAttribute(attributeName, calendar.getTime());
         }
     }
 
-    private byte[] generatePdfThumbnail(PDDocument pdfDocument) throws IOException {
-
-        PDFRenderer pdfRenderer = new PDFRenderer(pdfDocument);
-
-        if (pdfDocument.getNumberOfPages() < 1) {
-            /*
-             * Can there be a PDF with zero pages??? Should we throw an error or what? The
-             * original implementation assumed that a PDF would always have at least one
-             * page. That's what I've implemented here, but I don't like make those
-             * kinds of assumptions :-( But I also don't want to change the original
-             * behavior without knowing how it will impact the system.
-             */
-        }
-
-        PDPage page = pdfDocument.getPage(0);
-
-        BufferedImage image = pdfRenderer.renderImageWithDPI(0, RESOLUTION_DPI, ImageType.RGB);
-
-        int largestDimension = Math.max(image.getHeight(), image.getWidth());
-        float scalingFactor = IMAGE_HEIGHTWIDTH / largestDimension;
-        int scaledHeight = (int) (image.getHeight() * scalingFactor);
-        int scaledWidth = (int) (image.getWidth() * scalingFactor);
-
-        BufferedImage scaledImage = new BufferedImage(scaledWidth,
-                scaledHeight,
-                BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = scaledImage.createGraphics();
-        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        graphics.drawImage(image, 0, 0, scaledWidth, scaledHeight, null);
-        graphics.dispose();
-
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ImageIOUtil.writeImage(scaledImage,
-                    FORMAT_NAME,
-                    outputStream,
-                    RESOLUTION_DPI,
-                    IMAGE_QUALITY);
-            return outputStream.toByteArray();
+    private void setIfNotBlank(String pdfDocumentValue, MetacardImpl metacard,
+            String attributeName) {
+        if (StringUtils.isNotBlank(pdfDocumentValue)) {
+            metacard.setAttribute(attributeName, pdfDocumentValue);
         }
     }
 

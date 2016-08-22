@@ -13,8 +13,10 @@
  */
 package ddf.catalog.transformer.input.pdf;
 
+import java.util.Optional;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-public interface GeoPdfParser extends CheckedFunction<PDDocument, String> {
+public interface PdfThumbnailGenerator extends CheckedFunction<PDDocument, Optional<byte[]>> {
 
 }

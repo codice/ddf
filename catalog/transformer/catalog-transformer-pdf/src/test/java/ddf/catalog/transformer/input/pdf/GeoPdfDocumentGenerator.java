@@ -49,7 +49,7 @@ public class GeoPdfDocumentGenerator {
     private static PDPage generateGeoPdfPage(int numberOfFramesPerPage, String projectionType) {
         PDPage pdPage = new PDPage();
         COSDictionary cosDictionary = pdPage.getCOSObject();
-        cosDictionary.setItem(GeoPdfParser.LGIDICT, generateLGIDictArray(numberOfFramesPerPage,
+        cosDictionary.setItem(GeoPdfParserImpl.LGIDICT, generateLGIDictArray(numberOfFramesPerPage,
                 projectionType));
         return pdPage;
     }
@@ -57,7 +57,7 @@ public class GeoPdfDocumentGenerator {
     private static PDPage generateGeoPdfPage(String projectionType, boolean generateNeatLine) {
         PDPage pdPage = new PDPage();
         COSDictionary cosDictionary = pdPage.getCOSObject();
-        cosDictionary.setItem(GeoPdfParser.LGIDICT, generateMapFrameDictionary(projectionType,
+        cosDictionary.setItem(GeoPdfParserImpl.LGIDICT, generateMapFrameDictionary(projectionType,
                 generateNeatLine));
         return pdPage;
     }
@@ -73,12 +73,12 @@ public class GeoPdfDocumentGenerator {
     private static COSDictionary generateMapFrameDictionary(String projectionType) {
         COSDictionary cosDictionary = new COSDictionary();
         if (StringUtils.isNotBlank(projectionType)) {
-            cosDictionary.setItem(GeoPdfParser.PROJECTION, generateProjectionDictionary(
+            cosDictionary.setItem(GeoPdfParserImpl.PROJECTION, generateProjectionDictionary(
                     projectionType));
         }
 
-        cosDictionary.setItem(GeoPdfParser.NEATLINE, generateNeatLineArray());
-        cosDictionary.setItem(GeoPdfParser.CTM, generateCTMArray());
+        cosDictionary.setItem(GeoPdfParserImpl.NEATLINE, generateNeatLineArray());
+        cosDictionary.setItem(GeoPdfParserImpl.CTM, generateCTMArray());
         return cosDictionary;
     }
 
@@ -86,15 +86,15 @@ public class GeoPdfDocumentGenerator {
             boolean generateNeatLine) {
         COSDictionary cosDictionary = new COSDictionary();
         if (StringUtils.isNotBlank(projectionType)) {
-            cosDictionary.setItem(GeoPdfParser.PROJECTION, generateProjectionDictionary(
+            cosDictionary.setItem(GeoPdfParserImpl.PROJECTION, generateProjectionDictionary(
                     projectionType));
         }
 
         if (generateNeatLine) {
-            cosDictionary.setItem(GeoPdfParser.NEATLINE, generateNeatLineArray());
+            cosDictionary.setItem(GeoPdfParserImpl.NEATLINE, generateNeatLineArray());
         }
 
-        cosDictionary.setItem(GeoPdfParser.CTM, generateCTMArray());
+        cosDictionary.setItem(GeoPdfParserImpl.CTM, generateCTMArray());
         return cosDictionary;
     }
 
@@ -126,7 +126,7 @@ public class GeoPdfDocumentGenerator {
 
     private static COSDictionary generateProjectionDictionary(String projectionType) {
         COSDictionary projectionDictionary = new COSDictionary();
-        projectionDictionary.setString(GeoPdfParser.PROJECTION_TYPE, projectionType);
+        projectionDictionary.setString(GeoPdfParserImpl.PROJECTION_TYPE, projectionType);
         return projectionDictionary;
     }
 }

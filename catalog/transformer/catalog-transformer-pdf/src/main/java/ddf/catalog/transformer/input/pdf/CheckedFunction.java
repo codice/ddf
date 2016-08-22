@@ -13,8 +13,9 @@
  */
 package ddf.catalog.transformer.input.pdf;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
+import java.io.IOException;
 
-public interface GeoPdfParser extends CheckedFunction<PDDocument, String> {
-
+@FunctionalInterface
+public interface CheckedFunction<T, R> {
+    R apply(T t) throws IOException;
 }

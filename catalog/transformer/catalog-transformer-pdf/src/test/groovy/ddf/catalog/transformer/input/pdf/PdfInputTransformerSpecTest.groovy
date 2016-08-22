@@ -15,8 +15,11 @@ package ddf.catalog.transformer.input.pdf
 
 import ddf.catalog.content.operation.ContentMetadataExtractor
 import ddf.catalog.data.Metacard
+import ddf.catalog.data.MetacardType
 import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.BasicTypes
+import ddf.catalog.data.impl.MetacardTypeImpl
+import ddf.catalog.data.impl.types.*
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
@@ -25,6 +28,7 @@ import spock.lang.Specification
 class PdfInputTransformerSpecTest extends Specification {
     Bundle bundleMock
     PdfInputTransformer pdfInputTransformer;
+    MetacardType metacardType;
 
     def getEncryptedInputStream = {
         PdfInputTransformerSpecTest.class.getResourceAsStream("/encrypted.pdf")
@@ -43,9 +47,17 @@ class PdfInputTransformerSpecTest extends Specification {
     }
 
     void setup() {
+        metacardType = new MetacardTypeImpl("pdf", [
+                new AssociationsAttributes(),
+                new ContactAttributes(),
+                new MediaAttributes(),
+                new ValidationAttributes(),
+                new TopicAttributes()
+        ])
+
         bundleMock = Mock(Bundle)
 
-        pdfInputTransformer = new PdfInputTransformer() {
+        pdfInputTransformer = new PdfInputTransformer(metacardType, false, new PDDocumentGeneratorImpl(), new GeoPdfParserImpl(), new PdfThumbnailGeneratorImpl()) {
             @Override
             def Bundle getBundle() {
                 return bundleMock
@@ -55,16 +67,9 @@ class PdfInputTransformerSpecTest extends Specification {
 
     void verifySamplePdfMetacard(Metacard metacard) {
         verifyThumbnailSize(metacard.thumbnail)
-        assert metacard.contentTypeName == 'pdf'
-        assert metacard.title == 'Microsoft Word - Document1'
+        assert metacard.contentTypeName == 'application/pdf'
         assert metacard.createdDate.getTime() == 1456150156000
         assert metacard.modifiedDate.getTime() == 1456150156000
-
-        assert metacard.metadata.contains('<title>Microsoft Word - Document1</title>')
-        assert metacard.metadata.contains('<producer>Mac OS X 10.11.3 Quartz PDFContext</producer>')
-        assert metacard.metadata.contains('<creationDate>2016-02-22T14:09:16+00:00</creationDate>')
-        assert metacard.metadata.contains('<modificationDate>2016-02-22T14:09:16+00:00</modificationDate>')
-        assert metacard.metadata.contains('<pageCount>1</pageCount>')
     }
 
     void verifyThumbnailSize(byte[] thumbnail) {
@@ -113,18 +118,11 @@ class PdfInputTransformerSpecTest extends Specification {
 
         then:
         verifyThumbnailSize(metacard.thumbnail)
-        metacard.contentTypeName == 'pdf'
-        metacard.title == 'Untitled'
+        metacard.contentTypeName == 'application/pdf'
+        metacard.title == null
         metacard.createdDate.getTime() == 1253116122000
         metacard.modifiedDate.getTime() == 1253116509000
 
-        metacard.metadata.contains('<xap:MetadataDate>2009-09-16T10:55:09-05:00</xap:MetadataDate>')
-        metacard.metadata.contains('<title>Untitled</title>')
-        metacard.metadata.contains('<creator>Acrobat Editor 8.0</creator>')
-        metacard.metadata.contains('<producer>Adobe Acrobat 8.1.6</producer>')
-        metacard.metadata.contains('<creationDate>2009-09-16T10:48:42-05:00</creationDate>')
-        metacard.metadata.contains('<modificationDate>2009-09-16T10:55:09-05:00</modificationDate>')
-        metacard.metadata.contains('<pageCount>12</pageCount>')
     }
 
     def "Attempt transform encrypted pdf"() {
@@ -135,7 +133,7 @@ class PdfInputTransformerSpecTest extends Specification {
         metacard.thumbnail == null
         metacard.title == null
         metacard.metadata == null
-        metacard.contentTypeName == 'pdf'
+        metacard.contentTypeName == 'application/pdf'
     }
 
     def "Generate thumbnail only"() {
@@ -173,7 +171,7 @@ class PdfInputTransformerSpecTest extends Specification {
                 [new AttributeDescriptorImpl('attr1', false, false, false, false, BasicTypes.OBJECT_TYPE),
                  new AttributeDescriptorImpl('attr2', false, false, false, false, BasicTypes.OBJECT_TYPE)]
 
-        metacard.metacardType.name == BasicTypes.BASIC_METACARD.name
+        metacard.metacardType.name == metacardType.name
         def attrNames = metacard.metacardType.attributeDescriptors*.name
         attrNames.containsAll(['attr1', 'attr2'])
     }
@@ -195,7 +193,7 @@ class PdfInputTransformerSpecTest extends Specification {
                 [new AttributeDescriptorImpl('attr1', false, false, false, false, BasicTypes.OBJECT_TYPE),
                  new AttributeDescriptorImpl('attr2', false, false, false, false, BasicTypes.OBJECT_TYPE)]
 
-        metacard.metacardType == BasicTypes.BASIC_METACARD
+        metacard.metacardType == metacardType
         def attrNames = metacard.metacardType.attributeDescriptors*.name
         !attrNames.containsAll(['attr1', 'attr2'])
     }
@@ -221,4 +219,5 @@ class PdfInputTransformerSpecTest extends Specification {
         def attrNames = metacard.metacardType.attributeDescriptors*.name
         !attrNames.containsAll(['attr1', 'attr2'])
     }
+
 }
