@@ -1,12 +1,8 @@
-@{customElementNamespace}cesium {
+@{customElementNamespace}map.is-cesium {
   .customElement;
 
   position: relative;
   
-  canvas.is-hovering {
-      cursor: pointer;
-  }
-
   canvas {
     cursor: move; /* fallback if grab cursor is unsupported */
     cursor: grab;
@@ -14,7 +10,7 @@
     cursor: -webkit-grab;
   }
 
-  canvas:active:not(.is-hovering) {
+  canvas:active {
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
@@ -25,7 +21,14 @@
   }
 }
 
-@{customElementNamespace}cesium.is-drawing {
+@{customElementNamespace}map.is-cesium.is-hovering {
+
+  canvas {
+    cursor: pointer;
+  }
+}
+
+@{customElementNamespace}map.is-cesium.is-drawing {
 
   canvas,
   canvas:active {
@@ -33,7 +36,7 @@
   }
 }
 
-@{customElementNamespace}cesium.is-clustering {
+@{customElementNamespace}map.is-cesium.is-clustering {
   .fa-cubes {
     display: none;
   }

@@ -10,14 +10,13 @@
  *
  **/
 define([
-        'marionette',
-        'backbone'
+        'marionette'
     ],
-    function (Marionette, Backbone) {
+    function(Marionette) {
         "use strict";
 
-        var NotificationView = Backbone.View.extend({
-            render: function () {
+        var NotificationView = Marionette.View.extend({
+            render: function() {
                 if (this.rendered) {
                     this.$el.hide('fast');
                 }
@@ -30,7 +29,7 @@ define([
                 this.rendered = true;
                 return this;
             },
-            destroy: function () {
+            destroy: function() {
                 this.$el.animate({
                     height: 'hide'
                 }, 425);
@@ -38,4 +37,4 @@ define([
         });
 
         return NotificationView;
-});
+    });

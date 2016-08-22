@@ -35,7 +35,7 @@ define([
                 south: undefined
             }
         });
-        Draw.BboxView = Backbone.View.extend({
+        Draw.BboxView = Marionette.View.extend({
             initialize: function (options) {
                 this.map = options.map;
             },

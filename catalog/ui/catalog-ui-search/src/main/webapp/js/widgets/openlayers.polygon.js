@@ -22,7 +22,7 @@ define([
         './notification.view',
         'js/store'
     ],
-    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, store) {
+    function(Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, store) {
         "use strict";
 
         var Draw = {};
@@ -35,18 +35,18 @@ define([
                 south: undefined
             }
         });
-        Draw.PolygonView = Backbone.View.extend({
-            initialize: function (options) {
+        Draw.PolygonView = Marionette.View.extend({
+            initialize: function(options) {
                 this.map = options.map;
             },
-            setModelFromGeometry: function (geometry) {
+            setModelFromGeometry: function(geometry) {
 
                 var coords = geometry.getCoordinates();
 
                 var coordinates = [];
 
-                _.each(coords, function (item) {
-                    _.each(item, function (point) {
+                _.each(coords, function(item) {
+                    _.each(item, function(point) {
                         coordinates.push(ol.proj.transform([point[0], point[1]], properties.projection, 'EPSG:4326'));
                     });
                 });
@@ -56,14 +56,14 @@ define([
                 });
             },
 
-            modelToPolygon: function (model) {
+            modelToPolygon: function(model) {
                 var polygon = model.get('polygon');
                 var coords = [];
                 var setArr = _.uniq(polygon);
-                if(setArr.length < 3){
+                if (setArr.length < 3) {
                     return;
                 }
-                _.each(setArr, function (item) {
+                _.each(setArr, function(item) {
                     coords.push(ol.proj.transform([item[0], item[1]], 'EPSG:4326', properties.projection));
                 });
 
@@ -71,7 +71,7 @@ define([
                 return rectangle;
             },
 
-            updatePrimitive: function (model) {
+            updatePrimitive: function(model) {
                 var polygon = this.modelToPolygon(model);
                 // make sure the current model has width and height before drawing
                 if (polygon && !_.isUndefined(polygon)) {
@@ -79,21 +79,21 @@ define([
                 }
             },
 
-            updateGeometry: function (model) {
+            updateGeometry: function(model) {
                 var rectangle = this.modelToPolygon(model);
                 if (rectangle) {
                     this.drawBorderedPolygon(rectangle);
                 }
             },
 
-            drawBorderedPolygon: function (rectangle) {
+            drawBorderedPolygon: function(rectangle) {
 
                 if (!rectangle) {
                     // handles case where model changes to empty vars and we don't want to draw anymore
                     return;
                 }
 
-                if(this.vectorLayer) {
+                if (this.vectorLayer) {
                     this.map.removeLayer(this.vectorLayer);
                 }
 
@@ -104,7 +104,7 @@ define([
                 var color = this.model.get('color');
 
                 var iconStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({color: color ? color : '#914500', width: 3})
+                    stroke: new ol.style.Stroke({ color: color ? color : '#914500', width: 3 })
                 });
                 this.billboard.setStyle(iconStyle);
 
@@ -120,50 +120,50 @@ define([
                 this.map.addLayer(vectorLayer);
             },
 
-            handleRegionStop: function (sketchFeature) {
+            handleRegionStop: function(sketchFeature) {
                 this.setModelFromGeometry(sketchFeature.feature.getGeometry());
                 this.drawBorderedPolygon(sketchFeature.feature.getGeometry());
                 this.listenTo(this.model, 'change:polygon', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
             },
-            start: function () {
+            start: function() {
                 var that = this;
 
                 this.primitive = new ol.interaction.Draw({
                     type: 'Polygon',
                     style: new ol.style.Style({
                         stroke: new ol.style.Stroke({
-                            color: [0,0,255,0]
+                            color: [0, 0, 255, 0]
                         })
                     })
                 });
 
                 this.map.addInteraction(this.primitive);
-                this.primitive.on('drawend', function(sketchFeature){
+                this.primitive.on('drawend', function(sketchFeature) {
                     window.cancelAnimationFrame(that.accuratePolygonId);
                     that.handleRegionStop(sketchFeature);
                     that.map.removeInteraction(that.primitive);
                 });
-                this.primitive.on('drawstart', function (sketchFeature) {
+                this.primitive.on('drawstart', function(sketchFeature) {
                     that.showAccuratePolygon(sketchFeature);
                 });
             },
             accuratePolygonId: undefined,
-            showAccuratePolygon: function(sketchFeature){
-                this.accuratePolygonId = window.requestAnimationFrame(function(){
+            showAccuratePolygon: function(sketchFeature) {
+                this.accuratePolygonId = window.requestAnimationFrame(function() {
                     this.drawBorderedPolygon(sketchFeature.feature.getGeometry());
                     this.showAccuratePolygon(sketchFeature);
                 }.bind(this));
             },
 
 
-            stop: function () {
+            stop: function() {
                 this.stopListening();
             },
 
 
-            destroyPrimitive: function () {
+            destroyPrimitive: function() {
                 if (this.primitive) {
                     this.map.removeInteraction(this.primitive);
                 }
@@ -176,75 +176,75 @@ define([
 
         Draw.Controller = Marionette.Controller.extend({
             enabled: maptype.is2d(),
-            initialize: function (options) {
+            initialize: function(options) {
                 this.map = options.map;
                 this.notificationEl = options.notificationEl;
 
-                this.listenTo(wreqr.vent, 'search:polydisplay', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:polydisplay', function(model) {
+                    if (this.isVisible()) {
                         this.showBox(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawpoly', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawpoly', function(model) {
+                    if (this.isVisible()) {
                         this.draw(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawstop', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
+                    if (this.isVisible()) {
                         this.stop(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawend', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
+                    if (this.isVisible()) {
                         this.destroy(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
+                    if (this.isVisible()) {
                         this.destroyAll(model);
                     }
                 });
-                this.listenTo(store.get('content'), 'change:query', function(model){
-                    if (this.isVisible()){
+                this.listenTo(store.get('content'), 'change:query', function(model) {
+                    if (this.isVisible()) {
                         this.destroyAll(model);
                     }
                 });
             },
             views: [],
-            isVisible: function(){
+            isVisible: function() {
                 return this.map.getTarget().offsetParent !== null;
             },
-            destroyAll: function(){
-                for (var i = this.views.length - 1; i>=0 ; i-=1){
+            destroyAll: function() {
+                for (var i = this.views.length - 1; i >= 0; i -= 1) {
                     this.destroyView(this.views[i]);
                 }
             },
-            getViewForModel: function(model){
-                return this.views.filter(function(view){
+            getViewForModel: function(model) {
+                return this.views.filter(function(view) {
                     return view.model === model;
                 })[0];
             },
-            removeViewForModel: function(model){
+            removeViewForModel: function(model) {
                 var view = this.getViewForModel(model);
-                if (view){
+                if (view) {
                     this.views.splice(this.views.indexOf(view), 1);
                 }
             },
-            removeView: function(view){
+            removeView: function(view) {
                 this.views.splice(this.views.indexOf(view), 1);
             },
-            addView: function(view){
+            addView: function(view) {
                 this.views.push(view);
             },
             showBox: function(model) {
                 if (this.enabled) {
                     var polygonModel = model || new Draw.PolygonModel();
-                        /*view = new Draw.PolygonView(
-                            {
-                                map: this.map,
-                                model: polygonModel
-                            });*/
+                    /*view = new Draw.PolygonView(
+                        {
+                            map: this.map,
+                            model: polygonModel
+                        });*/
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
@@ -252,11 +252,10 @@ define([
                         existingView.destroyPrimitive();
                         existingView.updatePrimitive(model);
                     } else {
-                        var view = new Draw.PolygonView(
-                            {
-                                map: this.map,
-                                model: polygonModel
-                            });
+                        var view = new Draw.PolygonView({
+                            map: this.map,
+                            model: polygonModel
+                        });
                         view.updatePrimitive(model);
                         this.addView(view);
                     }
@@ -264,14 +263,13 @@ define([
                     return polygonModel;
                 }
             },
-            draw: function (model) {
+            draw: function(model) {
                 if (this.enabled) {
                     var polygonModel = model || new Draw.PolygonModel();
-                    var view = new Draw.PolygonView(
-                            {
-                                map: this.map,
-                                model: polygonModel
-                            });
+                    var view = new Draw.PolygonView({
+                        map: this.map,
+                        model: polygonModel
+                    });
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
@@ -285,34 +283,34 @@ define([
                         el: this.notificationEl
                     }).render();
                     polygonModel.trigger('BeginExtent');
-                    this.listenToOnce(polygonModel, 'EndExtent', function () {
+                    this.listenToOnce(polygonModel, 'EndExtent', function() {
                         this.notificationView.destroy();
                     });
 
                     return polygonModel;
                 }
             },
-            stop: function (model) {
+            stop: function(model) {
                 var view = this.getViewForModel(model);
                 if (view) {
                     view.stop();
-                    if(this.notificationView) {
+                    if (this.notificationView) {
                         this.notificationView.destroy();
                     }
                 }
             },
-            destroyView: function(view){
+            destroyView: function(view) {
                 view.stop();
                 view.destroyPrimitive();
                 this.removeView(view);
             },
-            destroy: function (model) {
+            destroy: function(model) {
                 var view = this.getViewForModel(model);
                 if (view) {
                     view.stop();
                     view.destroyPrimitive();
                     this.removeView(view);
-                    if(this.notificationView) {
+                    if (this.notificationView) {
                         this.notificationView.destroy();
                     }
                 }

@@ -22,7 +22,7 @@ define([
         './notification.view',
         'js/store'
     ],
-    function (Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, store) {
+    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, store) {
         "use strict";
         var DrawCircle = {};
 
@@ -34,25 +34,22 @@ define([
             }
         });
         var defaultAttrs = ['lat', 'lon', 'radius'];
-        DrawCircle.CircleView = Backbone.View.extend({
-            initialize: function (options) {
-                this.canvas = options.scene.canvas;
-                this.scene = options.scene;
-                this.ellipsoid = options.scene.globe.ellipsoid;
-                this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.canvas);
+        DrawCircle.CircleView = Marionette.View.extend({
+            initialize: function() {
+                this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.options.map.scene.canvas);
 
                 this.listenTo(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
             },
-            enableInput: function () {
-                var controller = this.scene.screenSpaceCameraController;
+            enableInput: function() {
+                var controller = this.options.map.scene.screenSpaceCameraController;
                 controller.enableTranslate = true;
                 controller.enableZoom = true;
                 controller.enableRotate = true;
                 controller.enableTilt = true;
                 controller.enableLook = true;
             },
-            disableInput: function () {
-                var controller = this.scene.screenSpaceCameraController;
+            disableInput: function() {
+                var controller = this.options.map.scene.screenSpaceCameraController;
                 controller.enableTranslate = false;
                 controller.enableZoom = false;
                 controller.enableRotate = false;
@@ -60,9 +57,9 @@ define([
                 controller.enableLook = false;
             },
 
-            setCircleRadius: function (mn, mx) {
-                var startCartographic = this.ellipsoid.cartographicToCartesian(mn),
-                    stopCart = this.ellipsoid.cartographicToCartesian(mx),
+            setCircleRadius: function(mn, mx) {
+                var startCartographic = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(mn),
+                    stopCart = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(mx),
                     radius = Math.abs(Cesium.Cartesian3.distance(startCartographic, stopCart));
 
                 var modelProp = {
@@ -76,20 +73,20 @@ define([
 
             },
 
-            isModelReset: function (modelProp) {
-                if (_.every(defaultAttrs, function (val) {
-                    return _.isUndefined(modelProp[val]);
-                }) || _.isEmpty(modelProp)) {
+            isModelReset: function(modelProp) {
+                if (_.every(defaultAttrs, function(val) {
+                        return _.isUndefined(modelProp[val]);
+                    }) || _.isEmpty(modelProp)) {
                     return true;
                 }
                 return false;
             },
 
-            updatePrimitive: function (model) {
+            updatePrimitive: function(model) {
 
                 var modelProp = model.toJSON();
                 if (this.isModelReset(modelProp)) {
-                    this.scene.primitives.remove(this.primitive);
+                    this.options.map.scene.primitives.remove(this.primitive);
                     this.stopListening();
                     return;
                 }
@@ -100,7 +97,7 @@ define([
 
                 this.drawBorderedCircle(model);
             },
-            drawBorderedCircle: function (model) {
+            drawBorderedCircle: function(model) {
                 // if model has been reset
                 var modelProp = model.toJSON();
                 if (this.isModelReset(modelProp)) {
@@ -109,7 +106,7 @@ define([
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.primitives.remove(this.primitive);
+                    this.options.map.scene.primitives.remove(this.primitive);
                 }
 
                 var color = this.model.get('color');
@@ -118,11 +115,11 @@ define([
                     asynchronous: false,
                     geometryInstances: [new Cesium.GeometryInstance({
                         geometry: new Cesium.CircleOutlineGeometry({
-                            center: this.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
+                            center: this.options.map.scene.globe.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
                             radius: modelProp.radius
                         }),
                         attributes: {
-                            color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) :  Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
+                            color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
                         }
                     })],
                     appearance: new Cesium.PerInstanceColorAppearance({
@@ -131,14 +128,14 @@ define([
                             depthTest: {
                                 enabled: true
                             },
-                            lineWidth: Math.min(4.0, this.scene.maximumAliasedLineWidth)
+                            lineWidth: Math.min(4.0, this.options.map.scene.maximumAliasedLineWidth)
                         }
                     })
                 });
 
-                this.scene.primitives.add(this.primitive);
+                this.options.map.scene.primitives.add(this.primitive);
             },
-            handleRegionStop: function () {
+            handleRegionStop: function() {
                 this.enableInput();
                 if (!this.mouseHandler.isDestroyed()) {
                     this.mouseHandler.destroy();
@@ -148,48 +145,48 @@ define([
                 this.listenTo(this.model, 'change:lat change:lon change:radius', this.drawBorderedCircle);
                 this.model.trigger("EndExtent", this.model);
             },
-            handleRegionInter: function (movement) {
-                var cartesian = this.scene.camera.pickEllipsoid(movement.endPosition, this.ellipsoid),
+            handleRegionInter: function(movement) {
+                var cartesian = this.options.map.scene.camera.pickEllipsoid(movement.endPosition, this.options.map.scene.globe.ellipsoid),
                     cartographic;
                 if (cartesian) {
-                    cartographic = this.ellipsoid.cartesianToCartographic(cartesian);
+                    cartographic = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
                     this.setCircleRadius(this.click1, cartographic);
                 }
             },
-            handleRegionStart: function (movement) {
-                var cartesian = this.scene.camera.pickEllipsoid(movement.position, this.ellipsoid),
+            handleRegionStart: function(movement) {
+                var cartesian = this.options.map.scene.camera.pickEllipsoid(movement.position, this.options.map.scene.globe.ellipsoid),
                     that = this;
                 if (cartesian) {
-                    this.click1 = this.ellipsoid.cartesianToCartographic(cartesian);
-                    this.mouseHandler.setInputAction(function () {
+                    this.click1 = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+                    this.mouseHandler.setInputAction(function() {
                         that.handleRegionStop();
                     }, Cesium.ScreenSpaceEventType.LEFT_UP);
-                    this.mouseHandler.setInputAction(function (movement) {
+                    this.mouseHandler.setInputAction(function(movement) {
                         that.handleRegionInter(movement);
                     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
                 }
             },
-            start: function () {
+            start: function() {
                 this.disableInput();
 
                 var that = this;
 
                 // Now wait for start
-                this.mouseHandler.setInputAction(function (movement) {
+                this.mouseHandler.setInputAction(function(movement) {
                     that.handleRegionStart(movement);
                 }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
             },
-            stop: function () {
+            stop: function() {
                 this.stopListening();
                 this.enableInput();
             },
 
-            destroyPrimitive: function () {
+            destroyPrimitive: function() {
                 if (!this.mouseHandler.isDestroyed()) {
                     this.mouseHandler.destroy();
                 }
                 if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.primitives.remove(this.primitive);
+                    this.options.map.scene.primitives.remove(this.primitive);
                 }
             }
 
@@ -198,74 +195,71 @@ define([
 
         DrawCircle.Controller = Marionette.Controller.extend({
             enabled: maptype.is3d(),
-            initialize: function (options) {
-                this.scene = options.scene;
-                this.notificationEl = options.notificationEl;
-
-                this.listenTo(wreqr.vent, 'search:circledisplay', function(model){
-                    if (this.isVisible()){
+            initialize: function() {
+                this.listenTo(wreqr.vent, 'search:circledisplay', function(model) {
+                    if (this.isVisible()) {
                         this.showCircle(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawcircle', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawcircle', function(model) {
+                    if (this.isVisible()) {
                         this.draw(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawstop', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
+                    if (this.isVisible()) {
                         this.stop(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawend', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
+                    if (this.isVisible()) {
                         this.destroy(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
+                    if (this.isVisible()) {
                         this.destroyAll(model);
                     }
                 });
-                this.listenTo(store.get('content'), 'change:query', function(model){
-                    if (this.isVisible()){
+                this.listenTo(store.get('content'), 'change:query', function(model) {
+                    if (this.isVisible()) {
                         this.destroyAll(model);
                     }
                 });
             },
             views: [],
-            isVisible: function(){
-                return this.scene.canvas.width !== 0;
+            isVisible: function() {
+                return this.options.map.scene.canvas.width !== 0;
             },
-            destroyAll: function(){
-                for (var i = this.views.length - 1; i>=0 ; i-=1){
+            destroyAll: function() {
+                for (var i = this.views.length - 1; i >= 0; i -= 1) {
                     this.destroyView(this.views[i]);
                 }
             },
-            getViewForModel: function(model){
-                return this.views.filter(function(view){
+            getViewForModel: function(model) {
+                return this.views.filter(function(view) {
                     return view.model === model;
                 })[0];
             },
-            removeViewForModel: function(model){
+            removeViewForModel: function(model) {
                 var view = this.getViewForModel(model);
-                if (view){
+                if (view) {
                     this.views.splice(this.views.indexOf(view), 1);
                 }
             },
-            removeView: function(view){
+            removeView: function(view) {
                 this.views.splice(this.views.indexOf(view), 1);
             },
-            addView: function(view){
+            addView: function(view) {
                 this.views.push(view);
             },
             showCircle: function(model) {
                 if (this.enabled) {
                     var circleModel = model || new DrawCircle.CircleModel();
-                   /*     view = new DrawCircle.CircleView({
-                            scene: this.scene,
-                            model: circleModel
-                        });*/
+                    /*     view = new DrawCircle.CircleView({
+                             scene: this.scene,
+                             model: circleModel
+                         });*/
 
 
                     var existingView = this.getViewForModel(model);
@@ -275,7 +269,7 @@ define([
                         existingView.updatePrimitive(model);
                     } else {
                         var view = new DrawCircle.CircleView({
-                            scene: this.scene,
+                            map: this.options.map,
                             model: circleModel
                         });
                         view.updatePrimitive(model);
@@ -285,13 +279,13 @@ define([
                     return circleModel;
                 }
             },
-            draw: function (model) {
+            draw: function(model) {
                 if (this.enabled) {
                     var circleModel = model || new DrawCircle.CircleModel();
                     var view = new DrawCircle.CircleView({
-                            scene: this.scene,
-                            model: circleModel
-                        });
+                        map: this.options.map,
+                        model: circleModel
+                    });
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
@@ -302,37 +296,37 @@ define([
                     view.start();
                     this.addView(view);
                     this.notificationView = new NotificationView({
-                        el: this.notificationEl
+                        el: this.options.notificationEl
                     }).render();
-                    this.listenToOnce(circleModel, 'EndExtent', function () {
+                    this.listenToOnce(circleModel, 'EndExtent', function() {
                         this.notificationView.destroy();
                     });
 
                     return circleModel;
                 }
             },
-            stop: function (model) {
+            stop: function(model) {
                 var view = this.getViewForModel(model);
                 if (view) {
                     view.stop();
                     view.handleRegionStop();
-                    if(this.notificationView) {
+                    if (this.notificationView) {
                         this.notificationView.destroy();
                     }
                 }
             },
-            destroyView: function(view){
+            destroyView: function(view) {
                 view.stop();
                 view.destroyPrimitive();
                 this.removeView(view);
             },
-            destroy: function (model) {
+            destroy: function(model) {
                 var view = this.getViewForModel(model);
                 if (view) {
                     view.stop();
                     view.destroyPrimitive();
                     this.removeView(view);
-                    if(this.notificationView) {
+                    if (this.notificationView) {
                         this.notificationView.destroy();
                     }
                 }

@@ -12,94 +12,19 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define([
-    'wreqr',
-    'marionette',
-    'js/CustomElements',
-    './cesium.hbs',
-    'component/loading-companion/loading-companion.view',
-    'js/store'
-], function (wreqr, Marionette, CustomElements, template, LoadingCompanionView, store) {
-    return Marionette.LayoutView.extend({
-        tagName: CustomElements.register('cesium'),
-        template: template,
-        regions: {
-            mapDrawingPopup: '#mapDrawingPopup'
-        },
-        events: {
-            'click .cesium-cluster-button': 'toggleClustering'
-        },
-        clusterCollection: undefined,
-        clusterCollectionView: undefined,
-        geometryCollectionView: undefined,
-        geocontroller: undefined,
-        initialize: function(){
-            this.listenTo(store.get('content'), 'change:drawing', this.handleDrawing);
-            this.handleDrawing();
-        },
-        onShow: function () {
-            LoadingCompanionView.beginLoading(this);
-            setTimeout(function () {
-                require([
-                    'js/controllers/cesium.controller',
-                    'js/widgets/cesium.bbox',
-                    'js/widgets/cesium.circle',
-                    'js/widgets/cesium.polygon',
-                    'js/widgets/cesium.line',
-                    'js/widgets/filter.cesium.geometry.group',
-                    'component/visualization/maps/cesium/geometry.collection.view',
-                    'component/visualization/maps/cesium/cluster.collection.view',
-                    'component/visualization/maps/cesium/cluster.collection'
-                ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, DrawLine, FilterCesiumGeometryGroup,
-                             GeometryCollectionView, ClusterCollectionView, ClusterCollection) {
-                    this.geocontroller = new GeoController({
-                        element: this.el.querySelector('#cesiumContainer'),
-                        selectionInterface: this.options.selectionInterface
-                    });
-                    new FilterCesiumGeometryGroup.Controller({geoController: this.geocontroller});
-                    new DrawBbox.Controller({
-                        scene: this.geocontroller.scene,
-                        notificationEl: this.mapDrawingPopup.el
-                    });
-                    new DrawCircle.Controller({
-                        scene: this.geocontroller.scene,
-                        notificationEl: this.mapDrawingPopup.el
-                    });
-                    new DrawPolygon.Controller({
-                        scene: this.geocontroller.scene,
-                        notificationEl: this.mapDrawingPopup.el,
-                        drawHelper: this.geocontroller.drawHelper,
-                        geoController: this.geocontroller
-                    });
-                    new DrawLine.Controller({
-                        scene: this.geocontroller.scene,
-                        notificationEl: this.mapDrawingPopup.el,
-                        drawHelper: this.geocontroller.drawHelper,
-                        geoController: this.geocontroller
-                    });
-                    this.clusterCollection = new ClusterCollection();
-                    this.geometryCollectionView = new GeometryCollectionView({
-                        collection: this.options.selectionInterface.getActiveSearchResults(),
-                        geoController: this.geocontroller,
-                        selectionInterface: this.options.selectionInterface,
-                        clusterCollection: this.clusterCollection
-                    });
-                    this.clusterCollectionView = new ClusterCollectionView({
-                        collection: this.clusterCollection,
-                        geoController: this.geocontroller,
-                        selectionInterface: this.options.selectionInterface
-                    });
-                    LoadingCompanionView.endLoading(this);
-                }.bind(this));
-            }.bind(this), 1000);
-        },
-        toggleClustering: function () {
-            this.$el.toggleClass('is-clustering');
-            this.clusterCollectionView.toggleActive();
-        },
-        handleDrawing: function(){
-            this.$el.toggleClass('is-drawing', store.get('content').get('drawing'));
-        }
-    });
+/*global require*/
+var MapView = require('../map.view');
+var $ = require('jquery');
+
+module.exports = MapView.extend({
+    className: 'is-cesium',
+    createMap: function() {
+        var deferred = new $.Deferred();
+        require([
+            './map.cesium'
+        ], function(CesiumMap) {
+            deferred.resolve(CesiumMap);
+        });
+        return deferred;
+    }
 });

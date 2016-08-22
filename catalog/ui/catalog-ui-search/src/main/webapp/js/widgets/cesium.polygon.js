@@ -19,34 +19,33 @@ define([
         './notification.view',
         'js/store'
     ],
-    function (Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, store) {
+    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, store) {
         "use strict";
         var Draw = {};
 
-        Draw.PolygonRenderView = Backbone.View.extend({
-            initialize: function(options){
-                this.scene = options.scene;
+        Draw.PolygonRenderView = Marionette.View.extend({
+            initialize: function() {
                 this.updatePrimitive(this.model);
             },
             modelEvents: {
                 'changed': 'updatePrimitive'
             },
-            updatePrimitive: function(){
+            updatePrimitive: function() {
                 this.drawPolygon(this.model);
             },
-            drawPolygon: function (model) {
+            drawPolygon: function(model) {
                 var polygonPoints = model.toJSON().polygon;
-                if(!polygonPoints) {
+                if (!polygonPoints) {
                     return;
                 }
                 var setArr = _.uniq(polygonPoints);
-                if(setArr.length < 3){
+                if (setArr.length < 3) {
                     return;
                 }
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.primitives.remove(this.primitive);
+                    this.options.map.scene.primitives.remove(this.primitive);
                 }
 
                 var color = this.model.get('color');
@@ -61,7 +60,7 @@ define([
                                 }
                             }),
                             attributes: {
-                                color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) :  Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
+                                color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
                             }
                         })
                     ],
@@ -71,116 +70,111 @@ define([
                             depthTest: {
                                 enabled: true
                             },
-                            lineWidth: Math.min(4.0, this.scene.maximumAliasedLineWidth)
+                            lineWidth: Math.min(4.0, this.options.map.scene.maximumAliasedLineWidth)
                         }
                     })
                 });
 
-                this.scene.primitives.add(this.primitive);
+                this.options.map.scene.primitives.add(this.primitive);
             },
-            destroy: function(){
-                if(this.primitive){
-                    this.scene.primitives.remove(this.primitive);
+            destroy: function() {
+                if (this.primitive) {
+                    this.options.map.scene.primitives.remove(this.primitive);
                 }
-                this.remove();  // backbone cleanup.
+                this.remove(); // backbone cleanup.
             }
         });
 
         Draw.Controller = Marionette.Controller.extend({
             enabled: maptype.is3d(),
-            initialize: function (options) {
-                this.scene = options.scene;
-                this.notificationEl = options.notificationEl;
-                this.drawHelper = options.drawHelper;
-                this.geoController = options.geoController;
-
-                this.listenTo(wreqr.vent, 'search:polydisplay',  function(model){
-                    if (this.isVisible()){
+            initialize: function() {
+                this.listenTo(wreqr.vent, 'search:polydisplay', function(model) {
+                    if (this.isVisible()) {
                         this.showPolygon(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawpoly',  function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawpoly', function(model) {
+                    if (this.isVisible()) {
                         this.draw(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawstop',  function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
+                    if (this.isVisible()) {
                         this.stop(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawend',  function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
+                    if (this.isVisible()) {
                         this.destroy(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw',  function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
+                    if (this.isVisible()) {
                         this.destroyAll(model);
                     }
                 });
-                this.listenTo(store.get('content'), 'change:query',  function(model){
-                    if (this.isVisible()){
+                this.listenTo(store.get('content'), 'change:query', function(model) {
+                    if (this.isVisible()) {
                         this.destroyAll(model);
                     }
                 });
             },
             views: [],
-            isVisible: function(){
-                return this.scene.canvas.width !== 0;
+            isVisible: function() {
+                return this.options.map.scene.canvas.width !== 0;
             },
-            destroyAll: function(){
-                for (var i = this.views.length - 1; i>=0 ; i-=1){
+            destroyAll: function() {
+                for (var i = this.views.length - 1; i >= 0; i -= 1) {
                     this.destroyView(this.views[i]);
                 }
             },
-            getViewForModel: function(model){
-                return this.views.filter(function(view){
+            getViewForModel: function(model) {
+                return this.views.filter(function(view) {
                     return view.model === model;
                 })[0];
             },
-            removeViewForModel: function(model){
+            removeViewForModel: function(model) {
                 var view = this.getViewForModel(model);
-                if (view){
+                if (view) {
                     this.views.splice(this.views.indexOf(view), 1);
                 }
             },
-            removeView: function(view){
+            removeView: function(view) {
                 this.views.splice(this.views.indexOf(view), 1);
             },
-            addView: function(view){
+            addView: function(view) {
                 this.views.push(view);
             },
             showPolygon: function(model) {
                 if (this.enabled) {
-                    this.drawHelper.stopDrawing();
+                    this.options.drawHelper.stopDrawing();
                     // remove old polygon
                     var existingView = this.getViewForModel(model);
-                    if(existingView){
+                    if (existingView) {
                         existingView.destroy();
                         this.removeViewForModel(model);
                     }
-                    var view = new Draw.PolygonRenderView({model: model, scene: this.scene});
+                    var view = new Draw.PolygonRenderView({ model: model, map: this.options.map });
                     this.addView(view);
                 }
             },
-            draw: function (model) {
+            draw: function(model) {
                 var controller = this;
                 var toDeg = Cesium.Math.toDegrees;
                 if (this.enabled) {
                     // start polygon draw.
                     this.notificationView = new NotificationView({
-                        el: this.notificationEl
+                        el: this.options.notificationEl
                     }).render();
-                    this.drawHelper.startDrawingPolygon({
+                    this.options.drawHelper.startDrawingPolygon({
                         callback: function(positions) {
 
-                            if(controller.notificationView) {
+                            if (controller.notificationView) {
                                 controller.notificationView.destroy();
                             }
-                            var latLonRadPoints =_.map(positions, function(cartPos){
-                                var latLon = controller.geoController.ellipsoid.cartesianToCartographic(cartPos);
-                                return [ toDeg(latLon.longitude),toDeg(latLon.latitude)];
+                            var latLonRadPoints = _.map(positions, function(cartPos) {
+                                var latLon = controller.options.map.scene.globe.ellipsoid.cartesianToCartographic(cartPos);
+                                return [toDeg(latLon.longitude), toDeg(latLon.latitude)];
                             });
 
                             //this shouldn't ever get hit because the draw library should protect against it, but just in case it does, remove the point
@@ -200,29 +194,29 @@ define([
                     });
                 }
             },
-            stop: function () {
+            stop: function() {
                 if (this.enabled) {
                     // stop drawing
-                    this.drawHelper.stopDrawing();
-                    if(this.notificationView) {
+                    this.options.drawHelper.stopDrawing();
+                    if (this.notificationView) {
                         this.notificationView.destroy();
                     }
                 }
             },
-            destroyView: function(view){
+            destroyView: function(view) {
                 view.destroy();
                 this.removeView(view);
             },
-            destroy: function (model) {
+            destroy: function(model) {
                 var view = this.getViewForModel(model);
-                    // I don't think we need this method.
-                    if(this.notificationView) {
-                        this.notificationView.destroy();
-                    }
-                    if(view){
-                        view.destroy();
-                        this.removeViewForModel(model);
-                    }
+                // I don't think we need this method.
+                if (this.notificationView) {
+                    this.notificationView.destroy();
+                }
+                if (view) {
+                    view.destroy();
+                    this.removeViewForModel(model);
+                }
             }
         });
 

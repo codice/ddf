@@ -21,7 +21,7 @@ define([
         './notification.view',
         'js/store'
     ],
-    function (Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, store) {
+    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, store) {
         "use strict";
         var Draw = {};
 
@@ -34,31 +34,28 @@ define([
             }
         });
         var defaultAttrs = ['north', 'east', 'west', 'south'];
-        Draw.BboxView = Backbone.View.extend({
-            initialize: function (options) {
-                this.canvas = options.scene.canvas;
-                this.scene = options.scene;
-                this.ellipsoid = options.scene.globe.ellipsoid;
-                this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.canvas);
+        Draw.BboxView = Marionette.View.extend({
+            initialize: function() {
+                this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.options.map.scene.canvas);
                 this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updatePrimitive);
             },
-            enableInput: function () {
-                var controller = this.scene.screenSpaceCameraController;
+            enableInput: function() {
+                var controller = this.options.map.scene.screenSpaceCameraController;
                 controller.enableTranslate = true;
                 controller.enableZoom = true;
                 controller.enableRotate = true;
                 controller.enableTilt = true;
                 controller.enableLook = true;
             },
-            disableInput: function () {
-                var controller = this.scene.screenSpaceCameraController;
+            disableInput: function() {
+                var controller = this.options.map.scene.screenSpaceCameraController;
                 controller.enableTranslate = false;
                 controller.enableZoom = false;
                 controller.enableRotate = false;
                 controller.enableTilt = false;
                 controller.enableLook = false;
             },
-            setModelFromClicks: function (mn, mx) {
+            setModelFromClicks: function(mn, mx) {
 
                 var e = new Cesium.Rectangle(),
                     epsilon = Cesium.Math.EPSILON6,
@@ -149,7 +146,7 @@ define([
                 }
 
                 modelProps = _.pick(e, 'north', 'east', 'west', 'south');
-                _.each(modelProps, function (val, key) {
+                _.each(modelProps, function(val, key) {
                     modelProps[key] = (val * 180 / Math.PI).toFixed(4);
                 });
                 this.model.set(modelProps);
@@ -157,19 +154,19 @@ define([
                 return e;
             },
 
-            modelToRectangle: function (model) {
+            modelToRectangle: function(model) {
                 var toRad = Cesium.Math.toRadians;
                 var obj = model.toJSON();
-                if (_.every(defaultAttrs, function (val) {
-                    return _.isUndefined(obj[val]);
-                }) || _.isEmpty(obj)) {
-                    if(this.scene && this.scene.primitives) {
-                        this.scene.primitives.remove(this.primitive);
+                if (_.every(defaultAttrs, function(val) {
+                        return _.isUndefined(obj[val]);
+                    }) || _.isEmpty(obj)) {
+                    if (this.options.map.scene && this.options.map.scene.primitives) {
+                        this.options.map.scene.primitives.remove(this.primitive);
                     }
                     this.stopListening();
                     return;
                 }
-                _.each(obj, function (val, key) {
+                _.each(obj, function(val, key) {
                     obj[key] = toRad(val);
                 });
                 var rectangle = new Cesium.Rectangle();
@@ -184,7 +181,7 @@ define([
                 return rectangle;
             },
 
-            updatePrimitive: function (model) {
+            updatePrimitive: function(model) {
                 var rectangle = this.modelToRectangle(model);
                 // make sure the current model has width and height before drawing
                 if (rectangle && !_.isUndefined(rectangle) && (rectangle.north !== rectangle.south && rectangle.east !== rectangle.west)) {
@@ -197,14 +194,14 @@ define([
                 }
             },
 
-            updateGeometry: function (model) {
+            updateGeometry: function(model) {
                 var rectangle = this.modelToRectangle(model);
                 if (rectangle && !_.isUndefined(rectangle) && (rectangle.north !== rectangle.south && rectangle.east !== rectangle.west)) {
                     this.drawBorderedRectangle(rectangle);
                 }
             },
 
-            drawBorderedRectangle: function (rectangle) {
+            drawBorderedRectangle: function(rectangle) {
 
                 if (!rectangle) {
                     // handles case where model changes to empty vars and we don't want to draw anymore
@@ -213,7 +210,7 @@ define([
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.primitives.remove(this.primitive);
+                    this.options.map.scene.primitives.remove(this.primitive);
                 }
 
                 var color = this.model.get('color');
@@ -225,7 +222,7 @@ define([
                             rectangle: rectangle
                         }),
                         attributes: {
-                            color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) :  Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
+                            color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
                         }
                     })],
                     appearance: new Cesium.PerInstanceColorAppearance({
@@ -234,15 +231,15 @@ define([
                             depthTest: {
                                 enabled: true
                             },
-                            lineWidth: Math.min(4.0, this.scene.maximumAliasedLineWidth)
+                            lineWidth: Math.min(4.0, this.options.map.scene.maximumAliasedLineWidth)
                         }
                     })
                 });
 
-                this.scene.primitives.add(this.primitive);
+                this.options.map.scene.primitives.add(this.primitive);
             },
 
-            handleRegionStop: function () {
+            handleRegionStop: function() {
                 this.enableInput();
                 this.mouseHandler.destroy();
                 if (this.primitive) {
@@ -256,56 +253,58 @@ define([
                 this.lastLongitude = undefined;
                 this.crossDateLine = undefined;
             },
-            handleRegionInter: function (movement) {
-                var cartesian = this.scene.camera
-                    .pickEllipsoid(movement.endPosition, this.ellipsoid), cartographic;
+            handleRegionInter: function(movement) {
+                var cartesian = this.options.map.scene.camera
+                    .pickEllipsoid(movement.endPosition, this.options.map.scene.globe.ellipsoid),
+                    cartographic;
                 if (cartesian) {
-                    cartographic = this.ellipsoid.cartesianToCartographic(cartesian);
+                    cartographic = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
                     this.setModelFromClicks(this.click1, cartographic);
                 }
             },
-            handleRegionStart: function (movement) {
-                var cartesian = this.scene.camera
-                    .pickEllipsoid(movement.position, this.ellipsoid), that = this;
+            handleRegionStart: function(movement) {
+                var cartesian = this.options.map.scene.camera
+                    .pickEllipsoid(movement.position, this.options.map.scene.globe.ellipsoid),
+                    that = this;
                 if (cartesian) {
                     // var that = this;
-                    this.click1 = this.ellipsoid
+                    this.click1 = this.options.map.scene.globe.ellipsoid
                         .cartesianToCartographic(cartesian);
-                    this.mouseHandler.setInputAction(function () {
+                    this.mouseHandler.setInputAction(function() {
                         that.buttonPressed = false;
                         that.handleRegionStop();
                     }, Cesium.ScreenSpaceEventType.LEFT_UP);
-                    this.mouseHandler.setInputAction(function (movement) {
+                    this.mouseHandler.setInputAction(function(movement) {
                         that.buttonPressed = true;
                         that.handleRegionInter(movement);
                     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
                 }
             },
-            start: function () {
+            start: function() {
                 this.disableInput();
 
                 var that = this;
 
                 // Now wait for start
-                this.mouseHandler.setInputAction(function (movement) {
+                this.mouseHandler.setInputAction(function(movement) {
                     that.handleRegionStart(movement);
                 }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
             },
 
 
-            stop: function () {
+            stop: function() {
                 this.stopListening();
                 this.enableInput();
 
             },
 
 
-            destroyPrimitive: function () {
+            destroyPrimitive: function() {
                 if (!this.mouseHandler.isDestroyed()) {
                     this.mouseHandler.destroy();
                 }
                 if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.primitives.remove(this.primitive);
+                    this.options.map.scene.primitives.remove(this.primitive);
                 }
             }
 
@@ -313,75 +312,67 @@ define([
 
         Draw.Controller = Marionette.Controller.extend({
             enabled: maptype.is3d(),
-            initialize: function (options) {
-                this.scene = options.scene;
-                this.notificationEl = options.notificationEl;
-
-                this.listenTo(wreqr.vent, 'search:bboxdisplay', function(model){
-                    if (this.isVisible()){
+            initialize: function() {
+                this.listenTo(wreqr.vent, 'search:bboxdisplay', function(model) {
+                    if (this.isVisible()) {
                         this.showBox(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawbbox', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawbbox', function(model) {
+                    if (this.isVisible()) {
                         this.draw(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawstop', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
+                    if (this.isVisible()) {
                         this.stop(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawend', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
+                    if (this.isVisible()) {
                         this.destroy(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model){
-                    if (this.isVisible()){
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
+                    if (this.isVisible()) {
                         this.destroyAll(model);
                     }
                 });
-                this.listenTo(store.get('content'), 'change:query', function(model){
-                    if (this.isVisible()){
+                this.listenTo(store.get('content'), 'change:query', function(model) {
+                    if (this.isVisible()) {
                         this.destroyAll(model);
                     }
                 });
             },
             views: [],
-            isVisible: function(){
-                return this.scene.canvas.width !== 0;
+            isVisible: function() {
+                return this.options.map.scene.canvas.width !== 0;
             },
-            destroyAll: function(){
-                for (var i = this.views.length - 1; i>=0 ; i-=1){
+            destroyAll: function() {
+                for (var i = this.views.length - 1; i >= 0; i -= 1) {
                     this.destroyView(this.views[i]);
                 }
             },
-            getViewForModel: function(model){
-                return this.views.filter(function(view){
+            getViewForModel: function(model) {
+                return this.views.filter(function(view) {
                     return view.model === model;
                 })[0];
             },
-            removeViewForModel: function(model){
+            removeViewForModel: function(model) {
                 var view = this.getViewForModel(model);
-                if (view){
+                if (view) {
                     this.views.splice(this.views.indexOf(view), 1);
                 }
             },
-            removeView: function(view){
+            removeView: function(view) {
                 this.views.splice(this.views.indexOf(view), 1);
             },
-            addView: function(view){
+            addView: function(view) {
                 this.views.push(view);
             },
             showBox: function(model) {
                 if (this.enabled) {
                     var bboxModel = model || new Draw.BboxModel();
-                       /* view = new Draw.BboxView(
-                            {
-                                scene: this.scene,
-                                model: bboxModel
-                            });*/
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
@@ -393,14 +384,13 @@ define([
                     return bboxModel;
                 }
             },
-            draw: function (model) {
+            draw: function(model) {
                 if (this.enabled) {
                     var bboxModel = model || new Draw.BboxModel();
-                    var view = new Draw.BboxView(
-                            {
-                                scene: this.scene,
-                                model: bboxModel
-                            });
+                    var view = new Draw.BboxView({
+                        map: this.options.map,
+                        model: bboxModel
+                    });
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
@@ -411,37 +401,37 @@ define([
                     view.start();
                     this.addView(view);
                     this.notificationView = new NotificationView({
-                        el: this.notificationEl
+                        el: this.options.notificationEl
                     }).render();
                     bboxModel.trigger('BeginExtent');
-                    this.listenToOnce(bboxModel, 'EndExtent', function () {
+                    this.listenToOnce(bboxModel, 'EndExtent', function() {
                         this.notificationView.destroy();
                     });
 
                     return bboxModel;
                 }
             },
-            stop: function (model) {
+            stop: function(model) {
                 var view = this.getViewForModel(model);
                 if (view) {
                     view.stop();
-                    if(this.notificationView) {
+                    if (this.notificationView) {
                         this.notificationView.destroy();
                     }
                 }
             },
-            destroyView: function(view){
+            destroyView: function(view) {
                 view.stop();
                 view.destroyPrimitive();
                 this.removeView(view);
             },
-            destroy: function (model) {
+            destroy: function(model) {
                 var view = this.getViewForModel(model);
                 if (view) {
                     view.stop();
                     view.destroyPrimitive();
                     this.removeView(view);
-                    if(this.notificationView) {
+                    if (this.notificationView) {
                         this.notificationView.destroy();
                     }
                 }

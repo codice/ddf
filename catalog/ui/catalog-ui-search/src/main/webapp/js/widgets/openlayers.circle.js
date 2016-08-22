@@ -47,7 +47,7 @@ define([
 
         var Draw = {};
 
-        Draw.CircleView = Backbone.View.extend({
+        Draw.CircleView = Marionette.View.extend({
             initialize: function (options) {
                 this.map = options.map;
             },

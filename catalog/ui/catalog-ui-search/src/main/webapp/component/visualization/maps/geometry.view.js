@@ -12,32 +12,27 @@
 /*global require*/
 var Marionette = require('marionette');
 var store = require('js/store');
-var shapes = require('component/visualization/maps/cesium/shapes');
 var _ = require('underscore');
 
 var GeometryView = Marionette.ItemView.extend({
     template: false,
     geometry: undefined,
-    selectionInterface: store,
-    geoController: undefined,
-    initialize: function (options) {
-        this.selectionInterface = options.selectionInterface || this.selectionInterface;
-        this.geoController = options.geoController;
+    initialize: function(options) {
         var geometry = this.model.get('metacard').get('geometry');
         if (geometry) {
             this.geometry = [];
             this.handleGeometry(geometry.toJSON());
-            this.listenTo(this.selectionInterface.getSelectedResults(), 'update add remove reset', this.updateSelected);
+            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.updateSelected);
             this.listenTo(this.options.clusterCollection, 'add remove update', this.checkIfClustered);
         }
     },
-    handleGeometry: function (geometry) {
+    handleGeometry: function(geometry) {
         switch (geometry.type) {
             case 'Point':
                 this.handlePoint(geometry.coordinates);
                 break;
             case 'Polygon':
-                geometry.coordinates.forEach(function (polygon) {
+                geometry.coordinates.forEach(function(polygon) {
                     this.handlePoint(polygon[0]);
                     this.handleLine(polygon);
                     //this.handlePolygon(polygon);
@@ -48,19 +43,19 @@ var GeometryView = Marionette.ItemView.extend({
                 this.handleLine(geometry.coordinates);
                 break;
             case 'MultiLineString':
-                geometry.coordinates.forEach(function (line) {
+                geometry.coordinates.forEach(function(line) {
                     this.handlePoint(line[0]);
                     this.handleLine(line);
                 }.bind(this));
                 break;
             case 'MultiPoint':
-                geometry.coordinates.forEach(function (point) {
+                geometry.coordinates.forEach(function(point) {
                     this.handlePoint(point);
                 }.bind(this));
                 break;
             case 'MultiPolygon':
-                geometry.coordinates.forEach(function (multipolygon) {
-                    multipolygon.forEach(function (polygon) {
+                geometry.coordinates.forEach(function(multipolygon) {
+                    multipolygon.forEach(function(polygon) {
                         this.handlePoint(polygon[0]);
                         this.handleLine(polygon);
                         //this.handlePolygon(polygon);
@@ -68,35 +63,35 @@ var GeometryView = Marionette.ItemView.extend({
                 }.bind(this));
                 break;
             case 'GeometryCollection':
-                geometry.geometries.forEach(function (subgeometry) {
+                geometry.geometries.forEach(function(subgeometry) {
                     this.handleGeometry(subgeometry);
                 }.bind(this));
                 break;
         }
     },
-    handlePoint: function (point) {
-        this.geometry.push(shapes.addPoint(point, this.geoController, {
+    handlePoint: function(point) {
+        this.geometry.push(this.options.map.addPoint(point, {
             id: this.model.id,
             color: this.model.get('metacard').get('color'),
             view: this
         }));
     },
-    handleLine: function (line) {
-        this.geometry.push(shapes.addLine(line, this.geoController, {
+    handleLine: function(line) {
+        this.geometry.push(this.options.map.addLine(line, {
             id: this.model.id,
             color: this.model.get('metacard').get('color'),
             view: this
         }));
     },
-    handlePolygon: function (polygon) {
-        this.geometry = this.geometry.concat(shapes.addPolygon(polygon, this.geoController, {
+    handlePolygon: function(polygon) {
+        this.geometry = this.geometry.concat(this.options.map.addPolygon(polygon, {
             id: this.model.id,
             color: this.model.get('metacard').get('color'),
             view: this
         }));
     },
-    updateSelected: function () {
-        var selected = this.selectionInterface.getSelectedResults().some(function (result) {
+    updateSelected: function() {
+        var selected = this.options.selectionInterface.getSelectedResults().some(function(result) {
             return result.id === this.model.id;
         }, this);
         if (selected) {
@@ -105,37 +100,35 @@ var GeometryView = Marionette.ItemView.extend({
             this.updateDisplay(false);
         }
     },
-    updateDisplay: function (isSelected) {
-        this.geometry.forEach(function (geometry) {
-            shapes.updateGeometry(geometry, {
+    updateDisplay: function(isSelected) {
+        this.geometry.forEach(function(geometry) {
+            this.options.map.updateGeometry(geometry, {
                 color: this.model.get('metacard').get('color'),
                 isSelected: isSelected
             });
         }.bind(this));
     },
-    checkIfClustered: function () {
+    checkIfClustered: function() {
         if (this.options.clusterCollection.isClustered(this.model)) {
             this.hideGeometry();
         } else {
             this.showGeometry();
         }
     },
-    showGeometry: function () {
-        this.geometry.forEach(function (geometry) {
-            shapes.showGeometry(geometry);
-        });
+    showGeometry: function() {
+        this.geometry.forEach(function(geometry) {
+            this.options.map.showGeometry(geometry);
+        }.bind(this));
     },
-    hideGeometry: function () {
-        this.geometry.forEach(function (geometry) {
-            shapes.hideGeometry(geometry);
-        });
+    hideGeometry: function() {
+        this.geometry.forEach(function(geometry) {
+            this.options.map.hideGeometry(geometry);
+        }.bind(this));
     },
-    onDestroy: function () {
+    onDestroy: function() {
         if (this.geometry) {
-            this.geometry.forEach(function (geometry) {
-                this.geoController.billboardCollection.remove(geometry);
-                this.geoController.scene.primitives.remove(geometry);
-                this.geoController.mapViewer.entities.remove(geometry);
+            this.geometry.forEach(function(geometry) {
+                this.options.map.removeGeometry(geometry);
             }.bind(this));
         }
     }

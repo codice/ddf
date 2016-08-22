@@ -15,126 +15,123 @@ var $ = require('jquery');
 var _ = require('underscore');
 var store = require('js/store');
 var ClusterView = require('./cluster.view');
-var Clustering = require('js/Clustering');
+var Clustering = require('./Clustering');
 
 var ClusterCollectionView = Marionette.CollectionView.extend({
     childView: ClusterView,
     selectionInterface: store,
-    childViewOptions: function () {
+    childViewOptions: function() {
         return {
-            geoController: this.options.geoController,
+            map: this.options.map,
             selectionInterface: this.selectionInterface
         };
     },
     isActive: false,
-    initialize: function (options) {
+    initialize: function(options) {
         this.isActive = Boolean(options.isActive) || this.isActive;
         this.render = _.throttle(this.render, 200);
         this.selectionInterface = options.selectionInterface || this.selectionInterface;
-        this.listenTo(this.options.geoController, 'click:left', this.onMapLeftClick);
-        this.listenTo(this.options.geoController, 'hover', this.onMapHover);
+        this.options.map.onLeftClick(this.onMapLeftClick.bind(this));
+        this.options.map.onMouseMove(this.handleMapHover.bind(this));
         this.listenTo(this.selectionInterface.getActiveSearchResults(), 'reset', this.handleResultsChange);
         this.listenForCameraChange();
         this.listenForResultsChange();
         this.calculateClusters = _.throttle(this.calculateClusters, 200);
         this.render();
     },
-    onRender: function () {
-    },
-    onMapHover: function (event) {
-        $(this.options.geoController.mapViewer.canvas).toggleClass('is-hovering', Boolean(event.id));
-        this.handleMapHover(event.id);
-    },
-    handleMapHover: function (id) {
-        this.children.forEach(function (clusterView) {
-            clusterView.handleHover(id);
+    onRender: function() {},
+    handleMapHover: function(event, mapEvent) {
+        this.children.forEach(function(clusterView) {
+            clusterView.handleHover(mapEvent.mapTarget);
         });
     },
-    onMapLeftClick: function (event) {
-        if (event.id) {
+    onMapLeftClick: function(event, mapEvent) {
+        if (mapEvent.mapTarget) {
             if (event.shiftKey) {
-                this.handleShiftClick(event.id);
-            } else if (event.ctrlKey) {
-                this.handleCtrlClick(event.id);
+                this.handleShiftClick(mapEvent.mapTarget);
+            } else if (event.ctrlKey || event.metaKey) {
+                this.handleCtrlClick(mapEvent.mapTarget);
             } else {
-                this.handleClick(event.id);
+                this.handleClick(mapEvent.mapTarget);
             }
         }
     },
-    getModelsForId: function(id){
+    getModelsForId: function(id) {
         return this.collection.get(id.sort().toString()).get('results').models;
     },
-    handleClick: function (id) {
+    handleClick: function(id) {
         if (id.constructor === Array) {
             this.options.selectionInterface.clearSelectedResults();
             this.options.selectionInterface.addSelectedResult(this.getModelsForId(id));
         }
     },
-    handleCtrlClick: function (id) {
+    handleCtrlClick: function(id) {
         if (id.constructor === Array) {
             this.options.selectionInterface.addSelectedResult(this.getModelsForId(id));
         }
     },
-    handleShiftClick: function (id) {
+    handleShiftClick: function(id) {
         if (id.constructor === Array) {
             this.options.selectionInterface.addSelectedResult(this.getModelsForId(id));
         }
     },
-    listenForCameraChange: function () {
-        this.options.geoController.scene.camera.moveStart.addEventListener(function () {
-            if (!this.isDestroyed) {
-                this.startClusterAnimating();
-            }
-        }.bind(this));
-        this.options.geoController.scene.camera.moveEnd.addEventListener(function () {
-            if (!this.isDestroyed) {
-                window.cancelAnimationFrame(this.clusteringAnimationFrameId);
-                this.calculateClusters();
-            }
-        }.bind(this));
+    handleCameraMoveStart: function() {
+        if (!this.isDestroyed) {
+            this.startClusterAnimating();
+        }
+    },
+    handleCameraMoveEnd: function() {
+        if (!this.isDestroyed) {
+            window.cancelAnimationFrame(this.clusteringAnimationFrameId);
+            this.calculateClusters();
+        }
+    },
+    listenForCameraChange: function() {
+        this.options.map.onCameraMoveStart(this.handleCameraMoveStart.bind(this))
+        this.options.map.onCameraMoveEnd(this.handleCameraMoveEnd.bind(this))
     },
     clusteringAnimationFrameId: undefined,
-    startClusterAnimating: function () {
+    startClusterAnimating: function() {
         if (this.isActive) {
-            this.clusteringAnimationFrameId = window.requestAnimationFrame(function () {
+            this.clusteringAnimationFrameId = window.requestAnimationFrame(function() {
                 this.calculateClusters();
                 this.startClusterAnimating();
             }.bind(this));
         }
     },
-    calculateClusters: function () {
+    calculateClusters: function() {
         if (this.isActive) {
-            var clusteringResult = Clustering
-                .calculateClusters(this.getResultsWithGeometry(), this.options.geoController);
-            this.collection.set(clusteringResult.clusters.map(function (cluster) {
+            var clusters = Clustering
+                .calculateClusters(this.getResultsWithGeometry(), this.options.map);
+            this.collection.set(clusters.map(function(cluster) {
                 return {
                     results: cluster,
-                    id: cluster.map(function (result) {
+                    id: cluster.map(function(result) {
                         return result.id
                     }).sort().toString()
                 };
-            }), {merge: false});
+            }), { merge: false });
         } else {
             this.collection.set([]);
         }
     },
-    getResultsWithGeometry: function () {
-        return this.selectionInterface.getActiveSearchResults().filter(function (result) {
+    getResultsWithGeometry: function() {
+        return this.selectionInterface.getActiveSearchResults().filter(function(result) {
             return Boolean(result.get('metacard').get('geometry'));
         });
     },
-    listenForResultsChange: function(){
+    listenForResultsChange: function() {
         this.listenTo(this.selectionInterface.getActiveSearchResults(), 'reset',
             this.handleResultsChange);
     },
-    handleResultsChange: function(){
+    handleResultsChange: function() {
         this.collection.set([]);
         this.calculateClusters();
     },
-    onDestroy: function(){
+    onDestroy: function() {
         window.cancelAnimationFrame(this.clusteringAnimationFrameId);
     },
-    toggleActive: function(){
+    toggleActive: function() {
         this.isActive = !this.isActive;
         this.calculateClusters();
     }

@@ -1476,3 +1476,6 @@ div.sp-preview {
 
 /* end style for preference modal map layer */
 
+.cesium-viewer-toolbar {
+    z-index: 1;
+}

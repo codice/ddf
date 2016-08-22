@@ -12,78 +12,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define([
-    'wreqr',
-    'marionette',
-    'js/CustomElements',
-    './openlayers.hbs',
-    'component/loading-companion/loading-companion.view'
-], function (wreqr, Marionette, CustomElements, template, LoadingCompanionView) {
+/*global require*/
+var MapView = require('../map.view');
+var wreqr = require('wreqr');
+var $ = require('jquery');
 
-    return Marionette.LayoutView.extend({
-        tagName: CustomElements.register('openlayers'),
-        template: template,
-        regions: {
-            mapDrawingPopup: '#mapDrawingPopup'
-        },
-        onShow: function () {
-            LoadingCompanionView.beginLoading(this);
-            setTimeout(function() {
-                require([
-                    'js/controllers/openlayers.controller',
-                    'js/widgets/openlayers.bbox',
-                    'js/widgets/openlayers.polygon',
-                    'js/widgets/openlayers.line',
-                    'js/widgets/openlayers.circle',
-                    'js/widgets/filter.openlayers.geometry.group'
-                ], function (GeoController, DrawBbox, DrawPolygon, DrawLine, DrawCircle, FilterCesiumGeometryGroup) {
-                    var geoController = new GeoController({
-                        element: this.el.querySelector('#cesiumContainer'),
-                        selectionInterface: this.options.selectionInterface
-                    });
-                    this.setupListeners(geoController);
-                    new FilterCesiumGeometryGroup.Controller({
-                        geoController: geoController
-                    });
-                    new DrawBbox.Controller({
-                        map: geoController.mapViewer,
-                        notificationEl: this.mapDrawingPopup.el
-                    });
-                    new DrawPolygon.Controller({
-                        map: geoController.mapViewer,
-                        notificationEl: this.mapDrawingPopup.el
-                    });
-                    new DrawLine.Controller({
-                        map: geoController.mapViewer,
-                        notificationEl: this.mapDrawingPopup.el
-                    });
-                    new DrawCircle.Controller({
-                        map: geoController.mapViewer,
-                        notificationEl: this.mapDrawingPopup.el
-                    });
-                    this.listenTo(wreqr.vent, 'resize', function () {
-                        geoController.mapViewer.updateSize();
-                    });
-                    LoadingCompanionView.endLoading(this);
-                }.bind(this));
-            }.bind(this), 1000);
-        },
-        setupListeners: function (geoController) {
-            geoController.listenTo(this.options.selectionInterface, 'reset:activeSearchResults', geoController.newActiveSearchResults);
-            geoController.listenTo(wreqr.vent, 'search:mapshow', geoController.flyToLocation);
-            geoController.listenTo(wreqr.vent, 'search:maprectanglefly', geoController.flyToRectangle);
-            geoController.listenTo(this.options.selectionInterface.getSelectedResults(), 'update', geoController.zoomToSelected);
-            geoController.listenTo(this.options.selectionInterface.getSelectedResults(), 'add', geoController.zoomToSelected);
-            geoController.listenTo(this.options.selectionInterface.getSelectedResults(), 'remove', geoController.zoomToSelected);
-
-            if (this.options.selectionInterface.getActiveSearchResults()) {
-                geoController.newActiveSearchResults(this.options.selectionInterface.getActiveSearchResults());
-            }
-            if (this.options.selectionInterface.getSelectedResults()) {
-                geoController.zoomToSelected(this.options.selectionInterface.getSelectedResults());
-            }
-        }
-    });
-
+module.exports = MapView.extend({
+    className: 'is-openlayers',
+    createMap: function() {
+        var deferred = new $.Deferred();
+        require([
+            './map.openlayers'
+        ], function(OpenlayersMap) {
+            deferred.resolve(OpenlayersMap);
+        });
+        return deferred;
+    }
 });

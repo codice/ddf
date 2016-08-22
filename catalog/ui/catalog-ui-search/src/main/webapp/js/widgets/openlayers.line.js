@@ -49,7 +49,7 @@ define([
 
         var Draw = {};
 
-        Draw.LineView = Backbone.View.extend({
+        Draw.LineView = Marionette.View.extend({
             initialize: function (options) {
                 this.map = options.map;
             },
