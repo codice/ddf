@@ -85,7 +85,7 @@ public interface Core {
     /**
      * {@link ddf.catalog.data.Attribute} that provides URIs for derived formats of the {@literal ddf.catalog.data.Metacard.RESOURCE_URI}
      */
-    String DERIVED_RESOURCE_URI = "resource-derived-uri";
+    String DERIVED_RESOURCE_URI = Metacard.DERIVED_RESOURCE_URI; 
 
     /**
      * {@link ddf.catalog.data.Attribute} name for accessing the resource download URL for the product this
