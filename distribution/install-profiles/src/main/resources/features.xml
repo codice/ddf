@@ -22,6 +22,7 @@
         <feature>search-ui-app</feature>
         <feature>solr-app</feature>
         <feature>spatial-app</feature>
+        <feature>resourcemanagement-app</feature>
     </feature>
 
     <feature name="profile-development" install="manual" version="${project.version}"
