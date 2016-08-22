@@ -23,14 +23,18 @@ import java.net.URISyntaxException;
 import java.util.EnumSet;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.Subject;
 
 /**
  * Installs applications based on a configuration file.
@@ -96,7 +100,10 @@ public class ApplicationConfigInstaller extends Thread {
                         if (StringUtils.isNotEmpty(appLocation)) {
                             appService.addApplication(new URI(appLocation));
                         }
-                        appService.startApplication(appName);
+                        executeAsSystem(() -> {
+                            appService.startApplication(appName);
+                            return true;
+                        });
                     } catch (ApplicationServiceException ase) {
                         LOGGER.warn("Could not start " + appName, ase);
                     } catch (URISyntaxException use) {
@@ -133,6 +140,19 @@ public class ApplicationConfigInstaller extends Thread {
         } finally {
             IOUtils.closeQuietly(is);
         }
+    }
+
+    private <T> T executeAsSystem(Callable<T> func) {
+        Subject systemSubject = getSystemSubject();
+        if (systemSubject == null) {
+            throw new RuntimeException("Could not get system user to auto install applications.");
+        }
+        return systemSubject.execute(func);
+    }
+
+    Subject getSystemSubject() {
+        return Security.runAsAdmin(() -> Security.getInstance()
+                .getSystemSubject());
     }
 
 }
