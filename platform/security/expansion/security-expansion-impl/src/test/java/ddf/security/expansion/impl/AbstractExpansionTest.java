@@ -15,6 +15,7 @@ package ddf.security.expansion.impl;
 
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -232,12 +233,13 @@ public class AbstractExpansionTest {
         URL testConfigFile = ClassLoader.getSystemResource("testExpansionConfig.cfg");
         if (null != testConfigFile) {
             String filename = testConfigFile.getFile();
+            filename = new File(filename).getAbsolutePath();
             exp.loadConfiguration(filename);
 
             map = exp.getExpansionMap();
             assertMapsAreEqual(map, testmap);
 
-            // make sure exisitng rules get cleared on reload
+            // make sure existing rules get cleared on reload
             exp.addExpansionRule("xyz", rule4);
 
             exp.loadConfiguration(filename);
