@@ -55,7 +55,6 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -209,7 +208,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             Filter tagFilter = filterBuilder.attribute(Metacard.TAGS)
                     .is()
                     .like()
-                    .text(FilterDelegate.WILDCARD_CHAR);
+                    .text(RegistryConstants.REGISTRY_TAG_INTERNAL);
             List<Metacard> results =
                     this.getRegistryMetacardsByFilter(filterBuilder.allOf(tagFilter, idFilter),
                             destinations);
