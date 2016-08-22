@@ -58,7 +58,7 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
                     LOGGER.debug("resource-size: {} bytes ", (String) sizeObj);
                     resourceSize = Long.parseLong((String) sizeObj);
                 } catch (NumberFormatException nfe) {
-                    LOGGER.warn("Unable to parse {} into long.  Ignoring resource size.",
+                    LOGGER.debug("Unable to parse {} into long.  Ignoring resource size.",
                             (String) sizeObj);
                 }
 
@@ -71,16 +71,17 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
                             SecurityConstants.SECURITY_SUBJECT));
                     if (StringUtils.isNotEmpty(username)) {
                         try {
-                            long currentUserDataUage = attributesStore.getCurrentDataUsageByUser(username);
+                            long currentUserDataUsage = attributesStore.getCurrentDataUsageByUser(username);
                             long userDataLimit = attributesStore.getDataLimitByUser(username);
-                            if (currentUserDataUage + resourceSize > userDataLimit) {
+                            if ((userDataLimit >= 0)  && 
+                                    ((currentUserDataUsage + resourceSize) > userDataLimit)) {
                                 throw new DataUsageLimitExceededException(
                                         username + ": data usage limit exceeded. (" + userDataLimit
                                                 + " bytes)");
 
                             }
                         } catch (PersistenceException pex) {
-                            LOGGER.warn("Persistence exception updating user {} data usage",
+                            LOGGER.debug("Persistence exception updating user {} data usage",
                                     username,
                                     pex);
                         }
@@ -102,7 +103,7 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
                 try {
                     resourceSize = Long.parseLong((String) sizeObj);
                 } catch (NumberFormatException nfe) {
-                    LOGGER.warn("Unable to parse {} into long.  Ignoring resource size.",
+                    LOGGER.debug("Unable to parse {} into long.  Ignoring resource size.",
                             (String) sizeObj);
                 }
 
@@ -116,7 +117,7 @@ public class ResourceUsagePlugin implements PreResourcePlugin, PostResourcePlugi
                         try {
                             attributesStore.updateUserDataUsage(username, resourceSize);
                         } catch (PersistenceException pex) {
-                            LOGGER.warn("Persistence exception updating user {} data usage",
+                            LOGGER.debug("Persistence exception updating user {} data usage",
                                     username,
                                     pex);
                         }

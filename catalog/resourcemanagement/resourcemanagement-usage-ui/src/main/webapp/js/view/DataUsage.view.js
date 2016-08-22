@@ -84,8 +84,10 @@ define([
                this.listenTo(this.model, 'change:monitorLocalSources', this.render);
             },
             onRender : function() {
-               this.setupPopOver('[data-toggle="update-all-popover"]', 'Updates the Data Limit for all users in the table.  If there are individual fields set in the table, the limit for all fields takes precedence.');
-               this.setupPopOver('[data-toggle="cron-time-popover"]', 'Sets the time for the Data Usage for each user to reset.  The system must be restarted for this new time to take effect.');
+               this.setupPopOver('[data-toggle="update-all-popover"]',
+                 "Updates the data limit for all users in the table. This value overrides all individual user limits. " +
+                 "[-1] indicates unlimited data usage. [0] indicates data usage is prohibited.");
+               this.setupPopOver('[data-toggle="cron-time-popover"]', 'Sets the time for the Data Usage for each user to reset. The system must be restarted for this new time to take effect.');
                this.setupPopOver('[data-toggle="monitor-local-sources"]', 'When checked, the Data Usage Plugin will also consider data usage from local sources.');
             },
             updateUsers : function () {
@@ -118,8 +120,12 @@ define([
 
                     var dataByteLimit = that.getToBytes(usageLimit, dataSize);
 
-                    if(updateAllUsers !== "" &&  updateAllUsers >= 0 && dataAllUsersByteLimit !== dataByteLimit && dataAllUsersByteLimit !== userData[i].usageLimit) {
+                    if(updateAllUsers !== "" &&  updateAllUsers >= -1 && dataAllUsersByteLimit !== dataByteLimit && dataAllUsersByteLimit !== userData[i].usageLimit) {
+                        // global limit precedes user limits
                         data[user] = dataAllUsersByteLimit;
+                    } else if(usageLimit === -1 && usageLimit !== userData[i].usageLimit) {
+                        // unlimited data usage
+                        data[user] = -1;
                     } else if(dataByteLimit >= 0 && dataByteLimit !== userData[i].usageLimit) {
                         data[user] = dataByteLimit;
                     }
@@ -165,11 +171,17 @@ define([
             },
             getToBytes : function(dataLimit, dataSize) {
                 var toBytes;
+
+                if(dataLimit === -1) {
+                    return dataLimit;
+                }
+
                 if(dataSize === "GB") {
                     toBytes = (1000 * 1000 * 1000);
                 } else {
                     toBytes = (1000 * 1000);
                 }
+
                 return dataLimit * toBytes;
             },
             setupPopOver: function(selector, content) {
