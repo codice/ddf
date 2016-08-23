@@ -13,8 +13,9 @@
  */
 package org.codice.ddf.security.validator.guest;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.validator.TokenValidator;
@@ -32,15 +33,6 @@ import ddf.security.principal.GuestPrincipal;
 public class GuestValidator implements TokenValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GuestValidator.class);
-
-    private static final Pattern IPV4_PATTERN = Pattern.compile(
-            "^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
-
-    private static final Pattern IPV6_HEX_COMPRESSED_PATTERN = Pattern.compile(
-            "^\\[((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)\\]$");
-
-    private static final Pattern IPV6_STD_PATTERN = Pattern.compile(
-            "^\\[(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\]$");
 
     private List<String> supportedRealm;
 
@@ -65,10 +57,11 @@ public class GuestValidator implements TokenValidator {
     }
 
     private boolean validIpAddress(String address) {
-        return IPV4_PATTERN.matcher(address)
-                .matches() || IPV6_STD_PATTERN.matcher(address)
-                .matches() || IPV6_HEX_COMPRESSED_PATTERN.matcher(address)
-                .matches();
+        try {
+            return InetAddress.getByName(address) != null;
+        } catch (UnknownHostException e) {
+            return false;
+        }
     }
 
     @Override
