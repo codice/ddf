@@ -319,7 +319,7 @@ public class TestRegistry extends AbstractIntegrationTest {
         federationAdminServiceImpl.addRegistryEntry(Library.getRegistryNode(id, regId, remoteRegId),
                 destinations);
 
-        ValidatableResponse validatableResponse = getCswRegistryResponse("registry-id", regId);
+        ValidatableResponse validatableResponse = getCswRegistryResponse("registry.registry-id", regId);
 
         final String xPathRegistryID =
                 "string(//GetRecordsResponse/SearchResults/RegistryPackage/ExternalIdentifier/@registryObject)";

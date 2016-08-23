@@ -323,10 +323,6 @@ public class RefreshRegistryEntries {
 
     private Query getBasicRegistryQuery() {
         List<Filter> filters = new ArrayList<>();
-        filters.add(filterBuilder.attribute(Metacard.CONTENT_TYPE)
-                .is()
-                .equalTo()
-                .text(RegistryConstants.REGISTRY_NODE_METACARD_TYPE_NAME));
         filters.add(filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .equalTo()

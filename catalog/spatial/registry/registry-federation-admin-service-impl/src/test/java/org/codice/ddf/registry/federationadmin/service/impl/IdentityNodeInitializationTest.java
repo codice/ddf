@@ -48,6 +48,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.Subject;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
@@ -85,6 +86,7 @@ public class IdentityNodeInitializationTest {
         registryTransformer = spy(new RegistryTransformer());
         metacardMarshaller = spy(new MetacardMarshaller(parser));
         registryTransformer.setParser(parser);
+        registryTransformer.setRegistryMetacardType(new RegistryObjectMetacardType());
         identityNodeInitialization.setRegistryTransformer(registryTransformer);
         identityNodeInitialization.setMetacardMarshaller(metacardMarshaller);
         identityNodeInitialization.setFederationAdminService(federationAdminService);
@@ -101,8 +103,8 @@ public class IdentityNodeInitializationTest {
         identityNodeInitialization.init();
         verify(federationAdminService).addRegistryEntry(captor.capture());
         Metacard metacard = captor.getValue();
-        assertThat(metacard.getAttribute(Metacard.MODIFIED), notNullValue());
-        assertThat(metacard.getAttribute(Metacard.CREATED), notNullValue());
+        assertThat(metacard.getAttribute(Core.MODIFIED), notNullValue());
+        assertThat(metacard.getAttribute(Core.CREATED), notNullValue());
         assertThat(metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE)
                 .getValue(), equalTo(true));
         assertThat(metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE)
@@ -129,18 +131,16 @@ public class IdentityNodeInitializationTest {
 
     @Test
     public void initWithIngestException() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard())
-                .thenReturn(Optional.empty());
-        when(federationAdminService.addRegistryEntry(any(Metacard.class)))
-                .thenThrow(FederationAdminException.class);
+        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
+        when(federationAdminService.addRegistryEntry(any(Metacard.class))).thenThrow(
+                FederationAdminException.class);
         identityNodeInitialization.init();
         verify(executorService).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     }
 
     @Test
     public void initWithRegistryTransformerException() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard())
-                .thenReturn(Optional.empty());
+        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
         doThrow(CatalogTransformerException.class).when(registryTransformer)
                 .transform(any(InputStream.class));
         identityNodeInitialization.init();
@@ -149,8 +149,7 @@ public class IdentityNodeInitializationTest {
 
     @Test
     public void initWithParserException() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard())
-                .thenReturn(Optional.empty());
+        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
         doThrow(ParserException.class).when(metacardMarshaller)
                 .getRegistryPackageAsInputStream(any(RegistryPackageType.class));
         identityNodeInitialization.init();
@@ -159,9 +158,9 @@ public class IdentityNodeInitializationTest {
 
     @Test
     public void initWithIOException() throws Exception {
-        when(federationAdminService.getLocalRegistryIdentityMetacard())
-                .thenReturn(Optional.empty());
-        doThrow(IOException.class).when(registryTransformer).transform(any(InputStream.class));
+        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
+        doThrow(IOException.class).when(registryTransformer)
+                .transform(any(InputStream.class));
         identityNodeInitialization.init();
         verify(executorService).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     }
