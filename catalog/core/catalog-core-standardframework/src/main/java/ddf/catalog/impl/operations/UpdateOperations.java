@@ -77,6 +77,13 @@ import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 
+/**
+ * Support class for update delegate operations for the {@code CatalogFrameworkImpl}.
+ *
+ * This class contains two delegated update methods and methods to support them. No
+ * operations/support methods should be added to this class except in support of CFI
+ * update operations.
+ */
 public class UpdateOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateOperations.class);
 

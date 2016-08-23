@@ -34,6 +34,13 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
 
+/**
+ * Support class for working with {@code StorageRequest}s for the {@code CatalogFrameworkImpl}.
+ *
+ * This class contains methods for management/manipulation for storage requests for the CFI and its
+ * support classes. No operations/support methods should be added to this class except in support
+ * of CFI, specific to storage requests.
+ */
 public class OperationsStorageSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsStorageSupport.class);
 
@@ -92,30 +99,37 @@ public class OperationsStorageSupport {
                 LOGGER.info("Unable to commit content changes for id: {}",
                         storageRequest.getId(),
                         e);
-                try {
-                    sourceOperations.getStorage()
-                            .rollback(storageRequest);
-                } catch (StorageException e1) {
-                    LOGGER.info("Unable to remove temporary content for id: {}",
-                            storageRequest.getId(),
-                            e1);
-                } finally {
-                    try {
-                        historianTransactionKey.ifPresent(historian::rollback);
-                    } catch (RuntimeException re) {
-                        LOGGER.info(
-                                "Unable to commit versioned items for historian transaction: {}",
-                                historianTransactionKey.orElseGet(String::new),
-                                re);
-                    }
-                }
+                rollbackStorage(storageRequest, historianTransactionKey);
             }
         }
 
         tmpContentPaths.values()
                 .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
         tmpContentPaths.clear();
+    }
 
+    private void rollbackStorage(StorageRequest storageRequest,
+            Optional<String> historianTransactionKey) {
+        try {
+            sourceOperations.getStorage()
+                    .rollback(storageRequest);
+        } catch (StorageException e1) {
+            LOGGER.info("Unable to remove temporary content for id: {}",
+                    storageRequest.getId(),
+                    e1);
+        } finally {
+            rollbackHistorian(historianTransactionKey);
+        }
+    }
+
+    private void rollbackHistorian(Optional<String> historianTransactionKey) {
+        try {
+            historianTransactionKey.ifPresent(historian::rollback);
+        } catch (RuntimeException re) {
+            LOGGER.info("Unable to commit versioned items for historian transaction: {}",
+                    historianTransactionKey.orElseGet(String::new),
+                    re);
+        }
     }
 
     /**

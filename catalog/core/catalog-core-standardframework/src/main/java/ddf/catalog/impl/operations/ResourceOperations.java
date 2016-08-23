@@ -64,6 +64,13 @@ import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.DescribableImpl;
 
+/**
+ * Support class for resource delegate operations for the {@code CatalogFrameworkImpl}.
+ *
+ * This class contains six delegated resource methods and methods to support them. No
+ * operations/support methods should be added to this class except in support of CFI
+ * resource operations.
+ */
 public class ResourceOperations extends DescribableImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceOperations.class);
 
@@ -312,29 +319,9 @@ public class ResourceOperations extends DescribableImpl {
 
         validateGetResourceRequest(resourceReq);
         try {
-            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                PolicyResponse policyResponse = plugin.processPreResource(resourceReq);
-                opsSecuritySupport.buildPolicyMap(requestPolicyMap,
-                        policyResponse.operationPolicy()
-                                .entrySet());
-            }
-            resourceReq.getProperties()
-                    .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                resourceReq = plugin.processPreResource(resourceReq);
-            }
-
-            for (PreResourcePlugin plugin : frameworkProperties.getPreResource()) {
-                try {
-                    resourceReq = plugin.process(resourceReq);
-                } catch (PluginExecutionException e) {
-                    LOGGER.info(
-                            "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                            e);
-                }
-            }
+            resourceReq = processPreResourcePolicyPlugins(resourceReq);
+            resourceReq = processPreResourceAccessPlugins(resourceReq);
+            resourceReq = processPreResourcePlugins(resourceReq);
 
             Map<String, Serializable> requestProperties = resourceReq.getProperties();
             LOGGER.debug("Attempting to get resource from siteName: {}", resourceSourceName);
@@ -415,30 +402,10 @@ public class ResourceOperations extends DescribableImpl {
 
             resourceResponse = validateFixGetResourceResponse(resourceResponse, resourceReq);
 
-            HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
-            for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                PolicyResponse policyResponse = plugin.processPostResource(resourceResponse,
-                        metacard);
-                opsSecuritySupport.buildPolicyMap(responsePolicyMap,
-                        policyResponse.operationPolicy()
-                                .entrySet());
-            }
-            resourceResponse.getProperties()
-                    .put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
+            resourceResponse = processPostResourcePolicyPlugins(resourceResponse, metacard);
+            resourceResponse = processPostResourceAccessPlugins(resourceResponse, metacard);
+            resourceResponse = processPostResourcePlugins(resourceResponse);
 
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                resourceResponse = plugin.processPostResource(resourceResponse, metacard);
-            }
-
-            for (PostResourcePlugin plugin : frameworkProperties.getPostResource()) {
-                try {
-                    resourceResponse = plugin.process(resourceResponse);
-                } catch (PluginExecutionException e) {
-                    LOGGER.info(
-                            "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                            e);
-                }
-            }
             resourceResponse.getProperties()
                     .put(Constants.METACARD_PROPERTY, metacard);
         } catch (DataUsageLimitExceededException e) {
@@ -468,6 +435,77 @@ public class ResourceOperations extends DescribableImpl {
                     resourceResponse.getResource());
         }
         return resourceResponse;
+    }
+
+
+    private ResourceResponse processPostResourcePlugins(ResourceResponse resourceResponse)
+            throws StopProcessingException {
+        for (PostResourcePlugin plugin : frameworkProperties.getPostResource()) {
+            try {
+                resourceResponse = plugin.process(resourceResponse);
+            } catch (PluginExecutionException e) {
+                LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        e);
+            }
+        }
+        return resourceResponse;
+    }
+
+    private ResourceResponse processPostResourceAccessPlugins(ResourceResponse resourceResponse,
+            Metacard metacard) throws StopProcessingException {
+        for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+            resourceResponse = plugin.processPostResource(resourceResponse, metacard);
+        }
+        return resourceResponse;
+    }
+
+    private ResourceResponse processPostResourcePolicyPlugins(ResourceResponse resourceResponse,
+            Metacard metacard) throws StopProcessingException {
+        HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
+        for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
+            PolicyResponse policyResponse = plugin.processPostResource(resourceResponse, metacard);
+            opsSecuritySupport.buildPolicyMap(responsePolicyMap,
+                    policyResponse.operationPolicy()
+                            .entrySet());
+        }
+        resourceResponse.getProperties()
+                .put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
+        return resourceResponse;
+    }
+
+    private ResourceRequest processPreResourcePlugins(ResourceRequest resourceReq)
+            throws StopProcessingException {
+        for (PreResourcePlugin plugin : frameworkProperties.getPreResource()) {
+            try {
+                resourceReq = plugin.process(resourceReq);
+            } catch (PluginExecutionException e) {
+                LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        e);
+            }
+        }
+        return resourceReq;
+    }
+
+    private ResourceRequest processPreResourceAccessPlugins(ResourceRequest resourceReq)
+            throws StopProcessingException {
+        for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+            resourceReq = plugin.processPreResource(resourceReq);
+        }
+        return resourceReq;
+    }
+
+    private ResourceRequest processPreResourcePolicyPlugins(ResourceRequest resourceReq)
+            throws StopProcessingException {
+        HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+        for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
+            PolicyResponse policyResponse = plugin.processPreResource(resourceReq);
+            opsSecuritySupport.buildPolicyMap(requestPolicyMap,
+                    policyResponse.operationPolicy()
+                            .entrySet());
+        }
+        resourceReq.getProperties()
+                .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+        return resourceReq;
     }
 
     /**
@@ -750,7 +788,7 @@ public class ResourceOperations extends DescribableImpl {
             throw new ResourceNotSupportedException(
                     "GetResourceRequest was null, either passed in from endpoint, or as output from PreResourcePlugin");
         }
-        Object value = getResourceRequest.getAttributeValue();
+        Serializable value = getResourceRequest.getAttributeValue();
         if (value == null || getResourceRequest.getAttributeName() == null) {
             throw new ResourceNotSupportedException(
                     "Cannot perform getResource with null attribute value or null attributeName, either passed in from endpoint, or as output from PreResourcePlugin");

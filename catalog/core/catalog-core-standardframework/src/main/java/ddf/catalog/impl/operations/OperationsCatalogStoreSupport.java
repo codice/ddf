@@ -26,6 +26,13 @@ import ddf.catalog.operation.Request;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.source.CatalogStore;
 
+/**
+ * Support class for working with {@code CatalogStore}s for the {@code CatalogFrameworkImpl}.
+ *
+ * This class contains methods specific to catalog stores for the CFI and its
+ * support classes. No operations/support methods should be added to this class except in support
+ * of CFI, specific to catalog stores.
+ */
 public class OperationsCatalogStoreSupport {
     // Inject properties
     private final FrameworkProperties frameworkProperties;

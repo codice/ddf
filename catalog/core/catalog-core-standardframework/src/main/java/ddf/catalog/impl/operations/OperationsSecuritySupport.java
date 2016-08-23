@@ -18,6 +18,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Support class for dealing with security for the {@code CatalogFrameworkImpl}.
+ *
+ * Specifically, this class exists to isolate the logic required to build a security policy map.
+ */
 public class OperationsSecuritySupport {
     void buildPolicyMap(HashMap<String, Set<String>> policyMap,
             Set<Map.Entry<String, Set<String>>> policy) {

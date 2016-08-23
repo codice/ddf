@@ -76,6 +76,13 @@ import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 
+/**
+ * Support class for create delegate operations for the {@code CatalogFrameworkImpl}.
+ *
+ * This class contains two delegated methods and methods to support them. No
+ * operations/support methods should be added to this class except in support of CFI
+ * create operations.
+ */
 public class CreateOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateOperations.class);
 

@@ -48,6 +48,7 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
+import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
@@ -103,7 +104,10 @@ public class CatalogFrameworkQueryTest {
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props);
+        MetacardFactory metacardFactory =
+                new MetacardFactory(props.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props,
+                metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(props);
         QueryOperations queryOperations = new QueryOperations(props,
                 sourceOperations,
@@ -113,9 +117,9 @@ public class CatalogFrameworkQueryTest {
                 queryOperations,
                 opsSecurity);
         TransformOperations transformOperations = new TransformOperations(props);
-        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(props, sourceOperations);
-        OperationsStorageSupport opsStorage = new OperationsStorageSupport(
-                sourceOperations,
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(props,
+                sourceOperations);
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
                 queryOperations);
         CreateOperations createOperations = new CreateOperations(props,
                 queryOperations,

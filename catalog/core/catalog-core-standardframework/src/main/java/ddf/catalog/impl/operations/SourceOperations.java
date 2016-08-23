@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -40,6 +41,13 @@ import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
 
+/**
+ * Support class for source delegate operations for the {@code CatalogFrameworkImpl}.
+ *
+ * This class contains two delegated source methods and methods to support them. No
+ * operations/support methods should be added to this class except in support of CFI
+ * source operations.
+ */
 public class SourceOperations extends DescribableImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceOperations.class);
 
@@ -304,20 +312,20 @@ public class SourceOperations extends DescribableImpl {
 
             // Only return source descriptor information if this sourceId is
             // specified
-            if (ids != null && !ids.isEmpty()) {
-                for (String id : ids) {
-                    if (!id.equals(this.getId())) {
-                        SourceUnavailableException sourceUnavailableException =
-                                new SourceUnavailableException("Unknown source: " + id);
-                        LOGGER.debug("Throwing SourceUnavailableException for unknown source: {}",
-                                id,
-                                sourceUnavailableException);
-                        throw sourceUnavailableException;
-
-                    }
+            if (ids != null) {
+                Optional<String> notLocal = ids.stream()
+                        .filter(s -> !s.equals(getId()))
+                        .findFirst();
+                if (notLocal.isPresent()) {
+                    SourceUnavailableException sourceUnavailableException =
+                            new SourceUnavailableException("Unknown source: " + notLocal.get());
+                    LOGGER.debug("Throwing SourceUnavailableException for unknown source: {}",
+                            notLocal.get(),
+                            sourceUnavailableException);
+                    throw sourceUnavailableException;
                 }
-
             }
+
             // Fanout will only add one source descriptor with all the contents
             Set<ContentType> contentTypes = frameworkProperties.getFederatedSources()
                     .values()

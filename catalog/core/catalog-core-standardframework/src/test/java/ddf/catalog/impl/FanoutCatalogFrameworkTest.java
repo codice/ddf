@@ -38,6 +38,7 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
+import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
@@ -91,7 +92,10 @@ public class FanoutCatalogFrameworkTest {
 
     private CatalogFrameworkImpl createCatalogFramework(FrameworkProperties frameworkProperties) {
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties);
+        MetacardFactory metacardFactory =
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
+                metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
         TransformOperations transformOperations = new TransformOperations(frameworkProperties);
         QueryOperations queryOperations = new QueryOperations(frameworkProperties,

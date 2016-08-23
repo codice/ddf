@@ -65,6 +65,13 @@ import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 
+/**
+ * Support class for query delegate operations for the {@code CatalogFrameworkImpl}.
+ * <p>
+ * This class contains two delegated query methods and methods to support them. No
+ * operations/support methods should be added to this class except in support of CFI
+ * query operations.
+ */
 public class QueryOperations extends DescribableImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryOperations.class);
 
@@ -142,7 +149,8 @@ public class QueryOperations extends DescribableImpl {
             queryResponse = processPostQueryPlugins(queryResponse);
 
         } catch (RuntimeException re) {
-            throw new UnsupportedQueryException("Exception during runtime while performing query", re);
+            throw new UnsupportedQueryException("Exception during runtime while performing query",
+                    re);
         }
 
         return queryResponse;
@@ -161,115 +169,30 @@ public class QueryOperations extends DescribableImpl {
      */
     QueryResponse doQuery(QueryRequest queryRequest, FederationStrategy strategy,
             boolean fanoutEnabled) throws FederationException {
-
-        Set<ProcessingDetails> exceptions = new HashSet<>();
         Set<String> sourceIds = getCombinedIdSet(queryRequest);
         LOGGER.debug("source ids: {}", sourceIds);
-        List<Source> sourcesToQuery = new ArrayList<>();
-        boolean addConnectedSources = false;
-        boolean addCatalogProvider = false;
-        boolean sourceFound;
 
-        if (queryRequest.isEnterprise()) { // Check if it's an enterprise query
-            addConnectedSources = true;
-            addCatalogProvider = hasCatalogProvider(fanoutEnabled);
+        QuerySources querySources = new QuerySources(frameworkProperties).initializeSources(this,
+                queryRequest,
+                sourceIds,
+                fanoutEnabled)
+                .addConnectedSources(this, frameworkProperties)
+                .addCatalogProvider(this);
 
-            if (sourceIds != null && !sourceIds.isEmpty()) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(
-                            "Enterprise Query also included specific sites which will now be ignored");
-                }
-                sourceIds.clear();
-            }
-
-            // add all the federated sources
-            for (FederatedSource source : frameworkProperties.getFederatedSources()
-                    .values()) {
-                if (sourceOperations.isSourceAvailable(source) && canAccessSource(source,
-                        queryRequest)) {
-                    sourcesToQuery.add(source);
-                } else {
-                    exceptions.add(createUnavailableProcessingDetails(source));
-                }
-            }
-
-        } else if (sourceIds != null && !sourceIds.isEmpty()) {
-            // it's a targeted federated query
-            if (includesLocalSources(sourceIds)) {
-                LOGGER.debug("Local source is included in sourceIds");
-                addConnectedSources = connectedSourcesExist();
-                addCatalogProvider = hasCatalogProvider(fanoutEnabled);
-                sourceIds.remove(getId());
-                sourceIds.remove(null);
-                sourceIds.remove("");
-            }
-
-            // See if we still have sources to look up by name
-            if (!sourceIds.isEmpty()) {
-                for (String id : sourceIds) {
-                    LOGGER.debug("Looking up source ID = {}", id);
-                    sourceFound = false;
-                    if (frameworkProperties.getFederatedSources()
-                            .containsKey(id)) {
-                        sourceFound = true;
-                        if (frameworkProperties.getFederatedSources()
-                                .get(id)
-                                .isAvailable()
-                                && canAccessSource(frameworkProperties.getFederatedSources()
-                                .get(id), queryRequest)) {
-                            sourcesToQuery.add(frameworkProperties.getFederatedSources()
-                                    .get(id));
-                        } else {
-                            exceptions.add(createUnavailableProcessingDetails(frameworkProperties.getFederatedSources()
-                                    .get(id)));
-                        }
-                    }
-
-                    if (!sourceFound) {
-                        exceptions.add(new ProcessingDetailsImpl(id,
-                                new SourceUnavailableException("Source id is not found")));
-                    }
-                }
-            }
-        } else {
-            // default to local sources
-            addConnectedSources = connectedSourcesExist();
-            addCatalogProvider = hasCatalogProvider(fanoutEnabled);
-        }
-
-        if (addConnectedSources) {
-            // add Connected Sources
-            for (ConnectedSource source : frameworkProperties.getConnectedSources()) {
-                if (sourceOperations.isSourceAvailable(source)) {
-                    sourcesToQuery.add(source);
-                } else {
-                    LOGGER.debug("Connected Source {} is unavailable and will not be queried.",
-                            source.getId());
-                }
-            }
-        }
-
-        if (addCatalogProvider) {
-            if (sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
-                sourcesToQuery.add(sourceOperations.getCatalog());
-            } else {
-                exceptions.add(createUnavailableProcessingDetails(sourceOperations.getCatalog()));
-            }
-        }
-
-        if (sourcesToQuery.isEmpty()) {
+        if (querySources.isEmpty()) {
             // We have nothing to query at all.
             // TODO change to SourceUnavailableException
             throw new FederationException(
-                    "SiteNames could not be resolved due to  invalid site names, none of the sites were available, or the current subject doesn't have permission to access the sites.");
+                    "SiteNames could not be resolved due to invalid site names, none of the sites "
+                            + "were available, or the current subject doesn't have permission to access the sites.");
         }
 
         LOGGER.debug("Calling strategy.federate()");
 
-        QueryResponse response = strategy.federate(sourcesToQuery, queryRequest);
+        QueryResponse response = strategy.federate(querySources.sourcesToQuery, queryRequest);
         frameworkProperties.getQueryResponsePostProcessor()
                 .processResponse(response);
-        return addProcessingDetails(exceptions, response);
+        return addProcessingDetails(querySources.exceptions, response);
     }
 
     <T extends Request> T setFlagsOnRequest(T request) {
@@ -309,7 +232,7 @@ public class QueryOperations extends DescribableImpl {
      * name
      */
     public QueryResponse replaceSourceId(QueryResponse queryResponse) {
-        LOGGER.debug("ENTERING: replaceSourceId()");
+        LOGGER.trace("ENTERING: replaceSourceId()");
         List<Result> results = queryResponse.getResults();
         QueryResponseImpl newResponse = new QueryResponseImpl(queryResponse.getRequest(),
                 queryResponse.getProperties());
@@ -324,8 +247,57 @@ public class QueryOperations extends DescribableImpl {
         }
         newResponse.setHits(queryResponse.getHits());
         newResponse.closeResultQueue();
-        LOGGER.debug("EXITING: replaceSourceId()");
+        LOGGER.trace("EXITING: replaceSourceId()");
         return newResponse;
+    }
+
+    boolean canAccessSource(FederatedSource source, QueryRequest request) {
+        Map<String, Set<String>> securityAttributes = source.getSecurityAttributes();
+        if (securityAttributes.isEmpty()) {
+            return true;
+        }
+
+        Object requestSubject = request.getProperties()
+                .get(SecurityConstants.SECURITY_SUBJECT);
+        if (requestSubject instanceof ddf.security.Subject) {
+            Subject subject = (Subject) requestSubject;
+
+            KeyValueCollectionPermission kvCollection = new KeyValueCollectionPermission(
+                    CollectionPermission.READ_ACTION,
+                    securityAttributes);
+            return subject.isPermitted(kvCollection);
+        }
+        return false;
+    }
+
+    /**
+     * Whether this {@link ddf.catalog.CatalogFramework} is configured with a {@code CatalogProvider}.
+     *
+     * @param fanoutEnabled
+     * @return true if this has a {@code CatalogProvider} configured,
+     * false otherwise
+     */
+    boolean hasCatalogProvider(boolean fanoutEnabled) {
+        if (!fanoutEnabled && sourceOperations.getCatalog() != null) {
+            LOGGER.trace("hasCatalogProvider() returning true");
+            return true;
+        }
+
+        LOGGER.trace("hasCatalogProvider() returning false");
+        return false;
+    }
+
+    /**
+     * Determines if the local catlog provider's source ID is included in the list of source IDs. A
+     * source ID in the list of null or an empty string are treated the same as the local source's
+     * actual ID being in the list.
+     *
+     * @param sourceIds the list of source IDs to examine
+     * @return true if the list includes the local source's ID, false otherwise
+     */
+    boolean includesLocalSources(Set<String> sourceIds) {
+        return sourceIds != null && (sourceIds.contains(getId()) || sourceIds.contains(
+                "") || sourceIds.contains(null));
     }
 
     private QueryResponse processPostQueryPlugins(QueryResponse queryResponse)
@@ -530,32 +502,6 @@ public class QueryOperations extends DescribableImpl {
         return queryResponse;
     }
 
-    private boolean canAccessSource(FederatedSource source, QueryRequest request) {
-        Map<String, Set<String>> securityAttributes = source.getSecurityAttributes();
-        if (securityAttributes.isEmpty()) {
-            return true;
-        }
-
-        Object requestSubject = request.getProperties()
-                .get(SecurityConstants.SECURITY_SUBJECT);
-        if (requestSubject instanceof ddf.security.Subject) {
-            Subject subject = (Subject) requestSubject;
-
-            KeyValueCollectionPermission kvCollection = new KeyValueCollectionPermission(
-                    CollectionPermission.READ_ACTION,
-                    securityAttributes);
-            boolean isPermitted = subject.isPermitted(kvCollection);
-            if (isPermitted) {
-                SecurityLogger.audit("Subject is permitted to access source {}", source.getId());
-            } else {
-                SecurityLogger.audit("Subject is not permitted to access source {}",
-                        source.getId());
-            }
-            return isPermitted;
-        }
-        return false;
-    }
-
     private ProcessingDetailsImpl createUnavailableProcessingDetails(Source source) {
         ProcessingDetailsImpl exception = new ProcessingDetailsImpl();
         SourceUnavailableException sue = new SourceUnavailableException(
@@ -566,15 +512,6 @@ public class QueryOperations extends DescribableImpl {
             LOGGER.debug("Source Unavailable", sue);
         }
         return exception;
-    }
-
-    /**
-     * Determines if this catalog framework has any {@link ConnectedSource}s configured.
-     *
-     * @return true if this framework has any connected sources configured, false otherwise
-     */
-    private boolean connectedSourcesExist() {
-        return CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
     }
 
     /**
@@ -602,19 +539,6 @@ public class QueryOperations extends DescribableImpl {
         return response;
     }
 
-    /**
-     * Determines if the local catlog provider's source ID is included in the list of source IDs. A
-     * source ID in the list of null or an empty string are treated the same as the local source's
-     * actual ID being in the list.
-     *
-     * @param sourceIds the list of source IDs to examine
-     * @return true if the list includes the local source's ID, false otherwise
-     */
-    private boolean includesLocalSources(Set<String> sourceIds) {
-        return sourceIds != null && (sourceIds.contains(getId()) || sourceIds.contains("")
-                || sourceIds.contains(null));
-    }
-
     private Set<String> getCombinedIdSet(Request request) {
         Set<String> ids = new HashSet<>();
         if (request != null) {
@@ -629,23 +553,6 @@ public class QueryOperations extends DescribableImpl {
         return ids;
     }
 
-    /**
-     * Whether this {@link ddf.catalog.CatalogFramework} is configured with a {@code CatalogProvider}.
-     *
-     * @param fanoutEnabled
-     * @return true if this has a {@code CatalogProvider} configured,
-     * false otherwise
-     */
-    private boolean hasCatalogProvider(boolean fanoutEnabled) {
-        if (!fanoutEnabled && sourceOperations.getCatalog() != null) {
-            LOGGER.trace("hasCatalogProvider() returning true");
-            return true;
-        }
-
-        LOGGER.trace("hasCatalogProvider() returning false");
-        return false;
-    }
-
     private Filter getTagsQueryFilter() {
         return frameworkProperties.getFilterBuilder()
                 .anyOf(frameworkProperties.getFilterBuilder()
@@ -656,5 +563,145 @@ public class QueryOperations extends DescribableImpl {
                         frameworkProperties.getFilterBuilder()
                                 .attribute(Metacard.TAGS)
                                 .empty());
+    }
+
+    static class QuerySources {
+        private final FrameworkProperties frameworkProperties;
+
+        List<Source> sourcesToQuery = new ArrayList<>();
+
+        Set<ProcessingDetails> exceptions = new HashSet<>();
+
+        boolean addConnectedSources = false;
+
+        boolean addCatalogProvider = false;
+
+        QuerySources(FrameworkProperties frameworkProperties) {
+            this.frameworkProperties = frameworkProperties;
+        }
+
+        QuerySources initializeSources(QueryOperations queryOps, QueryRequest queryRequest,
+                Set<String> sourceIds, boolean fanoutEnabled) {
+            if (queryRequest.isEnterprise()) { // Check if it's an enterprise query
+                addConnectedSources = true;
+                addCatalogProvider = queryOps.hasCatalogProvider(fanoutEnabled);
+
+                if (sourceIds != null && !sourceIds.isEmpty()) {
+                    LOGGER.debug(
+                            "Enterprise Query also included specific sites which will now be ignored");
+                    sourceIds.clear();
+                }
+
+                // add all the federated sources
+                Set<String> notPermittedSources = new HashSet<>();
+                for (FederatedSource source : frameworkProperties.getFederatedSources()
+                        .values()) {
+                    boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
+                    if (!canAccessSource) {
+                        notPermittedSources.add(source.getId());
+                    }
+                    if (queryOps.sourceOperations.isSourceAvailable(source) && canAccessSource) {
+                        sourcesToQuery.add(source);
+                    } else {
+                        exceptions.add(queryOps.createUnavailableProcessingDetails(source));
+                    }
+                }
+                if (!notPermittedSources.isEmpty()) {
+                    SecurityLogger.audit("Subject is not permitted to access sources {}",
+                            notPermittedSources);
+                }
+
+            } else if (CollectionUtils.isNotEmpty(sourceIds)) {
+                // it's a targeted federated query
+                if (queryOps.includesLocalSources(sourceIds)) {
+                    LOGGER.debug("Local source is included in sourceIds");
+                    addConnectedSources =
+                            CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
+                    addCatalogProvider = queryOps.hasCatalogProvider(fanoutEnabled);
+                    sourceIds.remove(queryOps.getId());
+                    sourceIds.remove(null);
+                    sourceIds.remove("");
+                }
+
+                // See if we still have sources to look up by name
+                if (!sourceIds.isEmpty()) {
+                    Set<String> notPermittedSources = new HashSet<>();
+                    for (String id : sourceIds) {
+                        LOGGER.debug("Looking up source ID = {}", id);
+                        boolean sourceFound = false;
+                        if (frameworkProperties.getFederatedSources()
+                                .containsKey(id)) {
+                            sourceFound = true;
+                            boolean canAccessSource =
+                                    queryOps.canAccessSource(frameworkProperties.getFederatedSources()
+                                            .get(id), queryRequest);
+                            if (!canAccessSource) {
+                                notPermittedSources.add(frameworkProperties.getFederatedSources()
+                                        .get(id)
+                                        .getId());
+                            }
+                            if (frameworkProperties.getFederatedSources()
+                                    .get(id)
+                                    .isAvailable() && canAccessSource) {
+                                sourcesToQuery.add(frameworkProperties.getFederatedSources()
+                                        .get(id));
+                            } else {
+                                exceptions.add(queryOps.createUnavailableProcessingDetails(
+                                        frameworkProperties.getFederatedSources()
+                                                .get(id)));
+                            }
+                        }
+
+                        if (!sourceFound) {
+                            exceptions.add(new ProcessingDetailsImpl(id,
+                                    new SourceUnavailableException("Source id is not found")));
+                        }
+                    }
+                    if (!notPermittedSources.isEmpty()) {
+                        SecurityLogger.audit("Subject is not permitted to access sources {}",
+                                notPermittedSources);
+                    }
+                }
+            } else {
+                // default to local sources
+                addConnectedSources =
+                        CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
+                addCatalogProvider = queryOps.hasCatalogProvider(fanoutEnabled);
+            }
+
+            return this;
+        }
+
+        QuerySources addConnectedSources(QueryOperations queryOps,
+                FrameworkProperties frameworkProperties) {
+            if (addConnectedSources) {
+                // add Connected Sources
+                for (ConnectedSource source : frameworkProperties.getConnectedSources()) {
+                    if (queryOps.sourceOperations.isSourceAvailable(source)) {
+                        sourcesToQuery.add(source);
+                    } else {
+                        LOGGER.debug("Connected Source {} is unavailable and will not be queried.",
+                                source.getId());
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        QuerySources addCatalogProvider(QueryOperations queryOps) {
+            if (addCatalogProvider) {
+                if (queryOps.sourceOperations.isSourceAvailable(queryOps.sourceOperations.getCatalog())) {
+                    sourcesToQuery.add(queryOps.sourceOperations.getCatalog());
+                } else {
+                    exceptions.add(queryOps.createUnavailableProcessingDetails(queryOps.sourceOperations.getCatalog()));
+                }
+            }
+            return this;
+        }
+
+        boolean isEmpty() {
+            return sourcesToQuery.isEmpty();
+        }
     }
 }
