@@ -13,6 +13,11 @@
  *
  **/
 
+import includes from 'lodash/includes'
+
+import lvls from './levels'
+const levels = lvls()
+
 const arrayToObject = function (key, array) {
   var o = {}
   array.forEach(function (element) {
@@ -56,7 +61,7 @@ export default (filters, logs) => {
   }
 
   const levelLogs = logs.filter((entry) => {
-    return level === 'ALL' || entry.level === level
+    return level === 'ALL' || includes(levels.slice(levels.indexOf(level)), entry.level)
   }).map(getMarks)
 
   return (fields.length > 0) ? levelLogs.filter(hasMarks) : levelLogs

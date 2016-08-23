@@ -15,13 +15,14 @@
 
 // Correspond to classes in log-entry.less
 // Also used to populate level-selector drop down list
+// these should be ordered by severity from lowest to highest
 const levels = {
-  ERROR: 'errorLevel',
-  WARN: 'warnLevel',
-  INFO: 'infoLevel',
-  DEBUG: 'debugLevel',
+  ALL: undefined,
   TRACE: 'traceLevel',
-  ALL: undefined
+  DEBUG: 'debugLevel',
+  INFO: 'infoLevel',
+  WARN: 'warnLevel',
+  ERROR: 'errorLevel'
 }
 
 // log level colors
