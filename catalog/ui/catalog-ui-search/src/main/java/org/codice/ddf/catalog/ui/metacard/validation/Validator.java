@@ -55,8 +55,10 @@ public class Validator {
                 .map(Optional::get)
                 .map(MetacardValidationReport::getAttributeValidationViolations)
                 .reduce((left, right) -> {
-                    left.addAll(right);
-                    return left;
+                    HashSet<ValidationViolation> res = new HashSet<>();
+                    res.addAll(left);
+                    res.addAll(right);
+                    return res;
                 })
                 .orElse(new HashSet<>());
         Map<String, ViolationResult> violationsResult = getViolationsResult(
@@ -76,8 +78,10 @@ public class Validator {
                 .map(Optional::get)
                 .map(MetacardValidationReport::getMetacardValidationViolations)
                 .reduce((left, right) -> {
-                    left.addAll(right);
-                    return left;
+                    HashSet<ValidationViolation> res = new HashSet<>();
+                    res.addAll(left);
+                    res.addAll(right);
+                    return res;
                 })
                 .orElse(new HashSet<>());
         return new ArrayList<>(attributeValidationViolations);
