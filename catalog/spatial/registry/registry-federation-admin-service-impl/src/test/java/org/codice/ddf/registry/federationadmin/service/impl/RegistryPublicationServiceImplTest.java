@@ -26,7 +26,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,15 +37,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.codice.ddf.registry.api.RegistryStore;
+import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -83,7 +83,7 @@ public class RegistryPublicationServiceImplTest {
     @Before
     public void setup() {
         federationAdminService = mock(FederationAdminService.class);
-        registryPublicationService = spy(new RegistryPublicationServiceImpl());
+        registryPublicationService = Mockito.spy(new RegistryPublicationServiceImpl());
         registryPublicationService.setFederationAdminService(federationAdminService);
 
         metacard = new MetacardImpl(new RegistryObjectMetacardType());

@@ -15,7 +15,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <reference id="registryPublicationService"
-               interface="org.codice.ddf.registry.federationadmin.service.RegistryPublicationService"/>
+               interface="org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService"/>
 
     <bean id="executor" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
         <argument value="1"/>

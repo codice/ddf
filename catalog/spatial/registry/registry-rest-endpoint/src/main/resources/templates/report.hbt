@@ -3,9 +3,9 @@
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
     <!-- styles -->
-    <link href="/services/registries/assets/css/report.css" rel="stylesheet"/>
-    <link href="/services/registries/assets/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="/services/registries/assets/css/bootstrap-theme.min.css" rel="stylesheet"/>
+    <link href="/services/internal/registries/assets/css/report.css" rel="stylesheet"/>
+    <link href="/services/internal/registries/assets/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/services/internal/registries/assets/css/bootstrap-theme.min.css" rel="stylesheet"/>
 </head>
 <body>
 {{#each ExtrinsicObject}}

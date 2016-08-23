@@ -40,7 +40,7 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
     <reference id="federationAdminService"
-               interface="org.codice.ddf.registry.federationadmin.service.FederationAdminService"/>
+               interface="org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService"/>
     <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
                filter="(id=rim:RegistryPackage)"/>
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"/>

@@ -35,7 +35,7 @@ import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.federationadmin.service.FederationAdminException;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.transformer.RegistryTransformer;
 import org.junit.Before;

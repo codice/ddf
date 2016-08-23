@@ -47,7 +47,7 @@ import ddf.catalog.source.Source;
 
 public class TestRegistryReportActionProvider {
 
-    private static final String SAMPLE_PATH = "/registries/";
+    private static final String SAMPLE_PATH = "/internal/registries/";
 
     private static final String SAMPLE_SERVICES_ROOT = "/services";
 
