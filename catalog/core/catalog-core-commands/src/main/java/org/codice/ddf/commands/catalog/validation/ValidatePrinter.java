@@ -19,31 +19,31 @@ import org.fusesource.jansi.Ansi;
 
 public class ValidatePrinter {
 
-    private static final String ERROR_COLOR = Ansi.ansi()
+    private final String errorColor = Ansi.ansi()
             .fg(Ansi.Color.RED)
             .toString();
 
-    private static final String WARNING_COLOR = Ansi.ansi()
+    private final String warningColor = Ansi.ansi()
             .fg(Ansi.Color.MAGENTA)
             .toString();
 
-    private static final String DEFAULT_COLOR = Ansi.ansi()
+    private final String defaultColor = Ansi.ansi()
             .fg(Ansi.Color.DEFAULT)
             .toString();
 
-    protected static final PrintStream CONSOLE = System.out;
+    protected final PrintStream console = System.out;
 
-    public static void print(ValidateReport report) {
-        CONSOLE.println(report.getId());
+    public void print(ValidateReport report) {
+        console.println(report.getId());
         report.getEntries()
-                .forEach(ValidatePrinter::printEntry);
+                .forEach(this::printEntry);
     }
 
-    private static void printEntry(ValidateReportEntry entry) {
+    private void printEntry(ValidateReportEntry entry) {
         if (!entry.getWarnings()
                 .isEmpty() || !entry.getErrors()
                 .isEmpty()) {
-            CONSOLE.println("  " + entry.getValidatorName());
+            console.println("  " + entry.getValidatorName());
             entry.getErrors()
                     .forEach(e -> printError("\t" + e));
             entry.getWarnings()
@@ -51,15 +51,15 @@ public class ValidatePrinter {
         }
     }
 
-    public static void printError(String error) {
-        CONSOLE.printf("%s%s%s%n", ERROR_COLOR, error, DEFAULT_COLOR);
+    public void printError(String error) {
+        console.printf("%s%s%s%n", errorColor, error, defaultColor);
     }
 
-    public static void printWarning(String warning) {
-        CONSOLE.printf("%s%s%s%n", WARNING_COLOR, warning, DEFAULT_COLOR);
+    public void printWarning(String warning) {
+        console.printf("%s%s%s%n", warningColor, warning, defaultColor);
     }
 
-    public static void printSummary(int bad, int total) {
-        CONSOLE.printf("%nSUMMARY:%n  %d/%d metacards contain errors or warnings%n", bad, total);
+    public void printSummary(int bad, int total) {
+        console.printf("%nSUMMARY:%n  %d/%d metacards contain errors or warnings%n", bad, total);
     }
 }
