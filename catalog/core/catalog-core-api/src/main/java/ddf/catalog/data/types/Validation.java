@@ -22,14 +22,26 @@ package ddf.catalog.data.types;
 public interface Validation {
 
     /**
-     * {@link ddf.catalog.data.Attribute} name for accessing the validation warnings of this {@link Metacard}.
+     * {@link ddf.catalog.data.Attribute} name for accessing the validation warnings of this {@link ddf.catalog.data.Metacard}.
      * Uses original taxonomy to preserve backwards compatibility.
      */
     String VALIDATION_WARNINGS = "validation-warnings";
 
     /**
-     * {@link ddf.catalog.data.Attribute} nname for accessing the validation errors of this {@link Metacard}.
+     * {@link ddf.catalog.data.Attribute} name for accessing the validation errors of this {@link ddf.catalog.data.Metacard}.
      * Uses original taxonomy to preserve backwards compatibility.
      */
     String VALIDATION_ERRORS = "validation-errors";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the validators that were run on this
+     * {@link ddf.catalog.data.Metacard} that had warnings.
+     */
+    String FAILED_VALIDATORS_WARNINGS = "failed-validators-warnings";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the validators that were run on this
+     * {@link ddf.catalog.data.Metacard} that had errors.
+     */
+    String FAILED_VALIDATORS_ERRORS = "failed-validators-errors";
 }

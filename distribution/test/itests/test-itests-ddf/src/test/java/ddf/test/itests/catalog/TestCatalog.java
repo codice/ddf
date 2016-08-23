@@ -1017,9 +1017,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testEnforceValidityErrorsOnly() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
         configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
@@ -1054,19 +1052,15 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             deleteMetacard(id3, false);
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
             configureEnforceValidityErrorsAndWarningsReset();
-            configureShowInvalidMetacards("false", "true");
+            configureShowInvalidMetacardsReset();
         }
     }
 
     @Test
     public void testEnforceValidityWarningsOnly() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
         configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
@@ -1101,19 +1095,15 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1, false);
             deleteMetacard(id2);
             deleteMetacard(id3);
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
             configureEnforceValidityErrorsAndWarningsReset();
-            configureShowInvalidMetacards("false", "true");
+            configureShowInvalidMetacardsReset();
         }
     }
 
     @Test
     public void testEnforceValidityErrorsAndWarnings() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
         configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
@@ -1148,19 +1138,15 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1, false);
             deleteMetacard(id2);
             deleteMetacard(id3, false);
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
             configureEnforceValidityErrorsAndWarningsReset();
-            configureShowInvalidMetacards("false", "true");
+            configureShowInvalidMetacardsReset();
         }
     }
 
     @Test
     public void testNoEnforceValidityErrorsOrWarnings() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
         configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
@@ -1195,11 +1181,95 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             deleteMetacard(id3);
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
             configureEnforceValidityErrorsAndWarningsReset();
-            configureShowInvalidMetacards("false", "true");
+            configureShowInvalidMetacardsReset();
+        }
+    }
+
+    @Test
+    public void testQueryByErrorFailedValidators() throws Exception {
+        getServiceManager().startFeature(true, "sample-validator");
+
+        //Don't enforce the validator, so that it will be marked but ingested
+        configureEnforcedMetacardValidators(Collections.singletonList(""));
+
+        //Configure to show invalid metacards so the marked ones will appear in search
+        configureShowInvalidMetacards("true", "true");
+
+        //Configure to not filter invalid metacards
+        configureFilterInvalidMetacards("false", "false");
+
+        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
+        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+
+        try {
+            String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
+                    Validation.FAILED_VALIDATORS_ERRORS,
+                    "sample-validator")
+                    .getQuery();
+            ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
+                    MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+
+            //clean metacard and warning metacard should be in results but not error one
+            response.body(not(containsString("warning metacard")));
+            response.body(not(containsString("clean metacard")));
+            response.body(containsString("error metacard"));
+
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
+            deleteMetacard(id3);
+            getServiceManager().stopFeature(true, "sample-validator");
+            configureShowInvalidMetacardsReset();
+            configureFilterInvalidMetacardsReset();
+        }
+    }
+
+    @Test
+    public void testQueryByWarningFailedValidators() throws Exception {
+        getServiceManager().startFeature(true, "sample-validator");
+
+        //Don't enforce the validator, so that it will be marked but ingested
+        configureEnforcedMetacardValidators(Collections.singletonList(""));
+
+        //Configure to show invalid metacards so the marked ones will appear in search
+        configureShowInvalidMetacards("true", "true");
+
+        //Configure to not filter invalid metacards
+        configureFilterInvalidMetacards("false", "false");
+
+        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
+        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+
+        try {
+            String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
+                    Validation.FAILED_VALIDATORS_WARNINGS,
+                    "sample-validator")
+                    .getQuery();
+            ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
+                    MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+
+            //clean metacard and warning metacard should be in results but not error one
+            response.body(not(containsString("error metacard")));
+            response.body(not(containsString("clean metacard")));
+            response.body(containsString("warning metacard"));
+
+        } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
+            deleteMetacard(id3);
+            getServiceManager().stopFeature(true, "sample-validator");
+            configureShowInvalidMetacardsReset();
+            configureFilterInvalidMetacardsReset();
         }
     }
 
@@ -1246,9 +1316,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testFilterPluginWarningsOnly() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         //Configure not enforcing validators so invalid metacards can ingest
         configureEnforcedMetacardValidators(Collections.singletonList(""));
@@ -1286,20 +1354,16 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             deleteMetacard(id3);
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
             configureFilterInvalidMetacardsReset();
             configureMetacardValidityFilterPlugin(Arrays.asList(""));
-            configureShowInvalidMetacards("false", "true");
+            configureShowInvalidMetacardsReset();
         }
     }
 
     @Test
     public void testFilterPluginErrorsOnly() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         //Configure not enforcing validators so invalid metacards can ingest
         configureEnforcedMetacardValidators(Collections.singletonList(""));
@@ -1338,20 +1402,16 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id2);
             deleteMetacard(id3);
             configureEnforcedMetacardValidators(Collections.singletonList(""));
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
             configureFilterInvalidMetacardsReset();
             configureMetacardValidityFilterPlugin(Arrays.asList(""));
-            configureShowInvalidMetacards("false", "true");
+            configureShowInvalidMetacardsReset();
         }
     }
 
     @Test
     public void testFilterPluginWarningsAndErrors() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         //Configure not enforcing validators so invalid metacards can ingest
         configureEnforcedMetacardValidators(Collections.singletonList(""));
@@ -1390,20 +1450,16 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id3);
             deleteMetacard(id2);
             configureEnforcedMetacardValidators(Collections.singletonList(""));
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
             configureFilterInvalidMetacardsReset();
             configureMetacardValidityFilterPlugin(Arrays.asList(""));
-            configureShowInvalidMetacards("false", "true");
+            configureShowInvalidMetacardsReset();
         }
     }
 
     @Test
     public void testFilterPluginNoFiltering() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         //Configure not enforcing validators so invalid metacards can ingest
         configureEnforcedMetacardValidators(Collections.singletonList(""));
@@ -1442,12 +1498,10 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id2);
             deleteMetacard(id3);
             configureEnforcedMetacardValidators(Collections.singletonList(""));
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
             configureFilterInvalidMetacardsReset();
             configureMetacardValidityFilterPlugin(Arrays.asList(""));
-            configureShowInvalidMetacards("false", "true");
+            configureShowInvalidMetacardsReset();
         }
     }
 
@@ -1570,9 +1624,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testValidationEnforced() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
         // Update metacardMarkerPlugin config with enforcedMetacardValidators
         configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
 
@@ -1657,17 +1709,13 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             configureEnforcedMetacardValidators(Collections.singletonList(""));
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
         }
     }
 
     @Test
     public void testValidationUnenforced() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
         configureEnforcedMetacardValidators(Collections.singletonList(""));
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
@@ -1768,17 +1816,13 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
         }
     }
 
     @Test
     public void testValidationEnforcedUpdate() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
         // metacardMarkerPlugin has no enforced validators so both metacards can be ingested
         final String id1 = ingestXmlFromResource("/metacard1.xml");
         final String id2 = ingestXmlFromResource("/metacard2.xml");
@@ -1825,17 +1869,13 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             configureEnforcedMetacardValidators(Collections.singletonList(""));
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
         }
     }
 
     @Test
     public void testValidationUnenforcedUpdate() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
         // metacardMarkerPlugin has no enforced validators so both metacards can be ingested
         final String id1 = ingestXmlFromResource("/metacard1.xml");
         final String id2 = ingestXmlFromResource("/metacard2.xml");
@@ -1883,19 +1923,14 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            configureShowInvalidMetacards("false", "true");
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
+            configureShowInvalidMetacardsReset();
+            getServiceManager().stopFeature(true, "sample-validator");
         }
     }
 
     @Test
     public void testValidationFiltering() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "catalog-security-filter",
-                "sample-validator");
+        getServiceManager().startFeature(true, "catalog-security-filter", "sample-validator");
 
         // Update metacardMarkerPlugin config with no enforcedMetacardValidators
         configureEnforcedMetacardValidators(Arrays.asList(""));
@@ -1984,10 +2019,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "catalog-security-filter",
-                    "sample-validator");
+            getServiceManager().stopFeature(true, "catalog-security-filter", "sample-validator");
             config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
             configProps = new Hashtable<>(new PdpProperties());
             config.update(configProps);
@@ -1996,9 +2028,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testValidationChecker() throws Exception {
-        getServiceManager().startFeature(true,
-                "catalog-plugin-metacard-validation",
-                "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         configureEnforcedMetacardValidators(Arrays.asList(""));
 
@@ -2088,10 +2118,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            getServiceManager().stopFeature(true,
-                    "catalog-plugin-metacard-validation",
-                    "sample-validator");
-            configureShowInvalidMetacards("false", "true");
+            getServiceManager().stopFeature(true, "sample-validator");
+            configureShowInvalidMetacardsReset();
         }
     }
 
@@ -2609,7 +2637,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 deleteMetacard(validCardId);
             }
 
-            configureShowInvalidMetacards("false", "false");
+            configureShowInvalidMetacardsReset();
         }
     }
 

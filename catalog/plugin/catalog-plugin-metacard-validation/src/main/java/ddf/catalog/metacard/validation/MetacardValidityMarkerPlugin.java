@@ -105,6 +105,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             Map<String, Integer> counter) {
         Set<String> errors = new HashSet<>();
         Set<String> warnings = new HashSet<>();
+        Set<String> errorValidators = new HashSet<>();
+        Set<String> warningValidators = new HashSet<>();
 
         Metacard metacard = itemToMetacard.apply(item);
         Set<String> tags = metacard.getTags();
@@ -131,7 +133,13 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                             validatorName);
                     return null;
                 } else {
-                    getValidationProblems(validatorName, e, errors, warnings, counter);
+                    getValidationProblems(validatorName,
+                            e,
+                            errors,
+                            warnings,
+                            errorValidators,
+                            warningValidators,
+                            counter);
                 }
             }
         }
@@ -143,21 +151,28 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 (List<Serializable>) new ArrayList<Serializable>(errors)));
         metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_WARNINGS,
                 (List<Serializable>) new ArrayList<Serializable>(warnings)));
+        metacard.setAttribute(new AttributeImpl(Validation.FAILED_VALIDATORS_WARNINGS,
+                (List<Serializable>) new ArrayList<Serializable>(warningValidators)));
+        metacard.setAttribute(new AttributeImpl(Validation.FAILED_VALIDATORS_ERRORS,
+                (List<Serializable>) new ArrayList<Serializable>(errorValidators)));
 
         return item;
     }
 
     private void getValidationProblems(String validatorName, ValidationException e,
-            Set<String> errors, Set<String> warnings, Map<String, Integer> counter) {
+            Set<String> errors, Set<String> warnings, Set<String> errorValidators,
+            Set<String> warningValidators, Map<String, Integer> counter) {
         boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
         boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
         if (validationErrorsExist || validationWarningsExist) {
             if (validationErrorsExist) {
                 errors.addAll(e.getErrors());
+                errorValidators.add(validatorName);
                 counter.merge(Validation.VALIDATION_ERRORS, 1, Integer::sum);
             }
             if (validationWarningsExist) {
                 warnings.addAll(e.getWarnings());
+                warningValidators.add(validatorName);
                 counter.merge(Validation.VALIDATION_WARNINGS, 1, Integer::sum);
             }
         } else {
@@ -206,7 +221,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 validatorName);
     }
 
-    private String getValidatorName(MetacardValidator metacardValidator) {
+    protected String getValidatorName(MetacardValidator metacardValidator) {
         if (metacardValidator instanceof Describable) {
             return ((Describable) metacardValidator).getId();
         } else {

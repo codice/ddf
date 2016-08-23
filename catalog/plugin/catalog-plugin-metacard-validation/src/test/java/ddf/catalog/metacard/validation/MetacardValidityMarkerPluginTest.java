@@ -358,6 +358,44 @@ public class MetacardValidityMarkerPluginTest {
         markerPluginResponseHelper(getMockFailingValidatorWithErrors(), false, false, 2);
     }
 
+    @Test
+    public void testTrackingErrors() throws Exception {
+        testTrackingHelper(getMockFailingValidatorWithErrors(), true, false);
+
+    }
+
+    @Test
+    public void testTrackingWarnings() throws Exception {
+        testTrackingHelper(getMockFailingValidatorWithWarnings(), false, true);
+    }
+
+    @Test
+    public void testTrackingErrorsAndWarnings() throws Exception {
+        testTrackingHelper(getMockFailingValidatorWithErrorsAndWarnings(), true, true);
+    }
+
+    @Test
+    public void testTrackingClean() throws Exception {
+        testTrackingHelper(getMockPassingValidator(), false, false);
+    }
+
+    private void testTrackingHelper(MetacardValidator validator, boolean expectErrors,
+            boolean expectWarnings) throws Exception {
+        List<Metacard> metacards = markerPluginResponseHelper(validator, false, false, 2);
+        for (Metacard m : metacards) {
+            if (expectErrors) {
+                assertThat(m.getAttribute(Validation.FAILED_VALIDATORS_ERRORS)
+                        .getValues()
+                        .isEmpty(), is(false));
+            }
+            if (expectWarnings) {
+                assertThat(m.getAttribute(Validation.FAILED_VALIDATORS_WARNINGS)
+                        .getValues()
+                        .isEmpty(), is(false));
+            }
+        }
+    }
+
     private Metacard metacardWithTitle(String title) {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setTitle(title);
@@ -378,7 +416,9 @@ public class MetacardValidityMarkerPluginTest {
     }
 
     private MetacardValidator getMockPassingValidator() {
-        return mock(MetacardValidator.class, withSettings().extraInterfaces(Describable.class));
+        MetacardValidator mockValidator = mock(MetacardValidator.class,
+                withSettings().extraInterfaces(Describable.class));
+        return mockValidator;
     }
 
     private MetacardValidator getMockFailingValidatorWithErrors() throws ValidationException {
@@ -388,6 +428,7 @@ public class MetacardValidityMarkerPluginTest {
                 withSettings().extraInterfaces(Describable.class));
         doThrow(validationException).when(metacardValidator)
                 .validate(any(Metacard.class));
+        when(((Describable) metacardValidator).getId()).thenReturn(ID);
         return metacardValidator;
     }
 
@@ -398,6 +439,7 @@ public class MetacardValidityMarkerPluginTest {
                 withSettings().extraInterfaces(Describable.class));
         doThrow(validationException).when(metacardValidator)
                 .validate(any(Metacard.class));
+        when(((Describable) metacardValidator).getId()).thenReturn(ID);
         return metacardValidator;
     }
 
@@ -410,6 +452,7 @@ public class MetacardValidityMarkerPluginTest {
                 withSettings().extraInterfaces(Describable.class));
         doThrow(validationException).when(metacardValidator)
                 .validate(any(Metacard.class));
+        when(((Describable) metacardValidator).getId()).thenReturn(ID);
         return metacardValidator;
     }
 
@@ -463,15 +506,9 @@ public class MetacardValidityMarkerPluginTest {
         }
     }
 
-    private void markerPluginResponseHelper(MetacardValidator validator, boolean enforceErrors,
-            boolean enforceWarnings, int numNotFiltered) throws Exception {
-        String validatorName;
-        if (validator instanceof Describable) {
-            validatorName = ((Describable) validator).getId();
-        } else {
-            validatorName = validator.getClass()
-                    .getCanonicalName();
-        }
+    private List<Metacard> markerPluginResponseHelper(MetacardValidator validator,
+            boolean enforceErrors, boolean enforceWarnings, int numNotFiltered) throws Exception {
+        String validatorName = plugin.getValidatorName(validator);
 
         metacardValidators.add(validator);
         enforcedMetacardValidators.add(validatorName);
@@ -491,5 +528,7 @@ public class MetacardValidityMarkerPluginTest {
         enforcedMetacardValidators.remove(validatorName);
         plugin.setEnforceErrors(true);
         plugin.setEnforceWarnings(false);
+
+        return createdMetacards;
     }
 }

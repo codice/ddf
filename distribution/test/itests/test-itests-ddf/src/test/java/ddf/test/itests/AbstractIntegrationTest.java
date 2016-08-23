@@ -611,6 +611,10 @@ public abstract class AbstractIntegrationTest {
         config.update(properties);
     }
 
+    protected void configureShowInvalidMetacardsReset() throws IOException {
+        configureShowInvalidMetacards("false", "true");
+    }
+
     protected void configureFilterInvalidMetacards(String filterErrors, String filterWarnings)
             throws IOException {
         Configuration config = configAdmin.getConfiguration(
