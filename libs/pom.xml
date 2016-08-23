@@ -37,5 +37,6 @@
         <module>klv</module>
         <module>mpeg-transport-stream</module>
         <module>geospatial</module>
+        <module>owasp-diff-runner</module>
     </modules>
 </project>
