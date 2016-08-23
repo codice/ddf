@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerConfigurationException;
 import org.apache.ftpserver.FtpServerFactory;
@@ -42,6 +43,14 @@ public class FtpServerStarter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FtpServerStarter.class);
 
     private static final String DEFAULT_LISTENER = "default";
+
+    public static final String PORT = "port";
+
+    public static final String CLIENT_AUTH = "clientAuth";
+
+    public static final String WANT = "want";
+
+    public static final String NEED = "need";
 
     private static int maxSleepTimeMillis = 60000;
 
@@ -115,22 +124,36 @@ public class FtpServerStarter {
      * @param properties map of configurable properties
      */
     public void updateConfiguration(Map<String, Object> properties) {
+        if (MapUtils.isEmpty(properties)) {
+            LOGGER.warn("Received null or empty FTP Endpoint configuration. Check the 'FTP Endpoint' configuration.");
+            return;
+        }
+
         LOGGER.debug("Updating FTP Endpoint configuration");
+        Boolean restart = false;
 
-        if (properties != null) {
+        if (properties.get(PORT) instanceof String) {
             //using PropertyResolver in case properties.get("port") is ${org.codice.ddf.catalog.ftp.port}
-            PropertyResolver propertyResolver = new PropertyResolver((String) properties.get("port"));
+            PropertyResolver propertyResolver =
+                    new PropertyResolver((String) properties.get("port"));
             int port = Integer.parseInt(propertyResolver.getResolvedString());
-
-            String clientAuth = ((String) properties.get("clientAuth")).toLowerCase();
-
-            if ((this.port != port) || (!this.clientAuth.toString()
-                    .equalsIgnoreCase(clientAuth))) {
+            if (this.port != port) {
                 setPort(port);
-                setClientAuth(clientAuth);
-
-                restartDefaultListener();
+                restart = true;
             }
+        }
+
+        if (properties.get(CLIENT_AUTH) instanceof String) {
+            String clientAuth = ((String) properties.get("clientAuth")).toLowerCase();
+            if (!this.clientAuth.toString()
+                    .equalsIgnoreCase(clientAuth)) {
+                setClientAuth(clientAuth);
+                restart = true;
+            }
+        }
+
+        if (restart) {
+            restartDefaultListener();
         }
     }
 
@@ -258,10 +281,10 @@ public class FtpServerStarter {
 
     public void setClientAuth(String newClientAuth) {
         switch (newClientAuth.toLowerCase()) {
-        case "want":
+        case WANT:
             clientAuth = ClientAuth.WANT;
             break;
-        case "need":
+        case NEED:
             clientAuth = ClientAuth.NEED;
             break;
         default:
