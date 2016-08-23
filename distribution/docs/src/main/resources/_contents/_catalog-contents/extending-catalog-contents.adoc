@@ -1255,7 +1255,11 @@ This plugin can be installed and uninstalled using the normal processes describe
 No configuration is necessary for this plugin. 
 By default, it will mark metacards with validation errors and warnings as they are reported by each metacard validator and then allow the ingest.
 To prevent the ingest of certain invalid metacards, the `Metacard Validity Marker` plugin can be configured to "enforce" one or more validators.
-Metacards that are invalid according to an "enforced" validator will not be ingested.
+The `Metacard Validity Marker` plugin can also be configured to enforce validator errors, warnings, or both.
+
+If errors are enforced, then any validation errors from an enforced validator will result in the metacard being rejected.
+If warnings are enforced, then any validation warnings from an enforced validator will result in the metacard being rejected.
+In all other cases, metacards will be ingested and marked with any errors or warnings that may occur during validation.
 
 ====== Using
 
