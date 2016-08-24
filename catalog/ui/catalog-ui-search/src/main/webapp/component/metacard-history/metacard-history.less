@@ -62,10 +62,11 @@
 
 @media (max-width: @smallScreenSize) {
   @{customElementNamespace}metacard-history {
+    overflow: auto;
     @buttonMargin: 10px;
 
     .metacardHistory-body {
-      max-height: ~"calc(100% - @{minimumButtonSize}*4 - 19px - @{buttonMargin})";
+      max-height: none;
       overflow: auto;
     }
 

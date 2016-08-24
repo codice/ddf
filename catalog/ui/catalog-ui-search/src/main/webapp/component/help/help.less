@@ -12,10 +12,16 @@
 
   opacity: 0;
   transform: translateX(-100%);
+  @{customElementNamespace}dropdown.is-hint {
+    display: none;
+  }
 }
 
 @{customElementNamespace}help.is-shown {
   opacity: 1;
   transition: opacity @coreTransitionTime linear;
   transform: translateX(0%);
+  @{customElementNamespace}dropdown {
+    display: block;
+  }
 }

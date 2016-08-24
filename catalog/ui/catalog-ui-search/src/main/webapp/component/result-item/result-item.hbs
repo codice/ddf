@@ -13,20 +13,20 @@
  --}}
 <div class="result-container" data-metacard-id="{{id}}" data-index="{{index}}"
      data-query-id="{{metacard.queryId}}">
-    <div class="result-indicator">
+    <div class="result-indicator" data-help="Signifies which queries this result has been found in.">
     </div>
     <div class="result-details">
         {{#if metacard.properties.thumbnail}}
-        <div class="detail-thumbnail details-property">
+        <div class="detail-thumbnail details-property" data-help="thumbnail">
                 <img src="{{metacard.properties.thumbnail}}">
         </div>
         {{/if}}
-        <div class="detail-title details-property">
+        <div class="detail-title details-property" data-help="title">
             <span>
                 {{metacard.properties.title}}
             </span>
         </div>
-        <div class="detail-source details-property">
+        <div class="detail-source details-property" data-help="source">
             {{#if local}}
                 <span class="fa fa-home">
                 </span>
@@ -38,25 +38,27 @@
                 </span>
             {{/if}}
         </div>
-        <div class="detail-lastModified details-property">
+        <div class="detail-lastModified details-property" data-help="modified">
             <span>
                 {{niceDiff}}
             </span>
         </div>
         {{#each customDetail}}
-            <div class="detail-custom details-property">
+            <div class="detail-custom details-property" data-help="{{this.label}}">
                 <span>
-                {{this}}
+                {{this.value}}
                 </span>
             </div>
         {{/each}}
     </div>
     <div class="result-validation">
         {{#if hasError}}
-            <span class="fa fa-exclamation-triangle resultError">
+            <span class="fa fa-exclamation-triangle resultError" data-help="Indicates the given result has a validation error.  
+            See the 'Quality' tab of the result for more details.">
             </span>
         {{else if hasWarning}}
-            <span class="fa fa-exclamation-triangle resultWarning">
+            <span class="fa fa-exclamation-triangle resultWarning" data-help="Indicates the given result has a validation warning.  
+            See the 'Quality' tab of the result for more details.">
             </span>
         {{/if}}
     </div>

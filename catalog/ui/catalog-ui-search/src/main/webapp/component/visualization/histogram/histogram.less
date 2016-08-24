@@ -44,3 +44,12 @@
   }
 
 }
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}histogram {
+    overflow: auto;
+    > .histogram-container {
+      min-height: 500px;
+    }
+  }
+}

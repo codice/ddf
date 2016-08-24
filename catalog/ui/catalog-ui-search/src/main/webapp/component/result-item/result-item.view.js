@@ -105,7 +105,10 @@ define([
                                 break;
                         }
                     }
-                    result.customDetail.push(value ? value : 'NA');
+                    result.customDetail.push({
+                        label: additionProperty,
+                        value: value ? value : 'NA'
+                    });
                 });
             }
             return result;

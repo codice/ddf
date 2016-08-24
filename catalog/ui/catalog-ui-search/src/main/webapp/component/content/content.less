@@ -3,7 +3,7 @@
   @contentMenuHeight: 60px;
   @panelTwoSpacing: 20px;
   @panelOneWidth: 420px;
-  @panelTwoWidth: 1000px;
+  @panelTwoWidth: 40%;
 
   .customElement;
 
@@ -68,13 +68,13 @@
 
       > .content-panelTwo-title {
         display: block;
-        width: ~'calc(100% - 6*@{minimumButtonSize})';
+        width: ~'calc(100% - 2*@{minimumButtonSize})';
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         padding: 0px 10px;
         position: relative;
-        left: 3*@minimumButtonSize;
+        left: @minimumButtonSize;
         font-size: 2rem;
       }
 
@@ -97,12 +97,37 @@
 
 @media (max-width: @mediumScreenSize) {
   @{customElementNamespace}content {
+    @panelOneWidth: 320px;
 
-  }
-}
+    .content-panelOne {
+      width: @panelOneWidth;
+    }
 
-@media (max-width: @smallScreenSize) {
-  @{customElementNamespace}content {
+    .content-panel.content-panelTwo {
+      width: ~'calc(100% - @{panelOneWidth})';
+      height: 50%;
+      vertical-align: top !important;
+      float: right;
+      transition: height @coreTransitionTime ease-in-out;
+    }
+
+    .content-panelThree {
+      vertical-align: bottom !important;
+      height: 50%;
+      width: ~'calc(100% - @{panelOneWidth})';
+      transition: height @coreTransitionTime ease-in-out;
+    }
+
+    &.hide-panelTwo {
+
+      .content-panelTwo {
+        height: 0px;
+      }
+      .content-panelThree {
+        height: 100%;
+        width: ~'calc(100% - @{panelOneWidth})';
+      }
+    }
 
   }
 }

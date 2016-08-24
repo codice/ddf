@@ -146,3 +146,17 @@
 @{customElementNamespace}result-item.hide-actions {
 
 }
+
+@media (max-width: @smallScreenSize) {
+    @{customElementNamespace}result-item {
+      .result-container > .result-details .details-property {
+        height: auto;
+      }
+
+       span {
+        display: inline-block;
+        white-space: normal;
+        line-height: inherit !important;
+      }
+    }
+}
