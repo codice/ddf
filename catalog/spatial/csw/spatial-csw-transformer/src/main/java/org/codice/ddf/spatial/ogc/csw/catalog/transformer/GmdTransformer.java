@@ -116,6 +116,8 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
 
     private static final String ZERO_HOUR_SUFFIX = "T00:00:00Z";
 
+    private static final String YEAR_START_SUFFIX = "-01-01" + ZERO_HOUR_SUFFIX;
+
     private static MetacardType gmdMetacardType;
 
     private final XStream xstream;
@@ -805,7 +807,10 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
             if (StringUtils.isNotEmpty(dateString)) {
                 if (dateString.length() == 10) {
                     dateString = dateString + ZERO_HOUR_SUFFIX;
+                } else if (dateString.length() == 4) {
+                    dateString = dateString + YEAR_START_SUFFIX;
                 }
+
                 Date date = CswUnmarshallHelper.convertToDate(dateString);
 
                 switch (type) {
