@@ -37,21 +37,27 @@ import ddf.catalog.validation.violation.ValidationViolation.Severity;
  * Validates an attribute's value(s) against a set of acceptable values.
  */
 public class EnumerationValidator implements AttributeValidator {
+    private final boolean ignoreCase;
+
     private final Set<String> values;
 
     /**
      * Constructs an {@code EnumerationValidator} with a given set of acceptable values.
      *
-     * @param values the values accepted by this validator
+     * @param ignoreCase whether enumeration validation should ignore case during evaluation
+     * @param values     the values accepted by this validator
      * @throws IllegalArgumentException if {@code values} is null or empty
      */
-    public EnumerationValidator(final Set<String> values) {
+    public EnumerationValidator(final Set<String> values, final boolean ignoreCase) {
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(values),
                 "Must specify at least one possible enumeration value.");
 
-        this.values = values.stream()
+        this.ignoreCase = ignoreCase;
+
+        this.values = Collections.unmodifiableSet(values.stream()
                 .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                .map(ignoreCase ? String::toLowerCase : String::toString)
+                .collect(Collectors.toSet()));
     }
 
     /**
@@ -60,15 +66,19 @@ public class EnumerationValidator implements AttributeValidator {
      * Validates each of {@code attribute}'s values against the set of acceptable values by calling
      * {@link String#valueOf(Object)} on each value and checking whether that string is in the set.
      * <p>
-     * Note: comparisons are <strong>case-sensitive</strong>.
      */
     @Override
     public Optional<AttributeValidationReport> validate(final Attribute attribute) {
         Preconditions.checkArgument(attribute != null, "The attribute cannot be null.");
 
-        final String name = attribute.getName();
+        String name = attribute.getName();
+
         for (final Serializable value : attribute.getValues()) {
-            final String stringValue = String.valueOf(value);
+            final String stringValue = ignoreCase ?
+                    String.valueOf(value)
+                            .toLowerCase() :
+                    String.valueOf(value);
+
             if (!values.contains(stringValue)) {
                 final AttributeValidationReportImpl report = new AttributeValidationReportImpl();
                 // TODO (jrnorth) - escape the value.
@@ -95,13 +105,15 @@ public class EnumerationValidator implements AttributeValidator {
 
         EnumerationValidator that = (EnumerationValidator) o;
 
-        return new EqualsBuilder().append(values, that.values)
+        return new EqualsBuilder().append(ignoreCase, that.ignoreCase)
+                .append(values, that.values)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(23, 37).append(values)
+        return new HashCodeBuilder(23, 37).append(ignoreCase)
+                .append(values)
                 .toHashCode();
     }
 }
