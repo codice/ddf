@@ -149,7 +149,7 @@
 					<date>
 						<CI_Date>
 							<date>
-								<gco:Date>2004-03-01</gco:Date>
+								<gco:Date>2000</gco:Date>
 							</date>
 							<dateType>
 								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="publication">Publication</CI_DateTypeCode>

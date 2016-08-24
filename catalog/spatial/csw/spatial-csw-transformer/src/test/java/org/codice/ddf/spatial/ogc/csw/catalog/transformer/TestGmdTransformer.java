@@ -131,6 +131,8 @@ public class TestGmdTransformer {
         assertThat(convertDate((Date) metacard.getAttribute(Core.EXPIRATION)
                 .getValue()), is("2004-03-04 00:00:00 UTC"));
 
+        assertThat(convertDate(metacard.getEffectiveDate()), is("2000-01-01 00:00:00 UTC"));
+
         assertThat(metacard.getAttribute(Topic.KEYWORD)
                 .getValues(), hasItems("Geologie", "World"));
 
@@ -151,8 +153,8 @@ public class TestGmdTransformer {
                 .getValue(), is(uri.toString()));
 
         assertThat(metacard.getAttribute(Contact.PUBLISHER_ADDRESS)
-                .getValues(),
-                hasItem("10 Downing Street London Westminster SW1A 2AA United Kingdom"));
+                        .getValues(), hasItem(
+                        "10 Downing Street London Westminster SW1A 2AA United Kingdom"));
 
         assertThat(metacard.getAttribute(Contact.PUBLISHER_EMAIL)
                 .getValues(), hasItem("theresa.may@gov.uk"));
