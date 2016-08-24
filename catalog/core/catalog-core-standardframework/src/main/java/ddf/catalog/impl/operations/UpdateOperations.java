@@ -417,7 +417,7 @@ public class UpdateOperations {
             try {
                 updateRequest = plugin.process(updateRequest);
             } catch (PluginExecutionException e) {
-                LOGGER.warn("error processing update in PreIngestPlugin", e);
+                LOGGER.debug("error processing update in PreIngestPlugin", e);
             }
         }
         return updateRequest;
@@ -491,7 +491,7 @@ public class UpdateOperations {
                     .collect(Collectors.toMap(metacard -> getAttributeStringValue(metacard,
                             updateRequest.getAttributeName()), m -> m));
         } catch (FederationException e) {
-            LOGGER.warn("Unable to complete query for updated metacards.", e);
+            LOGGER.debug("Unable to complete query for updated metacards.", e);
         }
 
         return new HashMap<>();
@@ -533,7 +533,7 @@ public class UpdateOperations {
             try {
                 updateStorageResponse = plugin.process(updateStorageResponse);
             } catch (PluginExecutionException e) {
-                LOGGER.warn("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.",
                         e);
             }
         }
@@ -546,7 +546,7 @@ public class UpdateOperations {
             try {
                 updateStorageRequest = plugin.process(updateStorageRequest);
             } catch (PluginExecutionException e) {
-                LOGGER.warn("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.",
                         e);
             }
         }

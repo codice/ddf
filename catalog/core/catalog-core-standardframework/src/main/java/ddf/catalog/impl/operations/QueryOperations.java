@@ -306,7 +306,7 @@ public class QueryOperations extends DescribableImpl {
             try {
                 queryResponse = service.process(queryResponse);
             } catch (PluginExecutionException see) {
-                LOGGER.warn("Error executing PostQueryPlugin: {}", see.getMessage(), see);
+                LOGGER.debug("Error executing PostQueryPlugin: {}", see.getMessage(), see);
             } catch (StopProcessingException e) {
                 throw new FederationException("Query could not be executed.", e);
             }
@@ -361,7 +361,7 @@ public class QueryOperations extends DescribableImpl {
             try {
                 queryReq = service.process(queryReq);
             } catch (PluginExecutionException see) {
-                LOGGER.warn("Error executing PreQueryPlugin: {}", see.getMessage(), see);
+                LOGGER.debug("Error executing PreQueryPlugin: {}", see.getMessage(), see);
             } catch (StopProcessingException e) {
                 throw new FederationException("Query could not be executed.", e);
             }
@@ -528,7 +528,7 @@ public class QueryOperations extends DescribableImpl {
         if (!exceptions.isEmpty()) {
             // we have exceptions to merge in
             if (response == null) {
-                LOGGER.warn(
+                LOGGER.debug(
                         "Could not add Query exceptions to a QueryResponse because the list of ProcessingDetails was null -- according to the API this should not happen");
             } else {
                 // need to merge them together.
