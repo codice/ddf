@@ -30,6 +30,11 @@ public class QueryMetacardImpl extends MetacardImpl {
         setTags(Collections.singleton(QueryMetacardTypeImpl.QUERY_TAG));
     }
 
+    public QueryMetacardImpl(String title) {
+        this();
+        setTitle(title);
+    }
+
     public QueryMetacardImpl(Metacard wrappedMetacard) {
         super(wrappedMetacard, TYPE);
         setTags(Collections.singleton(QueryMetacardTypeImpl.QUERY_TAG));

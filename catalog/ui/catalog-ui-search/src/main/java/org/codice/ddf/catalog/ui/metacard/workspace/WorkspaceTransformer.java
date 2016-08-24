@@ -16,18 +16,25 @@ package org.codice.ddf.catalog.ui.metacard.workspace;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.AbstractMap;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.InputTransformer;
 
 public class WorkspaceTransformer {
@@ -36,119 +43,127 @@ public class WorkspaceTransformer {
 
     private final InputTransformer inputTransformer;
 
+    private final Map<String, Function<Map.Entry<String, Object>, Map.Entry<String, Object>>>
+            metacardToJsonEntryMapper = new HashMap<>();
+
+    private final Map<String, Function<Map.Entry<String, Object>, Map.Entry<String, Object>>>
+            jsonToMetacardEntryMapper = new HashMap<>();
+
+    private Function<Map.Entry<String, Object>, Map.Entry<String, Object>> remapKey(String key) {
+        return entry -> new AbstractMap.SimpleEntry<>(key, entry.getValue());
+    }
+
+    private Function<Map.Entry<String, Object>, Map.Entry<String, Object>> remapValue(
+            Function<Object, Object> fn) {
+        return entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), fn.apply(entry.getValue()));
+    }
+
+    // for use during mapping keys/value from a json map to a metacard (json -> metacard)
+    private void setupMetacardMappers() {
+        metacardToJsonEntryMapper.put(WorkspaceAttributes.WORKSPACE_METACARDS,
+                remapKey(Associations.RELATED));
+        metacardToJsonEntryMapper.put("src", remapKey(QueryMetacardTypeImpl.QUERY_SOURCES));
+        metacardToJsonEntryMapper.put(WorkspaceAttributes.WORKSPACE_QUERIES, remapValue(value -> {
+            List<Map<String, Object>> queries = (List) value;
+            return queries.stream()
+                    .map(transformIntoMetacard(new QueryMetacardImpl()))
+                    .map(this::toMetacardXml)
+                    .collect(Collectors.toList());
+        }));
+    }
+
+    // for use during mapping keys/value from a metacard to a json map (metacard -> json)
+    private void setupJsonMappers() {
+        jsonToMetacardEntryMapper.put(Associations.RELATED,
+                remapKey(WorkspaceAttributes.WORKSPACE_METACARDS));
+        jsonToMetacardEntryMapper.put(QueryMetacardTypeImpl.QUERY_SOURCES, remapKey("src"));
+
+        jsonToMetacardEntryMapper.put(Core.METACARD_TAGS, remapValue(v -> null));
+
+        jsonToMetacardEntryMapper.put(WorkspaceAttributes.WORKSPACE_QUERIES, remapValue(value -> {
+            List<String> queries = (List) value;
+
+            return queries.stream()
+                    .map(this::toMetacardFromXml)
+                    .map(this::transform)
+                    .collect(Collectors.toList());
+        }));
+    }
+
     public WorkspaceTransformer(CatalogFramework catalogFramework,
             InputTransformer inputTransformer) {
         this.catalogFramework = catalogFramework;
         this.inputTransformer = inputTransformer;
+        setupMetacardMappers();
+        setupJsonMappers();
     }
 
-    private static boolean check(Object o, Class<?> clazz) {
-        return o != null && clazz.isAssignableFrom(o.getClass());
-    }
-
-    @SuppressWarnings("unchecked")
-    public QueryMetacardImpl toQuery(Map<String, Object> map) {
-        QueryMetacardImpl query = new QueryMetacardImpl();
-
-        if (check(map.get(Metacard.TITLE), String.class)) {
-            query.setTitle((String) map.get(Metacard.TITLE));
-        }
-
-        if (check(map.get(Metacard.ID), String.class)) {
-            query.setId((String) map.get(Metacard.ID));
-        }
-
-        if (check(map.get(QueryMetacardTypeImpl.QUERY_CQL), String.class)) {
-            query.setCql((String) map.get(QueryMetacardTypeImpl.QUERY_CQL));
-        }
-
-        if (check(map.get(QueryMetacardTypeImpl.QUERY_ENTERPRISE), Boolean.class)) {
-            query.setEnterprise((Boolean) map.get(QueryMetacardTypeImpl.QUERY_ENTERPRISE));
-        } else if (check(map.get(QueryMetacardTypeImpl.QUERY_SOURCES), List.class)) {
-            query.setSources((List) map.get(QueryMetacardTypeImpl.QUERY_SOURCES));
-            // the front-end uses src everywhere instead of sources, this should provide a quick and simple fix
-        } else if (check(map.get("src"), List.class)) {
-            query.setSources((List) map.get("src"));
-        }
-
-        return query;
+    private Map.Entry<String, Object> remapMetacardEntry(Map.Entry<String, Object> entry) {
+        return Optional.of(metacardToJsonEntryMapper)
+                .map(m -> m.get(entry.getKey()))
+                .map(fn -> fn.apply(entry))
+                .orElse(entry);
     }
 
     @SuppressWarnings("unchecked")
-    private WorkspaceMetacardImpl toWorkspace(Map<String, Object> w) {
-        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
-
-        w.entrySet()
-                .stream()
-                .map(entry -> {
-                    if (WorkspaceAttributes.WORKSPACE_QUERIES.equals(entry.getKey())) {
-                        List<Map<String, Object>> queries = (List) entry.getValue();
-
-                        List<String> xmlQueries = queries.stream()
-                                .map(this::toQuery)
-                                .map(this::toMetacardXml)
-                                .collect(Collectors.toList());
-
-                        return new AbstractMap.SimpleEntry<>(entry.getKey(), xmlQueries);
-                    }
-
-                    return entry;
-                })
-                .forEach(entry -> {
-                    Object value = entry.getValue();
-                    if (value instanceof Serializable) {
-                        workspace.setAttribute(entry.getKey(), (Serializable) value);
-                    } else if (value instanceof List) {
-                        workspace.setAttribute(entry.getKey(), new ArrayList<>((List) value));
-                    }
-                });
-
-        return workspace;
-    }
-
-    public WorkspaceMetacardImpl transform(Map<String, Object> w) {
-        return toWorkspace(w);
-    }
-
-    public Map<String, Object> transform(Metacard m) {
-        Map<String, Object> h = new HashMap<>();
-
-        if (m != null) {
-            for (AttributeDescriptor ad : m.getMetacardType()
-                    .getAttributeDescriptors()) {
-                Attribute attr = m.getAttribute(ad.getName());
-                if (attr != null) {
-                    // ignore metacard tags
-                    if (Metacard.TAGS.equals(ad.getName())) {
-                        continue;
-                    }
-
-                    if (QueryMetacardTypeImpl.QUERY_SOURCES.equals(ad.getName())) {
-                        h.put("src", attr.getValues());
-                    } else if (WorkspaceAttributes.WORKSPACE_SHARING.equals(ad.getName())) {
-                        h.put(ad.getName(),
-                                attr.getValues()
-                                        .stream()
-                                        .map(this::toMetacardFromXml)
-                                        .map(this::transform)
-                                        .collect(Collectors.toList()));
-                    } else if (WorkspaceAttributes.WORKSPACE_QUERIES.equals(ad.getName())) {
-                        h.put(ad.getName(),
-                                attr.getValues()
-                                        .stream()
-                                        .map(this::toMetacardFromXml)
-                                        .map(this::transform)
-                                        .collect(Collectors.toList()));
-                    } else if (ad.isMultiValued()) {
-                        h.put(ad.getName(), attr.getValues());
-                    } else {
-                        h.put(ad.getName(), attr.getValue());
-                    }
-                }
+    private BiFunction<Metacard, Map.Entry<String, Object>, Metacard> metacardBiFunc() {
+        return (metacard, entry) -> {
+            Object value = entry.getValue();
+            if (value instanceof Serializable) {
+                metacard.setAttribute(new AttributeImpl(entry.getKey(), (Serializable) value));
+            } else if (value instanceof List) {
+                metacard.setAttribute(new AttributeImpl(entry.getKey(),
+                        (List<Serializable>) value));
             }
-        }
+            return metacard;
+        };
+    }
 
-        return h;
+    private Function<Map<String, Object>, Metacard> transformIntoMetacard(Metacard init) {
+        return map -> map.entrySet()
+                .stream()
+                .map(this::remapMetacardEntry)
+                .reduce(init, metacardBiFunc(), (m1, m2) -> m2);
+    }
+
+    public Metacard transform(Map<String, Object> map) {
+        return transformIntoMetacard(new WorkspaceMetacardImpl()).apply(map);
+    }
+
+    private Function<AttributeDescriptor, Map.Entry<String, Object>> getEntryFromDescriptor(
+            Metacard metacard) {
+        return (attributeDescriptor) -> Optional.of(attributeDescriptor)
+                .map(ad -> metacard.getAttribute(ad.getName()))
+                .map(attr -> {
+                    if (attributeDescriptor.isMultiValued()) {
+                        return new AbstractMap.SimpleEntry<String, Object>(attr.getName(),
+                                attr.getValues());
+                    } else {
+                        return new AbstractMap.SimpleEntry<String, Object>(attr.getName(),
+                                attr.getValue());
+                    }
+                })
+                .orElse(null);
+    }
+
+    private Map.Entry<String, Object> remapJsonEntry(Map.Entry<String, Object> entry) {
+        return Optional.of(jsonToMetacardEntryMapper)
+                .map(jm -> jm.get(entry.getKey()))
+                .map(fn -> fn.apply(entry))
+                .orElse(entry);
+    }
+
+    public Map<String, Object> transform(Metacard metacard) {
+        return Optional.of(metacard)
+                .map(Metacard::getMetacardType)
+                .map(MetacardType::getAttributeDescriptors)
+                .orElseGet(Collections::emptySet)
+                .stream()
+                .map(getEntryFromDescriptor(metacard))
+                .filter(Objects::nonNull)
+                .map(this::remapJsonEntry)
+                .filter(e -> e.getKey() != null && e.getValue() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public List<Map<String, Object>> transform(List<Metacard> metacards) {

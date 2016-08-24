@@ -20,21 +20,19 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
-import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.InputTransformer;
 
@@ -55,74 +53,68 @@ public class WorkspaceTransformerTest {
 
         it = Mockito.mock(InputTransformer.class);
 
-        doReturn(getQuery()).when(it)
+        doReturn(new QueryMetacardImpl("my query")).when(it)
                 .transform(any(InputStream.class));
 
         wt = new WorkspaceTransformer(cf, it);
     }
 
-    private Map<String, Object> getQueryAsMap() {
-        Map<String, Object> q = new HashMap<>();
-        q.put(Metacard.TITLE, "test query");
-        q.put(QueryMetacardTypeImpl.QUERY_ENTERPRISE, true);
-        q.put(QueryMetacardTypeImpl.QUERY_CQL, "*");
-        return q;
-    }
-
-    private QueryMetacardImpl getQuery() {
-        QueryMetacardImpl q = new QueryMetacardImpl();
-
-        q.setTitle("test query");
-        q.setEnterprise(true);
-        q.setCql("*");
-
-        return q;
-    }
-
-    private Map<String, Object> getWorkspaceAsMap() {
-        Map<String, Object> w = new HashMap<>();
-
-        w.put(Metacard.TITLE, "test");
-        w.put(Metacard.TAGS, new HashSet<>(Arrays.asList("first", "second")));
-        w.put(Associations.RELATED, Arrays.asList("id1", "id2"));
-        w.put(WorkspaceAttributes.WORKSPACE_QUERIES, Arrays.asList(getQueryAsMap()));
-
-        return w;
-    }
-
-    private WorkspaceMetacardImpl getWorkspace() {
-        WorkspaceMetacardImpl mci = new WorkspaceMetacardImpl();
-
-        mci.setTitle("test");
-
-        Set<String> tags = new HashSet<>(Arrays.asList("first", "second"));
-        mci.setTags(tags);
-
-        mci.setMetacards(Arrays.asList("id1", "id2"));
-        mci.setQueries(Arrays.asList("<xml></xml>"));
-
-        return mci;
-    }
+    // test metacard -> map
 
     @Test
-    public void testMetacardToMap() {
-        WorkspaceMetacardImpl workspace = getWorkspace();
+    public void testMetacardToMapDirectMapping() {
+        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
+        workspace.setTitle("title");
         Map<String, Object> map = wt.transform(workspace);
-
         assertThat(map.get(Core.TITLE), is(workspace.getTitle()));
-        assertThat(map.get(Core.METACARD_TAGS), nullValue()); // don't output metacard tags
-        assertThat(map.get(WorkspaceAttributes.WORKSPACE_QUERIES),
-                is(Arrays.asList(getQueryAsMap())));
-        assertThat(map.get(Associations.RELATED), is(workspace.getMetacards()));
     }
 
     @Test
-    public void testMapToMetacard() {
-        Map<String, Object> map = getWorkspaceAsMap();
-        WorkspaceMetacardImpl workspace = wt.transform(map);
+    public void testMetacardToMapFilteredKeys() {
+        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
+        Map<String, Object> map = wt.transform(workspace);
+        assertThat(map.get(Core.METACARD_TAGS), nullValue());
+    }
 
+    @Test
+    public void testMetacardToMapRemapKeys() {
+        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
+        workspace.setMetacards(ImmutableList.of("item1", "item2"));
+        Map<String, Object> map = wt.transform(workspace);
+        assertThat(map.get(WorkspaceAttributes.WORKSPACE_METACARDS), is(workspace.getMetacards()));
+    }
+
+    @Test
+    public void testMetacardToMapRemapValues() {
+        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
+        workspace.setQueries(ImmutableList.of("<xml></xml>"));
+        Map<String, Object> map = wt.transform(workspace);
+        assertThat(map.get(WorkspaceAttributes.WORKSPACE_QUERIES),
+                is(ImmutableList.of(ImmutableMap.of("title", "my query"))));
+    }
+
+    // test map -> metacard
+
+    @Test
+    public void testMapToMetacardDirectMapping() {
+        Map<String, Object> map = ImmutableMap.of(Core.TITLE, "title");
+        WorkspaceMetacardImpl workspace = (WorkspaceMetacardImpl) wt.transform(map);
         assertThat(workspace.getTitle(), is(map.get(Core.TITLE)));
-        assertThat(workspace.getQueries(), is(Arrays.asList("<xml></xml>")));
-        assertThat(workspace.getMetacards(), is(map.get(Associations.RELATED)));
+    }
+
+    @Test
+    public void testMapToMetacardRemapKeys() {
+        Map<String, Object> map = ImmutableMap.of(WorkspaceAttributes.WORKSPACE_METACARDS,
+                ImmutableList.of("item1", "item2"));
+        WorkspaceMetacardImpl workspace = (WorkspaceMetacardImpl) wt.transform(map);
+        assertThat(workspace.getMetacards(), is(map.get(WorkspaceAttributes.WORKSPACE_METACARDS)));
+    }
+
+    @Test
+    public void testMapToMetacardRemapValues() {
+        Map<String, Object> map = ImmutableMap.of(WorkspaceAttributes.WORKSPACE_QUERIES,
+                ImmutableList.of(ImmutableMap.of("title", "my query")));
+        WorkspaceMetacardImpl workspace = (WorkspaceMetacardImpl) wt.transform(map);
+        assertThat(workspace.getQueries(), is(ImmutableList.of("<xml></xml>")));
     }
 }
