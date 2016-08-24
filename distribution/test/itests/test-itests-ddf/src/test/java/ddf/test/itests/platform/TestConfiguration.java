@@ -14,6 +14,9 @@
 package ddf.test.itests.platform;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.codice.ddf.itests.common.WaitCondition.expect;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
+import static org.codice.ddf.itests.common.matchers.ConfigurationPropertiesEqualTo.equalToConfigurationProperties;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,8 +27,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static com.jayway.restassured.RestAssured.when;
-import static ddf.common.test.WaitCondition.expect;
-import static ddf.common.test.matchers.ConfigurationPropertiesEqualTo.equalToConfigurationProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.KarafConsole;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.callables.GetConfigurationProperties;
+import org.codice.ddf.itests.common.matchers.ConfigurationPropertiesEqualTo;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,14 +68,6 @@ import org.slf4j.LoggerFactory;
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.path.xml.element.NodeChildren;
 import com.jayway.restassured.response.Response;
-
-import ddf.common.test.BeforeExam;
-import ddf.common.test.KarafConsole;
-import ddf.common.test.callables.GetConfigurationProperties;
-import ddf.common.test.matchers.ConfigurationPropertiesEqualTo;
-import ddf.test.itests.AbstractIntegrationTest;
-import ddf.test.itests.catalog.TestCatalog;
-import ddf.test.itests.common.Library;
 
 /**
  * Note: Tests prefixed with aRunFirst NEED to run before any other tests.  For this reason, we
@@ -664,7 +662,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         resetInitialState();
 
         addConfigurationFileAndWaitForSuccessfulProcessing(VALID_CONFIG_FILE_1,
-                getResourceAsStream(VALID_CONFIG_FILE_1));
+                getFileContentAsStream(VALID_CONFIG_FILE_1));
         String output = console.runCommand(STATUS_COMMAND);
 
         assertThat(output, containsString(SUCCESSFUL_IMPORT_MESSAGE));
@@ -678,9 +676,9 @@ public class TestConfiguration extends AbstractIntegrationTest {
         resetInitialState();
 
         addConfigurationFileAndWaitForFailedProcessing(INVALID_CONFIG_FILE_1,
-                getResourceAsStream(INVALID_CONFIG_FILE_1));
+                getFileContentAsStream(INVALID_CONFIG_FILE_1));
         addConfigurationFileAndWaitForFailedProcessing(INVALID_CONFIG_FILE_2,
-                getResourceAsStream(INVALID_CONFIG_FILE_2));
+                getFileContentAsStream(INVALID_CONFIG_FILE_2));
         String output = console.runCommand(STATUS_COMMAND);
 
         assertThat(output,
@@ -698,7 +696,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         closeFileHandlesInEtc();
         resetInitialState();
 
-        InputStream is = getResourceAsStream(VALID_CONFIG_FILE_1);
+        InputStream is = getFileContentAsStream(VALID_CONFIG_FILE_1);
         InputStream invalidConfigFileAsInputStream = replaceTextInResource(is,
                 "service.pid",
                 "invalid");
@@ -712,7 +710,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 is(true));
         SECONDS.sleep(11);
         addConfigurationFileAndWaitForSuccessfulProcessing(VALID_CONFIG_FILE_1,
-                getResourceAsStream(VALID_CONFIG_FILE_1));
+                getFileContentAsStream(VALID_CONFIG_FILE_1));
         String output2 = console.runCommand(STATUS_COMMAND);
         assertThat(output2, containsString(SUCCESSFUL_IMPORT_MESSAGE));
         assertThat(Files.exists(getPathToProcessedDirectory().resolve(VALID_CONFIG_FILE_1)),
@@ -763,9 +761,9 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private List<String> ingestMetacardsForExport() {
         List<String> metacardIds = new ArrayList<>(2);
-        String metacardId1 = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        String metacardId1 = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
         metacardIds.add(metacardId1);
-        String metacardId2 = TestCatalog.ingest(Library.getSimpleXml(), "text/xml");
+        String metacardId2 = ingest(getFileContent(XML_RECORD_RESOURCE_PATH + "/SimpleXmlMetacard"), "text/xml");
         metacardIds.add(metacardId2);
 
         return metacardIds;
@@ -797,7 +795,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     }
 
     private void copyCrlEnabledPropertiesFile(String source, Path destination) throws IOException {
-        FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(source),
+        FileUtils.copyInputStreamToFile(getFileContentAsStream(source),
                 Paths.get(ddfHome)
                         .resolve(destination)
                         .toFile());
@@ -807,7 +805,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         FileUtils.forceMkdir(Paths.get(ddfHome)
                 .resolve(destinationDir)
                 .toFile());
-        FileUtils.copyInputStreamToFile(getClass().getResourceAsStream("/" + CRL_PEM), Paths.get(
+        FileUtils.copyInputStreamToFile(getFileContentAsStream(CRL_PEM), Paths.get(
                 ddfHome)
                 .resolve(destinationDir)
                 .resolve(CRL_PEM)
@@ -1159,7 +1157,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         }
 
         private InputStream getResourceAsStream() {
-            return getClass().getResourceAsStream(getResourcePath());
+            return getFileContentAsStream(getResourcePath());
         }
     }
 

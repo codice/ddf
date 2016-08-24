@@ -14,12 +14,16 @@
 package ddf.common.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import static junit.framework.TestCase.fail;
 
+import org.codice.ddf.itests.common.annotations.AfterExam;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.annotations.PaxExamRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -33,6 +37,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+
 
 public class PaxExamRuleTest {
 
@@ -60,6 +65,8 @@ public class PaxExamRuleTest {
         @Configuration
         public Option[] config() {
             return options(junitBundles(),
+                    bundle("file:target/test-itests-common-" + System.getProperty("ddf.version")
+                            + ".jar"),
                     wrappedBundle(mavenBundle("org.assertj", "assertj-core").versionAsInProject()));
         }
 

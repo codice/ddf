@@ -13,6 +13,8 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -22,6 +24,8 @@ import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -29,9 +33,6 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 import com.jayway.restassured.path.json.JsonPath;
-
-import ddf.common.test.BeforeExam;
-import ddf.test.itests.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -60,9 +61,7 @@ public class TestFanout extends AbstractIntegrationTest {
 
     private void startCswSource() throws Exception {
         getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
-        CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
-        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
-
+        getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()));
         getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
     }
 
@@ -81,7 +80,7 @@ public class TestFanout extends AbstractIntegrationTest {
             assertThat(json.getInt("size()"), equalTo(1));
             assertThat(json.getList("id", String.class), hasItem(LOCAL_SOURCE_ID));
         } finally {
-            getServiceManager().stopManagedService(CswSourceProperties.FACTORY_PID);
+            getServiceManager().stopManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID);
         }
     }
 
@@ -104,7 +103,7 @@ public class TestFanout extends AbstractIntegrationTest {
             assertThat(json.getList("id", String.class), hasItem(LOCAL_SOURCE_ID));
             assertThat(json.getList("id", String.class), hasItem(CSW_SOURCE_ID));
         } finally {
-            getServiceManager().stopManagedService(CswSourceProperties.FACTORY_PID);
+            getServiceManager().stopManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID);
         }
     }
 
