@@ -18,24 +18,38 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.when;
 
+import static ddf.catalog.ftp.FtpServerStarter.CLIENT_AUTH;
+import static ddf.catalog.ftp.FtpServerStarter.NEED;
+import static ddf.catalog.ftp.FtpServerStarter.WANT;
+import static ddf.common.test.WaitCondition.expect;
+
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
+import java.net.SocketException;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPReply;
-import org.junit.After;
+import org.apache.commons.net.ftp.FTPSClient;
+import org.apache.commons.net.util.KeyManagerUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.osgi.service.cm.Configuration;
 
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Response;
@@ -65,7 +79,7 @@ public class TestFtp extends AbstractIntegrationTest {
 
     private static final String SAMPLE_DATA = "sample test data";
 
-    private FTPClient client;
+    private static final int SET_CLIENT_AUTH_TIMEOUT_SEC = 10;
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -98,61 +112,165 @@ public class TestFtp extends AbstractIntegrationTest {
         }
     }
 
-    @After
-    public void tearDown() throws Exception {
-        disconnect();
-        client = null;
-    }
-
     /**
-     * Simple test verifying FTP client can be connected and configured successfully
-     * 
+     * Simple test verifying FTP client can be connected and successfully complete SSL handshake
+     * with FTP server when clientAuth = "want"
+     *
      * @throws Exception
      */
     @Test
-    public void testFtp() throws Exception {
-        client = createInsecureClient();
+    public void testFtpWantClientAuth() throws Exception {
+        setClientAuthConfiguration(WANT);
+        FTPClient client = createInsecureClient();
         assertTrue(client.sendNoOp());
+        disconnectClient(client);
+    }
+
+    /**
+     * Simple test verifying FTPS client with keystore can be connected and successfully complete
+     * SSL handshake with FTP server when clientAuth = "want"
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFtpsWithKeystoreWantClientAuth() throws Exception {
+        setClientAuthConfiguration(WANT);
+        FTPSClient client = createSecureClient(true);
+        assertTrue(client.sendNoOp());
+        disconnectClient(client);
+    }
+
+    /**
+     * Simple test verifying FTPS client with keystore can be connected and successfully complete
+     * SSL handshake with FTP server when clientAuth = "need"
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFtpsWithKeystoreNeedClientAuth() throws Exception {
+        setClientAuthConfiguration(NEED);
+        FTPSClient client = createSecureClient(true);
+        assertTrue(client.sendNoOp());
+        disconnectClient(client);
+    }
+
+    /**
+     * Simple test verifying FTPS client without keystore can be connected and successfully complete
+     * SSL handshake with FTP server when clientAuth = "want"
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFtpsWithoutKeystoreWantClientAuth() throws Exception {
+        setClientAuthConfiguration(WANT);
+        FTPSClient client = createSecureClient(false);
+        assertTrue(client.sendNoOp());
+        disconnectClient(client);
+    }
+
+    /**
+     * Simple test verifying FTPS client without keystore can be connected and successfully complete
+     * SSL handshake with FTP server when clientAuth = "need"
+     *
+     * @throws Exception
+     */
+    @Test(expected = SSLException.class)
+    public void testFtpsWithoutKeystoreNeedClientAuth() throws Exception {
+        setClientAuthConfiguration(NEED);
+        FTPSClient client = createSecureClient(false);
+        disconnectClient(client);
     }
 
     /**
      * Upload a file via insecure FTP for ingest using input stream
-     * 
+     *
      * @throws Exception
      */
     @Test
-    public void testInsecureFtpPut() throws Exception {
-        client = createInsecureClient();
+    public void testFtpPut() throws Exception {
+        setClientAuthConfiguration(WANT);
+        FTPClient client = createInsecureClient();
 
-        ftpPut(SAMPLE_DATA);
+        ftpPut(client, SAMPLE_DATA);
 
         // verify FTP PUT resulted in ingest, catalogued data
         Response response = executeOpenSearch("xml", "q=*", "count=100");
-        response.then().log().all().body("metacards.metacard.size()", equalTo(1));
+        response.then()
+                .body("metacards.metacard.size()", equalTo(1));
 
         // clean up test data
         TestCatalog.deleteMetacard(getMetacardIdFromResponse(response));
+        disconnectClient(client);
     }
 
     /**
      * Upload a file via insecure FTP for ingest using streaming method
-     * 
+     *
      * @throws Exception
      */
     @Test
-    public void testInsecureFtpPutStream() throws Exception {
-        client = createInsecureClient();
+    public void testFtpPutStream() throws Exception {
+        setClientAuthConfiguration(WANT);
+        FTPClient client = createInsecureClient();
 
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(getClass().getResourceAsStream("/metacard1.xml"), writer);
-        ftpPutStreaming(writer.toString());
+        ftpPutStreaming(client,
+                IOUtils.toString(TestFtp.class.getClassLoader()
+                        .getResourceAsStream("/metacard1.xml")));
 
         // verify FTP PUT resulted in ingest, catalogued data
         Response response = executeOpenSearch("xml", "q=*", "count=100");
-        response.then().log().all().body("metacards.metacard.size()", equalTo(1));
+        response.then()
+                .body("metacards.metacard.size()", equalTo(1));
 
         // clean up test data
         TestCatalog.deleteMetacard(getMetacardIdFromResponse(response));
+        disconnectClient(client);
+    }
+
+    /**
+     * Upload a file via FTPS for ingest using input stream
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFtpsPut() throws Exception {
+        setClientAuthConfiguration(NEED);
+        FTPSClient client = createSecureClient(true);
+
+        ftpPut(client, SAMPLE_DATA);
+
+        // verify FTP PUT resulted in ingest, catalogued data
+        Response response = executeOpenSearch("xml", "q=*", "count=100");
+        response.then()
+                .body("metacards.metacard.size()", equalTo(1));
+
+        // clean up test data
+        TestCatalog.deleteMetacard(getMetacardIdFromResponse(response));
+        disconnectClient(client);
+    }
+
+    /**
+     * Upload a file via FTPS for ingest using streaming method
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFtpsPutStream() throws Exception {
+        setClientAuthConfiguration(NEED);
+        FTPSClient client = createSecureClient(true);
+
+        ftpPutStreaming(client,
+                IOUtils.toString(TestFtp.class.getClassLoader()
+                        .getResourceAsStream("/metacard1.xml")));
+
+        // verify FTP PUT resulted in ingest, catalogued data
+        Response response = executeOpenSearch("xml", "q=*", "count=100");
+        response.then()
+                .body("metacards.metacard.size()", equalTo(1));
+
+        // clean up test data
+        TestCatalog.deleteMetacard(getMetacardIdFromResponse(response));
+        disconnectClient(client);
     }
 
     private FTPClient createInsecureClient() throws Exception {
@@ -178,7 +296,39 @@ public class TestFtp extends AbstractIntegrationTest {
         return ftp;
     }
 
-    private void disconnect() {
+    private FTPSClient createSecureClient(boolean setKeystore) throws Exception {
+        FTPSClient ftps = new FTPSClient();
+
+        if (setKeystore) {
+            KeyManager keyManager =
+                    KeyManagerUtils.createClientKeyManager(new File(System.getProperty(
+                            "javax.net.ssl.keyStore")),
+                            System.getProperty("javax.net.ssl.keyStorePassword"));
+            ftps.setKeyManager(keyManager);
+        }
+
+        ftps.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
+
+        showServerReply(ftps);
+        int connectionReply = ftps.getReplyCode();
+        if (!FTPReply.isPositiveCompletion(connectionReply)) {
+            fail("FTP server refused connection: " + connectionReply);
+        }
+
+        boolean success = ftps.login(USERNAME, PASSWORD);
+        showServerReply(ftps);
+        if (!success) {
+            fail("Could not log in to the FTP server.");
+        }
+
+        ftps.enterLocalPassiveMode();
+        ftps.setControlKeepAliveTimeout(300);
+        ftps.setFileType(FTP.BINARY_FILE_TYPE);
+
+        return ftps;
+    }
+
+    private void disconnectClient(FTPClient client) {
         if (client != null && client.isConnected()) {
             try {
                 client.logout();
@@ -195,10 +345,12 @@ public class TestFtp extends AbstractIntegrationTest {
 
     private Response executeOpenSearch(String format, String... query) {
         StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl()).append("?")
-                .append("format=").append(format);
+                .append("format=")
+                .append(format);
 
         for (String term : query) {
-            buffer.append("&").append(term);
+            buffer.append("&")
+                    .append(term);
         }
 
         String url = buffer.toString();
@@ -207,7 +359,7 @@ public class TestFtp extends AbstractIntegrationTest {
         return when().get(url);
     }
 
-    private void ftpPut(String data) throws IOException {
+    private void ftpPut(FTPClient client, String data) throws IOException {
         LOGGER.info("Start data upload via FTP PUT...");
 
         boolean done;
@@ -226,13 +378,11 @@ public class TestFtp extends AbstractIntegrationTest {
         }
     }
 
-    private void ftpPutStreaming(String data) throws IOException {
+    private void ftpPutStreaming(FTPClient client, String data) throws IOException {
         LOGGER.info("Start data upload via FTP PUT...");
 
-        try (
-                InputStream is = new ByteArrayInputStream(data.getBytes());
-                OutputStream os = client.storeFileStream("test");
-        ) {
+        try (InputStream is = new ByteArrayInputStream(data.getBytes());
+                OutputStream os = client.storeFileStream("test");) {
             byte[] bytesIn = new byte[4096];
             int read = 0;
 
@@ -253,7 +403,7 @@ public class TestFtp extends AbstractIntegrationTest {
     }
 
     private String getMetacardIdFromResponse(Response response)
-        throws IOException, XPathExpressionException {
+            throws IOException, XPathExpressionException {
         return XmlPath.given(response.asString())
                 // gpath to get the single ingested element ID
                 .get("metacards.metacard[0].@gml:id");
@@ -265,6 +415,73 @@ public class TestFtp extends AbstractIntegrationTest {
             for (String aReply : replies) {
                 LOGGER.info("Server response: " + aReply);
             }
+        }
+    }
+
+    /**
+     * Sets the clientAuth configuration in catalog-ftp feature.
+     * <p>
+     * An FTPS client without a certificate is used to indicate when the clientAuth configuration
+     * has taken effect at the FTP server level.
+     * -    When the clientAuth is set to "want", this FTPS client without a certificate should be
+     * able to connect to the FTP server and successfully complete the SSL handshake.
+     * -    When the clientAuth is set to "need", this FTPS client without a certificate should be
+     * able to connect to the FTP server but fail to complete the SSL handshake.
+     * <p>
+     * SocketException and FTPConnectionClosedException are thrown when the client cannot connect to
+     * the server or the connection was closed unexpectedly. These exceptions are thrown when the
+     * server is being updated. SSLException is thrown only after a client has successfully
+     * connected and when the SSL handshake between the client and server fails.
+     *
+     * @throws Exception
+     */
+    private void setClientAuthConfiguration(String clientAuth) throws Exception {
+        Configuration config =
+                getAdminConfig().getConfiguration("ddf.catalog.ftp.FtpServerStarter");
+        config.setBundleLocation("mvn:ddf.catalog/ftp/" + System.getProperty("ddf.version"));
+        Dictionary properties = new Hashtable<>();
+        properties.put(CLIENT_AUTH, clientAuth);
+        config.update(properties);
+
+        //wait until the clientAuth configuration has taken effect at the FTP server level
+        switch (clientAuth) {
+        case WANT:
+            expect("SSL handshake to succeed with FTPS client without certificate because clientAuth = \"want\"").within(
+                    SET_CLIENT_AUTH_TIMEOUT_SEC,
+                    TimeUnit.SECONDS)
+                    .until(() -> {
+                        FTPSClient client = null;
+                        try {
+                            client = createSecureClient(false);
+                            disconnectClient(client);
+                            return true;
+                        } catch (SSLException e) {
+                            //SSL handshake failed
+                            return false;
+                        } catch (SocketException | FTPConnectionClosedException e) {
+                            //connection failed
+                            return false;
+                        }
+                    });
+            break;
+        case NEED:
+            expect("SSL handshake to fail with FTPS client without certificate because clientAuth = \"need\"").within(
+                    SET_CLIENT_AUTH_TIMEOUT_SEC,
+                    TimeUnit.SECONDS)
+                    .until(() -> {
+                        FTPSClient client = null;
+                        try {
+                            client = createSecureClient(false);
+                            disconnectClient(client);
+                            return false;
+                        } catch (SSLException e) {
+                            //SSL handshake failed
+                            return true;
+                        } catch (SocketException | FTPConnectionClosedException e) {
+                            //connection failed
+                            return false;
+                        }
+                    });
         }
     }
 }

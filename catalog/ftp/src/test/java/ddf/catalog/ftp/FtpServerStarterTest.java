@@ -18,6 +18,11 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import static ddf.catalog.ftp.FtpServerStarter.CLIENT_AUTH;
+import static ddf.catalog.ftp.FtpServerStarter.NEED;
+import static ddf.catalog.ftp.FtpServerStarter.PORT;
+import static ddf.catalog.ftp.FtpServerStarter.WANT;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -80,7 +85,7 @@ public class FtpServerStarterTest {
     public void updateConfigurationWithoutActiveConnectionsTest() {
         FtpStatistics stats = mock(FtpStatistics.class);
 
-        Map<String, Object> properties = createProperties(8022, "need");
+        Map<String, Object> properties = createProperties(8022, NEED);
 
         when(ftpServerFactory.createServer()).thenReturn(server);
         when(server.getListener(DEFAULT_LISTENER)).thenReturn(defaultListener);
@@ -100,7 +105,7 @@ public class FtpServerStarterTest {
     public void updateConfigurationWithActiveConnectionsTest() {
         FtpStatistics stats = mock(FtpStatistics.class);
 
-        Map<String, Object> properties = createProperties(8022, "need");
+        Map<String, Object> properties = createProperties(8022, NEED);
 
         when(ftpServerFactory.createServer()).thenReturn(server);
         when(server.getListener(DEFAULT_LISTENER)).thenReturn(defaultListener);
@@ -148,21 +153,21 @@ public class FtpServerStarterTest {
 
     @Test
     public void testSetClientAuthWant() {
-        ftpServerStarter.setClientAuth("want");
+        ftpServerStarter.setClientAuth(WANT);
         assertEquals(ClientAuth.WANT, ftpServerStarter.getClientAuthMode());
     }
 
     @Test
     public void testSetClientAuthNeed() {
-        ftpServerStarter.setClientAuth("need");
+        ftpServerStarter.setClientAuth(NEED);
         assertEquals(ClientAuth.NEED, ftpServerStarter.getClientAuthMode());
     }
 
     private Map<String, Object> createProperties(int port, String clientAuth) {
         Map<String, Object> properties = new HashMap<>();
 
-        properties.put("port", Integer.toString(port));
-        properties.put("clientAuth", clientAuth);
+        properties.put(PORT, Integer.toString(port));
+        properties.put(CLIENT_AUTH, clientAuth);
 
         return properties;
     }
