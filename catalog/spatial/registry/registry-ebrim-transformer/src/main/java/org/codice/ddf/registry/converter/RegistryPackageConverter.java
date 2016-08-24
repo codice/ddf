@@ -454,14 +454,19 @@ public class RegistryPackageConverter {
         StringBuilder phoneNumberBuilder = new StringBuilder();
 
         phoneNumberBuilder = buildNonNullString(phoneNumberBuilder,
+                digits.getCountryCode(),
+                "",
+                "+%s");
+
+        phoneNumberBuilder = buildNonNullString(phoneNumberBuilder,
                 digits.getAreaCode(),
-                "(%s)",
-                "");
+                " ",
+                "(%s)");
         phoneNumberBuilder = buildNonNullString(phoneNumberBuilder, digits.getNumber(), " ");
         phoneNumberBuilder = buildNonNullString(phoneNumberBuilder,
                 digits.getExtension(),
-                "extension %s",
-                " ");
+                " ",
+                "ext %s");
         return phoneNumberBuilder.toString();
     }
 
@@ -506,20 +511,16 @@ public class RegistryPackageConverter {
     private static void setMetacardPhoneNumberAttribute(List<TelephoneNumberType> phoneNumbers,
             String metacardAttribute, MetacardImpl metacard) {
 
-        List<String> metacardPhoneNumbers = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(phoneNumbers)) {
-            for (TelephoneNumberType digits : phoneNumbers) {
-                metacardPhoneNumbers.add(getPhoneNumber(digits));
-
-                if (CollectionUtils.isNotEmpty(metacardPhoneNumbers)) {
-                    metacard.setAttribute(metacardAttribute, (Serializable) metacardPhoneNumbers);
-                }
-            }
+        if (phoneNumbers != null) {
+            List<String> metacardPhoneNumbers = phoneNumbers.stream()
+                    .map(RegistryPackageConverter::getPhoneNumber)
+                    .collect(Collectors.toList());
+            metacard.setAttribute(metacardAttribute, (Serializable) metacardPhoneNumbers);
         }
     }
 
     private static StringBuilder buildNonNullString(StringBuilder stringBuilder,
-            String attributeValue, String format, String delimiterBefore) {
+            String attributeValue, String delimiterBefore, String format) {
         if (StringUtils.isNotBlank(attributeValue)) {
             if (stringBuilder.length() > 0) {
                 stringBuilder.append(delimiterBefore);
@@ -536,7 +537,7 @@ public class RegistryPackageConverter {
     private static StringBuilder buildNonNullString(StringBuilder stringBuilder,
             String attributeValue, String delimiterBefore) {
 
-        return (buildNonNullString(stringBuilder, attributeValue, "", delimiterBefore));
+        return (buildNonNullString(stringBuilder, attributeValue, delimiterBefore, null));
 
     }
 
