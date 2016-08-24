@@ -512,6 +512,7 @@
         <module>spatial</module>
         <module>resourcemanagement</module>
         <module>ftp</module>
+        <module>validator</module>
     </modules>
     <build>
         <plugins>
