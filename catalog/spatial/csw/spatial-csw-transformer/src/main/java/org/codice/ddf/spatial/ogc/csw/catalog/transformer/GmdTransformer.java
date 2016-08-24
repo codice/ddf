@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -57,6 +58,7 @@ import org.xml.sax.SAXException;
 import com.google.common.io.ByteSource;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.path.Path;
@@ -122,8 +124,8 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
 
     private ByteSource byteArray;
 
-    public GmdTransformer(MetacardType metacardType) {
-        super(GmdConverter::new);
+    public GmdTransformer(MetacardType metacardType, Supplier<Converter> converterSupplier) {
+        super(converterSupplier);
 
         gmdMetacardType = metacardType;
         factory = new GeometryFactory();
@@ -142,6 +144,10 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
         argumentHolder = xstream.newDataHolder();
         argumentHolder.put(XstreamPathConverter.PATH_KEY, buildPaths());
         xmlFactory = XMLInputFactory.newInstance();
+    }
+
+    public GmdTransformer(MetacardType metacardType) {
+        this(metacardType, GmdConverter::new);
     }
 
     public void destroy() {

@@ -151,6 +151,11 @@
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -187,7 +192,8 @@
                             ddf-security-common,
                             platform-util,
                             platform-util-unavailableurls,
-                            jaxb2-basics-runtime
+                            jaxb2-basics-runtime,
+                            commons-lang3
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

@@ -105,6 +105,11 @@
             <artifactId>gt-cql</artifactId>
             <version>13.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -126,7 +131,8 @@
                             spatial-csw-common,
                             spatial-ogc-common,
                             catalog-core-api-impl,
-                            platform-util
+                            platform-util,
+                            commons-lang3
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

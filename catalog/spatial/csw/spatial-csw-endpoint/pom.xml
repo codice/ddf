@@ -128,6 +128,11 @@
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -167,6 +172,7 @@
                             ddf-security-common,
                             platform-util,
                             platform-util-unavailableurls,
+                            commons-lang3
                         </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.spatial.ogc.csw.catalog.endpoint.*
