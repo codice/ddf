@@ -386,10 +386,10 @@
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pptx/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-duplication-plugin" install="manual" version="${project.version}"
-             description="DDF Metacard Duplication Plugin">
+    <feature name="catalog-validator-metacardduplication" install="manual" version="${project.version}"
+             description="DDF Metacard Duplicate Validator">
         <feature prerequisite="true">catalog-core</feature>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-duplication/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.validator/catalog-validator-metacardduplication/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-app" install="auto" version="${project.version}"

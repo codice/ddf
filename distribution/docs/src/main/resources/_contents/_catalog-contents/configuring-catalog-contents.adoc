@@ -20,7 +20,7 @@
 |Configure security policy attributes for Catalog.
 
 |<<catalog_standard_framework, Catalog Standard Framework>>
-|${ddf-branding-lowercase}.catalog.CatalogFrameworkImpl
+|ddf.catalog.CatalogFrameworkImpl
 |Configure settings for product retrieval through Catalog Standard Framework
 
 |<<metacard_attribute_security_policy_plugin, Metacard Attribute Security Policy Plugin>>
@@ -36,11 +36,11 @@
 |Configure settings for locating security attributes on XML elements.
 
 |<<xml_query_transformer, Xml Query Transformer>>
-|${ddf-branding-lowercase}.catalog.transformer.xml.XmlResponseQueueTransformer
+|ddf.catalog.transformer.xml.XmlResponseQueueTransformer
 |Set threshold for running marshalling in parallel
 
-|<<catalog_duplicate_validator, Catalog Duplicate Validator>>
-|${ddf-branding-lowercase}.catalog.metacard.duplication.DuplicationValidator
+|<<catalog_duplicate_validator, Catalog Metacard Duplicate Validator>>
+|org.codice.ddf.validator.metacard.duplication.DuplicationValidator
 |Configure rules to check for duplicate data
 
 |===
@@ -363,7 +363,7 @@ The X value will be the value that is placed within the security attribute on th
 
 |===
 
-.[[catalog_duplicate_validator]]Catalog Duplicate Validator
+.[[catalog_duplicate_validator]]Catalog Metacard Duplicate Validator
 [cols="1,1m,1,2,1,1" options="header"]
 |===
 |Name

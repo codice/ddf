@@ -459,8 +459,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-duplication</artifactId>
+            <groupId>org.codice.ddf.validator</groupId>
+            <artifactId>catalog-validator-metacardduplication</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
