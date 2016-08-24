@@ -22,12 +22,12 @@ define([
     'component/loading-companion/loading-companion.view',
     'js/store',
     'js/Common'
-], function (Marionette, _, $, template, CustomElements, LoadingCompanionView, store, Common) {
+], function(Marionette, _, $, template, CustomElements, LoadingCompanionView, store, Common) {
 
     var selectedVersion;
 
     return Marionette.ItemView.extend({
-        setDefaultModel: function(){
+        setDefaultModel: function() {
             this.model = this.selectionInterface.getSelectedResults().first();
         },
         template: template,
@@ -35,43 +35,64 @@ define([
         modelEvents: {
             'all': 'render'
         },
-        events: {
-        },
-        ui: {
-        },
+        events: {},
+        ui: {},
         selectionInterface: store,
-        initialize: function(options){
+        initialize: function(options) {
             this.selectionInterface = options.selectionInterface || this.selectionInterface;
-            if (!options.model){
+            if (!options.model) {
                 this.setDefaultModel();
             }
             this.loadData();
         },
-        loadData: function(){
+        loadData: function() {
             LoadingCompanionView.beginLoading(this);
             var self = this;
-            setTimeout(function(){
-                $.get('/search/catalog/internal/metacard/'+self.model.get('metacard').id+'/attribute/validation').then(function(response){
-                    self._validation = response;
-                }).always(function(){
+            setTimeout(function() {
+                $.when($.get('/search/catalog/internal/metacard/' + self.model.get('metacard').id + '/attribute/validation').then(function(response) {
+                    self._attributeValidation = response;
+                }), $.get('/search/catalog/internal/metacard/' + self.model.get('metacard').id + '/validation').then(function(response) {
+                    self._metacardValidation = response;
+                })).always(function() {
+                    self.checkForDuplicate();
                     LoadingCompanionView.endLoading(self);
-                    if (!self.isDestroyed){
+                    if (!self.isDestroyed) {
                         self.render();
                     }
                 });
             }, 1000);
         },
-        onRender: function(){
+        checkForDuplicate: function() {
+            if (this._metacardValidation) {
+                this._metacardValidation.forEach(function(validationIssue) {
+                    if (validationIssue.message.indexOf('Duplicate data found in catalog') === 0) {
+                        var idRegEx = new RegExp("{(.*?)\}");
+                        var ids = idRegEx.exec(validationIssue.message)[1].split(', ');
+                        ids.forEach(function(metacardId) {
+                            validationIssue.message =
+                                validationIssue.message.replace(metacardId,
+                                    '<a href="/search/catalog/#metacards/' + metacardId + '">' + metacardId + '</a>')
+                        });
+                    }
+                });
+            }
         },
-        serializeData: function(){
+        onRender: function() {},
+        serializeData: function() {
             var self = this;
-            var hasValidation = false;
-            if (this._validation){
-                hasValidation = this._validation.length > 0;
+            var hasMetacardValidation = false;
+            var hasAttributeValidation = false;
+            if (this._metacardValidation) {
+                hasMetacardValidation = this._metacardValidation.length > 0;
+            }
+            if (this._attributeValidation) {
+                hasAttributeValidation = this._attributeValidation.length > 0;
             }
             return {
-                validation: this._validation,
-                hasValidation: hasValidation
+                attributeValidation: this._attributeValidation,
+                hasAttributeValidation: hasAttributeValidation,
+                hasMetacardValidation: hasMetacardValidation,
+                metacardValidation: this._metacardValidation
             };
         }
     });

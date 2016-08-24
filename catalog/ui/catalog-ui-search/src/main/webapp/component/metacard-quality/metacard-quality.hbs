@@ -11,8 +11,45 @@
  *
  **/
  --}}
-{{#if hasValidation}}
-    <h4 align="center">Validation Issues</h4>
+{{#if hasMetacardValidation}}
+    <h4 align="center">Metacard Validation Issues</h4>
+    <table>
+        <thead>
+        <th>
+            Attribute
+        </th>
+        <th>
+            Severity
+        </th>
+        <th>
+            Message
+        </th>
+        </thead>
+        <tbody>
+        {{#each metacardValidation}}
+            <tr>
+                <td>
+                    {{#each attributes}}
+                        <div>
+                            {{this}}
+                        </div>
+                    {{/each}}
+                </td>
+                <td>
+                    {{severity}}
+                </td>
+                <td>
+                    {{{message}}}
+                </td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+{{else}}
+    <h4 align="center">No Metacard Validation Issues to Report</h4>
+{{/if}}
+{{#if hasAttributeValidation}}
+    <h4 align="center">Attribute Validation Issues</h4>
     <table>
         <thead>
         <th>
@@ -26,7 +63,7 @@
         </th>
         </thead>
         <tbody>
-        {{#each validation}}
+        {{#each attributeValidation}}
             <tr>
                 <td>
                     {{attribute}}
@@ -50,5 +87,5 @@
         </tbody>
     </table>
 {{else}}
-    <h4 align="center">No Validation Issues to Report</h4>
+    <h4 align="center">No Attribute Validation Issues to Report</h4>
 {{/if}}
