@@ -41,12 +41,18 @@
 
     <bean id="registryPublisherExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
     <bean id="metacardHandlerExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+    <bean id="cleanupHandlerExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
 
     <bean id="registryPublisher"
           class="org.codice.ddf.registry.api.impl.RegistryStorePublisher">
         <property name="federationAdminService" ref="federationAdminService"/>
         <property name="registryPublicationService" ref="registryPublicationService"/>
         <property name="executor" ref="registryPublisherExecutor"/>
+    </bean>
+
+    <bean id="storeCleanupHandler" class="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler">
+        <property name="federationAdminService" ref="federationAdminService"/>
+        <property name="executor" ref="cleanupHandlerExecutor"/>
     </bean>
 
     <bean id="registryMetacardHandler" class="org.codice.ddf.registry.api.impl.RegistryMetacardHandler" destroy-method="destroy">
@@ -70,6 +76,8 @@
                     availability="optional">
         <reference-listener ref="registryPublisher" bind-method="bindRegistryStore"
                             unbind-method="unbindRegistryStore"/>
+        <reference-listener ref="storeCleanupHandler" bind-method="bindRegistryStore"
+                            unbind-method="unbindRegistryStore"/>
     </reference-list>
 
     <service ref="registryPublisher" interface="org.osgi.service.event.EventHandler">
@@ -77,6 +85,16 @@
             <entry key="event.topics">
                 <array value-type="java.lang.String">
                     <value>org/osgi/framework/ServiceEvent/MODIFIED</value>
+                </array>
+            </entry>
+        </service-properties>
+    </service>
+
+    <service ref="storeCleanupHandler" interface="org.osgi.service.event.EventHandler">
+        <service-properties>
+            <entry key="event.topics">
+                <array value-type="java.lang.String">
+                    <value>org/osgi/framework/ServiceEvent/UNREGISTERING</value>
                 </array>
             </entry>
         </service-properties>
@@ -115,7 +133,7 @@
 
     <cm:managed-service-factory
 
-            id="ddf.catalog.registry.api.impl.RegistryStoreImpl.id"
+            id="org.codice.ddf.registry.api.impl.RegistryStoreImpl.id"
             factory-pid="Csw_Registry_Store">
         <interfaces>
             <value>org.codice.ddf.registry.api.internal.RegistryStore</value>
