@@ -125,11 +125,11 @@ public class RegistryReportBuilderTest {
                 .text();
 
         assertThat(organizationName, is("Codice"));
-        assertThat(phoneNumbers, is("(555) 555-5555 extension 1234"));
+        assertThat(phoneNumbers, is("(555) 555-5555 ext 1234"));
         assertThat(emailAddresses, is("emailaddress@something.com"));
         assertThat(address, is("1234 Some Street, Phoenix, AZ 85037, USA"));
         assertThat(pointOfContact,
-                is("foo bar, (111) 111-1111 extension 1234, emailaddress@something.com"));
+                is("foo bar, +country (111) 111-1111 ext 1234, emailaddress@something.com"));
     }
 
     private void assertSparseSummaryReportValues(Document document) {
