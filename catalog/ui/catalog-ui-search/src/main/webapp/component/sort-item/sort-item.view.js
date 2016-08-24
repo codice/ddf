@@ -21,7 +21,7 @@ define([
     'js/CustomElements',
     'component/singletons/metacard-definitions',
     'component/dropdown/dropdown.view',
-], function (Marionette, _, $, template, CustomElements, metacardDefinitions, DropdownView) {
+], function(Marionette, _, $, template, CustomElements, metacardDefinitions, DropdownView) {
 
     var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags', 'anyText'];
 
@@ -35,17 +35,16 @@ define([
         events: {
             'click .sort-remove': 'removeModel'
         },
-        initialize: function(options){
-        },
-        removeModel: function(){
+        initialize: function(options) {},
+        removeModel: function() {
             this.model.destroy();
         },
-        onBeforeShow: function(){
-            var sortAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function(type){
+        onBeforeShow: function() {
+            var sortAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function(type) {
                 return type.type === 'STRING' || type.type === 'DATE';
-            }).filter(function(type){
+            }).filter(function(type) {
                 return blacklist.indexOf(type.id) === -1;
-            }).map(function(type){
+            }).map(function(type) {
                 return {
                     label: type.alias || type.id,
                     value: type.id
@@ -53,26 +52,24 @@ define([
             });
 
             this.sortAttribute.show(DropdownView.createSimpleDropdown({
+                hasFiltering: true,
                 list: sortAttributes,
                 defaultSelection: [this.model.get('attribute')]
             }));
             this.sortDirection.show(DropdownView.createSimpleDropdown({
-                list: [
-                    {
-                        label: 'Ascending',
-                        value: 'ascending'
-                    },
-                    {
-                        label: 'Descending',
-                        value: 'descending'
-                    }
-                ],
+                list: [{
+                    label: 'Ascending',
+                    value: 'ascending'
+                }, {
+                    label: 'Descending',
+                    value: 'descending'
+                }],
                 defaultSelection: [this.model.get('direction')]
             }));
-            this.listenTo(this.sortAttribute.currentView.model, 'change:value', function(model, attribute){
+            this.listenTo(this.sortAttribute.currentView.model, 'change:value', function(model, attribute) {
                 this.model.set('attribute', attribute[0]);
             })
-            this.listenTo(this.sortDirection.currentView.model, 'change:value', function(model, direction){
+            this.listenTo(this.sortDirection.currentView.model, 'change:value', function(model, direction) {
                 this.model.set('direction', direction[0]);
             })
         }
