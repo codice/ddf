@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -37,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
@@ -47,7 +46,6 @@ import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
-import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -55,10 +53,10 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.FrameworkProperties;
+import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
@@ -79,14 +77,13 @@ import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 
 /**
  * Support class for update delegate operations for the {@code CatalogFrameworkImpl}.
- *
+ * <p>
  * This class contains two delegated update methods and methods to support them. No
  * operations/support methods should be added to this class except in support of CFI
  * update operations.
@@ -148,15 +145,10 @@ public class UpdateOperations {
             updateRequest = injectAttributes(updateRequest);
             updateRequest = setDefaultValues(updateRequest);
 
-            Map<String, Metacard> metacardMap = populateMetacards(updateRequest);
+            updateRequest = populateMetacards(updateRequest);
 
-            updateRequest = populateUpdateRequestPolicyMap(updateRequest, metacardMap);
-            updateRequest = processPreUpdateAccessPlugins(updateRequest, metacardMap);
-
-            updateRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
-                                    metacardMap.values()));
+            updateRequest = populateUpdateRequestPolicyMap(updateRequest);
+            updateRequest = processPreUpdateAccessPlugins(updateRequest);
 
             updateRequest = processPreIngestPlugins(updateRequest);
             updateRequest = validateUpdateRequest(updateRequest);
@@ -180,6 +172,16 @@ public class UpdateOperations {
             throw new InternalIngestException("Exception during runtime while performing update",
                     re);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Metacard> getUpdateMap(UpdateRequest updateRequest) {
+        return (Map<String, Metacard>) Optional.of(updateRequest)
+                .map(Operation::getProperties)
+                .map(p -> p.get(Constants.ATTRIBUTE_UPDATE_MAP_KEY))
+                .filter(Map.class::isInstance)
+                .map(Map.class::cast)
+                .orElseGet(HashMap::new);
     }
 
     public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
@@ -271,55 +273,16 @@ public class UpdateOperations {
     // Private helper methods
     //
 
-    private UpdateRequest rewriteRequestToAvoidHistoryConflicts(UpdateRequest updateRequest)
-            throws UnsupportedQueryException {
+    private UpdateRequest rewriteRequestToAvoidHistoryConflicts(UpdateRequest updateRequest,
+            QueryResponse response) {
         final String attributeName = updateRequest.getAttributeName();
         if (Metacard.ID.equals(attributeName)) {
             return updateRequest;
         }
 
-        Filter filter = updateRequest.getUpdates()
+        List<Map.Entry<Serializable, Metacard>> updatedList = response.getResults()
                 .stream()
-                .map(Map.Entry::getKey)
-                .map(Object::toString)
-                .map((val) -> getNonhistoryFilter(attributeName, val))
-                .collect(Collectors.collectingAndThen(Collectors.toList(),
-                        frameworkProperties.getFilterBuilder()::anyOf));
-
-        SourceResponse response = sourceOperations.getCatalog()
-                .query(new QueryRequestImpl(new QueryImpl(filter,
-                        1,
-                        0,
-                        SortBy.NATURAL_ORDER,
-                        false,
-                        TimeUnit.SECONDS.toMillis(10))));
-
-        Map<Serializable, Metacard> results = response.getResults()
-                .stream()
-                .collect(Collectors.toMap(r -> r.getMetacard()
-                        .getAttribute(attributeName)
-                        .getValue(), Result::getMetacard));
-
-        if (isAllAttributesMatched(updateRequest, response, attributeName)) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(
-                        "While rewriting the query, did not get a metacardId corresponding to every attribute."
-                                + "Original Delete By attribute was: " + attributeName);
-                LOGGER.debug("Metacards unable to get Metacard ID from are: "
-                        + updateRequest.getUpdates()
-                        .stream()
-                        .map(Map.Entry::getKey)
-                        .map(Object::toString)
-                        .filter(s -> !results.keySet()
-                                .contains(s))
-                        .collect(Collectors.joining(", ", "[", "]")));
-            }
-            throw new UnsupportedQueryException("Could not find all metacards to update.");
-        }
-
-        List<Map.Entry<Serializable, Metacard>> updatedList = updateRequest.getUpdates()
-                .stream()
-                .map(Map.Entry::getValue)
+                .map(Result::getMetacard)
                 .map(this::toEntryById)
                 .collect(Collectors.toList());
 
@@ -329,25 +292,8 @@ public class UpdateOperations {
                 updateRequest.getStoreIds());
     }
 
-    private Filter getNonhistoryFilter(String attributeName, String value) {
-        Filter attr = frameworkProperties.getFilterBuilder()
-                .attribute(attributeName)
-                .is()
-                .equalTo()
-                .text(value);
-        Filter notHistory = frameworkProperties.getFilterBuilder()
-                .not(frameworkProperties.getFilterBuilder()
-                        .attribute(Metacard.TAGS)
-                        .is()
-                        .like()
-                        .text(MetacardVersion.VERSION_TAG));
-
-        return frameworkProperties.getFilterBuilder()
-                .allOf(attr, notHistory);
-    }
-
-    private boolean isAllAttributesMatched(UpdateRequest updateRequest, SourceResponse response,
-            String attributeName) {
+    private boolean foundAllUpdateRequestMetacards(UpdateRequest updateRequest,
+            QueryResponse response) {
         Set<String> originalKeys = updateRequest.getUpdates()
                 .stream()
                 .map(Map.Entry::getKey)
@@ -356,14 +302,13 @@ public class UpdateOperations {
         Set<String> responseKeys = response.getResults()
                 .stream()
                 .map(Result::getMetacard)
-                .map(m -> m.getAttribute(attributeName))
+                .map(m -> m.getAttribute(updateRequest.getAttributeName()))
+                .filter(Objects::nonNull)
+                .map(Attribute::getValue)
+                .filter(Objects::nonNull)
                 .map(Object::toString)
                 .collect(Collectors.toSet());
-        boolean notSameSize = response.getResults()
-                .size() != updateRequest.getUpdates()
-                .size();
-        return !Sets.difference(originalKeys, responseKeys)
-                .isEmpty() || notSameSize;
+        return originalKeys.equals(responseKeys);
     }
 
     private Map.Entry<Serializable, Metacard> toEntryById(Metacard metacard) {
@@ -512,11 +457,7 @@ public class UpdateOperations {
         if (!Requests.isLocal(updateRequest)) {
             return null;
         }
-        try {
-            updateRequest = rewriteRequestToAvoidHistoryConflicts(updateRequest);
-        } catch (UnsupportedQueryException e) {
-            throw new IngestException("Could not rewrite request to avoid history conflicts", e);
-        }
+
         UpdateResponse updateResponse = sourceOperations.getCatalog()
                 .update(updateRequest);
         updateResponse = historian.version(updateResponse);
@@ -535,16 +476,18 @@ public class UpdateOperations {
         return updateRequest;
     }
 
-    private UpdateRequest processPreUpdateAccessPlugins(UpdateRequest updateRequest,
-            Map<String, Metacard> metacardMap) throws StopProcessingException {
+    private UpdateRequest processPreUpdateAccessPlugins(UpdateRequest updateRequest)
+            throws StopProcessingException {
+        Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
         for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
             updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
         }
         return updateRequest;
     }
 
-    private UpdateRequest populateUpdateRequestPolicyMap(UpdateRequest updateRequest,
-            Map<String, Metacard> metacardMap) throws StopProcessingException {
+    private UpdateRequest populateUpdateRequestPolicyMap(UpdateRequest updateRequest)
+            throws StopProcessingException {
+        Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
         HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
         for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
             HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
@@ -580,34 +523,39 @@ public class UpdateOperations {
         return updateRequest;
     }
 
-    private Map<String, Metacard> populateMetacards(UpdateRequest updateRequest)
-            throws IngestException {
-        if (frameworkProperties.getPolicyPlugins()
-                .isEmpty()) {
-            return new HashMap<>();
-        }
+    private UpdateRequest populateMetacards(UpdateRequest updateRequest) throws IngestException {
+        final String attributeName = updateRequest.getAttributeName();
 
         QueryRequestImpl queryRequest = createQueryRequest(updateRequest);
-
+        QueryResponse query;
         try {
-            QueryResponse query = queryOperations.doQuery(queryRequest,
+            query = queryOperations.doQuery(queryRequest,
                     frameworkProperties.getFederationStrategy(),
                     false);
-            List<Result> results = query.getResults();
-            if (results.size() != updateRequest.getUpdates()
-                    .size()) {
-                throw new IngestException("Unable to find all metacards in update request.");
-            }
-
-            return results.stream()
-                    .map(Result::getMetacard)
-                    .collect(Collectors.toMap(metacard -> getAttributeStringValue(metacard,
-                            updateRequest.getAttributeName()), m -> m));
         } catch (FederationException e) {
             LOGGER.debug("Unable to complete query for updated metacards.", e);
+            throw new IngestException("Exception during runtime while performing update");
         }
 
-        return new HashMap<>();
+        if (!foundAllUpdateRequestMetacards(updateRequest, query)) {
+            logFailedQueryInfo(updateRequest, query);
+            throw new IngestException("Could not find all metacards specified in request");
+        }
+
+        updateRequest = rewriteRequestToAvoidHistoryConflicts(updateRequest, query);
+
+        HashMap<String, Metacard> metacardMap = new HashMap<>(query.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toMap(metacard -> getAttributeStringValue(metacard,
+                        attributeName), Function.identity())));
+        updateRequest.getProperties()
+                .put(Constants.ATTRIBUTE_UPDATE_MAP_KEY, metacardMap);
+        updateRequest.getProperties()
+                .put(Constants.OPERATION_TRANSACTION_KEY,
+                        new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
+                                metacardMap.values()));
+        return updateRequest;
     }
 
     private QueryRequestImpl createQueryRequest(UpdateRequest updateRequest) {
@@ -622,10 +570,12 @@ public class UpdateOperations {
                 .collect(Collectors.toList());
 
         QueryImpl queryImpl =
-                new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters));
-        queryImpl.setStartIndex(1);
-        queryImpl.setPageSize(updateRequest.getUpdates()
-                .size());
+                new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters),
+                        1,  /* start index */
+                        0,  /* page size */
+                        SortBy.NATURAL_ORDER,
+                        false, /* total result count */
+                        0   /* timeout */);
         return new QueryRequestImpl(queryImpl, updateRequest.getStoreIds());
     }
 
@@ -672,5 +622,31 @@ public class UpdateOperations {
                 .map(Attribute::getValue)
                 .map(Object::toString)
                 .orElse("");
+    }
+
+    private void logFailedQueryInfo(UpdateRequest updateRequest, QueryResponse query) {
+        if (LOGGER.isDebugEnabled()) {
+            final String attributeName = updateRequest.getAttributeName();
+            Set<String> queryResults = query.getResults()
+                    .stream()
+                    .map(Result::getMetacard)
+                    .map(m -> m.getAttribute(attributeName))
+                    .filter(Objects::nonNull)
+                    .map(Attribute::getValue)
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .collect(Collectors.toSet());
+
+            LOGGER.debug(
+                    "While rewriting the query, did not get a metacardId corresponding to every attribute.");
+            LOGGER.debug("Original Update By attribute was: " + attributeName);
+            LOGGER.debug(
+                    "Metacards unable to get Metacard ID from are: " + updateRequest.getUpdates()
+                            .stream()
+                            .map(Map.Entry::getKey)
+                            .map(Object::toString)
+                            .filter(s -> !queryResults.contains(s))
+                            .collect(Collectors.joining(", ", "[", "]")));
+        }
     }
 }

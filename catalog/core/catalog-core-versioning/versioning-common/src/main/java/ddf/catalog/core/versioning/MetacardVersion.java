@@ -380,7 +380,7 @@ public class MetacardVersion extends MetacardImpl {
                     .filter(MetacardType.class::isInstance)
                     .map(MetacardType.class::cast);
         } catch (IOException | ClassNotFoundException e) {
-            LOGGER.info("Error while processing metacard type", e);
+            LOGGER.debug("Error while processing metacard type", e);
             return Optional.empty();
         }
     }

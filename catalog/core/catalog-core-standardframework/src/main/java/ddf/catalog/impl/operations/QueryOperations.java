@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -36,7 +37,6 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryRequest;
@@ -215,7 +215,7 @@ public class QueryOperations extends DescribableImpl {
 
     Filter getFilterWithAdditionalFilters(List<Filter> originalFilter) {
         return frameworkProperties.getFilterBuilder()
-                .allOf(getTagsQueryFilter(),
+                .allOf(getNonVersionTagsFilter(),
                         frameworkProperties.getValidationQueryFactory()
                                 .getFilterWithValidationFilter(),
                         frameworkProperties.getFilterBuilder()
@@ -553,16 +553,13 @@ public class QueryOperations extends DescribableImpl {
         return ids;
     }
 
-    private Filter getTagsQueryFilter() {
+    private Filter getNonVersionTagsFilter() {
         return frameworkProperties.getFilterBuilder()
-                .anyOf(frameworkProperties.getFilterBuilder()
-                                .attribute(Metacard.TAGS)
-                                .is()
-                                .like()
-                                .text(FilterDelegate.WILDCARD_CHAR),
-                        frameworkProperties.getFilterBuilder()
-                                .attribute(Metacard.TAGS)
-                                .empty());
+                .not(frameworkProperties.getFilterBuilder()
+                        .attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(MetacardVersion.VERSION_TAG));
     }
 
     static class QuerySources {
