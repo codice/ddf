@@ -156,7 +156,7 @@ public class DeleteOperations {
             deleteResponse = processPostIngestPlugins(deleteResponse);
 
         } catch (StopProcessingException see) {
-            LOGGER.warn(PRE_INGEST_ERROR + see.getMessage(), see);
+            LOGGER.debug(PRE_INGEST_ERROR + see.getMessage(), see);
             throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
 
         } catch (RuntimeException re) {
@@ -468,7 +468,7 @@ public class DeleteOperations {
 
     private boolean isStorageAvailable(StorageProvider storageProvider) {
         if (storageProvider == null) {
-            LOGGER.warn("storageProvider is null, therefore not available");
+            LOGGER.debug("storageProvider is null, therefore not available");
             return false;
         }
         return true;

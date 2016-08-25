@@ -157,7 +157,7 @@ public class CreateOperations {
             createResponse = performRemoteCreate(createRequest, createResponse);
 
         } catch (IngestException iee) {
-            INGEST_LOGGER.warn("Ingest error", iee);
+            INGEST_LOGGER.debug("Ingest error", iee);
             ingestError = iee;
             throw iee;
         } catch (StopProcessingException see) {
@@ -167,8 +167,8 @@ public class CreateOperations {
             ingestError = re;
             throw new InternalIngestException("Exception during runtime while performing create", re);
         } finally {
-            if (ingestError != null && INGEST_LOGGER.isWarnEnabled()) {
-                INGEST_LOGGER.warn("Error on create operation. {} metacards failed to ingest. {}",
+            if (ingestError != null && INGEST_LOGGER.isInfoEnabled()) {
+                INGEST_LOGGER.info("Error on create operation. {} metacards failed to ingest. {}",
                         createRequest.getMetacards()
                                 .size(),
                         buildIngestLog(createRequest),
@@ -576,8 +576,8 @@ public class CreateOperations {
                 && !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
             SourceUnavailableException sourceUnavailableException = new SourceUnavailableException(
                     "Local provider is not available, cannot perform create operation.");
-            if (INGEST_LOGGER.isWarnEnabled()) {
-                INGEST_LOGGER.warn(
+            if (INGEST_LOGGER.isInfoEnabled()) {
+                INGEST_LOGGER.info(
                         "Error on create operation, local provider not available. {} metacards failed to ingest. {}",
                         createRequest.getMetacards()
                                 .size(),
@@ -612,7 +612,7 @@ public class CreateOperations {
             try {
                 createStorageResponse = plugin.process(createStorageResponse);
             } catch (PluginExecutionException e) {
-                LOGGER.warn("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.",
                         e);
             }
         }
@@ -625,7 +625,7 @@ public class CreateOperations {
             try {
                 createStorageRequest = plugin.process(createStorageRequest);
             } catch (PluginExecutionException e) {
-                LOGGER.warn("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.",
                         e);
             }
         }
