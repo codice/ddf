@@ -267,30 +267,37 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         },
         panToResults: function(results) {
             var coordinates = _.flatten(results.map(function(result) {
-                return result.get('metacard').get('geometry').getAllPoints();
+                var geometry = result.get('metacard').get('geometry');
+                if (geometry) {
+                    return geometry.getAllPoints();
+                } else {
+                    return [];
+                }
             }), true);
             this.panToExtent(coordinates);
         },
         panToExtent: function(coords) {
-            var zoom = Openlayers.animation.zoom({
-                duration: 250,
-                resolution: map.getView().getResolution()
-            });
-            var pan1 = Openlayers.animation.pan({
-                duration: 250,
-                source: map.getView().getCenter()
-            });
+            if (coords.constructor === Array && coords.length > 0) {
+                var zoom = Openlayers.animation.zoom({
+                    duration: 250,
+                    resolution: map.getView().getResolution()
+                });
+                var pan1 = Openlayers.animation.pan({
+                    duration: 250,
+                    source: map.getView().getCenter()
+                });
 
-            var lineObject = coords.map(function(coordinate) {
-                return convertPointCoordinate(coordinate);
-            });
+                var lineObject = coords.map(function(coordinate) {
+                    return convertPointCoordinate(coordinate);
+                });
 
-            var extent = Openlayers.extent.boundingExtent(lineObject)
+                var extent = Openlayers.extent.boundingExtent(lineObject)
 
-            map.beforeRender(pan1, zoom);
-            map.getView().fit(extent, map.getSize(), {
-                maxZoom: map.getView().getZoom()
-            });
+                map.beforeRender(pan1, zoom);
+                map.getView().fit(extent, map.getSize(), {
+                    maxZoom: map.getView().getZoom()
+                });
+            }
         },
         panToRectangle: function(rectangle) {
             var zoom = Openlayers.animation.zoom({
