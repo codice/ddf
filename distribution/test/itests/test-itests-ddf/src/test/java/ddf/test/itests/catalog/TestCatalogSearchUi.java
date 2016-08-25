@@ -13,6 +13,8 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -26,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.boon.json.JsonFactory;
+import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -247,6 +251,66 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
         expect(asUser("random", "password").body(stringify(ImmutableMap.of(Core.METACARD_OWNER,
                 "random@localhost.local"))), 200).put(api() + "/" + id);
+
+        ids.add(id); // for cleanUp
+    }
+
+    @Test
+    public void testWorkspaceSavedItems() {
+        List<String> metacards = ImmutableList.of("item1", "item2");
+        Map<String, Object> workspace = ImmutableMap.of(WorkspaceAttributes.WORKSPACE_METACARDS,
+                metacards);
+
+        Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+
+        Map body = parse(res);
+        String id = (String) body.get("id");
+        assertNotNull(id);
+        assertThat(body.get(WorkspaceAttributes.WORKSPACE_METACARDS), is(metacards));
+
+        ids.add(id); // for cleanUp
+    }
+
+    @Test
+    public void testWorkspaceQueries() {
+        Map<String, Object> query = ImmutableMap.<String, Object>builder()
+                .put(Core.TITLE, "title")
+                .put(QueryMetacardTypeImpl.QUERY_CQL, "query")
+                .put(QueryMetacardTypeImpl.QUERY_ENTERPRISE, true)
+                .build();
+
+        List<Map<String, Object>> queries = ImmutableList.of(query);
+        Map<String, Object> workspace = ImmutableMap.of(WorkspaceAttributes.WORKSPACE_QUERIES,
+                queries);
+
+        Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+
+        Map body = parse(res);
+        String id = (String) body.get("id");
+        assertNotNull(id);
+        assertThat(body.get(WorkspaceAttributes.WORKSPACE_QUERIES), is(queries));
+
+        ids.add(id); // for cleanUp
+    }
+
+    @Test
+    public void testWorkspaceQueriesWithSpecificSources() {
+        Map<String, Object> query = ImmutableMap.<String, Object>builder()
+                .put(Core.TITLE, "title")
+                .put(QueryMetacardTypeImpl.QUERY_CQL, "query")
+                .put("src", ImmutableList.of("source a", "source b"))
+                .build();
+
+        List<Map<String, Object>> queries = ImmutableList.of(query);
+        Map<String, Object> workspace = ImmutableMap.of(WorkspaceAttributes.WORKSPACE_QUERIES,
+                queries);
+
+        Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+
+        Map body = parse(res);
+        String id = (String) body.get("id");
+        assertNotNull(id);
+        assertThat(body.get(WorkspaceAttributes.WORKSPACE_QUERIES), is(queries));
 
         ids.add(id); // for cleanUp
     }
