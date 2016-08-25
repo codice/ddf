@@ -16,7 +16,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="Catalog Duplicate Validator"
-         id="ddf.catalog.metacard.duplication.DuplicationValidator">
+         id="org.codice.ddf.validator.metacard.duplication.DuplicationValidator">
         <AD
                 description="A list of metacard attributes used in the duplication check against the local catalog.  If a duplicate is found, the ingest will cause a metacard validation ERROR, but the ingest will succeed."
                 name="Metacard attributes (duplicates cause a validation error)"
@@ -29,9 +29,9 @@
     </OCD>
 
     <Designate
-            pid="ddf.catalog.metacard.duplication.DuplicationValidator">
+            pid="org.codice.ddf.validator.metacard.duplication.DuplicationValidator">
         <Object
-                ocdref="ddf.catalog.metacard.duplication.DuplicationValidator"/>
+                ocdref="org.codice.ddf.validator.metacard.duplication.DuplicationValidator"/>
     </Designate>
 
 </metatype:MetaData>
