@@ -874,7 +874,7 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testCatalogEndpointExposure() throws InvalidSyntaxException {
         // Check the service references
         ArrayList<String> expectedEndpoints = new ArrayList<>();
-        expectedEndpoints.add("openSearchUrl");
+        expectedEndpoints.add("endpointUrl");
         expectedEndpoints.add("cswUrl");
 
         CatalogEndpoint endpoint = getServiceManager().getService(CatalogEndpoint.class);

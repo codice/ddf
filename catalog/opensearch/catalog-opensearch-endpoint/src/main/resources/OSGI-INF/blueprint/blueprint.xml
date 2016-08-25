@@ -45,7 +45,7 @@
           class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
         <property name="url"
                   value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/catalog/query"/>
-        <property name="urlBindingName" value="openSearchUrl"/>
+        <property name="urlBindingName" value="endpointUrl"/>
         <property name="id" value="registry.federation.method.openSearch"/>
         <property name="name" value="Open Search Endpoint"/>
         <property name="version" value="1.0.0"/>
