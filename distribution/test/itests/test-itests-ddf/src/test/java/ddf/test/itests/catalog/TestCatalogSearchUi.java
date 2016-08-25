@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.boon.json.JsonFactory;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +50,14 @@ import ddf.test.itests.AbstractIntegrationTest;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestCatalogSearchUi extends AbstractIntegrationTest {
+
+    private static final String QUERY_CQL = "cql";
+
+    private static final String QUERY_ENTERPRISE = "enterprise";
+
+    private static final String WORKSPACE_METACARDS = "metacards";
+
+    private static final String WORKSPACE_QUERIES = "queries";
 
     public static final String PATH = "/search/catalog/internal/workspaces";
 
@@ -258,15 +264,14 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     @Test
     public void testWorkspaceSavedItems() {
         List<String> metacards = ImmutableList.of("item1", "item2");
-        Map<String, Object> workspace = ImmutableMap.of(WorkspaceAttributes.WORKSPACE_METACARDS,
-                metacards);
+        Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_METACARDS, metacards);
 
         Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
 
         Map body = parse(res);
         String id = (String) body.get("id");
         assertNotNull(id);
-        assertThat(body.get(WorkspaceAttributes.WORKSPACE_METACARDS), is(metacards));
+        assertThat(body.get(WORKSPACE_METACARDS), is(metacards));
 
         ids.add(id); // for cleanUp
     }
@@ -275,20 +280,19 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     public void testWorkspaceQueries() {
         Map<String, Object> query = ImmutableMap.<String, Object>builder()
                 .put(Core.TITLE, "title")
-                .put(QueryMetacardTypeImpl.QUERY_CQL, "query")
-                .put(QueryMetacardTypeImpl.QUERY_ENTERPRISE, true)
+                .put(QUERY_CQL, "query")
+                .put(QUERY_ENTERPRISE, true)
                 .build();
 
         List<Map<String, Object>> queries = ImmutableList.of(query);
-        Map<String, Object> workspace = ImmutableMap.of(WorkspaceAttributes.WORKSPACE_QUERIES,
-                queries);
+        Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_QUERIES, queries);
 
         Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
 
         Map body = parse(res);
         String id = (String) body.get("id");
         assertNotNull(id);
-        assertThat(body.get(WorkspaceAttributes.WORKSPACE_QUERIES), is(queries));
+        assertThat(body.get(WORKSPACE_QUERIES), is(queries));
 
         ids.add(id); // for cleanUp
     }
@@ -297,20 +301,19 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     public void testWorkspaceQueriesWithSpecificSources() {
         Map<String, Object> query = ImmutableMap.<String, Object>builder()
                 .put(Core.TITLE, "title")
-                .put(QueryMetacardTypeImpl.QUERY_CQL, "query")
+                .put(QUERY_CQL, "query")
                 .put("src", ImmutableList.of("source a", "source b"))
                 .build();
 
         List<Map<String, Object>> queries = ImmutableList.of(query);
-        Map<String, Object> workspace = ImmutableMap.of(WorkspaceAttributes.WORKSPACE_QUERIES,
-                queries);
+        Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_QUERIES, queries);
 
         Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
 
         Map body = parse(res);
         String id = (String) body.get("id");
         assertNotNull(id);
-        assertThat(body.get(WorkspaceAttributes.WORKSPACE_QUERIES), is(queries));
+        assertThat(body.get(WORKSPACE_QUERIES), is(queries));
 
         ids.add(id); // for cleanUp
     }
