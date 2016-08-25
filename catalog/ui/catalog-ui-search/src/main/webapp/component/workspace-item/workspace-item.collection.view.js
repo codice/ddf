@@ -36,7 +36,7 @@ define([
         childView: WorkspaceItemView,
         filter: function (workspace) {
             var localStorage = workspace.get('localStorage') || false;
-            var owner = workspace.get('owner');
+            var owner = workspace.get('metacard.owner');
             var user = getUser().get('email');
 
             switch (getPrefs().get('homeFilter')) {
