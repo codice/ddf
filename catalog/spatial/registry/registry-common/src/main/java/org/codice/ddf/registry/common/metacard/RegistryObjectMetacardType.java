@@ -19,7 +19,6 @@ import java.util.Set;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -104,41 +103,31 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
     }
 
     private void addRegistryAttributes() {
-        addQueryableString(Metacard.TAGS, true);
-        addQueryableString(Metacard.ID, false);
-        addQueryableString(Metacard.CONTENT_TYPE, false);
-        addXml(Metacard.METADATA, true);
-        addQueryableDate(Metacard.CREATED);
-        addQueryableDate(Metacard.MODIFIED);
-        addQueryableString(Metacard.TITLE, false); //name
-        addQueryableString(Metacard.DESCRIPTION, false);
-        addQueryableString(SECURITY_LEVEL, true); //securityLevel
-        addQueryableString(METACARD_TYPE, false);
-        addQueryableString(ENTRY_TYPE, false);  //objectType
-        addQueryableString(Metacard.CONTENT_TYPE_VERSION, false); // version
-        addQueryableString(ORGANIZATION_NAME, false);
-        addQueryableString(ORGANIZATION_ADDRESS, false);
-        addQueryableString(ORGANIZATION_PHONE_NUMBER, true);
-        addQueryableString(ORGANIZATION_EMAIL, true);
-        addQueryableString(Metacard.POINT_OF_CONTACT, false);
-        addQueryableDate(LIVE_DATE);
-        addQueryableDate(DATA_START_DATE);
-        addQueryableDate(DATA_END_DATE);
-        addQueryableString(LINKS, true);
-        addQueryableGeo(Metacard.GEOGRAPHY, false);
-        addQueryableString(REGION, false);
-        addQueryableString(DATA_SOURCES, true);
-        addQueryableString(DATA_TYPES, true);
-        addQueryableString(SERVICE_BINDINGS, true);
-        addQueryableString(SERVICE_BINDING_TYPES, true);
-        addQueryableString(REGISTRY_ID, false);
+        descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
         addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
         addQueryableBoolean(REGISTRY_LOCAL_NODE, false);
-        addQueryableString(REGISTRY_BASE_URL, false);
-        addQueryableString(PUBLISHED_LOCATIONS, true);
+        addQueryableDate(DATA_END_DATE);
+        addQueryableDate(DATA_START_DATE);
         addQueryableDate(LAST_PUBLISHED);
-        addQueryableString(REMOTE_REGISTRY_ID, false);
+        addQueryableDate(LIVE_DATE);
+        addQueryableString(DATA_SOURCES, true);
+        addQueryableString(DATA_TYPES, true);
+        addQueryableString(ENTRY_TYPE, false);  //objectType
+        addQueryableString(LINKS, true);
+        addQueryableString(METACARD_TYPE, false);
+        addQueryableString(ORGANIZATION_ADDRESS, false);
+        addQueryableString(ORGANIZATION_EMAIL, true);
+        addQueryableString(ORGANIZATION_NAME, false);
+        addQueryableString(ORGANIZATION_PHONE_NUMBER, true);
+        addQueryableString(PUBLISHED_LOCATIONS, true);
+        addQueryableString(REGION, false);
+        addQueryableString(REGISTRY_BASE_URL, false);
+        addQueryableString(REGISTRY_ID, false);
         addQueryableString(REMOTE_METACARD_ID, false);
+        addQueryableString(REMOTE_REGISTRY_ID, false);
+        addQueryableString(SECURITY_LEVEL, true); //securityLevel
+        addQueryableString(SERVICE_BINDING_TYPES, true);
+        addQueryableString(SERVICE_BINDINGS, true);
     }
 
     /**

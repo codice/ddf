@@ -20,11 +20,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +36,7 @@ import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -41,9 +45,12 @@ import ddf.catalog.history.Historian;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
@@ -64,7 +71,7 @@ import ddf.catalog.util.impl.Requests;
 
 /**
  * Support class for delete delegate operations for the {@code CatalogFrameworkImpl}.
- *
+ * <p>
  * This class contains one delegated delete method and methods to support it. No
  * operations/support methods should be added to this class except in support of CFI
  * delete operations.
@@ -123,18 +130,12 @@ public class DeleteOperations {
         deleteRequest = validateLocalSource(deleteRequest);
 
         try {
-            List<Metacard> metacards = populateMetacards(deleteRequest);
-
-            deleteStorageRequest = new DeleteStorageRequestImpl(metacards,
+            deleteRequest = populateMetacards(deleteRequest);
+            deleteStorageRequest = new DeleteStorageRequestImpl(getDeleteMetacards(deleteRequest),
                     deleteRequest.getProperties());
 
-            deleteRequest = processPreDeletePolicyPlugins(deleteRequest, metacards);
+            deleteRequest = processPreDeletePolicyPlugins(deleteRequest);
             deleteRequest = processPreDeleteAccessPlugins(deleteRequest);
-
-            deleteRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
-                                    metacards));
 
             deleteRequest = processPreIngestPlugins(deleteRequest);
             deleteRequest = validateDeleteRequest(deleteRequest);
@@ -175,6 +176,16 @@ public class DeleteOperations {
         }
 
         return deleteResponse;
+    }
+
+    private List<Metacard> getDeleteMetacards(DeleteRequest deleteRequest) {
+        return Optional.of(deleteRequest)
+                .map(Operation::getProperties)
+                .map(p -> p.get(Constants.OPERATION_TRANSACTION_KEY))
+                .filter(OperationTransaction.class::isInstance)
+                .map(OperationTransaction.class::cast)
+                .map(OperationTransaction::getPreviousStateMetacards)
+                .orElseGet(ArrayList::new);
     }
 
     //
@@ -267,6 +278,47 @@ public class DeleteOperations {
         return deleteResponse;
     }
 
+    //
+    // Private helper methods
+    //
+
+    private DeleteRequest rewriteRequestToAvoidHistoryConflicts(DeleteRequest deleteRequest,
+            SourceResponse response) {
+        if (Metacard.ID.equals(deleteRequest.getAttributeName())) {
+            return deleteRequest;
+        }
+
+        List<Serializable> updatedList = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .map(Metacard::getId)
+                .map(Serializable.class::cast)
+                .collect(Collectors.toList());
+
+        return new DeleteRequestImpl(updatedList,
+                Metacard.ID,
+                deleteRequest.getProperties(),
+                deleteRequest.getStoreIds());
+    }
+
+    private boolean foundAllDeleteRequestMetacards(DeleteRequest deleteRequest,
+            SourceResponse response) {
+        Set<String> originalKeys = deleteRequest.getAttributeValues()
+                .stream()
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        Set<String> responseKeys = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .map(m -> m.getAttribute(deleteRequest.getAttributeName()))
+                .filter(Objects::nonNull)
+                .map(Attribute::getValue)
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        return originalKeys.equals(responseKeys);
+    }
+
     private DeleteRequest processPreIngestPlugins(DeleteRequest deleteRequest)
             throws StopProcessingException {
         for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -288,8 +340,9 @@ public class DeleteOperations {
         return deleteRequest;
     }
 
-    private DeleteRequest processPreDeletePolicyPlugins(DeleteRequest deleteRequest,
-            List<Metacard> metacards) throws StopProcessingException {
+    private DeleteRequest processPreDeletePolicyPlugins(DeleteRequest deleteRequest)
+            throws StopProcessingException {
+        List<Metacard> metacards = getDeleteMetacards(deleteRequest);
         Map<String, Serializable> unmodifiableProperties =
                 Collections.unmodifiableMap(deleteRequest.getProperties());
 
@@ -307,35 +360,36 @@ public class DeleteOperations {
         return deleteRequest;
     }
 
-    private List<Metacard> populateMetacards(DeleteRequest deleteRequest)
+    private DeleteRequest populateMetacards(DeleteRequest deleteRequest)
             throws IngestException, StopProcessingException {
-        if (frameworkProperties.getPolicyPlugins()
-                .isEmpty()) {
-            return new ArrayList<>();
-        }
-
         QueryRequestImpl queryRequest = createQueryRequest(deleteRequest);
-
+        QueryResponse query;
         try {
-            QueryResponse query = queryOperations.doQuery(queryRequest,
+            query = queryOperations.doQuery(queryRequest,
                     frameworkProperties.getFederationStrategy(),
                     false);
-            List<Metacard> metacards = query.getResults()
-                    .stream()
-                    .map(Result::getMetacard)
-                    .collect(Collectors.toList());
-
-            if (metacards.size() < deleteRequest.getAttributeValues()
-                    .size()) {
-                throw new StopProcessingException(
-                        "Unable to remove all metacards contained in request.");
-            }
-
-            return metacards;
         } catch (FederationException e) {
             LOGGER.debug("Unable to complete query for updated metacards.", e);
             throw new IngestException("Exception during runtime while performing delete");
         }
+
+        List<Metacard> metacards = query.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toList());
+
+        if (!foundAllDeleteRequestMetacards(deleteRequest, query)) {
+            logFailedQueryInfo(deleteRequest, query);
+            throw new StopProcessingException("Could not find all metacards specified in request");
+        }
+
+        deleteRequest = rewriteRequestToAvoidHistoryConflicts(deleteRequest, query);
+        deleteRequest.getProperties()
+                .put(Constants.OPERATION_TRANSACTION_KEY,
+                        new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
+                                metacards));
+        return deleteRequest;
+
     }
 
     private QueryRequestImpl createQueryRequest(DeleteRequest deleteRequest) {
@@ -349,10 +403,12 @@ public class DeleteOperations {
                 .collect(Collectors.toList());
 
         QueryImpl queryImpl =
-                new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters));
-        queryImpl.setStartIndex(1);
-        queryImpl.setPageSize(deleteRequest.getAttributeValues()
-                .size());
+                new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters),
+                        1,  /* start index */
+                        0,  /* page size */
+                        SortBy.NATURAL_ORDER,
+                        false, /* total result count */
+                        0   /* timeout */);
         return new QueryRequestImpl(queryImpl, deleteRequest.getStoreIds());
     }
 
@@ -472,5 +528,30 @@ public class DeleteOperations {
             return false;
         }
         return true;
+    }
+
+    private void logFailedQueryInfo(DeleteRequest deleteRequest, QueryResponse query) {
+        if (LOGGER.isDebugEnabled()) {
+            final String attributeName = deleteRequest.getAttributeName();
+            Set<String> queryResults = query.getResults()
+                    .stream()
+                    .map(Result::getMetacard)
+                    .map(m -> m.getAttribute(attributeName))
+                    .filter(Objects::nonNull)
+                    .map(Attribute::getValue)
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .collect(Collectors.toSet());
+
+            LOGGER.debug(
+                    "While rewriting the query, did not get a metacardId corresponding to every attribute.");
+            LOGGER.debug("Original Delete By attribute was: {}", attributeName);
+            LOGGER.debug("Metacards unable to get Metacard ID from are: "
+                    + deleteRequest.getAttributeValues()
+                    .stream()
+                    .map(Object::toString)
+                    .filter(s -> !queryResults.contains(s))
+                    .collect(Collectors.joining(", ", "[", "]")));
+        }
     }
 }
