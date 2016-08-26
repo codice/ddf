@@ -71,7 +71,7 @@ define([
                         ids.forEach(function(metacardId) {
                             validationIssue.message =
                                 validationIssue.message.replace(metacardId,
-                                    '<a href="/search/catalog/#metacards/' + metacardId + '">' + metacardId + '</a>')
+                                    '<a href="#metacards/' + metacardId + '">' + metacardId + '</a>')
                         });
                     }
                 });
