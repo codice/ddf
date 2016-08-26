@@ -85,7 +85,7 @@ define([
         },
         handleValue: function(){
             var value = this.model.get('value');
-            if (value && !this.model.get('property').get('enumMulti')){
+            if (value !== undefined && !this.model.get('property').get('enumMulti')){
                 value = [value];
             } else if (!value) {
                 value = [];
