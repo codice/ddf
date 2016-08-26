@@ -63,10 +63,10 @@ define([
             this.propertyPersistance.show(RadioView.createRadio({
                 options: [{
                     label: 'Yes',
-                    value: 'true'
+                    value: true
                 }, {
                     label: 'No',
-                    value: 'false'
+                    value: false
                 }],
                 defaultValue: persistance
             }));
@@ -122,6 +122,7 @@ define([
             });
         },
         turnOffEditing: function () {
+            this.$el.removeClass('is-editing');
             this.regionManager.forEach(function (region) {
                 if (region.currentView) {
                     region.currentView.turnOffEditing();
@@ -129,7 +130,6 @@ define([
             });
         },
         cancel: function () {
-            this.$el.removeClass('is-editing');
             this.stopListeningToRegions();
             this.onBeforeShow();
         },
