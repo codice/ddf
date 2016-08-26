@@ -27,10 +27,11 @@ define([
     'js/cql',
     'component/singletons/metacard-definitions',
     'component/singletons/sources-instance',
-    'js/CQLUtils'
+    'js/CQLUtils',
+    'component/query-settings/query-settings.view'
 ], function (Marionette, _, $, template, CustomElements, store, DropdownModel,
              QuerySrcView, PropertyView, Property, cql, metacardDefinitions, sources,
-            CQLUtils) {
+            CQLUtils, QuerySettingsView) {
 
     function isTypeLimiter(filter){
         var typesFound = {};
@@ -100,7 +101,7 @@ define([
             'click .editor-save': 'save'
         },
         regions: {
-            basicTitle: '.basic-title',
+            basicSettings: '.basic-settings',
             basicText: '.basic-text',
             basicTextMatch: '.basic-text-match',
             basicTime: '.basic-time',
@@ -119,7 +120,7 @@ define([
         filter: undefined,
         onBeforeShow: function(){
             this.filter = translateFilterToBasicMap(cql.simplify(cql.read(this.model.get('cql'))));
-            this.setupTitleInput();
+            this.setupSettings();
             this.setupTextInput();
             this.setupTextMatchInput();
             this.setupTimeInput();
@@ -142,6 +143,11 @@ define([
             } else {
                 this.turnOffEdit();
             }
+        },
+        setupSettings: function(){
+            this.basicSettings.show(new QuerySettingsView({
+                model: this.model
+            }))
         },
         setupTypeSpecific: function(){
             var currentValue = [];
@@ -406,25 +412,16 @@ define([
                 })
             }));
         },
-        setupTitleInput: function(){
-            this.basicTitle.show(new PropertyView({
-                model: new Property({
-                    value: [this.model.get('title')],
-                    id: 'Name',
-                    placeholder: 'Name for you to identify the query by.'
-                })
-            }));
-        },
         turnOnLimitedWidth: function(){
             this.regionManager.forEach(function(region){
-                if (region.currentView){
+                if (region.currentView && region.currentView.turnOnLimitedWidth){
                     region.currentView.turnOnLimitedWidth();
                 }
             });
         },
         turnOffEdit: function(){
             this.regionManager.forEach(function(region){
-                if (region.currentView){
+                if (region.currentView && region.currentView.turnOffEditing){
                     region.currentView.turnOffEditing();
                 }
             });
@@ -432,7 +429,7 @@ define([
         edit: function(){
             this.$el.addClass('is-editing');
             this.regionManager.forEach(function(region){
-                if (region.currentView){
+                if (region.currentView && region.currentView.turnOnEditing){
                     region.currentView.turnOnEditing();
                 }
             });
@@ -448,11 +445,7 @@ define([
         },
         save: function(){
             this.$el.removeClass('is-editing');
-            var title = this.basicTitle.currentView.getCurrentValue()[0];
-            title = title === "" ? 'Untitled Query' : title;
-            this.model.set({
-                title: title
-            });
+            this.basicSettings.currentView.saveToModel();
 
             var filter = this.constructFilter();
             var generatedCQL = CQLUtils.transformFilterToCQL(filter);

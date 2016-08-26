@@ -1,0 +1,42 @@
+@{customElementNamespace}query-title{
+  .customElement;
+  position: relative;
+  line-height: @minimumButtonSize;
+
+  input,
+  button {
+    display: inline-block;
+    vertical-align: top;
+    height: ~'calc(100% - 2px)';
+    margin-top: 2px;
+  }
+
+  input {
+    min-width: 1px;
+    border: none;
+    font-size: 18px;
+    //padding-top: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
+    height: @minimumButtonSize;
+    background: none;
+    cursor: pointer;
+  }
+  input:focus {
+    text-decoration: none;
+    outline-style: solid;
+    outline-width: 1px;
+    outline-color: grey;
+    cursor: text;
+  }
+
+  button {
+    font-size: 16px;
+    color: grey;
+  }
+  button:hover {
+    color: shade(grey, 20%);
+  }
+}

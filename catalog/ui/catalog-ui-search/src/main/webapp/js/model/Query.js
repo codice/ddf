@@ -47,7 +47,7 @@ define([
             defaults: function() {
                 return {
                     cql: "anyText ILIKE ''",
-                    title: '',
+                    title: 'Query Name',
                     offsetTimeUnits: 'hours',
                     scheduleUnits: 'minutes',
                     timeType: 'modified',

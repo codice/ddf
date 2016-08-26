@@ -33,38 +33,29 @@ define([
         modelEvents: {
         },
         events: {
-            'click .editor-edit': 'edit',
+            'click .editor-edit': 'turnOnEditing',
             'click .editor-cancel': 'cancel',
             'click .editor-save': 'save'
         },
         regions: {
-            settingsTitle: '.settings-title',
             settingsSort: '.settings-sorting',
             settingsFederation: '.settings-federation',
             settingsSrc: '.settings-src'
         },
         ui: {
         },
+        focus: function(){
+            this.regionManager.first().currentView.focus();
+        },
         onBeforeShow: function(){
             this.setupSortDropdown();
             this.setupFederationDropdown();
             this.setupSrcDropdown();
-            this.setupTitleInput();
             this.settingsFederation.currentView.$el.on('change', this.handleFederationValue.bind(this));
             this.handleFederationValue();
             if (this.model._cloneOf === undefined){
-                this.edit();
+                this.turnOnEditing();
             }
-        },
-        setupTitleInput: function(){
-            this.settingsTitle.show(new PropertyView({
-                model: new Property({
-                    value: [this.model.get('title')],
-                    id: 'Name'
-                })
-            }));
-            this.settingsTitle.currentView.turnOffEditing();
-            this.settingsTitle.currentView.turnOnLimitedWidth();
         },
         setupSortDropdown: function(){
             var defaultValue = {
@@ -184,12 +175,14 @@ define([
             var federation = this.settingsFederation.currentView.getCurrentValue()[0];
             this.$el.toggleClass('is-specific-sources', federation === 'selected');
         },
-        edit: function(){
-            this.$el.addClass('is-editing');
-            this.settingsSort.currentView.turnOnEditing();
-            this.settingsFederation.currentView.turnOnEditing();
-            this.settingsSrc.currentView.turnOnEditing();
-            this.settingsTitle.currentView.turnOnEditing();
+        turnOnEditing: function(){
+           this.$el.addClass('is-editing');
+            this.regionManager.forEach(function(region){
+                if (region.currentView && region.currentView.turnOnEditing){
+                    region.currentView.turnOnEditing();
+                }
+            });
+            this.focus();
         },
         cancel: function(){
             if (this.model._cloneOf === undefined){
@@ -199,12 +192,8 @@ define([
                 this.onBeforeShow();
             }
         },
-        save: function(){
-            this.$el.removeClass('is-editing');
+        saveToModel: function(){
             var federation = this.settingsFederation.currentView.getCurrentValue()[0];
-            this.model.set({
-                title: this.settingsTitle.currentView.getCurrentValue()[0]
-            });
             this.model.set({
                 src: federation === 'selected' ? this._srcDropdownModel.get('value') : undefined
             });
@@ -212,6 +201,10 @@ define([
                 federation: federation
             });
             this.model.set(this.settingsSort.currentView.getCurrentValue()[0]);
+        },
+        save: function(){
+            this.$el.removeClass('is-editing');
+            this.saveToModel();
             store.saveQuery();
         }
     });

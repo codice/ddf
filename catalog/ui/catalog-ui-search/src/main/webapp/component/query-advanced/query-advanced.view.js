@@ -22,9 +22,10 @@ define([
     'component/filter-builder/filter-builder.view',
     'component/filter-builder/filter-builder',
     'js/cql',
-    'js/store'
+    'js/store',
+    'component/query-settings/query-settings.view'
 ], function (Marionette, _, $, template, CustomElements, FilterBuilderView, FilterBuilderModel, cql,
-            store) {
+            store, QuerySettingsView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -37,11 +38,15 @@ define([
             'click .editor-save': 'save'
         },
         regions: {
-            queryAdvanced: '.editor-properties'
+            querySettings: '.query-settings',
+            queryAdvanced: '.query-advanced'
         },
         ui: {
         },
         onBeforeShow: function(){
+            this.querySettings.show(new QuerySettingsView({
+                model: this.model
+            }));
             this.queryAdvanced.show(new FilterBuilderView({
                 model: new FilterBuilderModel()
             }));
@@ -55,6 +60,7 @@ define([
         },
         edit: function(){
             this.$el.addClass('is-editing');
+            this.querySettings.currentView.turnOnEditing();
             this.queryAdvanced.currentView.turnOnEditing();
         },
         cancel: function(){
@@ -67,6 +73,8 @@ define([
         },
         save: function(){
             this.$el.removeClass('is-editing');
+            this.querySettings.currentView.saveToModel();
+
             this.model.set('cql', this.queryAdvanced.currentView.transformToCql());
             store.saveQuery();
         }

@@ -101,6 +101,7 @@ define([
             var query = this.getQuery();
             var newAttributes = _.extend(query.defaults, query.toJSON());
             delete newAttributes.id;
+            delete newAttributes.title;
             this.getCurrentQueries().get(query._cloneOf).set(newAttributes);
         },
         getSelectedResults: function(){
