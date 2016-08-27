@@ -17,6 +17,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static spark.Spark.after;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
 import static spark.Spark.get;
@@ -146,25 +147,21 @@ public class MetacardApplication implements SparkApplication {
     @Override
     public void init() {
         get("/metacardtype", (req, res) -> {
-            res.type(APPLICATION_JSON);
             return util.getJson(util.getMetacardTypeMap());
         });
 
         get("/metacard/:id", (req, res) -> {
             String id = req.params(":id");
-            res.type(APPLICATION_JSON);
             return util.metacardToJson(id);
         });
 
         get("/metacard/:id/attribute/validation", (req, res) -> {
             String id = req.params(":id");
-            res.type(APPLICATION_JSON);
             return util.getJson(validator.getValidation(util.getMetacard(id)));
         });
 
         get("/metacard/:id/validation", (req, res) -> {
             String id = req.params(":id");
-            res.type(APPLICATION_JSON);
             return util.getJson(validator.getFullValidation(util.getMetacard(id)));
         });
 
@@ -179,7 +176,6 @@ public class MetacardApplication implements SparkApplication {
                     .map(Result::getMetacard)
                     .collect(Collectors.toList());
 
-            res.type(APPLICATION_JSON);
             return util.metacardsToJson(metacards);
         });
 
@@ -191,7 +187,6 @@ public class MetacardApplication implements SparkApplication {
                     catalogFramework.delete(new DeleteRequestImpl(new ArrayList<>(ids),
                             Metacard.ID,
                             null));
-            res.type(APPLICATION_JSON);
             if (deleteResponse.getProcessingErrors() != null
                     && !deleteResponse.getProcessingErrors()
                     .isEmpty()) {
@@ -208,7 +203,6 @@ public class MetacardApplication implements SparkApplication {
                     .parseList(MetacardChanges.class, req.body());
 
             UpdateResponse updateResponse = patchMetacards(metacardChanges);
-            res.type(APPLICATION_JSON);
             if (updateResponse.getProcessingErrors() != null
                     && !updateResponse.getProcessingErrors()
                     .isEmpty()) {
@@ -253,7 +247,6 @@ public class MetacardApplication implements SparkApplication {
         put("/validate/attribute/:attribute", TEXT_PLAIN, (req, res) -> {
             String attribute = req.params(":attribute");
             String value = req.body();
-            res.type(APPLICATION_JSON);
             return util.getJson(validator.validateAttribute(attribute, value));
         });
 
@@ -273,7 +266,6 @@ public class MetacardApplication implements SparkApplication {
                                     .getValue()))
                     .sorted(Comparator.comparing(HistoryResponse::getVersioned))
                     .collect(Collectors.toList());
-            res.type(APPLICATION_JSON);
             return util.getJson(response);
         });
 
@@ -307,19 +299,7 @@ public class MetacardApplication implements SparkApplication {
             } else {
                 revertContentandMetacard(contentVersion.get(), versionMetacard, id);
             }
-            res.type(APPLICATION_JSON);
             return util.metacardToJson(MetacardVersion.toMetacard(versionMetacard, types));
-            //chrises changes
-            /*Metacard revertMetacard = MetacardVersion.toBasicMetacard(versionMetacard);
-            if (versionMetacard.getAttribute(MetacardVersion.ACTION)
-                    .getValue()
-                    .equals(MetacardVersion.Action.DELETED.getKey())) {
-                catalogFramework.create(new CreateRequestImpl(revertMetacard));
-            } else {
-                catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
-            }
-
-            return util.metacardToJson(revertMetacard);*/
         });
 
         get("/associations/:id", (req, res) -> {
@@ -335,7 +315,6 @@ public class MetacardApplication implements SparkApplication {
                         association.getTitle()));
                 resultMap.put(association.getType(), result);
             }
-            res.type(APPLICATION_JSON);
             return util.getJson(resultMap.values());
         });
 
@@ -357,7 +336,6 @@ public class MetacardApplication implements SparkApplication {
                     .map(ar -> ar.type)
                     .collect(Collectors.toList());
             associated.putAssociations(associations, emptyAssociations);
-            res.type(APPLICATION_JSON);
             return req.body();
         });
 
@@ -429,7 +407,6 @@ public class MetacardApplication implements SparkApplication {
             Metacard saved = saveMetacard(transformer.transform(incoming));
             Map<String, Object> response = transformer.transform(saved);
 
-            res.type(APPLICATION_JSON);
             res.status(201);
             return util.getJson(response);
         });
@@ -445,7 +422,6 @@ public class MetacardApplication implements SparkApplication {
             metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
 
             Metacard updated = updateMetacard(id, metacard);
-            res.type(APPLICATION_JSON);
             return util.getJson(transformer.transform(updated));
         });
 
@@ -457,6 +433,10 @@ public class MetacardApplication implements SparkApplication {
 
         get("/enumerations/:type", APPLICATION_JSON, (req, res) -> {
             return util.getJson(enumExtractor.getEnumerations(req.params(":type")));
+        });
+
+        after((req, res) -> {
+            res.type(APPLICATION_JSON);
         });
 
         exception(IngestException.class, (ex, req, res) -> {
