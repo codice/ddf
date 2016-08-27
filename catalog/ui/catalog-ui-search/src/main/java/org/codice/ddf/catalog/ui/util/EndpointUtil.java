@@ -365,6 +365,22 @@ public class EndpointUtil {
         return result;
     }
 
+    public Instant parseToDate(Serializable value) {
+        if (value instanceof Instant) {
+            return ((Instant) value);
+        }
+        if (value instanceof Date) {
+            return ((Date) value).toInstant();
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        try {
+            return dateFormat.parse(value.toString()).toInstant();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Serializable parseDate(Serializable value) {
         if (value instanceof Date) {
             return ((Date) value).toInstant()

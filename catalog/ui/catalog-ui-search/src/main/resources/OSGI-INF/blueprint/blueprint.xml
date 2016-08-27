@@ -160,7 +160,9 @@
         <argument ref="workspaceTransformer"/>
         <argument ref="enumerationExtractor"/>
         <argument ref="workspacePersistentStore"/>
-        <!--todo (RCZ) - Add the enumeration extractor to here and make the endpoint-->
+        <argument>
+            <reference-list interface="ddf.catalog.data.MetacardType"/>
+        </argument>
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
