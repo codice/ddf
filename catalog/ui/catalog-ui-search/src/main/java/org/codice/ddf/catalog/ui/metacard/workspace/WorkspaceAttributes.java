@@ -23,6 +23,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Core;
 
 public class WorkspaceAttributes implements MetacardType {
 
@@ -38,6 +39,12 @@ public class WorkspaceAttributes implements MetacardType {
 
     // @formatter:off
     private static final Map<String, AttributeDescriptor> DESCRIPTORS = ImmutableMap.of(
+            Core.METACARD_OWNER, new AttributeDescriptorImpl(Core.METACARD_OWNER,
+                    true /* indexed */,
+                    true /* stored */,
+                    true /* tokenized */,
+                    false /* multivalued */,
+                    BasicTypes.STRING_TYPE),
             WORKSPACE_QUERIES, new AttributeDescriptorImpl(WORKSPACE_QUERIES,
                     false   /* indexed */,
                     true    /* stored */,

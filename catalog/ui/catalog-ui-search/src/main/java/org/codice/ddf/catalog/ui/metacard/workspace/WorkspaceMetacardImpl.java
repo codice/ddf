@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.metacard.workspace;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -26,18 +27,32 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Core;
 
 public class WorkspaceMetacardImpl extends MetacardImpl {
 
-    private static final MetacardType TYPE = new MetacardTypeImpl(WorkspaceAttributes.WORKSPACE_TAG,
-            ImmutableList.of(new AssociationsAttributes(), new WorkspaceAttributes()));
+    private static final MetacardType TYPE;
+
+    static {
+        Set<AttributeDescriptor> descriptors = ImmutableList.of(new SecurityAttributes(),
+                new WorkspaceAttributes())
+                .stream()
+                .map(MetacardType::getAttributeDescriptors)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        TYPE = new MetacardTypeImpl(WorkspaceAttributes.WORKSPACE_TAG,
+                BasicTypes.BASIC_METACARD,
+                descriptors);
+    }
 
     public WorkspaceMetacardImpl() {
         super(TYPE);
