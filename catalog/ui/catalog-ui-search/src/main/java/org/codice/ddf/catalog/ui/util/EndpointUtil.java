@@ -294,10 +294,14 @@ public class EndpointUtil {
                 .text(MetacardVersion.Action.CREATED_CONTENT.getKey());
         Filter created = filterBuilder.anyOf(createdAction, createdContentAction);
 
-        Filter filter = filterBuilder.allOf(user, time, created);
+        Filter tags = filterBuilder.attribute(Metacard.TAGS)
+                .is()
+                .like()
+                .text(MetacardVersion.VERSION_TAG);
+
+        Filter filter = filterBuilder.allOf(user, time, created, tags);
 
         Map<String, Serializable> properties = new HashMap<>();
-        properties.put("no-default-tags", true);
         int startIndex = 1 + ((pageNumber - 1) * pageSize);
         QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
                 filter,
