@@ -16,6 +16,7 @@ package ddf.catalog.impl.operations
 import ddf.catalog.data.Metacard
 import ddf.catalog.data.Result
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder
 import ddf.catalog.impl.FrameworkProperties
 import ddf.catalog.operation.QueryResponse
 import ddf.catalog.operation.ResourceRequest
@@ -58,6 +59,7 @@ class ResourceOperationsTest extends Specification {
         queryOperations.query(_, _, _, _) >> queryResponse
 
         frameworkProperties = new FrameworkProperties()
+        frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder())
 
         opsSecurity = new OperationsSecuritySupport()
         resourceOperations = new ResourceOperations(frameworkProperties, queryOperations, opsSecurity)
