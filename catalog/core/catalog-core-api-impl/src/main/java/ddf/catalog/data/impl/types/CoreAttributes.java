@@ -36,13 +36,13 @@ public class CoreAttributes implements Core, MetacardType {
         descriptors.add(new AttributeDescriptorImpl(CHECKSUM,
                 true /* indexed */,
                 true /* stored */,
-                true /* tokenized */,
+                false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(CHECKSUM_ALGORITHM,
                 true /* indexed */,
                 true /* stored */,
-                true /* tokenized */,
+                false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(CREATED,
@@ -55,7 +55,7 @@ public class CoreAttributes implements Core, MetacardType {
                 true /* indexed */,
                 true /* stored */,
                 true /* tokenized */,
-                true /* multivalued */,
+                false /* multivalued */,
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(EXPIRATION,
                 true /* indexed */,
@@ -66,7 +66,7 @@ public class CoreAttributes implements Core, MetacardType {
         descriptors.add(new AttributeDescriptorImpl(ID,
                 true /* indexed */,
                 true /* stored */,
-                true /* tokenized */,
+                false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(LANGUAGE,
@@ -107,14 +107,14 @@ public class CoreAttributes implements Core, MetacardType {
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(RESOURCE_DOWNLOAD_URL,
                 true /* indexed */,
-                false /* stored */,
+                true /* stored */,
                 true /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(RESOURCE_SIZE,
                 true /* indexed */,
                 true /* stored */,
-                true /* tokenized */,
+                false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(RESOURCE_URI,
@@ -130,7 +130,7 @@ public class CoreAttributes implements Core, MetacardType {
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(THUMBNAIL,
-                true /* indexed */,
+                false /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,

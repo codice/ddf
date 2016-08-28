@@ -36,13 +36,13 @@ public class AssociationsAttributes implements Associations, MetacardType {
         descriptors.add(new AttributeDescriptorImpl(DERIVED,
                 true /* indexed */,
                 true /* stored */,
-                true /* tokenized */,
+                false /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(RELATED,
                 true /* indexed */,
                 true /* stored */,
-                true /* tokenized */,
+                false /* tokenized */,
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
         DESCRIPTORS = Collections.unmodifiableSet(descriptors);
