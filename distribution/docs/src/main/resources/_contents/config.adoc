@@ -17,3 +17,6 @@ ifdef::backend-pdf[]
 == License
 This work is licensed under a http://creativecommons.org/licenses/by/4.0[Creative Commons Attribution 4.0 International License].
 endif::[]
+
+//workaround for asciidoctor bug adding ToC to tables
+:toc!:
