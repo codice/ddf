@@ -48,7 +48,9 @@
             css: 'lib/require-css/css',
 
             // default admin ui
-            app: 'js/application'
+            app: 'js/application',
+
+            moment: 'lib/moment/min/moment.min'
         },
 
 
@@ -81,6 +83,10 @@
             icanhaz: {
                 deps: ['handlebars', 'jquery'],
                 exports: 'ich'
+            },
+
+            moment: {
+                exports: 'moment'
             },
 
             perfectscrollbar: ['jquery'],
