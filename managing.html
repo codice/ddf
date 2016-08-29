@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.2">
-<meta name="author" content="Version 2.9.1. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.9.2. Copyright (c) Codice Foundation">
 <title>Managing DDF</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400">
 <style>
@@ -506,7 +506,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Managing DDF</h1>
 <div class="details">
-<span id="author" class="author">Version 2.9.1. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.9.2. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -633,6 +633,13 @@ table.CodeRay td.code>pre{padding:0}
 <ul>
 <li>
 <p>Install/Upgrade to Java 8 <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">J2SE 8 SDK</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p>The recommended version is <a href="http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html">8u60</a> or later.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.</p>
@@ -744,9 +751,8 @@ export JAVA_HOME</pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect4">
-<h5 id="_directory_permissions_on_nix"><a class="anchor" href="#_directory_permissions_on_nix"></a>Directory Permissions on *NIX</h5>
+<div class="sect5">
+<h6 id="_directory_permissions_on_nix"><a class="anchor" href="#_directory_permissions_on_nix"></a>Directory Permissions on *NIX</h6>
 <div class="paragraph">
 <p>Protect the DDF from unauthorized access.</p>
 </div>
@@ -823,6 +829,7 @@ For example the <code>NON_ROOT_USER</code> should only have read access to <code
 </td>
 </tr>
 </table>
+</div>
 </div>
 </div>
 </div>
@@ -1005,13 +1012,13 @@ Add the following lines to the bottom of the <code>&lt;INSTALL_DIR&gt;/etc/org.o
 <div class="listingblock">
 <div class="title">*NIX</div>
 <div class="content">
-<pre>&lt;INSTALL_DIRECTORY&gt;/ddf-2.9.1/bin/ddf</pre>
+<pre>&lt;INSTALL_DIRECTORY&gt;/ddf-2.9.2/bin/ddf</pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Windows</div>
 <div class="content">
-<pre>&lt;INSTALL_DIRECTORY&gt;/ddf-2.9.1/bin/ddf.bat</pre>
+<pre>&lt;INSTALL_DIRECTORY&gt;/ddf-2.9.2/bin/ddf.bat</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1034,7 +1041,7 @@ Execute the following command at the command line for status:</p>
 START LEVEL 100 , List Threshold: 50
    ID   State         Blueprint      Spring    Level  Name
 [ 111] [Active     ] [            ] [       ] [   80] Commons IO (2.1.0)
-[ 113] [Active     ] [Created     ] [       ] [   80] DDF :: Distribution :: Console Branding Plugin (2.9.1)</pre>
+[ 113] [Active     ] [Created     ] [       ] [   80] DDF :: Distribution :: Console Branding Plugin (2.9.2)</pre>
 </div>
 </div>
 <div class="admonitionblock warning">
@@ -1105,7 +1112,7 @@ Bundle fragments remain in the <strong>Resolved</strong> state and can never mov
 <div class="listingblock">
 <div class="title">Example: Bundle Fragment in the Command Line Console</div>
 <div class="content">
-<pre>215 | Resolved |  80 | 2.9.1     | DDF :: Platform :: Security :: Session, Hosts: 90</pre>
+<pre>215 | Resolved |  80 | 2.9.2     | DDF :: Platform :: Security :: Session, Hosts: 90</pre>
 </div>
 </div>
 </div>
@@ -1115,25 +1122,25 @@ Bundle fragments remain in the <strong>Resolved</strong> state and can never mov
 <p>During DDF installation, the major directories and files shown in the table below are created, modified, or replaced in the destination directory.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 1. DDF Directory Contents</caption>
 <colgroup>
-<col style="width: 10%;">
-<col style="width: 10%;">
+<col style="width: 20%;">
 <col style="width: 80%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">Directory Name</th>
-<th class="tableblock halign-left valign-top" colspan="2">Description</th>
+<th class="tableblock halign-left valign-top">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>bin</code></p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">Scripts to start and stop DDF</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scripts to start and stop DDF</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top" rowspan="4"><p class="tableblock"><code>data</code></p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">The working directory of the system – installed bundles and their data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The working directory of the system – installed bundles and their data</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>data/log/DDF.log</code></p></td>
@@ -1149,15 +1156,15 @@ Bundle fragments remain in the <strong>Resolved</strong> state and can never mov
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>deploy</code></p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon DDF installation)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon DDF installation)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>documentation</code></p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">HTML and PDF copies of DDF documentation.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTML and PDF copies of DDF documentation.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top" rowspan="4"><p class="tableblock"><code>etc</code></p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">Directory monitored for addition/modification/deletion of <code>.config</code> configuration files or third party <code>.cfg</code> configuration files.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>etc</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directory monitored for addition/modification/deletion of <code>.config</code> configuration files or third party <code>.cfg</code> configuration files.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>etc/failed</code></p></td>
@@ -1173,15 +1180,15 @@ Bundle fragments remain in the <strong>Resolved</strong> state and can never mov
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>lib</code></p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">The system&#8217;s bootstrap libraries. Includes the <code>ddf-branding.jar</code> file which is used to brand the system console with the DDF logo.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The system&#8217;s bootstrap libraries. Includes the <code>ddf-branding.jar</code> file which is used to brand the system console with the DDF logo.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>licenses</code></p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">Licensing information related to the system.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Licensing information related to the system.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>system</code></p></td>
-<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">Local bundle repository. Contains all of the JARs required by DDF, including third-party JARs.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Local bundle repository. Contains all of the JARs required by DDF, including third-party JARs.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1643,7 +1650,7 @@ Rather, OSGi assigns a universally unique identifier (UUID) when the DDF item wa
 <p>Applications can be installed from the Command Console using the following commands:</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 1. App Commands</caption>
+<caption class="title">Table 2. App Commands</caption>
 <colgroup>
 <col style="width: 28%;">
 <col style="width: 71%;">
@@ -1702,20 +1709,20 @@ Rather, OSGi assigns a universally unique identifier (UUID) when the DDF item wa
 <div class="listingblock">
 <div class="content">
 <pre>State         Version            Name                                     Repository                           Description
-[installed  ] [2.9.1  ] security-handler-api                     security-services-app-2.9.1 API for authentication handlers for web applications.
-[installed  ] [2.9.1  ] security-core                            security-services-app-2.9.1 DDF Security Core
-[uninstalled] [2.9.1  ] security-expansion                       security-services-app-2.9.1 DDF Security Expansion
-[uninstalled] [2.9.1  ] security-cas-client                      security-services-app-2.9.1 DDF Security CAS Client.
-[uninstalled] [2.9.1  ] security-cas-tokenvalidator              security-services-app-2.9.1 DDF Security CAS Validator for the STS.
-[uninstalled] [2.9.1  ] security-cas-cxfservletfilter            security-services-app-2.9.1 DDF Security CAS Servlet Filter for CXF.
-[installed  ] [2.9.1  ] security-pdp-authz                       security-services-app-2.9.1 DDF Security PDP.
-[uninstalled] [2.9.1  ] security-pep-serviceauthz                security-services-app-2.9.1 DDF Security PEP Service AuthZ
-[uninstalled] [2.9.1  ] security-expansion-user-attributes       security-services-app-2.9.1 DDF Security Expansion User Attributes Expansion
-[uninstalled] [2.9.1  ] security-expansion-metacard-attributes   security-services-app-2.9.1 DDF Security Expansion Metacard Attributes Expansion
-[installed  ] [2.9.1  ] security-sts-server                      security-services-app-2.9.1 DDF Security STS.
-[installed  ] [2.9.1  ] security-sts-realm                       security-services-app-2.9.1 DDF Security STS Realm.
-[uninstalled] [2.9.1  ] security-sts-ldaplogin                   security-services-app-2.9.1 DDF Security STS JAAS LDAP Login.
-[uninstalled] [2.9.1  ] security-sts-ldapclaimshandler           security-services-app-2.9.1 Retrieves claims attributes from an LDAP store.</pre>
+[installed  ] [2.9.2  ] security-handler-api                     security-services-app-2.9.2 API for authentication handlers for web applications.
+[installed  ] [2.9.2  ] security-core                            security-services-app-2.9.2 DDF Security Core
+[uninstalled] [2.9.2  ] security-expansion                       security-services-app-2.9.2 DDF Security Expansion
+[uninstalled] [2.9.2  ] security-cas-client                      security-services-app-2.9.2 DDF Security CAS Client.
+[uninstalled] [2.9.2  ] security-cas-tokenvalidator              security-services-app-2.9.2 DDF Security CAS Validator for the STS.
+[uninstalled] [2.9.2  ] security-cas-cxfservletfilter            security-services-app-2.9.2 DDF Security CAS Servlet Filter for CXF.
+[installed  ] [2.9.2  ] security-pdp-authz                       security-services-app-2.9.2 DDF Security PDP.
+[uninstalled] [2.9.2  ] security-pep-serviceauthz                security-services-app-2.9.2 DDF Security PEP Service AuthZ
+[uninstalled] [2.9.2  ] security-expansion-user-attributes       security-services-app-2.9.2 DDF Security Expansion User Attributes Expansion
+[uninstalled] [2.9.2  ] security-expansion-metacard-attributes   security-services-app-2.9.2 DDF Security Expansion Metacard Attributes Expansion
+[installed  ] [2.9.2  ] security-sts-server                      security-services-app-2.9.2 DDF Security STS.
+[installed  ] [2.9.2  ] security-sts-realm                       security-services-app-2.9.2 DDF Security STS Realm.
+[uninstalled] [2.9.2  ] security-sts-ldaplogin                   security-services-app-2.9.2 DDF Security STS JAAS LDAP Login.
+[uninstalled] [2.9.2  ] security-sts-ldapclaimshandler           security-services-app-2.9.2 Retrieves claims attributes from an LDAP store.</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -1747,11 +1754,11 @@ Rather, OSGi assigns a universally unique identifier (UUID) when the DDF item wa
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  		   Description
-[installed  ] [2.9.1         ] ddf-core                      ddf-2.9.1
-[uninstalled] [2.9.1         ] ddf-sts                       ddf-2.9.1
-[installed  ] [2.9.1         ] ddf-security-common           ddf-2.9.1
-[installed  ] [2.9.1         ] ddf-resource-impl             ddf-2.9.1
-[installed  ] [2.9.1         ] ddf-source-dummy              ddf-2.9.1</pre>
+[installed  ] [2.9.2         ] ddf-core                      ddf-2.9.2
+[uninstalled] [2.9.2         ] ddf-sts                       ddf-2.9.2
+[installed  ] [2.9.2         ] ddf-security-common           ddf-2.9.2
+[installed  ] [2.9.2         ] ddf-resource-impl             ddf-2.9.2
+[installed  ] [2.9.2         ] ddf-source-dummy              ddf-2.9.2</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -1787,11 +1794,11 @@ Rather, OSGi assigns a universally unique identifier (UUID) when the DDF item wa
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  Description
-[installed  ] [2.9.1         ] ddf-core                      ddf-2.9.1
-[uninstalled] [2.9.1         ] ddf-sts                       ddf-2.9.1
-[installed  ] [2.9.1         ] ddf-security-common           ddf-2.9.1
-[installed  ] [2.9.1         ] ddf-resource-impl             ddf-2.9.1
-[uninstalled] [2.9.1         ] ddf-source-dummy              ddf-2.9.1</pre>
+[installed  ] [2.9.2         ] ddf-core                      ddf-2.9.2
+[uninstalled] [2.9.2         ] ddf-sts                       ddf-2.9.2
+[installed  ] [2.9.2         ] ddf-security-common           ddf-2.9.2
+[installed  ] [2.9.2         ] ddf-resource-impl             ddf-2.9.2
+[uninstalled] [2.9.2         ] ddf-source-dummy              ddf-2.9.2</pre>
 </div>
 </div>
 </div>
@@ -1836,7 +1843,7 @@ Rather, OSGi assigns a universally unique identifier (UUID) when the DDF item wa
 These properties can be manually set by editing this file or set via the initial configuration from the Admin Console.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 2. Configurable Properties</caption>
+<caption class="title">Table 3. Configurable Properties</caption>
 <colgroup>
 <col style="width: 8%;">
 <col style="width: 8%;">
@@ -1921,7 +1928,7 @@ These properties can be manually set by editing this file or set via the initial
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.codice.ddf.system.hostname</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The hostname or IP address used to advertise the system. Do not enter <code>localhost</code>. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment.
-</p><p class="tableblock">NOTE: Does not change the address the system runs on.</p></td>
+</p><p class="tableblock">NOTE: This setting will take effect after a system restart.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>localhost</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
@@ -1948,7 +1955,7 @@ These properties can be manually set by editing this file or set via the initial
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.codice.ddf.system.port</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The default port used to advertise the system. This should match either the http or https port.
-</p><p class="tableblock">NOTE: Does not change the port the system runs on.</p></td>
+</p><p class="tableblock">NOTE: This setting will take effect after a system restart.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>8993</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
@@ -1985,7 +1992,7 @@ These properties can be manually set by editing this file or set via the initial
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The version of DDF that is running.
 </p><p class="tableblock">This value should not be changed from the factory default.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.9.1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.9.2</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
 <tr>
@@ -2885,7 +2892,7 @@ If the installer was used to install the DDF and a hostname other than "localhos
 If the hostname was left as <code>localhost</code> or the hostname was changed after installation, in order to access the DDF instance from another machine over HTTPS (now the default for many services) the default certificates need to be replaced with a certificates that use the fully qualified hostname of the server running the DDF instance.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 3. Important Terms for Certificates</caption>
+<caption class="title">Table 4. Important Terms for Certificates</caption>
 <colgroup>
 <col style="width: 33%;">
 <col style="width: 33%;">
@@ -2902,7 +2909,7 @@ If the hostname was left as <code>localhost</code> or the hostname was changed a
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;DDF_HOME&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The path to the unzipped DDF distribution</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/opt/ddf/ddf-2.9.1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/opt/ddf/ddf-2.9.2</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">alias</p></td>
@@ -3209,7 +3216,7 @@ You will see errors in <code>&lt;INSTALL_HOME&gt;/etc/org.codice.opendj/ldap/log
 Then change the LDAP Bind User Password in the configurations to use the encrypted password.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 4. STS Ldap Login Configuration</caption>
+<caption class="title">Table 5. STS Ldap Login Configuration</caption>
 <colgroup>
 <col style="width: 14%;">
 <col style="width: 14%;">
@@ -3300,7 +3307,7 @@ These attributes are then mapped and added to the SAML assertion being created.
 Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 5. Security STS LDAP and Roles Claims Handler</caption>
+<caption class="title">Table 6. Security STS LDAP and Roles Claims Handler</caption>
 <colgroup>
 <col style="width: 14%;">
 <col style="width: 14%;">
@@ -3644,41 +3651,55 @@ Contexts can then be pointed to the ldap realm for authentication and STS will b
 <pre>/&lt;CONTEXT&gt;=&lt;AUTH_TYPE&gt;|&lt;AUTH_TYPE|...</pre>
 </div>
 </div>
+<div class="paragraph">
+<div class="title">Default Types of Authentication</div>
+<p>[cols="1,4" options="header"]ci</p>
+</div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 6. Default Types of Authentication</caption>
 <colgroup>
-<col style="width: 20%;">
-<col style="width: 80%;">
+<col style="width: 100%;">
 </colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Authentication Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>saml</code></p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Activates single-sign on (SSO) across all REST endpoints that use SAML.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>basic</code></p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Activates basic authentication.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>PKI</code></p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Activates public key infrastructure authentication.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>IdP</code></p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Activates SAML Web SSO authentication support. Additional configuration is necessary.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>CAS</code></p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Enables SSO through a Central Authentication Server</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>guest</code></p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">provides guest access</p></td>
 </tr>
 </tbody>
@@ -7236,16 +7257,27 @@ When making outbound secure connections a handshake will be done with the remote
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>https.cipherSuites</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>TLS_DHE_RSA_WITH_AES_128_CBC_SHA</code>,
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>TLS_DHE_RSA_WITH_AES_128_GCM_SHA256</code>,
+<code>TLS_DHE_RSA_WITH_AES_128_CBC_SHA256</code>,
 <code>TLS_DHE_RSA_WITH_AES_128_CBC_SHA</code>,
-<code>TLS_DHE_DSS_WITH_AES_128_CBC_SHA</code>,
-<code>TLS_RSA_WITH_AES_128_CBC_SHA</code></p></td>
+<code>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</code>,
+<code>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The cipher suites that are supported when making outbound HTTPS connections</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>https.protocols</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>TLSv1.1</code>,<code>TLSv1.2</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The protocols that are supported when making outbound HTTPS connections</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdk.tls.client.protocols</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>TLSv1.1</code>,<code>TLSv1.2</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The protocols that are supported when making inbound HTTPS connections</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdk.tls.ephemeralDHKeySize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">'matched'</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For X.509 certificate based authentication (of non-exportable cipher suites), the DH key size matching the corresponding authentication key is used, except that the size must be between 1024 bits and 2048 bits. For example, if the public key size of an authentication certificate is 2048 bits, then the ephemeral DH key size should be 2048 bits unless the cipher suite is exportable. This key sizing scheme keeps the cryptographic strength consistent between authentication keys and key-exchange keys.</p></td>
 </tr>
 </tbody>
 </table>
@@ -9866,7 +9898,7 @@ It does not affect the logs generated or events captured by the system logger.</
 <h2 id="_managing_ddf_admin"><a class="anchor" href="#_managing_ddf_admin"></a>2. Managing DDF Admin</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Admin Application contains components that are responsible for the installation and configuration DDF applications.</p>
@@ -10431,7 +10463,7 @@ localhost=localhost,group,admin,manager,viewer,system-admin</code></pre>
 <h2 id="_managing_ddf_catalog"><a class="anchor" href="#_managing_ddf_catalog"></a>3. Managing DDF Catalog</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="sect2">
 <h3 id="_installing_ddf_catalog"><a class="anchor" href="#_installing_ddf_catalog"></a>3.1. Installing DDF Catalog</h3>
@@ -10992,7 +11024,7 @@ The X value will be the value that is placed within the security attribute on th
 <h2 id="_managing_ddf_geowebcache"><a class="anchor" href="#_managing_ddf_geowebcache"></a>4. Managing DDF GeoWebCache</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>DDF GeoWebCache enables a server providing a tile cache and tile service aggregation.
@@ -11253,7 +11285,7 @@ GeoWebCache also provides a user interface for previewing, truncating, or seedin
 <h2 id="_managing_ddf_platform"><a class="anchor" href="#_managing_ddf_platform"></a>5. Managing DDF Platform</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Platform application is considered to be a core application of the distribution.
@@ -11360,7 +11392,7 @@ The Command Scheduler included in the Platform application should be for the con
 <h2 id="_managing_ddf_registry"><a class="anchor" href="#_managing_ddf_registry"></a>6. Managing DDF Registry</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>DDF Registry contains the base registry components, plugins, sources and interfaces needed for DDF to function as a registry connecting multiple nodes.</p>
@@ -12230,7 +12262,7 @@ The Command Scheduler included in the Platform application should be for the con
 <h2 id="_managing_ddf_security"><a class="anchor" href="#_managing_ddf_security"></a>7. Managing DDF Security</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>The Security application provides authentication, authorization, and auditing services for the DDF.
@@ -13214,7 +13246,7 @@ They comprise both a framework that developers and integrators can extend and a 
 <h2 id="_managing_ddf_solr"><a class="anchor" href="#_managing_ddf_solr"></a>8. Managing DDF Solr</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>The Solr Catalog Provider (SCP) is an implementation of the <code>CatalogProvider</code> interface using <a href="http://lucene.apache.org/solr/">Apache Solr</a> as a data store.</p>
@@ -13768,7 +13800,7 @@ The backup files acquired from the previous section will be used to restore data
 <h2 id="_managing_ddf_spatial"><a class="anchor" href="#_managing_ddf_spatial"></a>9. Managing DDF Spatial</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.</p>
@@ -13930,7 +13962,7 @@ feature:install &lt;Application's main feature&gt;</pre>
 <div class="listingblock">
 <div class="title">Example</div>
 <div class="content">
-<pre>ddf@local&gt;feature:repo-add mvn:ddf.catalog/catalog-app/2.9.1/xml/features
+<pre>ddf@local&gt;feature:repo-add mvn:ddf.catalog/catalog-app/2.9.2/xml/features
 ddf@local&gt;feature:install catalog-app</pre>
 </div>
 </div>
@@ -14042,7 +14074,7 @@ DDF distribution. You may specify an absolute path if you want the index to be l
 <h2 id="_managing_ddf_search_ui"><a class="anchor" href="#_managing_ddf_search_ui"></a>10. Managing DDF Search UI</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>The Standard Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.</p>
@@ -14311,14 +14343,14 @@ Admin Console.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of imagery providers to use. Valid types are:<br>
  -OSM (OpenStreetMap),<br>
  -AGM (ArcGisMap),<br>
- -BM (BingMap),+
+ -BM (BingMap),<br>
  -WMS (WebMapService),<br>
  -WMT (WebMapTile),<br>
  -TMS (TileMapService),<br>
- -GE (GoogleEarth).
- -
- -Example: TYPE={url=
- -{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}}</p></td>
+ -GE (GoogleEarth),<br>
+ Examples:<br>
+ -{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}<br>
+ -{"type" "WMT" "url" "http://example.com" "layer" "layer1" "style" "default" "tileMatrixSetID" "tileSetId"}</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
 </tr>
 <tr>
@@ -14454,7 +14486,7 @@ In these command URLs, <code>metacard_cache</code> is the name of the Solr query
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-06-30 22:27:37 -07:00
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-08-28 21:24:08 -07:00
 </div>
 </div>
 </body>
