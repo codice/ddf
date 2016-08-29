@@ -471,6 +471,7 @@ tr.selected {
 .metacard-panel {
     max-height: calc(100% - 42px);
     position: relative;
+    overflow: hidden;
 }
 
 .attribute {
