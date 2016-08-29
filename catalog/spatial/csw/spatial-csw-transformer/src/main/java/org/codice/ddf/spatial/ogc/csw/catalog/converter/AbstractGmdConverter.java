@@ -137,7 +137,7 @@ public abstract class AbstractGmdConverter implements Converter {
 
             tree = StringUtils.substringAfter(tree, getRootNodeName());
             for (String data : tree.split(XPATH_SEPARATOR)) {
-                if (StringUtils.isNotBlank(data)) {
+                if (StringUtils.isNotEmpty(data)) {
                     current = current.addChild(data);
                 }
             }
