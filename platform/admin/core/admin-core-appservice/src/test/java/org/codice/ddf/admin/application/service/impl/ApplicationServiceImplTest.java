@@ -59,6 +59,7 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
@@ -1594,6 +1595,7 @@ public class ApplicationServiceImplTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testGetAllFeaturesFTRException() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -1629,6 +1631,7 @@ public class ApplicationServiceImplTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testGetAllFeaturesException() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -1664,6 +1667,7 @@ public class ApplicationServiceImplTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testRemoveApplicationUninstallAllFeaturesException() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -1708,6 +1712,7 @@ public class ApplicationServiceImplTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testRemoveApplicationApplicationServiceException() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -1775,6 +1780,7 @@ public class ApplicationServiceImplTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testFindApplicationFeaturesGetRepoFeatException() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -1819,6 +1825,7 @@ public class ApplicationServiceImplTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testFindApplicationFeaturesException() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -2019,7 +2026,9 @@ public class ApplicationServiceImplTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix and un-ignore
     @Test
+    @Ignore
     public void testFindFeatureExceptions() throws Exception {
         ch.qos.logback.classic.Logger root =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -2080,6 +2089,7 @@ public class ApplicationServiceImplTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testGetInstallProfilesException() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -2164,6 +2174,7 @@ public class ApplicationServiceImplTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testGetApplicationStatusException() throws Exception {
         ch.qos.logback.classic.Logger root =

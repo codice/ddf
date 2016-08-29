@@ -595,6 +595,7 @@ public class ApplicationServiceBeanTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testAddApplicationsASE() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -669,6 +670,7 @@ public class ApplicationServiceBeanTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testRemoveApplicationASE() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -862,6 +864,7 @@ public class ApplicationServiceBeanTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testGetServicesASE() throws Exception {
         ch.qos.logback.classic.Logger root =

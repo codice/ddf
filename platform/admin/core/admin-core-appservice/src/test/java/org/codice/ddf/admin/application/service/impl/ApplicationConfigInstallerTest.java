@@ -192,6 +192,7 @@ public class ApplicationConfigInstallerTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testRunASE() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -232,6 +233,7 @@ public class ApplicationConfigInstallerTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testRunConfigFileNotExist() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -264,6 +266,7 @@ public class ApplicationConfigInstallerTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testRunInvalidURI() throws Exception {
         ch.qos.logback.classic.Logger root =
