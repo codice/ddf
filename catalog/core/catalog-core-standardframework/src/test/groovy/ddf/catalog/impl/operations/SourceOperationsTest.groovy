@@ -36,6 +36,7 @@ class SourceOperationsTest extends Specification {
     private SourcePoller sourcePoller
     private SourcePollerRunner pollerRunner
     private SourceOperations sourceOperations
+    private double pollerWaitTime
 
     def setup() {
         frameworkProperties = new FrameworkProperties()
@@ -44,6 +45,7 @@ class SourceOperationsTest extends Specification {
         fedSources = ['fed1', 'fed2'].collectEntries { [(it): mockFedSource(it)] }
         pollerRunner = new SourcePollerRunner()
         sourcePoller = new SourcePoller(pollerRunner)
+        pollerWaitTime = (sourcePoller.getInterval() * 60) + 5
 
         frameworkProperties.with {
             catalogProviders = this.catalogProviders
@@ -415,7 +417,7 @@ class SourceOperationsTest extends Specification {
         def available = sourceOperations.isSourceAvailable(source)
 
         then:
-        conds.await()
+        conds.await(pollerWaitTime)
 
         then:
         !available
@@ -437,7 +439,7 @@ class SourceOperationsTest extends Specification {
         def available = sourceOperations.isSourceAvailable(source)
 
         then:
-        conds.await()
+        conds.await(pollerWaitTime)
 
         then:
         available
