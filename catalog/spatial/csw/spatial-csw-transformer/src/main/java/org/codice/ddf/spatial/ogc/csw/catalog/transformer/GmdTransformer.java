@@ -87,13 +87,7 @@ import ddf.catalog.transform.InputTransformer;
 
 public class GmdTransformer extends AbstractGmdTransformer implements InputTransformer {
 
-    public static final String GCO = "gco";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GmdTransformer.class);
-
-    private static final String GML_PREFIX = "gml:";
-
-    private static final String GCO_PREFIX = GCO + ":";
 
     private static final String TRANSFORM_EXCEPTION_MSG =
             "Unable to transform from GMD Metadata to Metacard";

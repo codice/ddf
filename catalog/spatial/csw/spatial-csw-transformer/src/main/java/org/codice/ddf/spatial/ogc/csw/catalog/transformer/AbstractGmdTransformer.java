@@ -41,6 +41,12 @@ import ddf.catalog.transform.MetacardTransformer;
 
 public class AbstractGmdTransformer implements MetacardTransformer {
 
+    public static final String GCO = "gco";
+
+    public static final String GML_PREFIX = "gml:";
+
+    public static final String GCO_PREFIX = GCO + ":";
+
     private Supplier<Converter> converterSupplier;
 
     /**
@@ -73,23 +79,20 @@ public class AbstractGmdTransformer implements MetacardTransformer {
         converterSupplier.get()
                 .marshal(metacard, writer, context);
 
-        BinaryContent transformedContent;
-
         ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString()
                 .getBytes(StandardCharsets.UTF_8));
-        transformedContent = new BinaryContentImpl(bais, new MimeType());
-        return transformedContent;
+
+        return new BinaryContentImpl(bais, new MimeType());
     }
 
     private void copyArgumentsToContext(MarshallingContext context,
             Map<String, Serializable> arguments) {
 
-        if (context == null || arguments == null) {
+        if (arguments == null) {
             return;
         }
 
-        for (Map.Entry<String, Serializable> entry : arguments.entrySet()) {
-            context.put(entry.getKey(), entry.getValue());
-        }
+        arguments.forEach(context::put);
+
     }
 }
