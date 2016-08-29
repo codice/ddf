@@ -129,11 +129,9 @@ public abstract class AbstractGmdConverter implements Converter {
 
         XmlTree gmdTree = new XmlTree(getRootNodeName());
 
-        XmlTree current = gmdTree;
-
         for (Path path : paths) {
             String tree = path.toString();
-            XmlTree root = current;
+            XmlTree current = gmdTree;
 
             tree = StringUtils.substringAfter(tree, getRootNodeName());
             for (String data : tree.split(XPATH_SEPARATOR)) {
@@ -141,8 +139,6 @@ public abstract class AbstractGmdConverter implements Converter {
                     current = current.addChild(data);
                 }
             }
-
-            current = root;
         }
         return gmdTree;
     }

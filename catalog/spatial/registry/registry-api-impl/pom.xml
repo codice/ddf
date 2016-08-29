@@ -227,7 +227,7 @@
                             platform-util,
                             platform-util-unavailableurls,
                             jaxb2-basics-runtime,
-                            lang3
+                            commons-lang3
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
