@@ -32,12 +32,18 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.util.Describable;
@@ -255,18 +261,29 @@ public class SchematronValidationService implements MetacardValidator, Describab
 
     private SchematronReport generateReport(String metadata, Templates validator)
             throws SchematronValidationException {
-        StringReader metadataReader = new StringReader(metadata);
+        XMLReader xmlReader = null;
+        try {
+            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
+            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
+            xmlReader = new XMLFilterImpl(xmlParser);
+        } catch (SAXException e) {
+            throw new SchematronValidationException(e);
+        }
 
         SchematronReport report;
         try {
             Transformer transformer = validator.newTransformer();
             DOMResult schematronResult = new DOMResult();
-            transformer.transform(new StreamSource(metadataReader), schematronResult);
+            transformer.transform(
+                    new SAXSource(xmlReader, new InputSource(new StringReader(metadata))),
+                    schematronResult);
             report = new SvrlReport(schematronResult);
         } catch (TransformerException e) {
             throw new SchematronValidationException(
-                    "Could not setup validator to perform validation.",
-                    e);
+                    "Could not setup validator to perform validation.", e);
         }
         return report;
     }

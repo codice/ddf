@@ -22,6 +22,9 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -97,10 +100,18 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
                         Unmarshaller um = provider.getJAXBContext(ExceptionReport.class,
                                 ExceptionReport.class)
                                 .createUnmarshaller();
+                        XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+                        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                                false);
+                        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                        xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
+                                false);
+                        XMLStreamReader xmlStreamReader =
+                                xmlInputFactory.createXMLStreamReader(new StringReader(msg));
                         ExceptionReport report =
-                                (ExceptionReport) um.unmarshal(new StringReader(msg));
+                                (ExceptionReport) um.unmarshal(xmlStreamReader);
                         cswException = convertToCswException(report);
-                    } catch (JAXBException e) {
+                    } catch (JAXBException | XMLStreamException e) {
                         cswException = new CswException(
                                 "Error received from remote Csw server: " + msg, e);
                         LOGGER.info("Error parsing the exception report: {}", e.getMessage());

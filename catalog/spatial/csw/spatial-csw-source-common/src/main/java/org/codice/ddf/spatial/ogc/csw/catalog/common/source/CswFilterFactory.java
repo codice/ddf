@@ -14,7 +14,6 @@
 
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -33,6 +32,9 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -510,10 +512,16 @@ public class CswFilterFactory {
             String xmlGeo = writer.toString();
             LOGGER.debug("Geometry as XML: {}", xmlGeo);
 
-            Reader reader = new StringReader(xmlGeo);
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                    false);
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+            XMLStreamReader xmlStreamReader =
+                    xmlInputFactory.createXMLStreamReader(new StringReader(xmlGeo));
 
             Unmarshaller unmarshaller = JAXB_CONTEXT.createUnmarshaller();
-            Object object = unmarshaller.unmarshal(reader);
+            Object object = unmarshaller.unmarshal(xmlStreamReader);
             LOGGER.debug("Unmarshalled as => {}", object);
             if (object instanceof JAXBElement) {
                 abstractGeometry = (JAXBElement<? extends AbstractGeometryType>) object;
@@ -523,7 +531,7 @@ public class CswFilterFactory {
                         object.getClass()
                                 .getName());
             }
-        } catch (JAXBException e) {
+        } catch (JAXBException | XMLStreamException e) {
             LOGGER.debug("Unable to unmarshal geometry [{}]",
                     geometry.getClass()
                             .getName(),

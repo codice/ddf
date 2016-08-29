@@ -141,6 +141,14 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         LOGGER.debug("readGml() input XML: {}", xml);
         //Add namespace into XML for processing
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        try {
+            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
+                    false);
+            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to configure features on document builder.", e);
+        }
         DocumentBuilder dBuilder = null;
         Document doc = null;
         Object gml = null;

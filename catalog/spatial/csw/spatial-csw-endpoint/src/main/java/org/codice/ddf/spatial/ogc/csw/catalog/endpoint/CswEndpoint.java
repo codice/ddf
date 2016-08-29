@@ -981,15 +981,17 @@ public class CswEndpoint implements Csw {
 
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         docBuilderFactory.setNamespaceAware(true);
+        try {
+            docBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            docBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to configure features on document builder.", e);
+        }
         Document doc;
         try {
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             doc = docBuilder.parse(recordUrl.openStream());
-        } catch (ParserConfigurationException e) {
-            throw new CswException(e);
-        } catch (SAXException e) {
-            throw new CswException(e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new CswException(e);
         }
 

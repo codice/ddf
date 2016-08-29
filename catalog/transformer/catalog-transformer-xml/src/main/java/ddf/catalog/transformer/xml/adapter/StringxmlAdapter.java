@@ -53,13 +53,21 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StringxmlAdapter.class);
 
-    private static DocumentBuilderFactory factory;
+    private static final DocumentBuilderFactory FACTORY;
 
     private static Templates templates = null;
 
     static {
-        factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
+        FACTORY = DocumentBuilderFactory.newInstance();
+        FACTORY.setNamespaceAware(true);
+        try {
+            FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
+                    false);
+            FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to set features on document builder.", e);
+        }
 
         // Create Transformer
         TransformerFactory transFactory = TransformerFactory.newInstance();
@@ -92,18 +100,14 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
                 Element anyElement = null;
                 DocumentBuilder builder = null;
                 try {
-                    synchronized (factory) {
-                        builder = factory.newDocumentBuilder();
+                    synchronized (FACTORY) {
+                        builder = FACTORY.newDocumentBuilder();
                         builder.setErrorHandler(null);
                     }
                     anyElement = builder.parse(new ByteArrayInputStream(xmlString.getBytes(
                             StandardCharsets.UTF_8)))
                             .getDocumentElement();
-                } catch (ParserConfigurationException e) {
-                    throw new CatalogTransformerException(TRANSFORMATION_FAILED_ERROR_MESSAGE, e);
-                } catch (SAXException e) {
-                    throw new CatalogTransformerException(TRANSFORMATION_FAILED_ERROR_MESSAGE, e);
-                } catch (IOException e) {
+                } catch (ParserConfigurationException | SAXException | IOException e) {
                     throw new CatalogTransformerException(TRANSFORMATION_FAILED_ERROR_MESSAGE, e);
                 }
                 Value anyValue = new StringxmlElement.Value();

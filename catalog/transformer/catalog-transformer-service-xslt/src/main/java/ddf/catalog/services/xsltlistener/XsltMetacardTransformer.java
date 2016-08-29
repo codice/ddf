@@ -13,10 +13,9 @@
  */
 package ddf.catalog.services.xsltlistener;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +26,8 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Bundle;
@@ -36,6 +35,11 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
@@ -124,8 +128,19 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer
 
         BinaryContent resultContent;
         StreamResult resultOutput = null;
-        Source source = new StreamSource(new ByteArrayInputStream(metacard.getMetadata()
-                .getBytes(StandardCharsets.UTF_8)));
+        XMLReader xmlReader = null;
+        try {
+            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
+            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
+            xmlReader = new XMLFilterImpl(xmlParser);
+        } catch (SAXException e) {
+            LOGGER.debug(e.getMessage(), e);
+        }
+        Source source = new SAXSource(xmlReader,
+                new InputSource(new StringReader(metacard.getMetadata())));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         resultOutput = new StreamResult(baos);

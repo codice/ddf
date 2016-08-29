@@ -123,6 +123,7 @@ public class DynamicSchemaResolver {
                     Boolean.FALSE);
             XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+            XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
         } finally {
             Thread.currentThread()
                     .setContextClassLoader(tccl);

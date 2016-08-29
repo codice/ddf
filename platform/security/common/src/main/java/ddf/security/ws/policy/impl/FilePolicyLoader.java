@@ -63,6 +63,12 @@ public class FilePolicyLoader implements PolicyLoader {
                 policyStream = policyFileURL.openStream();
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 dbFactory.setNamespaceAware(true);
+                try {
+                    dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+                    dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                } catch (ParserConfigurationException e) {
+                    throw new IOException(e);
+                }
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
                 doc = dBuilder.parse(policyStream);
             } catch (IOException e) {

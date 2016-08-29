@@ -84,6 +84,12 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
             factory.setNamespaceAware(true);
+            try {
+                factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+                factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            } catch (ParserConfigurationException e) {
+                LOGGER.debug("Unable to configure features on document builder.", e);
+            }
             DocumentBuilder builder = factory.newDocumentBuilder();
 
             Document doc = builder.newDocument();

@@ -138,6 +138,10 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
         argumentHolder = xstream.newDataHolder();
         argumentHolder.put(XstreamPathConverter.PATH_KEY, buildPaths());
         xmlFactory = XMLInputFactory.newInstance();
+        xmlFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                Boolean.FALSE);
+        xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
+        xmlFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
     }
 
     public GmdTransformer(MetacardType metacardType) {
@@ -661,6 +665,12 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
         try (InputStream inputStream = getSourceInputStream()) {
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             domFactory.setNamespaceAware(false);
+            try {
+                domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+                domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            } catch (ParserConfigurationException e) {
+                LOGGER.debug("Unable to configure features on document builder.", e);
+            }
             DocumentBuilder builder = domFactory.newDocumentBuilder();
             Document document = builder.parse(inputStream);
 
@@ -708,6 +718,12 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
             final XstreamPathValueTracker pathValueTracker) {
         try (InputStream inputStream = getSourceInputStream()) {
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            try {
+                domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+                domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            } catch (ParserConfigurationException e) {
+                LOGGER.debug("Unable to configure features on document builder.", e);
+            }
             domFactory.setNamespaceAware(false);
             DocumentBuilder builder = domFactory.newDocumentBuilder();
             Document document = builder.parse(inputStream);

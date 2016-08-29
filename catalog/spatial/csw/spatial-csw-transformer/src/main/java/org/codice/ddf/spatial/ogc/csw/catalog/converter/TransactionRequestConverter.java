@@ -13,11 +13,9 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,9 +26,10 @@ import java.util.Map.Entry;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -364,11 +363,16 @@ public class TransactionRequestConverter implements Converter {
 
         try {
             JAXBContext jaxbContext = getJaxBContext();
-            InputStream xmlInputStream = IOUtils.toInputStream(xml, StandardCharsets.UTF_8.name());
-            StreamSource xmlStreamSource = new StreamSource(xmlInputStream);
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                    false);
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+            XMLStreamReader xmlStreamReader =
+                    xmlInputFactory.createXMLStreamReader(new StringReader(xml));
             root = jaxbContext.createUnmarshaller()
-                    .unmarshal(xmlStreamSource, clazz);
-        } catch (IOException | JAXBException e) {
+                    .unmarshal(xmlStreamReader, clazz);
+        } catch (JAXBException | XMLStreamException e) {
             throw new ConversionException(e);
         }
 

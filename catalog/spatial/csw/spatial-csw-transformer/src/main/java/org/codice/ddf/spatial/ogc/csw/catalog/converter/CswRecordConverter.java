@@ -71,7 +71,15 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     private XStream xstream;
 
-    private static XMLInputFactory factory = XMLInputFactory.newInstance();
+    private static XMLInputFactory factory;
+
+    static {
+        factory = XMLInputFactory.newInstance();
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                Boolean.FALSE);
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
+        factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+    }
 
     public CswRecordConverter() {
 

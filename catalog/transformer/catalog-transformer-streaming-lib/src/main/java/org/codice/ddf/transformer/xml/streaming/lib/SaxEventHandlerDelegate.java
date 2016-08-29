@@ -64,6 +64,10 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     public SaxEventHandlerDelegate() {
         try {
             parser = XMLReaderFactory.createXMLReader();
+            parser.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            parser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
         } catch (Exception e) {
             LOGGER.debug(
                     "Exception thrown during creation of SaxEventHandlerDelegate. Probably caused by one of the setFeature calls",

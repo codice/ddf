@@ -237,6 +237,12 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
         String namespace = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
+        try {
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to configure features on document builder.", e);
+        }
 
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();

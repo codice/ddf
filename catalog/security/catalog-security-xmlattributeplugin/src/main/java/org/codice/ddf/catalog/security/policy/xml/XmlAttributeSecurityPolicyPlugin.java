@@ -64,6 +64,7 @@ public class XmlAttributeSecurityPolicyPlugin implements PolicyPlugin {
                 Boolean.FALSE);
         xmlInputFactoryTmp.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
                 Boolean.FALSE);
+        xmlInputFactoryTmp.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
         xmlInputFactoryTmp.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
         xmlInputFactory = xmlInputFactoryTmp;
 
