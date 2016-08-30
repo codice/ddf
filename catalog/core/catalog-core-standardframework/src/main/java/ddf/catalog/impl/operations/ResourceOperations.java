@@ -564,7 +564,7 @@ public class ResourceOperations extends DescribableImpl {
                     // if isEnterprise, go out and obtain the actual source
                     // where the product's metacard is stored.
                     QueryRequest queryRequest =
-                            new QueryRequestImpl(anyTag(propertyEqualToUriQuery),
+                            new QueryRequestImpl(anyTag(propertyEqualToUriQuery, site, isEnterprise),
                                     isEnterprise,
                                     Collections.singletonList(site == null ? this.getId() : site),
                                     resourceRequest.getProperties());
@@ -609,7 +609,7 @@ public class ResourceOperations extends DescribableImpl {
                     String metacardId = (String) value;
                     LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
                     QueryRequest queryRequest = new QueryRequestImpl(anyTag(createMetacardIdQuery(
-                            metacardId)),
+                            metacardId), site, isEnterprise),
                             isEnterprise,
                             Collections.singletonList(site == null ? this.getId() : site),
                             resourceRequest.getProperties());
@@ -664,7 +664,11 @@ public class ResourceOperations extends DescribableImpl {
         return new ResourceInfo(metacard, resourceUri);
     }
 
-    private Query anyTag(Query query) {
+    private Query anyTag(Query query, String site, boolean isEnterprise) {
+        if (isEnterprise || !getId().equals(site)) {
+            return query;
+        }
+
         Filter anyTag = frameworkProperties.getFilterBuilder()
                 .attribute(Metacard.TAGS)
                 .is()
