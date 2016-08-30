@@ -47,6 +47,12 @@
             <groupId>org.spockframework</groupId>
             <artifactId>spock-core</artifactId>
             <version>1.0-groovy-2.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-all</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
@@ -75,7 +81,7 @@
                             <include>cglib:cglib-nodep:3.2.0</include>
                             <include>org.objenesis:objensis</include>
                             <include>org.spockframework:spock-core</include>
-                            <include>org.codehaus.groovy:groovy-all</include>
+                            <include>org.codehaus.groovy:groovy-all:2.4.7</include>
                         </includes>
                     </artifactSet>
                     <filters>
