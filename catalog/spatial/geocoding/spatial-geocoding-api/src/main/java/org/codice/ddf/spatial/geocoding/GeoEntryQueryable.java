@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.geocoding;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 
@@ -55,4 +56,15 @@ public interface GeoEntryQueryable {
      */
     List<NearbyLocation> getNearestCities(String location, int radiusInKm, int maxResults)
             throws ParseException, GeoEntryQueryException;
+
+    /**
+     * Retrieves the country code for the the area defined by {@code wktLocation} in a distance
+     * of up to {@code radius} from the coordinate searched.
+     *
+     * @param wktLocation A WKT location
+     * @param radius the radius in kilometers to search from the given {@code wktLocation}
+     * @return a country code in ISO 3166-1 alpha-2 format or null if not found (for example, a location in the ocean)
+     */
+    Optional<String> getCountryCode(String wktLocation, int radius)
+            throws GeoEntryQueryException, ParseException;
 }

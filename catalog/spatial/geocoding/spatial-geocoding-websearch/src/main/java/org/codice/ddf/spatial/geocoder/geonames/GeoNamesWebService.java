@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,13 +13,19 @@
  **/
 package org.codice.ddf.spatial.geocoder.geonames;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.MissingResourceException;
+import java.util.Optional;
 
 import javax.ws.rs.WebApplicationException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.libs.location.ISOFormatConverter;
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoder.GeoResultCreator;
@@ -52,6 +58,8 @@ public class GeoNamesWebService implements GeoCoder {
     private static final String GEONAMES_PROTOCOL = "http";
 
     private static final String GEONAMES_KEY = "geonames";
+
+    private static final String GEONAMES_COUNTRYCODE = "countryCode";
 
     private static final String LAT_KEY = "lat";
 
@@ -141,9 +149,7 @@ public class GeoNamesWebService implements GeoCoder {
 
     @Override
     public NearbyLocation getNearbyCity(String locationWkt) {
-        if (locationWkt == null) {
-            throw new IllegalArgumentException("argument 'locationWkt' may not be null.");
-        }
+        notNull(locationWkt, "argument locationWkt may not be null");
 
         Point wktCenterPoint = createPointFromWkt(locationWkt);
 
@@ -174,6 +180,45 @@ public class GeoNamesWebService implements GeoCoder {
         }
 
         return null;
+    }
+
+    @Override
+    public Optional<String> getCountryCode(String locationWkt, int radius) {
+        notNull(locationWkt, "argument locationWkt may not be null");
+
+        Point wktCenterPoint = createPointFromWkt(locationWkt);
+        String urlStr = String.format(
+                "%s://%s/countryCode?lat=%f&lng=%f&radius=%d&type=JSON&username=%s",
+                GEONAMES_PROTOCOL,
+                GEONAMES_API_ADDRESS,
+                wktCenterPoint.getY(),
+                wktCenterPoint.getX(),
+                radius,
+                USERNAME);
+
+        Object result = query(urlStr);
+
+        if (result instanceof JSONObject) {
+            JSONObject jsonResult = (JSONObject) result;
+            Object countryCode = jsonResult.get(GEONAMES_COUNTRYCODE);
+            if (countryCode != null) {
+                String alpha2CountryCode = (String) countryCode;
+                if (StringUtils.isNotEmpty(alpha2CountryCode)) {
+                    try {
+                        String alpha3CountryCode =
+                                ISOFormatConverter.convert(ISOFormatConverter.ENGLISH_LANG,
+                                        alpha2CountryCode);
+                        return Optional.of(alpha3CountryCode);
+                    } catch (MissingResourceException e) {
+                        LOGGER.debug(
+                                "Failed to convert country code {} to alpha-3 format. Returning empty value",
+                                alpha2CountryCode);
+                    }
+                }
+            }
+        }
+
+        return Optional.empty();
     }
 
     Point createPointFromWkt(String wkt) {

@@ -101,6 +101,12 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-admin-module/${project.version}</bundle>
     </feature>
 
+    <feature name="spatial-geocoding-plugin" install="manual" version="${project.version}"
+             description="Plugin that uses GeoCoder to fetch country codes for geolocated metacards">
+        <feature prerequisite="true">spatial-app</feature>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
+    </feature>
+
     <feature name="spatial-app" install="auto" version="${project.version}"
              description="DDF Spatial contains standards-based, geospatial endpoints, sources, and transforms.::DDF Spatial">
         <feature prerequisite="true">catalog-app</feature>

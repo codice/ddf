@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,6 +27,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
@@ -40,6 +41,10 @@ import org.junit.Test;
 import org.opengis.geometry.primitive.Point;
 
 public class TestGeoNamesLocalIndex {
+    private static final String TEST_POINT = "POINT (1.0 2.0)";
+
+    private Optional<String> countryCode;
+
     private GeoNamesLocalIndex geoNamesLocalIndex;
 
     private GeoEntryQueryable geoEntryQueryable;
@@ -117,5 +122,78 @@ public class TestGeoNamesLocalIndex {
         NearbyLocation returnedNearbyLocation = geoNamesLocalIndex.getNearbyCity("POINT(1.0 20)");
 
         assertThat(returnedNearbyLocation, equalTo(mockNearbyLocation));
+    }
+
+    @Test
+    public void testGetNearbyCitiesNoResult() throws ParseException, GeoEntryQueryException {
+        NearbyLocation mockNearbyLocation = mock(NearbyLocation.class);
+        when(mockNearbyLocation.getCardinalDirection()).thenReturn("W");
+        when(mockNearbyLocation.getDistance()).thenReturn(10.24);
+        when(mockNearbyLocation.getName()).thenReturn("The City");
+
+        List<NearbyLocation> nearbyLocations = mock(List.class);
+        when(nearbyLocations.size()).thenReturn(0);
+
+        when(geoEntryQueryable.getNearestCities("POINT(1.0 20)",
+                50,
+                1)).thenReturn(nearbyLocations);
+        NearbyLocation returnedNearbyLocation = geoNamesLocalIndex.getNearbyCity("POINT(1.0 20)");
+
+        assertThat(returnedNearbyLocation, nullValue());
+    }
+
+    @Test
+    public void testGetNearbyCitiesParseException() throws ParseException, GeoEntryQueryException {
+        when(geoEntryQueryable.getNearestCities("POINT(1.0 20)",
+                50,
+                1)).thenThrow(new ParseException("", 1));
+        NearbyLocation returnedNearbyLocation = geoNamesLocalIndex.getNearbyCity("POINT(1.0 20)");
+        assertThat(returnedNearbyLocation, nullValue());
+    }
+
+    @Test
+    public void testGetCountryCode() throws ParseException, GeoEntryQueryException {
+        when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenReturn(Optional.of("US"));
+
+        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+
+        assertThat(countryCode.get(), is("USA"));
+    }
+
+    @Test
+    public void testGetCountryCodeNoResult() throws ParseException, GeoEntryQueryException {
+        when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenReturn(Optional.empty());
+
+        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+        assertThat(countryCode.isPresent(), is(false));
+    }
+
+    @Test
+    public void testGetCountryCodeGeoEntryQueryException()
+            throws ParseException, GeoEntryQueryException {
+        when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenThrow(new GeoEntryQueryException(
+                ""));
+
+        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+        assertThat(countryCode.isPresent(), is(false));
+    }
+
+    @Test
+    public void testGetCountryCodeParseException() throws ParseException, GeoEntryQueryException {
+        when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenThrow(new ParseException("", 1));
+
+        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+        assertThat(countryCode.isPresent(), is(false));
+    }
+
+    @Test
+    public void testGetCountryCodeInvalidCountryCode()
+            throws ParseException, GeoEntryQueryException {
+        when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenReturn(Optional.of(
+                "not a country code"));
+
+        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+
+        assertThat(countryCode.isPresent(), is(false));
     }
 }

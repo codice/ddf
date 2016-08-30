@@ -60,6 +60,7 @@ public class TestGeoNamesLuceneIndexerExceptions {
             .featureCode("code")
             .population(3)
             .alternateNames("")
+            .countryCode("AA")
             .build();
 
     @After

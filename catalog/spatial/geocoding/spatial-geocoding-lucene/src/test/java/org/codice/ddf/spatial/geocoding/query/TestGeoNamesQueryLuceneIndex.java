@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,7 @@
 package org.codice.ddf.spatial.geocoding.query;
 
 import static org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -27,7 +28,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -99,6 +103,12 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
     private static final String ALT_NAMES_3 = "";
 
+    private static final String COUNTRY_CODE1 = "C1";
+
+    private static final String COUNTRY_CODE2 = "C2";
+
+    private static final String COUNTRY_CODE3 = "C3";
+
     private static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
 
     private static final String TEST_POINT = "POINT (56.78 1.5)";
@@ -111,6 +121,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
             .featureCode(FEATURE_CODE_1)
             .population(POP_1)
             .alternateNames(ALT_NAMES_1)
+            .countryCode(COUNTRY_CODE1)
             .build();
 
     private static final GeoEntry GEO_ENTRY_2 = new GeoEntry.Builder().name(NAME_2)
@@ -119,6 +130,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
             .featureCode(FEATURE_CODE_2)
             .population(POP_2)
             .alternateNames(ALT_NAMES_2)
+            .countryCode(COUNTRY_CODE2)
             .build();
 
     private static final GeoEntry GEO_ENTRY_3 = new GeoEntry.Builder().name(NAME_3)
@@ -127,6 +139,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
             .featureCode(FEATURE_CODE_3)
             .population(POP_3)
             .alternateNames(ALT_NAMES_3)
+            .countryCode(COUNTRY_CODE3)
             .build();
 
     private void initializeIndex() throws IOException {
@@ -180,6 +193,9 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
                 Field.Store.YES));
         document.add(new NumericDocValuesField(GeoNamesLuceneConstants.POPULATION_DOCVALUES_FIELD,
                 geoEntry.getPopulation()));
+        document.add(new StringField(GeoNamesLuceneConstants.COUNTRY_CODE_FIELD,
+                geoEntry.getCountryCode(),
+                Field.Store.YES));
 
         document.add(new TextField(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD,
                 geoEntry.getAlternateNames(),
@@ -207,11 +223,25 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         // We don't store the alternate names, so we don't get them back with the query results.
         // The entry with the name "phoenix" will come first because the name matches the query
         // exactly.
-        verifyGeoEntry(firstResult, NAME_1, LAT_1, LON_1, FEATURE_CODE_1, POP_1, null);
+        verifyGeoEntry(firstResult,
+                NAME_1,
+                LAT_1,
+                LON_1,
+                FEATURE_CODE_1,
+                POP_1,
+                null,
+                COUNTRY_CODE1);
 
         final GeoEntry secondResult = results.get(1);
         // We don't store the alternate names, so we don't get them back with the query results.
-        verifyGeoEntry(secondResult, NAME_2, LAT_2, LON_2, FEATURE_CODE_2, POP_2, null);
+        verifyGeoEntry(secondResult,
+                NAME_2,
+                LAT_2,
+                LON_2,
+                FEATURE_CODE_2,
+                POP_2,
+                null,
+                COUNTRY_CODE2);
     }
 
     @Test
@@ -226,7 +256,14 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
         final GeoEntry firstResult = results.get(0);
         // We don't store the alternate names, so we don't get them back with the query results.
-        verifyGeoEntry(firstResult, NAME_3, LAT_3, LON_3, FEATURE_CODE_3, POP_3, null);
+        verifyGeoEntry(firstResult,
+                NAME_3,
+                LAT_3,
+                LON_3,
+                FEATURE_CODE_3,
+                POP_3,
+                null,
+                COUNTRY_CODE3);
     }
 
     @Test
@@ -410,9 +447,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
         final int requestedMaxResults = 2;
 
-        final List<NearbyLocation> nearestCities = directoryIndex.getNearestCities(testPoint,
-                50,
-                requestedMaxResults);
+        directoryIndex.getNearestCities(testPoint, 50, requestedMaxResults);
     }
 
     @Test(expected = java.text.ParseException.class)
@@ -431,10 +466,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testDoGetNearestCitiesNullShape() throws GeoEntryQueryException {
-        List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(null,
-                10,
-                10,
-                directory);
+        directoryIndex.doGetNearestCities(null, 10, 10, directory);
     }
 
     @Test(expected = GeoEntryQueryException.class)
@@ -443,9 +475,72 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         doThrow(IOException.class).when(directoryIndex)
                 .createIndexReader(directory);
         Shape shape = mock(Shape.class);
-        List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(shape,
-                10,
-                10,
-                directory);
+        directoryIndex.doGetNearestCities(shape, 10, 10, directory);
+    }
+
+    @Test
+    public void testDoGetNearestCitiesNullDirectory() throws IOException, GeoEntryQueryException {
+        Shape shape = mock(Shape.class);
+        List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(shape, 10, 10, null);
+
+        assertThat(nearestCities, is(Collections.emptyList()));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDoGetCountryCodeNullShape() throws GeoEntryQueryException {
+        Shape shape = null;
+        directoryIndex.doGetCountryCode(shape, 10, null);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testDoGetCountryCodeNullLuceneDirectory() throws GeoEntryQueryException {
+        Shape shape = mock(Shape.class);
+        Directory directory = null;
+        directoryIndex.doGetCountryCode(shape, 10, directory);
+    }
+
+    @Test
+    public void testDoGetCountryCodeSuccess()
+            throws GeoEntryQueryException, java.text.ParseException {
+        final int radiusKm = 50;
+
+        final Optional<String> countryCode = directoryIndex.getCountryCode(TEST_POINT, radiusKm);
+
+        assertThat(countryCode.get(), is(COUNTRY_CODE1));
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testDoGetCountryCodeNullResponse()
+            throws GeoEntryQueryException, java.text.ParseException {
+        final int radiusKm = 1;
+
+        final Optional<String> countryCode = directoryIndex.getCountryCode(TEST_POINT, radiusKm);
+
+        countryCode.get();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDoGetCountryCodeNonPositiveRadius()
+            throws GeoEntryQueryException, java.text.ParseException {
+        final int radiusKm = 0;
+
+        directoryIndex.getCountryCode(TEST_POINT, radiusKm);
+    }
+
+    @Test(expected = GeoEntryQueryException.class)
+    public void testDoGetCountryCodeIOExceptionBranch()
+            throws IOException, GeoEntryQueryException, java.text.ParseException {
+        doThrow(IOException.class).when(directoryIndex)
+                .createIndexReader(directory);
+
+        final int radiusKm = 1;
+
+        directoryIndex.getCountryCode(TEST_POINT, radiusKm);
+    }
+
+    @Test
+    public void testDoQueryNullDirectory() throws GeoEntryQueryException {
+        List<GeoEntry> result = directoryIndex.doQuery("test", 1, null);
+        assertThat(result, empty());
     }
 }

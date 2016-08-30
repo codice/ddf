@@ -232,12 +232,17 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
         document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD,
                 geoEntry.getLatitude(),
                 Field.Store.YES));
+
         document.add(new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
                 geoEntry.getLongitude(),
                 Field.Store.YES));
 
         document.add(new StringField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
                 geoEntry.getFeatureCode(),
+                Field.Store.YES));
+
+        document.add(new TextField(GeoNamesLuceneConstants.COUNTRY_CODE_FIELD,
+                geoEntry.getCountryCode(),
                 Field.Store.YES));
 
         document.add(new StoredField(GeoNamesLuceneConstants.POPULATION_FIELD,

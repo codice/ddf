@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,6 +30,8 @@ public class GeoEntry {
 
     private final String alternateNames;
 
+    private final String countryCode;
+
     private GeoEntry(final Builder builder) {
         name = builder.name;
         latitude = builder.latitude;
@@ -37,6 +39,7 @@ public class GeoEntry {
         featureCode = builder.featureCode;
         population = builder.population;
         alternateNames = builder.alternateNames;
+        countryCode = builder.countryCode;
     }
 
     public static class Builder {
@@ -51,6 +54,8 @@ public class GeoEntry {
         private long population;
 
         private String alternateNames;
+
+        private String countryCode;
 
         public Builder name(final String name) {
             this.name = name;
@@ -82,6 +87,11 @@ public class GeoEntry {
             return this;
         }
 
+        public Builder countryCode(final String countryCode) {
+            this.countryCode = countryCode;
+            return this;
+        }
+
         public GeoEntry build() {
             return new GeoEntry(this);
         }
@@ -109,5 +119,9 @@ public class GeoEntry {
 
     public String getAlternateNames() {
         return alternateNames;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
     }
 }

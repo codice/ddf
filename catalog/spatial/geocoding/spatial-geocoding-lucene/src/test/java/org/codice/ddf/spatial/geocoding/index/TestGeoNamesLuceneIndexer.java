@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -77,6 +77,9 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
             {"alt1, alt2", "alt3", "", "alt4", "alt5,alt6,alt7", "alt-8,alt-9", "alt-10",
                     "alt 1.1, alt1.2", "alt2.1,alt3.4"};
 
+    private static final String[] COUNTRY_CODES =
+            {"AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI"};
+
     private static final GeoEntry GEO_ENTRY_1 = createGeoEntry(0);
 
     private static final GeoEntry GEO_ENTRY_2 = createGeoEntry(1);
@@ -112,6 +115,7 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
                 .featureCode(FEATURE_CODES[index])
                 .population(POPS[index])
                 .alternateNames(ALT_NAMES[index])
+                .countryCode(COUNTRY_CODES[index])
                 .build();
     }
 
@@ -137,6 +141,7 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
                 .featureCode(document.get(GeoNamesLuceneConstants.FEATURE_CODE_FIELD))
                 .population(Long.parseLong(document.get(GeoNamesLuceneConstants.POPULATION_FIELD)))
                 .alternateNames(document.get(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD))
+                .countryCode(document.get(GeoNamesLuceneConstants.COUNTRY_CODE_FIELD))
                 .build();
     }
 
@@ -150,7 +155,8 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
                     LONS[i],
                     FEATURE_CODES[i],
                     POPS[i],
-                    ALT_NAMES[i]);
+                    ALT_NAMES[i],
+                    COUNTRY_CODES[i]);
         }
     }
 
