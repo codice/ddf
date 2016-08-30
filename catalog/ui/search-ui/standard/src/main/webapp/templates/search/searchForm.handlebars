@@ -273,13 +273,13 @@
         </li>
         <li>
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
-                <label class="btn btn-default type {{#ifNotOr type}}active{{/ifNotOr}}" data-target="#noTypeTab" data-toggle="tab">
+                <label id="noType" class="btn btn-default type {{#ifNotOr type}}active{{/ifNotOr}}" data-target="#noTypeTab" data-toggle="tab">
                     <input type="radio" name="noTypeButton">
                     <i class="fa fa-circle"></i>
                     <i class="fa fa-circle-o"></i>
                     Any
                 </label>
-                <label class="btn btn-default type {{#if type}}active{{/if}}" data-target="#typeTab" data-toggle="tab">
+                <label id="type" class="btn btn-default type {{#if type}}active{{/if}}" data-target="#typeTab" data-toggle="tab">
                     <input type="radio" name="typeButton">
                     <i class="fa fa-circle"></i>
                     <i class="fa fa-circle-o"></i>
