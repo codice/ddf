@@ -26,6 +26,7 @@ import javax.activation.MimeType;
 
 import org.apache.commons.collections.MapUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -41,11 +42,9 @@ import ddf.catalog.transform.MetacardTransformer;
 
 public class AbstractGmdTransformer implements MetacardTransformer {
 
-    public static final String GCO = "gco";
-
     public static final String GML_PREFIX = "gml:";
 
-    public static final String GCO_PREFIX = GCO + ":";
+    public static final String GCO_PREFIX = GmdConstants.GCO_PREFIX + ":";
 
     private Supplier<Converter> converterSupplier;
 
