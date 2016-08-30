@@ -173,21 +173,23 @@ public class SearchController {
         }
 
         for (Map.Entry<String, Future> entry : futures.entrySet()) {
-            String sourceId = entry.getKey();
-            Future future = entry.getValue();
-            try {
-                long timeRemaining = Math.max(0, deadline - System.currentTimeMillis());
-                future.get(timeRemaining, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                LOGGER.info("Query interrupted for source {}", sourceId, e);
-                failSource(request, session, search, sourceId, e);
-            } catch (TimeoutException e) {
-                LOGGER.info("Query timed out for source {}", sourceId, e);
-                failSource(request, session, search, sourceId, e);
-            } catch (ExecutionException e) {
-                LOGGER.info("Query failed for source {}", sourceId, e.getCause());
-                failSource(request, session, search, sourceId, e);
-            }
+            executorService.submit(() -> {
+                String sourceId = entry.getKey();
+                Future future = entry.getValue();
+                try {
+                    long timeRemaining = Math.max(0, deadline - System.currentTimeMillis());
+                    future.get(timeRemaining, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    LOGGER.info("Query interrupted for source {}", sourceId, e);
+                    failSource(request, session, search, sourceId, e);
+                } catch (TimeoutException e) {
+                    LOGGER.info("Query timed out for source {}", sourceId, e);
+                    failSource(request, session, search, sourceId, e);
+                } catch (ExecutionException e) {
+                    LOGGER.info("Query failed for source {}", sourceId, e.getCause());
+                    failSource(request, session, search, sourceId, e);
+                }
+            });
         }
     }
 
