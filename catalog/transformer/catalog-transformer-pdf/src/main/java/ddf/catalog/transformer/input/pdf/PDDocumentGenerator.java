@@ -13,8 +13,10 @@
  */
 package ddf.catalog.transformer.input.pdf;
 
+import java.io.InputStream;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-public interface GeoPdfParser extends CheckedFunction<PDDocument, String> {
+public interface PDDocumentGenerator extends CheckedFunction<InputStream, PDDocument> {
 
 }

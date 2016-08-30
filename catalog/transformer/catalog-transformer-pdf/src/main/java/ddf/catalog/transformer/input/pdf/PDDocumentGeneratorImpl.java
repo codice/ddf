@@ -13,8 +13,14 @@
  */
 package ddf.catalog.transformer.input.pdf;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-public interface GeoPdfParser extends CheckedFunction<PDDocument, String> {
-
+public class PDDocumentGeneratorImpl implements PDDocumentGenerator {
+    @Override
+    public PDDocument apply(InputStream inputStream) throws IOException {
+        return PDDocument.load(inputStream);
+    }
 }

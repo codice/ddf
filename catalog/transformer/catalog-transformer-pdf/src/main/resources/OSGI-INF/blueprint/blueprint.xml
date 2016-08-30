@@ -12,9 +12,46 @@
  *
  **/
  -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <bean id="pdfTransformer" class="ddf.catalog.transformer.input.pdf.PdfInputTransformer"/>
+    <bean id="pdfMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="pdf"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+    <service ref="pdfMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="pdf"/>
+        </service-properties>
+    </service>
+
+    <bean id="pdfTransformer" class="ddf.catalog.transformer.input.pdf.PdfInputTransformer">
+
+        <cm:managed-properties
+                persistent-id="ddf.catalog.transformer.input.pdf.PdfInputTransformer"
+                update-strategy="container-managed"/>
+
+        <argument ref="pdfMetacardType"/>
+        <argument value="false"/>
+        <argument>
+            <bean class="ddf.catalog.transformer.input.pdf.PDDocumentGeneratorImpl"/>
+        </argument>
+        <argument>
+            <bean class="ddf.catalog.transformer.input.pdf.GeoPdfParserImpl"/>
+        </argument>
+        <argument>
+            <bean class="ddf.catalog.transformer.input.pdf.PdfThumbnailGeneratorImpl"/>
+        </argument>
+    </bean>
 
     <service ref="pdfTransformer" interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
@@ -27,9 +64,11 @@
         </service-properties>
     </service>
 
-    <reference-list id="contentExtractors" interface="ddf.catalog.content.operation.ContentMetadataExtractor"
+    <reference-list id="contentExtractors"
+                    interface="ddf.catalog.content.operation.ContentMetadataExtractor"
                     availability="optional">
-        <reference-listener bind-method="addContentMetadataExtractors" unbind-method="removeContentMetadataExtractor"
+        <reference-listener bind-method="addContentMetadataExtractors"
+                            unbind-method="removeContentMetadataExtractor"
                             ref="pdfTransformer"/>
     </reference-list>
 
