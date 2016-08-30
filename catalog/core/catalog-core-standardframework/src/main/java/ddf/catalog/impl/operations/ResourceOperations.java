@@ -68,7 +68,7 @@ import ddf.catalog.util.impl.DescribableImpl;
 
 /**
  * Support class for resource delegate operations for the {@code CatalogFrameworkImpl}.
- *
+ * <p>
  * This class contains six delegated resource methods and methods to support them. No
  * operations/support methods should be added to this class except in support of CFI
  * resource operations.
@@ -428,8 +428,7 @@ public class ResourceOperations extends DescribableImpl {
             ResourceResponse resourceResponse) {
         if (resourceResponse != null) {
             // must add the request properties into response properties in case the source forgot to
-            Map<String, Serializable> properties =
-                    new HashMap<>(resourceResponse.getProperties());
+            Map<String, Serializable> properties = new HashMap<>(resourceResponse.getProperties());
             resourceRequest.getProperties()
                     .forEach(properties::putIfAbsent);
             resourceResponse = new ResourceResponseImpl(resourceResponse.getRequest(),
@@ -438,7 +437,6 @@ public class ResourceOperations extends DescribableImpl {
         }
         return resourceResponse;
     }
-
 
     private ResourceResponse processPostResourcePlugins(ResourceResponse resourceResponse)
             throws StopProcessingException {
@@ -665,11 +663,24 @@ public class ResourceOperations extends DescribableImpl {
     }
 
     private Query anyTag(Query query) {
+        //Any metacard tag
         Filter anyTag = frameworkProperties.getFilterBuilder()
                 .attribute(Metacard.TAGS)
                 .is()
                 .like()
                 .text(FilterDelegate.WILDCARD_CHAR);
+
+        //no metacard tag
+        Filter nullTag = frameworkProperties.getFilterBuilder()
+                .attribute(Metacard.TAGS)
+                .is()
+                .empty();
+
+        //any or no metacard tag
+        anyTag = frameworkProperties.getFilterBuilder()
+                .anyOf(anyTag, nullTag);
+
+        //any or no metacard tag and the query
         Filter filter = frameworkProperties.getFilterBuilder()
                 .allOf(anyTag, query);
         return new QueryImpl(filter,

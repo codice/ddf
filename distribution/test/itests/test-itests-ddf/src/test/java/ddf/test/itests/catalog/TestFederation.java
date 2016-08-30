@@ -350,11 +350,15 @@ public class TestFederation extends AbstractIntegrationTest {
 
         getSecurityPolicy().configureRestForGuest();
 
-        // @formatter:off
         expect("List of active downloads is empty").within(30, SECONDS)
                 .until(() -> when().get(RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl())
-                        .then().log().all().extract().body().jsonPath().getList(""), hasSize(0));
-        // @formatter:on
+                        .then()
+                        .log()
+                        .all()
+                        .extract()
+                        .body()
+                        .jsonPath()
+                        .getList(""), hasSize(0));
 
         if (server != null) {
             server.stop();
@@ -1839,7 +1843,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
         expect("Waiting for activities").within(10, SECONDS)
                 .until(() -> {
-                    List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
+                    List<String> activities =
+                            cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
                     if (foundExpectedActivity(activities, filename1, ACTIVITES_STARTED_MESSAGE)
                             && foundExpectedActivity(activities,
                             failFilename,
