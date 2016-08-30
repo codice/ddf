@@ -146,7 +146,7 @@ public class SourceConfigurationHandlerTest {
         mcard.setId("2014ca7f59ac46f495e32b4a67a51276");
         mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
-        mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, true);
+
         mcard.setMetadata(getMetadata("/csw-rim-node-csw-binding.xml"));
         mcard.setTitle("TestRegNode");
 
@@ -155,6 +155,8 @@ public class SourceConfigurationHandlerTest {
         createEvent = new Event("ddf/catalog/event/CREATED", eventProperties);
         updateEvent = new Event("ddf/catalog/event/UPDATED", eventProperties);
         deleteEvent = new Event("ddf/catalog/event/DELETED", eventProperties);
+
+        System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, "myRegId");
 
     }
 
@@ -181,6 +183,8 @@ public class SourceConfigurationHandlerTest {
     public void testRegistryMetacardExecutorCall() {
         MetacardImpl mcard = new MetacardImpl();
         mcard.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG);
+        mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID,
+                "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         Dictionary<String, Object> eventProperties = new Hashtable<>();
         eventProperties.put("ddf.catalog.event.metacard", mcard);
         Event event = new Event("ddf/catalog/event/CREATED", eventProperties);
@@ -190,6 +194,23 @@ public class SourceConfigurationHandlerTest {
         event = new Event("ddf/catalog/event/DELETED", eventProperties);
         sch.handleEvent(event);
         verify(executorService, times(3)).execute(any(Runnable.class));
+    }
+
+    @Test
+    public void testIdentityNode() {
+        MetacardImpl mcard = new MetacardImpl();
+        mcard.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG);
+        mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "myRegId");
+        mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, true);
+        Dictionary<String, Object> eventProperties = new Hashtable<>();
+        eventProperties.put("ddf.catalog.event.metacard", mcard);
+        Event event = new Event("ddf/catalog/event/CREATED", eventProperties);
+        sch.handleEvent(event);
+        event = new Event("ddf/catalog/event/UPDATED", eventProperties);
+        sch.handleEvent(event);
+        event = new Event("ddf/catalog/event/DELETED", eventProperties);
+        sch.handleEvent(event);
+        verify(executorService, never()).execute(any(Runnable.class));
     }
 
     @Test
