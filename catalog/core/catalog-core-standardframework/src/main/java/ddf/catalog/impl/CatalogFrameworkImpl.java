@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -61,6 +62,7 @@ import org.apache.tika.mime.MediaType;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.platform.util.InputValidation;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -90,6 +92,7 @@ import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
@@ -130,6 +133,7 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.CreateResponseImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
@@ -1382,8 +1386,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw new IngestException(FANOUT_MESSAGE);
         }
 
-        UpdateRequest updateReq = updateRequest;
-        validateUpdateRequest(updateReq);
+        validateUpdateRequest(updateRequest);
 
         if (Requests.isLocal(updateRequest) && !sourceIsAvailable(catalog)) {
             throw new SourceUnavailableException(
@@ -1394,53 +1397,34 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         UpdateResponse updateResponse = null;
         try {
-            List<Filter> idFilters = new ArrayList<>();
-            for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
-                idFilters.add(frameworkProperties.getFilterBuilder()
-                        .attribute(updateRequest.getAttributeName())
-                        .is()
-                        .equalTo()
-                        .text(update.getKey()
-                                .toString()));
-            }
 
-            QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters));
-            queryImpl.setStartIndex(1);
-            queryImpl.setPageSize(updateReq.getUpdates()
-                    .size());
-            QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl,
-                    updateReq.getStoreIds());
+            QueryRequestImpl queryRequest = createQueryRequest(updateRequest);
 
             QueryResponse query;
-            Map<String, Metacard> metacardMap = new HashMap<>(updateReq.getUpdates()
+            Map<String, Metacard> metacardMap = new HashMap<>(updateRequest.getUpdates()
                     .size());
-            if (!frameworkProperties.getPolicyPlugins()
-                    .isEmpty()) {
-                try {
-                    query = doQuery(queryRequest, frameworkProperties.getFederationStrategy());
-                    List<Result> results = query.getResults();
-                    if (results.size() != updateRequest.getUpdates()
-                            .size()) {
-                        throw new IngestException("Unable to find all metacards in update request.");
-                    }
-                    for (Result result : results) {
-                        metacardMap.put(getAttributeStringValue(result.getMetacard(),
-                                updateRequest.getAttributeName()), result.getMetacard());
-                    }
-                } catch (FederationException e) {
-                    LOGGER.warn("Unable to complete query for updated metacards.", e);
+
+            try {
+                query = doQuery(queryRequest, frameworkProperties.getFederationStrategy());
+                for (Result result : query.getResults()) {
+                    metacardMap.put(getAttributeStringValue(result.getMetacard(),
+                            updateRequest.getAttributeName()), result.getMetacard());
                 }
+            } catch (FederationException e) {
+                LOGGER.warn("Unable to complete query for updated metacards.", e);
+                throw new IngestException("Could not find all metacards specified in request");
             }
+
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
+            for (Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
                 HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
                 Metacard oldMetacard = metacardMap.get(update.getKey());
                 for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                     PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
-                            Collections.unmodifiableMap(updateReq.getProperties()));
+                            Collections.unmodifiableMap(updateRequest.getProperties()));
                     PolicyResponse oldPolicyResponse = plugin.processPreUpdate(oldMetacard,
-                            Collections.unmodifiableMap(updateReq.getProperties()));
+                            Collections.unmodifiableMap(updateRequest.getProperties()));
                     buildPolicyMap(itemPolicyMap,
                             updatePolicyResponse.itemPolicy()
                                     .entrySet());
@@ -1458,39 +1442,45 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             oldItemPolicyMap));
                 }
             }
-            updateReq.getProperties()
+            updateRequest.getProperties()
                     .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
 
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                updateReq = plugin.processPreUpdate(updateReq, metacardMap);
+            if (!foundAllUpdateRequestMetacards(updateRequest, query)) {
+                throw new IngestException("Could not find all metacards specified in request");
             }
 
-            updateReq.getProperties()
+            updateRequest = rewriteRequestToAvoidHistoryConflicts(updateRequest, query);
+
+            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+                updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
+            }
+
+            updateRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
                             new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
                                     metacardMap.values()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
-                    updateReq = plugin.process(updateReq);
+                    updateRequest = plugin.process(updateRequest);
                 } catch (PluginExecutionException e) {
                     LOGGER.warn("error processing update in PreIngestPlugin", e);
                 }
             }
-            validateUpdateRequest(updateReq);
+            validateUpdateRequest(updateRequest);
 
             // Call the create on the catalog
             LOGGER.debug("Calling catalog.update() with {} updates.",
                     updateRequest.getUpdates()
                             .size());
 
-            if (Requests.isLocal(updateReq)) {
-                updateResponse = catalog.update(updateReq);
+            if (Requests.isLocal(updateRequest)) {
+                updateResponse = catalog.update(updateRequest);
                 updateResponse = historian.version(updateResponse);
             }
 
             if (catalogStoreRequest) {
-                UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateReq);
+                UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateRequest);
                 if (updateResponse == null) {
                     updateResponse = remoteUpdateResponse;
                 } else {
@@ -1502,7 +1492,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             // Handle the posting of messages to pubsub
-            updateResponse = validateFixUpdateResponse(updateResponse, updateReq);
+            updateResponse = validateFixUpdateResponse(updateResponse, updateRequest);
             for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
                 try {
                     updateResponse = plugin.process(updateResponse);
@@ -1522,6 +1512,68 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
 
         return updateResponse;
+    }
+
+    private QueryRequestImpl createQueryRequest(UpdateRequest updateRequest) {
+        List<Filter> idFilters = updateRequest.getUpdates()
+                .stream()
+                .map(update -> frameworkProperties.getFilterBuilder()
+                        .attribute(updateRequest.getAttributeName())
+                        .is()
+                        .equalTo()
+                        .text(update.getKey()
+                                .toString()))
+                .collect(Collectors.toList());
+
+        QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters),
+                1,  /* start index */
+                0,  /* page size */
+                SortBy.NATURAL_ORDER,
+                false, /* total result count */
+                0   /* timeout */);
+        return new QueryRequestImpl(queryImpl, updateRequest.getStoreIds());
+    }
+
+    private UpdateRequest rewriteRequestToAvoidHistoryConflicts(UpdateRequest updateRequest,
+            QueryResponse response) {
+        final String attributeName = updateRequest.getAttributeName();
+        if (Metacard.ID.equals(attributeName)) {
+            return updateRequest;
+        }
+
+        List<Map.Entry<Serializable, Metacard>> updatedList = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .map(this::toEntryById)
+                .collect(Collectors.toList());
+
+        return new UpdateRequestImpl(updatedList,
+                Metacard.ID,
+                updateRequest.getProperties(),
+                updateRequest.getStoreIds());
+    }
+
+    private boolean foundAllUpdateRequestMetacards(UpdateRequest updateRequest,
+            QueryResponse response) {
+        Set<String> originalKeys = updateRequest.getUpdates()
+                .stream()
+                .map(Map.Entry::getKey)
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        Set<String> responseKeys = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .map(m -> m.getAttribute(updateRequest.getAttributeName()))
+                .filter(Objects::nonNull)
+                .map(Attribute::getValue)
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        return originalKeys.equals(responseKeys);
+    }
+
+    private Map.Entry<Serializable, Metacard> toEntryById(Metacard metacard) {
+        return new AbstractMap.SimpleEntry<>(metacard.getId(), metacard);
     }
 
     @Override
@@ -1547,44 +1599,32 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         DeleteResponse deleteResponse = null;
         try {
-            List<Filter> idFilters = new ArrayList<>();
-            for (Serializable serializable : deleteRequest.getAttributeValues()) {
-                idFilters.add(frameworkProperties.getFilterBuilder()
-                        .attribute(deleteRequest.getAttributeName())
-                        .is()
-                        .equalTo()
-                        .text(serializable.toString()));
-            }
 
-            QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters));
-            queryImpl.setStartIndex(1);
-            queryImpl.setPageSize(deleteRequest.getAttributeValues()
-                    .size());
-            QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl,
-                    deleteRequest.getStoreIds());
+            QueryRequestImpl queryRequest = createQueryRequest(deleteRequest);
 
             QueryResponse query;
-            List<Metacard> metacards = new ArrayList<>(deleteRequest.getAttributeValues()
-                    .size());
-            if (!frameworkProperties.getPolicyPlugins()
-                    .isEmpty()) {
-                try {
-                    query = doQuery(queryRequest, frameworkProperties.getFederationStrategy());
-                    metacards.addAll(query.getResults()
-                            .stream()
-                            .map(Result::getMetacard)
-                            .collect(Collectors.toList()));
-                } catch (FederationException e) {
-                    LOGGER.warn("Unable to complete query for updated metacards.", e);
-                    throw new IngestException("Exception during runtime while performing delete");
-                }
-
-                if (metacards.size() < deleteRequest.getAttributeValues()
-                        .size()) {
-                    throw new StopProcessingException(
-                            "Unable to remove all metacards contained in request.");
-                }
+            try {
+                query = doQuery(queryRequest, frameworkProperties.getFederationStrategy());
+            } catch (FederationException e) {
+                LOGGER.warn("Unable to complete query for updated metacards.", e);
+                throw new IngestException("Exception during runtime while performing delete");
             }
+
+            if (!foundAllDeleteRequestMetacards(deleteRequest, query)) {
+                throw new StopProcessingException(
+                        "Could not find all metacards specified in request");
+            }
+
+            List<Metacard> metacards = query.getResults()
+                    .stream()
+                    .map(Result::getMetacard)
+                    .collect(Collectors.toList());
+
+            deleteRequest = rewriteRequestToAvoidHistoryConflicts(deleteRequest, query);
+            deleteRequest.getProperties()
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
+                                    metacards));
 
             deleteStorageRequest = new DeleteStorageRequestImpl(metacards,
                     deleteRequest.getProperties());
@@ -1708,6 +1748,62 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
 
         return deleteResponse;
+    }
+
+    private DeleteRequest rewriteRequestToAvoidHistoryConflicts(DeleteRequest deleteRequest,
+            SourceResponse response) {
+        if (Metacard.ID.equals(deleteRequest.getAttributeName())) {
+            return deleteRequest;
+        }
+
+        List<Serializable> updatedList = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .map(Metacard::getId)
+                .map(Serializable.class::cast)
+                .collect(Collectors.toList());
+
+        return new DeleteRequestImpl(updatedList,
+                Metacard.ID,
+                deleteRequest.getProperties(),
+                deleteRequest.getStoreIds());
+    }
+
+    private boolean foundAllDeleteRequestMetacards(DeleteRequest deleteRequest,
+            SourceResponse response) {
+        Set<String> originalKeys = deleteRequest.getAttributeValues()
+                .stream()
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        Set<String> responseKeys = response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .map(m -> m.getAttribute(deleteRequest.getAttributeName()))
+                .filter(Objects::nonNull)
+                .map(Attribute::getValue)
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+        return originalKeys.equals(responseKeys);
+    }
+
+    private QueryRequestImpl createQueryRequest(DeleteRequest deleteRequest) {
+        List<Filter> idFilters = deleteRequest.getAttributeValues()
+                .stream()
+                .map(serializable -> frameworkProperties.getFilterBuilder()
+                        .attribute(deleteRequest.getAttributeName())
+                        .is()
+                        .equalTo()
+                        .text(serializable.toString()))
+                .collect(Collectors.toList());
+
+        QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters),
+                1,  /* start index */
+                0,  /* page size */
+                SortBy.NATURAL_ORDER,
+                false, /* total result count */
+                0   /* timeout */);
+        return new QueryRequestImpl(queryImpl, deleteRequest.getStoreIds());
     }
 
     @Override
@@ -1872,11 +1968,20 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     private Filter getFilterWithAdditionalFilters(List<Filter> originalFilter) {
         return frameworkProperties.getFilterBuilder()
-                .allOf(getTagsQueryFilter(),
+                .allOf(getNonVersionTagsFilter(),
                         frameworkProperties.getValidationQueryFactory()
                                 .getFilterWithValidationFilter(),
                         frameworkProperties.getFilterBuilder()
                                 .anyOf(originalFilter));
+    }
+
+    private Filter getNonVersionTagsFilter() {
+        return frameworkProperties.getFilterBuilder()
+                .not(frameworkProperties.getFilterBuilder()
+                        .attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(MetacardVersion.VERSION_TAG));
     }
 
     private void setFlagsOnRequest(Request request) {
