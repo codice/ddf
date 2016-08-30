@@ -54,7 +54,7 @@ public class XstreamTreeWriter {
                 if (currentPath.isAncestor(path) && path.toString()
                         .endsWith(node)) {
 
-                    if (isAttributePath(path) & isAttributeNode(node)) {
+                    if (isAttributePath(path) && isAttributeNode(node)) {
 
                         writer.addAttribute(getAttributeNameFromPath(path), value);
                     }
