@@ -60,6 +60,7 @@ public class ApplicationFileInstallerTest {
 
     private ch.qos.logback.classic.Logger root;
 
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Before
     public void setUpLogger() {
         root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);

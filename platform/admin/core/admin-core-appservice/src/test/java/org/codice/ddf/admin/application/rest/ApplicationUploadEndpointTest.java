@@ -234,6 +234,7 @@ public class ApplicationUploadEndpointTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testApplicationUploadEndpointCreateInvalidType() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -277,6 +278,7 @@ public class ApplicationUploadEndpointTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testApplicationUploadEndpointCreateIOException() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -312,6 +314,7 @@ public class ApplicationUploadEndpointTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testApplicationUploadEndpointCreateFileNotFound() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -351,6 +354,7 @@ public class ApplicationUploadEndpointTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testApplicationUploadEndpointCreateEmptyFilename() throws Exception {
         ch.qos.logback.classic.Logger root =

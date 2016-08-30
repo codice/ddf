@@ -82,6 +82,7 @@ public class AddApplicationCommandTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testAddApplicationCommandASE() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -117,6 +118,7 @@ public class AddApplicationCommandTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test (expected = IllegalStateException.class)
     public void testAddApplicationCommandISE() throws Exception {
         ch.qos.logback.classic.Logger root =
