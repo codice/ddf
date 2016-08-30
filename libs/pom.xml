@@ -38,5 +38,6 @@
         <module>mpeg-transport-stream</module>
         <module>geospatial</module>
         <module>owasp-diff-runner</module>
+        <module>spock-shaded</module>
     </modules>
 </project>
