@@ -24,7 +24,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.xml.sax.helpers.NamespaceSupport;
 
@@ -55,41 +54,42 @@ public class DefaultCswRecordMap {
         Map<String, String> localNameMap = new CaseInsensitiveMap();
 
         localNameMap.put(CswConstants.ANY_TEXT, Metacard.ANY_TEXT);
+        localNameMap.put(CswConstants.CSW_NO_PREFIX_MODIFIED, Core.MODIFIED);
+        localNameMap.put(CswConstants.CSW_NO_PREFIX_CREATED, Core.CREATED);
         localNameMap.put(CswConstants.CSW_TITLE, Core.TITLE);
-        localNameMap.put(CswRecordMetacardType.CSW_TITLE, Core.TITLE);
-        localNameMap.put(CswRecordMetacardType.CSW_ALTERNATIVE, Core.TITLE);
-        localNameMap.put(CswRecordMetacardType.CSW_TYPE, Metacard.CONTENT_TYPE);
-        localNameMap.put(CswRecordMetacardType.CSW_IDENTIFIER, Core.ID);
-        localNameMap.put(CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION, Core.ID);
-        localNameMap.put(CswRecordMetacardType.CSW_SOURCE, Core.RESOURCE_URI);
+        localNameMap.put(CswConstants.CSW_NO_PREFIX_TITLE, Core.TITLE);
+        localNameMap.put(CswConstants.CSW_ALTERNATIVE, Core.TITLE);
+        localNameMap.put(CswConstants.CSW_FORMAT, Media.FORMAT);
+        localNameMap.put(CswConstants.CSW_TYPE, Metacard.CONTENT_TYPE);
+        localNameMap.put(CswConstants.CSW_IDENTIFIER, Core.ID);
+        localNameMap.put(CswConstants.CSW_BIBLIOGRAPHIC_CITATION, Core.ID);
+        localNameMap.put(CswConstants.CSW_SOURCE, Core.RESOURCE_URI);
+        localNameMap.put(CswConstants.CSW_LANGUAGE, Core.LANGUAGE);
         localNameMap.put(CswConstants.CSW_CREATED, Core.CREATED);
         localNameMap.put(CswConstants.CSW_MODIFIED, Core.MODIFIED);
-        localNameMap.put(CswRecordMetacardType.CSW_CREATED, Core.CREATED);
-        localNameMap.put(CswRecordMetacardType.CSW_MODIFIED, Core.MODIFIED);
-        localNameMap.put(CswRecordMetacardType.CSW_DATE, Core.MODIFIED);
-        localNameMap.put(CswRecordMetacardType.CSW_DATE_SUBMITTED, Core.MODIFIED);
-        localNameMap.put(CswRecordMetacardType.CSW_ISSUED, Core.MODIFIED);
-        localNameMap.put(CswRecordMetacardType.CSW_DATE_ACCEPTED, Metacard.EFFECTIVE);
-        localNameMap.put(CswRecordMetacardType.CSW_DATE_COPYRIGHTED, Metacard.EFFECTIVE);
-        localNameMap.put(CswRecordMetacardType.CSW_VALID, Core.EXPIRATION);
-        localNameMap.put(CswRecordMetacardType.CSW_PUBLISHER, Metacard.POINT_OF_CONTACT);
-        localNameMap.put(CswRecordMetacardType.CSW_CONTRIBUTOR, Metacard.POINT_OF_CONTACT);
-        localNameMap.put(CswRecordMetacardType.CSW_CREATOR, Metacard.POINT_OF_CONTACT);
-        localNameMap.put(CswRecordMetacardType.CSW_RELATION, Core.RESOURCE_DOWNLOAD_URL);
-        localNameMap.put(CswRecordMetacardType.CSW_TABLE_OF_CONTENTS, Core.DESCRIPTION);
-        localNameMap.put(CswRecordMetacardType.CSW_ABSTRACT, Core.DESCRIPTION);
-        localNameMap.put(CswRecordMetacardType.CSW_DESCRIPTION, Core.DESCRIPTION);
+        localNameMap.put(CswConstants.CSW_DATE, Core.MODIFIED);
+        localNameMap.put(CswConstants.CSW_DATE_SUBMITTED, Core.MODIFIED);
+        localNameMap.put(CswConstants.CSW_ISSUED, Core.MODIFIED);
+        localNameMap.put(CswConstants.CSW_DATE_ACCEPTED, Metacard.EFFECTIVE);
+        localNameMap.put(CswConstants.CSW_DATE_COPYRIGHTED, Metacard.EFFECTIVE);
+        localNameMap.put(CswConstants.CSW_VALID, Core.EXPIRATION);
+        localNameMap.put(CswConstants.CSW_PUBLISHER, Contact.PUBLISHER_NAME);
+        localNameMap.put(CswConstants.CSW_CONTRIBUTOR, Contact.CONTRIBUTOR_NAME);
+        localNameMap.put(CswConstants.CSW_CREATOR, Contact.CREATOR_NAME);
+        localNameMap.put(CswConstants.CSW_RELATION, Core.RESOURCE_DOWNLOAD_URL);
+        localNameMap.put(CswConstants.CSW_TABLE_OF_CONTENTS, Core.DESCRIPTION);
+        localNameMap.put(CswConstants.CSW_ABSTRACT, Core.DESCRIPTION);
+        localNameMap.put(CswConstants.CSW_DESCRIPTION, Core.DESCRIPTION);
+        localNameMap.put(CswConstants.CSW_SUBJECT, Topic.CATEGORY);
+        localNameMap.put(CswConstants.OWS_BOUNDING_BOX, Core.LOCATION);
+        localNameMap.put(CswConstants.CSW_REFERENCES, Core.THUMBNAIL);
 
-        // GMD TYPES
+        /* GMD TYPES */
         localNameMap.put(GmdConstants.GMD_REVISION_DATE, Core.MODIFIED);
-        localNameMap.put(GmdConstants.GMD_ABSTRACT, Core.DESCRIPTION);
-        localNameMap.put(GmdConstants.GMD_LANGUAGE, Core.LANGUAGE);
-        localNameMap.put(GmdConstants.GMD_RESOURCE_LANGUAGE, Core.LANGUAGE);
         localNameMap.put(GmdConstants.GMD_ALTERNATE_TITLE, Core.TITLE);
         localNameMap.put(GmdConstants.GMD_CREATION_DATE, Core.CREATED);
         localNameMap.put(GmdConstants.GMD_PUBLICATION_DATE, Metacard.EFFECTIVE);
         localNameMap.put(GmdConstants.GMD_ORGANIZATION_NAME, Contact.POINT_OF_CONTACT_NAME);
-        localNameMap.put(GmdConstants.GMD_SUBJECT, Topic.KEYWORD);
         localNameMap.put(GmdConstants.GMD_FORMAT, Media.FORMAT);
         localNameMap.put(GmdConstants.GMD_MODIFIED, Core.MODIFIED);
         localNameMap.put(GmdConstants.GMD_TYPE, Core.DATATYPE);
@@ -98,39 +98,39 @@ public class DefaultCswRecordMap {
         CSW_RECORD_LOCAL_NAME_MAPPING = Collections.unmodifiableMap(localNameMap);
 
         Map<QName, String> qNameMap = new HashMap<>();
+        qNameMap.put(CswConstants.CSW_IDENTIFIER_QNAME, Core.ID);
+        qNameMap.put(CswConstants.CSW_BIBLIOGRAPHIC_CITATION_QNAME, Core.ID);
+        qNameMap.put(CswConstants.CSW_SOURCE_QNAME, Core.RESOURCE_URI);
+        qNameMap.put(CswConstants.CSW_LANGUAGE_QNAME, Core.LANGUAGE);
+        qNameMap.put(CswConstants.CSW_TITLE_QNAME, Core.TITLE);
+        qNameMap.put(CswConstants.CSW_ALTERNATIVE_QNAME, Core.TITLE);
+        qNameMap.put(CswConstants.CSW_FORMAT_QNAME, Media.FORMAT);
+        qNameMap.put(CswConstants.CSW_TYPE_QNAME, Metacard.CONTENT_TYPE);
+        qNameMap.put(CswConstants.CSW_DATE_QNAME, Core.MODIFIED);
+        qNameMap.put(CswConstants.CSW_MODIFIED_QNAME, Core.MODIFIED);
+        qNameMap.put(CswConstants.CSW_CREATED_QNAME, Core.CREATED);
+        qNameMap.put(CswConstants.CSW_DATE_ACCEPTED_QNAME, Metacard.EFFECTIVE);
+        qNameMap.put(CswConstants.CSW_DATE_COPYRIGHTED_QNAME, Metacard.EFFECTIVE);
+        qNameMap.put(CswConstants.CSW_DATE_SUBMITTED_QNAME, Core.MODIFIED);
+        qNameMap.put(CswConstants.CSW_ISSUED_QNAME, Core.MODIFIED);
+        qNameMap.put(CswConstants.CSW_VALID_QNAME, Core.EXPIRATION);
+        qNameMap.put(CswConstants.CSW_PUBLISHER_QNAME, Contact.PUBLISHER_NAME);
+        qNameMap.put(CswConstants.CSW_CONTRIBUTOR_QNAME, Contact.CONTRIBUTOR_NAME);
+        qNameMap.put(CswConstants.CSW_CREATOR_QNAME, Contact.CREATOR_NAME);
+        qNameMap.put(CswConstants.CSW_RELATION_QNAME, Core.RESOURCE_DOWNLOAD_URL);
+        qNameMap.put(CswConstants.CSW_ABSTRACT_QNAME, Core.DESCRIPTION);
+        qNameMap.put(CswConstants.CSW_TABLE_OF_CONTENTS_QNAME, Core.DESCRIPTION);
+        qNameMap.put(CswConstants.CSW_DESCRIPTION_QNAME, Core.DESCRIPTION);
+        qNameMap.put(CswConstants.CSW_SUBJECT_QNAME, Topic.CATEGORY);
+        qNameMap.put(CswConstants.OWS_BOUNDING_BOX_QNAME, Core.LOCATION);
+        qNameMap.put(CswConstants.CSW_REFERENCES_QNAME, Core.THUMBNAIL);
 
-        qNameMap.put(CswRecordMetacardType.CSW_IDENTIFIER_QNAME, Core.ID);
-        qNameMap.put(CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME, Core.ID);
-        qNameMap.put(CswRecordMetacardType.CSW_SOURCE_QNAME, Core.RESOURCE_URI);
-        qNameMap.put(CswRecordMetacardType.CSW_TITLE_QNAME, Core.TITLE);
-        qNameMap.put(CswRecordMetacardType.CSW_ALTERNATIVE_QNAME, Core.TITLE);
-        qNameMap.put(CswRecordMetacardType.CSW_TYPE_QNAME, Metacard.CONTENT_TYPE);
-        qNameMap.put(CswRecordMetacardType.CSW_DATE_QNAME, Core.MODIFIED);
-        qNameMap.put(CswRecordMetacardType.CSW_MODIFIED_QNAME, Core.MODIFIED);
-        qNameMap.put(CswRecordMetacardType.CSW_CREATED_QNAME, Core.CREATED);
-        qNameMap.put(CswRecordMetacardType.CSW_DATE_ACCEPTED_QNAME, Metacard.EFFECTIVE);
-        qNameMap.put(CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME, Metacard.EFFECTIVE);
-        qNameMap.put(CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME, Core.MODIFIED);
-        qNameMap.put(CswRecordMetacardType.CSW_ISSUED_QNAME, Core.MODIFIED);
-        qNameMap.put(CswRecordMetacardType.CSW_VALID_QNAME, Core.EXPIRATION);
-        qNameMap.put(CswRecordMetacardType.CSW_PUBLISHER_QNAME, Metacard.POINT_OF_CONTACT);
-        qNameMap.put(CswRecordMetacardType.CSW_CONTRIBUTOR_QNAME, Metacard.POINT_OF_CONTACT);
-        qNameMap.put(CswRecordMetacardType.CSW_CREATOR_QNAME, Metacard.POINT_OF_CONTACT);
-        qNameMap.put(CswRecordMetacardType.CSW_RELATION_QNAME, Core.RESOURCE_DOWNLOAD_URL);
-        qNameMap.put(CswRecordMetacardType.CSW_ABSTRACT_QNAME, Core.DESCRIPTION);
-        qNameMap.put(CswRecordMetacardType.CSW_TABLE_OF_CONTENTS_QNAME, Core.DESCRIPTION);
-        qNameMap.put(CswRecordMetacardType.CSW_DESCRIPTION_QNAME, Core.DESCRIPTION);
-
-        // GMD TYPES
+        /* GMD TYPES */
         qNameMap.put(GmdConstants.GMD_REVISION_DATE_QNAME, Core.MODIFIED);
-        qNameMap.put(GmdConstants.GMD_ABSTRACT_QNAME, Core.DESCRIPTION);
-        qNameMap.put(GmdConstants.GMD_LANGUAGE_QNAME, Core.LANGUAGE);
-        qNameMap.put(GmdConstants.GMD_RESOURCE_LANGUAGE_QNAME, Core.LANGUAGE);
         qNameMap.put(GmdConstants.GMD_ALTERNATE_TITLE_QNAME, Core.TITLE);
         qNameMap.put(GmdConstants.GMD_CREATION_DATE_QNAME, Core.CREATED);
         qNameMap.put(GmdConstants.GMD_PUBLICATION_DATE_QNAME, Metacard.EFFECTIVE);
         qNameMap.put(GmdConstants.GMD_ORGANIZATION_NAME_QNAME, Contact.POINT_OF_CONTACT_NAME);
-        qNameMap.put(GmdConstants.GMD_SUBJECT_QNAME, Topic.KEYWORD);
         qNameMap.put(GmdConstants.GMD_FORMAT_QNAME, Media.FORMAT_VERSION);
         qNameMap.put(GmdConstants.GMD_MODIFIED_QNAME, Core.MODIFIED);
         qNameMap.put(GmdConstants.GMD_TYPE_QNAME, Core.DATATYPE);
@@ -139,46 +139,86 @@ public class DefaultCswRecordMap {
         CSW_RECORD_QNAME_MAPPING = Collections.unmodifiableMap(qNameMap);
 
         Map<String, List<QName>> metacardMap = new HashMap<>();
+        metacardMap.put(Core.ID, Arrays.asList(CswConstants.CSW_IDENTIFIER_QNAME,
+                CswConstants.CSW_BIBLIOGRAPHIC_CITATION_QNAME));
 
-        metacardMap.put(Core.ID, Arrays.asList(CswRecordMetacardType.CSW_IDENTIFIER_QNAME,
-                CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME));
-        metacardMap.put(Core.TITLE, Arrays.asList(CswRecordMetacardType.CSW_TITLE_QNAME,
-                CswRecordMetacardType.CSW_ALTERNATIVE_QNAME,
+        metacardMap.put(Core.TITLE, Arrays.asList(CswConstants.CSW_TITLE_QNAME,
+                CswConstants.CSW_ALTERNATIVE_QNAME,
                 GmdConstants.GMD_ALTERNATE_TITLE_QNAME));
-        metacardMap.put(Metacard.CONTENT_TYPE, Arrays.asList(GmdConstants.GMD_TYPE_QNAME,
-                CswRecordMetacardType.CSW_TYPE_QNAME));
-        metacardMap.put(Core.MODIFIED, Arrays.asList(CswRecordMetacardType.CSW_DATE_QNAME,
-                CswRecordMetacardType.CSW_MODIFIED_QNAME,
-                CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME,
-                CswRecordMetacardType.CSW_ISSUED_QNAME,
-                GmdConstants.GMD_REVISION_DATE_QNAME,
-                GmdConstants.GMD_MODIFIED_QNAME));
 
-        metacardMap.put(Core.CREATED, Arrays.asList(CswRecordMetacardType.CSW_CREATED_QNAME,
+        metacardMap.put(Media.FORMAT,
+                Arrays.asList(CswConstants.CSW_FORMAT_QNAME));
+
+        metacardMap.put(Core.MODIFIED, Arrays.asList(CswConstants.CSW_DATE_QNAME,
+                CswConstants.CSW_MODIFIED_QNAME,
+                CswConstants.CSW_DATE_SUBMITTED_QNAME,
+                CswConstants.CSW_ISSUED_QNAME,
+                GmdConstants.GMD_REVISION_DATE_QNAME));
+
+        metacardMap.put(Core.CREATED, Arrays.asList(CswConstants.CSW_CREATED_QNAME,
                 GmdConstants.GMD_CREATION_DATE_QNAME));
+
         metacardMap.put(Metacard.EFFECTIVE,
-                Arrays.asList(CswRecordMetacardType.CSW_DATE_ACCEPTED_QNAME,
-                        CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME,
+                Arrays.asList(CswConstants.CSW_DATE_ACCEPTED_QNAME,
+                        CswConstants.CSW_DATE_COPYRIGHTED_QNAME,
                         GmdConstants.GMD_PUBLICATION_DATE_QNAME));
-        metacardMap.put(Core.EXPIRATION, Arrays.asList(CswRecordMetacardType.CSW_VALID_QNAME));
-        metacardMap.put(Core.RESOURCE_URI, Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
-        metacardMap.put(Metacard.POINT_OF_CONTACT,
-                Arrays.asList(CswRecordMetacardType.CSW_PUBLISHER_QNAME,
-                        CswRecordMetacardType.CSW_CONTRIBUTOR_QNAME,
-                        CswRecordMetacardType.CSW_CREATED_QNAME));
+
         metacardMap.put(Contact.POINT_OF_CONTACT_NAME,
                 Arrays.asList(GmdConstants.GMD_ORGANIZATION_NAME_QNAME));
-        metacardMap.put(Metacard.RESOURCE_DOWNLOAD_URL,
-                Arrays.asList(CswRecordMetacardType.CSW_RELATION_QNAME));
 
-        metacardMap.put(Core.DESCRIPTION, Arrays.asList(CswRecordMetacardType.CSW_ABSTRACT_QNAME,
-                        CswRecordMetacardType.CSW_TABLE_OF_CONTENTS_QNAME,
-                        CswRecordMetacardType.CSW_DESCRIPTION_QNAME,
-                        GmdConstants.GMD_ABSTRACT_QNAME));
         metacardMap.put(Core.LANGUAGE, Arrays.asList(GmdConstants.GMD_RESOURCE_LANGUAGE_QNAME,
                 GmdConstants.GMD_LANGUAGE_QNAME));
-        metacardMap.put(Topic.KEYWORD, Arrays.asList(GmdConstants.GMD_SUBJECT_QNAME));
+
         metacardMap.put(Media.FORMAT, Arrays.asList(GmdConstants.GMD_FORMAT_QNAME));
+
+        metacardMap.put(Core.DATATYPE, Arrays.asList(GmdConstants.GMD_TYPE_QNAME));
+
+        metacardMap.put(Core.EXPIRATION, Arrays.asList(CswConstants.CSW_VALID_QNAME));
+
+        metacardMap.put(Core.RESOURCE_URI,
+                Arrays.asList(CswConstants.CSW_SOURCE_QNAME));
+
+        metacardMap.put(Core.LANGUAGE,
+                Arrays.asList(CswConstants.CSW_LANGUAGE_QNAME));
+
+        metacardMap.put(Contact.CREATOR_NAME,
+                Arrays.asList(CswConstants.CSW_CREATOR_QNAME));
+
+        metacardMap.put(Contact.PUBLISHER_NAME,
+                Arrays.asList(CswConstants.CSW_PUBLISHER_QNAME));
+
+        metacardMap.put(Contact.CONTRIBUTOR_NAME,
+                Arrays.asList(CswConstants.CSW_CONTRIBUTOR_QNAME));
+
+        metacardMap.put(Core.RESOURCE_DOWNLOAD_URL,
+                Arrays.asList(CswConstants.CSW_RELATION_QNAME));
+
+        metacardMap.put(Core.DESCRIPTION,
+                Arrays.asList(CswConstants.CSW_ABSTRACT_QNAME,
+                        CswConstants.CSW_TABLE_OF_CONTENTS_QNAME,
+                        CswConstants.CSW_DESCRIPTION_QNAME,
+                        GmdConstants.GMD_ABSTRACT_QNAME));
+
+        metacardMap.put(Core.LOCATION,
+                Arrays.asList(CswConstants.OWS_BOUNDING_BOX_QNAME));
+
+        metacardMap.put(Core.THUMBNAIL,
+                Arrays.asList(CswConstants.CSW_REFERENCES_QNAME));
+
+        metacardMap.put(Core.RESOURCE_URI,
+                Arrays.asList(CswConstants.CSW_SOURCE_QNAME));
+
+        metacardMap.put(Topic.CATEGORY,
+                Arrays.asList(CswConstants.CSW_SUBJECT_QNAME));
+
+        metacardMap.put(Metacard.CONTENT_TYPE,
+                Arrays.asList(CswConstants.CSW_TYPE_QNAME));
+
+        metacardMap.put(Metacard.POINT_OF_CONTACT,
+                Arrays.asList(GmdConstants.GMD_ORGANIZATION_NAME_QNAME));
+
+        metacardMap.put(Media.FORMAT, Arrays.asList(GmdConstants.GMD_FORMAT_QNAME));
+
         metacardMap.put(Core.DATATYPE, Arrays.asList(GmdConstants.GMD_TYPE_QNAME));
 
         METACARD_MAPPING = Collections.unmodifiableMap(metacardMap);

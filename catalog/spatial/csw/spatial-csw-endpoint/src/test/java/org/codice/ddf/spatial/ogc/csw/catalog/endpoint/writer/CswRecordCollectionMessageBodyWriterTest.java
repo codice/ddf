@@ -80,8 +80,8 @@ public class CswRecordCollectionMessageBodyWriterTest {
         CswRecordCollection collection = createCswRecordCollection(6);
         collection.setNumberOfRecordsMatched(22);
         collection.setNumberOfRecordsReturned(6);
-        final String EXAMPLE_SCHEMA = "http://example.com/schema";
-        collection.setOutputSchema(EXAMPLE_SCHEMA);
+        final String exampleSchema = "http://example.com/schema";
+        collection.setOutputSchema(exampleSchema);
         collection.setById(true);
         collection.setResultType(ResultType.HITS);
         QName example = new QName("example");
@@ -95,13 +95,13 @@ public class CswRecordCollectionMessageBodyWriterTest {
         verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
 
         Map arguments = captor.getValue();
-        assertThat((Boolean) arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
-        assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
-                is(EXAMPLE_SCHEMA));
-        assertThat((ResultType) arguments.get(CswConstants.RESULT_TYPE_PARAMETER),
+        assertThat(arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
+        assertThat(arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(exampleSchema));
+        assertThat(arguments.get(CswConstants.RESULT_TYPE_PARAMETER),
                 is(ResultType.HITS));
-        assertThat((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
-        assertThat((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE),
+        assertThat(arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
+        assertThat(arguments.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.BRIEF));
         assertThat(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
     }
@@ -136,13 +136,13 @@ public class CswRecordCollectionMessageBodyWriterTest {
         verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
 
         Map arguments = captor.getValue();
-        assertThat((Boolean) arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
-        assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
+        assertThat(arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ResultType) arguments.get(CswConstants.RESULT_TYPE_PARAMETER),
+        assertThat(arguments.get(CswConstants.RESULT_TYPE_PARAMETER),
                 is(ResultType.VALIDATE));
-        assertThat((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
-        assertThat((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE),
+        assertThat(arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
+        assertThat(arguments.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.BRIEF));
         assertThat(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
     }
@@ -208,7 +208,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     }
 
     private List<Metacard> createMetacardList(int count) {
-        List<Metacard> list = new LinkedList<Metacard>();
+        List<Metacard> list = new LinkedList<>();
 
         for (int i = 0; i <= count; i++) {
             MetacardImpl metacard = new MetacardImpl();

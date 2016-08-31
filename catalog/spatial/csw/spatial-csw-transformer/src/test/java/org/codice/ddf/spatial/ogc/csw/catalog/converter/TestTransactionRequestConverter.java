@@ -13,10 +13,11 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static junit.framework.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,37 +39,41 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 
 import ddf.catalog.data.impl.MetacardImpl;
+
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 
 public class TestTransactionRequestConverter {
 
-    String expectedInsertXML =
+    private static final String METACARD_ID = "metacard1";
+
+    private static final String EXPECTED_INSERT_XML =
             "<csw:Transaction service=\"CSW\" version=\"2.0.2\" verboseResponse=\"true\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
                     + "  <csw:Insert typeName=\"csw:Record\"/>\n" + "</csw:Transaction>";
 
-    String expectedUpdateXML =
+    private static final String EXPECTED_UPDATE_XML =
             "<csw:Transaction service=\"CSW\" version=\"2.0.2\" verboseResponse=\"true\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
                     + "  <csw:Update typeName=\"csw:Record\"/>\n" + "</csw:Transaction>";
 
-    String expectedDeleteXML =
+    private static final String EXPECTED_DELETE_XML =
             "<csw:Transaction service=\"CSW\" version=\"2.0.2\" verboseResponse=\"true\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
                     + "  <csw:Delete typeName=\"csw:Record\">\n"
                     + "    <csw:Constraint version=\"1.1.0\">\n"
                     + "      <ogc:CqlText>identifier = metacard1</ogc:CqlText>\n"
                     + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";
 
-    String expectedMultiOpXml = "<csw:Transaction service=\"CSW\" version=\"2.0.2\" verboseResponse=\"true\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
-            + "  <csw:Insert typeName=\"csw:Record\"/>\n"
-            + "  <csw:Update typeName=\"csw:Record\" reference=\"../csw:Insert\"/>\n"
-            + "  <csw:Delete typeName=\"csw:Record\">\n"
-            + "    <csw:Constraint version=\"1.1.0\">\n"
-            + "      <ogc:CqlText>identifier = metacard1</ogc:CqlText>\n"
-            + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";
+    private static final String EXPECTED_MULTI_OP_XML =
+            "<csw:Transaction service=\"CSW\" version=\"2.0.2\" verboseResponse=\"true\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
+                    + "  <csw:Insert typeName=\"csw:Record\"/>\n"
+                    + "  <csw:Update typeName=\"csw:Record\" reference=\"../csw:Insert\"/>\n"
+                    + "  <csw:Delete typeName=\"csw:Record\">\n"
+                    + "    <csw:Constraint version=\"1.1.0\">\n"
+                    + "      <ogc:CqlText>identifier = metacard1</ogc:CqlText>\n"
+                    + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";
 
-    Converter cswRecordConverter;
+    private Converter cswRecordConverter;
 
-    XStream xStream;
+    private XStream xStream;
 
     @Before
     public void setup() {
@@ -85,8 +90,10 @@ public class TestTransactionRequestConverter {
         CswTransactionRequest transactionRequest = new CswTransactionRequest();
 
         MetacardImpl metacard = new MetacardImpl();
-        metacard.setId("metacard1");
-        InsertAction insertAction = new InsertAction("csw:Record", null, Arrays.asList(metacard));
+        metacard.setId(METACARD_ID);
+        InsertAction insertAction = new InsertAction(CswConstants.CSW_METACARD_TYPE_NAME,
+                null,
+                Arrays.asList(metacard));
         transactionRequest.getInsertActions()
                 .add(insertAction);
         transactionRequest.setService(CswConstants.CSW);
@@ -94,8 +101,8 @@ public class TestTransactionRequestConverter {
         transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
 
         String xml = xStream.toXML(transactionRequest);
-        Diff diff = XMLUnit.compareXML(xml, expectedInsertXML);
-        assertTrue(diff.similar());
+        Diff diff = XMLUnit.compareXML(xml, EXPECTED_INSERT_XML);
+        assertThat(diff.similar(), is(true));
     }
 
     @Test
@@ -104,8 +111,10 @@ public class TestTransactionRequestConverter {
         CswTransactionRequest transactionRequest = new CswTransactionRequest();
 
         MetacardImpl metacard = new MetacardImpl();
-        metacard.setId("metacard1");
-        UpdateAction updateAction = new UpdateAction(metacard, "csw:Record", null);
+        metacard.setId(METACARD_ID);
+        UpdateAction updateAction = new UpdateAction(metacard,
+                CswConstants.CSW_METACARD_TYPE_NAME,
+                null);
         transactionRequest.getUpdateActions()
                 .add(updateAction);
         transactionRequest.setService(CswConstants.CSW);
@@ -113,8 +122,8 @@ public class TestTransactionRequestConverter {
         transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
 
         String xml = xStream.toXML(transactionRequest);
-        Diff diff = XMLUnit.compareXML(xml, expectedUpdateXML);
-        assertTrue(diff.similar());
+        Diff diff = XMLUnit.compareXML(xml, EXPECTED_UPDATE_XML);
+        assertThat(diff.similar(), is(true));
     }
 
     @Test
@@ -123,10 +132,10 @@ public class TestTransactionRequestConverter {
         CswTransactionRequest transactionRequest = new CswTransactionRequest();
 
         MetacardImpl metacard = new MetacardImpl();
-        metacard.setId("metacard1");
+        metacard.setId(METACARD_ID);
         DeleteType deleteType = new DeleteType();
         QueryConstraintType queryConstraintType = new QueryConstraintType();
-        queryConstraintType.setCqlText("identifier = metacard1");
+        queryConstraintType.setCqlText("identifier = " + METACARD_ID);
         deleteType.setConstraint(queryConstraintType);
         DeleteAction deleteAction = new DeleteAction(deleteType, null);
         transactionRequest.getDeleteActions()
@@ -136,8 +145,8 @@ public class TestTransactionRequestConverter {
         transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
 
         String xml = xStream.toXML(transactionRequest);
-        Diff diff = XMLUnit.compareXML(xml, expectedDeleteXML);
-        assertTrue(diff.similar());
+        Diff diff = XMLUnit.compareXML(xml, EXPECTED_DELETE_XML);
+        assertThat(diff.similar(), is(true));
     }
 
     @Test
@@ -145,28 +154,32 @@ public class TestTransactionRequestConverter {
         CswTransactionRequest transactionRequest = new CswTransactionRequest();
 
         MetacardImpl metacard = new MetacardImpl();
-        metacard.setId("metacard1");
+        metacard.setId(METACARD_ID);
 
         transactionRequest.setService(CswConstants.CSW);
         transactionRequest.setVerbose(true);
         transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
 
-        InsertAction insertAction = new InsertAction("csw:Record", null, Arrays.asList(metacard));
+        InsertAction insertAction = new InsertAction(CswConstants.CSW_METACARD_TYPE_NAME,
+                null,
+                Arrays.asList(metacard));
         transactionRequest.getInsertActions()
                 .add(insertAction);
-        UpdateAction updateAction = new UpdateAction(metacard, "csw:Record", null);
+        UpdateAction updateAction = new UpdateAction(metacard,
+                CswConstants.CSW_METACARD_TYPE_NAME,
+                null);
         transactionRequest.getUpdateActions()
                 .add(updateAction);
         DeleteType deleteType = new DeleteType();
         QueryConstraintType queryConstraintType = new QueryConstraintType();
-        queryConstraintType.setCqlText("identifier = metacard1");
+        queryConstraintType.setCqlText("identifier = " + METACARD_ID);
         deleteType.setConstraint(queryConstraintType);
         DeleteAction deleteAction = new DeleteAction(deleteType, null);
         transactionRequest.getDeleteActions()
                 .add(deleteAction);
 
         String xml = xStream.toXML(transactionRequest);
-        Diff diff = XMLUnit.compareXML(xml, expectedMultiOpXml);
-        assertTrue(diff.similar());
+        Diff diff = XMLUnit.compareXML(xml, EXPECTED_MULTI_OP_XML);
+        assertThat(diff.similar(), is(true));
     }
 }

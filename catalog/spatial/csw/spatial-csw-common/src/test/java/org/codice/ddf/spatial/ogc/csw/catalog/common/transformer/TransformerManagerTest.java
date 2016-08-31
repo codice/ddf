@@ -100,37 +100,37 @@ public class TransformerManagerTest {
 
     @Test
     public void testGetTransformerBySchema() throws Exception {
-        assertThat(manager.<InputTransformer>getTransformerBySchema(SCHEMA_A), is(transformerA));
-        assertThat(manager.<InputTransformer>getTransformerBySchema(SCHEMA_B), is(transformerB));
+        assertThat(manager.getTransformerBySchema(SCHEMA_A), is(transformerA));
+        assertThat(manager.getTransformerBySchema(SCHEMA_B), is(transformerB));
     }
 
     @Test
     public void testGetTransformerByMimeType() throws Exception {
-        assertThat(manager.<InputTransformer>getTransformerByMimeType(MIME_TYPE_A),
+        assertThat(manager.getTransformerByMimeType(MIME_TYPE_A),
                 is(transformerA));
-        assertThat(manager.<InputTransformer>getTransformerByMimeType(MIME_TYPE_B),
+        assertThat(manager.getTransformerByMimeType(MIME_TYPE_B),
                 is(transformerB));
     }
 
     @Test
     public void testGetTransformerIdForSchema() throws Exception {
-        assertThat(manager.<InputTransformer>getTransformerIdForSchema(SCHEMA_A), is(ID_A));
-        assertThat(manager.<InputTransformer>getTransformerIdForSchema(SCHEMA_B), is(ID_B));
+        assertThat(manager.getTransformerIdForSchema(SCHEMA_A), is(ID_A));
+        assertThat(manager.getTransformerIdForSchema(SCHEMA_B), is(ID_B));
     }
 
     @Test
     public void testGetTransformerSchemaForId() throws Exception {
-        assertThat(manager.<InputTransformer>getTransformerSchemaForId(ID_A), is(SCHEMA_A));
-        assertThat(manager.<InputTransformer>getTransformerSchemaForId(ID_B), is(SCHEMA_B));
+        assertThat(manager.getTransformerSchemaForId(ID_A), is(SCHEMA_A));
+        assertThat(manager.getTransformerSchemaForId(ID_B), is(SCHEMA_B));
     }
 
     @Test
     public void testGetTransformerSchemaForInvalidId() throws Exception {
-        assertThat(manager.<InputTransformer>getTransformerSchemaForId("abc123"), is(""));
+        assertThat(manager.getTransformerSchemaForId("abc123"), is(""));
     }
 
     @Test
     public void testGetTransformerIdForInvalidSchema() throws Exception {
-        assertThat(manager.<InputTransformer>getTransformerIdForSchema("abc123"), is(""));
+        assertThat(manager.getTransformerIdForSchema("abc123"), is(""));
     }
 }

@@ -22,7 +22,6 @@ public class TestDefaultCswRecordMap {
 
     @Test
     public void testNamespacePrefixedQueriesWithoutXpath() {
-
         String propertyNameWihoutXpath = "dc:title";
         String propertyNameWihoutNamespace = "title";
 
@@ -40,7 +39,6 @@ public class TestDefaultCswRecordMap {
 
     @Test
     public void testNamespacePrefixedQueriesWithXpath() {
-
         String propertyNameWithXpath = "/csw:Record/dc:title";
         String propertyNameXpathWithoutNamespace = "/Record/title";
 
@@ -56,5 +54,4 @@ public class TestDefaultCswRecordMap {
                 propertyNameXpathWithoutNamespace), is(false));
 
     }
-
 }

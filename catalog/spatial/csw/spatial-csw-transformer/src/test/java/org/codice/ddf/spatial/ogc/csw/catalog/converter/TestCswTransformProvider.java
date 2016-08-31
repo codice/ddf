@@ -13,8 +13,8 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -149,7 +149,7 @@ public class TestCswTransformProvider {
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        Metacard metacard = (Metacard) provider.unmarshal(reader, context);
+        provider.unmarshal(reader, context);
 
         // Verify the context arguments were set correctly
         verify(mockInputManager, times(1)).getTransformerBySchema(captor.capture());
@@ -164,7 +164,6 @@ public class TestCswTransformProvider {
         InputTransformer mockInputTransformer = mock(InputTransformer.class);
         when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(mockInputTransformer);
 
-        StringReader stringReader = new StringReader(getRecord());
         StaxDriver driver = new StaxDriver();
         driver.setRepairingNamespace(true);
         driver.getQnameMap()
@@ -182,7 +181,7 @@ public class TestCswTransformProvider {
 
         ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass(InputStream.class);
 
-        Metacard metacard = (Metacard) provider.unmarshal(reader, context);
+        provider.unmarshal(reader, context);
 
         // Verify the context arguments were set correctly
         verify(mockInputTransformer, times(1)).transform(captor.capture());
@@ -214,7 +213,7 @@ public class TestCswTransformProvider {
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        Metacard metacard = (Metacard) provider.unmarshal(reader, context);
+        provider.unmarshal(reader, context);
 
         // Verify the context arguments were set correctly
         verify(mockInputManager, times(1)).getTransformerByProperty(captor.capture(),
@@ -259,7 +258,7 @@ public class TestCswTransformProvider {
 
         ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass(InputStream.class);
 
-        Metacard metacard = (Metacard) provider.unmarshal(reader, context);
+        provider.unmarshal(reader, context);
 
         // Verify the context arguments were set correctly
         verify(mockInputTransformer, times(1)).transform(captor.capture());

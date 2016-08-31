@@ -24,6 +24,7 @@ import javax.xml.namespace.QName;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.resource.Resource;
+
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
@@ -38,7 +39,7 @@ public class CswRecordCollection {
 
     private GetRecordsType request;
 
-    private List<Metacard> cswRecords = new ArrayList<Metacard>();
+    private List<Metacard> cswRecords = new ArrayList<>();
 
     private long numberOfRecordsReturned;
 
@@ -198,11 +199,11 @@ public class CswRecordCollection {
         return resource;
     }
 
-    public void setResourceProperties(Map<String, Serializable> resourceProperties){
+    public void setResourceProperties(Map<String, Serializable> resourceProperties) {
         this.resourceProperties = resourceProperties;
     }
 
-    public Map<String, Serializable> getResourceProperties(){
+    public Map<String, Serializable> getResourceProperties() {
         return this.resourceProperties;
     }
 }

@@ -35,7 +35,6 @@ import javax.xml.namespace.QName;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
@@ -61,18 +60,23 @@ import org.opengis.filter.spatial.Touches;
 import org.opengis.filter.spatial.Within;
 import org.opengis.filter.temporal.After;
 import org.opengis.filter.temporal.Before;
-import org.opengis.filter.temporal.BegunBy;
 import org.opengis.filter.temporal.BinaryTemporalOperator;
 import org.opengis.filter.temporal.During;
-import org.opengis.filter.temporal.TEquals;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.TopicAttributes;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -84,6 +88,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+
 import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -201,7 +206,7 @@ public class CswQueryFactoryTest {
             FederationException, ParseException, IngestException {
         filterBuilder = new GeotoolsFilterBuilder();
         FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
-        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter);
+        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, getCswMetacardType());
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
@@ -266,7 +271,7 @@ public class CswQueryFactoryTest {
         grr.setDistributedSearch(distributedSearch);
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
 
         query.setTypeNames(typeNames);
@@ -276,7 +281,7 @@ public class CswQueryFactoryTest {
 
         query.setConstraint(constraint);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
         grr.setAbstractQuery(jaxbQuery);
@@ -293,14 +298,15 @@ public class CswQueryFactoryTest {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -311,8 +317,8 @@ public class CswQueryFactoryTest {
         assertThat(frameworkQuery.getFilter(), instanceOf(PropertyIsLike.class));
         PropertyIsLike like = (PropertyIsLike) frameworkQuery.getFilter();
         assertThat(like.getLiteral(), is(CQL_CONTEXTUAL_PATTERN));
-        assertThat(((AttributeExpressionImpl) like.getExpression()).getPropertyName(),
-                is(CQL_FRAMEWORK_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) like.getExpression()).getPropertyName(), is(
+                CQL_FRAMEWORK_TEST_ATTRIBUTE));
     }
 
     @Test
@@ -333,7 +339,7 @@ public class CswQueryFactoryTest {
                 .add(propType);
         query.setSortBy(incomingSort);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -522,7 +528,7 @@ public class CswQueryFactoryTest {
             FederationException {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
-        ogcTemporalQuery(Metacard.CREATED,
+        ogcTemporalQuery(Core.CREATED,
                 filterObjectFactory.createPropertyIsLessThan(op),
                 Before.class);
     }
@@ -535,10 +541,7 @@ public class CswQueryFactoryTest {
             FederationException {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
-        ogcOrdTemporalQuery(Metacard.CREATED,
-                filterObjectFactory.createPropertyIsLessThanOrEqualTo(op),
-                BegunBy.class,
-                TEquals.class);
+        ogcOrdTemporalQuery(filterObjectFactory.createPropertyIsLessThanOrEqualTo(op));
     }
 
     @Ignore("TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  "
@@ -549,7 +552,7 @@ public class CswQueryFactoryTest {
             FederationException {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
-        ogcTemporalQuery(Metacard.CREATED,
+        ogcTemporalQuery(Core.CREATED,
                 filterObjectFactory.createPropertyIsGreaterThan(op),
                 After.class);
     }
@@ -562,10 +565,7 @@ public class CswQueryFactoryTest {
             FederationException {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
-        ogcOrdTemporalQuery(Metacard.CREATED,
-                filterObjectFactory.createPropertyIsGreaterThanOrEqualTo(op),
-                After.class,
-                TEquals.class);
+        ogcOrdTemporalQuery(filterObjectFactory.createPropertyIsGreaterThanOrEqualTo(op));
     }
 
     @SuppressWarnings("unchecked")
@@ -574,9 +574,9 @@ public class CswQueryFactoryTest {
             throws CswException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
 
-        String[] cqlTextValues = new String[] {CswConstants.CSW_CREATED, CQL_BEFORE, TIMESTAMP};
+        String[] cqlTextValues = new String[] {CswConstants.CSW_NO_PREFIX_CREATED, CQL_BEFORE, TIMESTAMP};
         String cqlText = StringUtils.join(cqlTextValues, " ");
-        cqlTemporalQuery(Metacard.CREATED, cqlText, new Class[] {Before.class});
+        cqlTemporalQuery(Core.CREATED, cqlText, new Class[] {Before.class});
     }
 
     @SuppressWarnings("unchecked")
@@ -585,10 +585,9 @@ public class CswQueryFactoryTest {
             throws CswException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
 
-        String[] cqlTextValues =
-                new String[] {CswRecordMetacardType.CSW_ISSUED, CQL_AFTER, TIMESTAMP};
+        String[] cqlTextValues = new String[] {CswConstants.CSW_ISSUED, CQL_AFTER, TIMESTAMP};
         String cqlText = StringUtils.join(cqlTextValues, " ");
-        cqlTemporalQuery(Metacard.MODIFIED, cqlText, new Class[] {After.class});
+        cqlTemporalQuery(Core.MODIFIED, cqlText, new Class[] {After.class});
     }
 
     @SuppressWarnings("unchecked")
@@ -598,8 +597,7 @@ public class CswQueryFactoryTest {
             FederationException {
 
         String[] cqlTextValues =
-                new String[] {CswRecordMetacardType.CSW_DATE_ACCEPTED, CQL_DURING, TIMESTAMP, "/",
-                        DURATION};
+                new String[] {CswConstants.CSW_DATE_ACCEPTED, CQL_DURING, TIMESTAMP, "/", DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.EFFECTIVE, cqlText, new Class[] {During.class});
     }
@@ -611,10 +609,10 @@ public class CswQueryFactoryTest {
             FederationException {
 
         String[] cqlTextValues =
-                new String[] {CswRecordMetacardType.CSW_DATE, CQL_BEFORE_OR_DURING, TIMESTAMP, "/",
+                new String[] {CswConstants.CSW_DATE, CQL_BEFORE_OR_DURING, TIMESTAMP, "/",
                         DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
-        cqlTemporalQuery(Metacard.MODIFIED, cqlText, new Class[] {Before.class, During.class});
+        cqlTemporalQuery(Core.MODIFIED, cqlText, new Class[] {Before.class, During.class});
     }
 
     @SuppressWarnings("unchecked")
@@ -624,10 +622,10 @@ public class CswQueryFactoryTest {
             FederationException {
 
         String[] cqlTextValues =
-                new String[] {CswRecordMetacardType.CSW_VALID, CQL_DURING_OR_AFTER, TIMESTAMP, "/",
+                new String[] {CswConstants.CSW_VALID, CQL_DURING_OR_AFTER, TIMESTAMP, "/",
                         DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
-        cqlTemporalQuery(Metacard.EXPIRATION, cqlText, new Class[] {During.class, After.class});
+        cqlTemporalQuery(Core.EXPIRATION, cqlText, new Class[] {During.class, After.class});
     }
 
     @Test
@@ -661,14 +659,14 @@ public class CswQueryFactoryTest {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(cql);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -679,11 +677,10 @@ public class CswQueryFactoryTest {
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
-        assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(polygon));
+        assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
-                is(SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
+                SPATIAL_TEST_ATTRIBUTE));
     }
 
     /**
@@ -703,14 +700,14 @@ public class CswQueryFactoryTest {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(cql);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -721,11 +718,10 @@ public class CswQueryFactoryTest {
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
-        assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(polygon));
+        assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
-                is(SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
+                SPATIAL_TEST_ATTRIBUTE));
 
         assertThat(spatial.getDistanceUnits(), is(UomOgcMapping.METRE.name()));
         assertThat(spatial.getDistance(), is(EXPECTED_GEO_DISTANCE));
@@ -824,7 +820,7 @@ public class CswQueryFactoryTest {
         abstractRing.setRing(gmlObjectFactory.createLinearRing(ring));
         localPolygon.setExterior(gmlObjectFactory.createExterior(abstractRing));
 
-        JAXBElement<AbstractGeometryType> agt = new JAXBElement<AbstractGeometryType>(new QName(
+        JAXBElement<AbstractGeometryType> agt = new JAXBElement<>(new QName(
                 "http://www.opengis.net/gml",
                 "Polygon"), AbstractGeometryType.class, null, localPolygon);
         return agt;
@@ -853,11 +849,10 @@ public class CswQueryFactoryTest {
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
-        assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(polygon));
+        assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
-                is(SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
+                SPATIAL_TEST_ATTRIBUTE));
     }
 
     /**
@@ -876,7 +871,7 @@ public class CswQueryFactoryTest {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
@@ -886,7 +881,7 @@ public class CswQueryFactoryTest {
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -897,11 +892,10 @@ public class CswQueryFactoryTest {
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
-        assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(polygon));
+        assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
-                is(SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
+                SPATIAL_TEST_ATTRIBUTE));
     }
 
     /**
@@ -920,7 +914,7 @@ public class CswQueryFactoryTest {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
@@ -930,7 +924,7 @@ public class CswQueryFactoryTest {
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -941,11 +935,10 @@ public class CswQueryFactoryTest {
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
-        assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(polygon));
+        assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
-                is(SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
+                SPATIAL_TEST_ATTRIBUTE));
     }
 
     /**
@@ -970,26 +963,22 @@ public class CswQueryFactoryTest {
         assertThat(filter, instanceOf(clz));
 
         N temporal = (N) filter;
-        assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(),
-                is(expectedAttr));
+        assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(), is(
+                expectedAttr));
     }
 
     /**
      * Runs an Or'd query of multiple binary Temporal OGC Query, verifying that the right filter
      * class is generated based on OGC Filter
      *
-     * @param expectedAttr Exprected Mapped Attribute
-     * @param temporalOps  The Temporal query, in terms of a binary comparison
-     * @param clzzes       the Expected Class result
+     * @param temporalOps The Temporal query, in terms of a binary comparison
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
      * @throws CswException
      */
     @SuppressWarnings("unchecked")
-    private void ogcOrdTemporalQuery(String expectedAttr,
-            JAXBElement<BinaryComparisonOpType> temporalOps,
-            Class<? extends BinaryTemporalOperator>... clzzes)
+    private void ogcOrdTemporalQuery(JAXBElement<BinaryComparisonOpType> temporalOps)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
             CswException {
         Filter filter = generateTemporalFilter(temporalOps);
@@ -1000,8 +989,7 @@ public class CswQueryFactoryTest {
 
         List<Filter> temporalFilters = ordTemporal.getChildren();
 
-        List<Class<? extends BinaryTemporalOperator>> classes =
-                new ArrayList<Class<? extends BinaryTemporalOperator>>();
+        List<Class<? extends BinaryTemporalOperator>> classes = new ArrayList<>();
 
         for (Filter temporal : temporalFilters) {
             assertThat(temporal, instanceOf(BinaryTemporalOperator.class));
@@ -1015,7 +1003,7 @@ public class CswQueryFactoryTest {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
@@ -1025,7 +1013,7 @@ public class CswQueryFactoryTest {
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -1044,14 +1032,14 @@ public class CswQueryFactoryTest {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(cqlSpatialDwithinQuery);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -1071,8 +1059,8 @@ public class CswQueryFactoryTest {
             assertThat(frameworkQuery.getFilter(), instanceOf(classes[0]));
             temporal = (N) frameworkQuery.getFilter();
         }
-        assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(),
-                is(expectedAttr));
+        assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(), is(
+                expectedAttr));
     }
 
     /**
@@ -1115,16 +1103,25 @@ public class CswQueryFactoryTest {
         grr.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
 
         query.setTypeNames(typeNames);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
         grr.setAbstractQuery(jaxbQuery);
         return grr;
+    }
+
+    public static MetacardType getCswMetacardType() {
+        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
+                Arrays.asList(new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new TopicAttributes(),
+                        new AssociationsAttributes()));
     }
 
 }

@@ -45,6 +45,7 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+
 import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.DateTime;
@@ -168,7 +169,6 @@ public class TestGmdConverter {
         metacard.setAttribute(Core.ID, "1234");
         metacard.setAttribute(Core.METACARD_CREATED, modifiedDate.getTime());
         metacard.setAttribute(Core.METACARD_MODIFIED, modifiedDate.getTime());
-
         metacard.setAttribute(Contact.POINT_OF_CONTACT_NAME, "John Doe");
         metacard.setAttribute(Contact.POINT_OF_CONTACT_EMAIL, "john.doe@example.com");
         metacard.setAttribute(Contact.POINT_OF_CONTACT_PHONE, "12345");
@@ -177,19 +177,16 @@ public class TestGmdConverter {
         metacard.setAttribute(Contact.PUBLISHER_EMAIL, "jane.doe@example.com");
         metacard.setAttribute(Contact.PUBLISHER_PHONE, "6789");
         metacard.setAttribute(Contact.POINT_OF_CONTACT_ADDRESS, "123 Fake Street Springfield MO 12345");
-
         metacard.setAttribute(Location.COORDINATE_REFERENCE_SYSTEM_CODE, "EPSG:4326");
         metacard.setAttribute(Location.COUNTRY_CODE, "FRA");
         metacard.setAttribute(Location.ALTITUDE, 123.0);
-
         metacard.setAttribute(DateTime.START, effectiveDate.getTime());
         metacard.setAttribute(DateTime.END, effectiveDate.getTime());
-
         metacard.setAttribute(Media.FORMAT, "gzip");
         metacard.setAttribute(Media.FORMAT_VERSION, "2.0");
-
         metacard.setAttribute(Topic.KEYWORD, "keyword");
         metacard.setAttribute(Topic.CATEGORY, "category");
+        metacard.setAttribute(Core.RESOURCE_DOWNLOAD_URL, RESOURCE_DOWNLOAD_URL);
 
         try {
             metacard.setAttribute(Core.RESOURCE_URI, new URI(RESOURCE_URI));

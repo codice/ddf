@@ -20,8 +20,6 @@ import org.geotools.filter.capability.FunctionNameImpl;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The PropertyIsFuzzyFunction contains two parameters that can be used to build a
@@ -29,8 +27,6 @@ import org.slf4j.LoggerFactory;
  */
 public class PropertyIsFuzzyFunction extends FunctionExpressionImpl {
     public static final String FUNCTION_NAME = "PropertyIsFuzzy";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PropertyIsFuzzyFunction.class);
 
     public static final FunctionName NAME = new FunctionNameImpl(FUNCTION_NAME,
             Expression.class,

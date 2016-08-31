@@ -14,7 +14,7 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="metacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+    <bean id="gmdMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="gmdMetacardType" />
         <argument>
             <list>
@@ -29,14 +29,26 @@
         </argument>
     </bean>
 
-    <service interface="ddf.catalog.data.MetacardType" >
+    <bean id="cswMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="cswMetacardType" />
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+    <service ref="cswMetacardType" interface="ddf.catalog.data.MetacardType" >
         <service-properties>
             <entry key="name" value="csw:Record" />
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType" />
     </service>
 
-    <service ref="metacardType" interface="ddf.catalog.data.MetacardType" >
+    <service ref="gmdMetacardType" interface="ddf.catalog.data.MetacardType" >
         <service-properties>
             <entry key="name" value="gmd:MD_Metadata" />
         </service-properties>
@@ -48,8 +60,13 @@
     <reference id="writerProvider" interface="ddf.catalog.transformer.api.PrintWriterProvider"
                filter="(id=print.writer.provider)"/>
 
+
+    <bean id="cswRecordConverter" class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter">
+        <argument ref="cswMetacardType" />
+    </bean>
+
     <!-- Register the Transformers -->
-    <service interface="ddf.catalog.transform.InputTransformer">
+    <service ref="cswRecordConverter" interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
             <entry key="id" value="csw:Record"/>
             <entry key="mime-type" >
@@ -60,10 +77,9 @@
             </entry>
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter"/>
     </service>
 
-    <service interface="ddf.catalog.transform.MetacardTransformer">
+    <service ref="cswRecordConverter" interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
             <entry key="id" value="csw:Record"/>
             <entry key="mime-type" >
@@ -74,10 +90,9 @@
             </entry>
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter"/>
     </service>
 
-    <service interface="ddf.catalog.transform.InputTransformer">
+    <service ref="gmdInputTransformerTranformer" interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
             <entry key="id" value="gmd:MD_Metadata"/>
             <entry key="mime-type" >
@@ -88,30 +103,24 @@
             </entry>
             <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer">
-            <argument ref="metacardType" />
-        </bean>
     </service>
-    <service interface="ddf.catalog.transform.MetacardTransformer">
+
+    <service ref="gmdInputTransformerTranformer" interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
             <entry key="id" value="gmd:MD_Metadata"/>
             <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer">
-            <argument ref="metacardType" />
-        </bean>
     </service>
 
     <bean id="gmdInputTransformerTranformer" class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer" destroy-method="destroy">
-        <argument ref="metacardType" />
+        <argument ref="gmdMetacardType"/>
     </bean>
 
     <bean id="getRecordsResponseConverter"
           class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
         <argument ref="cswTransformProvider"/>
     </bean>
-
 
     <!-- MetacardTransformer TransformerManager -->
     <bean id="metacardTransformerManager"

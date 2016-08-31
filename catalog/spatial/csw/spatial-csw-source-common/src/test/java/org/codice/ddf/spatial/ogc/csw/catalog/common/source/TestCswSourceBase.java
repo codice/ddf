@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,14 +49,11 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -73,9 +69,11 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
+
 import net.opengis.cat.csw.v_2_0_2.AbstractRecordType;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
@@ -96,15 +94,6 @@ import net.opengis.ows.v_1_0_0.OperationsMetadata;
 import net.opengis.ows.v_1_0_0.ServiceIdentification;
 
 public class TestCswSourceBase {
-
-    /**
-     * ISO 8601 date time format with milliseconds and colon between hours/minutes in time zone,
-     * e.g., 2013-05-22T16:28:38.345-07:00
-     * <p>
-     * The ZZ gives the colon in the time zone.
-     */
-    protected static final String ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSourceBase.class);
 
     protected static final String ID = "MyCswSource";
@@ -168,17 +157,13 @@ public class TestCswSourceBase {
                     + "    xmlns:ogc=\"http://www.opengis.net/ogc\">"
                     + "    <Query typeNames=\"csw:Record\">"
                     + "        <ElementSetName>full</ElementSetName>"
-                    + "        <Constraint version=\"1.1.0\">" // Line break
-                    + "            <ogc:Filter>"
+                    + "        <Constraint version=\"1.1.0\">" + "            <ogc:Filter>"
                     + "                <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\" matchCase=\"false\">"
                     + "                    <ogc:PropertyName>" + CswConstants.ANY_TEXT
-                    + "                    </ogc:PropertyName>" // Line break
-                    + "                    <ogc:Literal>*th*e</ogc:Literal>" // Line break
-                    + "                </ogc:PropertyIsLike>" // Line break
-                    + "            </ogc:Filter>" // Line break
-                    + "        </Constraint>" // Line break
-                    + "    </Query>" // Line break
-                    + "</GetRecords>";
+                    + "                    </ogc:PropertyName>"
+                    + "                    <ogc:Literal>*th*e</ogc:Literal>"
+                    + "                </ogc:PropertyIsLike>" + "            </ogc:Filter>"
+                    + "        </Constraint>" + "    </Query>" + "</GetRecords>";
 
     protected String getRecordsControlXml202ContentTypeMappedToFormat =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -190,17 +175,13 @@ public class TestCswSourceBase {
                     + "    xmlns:ogc=\"http://www.opengis.net/ogc\">"
                     + "    <Query typeNames=\"csw:Record\">"
                     + "<ElementSetName>full</ElementSetName>"
-                    + "        <Constraint version=\"1.1.0\">" // Line break
-                    + "            <ogc:Filter>" // Line break
+                    + "        <Constraint version=\"1.1.0\">" + "            <ogc:Filter>"
                     + "                <ogc:PropertyIsEqualTo matchCase=\"true\">"
-                    + "                    <ogc:PropertyName>" + CswRecordMetacardType.CSW_FORMAT
+                    + "                    <ogc:PropertyName>" + CswConstants.CSW_FORMAT
                     + "                    </ogc:PropertyName>"
                     + "                    <ogc:Literal>myContentType</ogc:Literal>"
-                    + "                </ogc:PropertyIsEqualTo>" // Line break
-                    + "            </ogc:Filter>" // Line break
-                    + "        </Constraint>" // Line break
-                    + "    </Query>" // Line break
-                    + "</GetRecords>";
+                    + "                </ogc:PropertyIsEqualTo>" + "            </ogc:Filter>"
+                    + "        </Constraint>" + "    </Query>" + "</GetRecords>";
 
     protected String getRecordsControlXml202ConteTypeAndVersion =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
@@ -217,8 +198,8 @@ public class TestCswSourceBase {
                     + "        <csw:Constraint version=\"1.1.0\">\n" + "            <ogc:Filter>\n"
                     + "                <ogc:And>\n"
                     + "                    <ogc:PropertyIsEqualTo matchCase=\"true\">\n"
-                    + "                        <ogc:PropertyName>"
-                    + CswRecordMetacardType.CSW_FORMAT + "</ogc:PropertyName>\n"
+                    + "                        <ogc:PropertyName>" + CswConstants.CSW_FORMAT
+                    + "</ogc:PropertyName>\n"
                     + "                        <ogc:Literal>myContentType</ogc:Literal>\n"
                     + "                    </ogc:PropertyIsEqualTo>\n"
                     + "                    <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\" matchCase=\"false\">\n"
@@ -239,9 +220,8 @@ public class TestCswSourceBase {
         XMLUnit.setIgnoreComments(true);
 
         metacardMappings = new String[] {Metacard.ID + "=" + IDENTIFIER_MAPPING,
-                Metacard.CREATED + "=" + CREATED_DATE, Metacard.EFFECTIVE + "=" + EFFECTIVE_DATE,
-                Metacard.MODIFIED + "=" + MODIFIED_DATE,
-                Metacard.CONTENT_TYPE + "=" + CONTENT_TYPE};
+                Core.CREATED + "=" + CREATED_DATE, Metacard.EFFECTIVE + "=" + EFFECTIVE_DATE,
+                Core.MODIFIED + "=" + MODIFIED_DATE, Metacard.CONTENT_TYPE + "=" + CONTENT_TYPE};
     }
 
     @Before
@@ -262,13 +242,7 @@ public class TestCswSourceBase {
         // Just return same Metacard that was passed in
         when(mockContext.getService(any(ServiceReference.class))).thenReturn(transformer);
         try {
-            when(transformer.transform(any(Metacard.class))).thenAnswer(new Answer<Metacard>() {
-                @Override
-                public Metacard answer(InvocationOnMock invocation) throws Throwable {
-                    Object[] args = invocation.getArguments();
-                    return (Metacard) args[0];
-                }
-            });
+            when(transformer.transform(any(Metacard.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
         } catch (CatalogTransformerException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -394,12 +368,10 @@ public class TestCswSourceBase {
                 GenericType.class,
                 GetRecordsType.class.getAnnotations(),
                 MediaType.APPLICATION_XML_TYPE,
-                new MultivaluedHashMap<String, Object>(0),
+                new MultivaluedHashMap<>(0),
                 outputStream);
         return outputStream.toString();
     }
-
-    // //////////////////////////////////////////////////////////////////////////////////////////////////
 
     protected void configureMockCsw() throws CswException {
         configureMockCsw(0, 0L, CswConstants.VERSION_2_0_2);
@@ -523,8 +495,8 @@ public class TestCswSourceBase {
                 ServiceRegistration.class);
         doReturn(mockRegisteredMetacardType).when(mockContext)
                 .registerService(eq(MetacardType.class.getName()),
-                        any(CswRecordMetacardType.class),
-                        Matchers.<Dictionary<String, ?>>any());
+                        any(MetacardType.class),
+                        Matchers.any());
         ServiceReference<?> mockServiceReference =
                 (ServiceReference<?>) mock(ServiceReference.class);
         doReturn(mockServiceReference).when(mockRegisteredMetacardType)

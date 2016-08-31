@@ -14,7 +14,6 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -53,15 +52,12 @@ import org.apache.tika.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -82,6 +78,9 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Media;
+import ddf.catalog.data.types.Topic;
 
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
@@ -95,23 +94,11 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 
 public class TestGetRecordsResponseConverter {
-
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(TestGetRecordsResponseConverter.class);
-
     private static final String ID_PREFIX = "id_";
 
     private static final String SOURCE_PREFIX = "source_";
 
     private static final String TITLE_PREFIX = "title ";
-
-    private static final String ID = "identifier";
-
-    private static final String SOURCE = "source";
-
-    private static final String PUBLISHER = "publisher";
-
-    private static final String TITLE = "title";
 
     private static final String FORMAT = "format";
 
@@ -126,11 +113,10 @@ public class TestGetRecordsResponseConverter {
     @Before
     public void setUp() {
         when(mockProvider.canConvert(any(Class.class))).thenReturn(true);
-
     }
 
     /**
-     * This test acutally runs the full thread of calling the GetRecordsResponseConverter then calls the CswInputTransformer.
+     * This test actually runs the full thread of calling the GetRecordsResponseConverter then calls the CswInputTransformer.
      */
     @Test
     public void testUnmarshalGetRecordsResponseFull() {
@@ -141,7 +127,8 @@ public class TestGetRecordsResponseConverter {
 
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
-        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordConverter());
+        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordConverter(
+                TestCswRecordConverter.getCswMetacardType()));
 
         xstream.registerConverter(new GetRecordsResponseConverter(provider));
         xstream.alias("GetRecordsResponse", CswRecordCollection.class);
@@ -190,37 +177,28 @@ public class TestGetRecordsResponseConverter {
 
         List<Metacard> metacards = cswRecords.getCswRecords();
         assertThat(metacards, not(nullValue()));
-        assertThat(metacards.size(), equalTo(2));
+        assertThat(metacards.size(), is(2));
 
         // verify first metacard's values
         Metacard mc = metacards.get(0);
         assertThat(mc, not(nullValue()));
-        Map<String, Object> expectedValues = new HashMap<String, Object>();
-        expectedValues.put(Metacard.ID, "{8C1F6297-EC96-4302-A01E-14988C9149FD}");
-        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
-                new String[] {"{8C1F6297-EC96-4302-A01E-14988C9149FD}"});
-        expectedValues.put(Metacard.TITLE, "title 1");
-        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {"title 1"});
+        Map<String, Object> expectedValues = new HashMap<>();
+        expectedValues.put(Core.ID, "{8C1F6297-EC96-4302-A01E-14988C9149FD}");
+        expectedValues.put(Core.TITLE, "title 1");
+
         String expectedModifiedDateStr = "2008-12-15";
         DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
         Date expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr)
                 .toDate();
-        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
-                new String[] {expectedModifiedDateStr});
-        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT,
-                new String[] {"subject 1", "second subject"});
-        expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
-        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS,
-                new String[] {"copyright 1", "copyright 2"});
-        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
-        expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
-        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
-        expectedValues.put(Metacard.GEOGRAPHY,
+
+        expectedValues.put(Core.MODIFIED, expectedModifiedDate);
+        expectedValues.put(Topic.CATEGORY, new String[] {"subject 1", "second subject"});
+        expectedValues.put(Core.DESCRIPTION, new String[] {"abstract 1"});
+        expectedValues.put(Core.LANGUAGE, new String[] {"english"});
+        expectedValues.put(Media.FORMAT, "Shapefile");
+        expectedValues.put(Metacard.CONTENT_TYPE, "dataset");
+        expectedValues.put(Core.LOCATION,
                 "POLYGON((5.121 52.139, 4.468 52.139, 4.468 52.517, 5.121 52.517, 5.121 52.139))");
-        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                new String[] {
-                        "POLYGON((5.121 52.139, 4.468 52.139, 4.468 52.517, 5.121 52.517, 5.121 52.139))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -228,32 +206,22 @@ public class TestGetRecordsResponseConverter {
         // verify second metacard's values
         mc = metacards.get(1);
         assertThat(mc, not(nullValue()));
-        expectedValues = new HashMap<String, Object>();
-        expectedValues.put(Metacard.ID, "{23362852-F370-4369-B0B2-BE74B2859614}");
-        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
-                new String[] {"{23362852-F370-4369-B0B2-BE74B2859614}"});
-        expectedValues.put(Metacard.TITLE, "mc2 title");
-        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {"mc2 title"});
+        expectedValues = new HashMap<>();
+        expectedValues.put(Core.ID, "{23362852-F370-4369-B0B2-BE74B2859614}");
+        expectedValues.put(Core.TITLE, "mc2 title");
         expectedModifiedDateStr = "2010-12-15";
         dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
         expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr)
                 .toDate();
-        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
-                new String[] {expectedModifiedDateStr});
-        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT,
-                new String[] {"first subject", "subject 2"});
-        expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"mc2 abstract"});
-        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS,
-                new String[] {"first copyright", "second copyright"});
-        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
-        expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset 2");
-        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile 2"});
-        expectedValues.put(Metacard.GEOGRAPHY,
+        expectedValues.put(Core.MODIFIED, expectedModifiedDate);
+        expectedValues.put(Topic.CATEGORY, new String[] {"first subject", "subject 2"});
+        expectedValues.put(Core.DESCRIPTION, new String[] {"mc2 abstract"});
+
+        expectedValues.put(Core.LANGUAGE, new String[] {"english"});
+        expectedValues.put(Media.FORMAT, "Shapefile 2");
+        expectedValues.put(Metacard.CONTENT_TYPE, "dataset 2");
+        expectedValues.put(Core.LOCATION,
                 "POLYGON((6.121 53.139, 5.468 53.139, 5.468 53.517, 6.121 53.517, 6.121 53.139))");
-        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                new String[] {
-                        "POLYGON((6.121 53.139, 5.468 53.139, 5.468 53.517, 6.121 53.517, 6.121 53.139))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -367,7 +335,7 @@ public class TestGetRecordsResponseConverter {
 
         List<Metacard> metacards = cswRecords.getCswRecords();
         assertThat(metacards, not(nullValue()));
-        assertThat(metacards.size(), equalTo(1));
+        assertThat(metacards.size(), is(1));
     }
 
     @Ignore
@@ -392,16 +360,14 @@ public class TestGetRecordsResponseConverter {
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class),
-                any(HierarchicalStreamWriter.class),
-                captor.capture());
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(
+                HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
         assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE),
-                is(ElementSetType.BRIEF));
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.BRIEF));
 
         JAXBElement<GetRecordsResponseType> jaxb =
                 (JAXBElement<GetRecordsResponseType>) getJaxBContext().createUnmarshaller()
@@ -442,16 +408,14 @@ public class TestGetRecordsResponseConverter {
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class),
-                any(HierarchicalStreamWriter.class),
-                captor.capture());
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(
+                HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
         assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE),
-                is(ElementSetType.SUMMARY));
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.SUMMARY));
 
         JAXBElement<GetRecordsResponseType> jaxb =
                 (JAXBElement<GetRecordsResponseType>) getJaxBContext().createUnmarshaller()
@@ -492,16 +456,14 @@ public class TestGetRecordsResponseConverter {
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class),
-                any(HierarchicalStreamWriter.class),
-                captor.capture());
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(
+                HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
         assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE),
-                is(ElementSetType.FULL));
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.FULL));
 
         JAXBElement<GetRecordsResponseType> jaxb =
                 (JAXBElement<GetRecordsResponseType>) getJaxBContext().createUnmarshaller()
@@ -569,9 +531,9 @@ public class TestGetRecordsResponseConverter {
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
         GetRecordsType getRecords = new GetRecordsType();
         QueryType query = new QueryType();
-        List<QName> elements = new LinkedList<QName>();
-        elements.add(CswRecordMetacardType.CSW_TITLE_QNAME);
-        elements.add(CswRecordMetacardType.CSW_SOURCE_QNAME);
+        List<QName> elements = new LinkedList<>();
+        elements.add(CswConstants.CSW_TITLE_QNAME);
+        elements.add(CswConstants.CSW_SOURCE_QNAME);
         query.setElementName(elements);
 
         ObjectFactory objectFactory = new ObjectFactory();
@@ -584,9 +546,8 @@ public class TestGetRecordsResponseConverter {
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class),
-                any(HierarchicalStreamWriter.class),
-                captor.capture());
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(
+                HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
@@ -595,8 +556,8 @@ public class TestGetRecordsResponseConverter {
         assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
         assertThat(context.get(CswConstants.ELEMENT_NAMES), is(notNullValue()));
         List<QName> qnames = (List<QName>) context.get(CswConstants.ELEMENT_NAMES);
-        assertThat(qnames.contains(CswRecordMetacardType.CSW_TITLE_QNAME), is(true));
-        assertThat(qnames.contains(CswRecordMetacardType.CSW_SOURCE_QNAME), is(true));
+        assertThat(qnames.contains(CswConstants.CSW_TITLE_QNAME), is(true));
+        assertThat(qnames.contains(CswConstants.CSW_SOURCE_QNAME), is(true));
 
         JAXBElement<GetRecordsResponseType> jaxb =
                 (JAXBElement<GetRecordsResponseType>) getJaxBContext().createUnmarshaller()
@@ -678,9 +639,8 @@ public class TestGetRecordsResponseConverter {
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class),
-                any(HierarchicalStreamWriter.class),
-                captor.capture());
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(
+                HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
@@ -704,7 +664,8 @@ public class TestGetRecordsResponseConverter {
         final int totalResults = 5;
 
         TransformerManager mockMetacardManager = mock(TransformerManager.class);
-        when(mockMetacardManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordConverter());
+        when(mockMetacardManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordConverter(
+                TestCswRecordConverter.getCswMetacardType()));
         GetRecordsResponseConverter rrConverter =
                 new GetRecordsResponseConverter(new CswTransformProvider(mockMetacardManager,
                         null));
@@ -745,8 +706,6 @@ public class TestGetRecordsResponseConverter {
         assertThat(resultsType.getRecordSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
-    // //////////////////////////////////////////////////////////////////////////////////////////////////////
-
     private void getRecords(final int maxRecords, final int startPosition, final int totalResults,
             final int expectedNext, final int expectedReturn)
             throws JAXBException, UnsupportedEncodingException {
@@ -766,52 +725,32 @@ public class TestGetRecordsResponseConverter {
         GetRecordsResponseType response = jaxb.getValue();
         assertThat(response.getSearchResults()
                 .getNumberOfRecordsMatched()
-                .intValue(), equalTo(totalResults));
+                .intValue(), is(totalResults));
         assertThat(response.getSearchResults()
                 .getNumberOfRecordsReturned()
-                .intValue(), equalTo(expectedReturn));
+                .intValue(), is(expectedReturn));
         assertThat(response.getSearchResults()
                 .getAbstractRecord()
-                .size(), equalTo(expectedReturn));
+                .size(), is(expectedReturn));
         assertThat(response.getSearchResults()
                 .getNextRecord()
-                .intValue(), equalTo(expectedNext));
+                .intValue(), is(expectedNext));
     }
 
     private void assertMetacard(Metacard mc, Map<String, Object> expectedValues) {
-        assertThat(mc.getId(), equalTo((String) expectedValues.get(Metacard.ID)));
+        assertThat(mc.getId(), is((String) expectedValues.get(Core.ID)));
+        assertThat(mc.getTitle(), is((String) expectedValues.get(Core.TITLE)));
+        assertThat(mc.getModifiedDate(), is((Date) expectedValues.get(Core.MODIFIED)));
+        assertThat(mc.getLocation(), is((String) expectedValues.get(Core.LOCATION)));
         assertListStringAttribute(mc,
-                CswRecordMetacardType.CSW_IDENTIFIER,
-                (String[]) expectedValues.get(CswRecordMetacardType.CSW_IDENTIFIER));
-        assertThat(mc.getTitle(), equalTo((String) expectedValues.get(Metacard.TITLE)));
+                Topic.CATEGORY,
+                (String[]) expectedValues.get(Topic.CATEGORY));
         assertListStringAttribute(mc,
-                CswRecordMetacardType.CSW_TITLE,
-                (String[]) expectedValues.get(CswRecordMetacardType.CSW_TITLE));
-        assertThat(mc.getModifiedDate(), equalTo((Date) expectedValues.get(Metacard.MODIFIED)));
-        assertListStringAttribute(mc,
-                CswRecordMetacardType.CSW_MODIFIED,
-                (String[]) expectedValues.get(CswRecordMetacardType.CSW_MODIFIED));
-        assertListStringAttribute(mc,
-                CswRecordMetacardType.CSW_SUBJECT,
-                (String[]) expectedValues.get(CswRecordMetacardType.CSW_SUBJECT));
-        assertListStringAttribute(mc,
-                CswRecordMetacardType.CSW_ABSTRACT,
-                (String[]) expectedValues.get(CswRecordMetacardType.CSW_ABSTRACT));
-        assertListStringAttribute(mc,
-                CswRecordMetacardType.CSW_RIGHTS,
-                (String[]) expectedValues.get(CswRecordMetacardType.CSW_RIGHTS));
-        assertListStringAttribute(mc,
-                CswRecordMetacardType.CSW_LANGUAGE,
-                (String[]) expectedValues.get(CswRecordMetacardType.CSW_LANGUAGE));
-        assertThat(mc.getAttribute(CswRecordMetacardType.CSW_TYPE)
-                .getValue(), equalTo((String) expectedValues.get(CswRecordMetacardType.CSW_TYPE)));
-        assertListStringAttribute(mc,
-                CswRecordMetacardType.CSW_FORMAT,
-                (String[]) expectedValues.get(CswRecordMetacardType.CSW_FORMAT));
-        assertThat(mc.getLocation(), equalTo((String) expectedValues.get(Metacard.GEOGRAPHY)));
-        assertListStringAttribute(mc,
-                CswRecordMetacardType.OWS_BOUNDING_BOX,
-                (String[]) expectedValues.get(CswRecordMetacardType.OWS_BOUNDING_BOX));
+                Core.DESCRIPTION,
+                (String[]) expectedValues.get(Core.DESCRIPTION));
+        assertListStringAttribute(mc, Core.LANGUAGE, (String[]) expectedValues.get(Core.LANGUAGE));
+        assertThat(mc.getAttribute(Media.FORMAT)
+                .getValue(), is((String) expectedValues.get(Media.FORMAT)));
     }
 
     private void assertListStringAttribute(Metacard mc, String attrName, String[] expectedValues) {
@@ -819,21 +758,12 @@ public class TestGetRecordsResponseConverter {
             List<?> values = mc.getAttribute(attrName)
                     .getValues();
             assertThat(values, not(nullValue()));
-            assertThat(values.size(), equalTo(expectedValues.length));
+            assertThat(values.size(), is(expectedValues.length));
 
-            List<String> valuesList = new ArrayList<String>();
+            List<String> valuesList = new ArrayList<>();
             valuesList.addAll((List<? extends String>) values);
             assertThat(valuesList, hasItems(expectedValues));
         }
-    }
-
-    private Map<String, String> getDefaultMetacardAttributeMappings() {
-        Map<String, String> metacardAttributeMappings = new HashMap<String, String>();
-        metacardAttributeMappings.put(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_CREATED);
-        metacardAttributeMappings.put(Metacard.CREATED, CswRecordMetacardType.CSW_DATE_SUBMITTED);
-        metacardAttributeMappings.put(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED);
-        return metacardAttributeMappings;
-
     }
 
     private XStream createXStream(final String elementName) {
@@ -863,7 +793,6 @@ public class TestGetRecordsResponseConverter {
             last = next - 1;
             if (last >= resultCount) {
                 last = resultCount;
-                next = 0;
             }
         }
         int returned = last - first + 1;
@@ -871,12 +800,11 @@ public class TestGetRecordsResponseConverter {
         collection.setCswRecords(createMetacardList(first, last));
         collection.setNumberOfRecordsMatched(resultCount);
         collection.setNumberOfRecordsReturned(returned);
-        //        collection.setRequest(request);
         return collection;
     }
 
     private List<Metacard> createMetacardList(int start, int finish) {
-        List<Metacard> list = new LinkedList<Metacard>();
+        List<Metacard> list = new LinkedList<>();
 
         for (int i = start; i <= finish; i++) {
             MetacardImpl metacard = new MetacardImpl();
@@ -884,23 +812,22 @@ public class TestGetRecordsResponseConverter {
             metacard.setId(ID_PREFIX + i);
             metacard.setSourceId(SOURCE_PREFIX + i);
             metacard.setTitle(TITLE_PREFIX + i);
-            // for testing a attribute with multiple values
+            // for testing an attribute with multiple values
             AttributeDescriptor ad = new AttributeDescriptorImpl(FORMAT,
                     true,
                     true,
                     true,
                     true,
                     BasicTypes.STRING_TYPE);
-            Set<AttributeDescriptor> ads =
-                    new HashSet<AttributeDescriptor>(metacard.getMetacardType()
-                            .getAttributeDescriptors());
+            Set<AttributeDescriptor> ads = new HashSet<>(metacard.getMetacardType()
+                    .getAttributeDescriptors());
             ads.add(ad);
             metacard.setType(new MetacardTypeImpl("test", ads));
             metacard.setLocation(WKT);
             AttributeImpl attr = new AttributeImpl(FORMAT, FORMAT);
             attr.addValue(FORMAT);
             metacard.setAttribute(attr);
-            // for testing a attribute with no attribute descriptor
+            // for testing an attribute with no attribute descriptor
             metacard.setAttribute(RELATION, RELATION);
 
             list.add(metacard);
@@ -910,7 +837,7 @@ public class TestGetRecordsResponseConverter {
     }
 
     private JAXBContext getJaxBContext() throws JAXBException {
-        JAXBContext context = null;
+        JAXBContext context;
         String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
                 CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
                 CswConstants.OGC_OWS_PACKAGE}, ":");

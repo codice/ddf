@@ -18,19 +18,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +37,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.BoundingBoxReader;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,17 +47,13 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 
 public class CswUnmarshallHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(CswUnmarshallHelper.class);
-
-    private static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
-
-    private static final String UTF8_ENCODING = "UTF-8";
 
     /**
      * The map of metacard attributes that both the basic DDF MetacardTypeImpl and the CSW
@@ -66,8 +61,9 @@ public class CswUnmarshallHelper {
      * unmarshalling XML so that the tag name can be modified with a CSW-unique prefix before
      * attempting to lookup the attribute descriptor corresponding to the tag.
      */
-    private static final List<String> CSW_OVERLAPPING_ATTRIBUTE_NAMES =
-            Arrays.asList(Metacard.TITLE, Metacard.CREATED, Metacard.MODIFIED);
+    private static final List<String> CSW_OVERLAPPING_ATTRIBUTE_NAMES = Arrays.asList(Core.TITLE,
+            Core.CREATED,
+            Core.MODIFIED);
 
     public static Date convertToDate(String value) {
         // Dates are strings and expected to be in ISO8601 format, YYYY-MM-DD'T'hh:mm:ss.sss,
@@ -132,179 +128,109 @@ public class CswUnmarshallHelper {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Map contents: {}", Arrays.toString(cswAttrMap.entrySet()
-                            .toArray()));
+                    .toArray()));
         }
     }
 
     public static String convertToCswField(String name) {
 
         if (CSW_OVERLAPPING_ATTRIBUTE_NAMES.contains(name)) {
-            return CswRecordMetacardType.CSW_ATTRIBUTE_PREFIX + name;
+            return CswConstants.CSW_ATTRIBUTE_PREFIX + name;
         }
 
         return name;
     }
 
-    public static MetacardImpl createMetacardFromCswRecord(HierarchicalStreamReader hreader,
-            Map<String, String> cswToMetacardAttributeNames, String resourceUriMapping,
-            String thumbnailMapping, CswAxisOrder cswAxisOrder, Map<String, String> namespaceMap) {
+    public static MetacardImpl createMetacardFromCswRecord(MetacardType metacardType,
+            HierarchicalStreamReader hreader, CswAxisOrder cswAxisOrder,
+            Map<String, String> namespaceMap) {
 
         StringWriter metadataWriter = new StringWriter();
         HierarchicalStreamReader reader = XStreamAttributeCopier.copyXml(hreader,
                 metadataWriter,
                 namespaceMap);
 
-        MetacardImpl mc = new MetacardImpl(CSW_METACARD_TYPE);
-        Map<String, Attribute> attributes = new TreeMap<>();
+        MetacardImpl mc = new MetacardImpl(metacardType);
 
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
             String nodeName = reader.getNodeName();
             LOGGER.debug("node name: {}.", nodeName);
-
             String name = getCswAttributeFromAttributeName(nodeName);
-
             LOGGER.debug("Processing node {}", name);
-            AttributeDescriptor attributeDescriptor =
-                    CSW_METACARD_TYPE.getAttributeDescriptor(name);
 
-            Serializable value = null;
+            if (DefaultCswRecordMap.hasDefaultMetacardFieldFor(name)) {
+                String defaultMetacardField = DefaultCswRecordMap.getDefaultMetacardFieldFor(name);
 
-            // If XML node name matched an attribute descriptor in the
-            // metacardType AND
-            // the XML node has a non-blank value OR this is geometry/spatial
-            // data,
-            // then convert the CSW Record's property value for this XML node to
-            // the
-            // corresponding metacard attribute's value
-            if (attributeDescriptor != null && (StringUtils.isNotBlank(reader.getValue())
-                    || BasicTypes.GEO_TYPE.equals(attributeDescriptor.getType()))) {
-                value = convertRecordPropertyToMetacardAttribute(attributeDescriptor.getType()
-                        .getAttributeFormat(), reader, cswAxisOrder);
-            }
+                AttributeDescriptor attributeDescriptor = metacardType.getAttributeDescriptor(defaultMetacardField);
+                Serializable value =
+                        convertRecordPropertyToMetacardAttribute(attributeDescriptor.getType()
+                                .getAttributeFormat(), reader, cswAxisOrder);
 
-            if (null != value) {
-                if (attributeDescriptor.isMultiValued()) {
-                    if (attributes.containsKey(name)) {
-                        AttributeImpl attribute = (AttributeImpl) attributes.get(name);
-                        attribute.addValue(value);
+                if (isNotEmpty(value)) {
+
+                    String attributeName = attributeDescriptor.getName();
+
+                    if (attributeName.equals(Core.THUMBNAIL)) {
+                        String uri = new String((byte[]) value, StandardCharsets.UTF_8);
+                        URL url;
+                        InputStream is = null;
+                        try {
+                            url = new URL(uri);
+                            is = url.openStream();
+                            mc.setThumbnail(IOUtils.toByteArray(is));
+                        } catch (IOException e) {
+                            LOGGER.debug(
+                                    "Error setting thumbnail data on metacard: {}",
+                                    value,
+                                    e);
+                        } finally {
+                            IOUtils.closeQuietly(is);
+                        }
+                    } else if (attributeDescriptor.isMultiValued()
+                            && mc.getAttribute(attributeName) != null) {
+
+                        ArrayList<Serializable> serializables = new ArrayList<>(mc.getAttribute(
+                                attributeName)
+                                .getValues());
+                        if (CollectionUtils.isNotEmpty(serializables)) {
+                            serializables.add(value);
+                            mc.setAttribute(attributeName, serializables);
+                        }
                     } else {
-                        attributes.put(name, new AttributeImpl(name, value));
+                        mc.setAttribute(attributeName, value);
                     }
-                } else {
-                    attributes.put(name, new AttributeImpl(name, value));
                 }
-
-                if (BasicTypes.GEO_TYPE.getAttributeFormat()
-                        .equals(attributeDescriptor.getType()
-                                .getAttributeFormat())) {
-                    mc.setLocation((String) value);
-                }
+            /* Set Content Type for backwards compatibility */
+            } else if (name.equals(CswConstants.CSW_TYPE)) {
+                mc.setContentTypeName(reader.getValue());
             }
-
             reader.moveUp();
         }
 
-        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
-            Attribute attr = entry.getValue();
-            mc.setAttribute(attr);
-
-            String attrName = entry.getKey();
-
-            // If this CSW attribute also maps to a basic metacard attribute,
-            // (e.g., title, modified date, etc.)
-            // then populate the basic metacard attribute with this attribute's
-            // value.
-            if (cswToMetacardAttributeNames.containsKey(attrName)) {
-                String metacardAttrName = cswToMetacardAttributeNames.get(attrName);
-                if (mc.getAttribute(metacardAttrName) == null) {
-                    Attribute metacardAttr = getMetacardAttributeFromCswAttribute(attrName,
-                            attr.getValue(),
-                            metacardAttrName);
-                    mc.setAttribute(metacardAttr);
-                }
-            }
-        }
-
-        // Save entire CSW Record XML as the metacard's metadata string
+        /* Save entire CSW Record XML as the metacard's metadata string */
         mc.setMetadata(metadataWriter.toString());
 
-        // Set Metacard ID to the CSW Record's identifier
-        // TODO: may need to sterilize the CSW Record identifier if it has
-        // special chars that clash
-        // with usage in a URL - empirical testing with various CSW sites will
-        // determine this.
-        mc.setId((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
-                .getValue());
-
-        try {
-            URI namespaceUri = new URI(CSW_METACARD_TYPE.getNamespaceURI());
-            mc.setTargetNamespace(namespaceUri);
-
-        } catch (URISyntaxException e) {
-            LOGGER.info("Error setting target namespace uri on metacard, Exception {}", e);
-        }
-
-        Date genericDate = new Date();
-
-        if (mc.getEffectiveDate() == null) {
-            mc.setEffectiveDate(genericDate);
-        }
-
-        if (mc.getCreatedDate() == null) {
-            mc.setCreatedDate(genericDate);
-        }
-
-        if (mc.getModifiedDate() == null) {
-            LOGGER.debug("modified date was null, setting to current date");
-            mc.setModifiedDate(genericDate);
-        }
-
-        // Determine the csw field mapped to the resource uri and set that value
-        // on the Metacard.RESOURCE_URI attribute
-        // Default is for <source> field to define URI for product to be downloaded
-        Attribute resourceUriAttr = mc.getAttribute(resourceUriMapping);
-
-        if (resourceUriAttr != null && resourceUriAttr.getValue() != null) {
-            String source = (String) resourceUriAttr.getValue();
-            try {
-                mc.setResourceURI(new URI(source));
-            } catch (URISyntaxException e) {
-                LOGGER.info("Error setting resource URI on metacard: {}, Exception {}", source, e);
-            }
-        }
-
-        // determine the csw field mapped to the thumbnail and set that value on
-        // the Metacard.THUMBNAIL
-        // attribute
-        Attribute thumbnailAttr = mc.getAttribute(thumbnailMapping);
-
-        if (thumbnailAttr != null && thumbnailAttr.getValue() != null) {
-            String thumbnail = (String) thumbnailAttr.getValue();
-            URL url;
-            InputStream is = null;
-
-            try {
-                url = new URL(thumbnail);
-                is = url.openStream();
-                mc.setThumbnail(IOUtils.toByteArray(url.openStream()));
-            } catch (IOException e) {
-                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}",
-                        thumbnail,
-                        e);
-            } finally {
-                IOUtils.closeQuietly(is);
-            }
-        }
-
         return mc;
+    }
+
+    private static boolean isNotEmpty(Serializable serializable) {
+        if (serializable instanceof String) {
+            String compString = (String) serializable;
+            if (StringUtils.isNotEmpty(compString.trim())) {
+                return true;
+            }
+        } else if (serializable != null) {
+            return true;
+        }
+        return false;
     }
 
     /**
      * Takes a CSW attribute as a name and value and returns an {@link Attribute} whose value is
      * {@code cswAttributeValue} converted to the type of the attribute
-     * {@code metacardAttributeName} in a {@link Metacard}.
+     * {@code metacardAttributeName} in a {@link ddf.catalog.data.Metacard}.
      *
      * @param cswAttributeName      the name of the CSW attribute
      * @param cswAttributeValue     the value of the CSW attribute
@@ -314,13 +240,13 @@ public class CswUnmarshallHelper {
      * {@code cswAttributeValue} converted to the type of the attribute
      * {@code metacardAttributeName} in a {@code Metacard}.
      */
-    public static Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
-            Serializable cswAttributeValue, String metacardAttributeName) {
-        AttributeType.AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE.getAttributeDescriptor(
-                cswAttributeName)
+    public static Attribute getMetacardAttributeFromCswAttribute(MetacardType metacardType,
+            String cswAttributeName, Serializable cswAttributeValue, String metacardAttributeName) {
+        AttributeType.AttributeFormat cswAttributeFormat = metacardType.getAttributeDescriptor(
+                metacardAttributeName)
                 .getType()
                 .getAttributeFormat();
-        AttributeDescriptor metacardAttributeDescriptor = CSW_METACARD_TYPE.getAttributeDescriptor(
+        AttributeDescriptor metacardAttributeDescriptor = metacardType.getAttributeDescriptor(
                 metacardAttributeName);
         AttributeType.AttributeFormat metacardAttrFormat = metacardAttributeDescriptor.getType()
                 .getAttributeFormat();
@@ -416,10 +342,8 @@ public class CswUnmarshallHelper {
      * Converts the CSW record property {@code reader} is currently at to the specified Metacard
      * attribute format.
      *
-     * @param attributeFormat the {@link AttributeType.AttributeFormat} corresponding to the type that the value
-     *                        in {@code reader} should be converted to
-     * @param reader          the reader at the element whose value you want to convert
-     * @param cswAxisOrder    the order of the coordinates in the XML being read by {@code reader}
+     * @param reader       the reader at the element whose value you want to convert
+     * @param cswAxisOrder the order of the coordinates in the XML being read by {@code reader}
      * @return the value that was extracted from {@code reader} and is of the type described by
      * {@code attributeFormat}
      */
@@ -469,16 +393,11 @@ public class CswUnmarshallHelper {
                         cswException);
             }
 
-            LOGGER.debug("WKT = {}", (String) ser);
+            LOGGER.debug("WKT = {}", ser);
             break;
         case BINARY:
-
-            try {
-                ser = reader.getValue()
-                        .getBytes(UTF8_ENCODING);
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.debug("Error encoding the binary value into the metacard.", e);
-            }
+            ser = reader.getValue()
+                    .getBytes(StandardCharsets.UTF_8);
 
             break;
         default:

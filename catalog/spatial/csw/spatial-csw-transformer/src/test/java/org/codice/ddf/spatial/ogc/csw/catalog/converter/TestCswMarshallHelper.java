@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -70,10 +70,10 @@ public class TestCswMarshallHelper {
         when(metacard.getMetacardType()).thenReturn(metacardType);
         when(metacard.getAttribute(any(String.class))).thenReturn(attribute);
 
-        Set<AttributeDescriptor> attributeDescriptors = new HashSet<AttributeDescriptor>();
+        Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
         AttributeDescriptor ad = mock(AttributeDescriptor.class);
         when(ad.isMultiValued()).thenReturn(true);
-        when(ad.getName()).thenReturn(CswRecordMetacardType.CSW_SOURCE_QNAME.toString());
+        when(ad.getName()).thenReturn(CswConstants.CSW_SOURCE_QNAME.toString());
         attributeDescriptors.add(ad);
 
         when(metacardType.getAttributeDescriptors()).thenReturn(attributeDescriptors);

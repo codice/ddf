@@ -15,7 +15,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import java.io.ByteArrayInputStream;
@@ -32,7 +32,7 @@ public class TestCswResponseExceptionMapper {
     public void testCswExceptionWithNullResponse() {
         CswException cswException = new CswResponseExceptionMapper().fromResponse(null);
 
-        assertThat(cswException.getMessage(), equalTo("Error handling response, response is null"));
+        assertThat(cswException.getMessage(), is("Error handling response, response is null"));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class TestCswResponseExceptionMapper {
         CswException cswException = new CswResponseExceptionMapper().fromResponse(response);
 
         assertThat(cswException.getMessage(),
-                equalTo("Error reading response, entity type not understood: java.lang.String"));
+                is("Error reading response, entity type not understood: java.lang.String"));
     }
 
     @Test
@@ -158,8 +158,6 @@ public class TestCswResponseExceptionMapper {
         assertThat(cswException.getMessage(), containsString("Second exception text"));
     }
 
-    // //////////////////////////////////////////////////////////////
-
     private CswException createCswException(String exceptionReportXml) {
         ByteArrayInputStream bis = new ByteArrayInputStream(exceptionReportXml.getBytes());
         ResponseBuilder responseBuilder = Response.ok(bis);
@@ -168,5 +166,4 @@ public class TestCswResponseExceptionMapper {
 
         return new CswResponseExceptionMapper().fromResponse(response);
     }
-
 }

@@ -23,8 +23,6 @@ import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The ExtendedGeotoolsFunctionFactory is used to provide the GeoTools CommonFactoryFinder a list of custom
@@ -32,8 +30,6 @@ import org.slf4j.LoggerFactory;
  * changes to Geotools via a service loader .
  */
 public class ExtendedGeotoolsFunctionFactory implements FunctionFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedGeotoolsFunctionFactory.class);
-
     public List<FunctionName> getFunctionNames() {
         return Collections.singletonList(PropertyIsFuzzyFunction.NAME);
     }

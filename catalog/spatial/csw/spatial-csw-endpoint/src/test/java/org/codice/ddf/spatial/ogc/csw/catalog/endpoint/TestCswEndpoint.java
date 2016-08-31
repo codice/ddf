@@ -13,14 +13,15 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -1067,15 +1068,15 @@ public class TestCswEndpoint {
                 query);
 
         grr.setAbstractQuery(jaxbQuery);
-        final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
-        grr.setOutputSchema(EXAMPLE_SCHEMA);
-        final String EXAMPLE_MIME = "application/xml";
-        grr.setOutputFormat(EXAMPLE_MIME);
+        final String exampleSchema = CswConstants.CSW_OUTPUT_SCHEMA;
+        grr.setOutputSchema(exampleSchema);
+        final String exampleMime = "application/xml";
+        grr.setOutputFormat(exampleMime);
 
         CswRecordCollection collection = csw.getRecords(grr);
 
-        assertThat(collection.getMimeType(), is(EXAMPLE_MIME));
-        assertThat(collection.getOutputSchema(), is(EXAMPLE_SCHEMA));
+        assertThat(collection.getMimeType(), is(exampleMime));
+        assertThat(collection.getOutputSchema(), is(exampleSchema));
         assertThat(collection.getSourceResponse(), notNullValue());
         assertThat(collection.getResultType(), is(ResultType.RESULTS));
         assertThat(collection.getElementSetType(), is(ElementSetType.SUMMARY));
@@ -1106,17 +1107,17 @@ public class TestCswEndpoint {
                 query);
 
         grr.setAbstractQuery(jaxbQuery);
-        final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
-        grr.setOutputSchema(EXAMPLE_SCHEMA);
-        final String EXAMPLE_MIME = "application/xml";
-        grr.setOutputFormat(EXAMPLE_MIME);
+        final String exampleSchema = CswConstants.CSW_OUTPUT_SCHEMA;
+        grr.setOutputSchema(exampleSchema);
+        final String exampleMime = "application/xml";
+        grr.setOutputFormat(exampleMime);
 
         when(catalogFramework.query(argument.capture())).thenReturn(getQueryResponse());
 
         CswRecordCollection collection = csw.getRecords(grr);
 
-        assertThat(collection.getMimeType(), is(EXAMPLE_MIME));
-        assertThat(collection.getOutputSchema(), is(EXAMPLE_SCHEMA));
+        assertThat(collection.getMimeType(), is(exampleMime));
+        assertThat(collection.getOutputSchema(), is(exampleSchema));
         assertThat(collection.getSourceResponse(), notNullValue());
         assertThat(collection.getResultType(), is(ResultType.RESULTS));
         assertThat(collection.getElementSetType(), is(ElementSetType.SUMMARY));
@@ -1193,8 +1194,7 @@ public class TestCswEndpoint {
 
         final Metacard metacard = new MetacardImpl();
 
-        final List<Result> mockResults =
-                Collections.singletonList(new ResultImpl(metacard));
+        final List<Result> mockResults = Collections.singletonList(new ResultImpl(metacard));
         final QueryResponseImpl queryResponse = new QueryResponseImpl(null,
                 mockResults,
                 mockResults.size());
@@ -1975,11 +1975,11 @@ public class TestCswEndpoint {
                 }
             }
         }
-        assertTrue(opNames.contains(CswConstants.GET_CAPABILITIES));
-        assertTrue(opNames.contains(CswConstants.DESCRIBE_RECORD));
-        assertTrue(opNames.contains(CswConstants.GET_RECORDS));
-        assertTrue(opNames.contains(CswConstants.GET_RECORD_BY_ID));
-        assertTrue(opNames.contains(CswConstants.TRANSACTION));
+        assertThat(opNames.contains(CswConstants.GET_CAPABILITIES), is(true));
+        assertThat(opNames.contains(CswConstants.DESCRIBE_RECORD), is(true));
+        assertThat(opNames.contains(CswConstants.GET_RECORDS), is(true));
+        assertThat(opNames.contains(CswConstants.GET_RECORD_BY_ID), is(true));
+        assertThat(opNames.contains(CswConstants.TRANSACTION), is(true));
     }
 
     /**
@@ -1991,31 +1991,29 @@ public class TestCswEndpoint {
         FilterCapabilities fc = ct.getFilterCapabilities();
 
         assertThat(fc.getIdCapabilities(), notNullValue());
-        assertTrue(fc.getIdCapabilities()
-                .getEIDOrFID()
-                .size() == 1);
+        assertThat(fc.getIdCapabilities()
+                .getEIDOrFID(), hasSize(1));
 
         assertThat(fc.getScalarCapabilities(), notNullValue());
-        assertTrue(CswEndpoint.COMPARISON_OPERATORS.size() == fc.getScalarCapabilities()
+        assertThat(CswEndpoint.COMPARISON_OPERATORS, hasSize(fc.getScalarCapabilities()
                 .getComparisonOperators()
                 .getComparisonOperator()
-                .size());
+                .size()));
         for (ComparisonOperatorType cot : CswEndpoint.COMPARISON_OPERATORS) {
-            assertTrue(fc.getScalarCapabilities()
+            assertThat(fc.getScalarCapabilities()
                     .getComparisonOperators()
-                    .getComparisonOperator()
-                    .contains(cot));
+                    .getComparisonOperator(), hasItem(cot));
         }
 
         assertThat(fc.getSpatialCapabilities(), notNullValue());
-        assertTrue(CswEndpoint.SPATIAL_OPERATORS.size() == fc.getSpatialCapabilities()
+        assertThat(CswEndpoint.SPATIAL_OPERATORS, hasSize(fc.getSpatialCapabilities()
                 .getSpatialOperators()
                 .getSpatialOperator()
-                .size());
+                .size()));
         for (SpatialOperatorType sot : fc.getSpatialCapabilities()
                 .getSpatialOperators()
                 .getSpatialOperator()) {
-            assertTrue(CswEndpoint.SPATIAL_OPERATORS.contains(sot.getName()));
+            assertThat(CswEndpoint.SPATIAL_OPERATORS, hasItem(sot.getName()));
         }
     }
 

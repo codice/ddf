@@ -13,9 +13,10 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -46,20 +47,19 @@ public class TestCswExceptionMapper {
 
         ExceptionMapper<Throwable> exceptionMapper = new CswExceptionMapper();
         Response response = exceptionMapper.toResponse(exception);
-        assertTrue(response.getEntity() instanceof ExceptionReport);
+        assertThat(response.getEntity(), is(instanceOf(ExceptionReport.class)));
         ExceptionReport exceptionReport = (ExceptionReport) response.getEntity();
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-        assertEquals(SERVICE_EXCEPTION_MSG,
-                exceptionReport.getException()
-                        .get(0)
-                        .getExceptionText()
-                        .get(0));
-        assertNull(exceptionReport.getException()
+        assertThat(Status.BAD_REQUEST.getStatusCode(), is(response.getStatus()));
+        assertThat(SERVICE_EXCEPTION_MSG, is(exceptionReport.getException()
                 .get(0)
-                .getExceptionCode());
-        assertNull(exceptionReport.getException()
+                .getExceptionText()
+                .get(0)));
+        assertThat(exceptionReport.getException()
                 .get(0)
-                .getLocator());
+                .getExceptionCode(), nullValue());
+        assertThat(exceptionReport.getException()
+                .get(0)
+                .getLocator(), nullValue());
     }
 
     @Test
@@ -72,22 +72,19 @@ public class TestCswExceptionMapper {
 
         ExceptionMapper<Throwable> exceptionMapper = new CswExceptionMapper();
         Response response = exceptionMapper.toResponse(exception);
-        assertTrue(response.getEntity() instanceof ExceptionReport);
+        assertThat(response.getEntity(), is(instanceOf(ExceptionReport.class)));
         ExceptionReport exceptionReport = (ExceptionReport) response.getEntity();
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-        assertEquals(SERVICE_EXCEPTION_MSG,
-                exceptionReport.getException()
-                        .get(0)
-                        .getExceptionText()
-                        .get(0));
-        assertEquals(EXCEPTION_CODE,
-                exceptionReport.getException()
-                        .get(0)
-                        .getExceptionCode());
-        assertEquals(LOCATOR,
-                exceptionReport.getException()
-                        .get(0)
-                        .getLocator());
+        assertThat(Status.BAD_REQUEST.getStatusCode(), is(response.getStatus()));
+        assertThat(SERVICE_EXCEPTION_MSG, is(exceptionReport.getException()
+                .get(0)
+                .getExceptionText()
+                .get(0)));
+        assertThat(EXCEPTION_CODE, is(exceptionReport.getException()
+                .get(0)
+                .getExceptionCode()));
+        assertThat(LOCATOR, is(exceptionReport.getException()
+                .get(0)
+                .getLocator()));
     }
 
     @Test
@@ -97,41 +94,37 @@ public class TestCswExceptionMapper {
 
         ExceptionMapper<Throwable> exceptionMapper = new CswExceptionMapper();
         Response response = exceptionMapper.toResponse(npe);
-        assertTrue(response.getEntity() instanceof ExceptionReport);
+        assertThat(response.getEntity(), is(instanceOf(ExceptionReport.class)));
         ExceptionReport exceptionReport = (ExceptionReport) response.getEntity();
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-        assertEquals(XML_PARSE_FAIL_MSG,
-                exceptionReport.getException()
+        assertThat(Status.BAD_REQUEST.getStatusCode(), is(response.getStatus()));
+        assertThat(XML_PARSE_FAIL_MSG, is(exceptionReport.getException()
                         .get(0)
                         .getExceptionText()
-                        .get(0));
-        assertEquals(CswConstants.MISSING_PARAMETER_VALUE,
-                exceptionReport.getException()
-                        .get(0)
-                        .getExceptionCode());
-        assertNull(exceptionReport.getException()
+                        .get(0)));
+        assertThat(CswConstants.MISSING_PARAMETER_VALUE, is(exceptionReport.getException()
                 .get(0)
-                .getLocator());
+                .getExceptionCode()));
+        assertThat(exceptionReport.getException()
+                .get(0)
+                .getLocator(), nullValue());
 
         IllegalArgumentException iae = new IllegalArgumentException();
 
         exceptionMapper = new CswExceptionMapper();
         response = exceptionMapper.toResponse(iae);
-        assertTrue(response.getEntity() instanceof ExceptionReport);
+        assertThat(response.getEntity(), is(instanceOf(ExceptionReport.class)));
         exceptionReport = (ExceptionReport) response.getEntity();
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-        assertEquals(XML_PARSE_FAIL_MSG,
-                exceptionReport.getException()
-                        .get(0)
-                        .getExceptionText()
-                        .get(0));
-        assertEquals(CswConstants.MISSING_PARAMETER_VALUE,
-                exceptionReport.getException()
-                        .get(0)
-                        .getExceptionCode());
-        assertNull(exceptionReport.getException()
+        assertThat(Status.BAD_REQUEST.getStatusCode(), is(response.getStatus()));
+        assertThat(XML_PARSE_FAIL_MSG, is(exceptionReport.getException()
                 .get(0)
-                .getLocator());
+                .getExceptionText()
+                .get(0)));
+        assertThat(CswConstants.MISSING_PARAMETER_VALUE, is(exceptionReport.getException()
+                .get(0)
+                .getExceptionCode()));
+        assertThat(exceptionReport.getException()
+                .get(0)
+                .getLocator(), nullValue());
 
     }
 }

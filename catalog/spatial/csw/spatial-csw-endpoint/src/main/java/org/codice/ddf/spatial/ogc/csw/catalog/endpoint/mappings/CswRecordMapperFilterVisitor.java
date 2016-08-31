@@ -22,11 +22,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
-import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
@@ -34,7 +32,6 @@ import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -57,7 +54,9 @@ import org.xml.sax.helpers.NamespaceSupport;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
@@ -68,11 +67,6 @@ import ddf.measure.Distance.LinearUnit;
  * Metacard terminology
  */
 public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
-
-    protected static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
-
-    protected static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
-
     protected static final String SPATIAL_QUERY_TAG = "spatialQueryExtraData";
 
     private static final Logger LOGGER =
@@ -86,12 +80,18 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         return sourceIds;
     }
 
+    private MetacardType metacardType;
+
     public Filter getVisitedFilter() {
         return visitedFilter;
     }
 
     public void setVisitedFilter(Filter filter) {
         visitedFilter = filter;
+    }
+
+    public CswRecordMapperFilterVisitor(MetacardType metacardType) {
+        this.metacardType = metacardType;
     }
 
     @Override
@@ -137,8 +137,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         String propertyName = expression.getPropertyName();
         String name;
 
-        if (CswConstants.BBOX_PROP.equals(propertyName)
-                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName) ||
+        if (CswConstants.BBOX_PROP.equals(propertyName) || CswConstants.OWS_BOUNDING_BOX.equals(
+                propertyName) ||
                 GmdConstants.APISO_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
@@ -148,7 +148,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                     .getDefaultMetacardFieldForPrefixedString(propertyName, namespaceSupport);
 
             if (SPATIAL_QUERY_TAG.equals(extraData)) {
-                AttributeDescriptor attrDesc = CSW_METACARD_TYPE.getAttributeDescriptor(name);
+                AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(name);
                 if (attrDesc != null && !BasicTypes.GEO_TYPE.equals(attrDesc.getType())) {
                     throw new UnsupportedOperationException(
                             "Attempted a spatial query on a non-geometry-valued attribute ("
@@ -171,7 +171,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     @Override
     public Object visit(PropertyIsEqualTo filter, Object extraData) {
-        if (StringUtils.equals(Metacard.SOURCE_ID,
+        if (StringUtils.equals(Core.SOURCE_ID,
                 ((PropertyName) filter.getExpression1()).getPropertyName())) {
             sourceIds.add((String) ((Literal) filter.getExpression2()).getValue());
             return null;
@@ -307,7 +307,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         if (extraData != null && extraData instanceof PropertyName
                 && expression.getValue() instanceof String) {
             String propName = ((PropertyName) extraData).getPropertyName();
-            AttributeDescriptor attrDesc = CSW_METACARD_TYPE.getAttributeDescriptor(propName);
+            AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(propName);
             if (attrDesc != null && attrDesc.getType() != null) {
                 String value = (String) expression.getValue();
                 Serializable convertedValue = CswRecordConverter.convertStringValueToMetacardValue(
@@ -373,7 +373,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     private boolean isTemporalProperty(Expression expr) {
         if (expr instanceof PropertyName) {
             AttributeDescriptor attrDesc =
-                    CSW_METACARD_TYPE.getAttributeDescriptor(((PropertyName) expr).getPropertyName());
+                    metacardType.getAttributeDescriptor(((PropertyName) expr).getPropertyName());
             if (attrDesc != null) {
                 return attrDesc.getType()
                         .equals(BasicTypes.DATE_TYPE);
@@ -408,9 +408,10 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     @Override
     public Object visit(Function function, Object extraData) {
 
-        if (function instanceof FuzzyFunction){
+        if (function instanceof FuzzyFunction) {
             //FuzzyFunction has 1 parameter to visit
-            Expression expr1 = visit(function.getParameters().get(0), null);
+            Expression expr1 = visit(function.getParameters()
+                    .get(0), null);
             ((FuzzyFunction) function).setParameters(Arrays.asList(expr1));
             return function;
         } else {

@@ -33,20 +33,17 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.source.UnsupportedQueryException;
+
 import net.opengis.filter.v_1_1_0.FilterType;
 
 /**
  * CswCqlTextFilter converts a {@link FilterType} to the equivalent CQL Text.
- *
  */
 public final class CswCqlTextFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswCqlTextFilter.class);
 
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
-
-    private static final org.geotools.xml.Configuration PARSER_CONFIG =
-            new org.geotools.filter.v1_1.OGCConfiguration();
 
     private static CswCqlTextFilter instance;
 
@@ -96,7 +93,7 @@ public final class CswCqlTextFilter {
 
     private String marshalFilterType(FilterType filterType) throws JAXBException {
         Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-        JAXBElement<FilterType> filterTypeJaxbElement = new JAXBElement<FilterType>(new QName(
+        JAXBElement<FilterType> filterTypeJaxbElement = new JAXBElement<>(new QName(
                 "http://www.opengis.net/ogc",
                 "Filter"), FilterType.class, filterType);
         StringWriter writer = new StringWriter();
