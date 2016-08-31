@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,24 +13,20 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import javax.activation.MimeType;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,11 +40,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswUnmarshallHelper;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GmdConverter;
@@ -64,13 +58,10 @@ import org.xml.sax.SAXException;
 import com.google.common.io.ByteSource;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.path.Path;
-import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.QNameMap;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.StaxReader;
@@ -80,11 +71,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.io.WKTWriter;
 
-import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Contact;
@@ -95,17 +84,10 @@ import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Topic;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.transform.MetacardTransformer;
 
-public class GmdTransformer implements InputTransformer, MetacardTransformer {
+public class GmdTransformer extends AbstractGmdTransformer implements InputTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GmdTransformer.class);
-
-    public static final String GCO = "gco";
-
-    private static final String GML_PREFIX = "gml:";
-
-    private static final String GCO_PREFIX = GCO + ":";
 
     private static final String TRANSFORM_EXCEPTION_MSG =
             "Unable to transform from GMD Metadata to Metacard";
@@ -116,14 +98,6 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
 
     private static final String ZERO_HOUR_SUFFIX = "T00:00:00Z";
 
-    private static MetacardType gmdMetacardType;
-
-    private final XStream xstream;
-
-    private final DataHolder argumentHolder;
-
-    private final XMLInputFactory xmlFactory;
-
     private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
             new ThreadLocal<WKTWriter>() {
                 @Override
@@ -132,11 +106,21 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
                 }
             };
 
+    private static MetacardType gmdMetacardType;
+
+    private final XStream xstream;
+
+    private final DataHolder argumentHolder;
+
+    private final XMLInputFactory xmlFactory;
+
     private GeometryFactory factory;
 
     private ByteSource byteArray;
 
-    public GmdTransformer(MetacardType metacardType) {
+    public GmdTransformer(MetacardType metacardType, Supplier<Converter> converterSupplier) {
+        super(converterSupplier);
+
         gmdMetacardType = metacardType;
         factory = new GeometryFactory();
 
@@ -154,6 +138,10 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
         argumentHolder = xstream.newDataHolder();
         argumentHolder.put(XstreamPathConverter.PATH_KEY, buildPaths());
         xmlFactory = XMLInputFactory.newInstance();
+    }
+
+    public GmdTransformer(MetacardType metacardType) {
+        this(metacardType, GmdConverter::new);
     }
 
     public void destroy() {
@@ -263,46 +251,6 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
 
     public InputStream getSourceInputStream() throws IOException {
         return byteArray.openStream();
-    }
-
-    @Override
-    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-            throws CatalogTransformerException {
-        StringWriter stringWriter = new StringWriter();
-        Boolean omitXmlDec = null;
-        if (MapUtils.isNotEmpty(arguments)) {
-            omitXmlDec = (Boolean) arguments.get(CswConstants.OMIT_XML_DECLARATION);
-        }
-
-        if (omitXmlDec == null || !omitXmlDec) {
-            stringWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
-        }
-
-        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter, new NoNameCoder());
-
-        MarshallingContext context = new TreeMarshaller(writer, null, null);
-        copyArgumentsToContext(context, arguments);
-
-        new GmdConverter().marshal(metacard, writer, context);
-
-        BinaryContent transformedContent;
-
-        ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString()
-                .getBytes(StandardCharsets.UTF_8));
-        transformedContent = new BinaryContentImpl(bais, new MimeType());
-        return transformedContent;
-    }
-
-    private void copyArgumentsToContext(MarshallingContext context,
-            Map<String, Serializable> arguments) {
-
-        if (context == null || arguments == null) {
-            return;
-        }
-
-        for (Map.Entry<String, Serializable> entry : arguments.entrySet()) {
-            context.put(entry.getKey(), entry.getValue());
-        }
     }
 
     public void setMetacardAttributes(MetacardImpl metacard, String id,
@@ -753,7 +701,6 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
             LOGGER.debug(
                     "Unable to parse location in XML document.  Metacard location will not be set.",
                     e);
-            return;
         }
     }
 
@@ -794,7 +741,6 @@ public class GmdTransformer implements InputTransformer, MetacardTransformer {
             LOGGER.debug(
                     "Unable to parse dates in XML document.  Metacard Created / Effective / Modified dates will not be set.",
                     e);
-            return;
         }
     }
 
