@@ -75,6 +75,7 @@ define([
             initialize: function (options) {
                 _.bindAll(this);
                 this.modelBinder = new Backbone.ModelBinder();
+                $('.back.nav-link').hide();
 
                 // Assign each source id as both the HTML <option>'s
                 // "value" attribute and the <option>'s text. Convert the
@@ -267,6 +268,7 @@ define([
             },
 
             onRender: function () {
+                $('.back.nav-link').hide();
                 var view = this;
 
                 var radiusConverter = function (direction, value) {
