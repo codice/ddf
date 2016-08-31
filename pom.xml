@@ -336,9 +336,9 @@
                     <version>2.5.1</version>
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
-                        <preparationGoals>clean verify install</preparationGoals>
+                        <preparationGoals>clean install</preparationGoals>
                         <pushChanges>false</pushChanges>
-                        <arguments>-Pjavadoc-unpack ${arguments}</arguments>
+                        <arguments>-Prelease ${arguments}</arguments>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -624,12 +624,32 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
-            <distributionManagement>
-                <site>
-                    <id>reports</id>
-                    <url>${reports.repository.url}/${version}</url>
-                </site>
-            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>owasp</id>
