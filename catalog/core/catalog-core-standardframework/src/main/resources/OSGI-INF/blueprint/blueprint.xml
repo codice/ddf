@@ -77,8 +77,6 @@
     <bean id="sourcePollerRunner" class="ddf.catalog.util.impl.SourcePollerRunner">
     </bean>
 
-    <bean id="objectMapper" class="org.boon.json.JsonFactory" factory-method="create"/>
-
     <service ref="deprecatedProductCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
 
     <!-- export the bean on the service registry -->

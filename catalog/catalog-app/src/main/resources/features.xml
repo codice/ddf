@@ -123,6 +123,12 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-migratable/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-core-downloadaction" install="auto" version="${project.version}"
+             description="Catalog Core feature to download resources asynchronously.">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-downloadaction/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-metrics" install="auto" version="${project.version}">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-metricsplugin/${project.version}</bundle>

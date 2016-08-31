@@ -33,13 +33,6 @@
                     filter="(id=catalog.data.metacard.resource)"
                     availability="optional"/>
 
-    <bean id="downloadResourceActionProvider"
-          class="ddf.catalog.resource.actions.DownloadResourceActionProvider">
-        <argument value="catalog.data.metacard.resource.download"/>
-        <argument ref="deprecatedProductCache"/>
-        <argument ref="reliableResourceDownloadManager"/>
-    </bean>
-
     <bean id="queryResponsePostProcessor" class="ddf.catalog.impl.QueryResponsePostProcessor">
         <argument ref="resourceActionProvider"/>
         <argument ref="derivedActionsProvider"/>
@@ -66,12 +59,6 @@
     <bean id="downloadStatusInfo" class="ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl">
         <property name="eventAdmin" ref="eventAdmin"/>
     </bean>
-
-    <service ref="downloadResourceActionProvider" interface="ddf.action.ActionProvider">
-        <service-properties>
-            <entry key="id" value="catalog.data.metacard.resource.download"/>
-        </service-properties>
-    </service>
 
     <service ref="eventProcessorService" interface="ddf.catalog.event.EventProcessor"/>
 

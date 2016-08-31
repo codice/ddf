@@ -120,5 +120,6 @@
         <module>catalog-core-injectattribute</module>
         <module>catalog-core-resourcestatusplugin</module>
         <module>catalog-core-tagsfilterplugin</module>
+        <module>catalog-core-downloadaction</module>
     </modules>
 </project>

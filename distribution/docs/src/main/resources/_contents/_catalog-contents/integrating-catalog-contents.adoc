@@ -1154,42 +1154,6 @@ The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apa
 
 None
 
-==== Resource Download Endpoint
-
-The Resource Download Endpoint provides a REST API to trigger downloading resources to the ${branding} cache only. The resource is not returned to the client.
-
-===== Configuring
-
-The Resource Download Endpoint has no configurable properties.
-
-===== Using the Resource Download Endpoint
-
-====== Using the endpoint
-
-The Resource Download Endpoint WADL is accessible from `http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/downloads?_wadl`.
-
-[NOTE]
-====
-If resource caching is not enabled in ${ddf-branding}, the endpoint will return a `400 BAD REQUEST` response.
-====
-
-[cols="2,1,3,4", options="header"]
-|===
-|Operation
-|HTTP Request
-|Details
-|Example URL
-
-|`cache only`
-|HTTP GET
-|Resource caching must be enabled
-|\http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/downloads/<sourceId>/<metacardId>
-
-|===
-====== Known Issues
-
-None
-
 === Developing a New Endpoint
 
 Complete the following procedure to create an endpoint. 

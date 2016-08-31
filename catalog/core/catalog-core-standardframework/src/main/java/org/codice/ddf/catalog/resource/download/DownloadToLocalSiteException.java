@@ -11,32 +11,32 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.resource.download;
+package org.codice.ddf.catalog.resource.download;
 
 import javax.ws.rs.core.Response.Status;
 
-public class DownloadToCacheOnlyException extends Exception {
+public class DownloadToLocalSiteException extends RuntimeException {
     
     private static final long serialVersionUID = 1L;
     
     private final Status status;
 
-    public DownloadToCacheOnlyException(Status status) {
+    public DownloadToLocalSiteException(Status status) {
         super();
         this.status = status;
     }
 
-    public DownloadToCacheOnlyException(Status status, String message) {
+    public DownloadToLocalSiteException(Status status, String message) {
         super(message);
         this.status = status;
     }
 
-    public DownloadToCacheOnlyException(Status status, String message, Throwable throwable) {
+    public DownloadToLocalSiteException(Status status, String message, Throwable throwable) {
         super(message, throwable);
         this.status = status;
     }
 
-    public DownloadToCacheOnlyException(Status status, Throwable throwable) {
+    public DownloadToLocalSiteException(Status status, Throwable throwable) {
         super(throwable);
         this.status = status;
     }
