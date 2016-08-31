@@ -14,7 +14,6 @@
  **/
 
 import React from 'react'
-import moment from 'moment'
 import VisibilitySensor from 'react-visibility-sensor'
 
 import './log-viewer.less'
@@ -24,6 +23,8 @@ import TextFilter from '../text-filter/text-filter'
 import LogEntry from '../log-entry/log-entry'
 import * as actions from '../../actions'
 import filterLogs from '../../filter'
+import PollingButton from '../polling-button/polling-button'
+import ErrorMessage from '../error-message/error-message'
 
 export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
   const filteredLogs = filterLogs(filter, logs)
@@ -65,18 +66,8 @@ export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
     )
   }
 
-  // timestamp formatting
-  const logTime = () => {
-    if (logs.length > 0) {
-      const lastTimestamp = moment(logs[logs.length - 1].timestamp).format('D MMM YYYY, HH:mm:ss')
-      return (
-        <span>Recorded {logs.length} logs since <br/> {lastTimestamp}</span>
-      )
-    }
-  }
-
   const getTableClasses = () => {
-    if (expandedHash === undefined) {
+    if (expandedHash === null) {
       return 'table'
     } else {
       return 'table dimUnselected'
@@ -84,7 +75,7 @@ export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
   }
 
   const deselect = () => {
-    dispatch(actions.expandEntry(undefined))
+    dispatch(actions.expandEntry())
   }
 
   return (
@@ -108,7 +99,7 @@ export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
             </tr>
             <tr>
               <td className='controls'>
-                {logTime()}
+                <PollingButton />
               </td>
               <td className='controls'>
                 <LevelSelector selected={filter.level} onSelect={select} />
@@ -122,6 +113,7 @@ export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
             </tr>
           </thead>
         </table>
+        <ErrorMessage />
       </div>
 
       <div className='logRows'>
