@@ -18,6 +18,7 @@ define([
         'backbone',
         'marionette',
         'underscore',
+        'moment',
         'jquery',
         'q',
         'wreqr',
@@ -27,7 +28,7 @@ define([
         'text!templates/nodeList.handlebars',
         'text!templates/nodeRow.handlebars'
     ],
-    function (ich,Backbone,Marionette,_,$,Q,wreqr,Node,NodeModal,registryPage, nodeList, nodeRow) {
+    function (ich, Backbone, Marionette, _, moment, $, Q, wreqr, Node, NodeModal, registryPage, nodeList, nodeRow) {
 
         var RegistryView = {};
 
@@ -38,8 +39,8 @@ define([
         RegistryView.RegistryPage = Marionette.Layout.extend({
             template: 'registryPage',
             events: {
-                'click .add-node-link' : 'showAddNode',
-                'click .refresh-button' : 'addDeleteNode'
+                'click .add-node-link': 'showAddNode',
+                'click .refresh-button': 'addDeleteNode'
             },
             modelEvents: {
                 "add": "render",
@@ -63,12 +64,19 @@ define([
                 remoteNodeRegion: '#remoteNodeRegion',
                 modalRegion: '#registry-modal'
             },
-            onRender: function() {
+            onRender: function () {
                 this.identityRegion.show(new RegistryView.NodeTable({collection: new Backbone.Collection(this.model.getIdentityNode())}));
-                this.additionalRegion.show(new RegistryView.NodeTable({collection: new Backbone.Collection(this.model.getSecondaryNodes()), multiValued: true}));
-                this.remoteNodeRegion.show(new RegistryView.NodeTable({collection: new Backbone.Collection(this.model.getRemoteNodes()), multiValued:true, readOnly:true}));
+                this.additionalRegion.show(new RegistryView.NodeTable({
+                    collection: new Backbone.Collection(this.model.getSecondaryNodes()),
+                    multiValued: true
+                }));
+                this.remoteNodeRegion.show(new RegistryView.NodeTable({
+                    collection: new Backbone.Collection(this.model.getRemoteNodes()),
+                    multiValued: true,
+                    readOnly: true
+                }));
             },
-            showEditNode: function(node) {
+            showEditNode: function (node) {
                 wreqr.vent.trigger("showModal",
                     new NodeModal.View({
                         model: node,
@@ -76,8 +84,8 @@ define([
                     })
                 );
             },
-            showAddNode: function() {
-                if(this.model) {
+            showAddNode: function () {
+                if (this.model) {
                     wreqr.vent.trigger("showModal",
                         new NodeModal.View({
                             model: new Node.Model(),
@@ -86,8 +94,8 @@ define([
                     );
                 }
             },
-            showReadOnlyNode: function(node) {
-                if(this.model) {
+            showReadOnlyNode: function (node) {
+                if (this.model) {
                     wreqr.vent.trigger("showModal",
                         new NodeModal.View({
                             model: node,
@@ -100,7 +108,7 @@ define([
             addDeleteNode: function () {
                 var view = this;
                 var button = view.$('.refresh-button');
-                if(!button.hasClass('fa-spin')) {
+                if (!button.hasClass('fa-spin')) {
                     button.addClass('fa-spin');
                 }
                 this.model.fetch({
@@ -110,12 +118,12 @@ define([
                     }
                 });
             },
-            fetchComplete: function(view){
+            fetchComplete: function (view) {
                 var button = view.$('.refresh-button');
                 button.removeClass('fa-spin');
                 view.render();
             },
-            deleteNodes: function(nodeList) {
+            deleteNodes: function (nodeList) {
                 this.model.deleteNodes(nodeList);
             }
         });
@@ -124,7 +132,7 @@ define([
                 this.application = options.application;
                 this.listenTo(wreqr.vent, "showModal", this.showModal);
             },
-            showModal: function(modalView) {
+            showModal: function (modalView) {
 
                 var region = this.application.getRegion('modalRegion');
                 var iFrameModalDOM = $('#IframeModalDOM');
@@ -133,7 +141,7 @@ define([
                 });
                 modalView.$el.on('shown.bs.modal', function () {
                     var extraHeight = modalView.el.firstChild.clientHeight - $('#localNode').height();
-                    if(extraHeight > 0) {
+                    if (extraHeight > 0) {
                         iFrameModalDOM.height(extraHeight);
                         iFrameModalDOM.show();
                     }
@@ -147,15 +155,15 @@ define([
         });
 
 
-        RegistryView.NodeRow= Marionette.ItemView.extend({
+        RegistryView.NodeRow = Marionette.ItemView.extend({
             template: "nodeRow",
             tagName: "tr",
             className: "highlight-on-hover",
             events: {
-                'click td' : 'editNode',
+                'click td': 'editNode',
                 'click .remove-node-link': 'removeNode'
             },
-            editNode: function(evt) {
+            editNode: function (evt) {
                 evt.stopPropagation();
                 var node = this.model;
                 if (this.options.readOnly) {
@@ -164,21 +172,27 @@ define([
                     wreqr.vent.trigger('editNode', node);
                 }
             },
-            removeNode: function(evt) {
+            removeNode: function (evt) {
                 evt.stopPropagation();
                 wreqr.vent.trigger('deleteNodes', [this.model.get('id')]);
             },
-            serializeData: function(){
+            serializeData: function () {
                 var data = {};
 
-                if(this.model) {
+                if (this.model) {
                     data = this.model.toJSON();
                 }
 
                 var extrinsicData = this.model.getObjectOfType('urn:registry:federation:node');
-                if(extrinsicData.length === 1) {
+                if (extrinsicData.length === 1) {
                     data.name = extrinsicData[0].Name;
                     data.slots = extrinsicData[0].Slot;
+                    data.slots.forEach(function (slotValue) {
+                        if (slotValue.slotType === "xs:dateTime") {
+                            var date = moment(slotValue.value[0]).utc();
+                            slotValue.value[0] = date.format('MMM DD, YYYY HH:mm') + 'Z';
+                        }
+                    });
                 }
                 return data;
             }
@@ -188,10 +202,10 @@ define([
             template: 'nodeList',
             itemView: RegistryView.NodeRow,
             itemViewContainer: 'tbody',
-            serializeData: function(){
+            serializeData: function () {
                 var data = {};
 
-                if(this.model) {
+                if (this.model) {
                     data = this.model.toJSON();
                 }
                 data.multiValued = this.options.multiValued;
