@@ -162,7 +162,7 @@
             </build>
         </profile>
         <profile>
-            <id>javadoc-unpack</id>
+            <id>release</id>
             <dependencies>
                 <dependency>
                     <groupId>ddf.catalog.core</groupId>
