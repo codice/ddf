@@ -26,15 +26,17 @@ define([
         'js/view/NodeModal.view.js',
         'text!templates/registryPage.handlebars',
         'text!templates/nodeList.handlebars',
-        'text!templates/nodeRow.handlebars'
+        'text!templates/nodeRow.handlebars',
+        'text!templates/deleteNodeModal.handlebars'
     ],
-    function (ich,Backbone,Marionette,_,$,Q,wreqr,Node, NodeCollection, NodeModal,registryPage, nodeList, nodeRow) {
+    function (ich,Backbone,Marionette,_,$,Q,wreqr,Node, NodeCollection, NodeModal,registryPage, nodeList, nodeRow, deleteNodeModal) {
 
         var RegistryView = {};
 
         ich.addTemplate('registryPage', registryPage);
         ich.addTemplate('nodeList', nodeList);
         ich.addTemplate('nodeRow', nodeRow);
+        ich.addTemplate('deleteNodeModal', deleteNodeModal);
 
         RegistryView.RegistryPage = Marionette.Layout.extend({
             template: 'registryPage',
@@ -116,8 +118,14 @@ define([
                 button.removeClass('fa-spin');
                 view.render();
             },
-            deleteNodes: function(nodeList) {
-                this.model.deleteNodes(nodeList);
+            deleteNodes: function(model) {
+                if (model) {
+                    wreqr.vent.trigger("showModal",
+                        new RegistryView.DeleteModal({
+                            model: model
+                        })
+                    );
+                }
             }
         });
         RegistryView.ModalController = Marionette.Controller.extend({
@@ -167,7 +175,7 @@ define([
             },
             removeNode: function(evt) {
                 evt.stopPropagation();
-                wreqr.vent.trigger('deleteNodes', [this.model.get('id')]);
+                wreqr.vent.trigger('deleteNodes', this.model);
             },
             serializeData: function(){
                 var data = {};
@@ -209,7 +217,38 @@ define([
             }
         });
 
+        RegistryView.DeleteModal = Marionette.ItemView.extend({
+            template: 'deleteNodeModal',
+            className: 'modal',
+            events: {
+                'click .submit-button' : 'deleteNode',
+                'click .cancel-button' : 'cancel',
+                'click .close': 'cancel'
+            },
+            deleteNode: function() {
+                 this.model.collection.deleteNodes([this.model.get('id')]);
+                 this.close();
+            },
+            cancel: function() {
+                this.close();
+            },
+            close: function() {
+                this.$el.off('hidden.bs.modal');
+                this.$el.off('shown.bs.modal');
+                this.$el.modal("hide");
+            },
+            serializeData: function() {
+                var data = {};
+                if (this.model) {
+                    data = this.model.toJSON();
+                }
+                data.name = this.getNodeName();
+                return data;
+           },
+           getNodeName: function() {
+               return this.model.getObjectOfType('urn:registry:federation:node')[0].Name;
+           }
+        });
 
         return RegistryView;
-
     });
