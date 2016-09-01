@@ -192,7 +192,9 @@ public class SearchService {
 
         Filter filter = null;
         try {
-            filter = ECQL.toFilter(cql);
+            if (StringUtils.isNotBlank(cql)) {
+                filter = ECQL.toFilter(cql);
+            }
         } catch (CQLException e) {
             LOGGER.debug("Unable to parse CQL filter", e);
             return;
