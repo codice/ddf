@@ -43,7 +43,8 @@ define([
                 'click .resetButton': 'reset',
                 'click .time': 'clearTime',
                 'click .location': 'clearLocation',
-                'click .type': 'clearType',
+                'click #noType': 'clearType',
+                'click #type': 'setType',
                 'click #locationPoint' : 'drawCircle',
                 'click #locationPolygon' : 'drawPolygon',
                 'click #locationBbox' : 'drawBbox',
@@ -159,6 +160,7 @@ define([
                 }
                 this.model.set('federation','selected');
                 this.updateScrollbar();
+                this.refreshSources();
             },
 
             clearTime: function () {
@@ -196,6 +198,11 @@ define([
                 this.model.set({
                     type: undefined
                 }, {unset: true});
+                this.updateScrollbar();
+            },
+
+            setType: function () {
+                this.refreshTypes();
                 this.updateScrollbar();
             },
 
@@ -265,6 +272,14 @@ define([
                     allTypes = this.types.toJSON();
                 }
                 return _.extend(this.model.toJSON(), {types: allTypes, sources: allSources, isWorkspace: this.isWorkspace, is3D: maptype.is3d(), is2D: maptype.is2d()});
+            },
+
+            refreshSources: function () {
+                $('.select-sources').selectpicker('refresh');
+            },
+
+            refreshTypes: function () {
+                $('.select-types').selectpicker('refresh');
             },
 
             onRender: function () {
@@ -361,11 +376,11 @@ define([
                 // changes when sources are added/removed or
                 // modified (e.g., become available/unavailable)
                 this.sources.bind('add change remove', function() {
-                    $('.select-sources').selectpicker('refresh');
+                    this.refreshSources();
                 });
 
                 this.types.bind('add change remove', function() {
-                    $('.select-types').selectpicker('refresh');
+                    this.refreshTypes();
                 });
 
                 this.initDateTimePicker('#absoluteStartTime');
