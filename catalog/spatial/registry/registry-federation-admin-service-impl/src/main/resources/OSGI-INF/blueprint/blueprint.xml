@@ -14,7 +14,10 @@
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <ext:property-placeholder/>
 
     <bean id="federationAdminService"
           class="org.codice.ddf.registry.federationadmin.service.impl.FederationAdminServiceImpl">
@@ -25,16 +28,23 @@
     </bean>
 
     <bean id="refreshRegistryEntries"
-          class="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries">
-        <cm:managed-properties persistent-id="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries"
-                               update-strategy="container-managed" />
+          class="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries"
+          destroy-method="destroy" init-method="init">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries"
+                update-strategy="container-managed"/>
         <property name="federationAdminService" ref="federationAdminService"/>
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="registryStores" ref="registryStore"/>
+        <property name="executor" ref="registryPollerThreadPool"/>
     </bean>
 
-    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
-
+    <bean id="identityNodeInitializerExecutor" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadScheduledExecutor"/>
+    <bean id="registryPollerThreadPool" class="java.util.concurrent.Executors"
+          factory-method="newScheduledThreadPool">
+        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+    </bean>
 
     <bean id="identityNodeInitialization"
           class="org.codice.ddf.registry.federationadmin.service.impl.IdentityNodeInitialization"
@@ -42,7 +52,7 @@
         <property name="metacardMarshaller" ref="metacardMarshaller"/>
         <property name="registryTransformer" ref="inputTransformer"/>
         <property name="federationAdminService" ref="federationAdminService"/>
-        <property name="executorService" ref="executor"/>
+        <property name="executorService" ref="identityNodeInitializerExecutor"/>
     </bean>
 
     <bean id="metacardMarshaller"
@@ -51,15 +61,8 @@
     </bean>
 
 
-    <cm:property-placeholder persistent-id="Registry_Federation_Admin_Service"
-                             update-strategy="reload">
-        <cm:default-properties>
-            <cm:property name="registrySubPollerInterval" value="30"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
-
-
-    <reference-list id="registryStore" interface="org.codice.ddf.registry.api.internal.RegistryStore"
+    <reference-list id="registryStore"
+                    interface="org.codice.ddf.registry.api.internal.RegistryStore"
                     availability="optional"/>
 
 
@@ -90,12 +93,5 @@
                filter="(id=rim:RegistryPackage)"/>
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
-
-    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="ctxRegistrySubPoller">
-        <route>
-            <from uri="timer://registrySubTimer?fixedRate=true&amp;period={{registrySubPollerInterval}}s"/>
-            <to uri="bean:refreshRegistryEntries?method=refreshRegistryEntries"/>
-        </route>
-    </camelContext>
 
 </blueprint>
