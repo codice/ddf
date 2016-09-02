@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.2">
-<meta name="author" content="Version 2.9.1. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.9.2. Copyright (c) Codice Foundation">
 <title>Extending DDF</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400">
 <style>
@@ -506,7 +506,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Extending DDF</h1>
 <div class="details">
-<span id="author" class="author">Version 2.9.1. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.9.2. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1990,7 +1990,7 @@ When this occurs, the service is available to be used.</p>
 53
 54
 </pre></td>
-  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">catalog-app</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">install</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">auto</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.1</span><span class="delimiter">&quot;</span></span>
+  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">catalog-app</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">install</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">auto</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.2</span><span class="delimiter">&quot;</span></span>
     <span class="attribute-name">description</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">The DDF Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::DDF Catalog</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;feature&gt;</span>platform-app<span class="tag">&lt;/feature&gt;</span>
     <span class="tag">&lt;feature&gt;</span>catalog-core<span class="tag">&lt;/feature&gt;</span>
@@ -2014,35 +2014,35 @@ When this occurs, the service is available to be used.</p>
     <span class="tag">&lt;feature&gt;</span>catalog-plugin-jpeg2000<span class="tag">&lt;/feature&gt;</span>
 <span class="tag">&lt;/feature&gt;</span>
 
-<span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">catalog-core</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">install</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manual</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.1</span><span class="delimiter">&quot;</span></span>
+<span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">catalog-core</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">install</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manual</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.9.2</span><span class="delimiter">&quot;</span></span>
     <span class="attribute-name">description</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">Catalog Core feature containing the API, third party bundles necessary to run ddf-core.</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;feature&gt;</span>catalog-core-api<span class="tag">&lt;/feature&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-commons/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-camelcomponent/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.measure/measure-api/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-commons/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-camelcomponent/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.measure/measure-api/2.9.2<span class="tag">&lt;/bundle&gt;</span>
     <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/picocontainer/1.2_1<span class="tag">&lt;/bundle&gt;</span>
     <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/vecmath/1.3.2_1<span class="tag">&lt;/bundle&gt;</span> <span class="comment">&lt;!-- for GeoTools --&gt;</span>
     <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/geotools-suite/8.4_2<span class="tag">&lt;/bundle&gt;</span>
     <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/jts/1.12_1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-federationstrategy/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-federationstrategy/2.9.2<span class="tag">&lt;/bundle&gt;</span>
     <span class="tag">&lt;bundle&gt;</span>mvn:org.codice.thirdparty/lucene-core/3.0.2_1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/ddf-pubsub/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-eventcommands/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/ddf-pubsub-tracker/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-urlresourcereader/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/filter-proxy/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-commands/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/metacard-type-registry/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-standardframework/2.9.1<span class="tag">&lt;/bundle&gt;</span>
-    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/2.9.1<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/ddf-pubsub/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-eventcommands/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/ddf-pubsub-tracker/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-urlresourcereader/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/filter-proxy/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-commands/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/metacard-type-registry/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-standardframework/2.9.2<span class="tag">&lt;/bundle&gt;</span>
+    <span class="tag">&lt;bundle&gt;</span>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/2.9.2<span class="tag">&lt;/bundle&gt;</span>
 
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/solrconfig.xml</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/xml/solrconfig<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/schema.xml</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/xml/schema<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/protwords.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/txt/protwords<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/stopwords_en.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/txt/stopwords_en<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/stopwords.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/txt/stopwords<span class="tag">&lt;/configfile&gt;</span>
-    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/synonyms.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.1/txt/synonyms<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/solrconfig.xml</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.2/xml/solrconfig<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/schema.xml</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.2/xml/schema<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/protwords.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.2/txt/protwords<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/stopwords_en.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.2/txt/stopwords_en<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/stopwords.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.2/txt/stopwords<span class="tag">&lt;/configfile&gt;</span>
+    <span class="tag">&lt;configfile</span> <span class="attribute-name">finalname</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">/data/solr/metacard_cache/conf/synonyms.txt</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mvn:ddf.platform.solr/platform-solr-server-standalone/2.9.2/txt/synonyms<span class="tag">&lt;/configfile&gt;</span>
 <span class="tag">&lt;/feature&gt;</span></pre></td>
 </tr></table></code></pre>
 </div>
@@ -2224,16 +2224,15 @@ All bundles are then packaged into the KAR archive.</p>
                     same feature twice.
                     Refer to Karaf forum posting at http://karaf.922171.n3.nabble.com/Duplicate-feature-repository-entry-using-archive-kar-to-build-deployable-applications-td3650850.html
                     --&gt;</span>
-                    <span class="tag">&lt;resourcesDir&gt;</span>/Users/phillip/Documents/workspace/release/ddf/distribution/docs/target/doesNotExist<span class="tag">&lt;/resourcesDir&gt;</span>
 
                     <span class="comment">&lt;!--
-                    Location of the features.xml file. If it references properties that need to be filtered, e.g., 2.9.1, it will need to be
+                    Location of the features.xml file. If it references properties that need to be filtered, e.g., 2.9.2, it will need to be
                     filtered by the maven-resources-plugin.
                     --&gt;</span>
-                    <span class="tag">&lt;featuresFile&gt;</span>/Users/phillip/Documents/workspace/release/ddf/distribution/docs/target/classes/features.xml<span class="tag">&lt;/featuresFile&gt;</span>
+                    <span class="tag">&lt;featuresFile&gt;</span>{directory}/features.xml<span class="tag">&lt;/featuresFile&gt;</span>
 
-                    <span class="comment">&lt;!-- Name of the kar file (.kar extension added by default). If not specified, defaults to docs-2.9.1 --&gt;</span>
-                    <span class="tag">&lt;finalName&gt;</span>ddf-ifis-2.9.1<span class="tag">&lt;/finalName&gt;</span>
+                    <span class="comment">&lt;!-- Name of the kar file (.kar extension added by default). If not specified, defaults to docs-2.9.2 --&gt;</span>
+                    <span class="tag">&lt;finalName&gt;</span>ddf-ifis-2.9.2<span class="tag">&lt;/finalName&gt;</span>
                 <span class="tag">&lt;/configuration&gt;</span>
             <span class="tag">&lt;/execution&gt;</span>
     <span class="tag">&lt;/executions&gt;</span>
@@ -5233,7 +5232,7 @@ Upon success, the STS realm returns the subject and the call is made to the endp
 <h2 id="_extending_ddf_admin"><a class="anchor" href="#_extending_ddf_admin"></a>2. Extending DDF Admin</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports developers creating extensions of the existing DDF Admin application.</p>
@@ -5273,7 +5272,7 @@ Upon success, the STS realm returns the subject and the call is made to the endp
 <h2 id="_extending_ddf_catalog"><a class="anchor" href="#_extending_ddf_catalog"></a>3. Extending DDF Catalog</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Catalog provides a framework for storing, searching, processing, and transforming information.
@@ -14776,7 +14775,7 @@ An implementation of <code>BinaryContent</code> (<code>BinaryContentImpl</code
 <h2 id="_extending_ddf_platform"><a class="anchor" href="#_extending_ddf_platform"></a>4. Extending DDF Platform</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports developers creating extensions of the existing framework.</p>
@@ -15092,7 +15091,7 @@ will remove temporary files when it is closed.</p>
 <h2 id="_extending_ddf_security"><a class="anchor" href="#_extending_ddf_security"></a>5. Extending DDF Security</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports developers creating extensions of the existing framework.</p>
@@ -15269,7 +15268,7 @@ The <code>validateToken</code> method returns a <code>TokenValidatorResponse</co
 <h2 id="_extending_ddf_solr"><a class="anchor" href="#_extending_ddf_solr"></a>6. Extending DDF Solr</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="sect2">
 <h3 id="_whitelist_4"><a class="anchor" href="#_whitelist_4"></a>6.1. Whitelist</h3>
@@ -15287,7 +15286,7 @@ The <code>validateToken</code> method returns a <code>TokenValidatorResponse</co
 <h2 id="_extending_ddf_spatial"><a class="anchor" href="#_extending_ddf_spatial"></a>7. Extending DDF Spatial</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="sect2">
 <h3 id="_whitelist_5"><a class="anchor" href="#_whitelist_5"></a>7.1. Whitelist</h3>
@@ -15360,7 +15359,7 @@ The <code>validateToken</code> method returns a <code>TokenValidatorResponse</co
 <h2 id="_extending_ddf_search_ui"><a class="anchor" href="#_extending_ddf_search_ui"></a>8. Extending DDF Search UI</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.1</span></p>
+<p><span class="small">Version: 2.9.2</span></p>
 </div>
 <div class="paragraph">
 <p>This section supports developers creating extensions of the existing framework.</p>
@@ -15379,7 +15378,7 @@ The <code>validateToken</code> method returns a <code>TokenValidatorResponse</co
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-06-30 22:27:37 -07:00
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-08-28 21:24:08 -07:00
 </div>
 </div>
 </body>
