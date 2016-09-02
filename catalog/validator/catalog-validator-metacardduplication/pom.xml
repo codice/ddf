@@ -16,13 +16,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>ddf.catalog.plugin</groupId>
-        <artifactId>plugin</artifactId>
+        <groupId>org.codice.ddf.validator</groupId>
+        <artifactId>validator</artifactId>
         <version>2.9.3-SNAPSHOT</version>
     </parent>
 
-    <name>DDF :: Catalog :: Plugin :: Duplication</name>
-    <artifactId>catalog-plugin-duplication</artifactId>
+    <name>DDF :: Catalog :: Validator :: Metacard Duplication</name>
+    <artifactId>catalog-validator-metacardduplication</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>

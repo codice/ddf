@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.metacard.duplication;
+package org.codice.ddf.validator.metacard.duplication;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -196,7 +196,7 @@ public class DuplicationValidator
                     metacard.getId(),
                     collectionToString(uniqueAttributeNames));
 
-            SourceResponse response = query(uniqueAttributes);
+            SourceResponse response = query(uniqueAttributes, metacard.getId());
             if (response != null) {
                 response.getResults()
                         .forEach(result -> duplicates.add(result.getMetacard()
@@ -227,9 +227,15 @@ public class DuplicationValidator
         return filters;
     }
 
-    private SourceResponse query(Set<Attribute> attributes) {
+    private SourceResponse query(Set<Attribute> attributes, String originalId) {
 
-        final Filter filter = filterBuilder.anyOf(buildFilters(attributes));
+        final Filter filter = filterBuilder.allOf(filterBuilder.anyOf(buildFilters(attributes)),
+                filterBuilder.not(filterBuilder.attribute(Metacard.ID)
+                        .is()
+                        .equalTo()
+                        .text(originalId)));
+
+        LOGGER.debug("filter {}", filter);
 
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(false);
@@ -272,7 +278,6 @@ public class DuplicationValidator
         return Optional.empty();
     }
 
-    // todo load from properties
     @Override
     public String getVersion() {
         return describableProperties.getProperty(VERSION);

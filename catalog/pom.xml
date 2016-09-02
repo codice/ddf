@@ -508,6 +508,7 @@
         <module>ui</module>
         <module>spatial</module>
         <module>resourcemanagement</module>
+        <module>validator</module>
     </modules>
     <build>
         <plugins>
