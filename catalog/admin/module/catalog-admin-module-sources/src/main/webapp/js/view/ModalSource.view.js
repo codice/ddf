@@ -365,7 +365,7 @@ define([
                     var collectionToDisplay = new Service.MetatypeList(accordionFieldsToDisplay);
                     var nameToDisplay = curConfig.get('name');
                     // Check if name is in fpid format and if so, clean up the nameToDisplay
-                    if (nameToDisplay.includes('_disabled')) {
+                    if (nameToDisplay.indexOf('_disabled') > 0) {
                         nameToDisplay = nameToDisplay.substring(0, nameToDisplay.indexOf('_disabled'));
                         nameToDisplay = nameToDisplay.replace(/_/g, ' ');
                     }
