@@ -56,6 +56,7 @@ import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.internal.RegistrySourceConfiguration;
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
 import org.codice.ddf.registry.schemabindings.converter.type.RegistryPackageTypeConverter;
 import org.codice.ddf.registry.schemabindings.converter.web.RegistryPackageWebConverter;
@@ -116,6 +117,9 @@ public class FederationAdminTest {
     @Mock
     private CatalogStore store;
 
+    @Mock
+    private RegistrySourceConfiguration sourceConfiguration;
+
     private Parser parser;
 
     private ParserConfigurator configurator;
@@ -157,6 +161,7 @@ public class FederationAdminTest {
         federationAdmin.setSlotHelper(new SlotTypeHelper());
         federationAdmin.setRegistryMapConverter(new RegistryPackageWebConverter());
         federationAdmin.setRegistryTypeConverter(new RegistryPackageTypeConverter());
+        federationAdmin.setSourceConfigRefresh(sourceConfiguration);
 
         mcard = new MetacardImpl(new RegistryObjectMetacardType());
         mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "myId");
@@ -787,6 +792,12 @@ public class FederationAdminTest {
         assertThat(autoValues.size(), is(1));
         Collection bindingValues = (Collection) autoValues.get("ServiceBinding");
         assertThat(bindingValues.size(), is(0));
+    }
+
+    @Test
+    public void testRegenerateSources() throws Exception {
+        federationAdmin.regenerateRegistrySources(Collections.singletonList("regId"));
+        verify(sourceConfiguration).regenerateOneSource("regId");
     }
 
     private void copyJsonFileToKarafDir() throws Exception {

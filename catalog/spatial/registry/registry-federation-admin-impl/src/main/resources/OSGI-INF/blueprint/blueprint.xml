@@ -24,6 +24,7 @@
         <property name="registryTypeConverter" ref="registryTypeConverter"/>
         <property name="registryMapConverter" ref="registryMapConverter"/>
         <property name="slotHelper" ref="slotHelper"/>
+        <property name="sourceConfigRefresh" ref="sourceConfigurator"/>
     </bean>
 
     <bean id="metacardMarshaller" class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
@@ -50,4 +51,7 @@
         <reference-listener bind-method="bindEndpoint"
                             unbind-method="unbindEndpoint" ref="federationAdmin"/>
     </reference-list>
+
+    <reference id="sourceConfigurator"
+               interface="org.codice.ddf.registry.federationadmin.service.internal.RegistrySourceConfiguration"/>
 </blueprint>
