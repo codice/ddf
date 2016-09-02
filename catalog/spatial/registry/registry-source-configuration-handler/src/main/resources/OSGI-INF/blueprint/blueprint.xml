@@ -62,7 +62,11 @@
         </property>
     </bean>
 
-    <service ref="sourceConfigurationHandler" interface="org.osgi.service.event.EventHandler">
+    <service ref="sourceConfigurationHandler">
+        <interfaces>
+            <value>org.osgi.service.event.EventHandler</value>
+            <value>org.codice.ddf.registry.federationadmin.service.internal.RegistrySourceConfiguration</value>
+        </interfaces>
         <service-properties>
             <entry key="event.topics">
                 <array value-type="java.lang.String">

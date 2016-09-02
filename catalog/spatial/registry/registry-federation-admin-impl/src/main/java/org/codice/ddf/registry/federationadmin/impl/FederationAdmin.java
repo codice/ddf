@@ -53,6 +53,7 @@ import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.internal.FederationAdminMBean;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.internal.RegistrySourceConfiguration;
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
 import org.codice.ddf.registry.schemabindings.converter.type.RegistryPackageTypeConverter;
 import org.codice.ddf.registry.schemabindings.converter.web.RegistryPackageWebConverter;
@@ -149,6 +150,8 @@ public class FederationAdmin implements FederationAdminMBean {
     private RegistryPackageWebConverter registryMapConverter;
 
     private SlotTypeHelper slotHelper;
+
+    private RegistrySourceConfiguration sourceConfigRefresh;
 
     public FederationAdmin(AdminHelper helper) {
         configureMBean();
@@ -411,6 +414,17 @@ public class FederationAdmin implements FederationAdminMBean {
         return nodes;
     }
 
+    @Override
+    public void regenerateRegistrySources(List<String> ids) {
+        try {
+            for(String regId: ids) {
+                sourceConfigRefresh.regenerateOneSource(regId);
+            }
+        } catch (FederationAdminException e){
+            LOGGER.debug("Error regenerating registry sources.", e);
+        }
+    }
+
     private List<Map<String, Object>> getWebMapsFromRegistryPackages(
             List<RegistryPackageType> packages, Map<String, Metacard> metacardByRegistryIdMap) {
         List<Map<String, Object>> registryMaps = new ArrayList<>();
@@ -660,4 +674,7 @@ public class FederationAdmin implements FederationAdminMBean {
         this.slotHelper = slotHelper;
     }
 
+    public void setSourceConfigRefresh(RegistrySourceConfiguration sourceConfigRefresh) {
+        this.sourceConfigRefresh = sourceConfigRefresh;
+    }
 }
