@@ -17,6 +17,16 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
     <ext:property-placeholder />
 
+    <bean id="pathBuilder" class="org.codice.ddf.platform.util.PathBuilder">
+        <argument value="${ddf.home}"/>
+        <argument>
+            <array>
+                <value>etc</value>
+                <value>exported</value>
+            </array>
+        </argument>
+    </bean>
+
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action
@@ -28,11 +38,10 @@
             <action class="org.codice.ddf.migration.commands.ExportCommand">
                 <argument ref="configurationMigrationService"/>
                 <argument ref="security"/>
-                <argument ref="defaultExportDirectoryPath"/>
+                <argument ref="pathBuilder"/>
             </action>
         </command>
     </command-bundle>
-
     <reference id="configStatusService"
                interface="org.codice.ddf.configuration.status.ConfigurationStatusService"/>
 
@@ -41,22 +50,5 @@
 
     <bean id="security" class="org.codice.ddf.security.common.Security"
           factory-method="getInstance"/>
-
-    <!-- Base URI for DDF home -->
-    <bean id="ddfHomeFile" class="java.io.File">
-        <argument value="${ddf.home}"/>
-    </bean>
-
-    <bean id="ddfHomeUri" class="java.net.URI" factory-ref="ddfHomeFile" factory-method="toURI"/>
-
-    <!-- Default Directory Export Path -->
-    <bean id="defaultExportDirectoryUri" class="java.nio.file.Uri" factory-ref="ddfHomeUri"
-          factory-method="resolve">
-        <argument value="${ddf.home}/etc/exported"/>
-    </bean>
-
-    <bean id="defaultExportDirectoryPath" class="java.nio.file.Paths" factory-method="get">
-        <argument ref="defaultExportDirectoryUri"/>
-    </bean>
 
 </blueprint>
