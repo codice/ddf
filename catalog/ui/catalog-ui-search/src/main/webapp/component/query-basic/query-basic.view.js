@@ -433,7 +433,13 @@ define([
                     region.currentView.turnOnEditing();
                 }
             });
-            this.regionManager.first().currentView.focus();
+            var tabable =  _.filter(this.$el.find('[tabindex], input, button'), function(element){
+                return element.offsetParent !== null;
+            });
+            if (tabable.length > 0){
+                $(tabable[0]).focus();
+            }
+           // this.regionManager.first().currentView.focus();
         },
         cancel: function(){
             if (this.model._cloneOf === undefined){

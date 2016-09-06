@@ -7,7 +7,8 @@ module.exports = merge.smart(base, {
     entry: [
         'webpack-hot-middleware/client?path=/__webpack_hmr',
         'webpack/hot/only-dev-server',
-        'stack-source-map/register'
+        'stack-source-map/register',
+        'console-polyfill'
     ],
     module: {
         loaders: [

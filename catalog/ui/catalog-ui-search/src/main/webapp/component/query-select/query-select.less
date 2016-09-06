@@ -1,4 +1,4 @@
-@{customElementNamespace}query-select {
+@{customElementNamespace}query-item-collection.is-query-select {
   .customElement;
 
   .query-select-default {
@@ -31,7 +31,8 @@
     }
   }
 
-  @{customElementNamespace}query-item:hover {
+  @{customElementNamespace}query-item:hover,
+  @{customElementNamespace}query-item.is-active {
     background: @lighten-inherited-background-color;
   }
 

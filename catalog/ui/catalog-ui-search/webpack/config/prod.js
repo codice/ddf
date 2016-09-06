@@ -10,7 +10,8 @@ module.exports = merge.smart(require('./base'), {
         }),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
-                warnings: false
+                warnings: false,
+                drop_console: true
             },
             output: {
                 comments: false

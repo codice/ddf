@@ -21,7 +21,8 @@ define([
     './dropdown.companion.view',
     './dropdown',
     './dropdown.hbs',
-    'component/select/select.collection.view'
+    'component/select/select.collection.view',
+    'behaviors/button.behavior'
 ], function (Marionette, _, $, CustomElements, DropdownCompanionView, DropdownModel, template, SelectView) {
 
     return Marionette.LayoutView.extend({
@@ -30,6 +31,9 @@ define([
         tagName: CustomElements.register('dropdown'),
         events: {
             'click': 'handleClick'
+        },
+        behaviors: {
+            button: {}
         },
         handleClick: function(e){
             e.preventDefault();

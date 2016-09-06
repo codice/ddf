@@ -22,10 +22,12 @@ define([
     'js/CustomElements',
     'js/store',
     'component/router/router',
-    'component/singletons/user-instance'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user) {
+    'component/singletons/user-instance',
+    'decorator/menu-navigation.decorator',
+    'decorator/Decorators'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user, MenuNavigationDecorator, Decorators) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
         tagName: CustomElements.register('metacard-interactions'),
         modelEvents: {
@@ -169,5 +171,5 @@ define([
                 workspace: workspaceJSON
             }
         }
-    });
+    }, MenuNavigationDecorator));
 });

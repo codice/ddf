@@ -12,20 +12,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../dropdown.view',
-    './dropdown.workspaces-sort.hbs'
-], function (Marionette, _, $, DropdownView, template) {
+/*global require*/
+var Marionette = require('marionette');
+var behaviors = {};
+Marionette.Behaviors.behaviorsLookup = function(){
+    return behaviors;
+};
 
-    return DropdownView.extend({
-        template: template,
-        className: 'is-workspacesSort',
-        getCenteringElement: function(){
-            return this.el;
+module.exports = {
+    addBehavior: function(name, behavior) {
+        if (behaviors[name]) {
+            throw 'Behavior with name ' + name + ' already exists.';
         }
-    });
-});
+        behaviors[name] = behavior;
+    }
+};

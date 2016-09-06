@@ -28,7 +28,8 @@ define([
     'properties',
     'component/router/router',
     'component/singletons/user-instance',
-    'component/singletons/metacard-definitions'
+    'component/singletons/metacard-definitions',
+    'behaviors/button.behavior'
 ], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, DropdownModel,
              MetacardInteractionsDropdownView, ResultIndicatorView, properties, router, user,
              metacardDefinitions) {
@@ -50,6 +51,9 @@ define([
         regions: {
             resultActions: '.result-actions',
             resultIndicator: '.result-indicator'
+        },
+        behaviors: {
+            button: {}
         },
         initialize: function(){
             this.checkDisplayType();

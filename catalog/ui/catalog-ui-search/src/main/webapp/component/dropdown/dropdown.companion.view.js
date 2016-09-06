@@ -156,9 +156,10 @@ define([
             switch(code) {
                 case 13:
                     // Enter
-                    event.preventDefault();
-                    if (this.componentToShow.currentView.handleEnter)
+                    if (this.componentToShow.currentView.handleEnter) {
+                        event.preventDefault();
                         this.componentToShow.currentView.handleEnter();
+                    }
                     break;
                 case 27:
                     // Escape
@@ -167,15 +168,17 @@ define([
                     break;
                 case 38:
                     // Key up.
-                    event.preventDefault();
-                    if (this.componentToShow.currentView.handleUpArrow)
+                    if (this.componentToShow.currentView.handleUpArrow) {
+                        event.preventDefault();
                         this.componentToShow.currentView.handleUpArrow();
+                    }
                     break;
                 case 40:
                     // Key down.
-                    event.preventDefault();
-                    if (this.componentToShow.currentView.handleDownArrow)
+                    if (this.componentToShow.currentView.handleDownArrow) {
+                        event.preventDefault();
                         this.componentToShow.currentView.handleDownArrow();
+                    }
                     break;
             }
         },
@@ -192,6 +195,7 @@ define([
         },
         handleEscape: function(){
             this.close();
+            this.options.linkedView.$el.focus();
         },
         listenForClose: function(){
             this.$el.on('closeDropdown.'+CustomElements.getNamespace(), function(e){
@@ -199,6 +203,7 @@ define([
                 e.stopPropagation();
                 // close
                 this.close();
+                this.options.linkedView.$el.focus();
             }.bind(this));
         },
         stopListeningForClose: function(){

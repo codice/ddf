@@ -18,31 +18,26 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    './dropdown.workspaces-display.hbs',
-    'component/workspaces-display/workspaces-display.view'
-], function (Marionette, _, $, DropdownView, template, ComponentView) {
+    './dropdown.workspaces-display.hbs'
+], function (Marionette, _, $, DropdownView, template) {
 
     return DropdownView.extend({
         template: template,
         className: 'is-workspacesDisplay',
-        componentToShow: ComponentView,
-        initializeComponentModel: function(){
-            //override if you need more functionality
-            this.modelForComponent = this.model;
-        },
-        isCentered: true,
         getCenteringElement: function(){
             return this.el.querySelector('.dropdown-text');
         },
         serializeData: function(){
-            var modelJSON = this.model.toJSON();
+            var modelJSON = DropdownView.prototype.serializeData.call(this);
+            modelJSON = {
+                value: modelJSON[0].label
+            };
             if (modelJSON.value === 'List') {
                 modelJSON.icon = 'fa-th-list'
             } else {
                 modelJSON.icon = 'fa-th'
             }
             return modelJSON;
-        },
-        hasTail: true
+        }
     });
 });

@@ -26,10 +26,12 @@ define([
     'component/singletons/user-instance',
     'component/loading/loading.view',
     'component/lightbox/lightbox.view.instance',
-    'component/workspace-sharing/workspace-sharing.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user, LoadingView, lightboxInstance, WorkspaceSharing) {
+    'component/workspace-sharing/workspace-sharing.view',
+    'decorator/menu-navigation.decorator',
+    'decorator/Decorators'
+], function(wreqr, Marionette, _, $, template, CustomElements, store, router, user, LoadingView, lightboxInstance, WorkspaceSharing, MenuNavigationDecorator, Decorators) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
         tagName: CustomElements.register('workspace-interactions'),
         modelEvents: {
@@ -42,41 +44,38 @@ define([
             'click .interaction-share': 'handleShare',
             'click .interaction-duplicate': 'handleDuplicate',
             'click .interaction-trash': 'handleTrash',
-            'click .workspace-interaction': 'handleClick',
+            'click .workspace-interaction': 'handleClick'
         },
-        ui: {
-        },
-        initialize: function(){
-        },
-        onRender: function(){
+        ui: {},
+        initialize: function() {},
+        onRender: function() {
             this.checkIfSubscribed();
         },
-        checkIfSubscribed: function () {
+        checkIfSubscribed: function() {
             this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
         },
-        handleSubscribe: function () {
+        handleSubscribe: function() {
             this.model.subscribe();
         },
-        handleUnsubscribe: function () {
+        handleUnsubscribe: function() {
             this.model.unsubscribe();
         },
-        handleNewTab: function () {
-            var hasSlash = Boolean(location.href.charAt(location.href.length - 1) === '/');
-            window.open(location.href + (hasSlash ? '' : '/') + this.model.id);
+        handleNewTab: function() {
+            window.open('/search/catalog/#workspaces/' + this.model.id);
         },
-        handleShare: function () {
+        handleShare: function() {
             lightboxInstance.model.updateTitle('Workspace Sharing');
             lightboxInstance.model.open();
             lightboxInstance.lightboxContent.show(new WorkspaceSharing({
                 model: this.model
             }));
         },
-        handleDuplicate: function () {
+        handleDuplicate: function() {
             var loadingview = new LoadingView();
-            store.get('workspaces').once('sync', function(workspace, resp, options){
+            store.get('workspaces').once('sync', function(workspace, resp, options) {
                 loadingview.remove();
                 wreqr.vent.trigger('router:navigate', {
-                    fragment: 'workspaces/'+workspace.id,
+                    fragment: 'workspaces/' + workspace.id,
                     options: {
                         trigger: true
                     }
@@ -84,9 +83,9 @@ define([
             });
             store.get('workspaces').duplicateWorkspace(this.model);
         },
-        handleTrash: function () {
+        handleTrash: function() {
             var loadingview = new LoadingView();
-            store.getWorkspaceById(this.model.id).once('sync', function () {
+            store.getWorkspaceById(this.model.id).once('sync', function() {
                 wreqr.vent.trigger('router:navigate', {
                     fragment: 'workspaces',
                     options: {
@@ -99,8 +98,8 @@ define([
                 wait: true
             });
         },
-        handleClick: function(){
-            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        handleClick: function() {
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         }
-    });
+    }, MenuNavigationDecorator));
 });

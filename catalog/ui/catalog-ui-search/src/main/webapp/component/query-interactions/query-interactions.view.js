@@ -20,10 +20,12 @@ define([
     'jquery',
     './query-interactions.hbs',
     'js/CustomElements',
-    'js/store'
-], function (wreqr, Marionette, _, $, template, CustomElements, store) {
+    'js/store',
+    'decorator/menu-navigation.decorator',
+    'decorator/Decorators'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, MenuNavigationDecorator, Decorators) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
         tagName: CustomElements.register('query-interactions'),
         modelEvents: {
@@ -62,5 +64,5 @@ define([
         handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         }
-    });
+    }, MenuNavigationDecorator));
 });

@@ -24,6 +24,7 @@ define([
     'moment',
     'component/dropdown/dropdown',
     'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
+    'behaviors/button.behavior'
 ], function (wreqr, Marionette, _, $, template, CustomElements, store, moment, DropdownModel, WorkspaceInteractionsDropdownView) {
 
     return Marionette.LayoutView.extend({
@@ -33,10 +34,13 @@ define([
             gridWorkspaceActions: '.as-grid .choice-actions',
             listWorkspaceActions: '.as-list .choice-actions'
         },
+        behaviors: {
+            button: {}
+        },
         modelEvents: {
         },
         events: {
-            'click .choice': 'handleChoice'
+            'click': 'handleChoice'
         },
         ui: {
         },
@@ -61,7 +65,7 @@ define([
         handleChoice: function(event){
             var workspaceId = $(event.currentTarget).attr('data-workspaceId');
             wreqr.vent.trigger('router:navigate', {
-                fragment: 'workspaces/'+workspaceId,
+                fragment: 'workspaces/'+this.model.id,
                 options: {
                     trigger: true
                 }

@@ -17,16 +17,14 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    '../metacard/tabs-metacard.hbs',
     '../tabs.view',
     '../metacard/tabs-metacard',
     'js/store',
     'component/metacard/metacard'
-], function (Marionette, _, $, template, TabsView, MetacardTabsModel, store, metacardInstance) {
+], function (Marionette, _, $, TabsView, MetacardTabsModel, store, metacardInstance) {
 
 
     return TabsView.extend({
-        template: template,
         className: 'is-metacard',
         setDefaultModel: function(){
             this.model = new MetacardTabsModel();

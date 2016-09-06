@@ -18,37 +18,28 @@ define([
     'underscore',
     'jquery',
     'js/CustomElements',
-    './query-select.hbs',
     'js/store',
-    'component/query-item/query-item.collection.view'
-], function (Marionette, _, $, CustomElements, template, store, QueryItemCollectionView) {
+    'component/query-item/query-item.collection.view',
+    'decorator/menu-navigation.decorator',
+    'decorator/Decorators'
+], function (Marionette, _, $, CustomElements, store, QueryItemCollectionView, MenuNavigationDecorator, Decorators) {
 
     var eventsHash = {
-        'click': 'handleClick',
-        'click .query-select-default': 'handleDefaultClick'
+        'click': 'handleClick'
     };
 
     var namespace = CustomElements.getNamespace();
     var queryItemClickEvent = 'click '+namespace+'query-item';
     eventsHash[queryItemClickEvent] = 'handleQueryItemClick';
 
-    return Marionette.LayoutView.extend({
-        template: template,
-       tagName: CustomElements.register('query-select'),
-        regions: {
-            querySelectList: '.query-select-list'
-        },
+    return QueryItemCollectionView.extend(Decorators.decorate({
+        className: 'is-query-select',
         events: eventsHash,
         onBeforeShow: function(){
-            this.querySelectList.show(new QueryItemCollectionView());
             this.handleValue();
         },
         handleQueryItemClick: function(event){
             this.model.set('value', $(event.currentTarget).attr('data-queryid'));
-            this.handleValue();
-        },
-        handleDefaultClick: function(){
-            this.model.set('value', undefined);
             this.handleValue();
         },
         handleClick: function(){
@@ -60,6 +51,11 @@ define([
             if (queryId){
                 this.$el.find(namespace+'query-item[data-queryid="'+queryId+'"]').addClass('is-selected');
             }
+        },
+        onRender: function(){
+            if (this.$el.find('.is-active').length === 0){
+                this.$el.find(namespace+'query-item').first().addClass('is-active');
+            }
         }
-    });
+    }, MenuNavigationDecorator));
 });

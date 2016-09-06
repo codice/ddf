@@ -18,22 +18,14 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    './dropdown.workspaces-filter.hbs',
-    'component/workspaces-filter/workspaces-filter.view'
-], function (Marionette, _, $, DropdownView, template, ComponentView) {
+    './dropdown.workspaces-filter.hbs'
+], function (Marionette, _, $, DropdownView, template) {
 
     return DropdownView.extend({
         template: template,
         className: 'is-workspacesFilter',
-        componentToShow: ComponentView,
-        initializeComponentModel: function(){
-            //override if you need more functionality
-            this.modelForComponent = this.model;
-        },
-        isCentered: true,
         getCenteringElement: function(){
             return this.el.querySelector('.dropdown-text');
-        },
-        hasTail: true
+        }
     });
 });

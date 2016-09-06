@@ -50,36 +50,82 @@ define([
             }
         },
         onBeforeShow: function(){
-            var preferences = user.get('user').get('preferences');
-
+            this.setupHomeItems();
+            this.setupHomeFilter();
+            this.setupHomeSort();
+            this.setupHomeDisplay();
+        },
+        setupHomeItems: function(){
             var workspaceItemCollection = new WorkspaceItemCollection({
                 collection: this.model
             });
-
-            var displayDropdownModel = new DropdownModel({value: preferences.get('homeDisplay')});
-            var homeFilter = new DropdownModel({value: preferences.get('homeFilter')});
-            var homeSort = new DropdownModel({value: preferences.get('homeSort')});
-
-            this.listenTo(displayDropdownModel, 'change:value', this.save('homeDisplay'));
-            this.listenTo(homeFilter, 'change:value', this.save('homeFilter'));
-            this.listenTo(homeSort, 'change:value', this.save('homeSort'));
-
-            this.homeItems.show(workspaceItemCollection);
-
-            this.homeFilter.show(new FilterDropdownView({
-                model: homeFilter
-            }));
-            this.homeSort.show(new SortDropdownView({
-                model: homeSort
-            }));
-            this.homeDisplay.show(new DisplayDropdownView({
-                model: displayDropdownModel
-            }));
+             this.homeItems.show(workspaceItemCollection);
+        },
+        setupHomeFilter: function(){
+            var preferences = user.get('user').get('preferences');
+            this.homeFilter.show(FilterDropdownView.createSimpleDropdown(
+                {
+                    list: [
+                        {
+                            label: 'Owned by anyone',
+                            value: 'Owned by anyone',
+                        },
+                        {
+                            label: 'Owned by me',
+                            value: 'Owned by me',
+                        },
+                        {
+                            label: 'Not owned by me',
+                            value: 'Not owned by me',
+                        }
+                    ],
+                    defaultSelection: [preferences.get('homeFilter')]
+                }
+            ));
+            this.listenTo(this.homeFilter.currentView.model, 'change:value', this.save('homeFilter'));
+        },
+        setupHomeDisplay: function(){
+            var preferences = user.get('user').get('preferences');
+            this.homeDisplay.show(FilterDropdownView.createSimpleDropdown(
+                {
+                    list: [
+                        {
+                            label: 'Grid',
+                            value: 'Grid',
+                        },
+                        {
+                            label: 'List',
+                            value: 'List',
+                        }
+                    ],
+                    defaultSelection: [preferences.get('homeDisplay')]
+                }
+            ));
+            this.listenTo(this.homeDisplay.currentView.model, 'change:value', this.save('homeDisplay'));
+        },
+        setupHomeSort: function(){
+            var preferences = user.get('user').get('preferences');
+            this.homeSort.show(SortDropdownView.createSimpleDropdown(
+                {
+                    list: [
+                        {
+                            label: 'Last modified',
+                            value: 'Last modified',
+                        },
+                        {
+                            label: 'Title',
+                            value: 'Title',
+                        }
+                    ],
+                    defaultSelection: [preferences.get('homeSort')]
+                }
+            ));
+            this.listenTo(this.homeSort.currentView.model, 'change:value', this.save('homeSort'));
         },
         save: function (key) {
             return function (model, value) {
                 var prefs = user.get('user').get('preferences');
-                prefs.set(key, value);
+                prefs.set(key, value[0]);
                 prefs.savePreferences();
             }.bind(this);
         }

@@ -23,7 +23,8 @@ define([
     'moment',
     'component/dropdown/dropdown',
     'component/dropdown/query-interactions/dropdown.query-interactions.view',
-    'component/query-feed/query-feed.view'
+    'component/query-feed/query-feed.view',
+    'behaviors/button.behavior'
 ], function (Marionette, _, $, template, CustomElements, store, moment,
              DropdownModel, DropdownQueryInteractionsView, QueryFeedView) {
 
@@ -33,6 +34,9 @@ define([
             return {
                 'data-queryid': this.model.id
             };
+        },
+        behaviors: {
+            button: {}
         },
         tagName: CustomElements.register('query-item'),
         modelEvents: {
