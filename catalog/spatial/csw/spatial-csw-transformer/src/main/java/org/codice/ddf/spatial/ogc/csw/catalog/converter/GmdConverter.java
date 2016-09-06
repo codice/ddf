@@ -15,23 +15,14 @@ package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.io.Serializable;
 import java.net.URI;
-
 import java.util.Arrays;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Set;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
@@ -77,11 +68,6 @@ public class GmdConverter extends AbstractGmdConverter {
 
         pathValueTracker.add(new Path(GmdConstants.FILE_IDENTIFIER_PATH), metacard.getId());
 
-
-        pathValueTracker.add(new Path(GmdConstants.CODE_LIST_VALUE_PATH),
-                StringUtils.defaultIfEmpty(metacard.getContentTypeName(), "dataset"));
-        pathValueTracker.add(new Path(GmdConstants.CODE_LIST_PATH), GmdConstants.METACARD_URI);
-
         Attribute language = metacard.getAttribute(Core.LANGUAGE);
         if (language != null) {
             addListAttributeToXml(metacard,
@@ -89,10 +75,15 @@ public class GmdConverter extends AbstractGmdConverter {
                     GmdConstants.METADATA_LANGUAGE_PATH,
                     Core.LANGUAGE);
         } else {
-            pathValueTracker.add(new Path(GmdConstants.METADATA_LANGUAGE_PATH), "eng");
+            pathValueTracker.add(new Path(GmdConstants.METADATA_LANGUAGE_PATH),
+                    Locale.ENGLISH.getISO3Language());
         }
+        
+        pathValueTracker.add(new Path(GmdConstants.CODE_LIST_VALUE_PATH),
+                StringUtils.defaultIfEmpty(metacard.getContentTypeName(), "dataset"));
+        pathValueTracker.add(new Path(GmdConstants.CODE_LIST_PATH), GmdConstants.METACARD_URI);
 
-    addStringAttributeToXml(metacard,
+        addStringAttributeToXml(metacard,
                 pathValueTracker,
                 GmdConstants.CODE_LIST_VALUE_PATH,
                 Core.DATATYPE,
@@ -241,7 +232,8 @@ public class GmdConverter extends AbstractGmdConverter {
                     GmdConstants.LANGUAGE_PATH,
                     Core.LANGUAGE);
         } else {
-            pathValueTracker.add(new Path(GmdConstants.LANGUAGE_PATH), "eng");
+            pathValueTracker.add(new Path(GmdConstants.LANGUAGE_PATH),
+                    Locale.ENGLISH.getISO3Language());
         }
 
         addListAttributeToXml(metacard,
@@ -326,11 +318,11 @@ public class GmdConverter extends AbstractGmdConverter {
 
     private void addDateAttributeToXml(Metacard metacard, XstreamPathValueTracker pathValueTracker,
             String path, String metcardAttributeName) {
-        GregorianCalendar modifiedCal = new GregorianCalendar();
         Attribute attribute = metacard.getAttribute(metcardAttributeName);
         if (attribute != null) {
             Serializable serializable = attribute.getValue();
             if (serializable instanceof Date) {
+                GregorianCalendar modifiedCal = new GregorianCalendar();
                 modifiedCal.setTime((Date) serializable);
                 modifiedCal.setTimeZone(UTC_TIME_ZONE);
                 pathValueTracker.add(new Path(path),
