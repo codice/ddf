@@ -148,12 +148,12 @@ define([
         },
         handleAction: function (event) {
             var link = this.$(event.currentTarget);
-            var id = link.attr('id');
+            var id = link.attr('id').split('.').join('\\.');
             var failed = $(this.$('#' + id + '-failed')[0]);
             var success = $(this.$('#' + id + '-success')[0]);
             var spinner = $(this.$('#' + id + '-spinner')[0]);
             link.addClass('inactive-link');
-            spinner.show();
+            spinner.css('display','inline-block');
             failed.hide();
             success.hide();
 
@@ -365,7 +365,7 @@ define([
                     var collectionToDisplay = new Service.MetatypeList(accordionFieldsToDisplay);
                     var nameToDisplay = curConfig.get('name');
                     // Check if name is in fpid format and if so, clean up the nameToDisplay
-                    if (nameToDisplay.includes('_disabled')) {
+                    if (nameToDisplay.indexOf('_disabled') > 0) {
                         nameToDisplay = nameToDisplay.substring(0, nameToDisplay.indexOf('_disabled'));
                         nameToDisplay = nameToDisplay.replace(/_/g, ' ');
                     }
