@@ -91,7 +91,7 @@ public class DefaultCswRecordMap {
         localNameMap.put(GmdConstants.GMD_ORGANIZATION_NAME, Contact.POINT_OF_CONTACT_NAME);
         localNameMap.put(GmdConstants.GMD_SUBJECT, Topic.KEYWORD);
         localNameMap.put(GmdConstants.GMD_FORMAT, Media.FORMAT);
-        localNameMap.put(GmdConstants.GMD_MODIFIED, Core.METACARD_MODIFIED);
+        localNameMap.put(GmdConstants.GMD_MODIFIED, Core.MODIFIED);
         localNameMap.put(GmdConstants.GMD_TYPE, Core.DATATYPE);
         localNameMap.put(GmdConstants.GMD_TYPE, Metacard.CONTENT_TYPE);
 
@@ -132,7 +132,7 @@ public class DefaultCswRecordMap {
         qNameMap.put(GmdConstants.GMD_ORGANIZATION_NAME_QNAME, Contact.POINT_OF_CONTACT_NAME);
         qNameMap.put(GmdConstants.GMD_SUBJECT_QNAME, Topic.KEYWORD);
         qNameMap.put(GmdConstants.GMD_FORMAT_QNAME, Media.FORMAT_VERSION);
-        qNameMap.put(GmdConstants.GMD_MODIFIED_QNAME, Core.METACARD_MODIFIED);
+        qNameMap.put(GmdConstants.GMD_MODIFIED_QNAME, Core.MODIFIED);
         qNameMap.put(GmdConstants.GMD_TYPE_QNAME, Core.DATATYPE);
         qNameMap.put(GmdConstants.GMD_TYPE_QNAME, Metacard.CONTENT_TYPE);
 
@@ -151,7 +151,8 @@ public class DefaultCswRecordMap {
                 CswRecordMetacardType.CSW_MODIFIED_QNAME,
                 CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME,
                 CswRecordMetacardType.CSW_ISSUED_QNAME,
-                GmdConstants.GMD_REVISION_DATE_QNAME));
+                GmdConstants.GMD_REVISION_DATE_QNAME,
+                GmdConstants.GMD_MODIFIED_QNAME));
 
         metacardMap.put(Core.CREATED, Arrays.asList(CswRecordMetacardType.CSW_CREATED_QNAME,
                 GmdConstants.GMD_CREATION_DATE_QNAME));
@@ -178,7 +179,6 @@ public class DefaultCswRecordMap {
                 GmdConstants.GMD_LANGUAGE_QNAME));
         metacardMap.put(Topic.KEYWORD, Arrays.asList(GmdConstants.GMD_SUBJECT_QNAME));
         metacardMap.put(Media.FORMAT, Arrays.asList(GmdConstants.GMD_FORMAT_QNAME));
-        metacardMap.put(Core.METACARD_MODIFIED, Arrays.asList(GmdConstants.GMD_MODIFIED_QNAME));
         metacardMap.put(Core.DATATYPE, Arrays.asList(GmdConstants.GMD_TYPE_QNAME));
 
         METACARD_MAPPING = Collections.unmodifiableMap(metacardMap);
