@@ -17,7 +17,7 @@
          name="Registry Policy Plugin"
          id="org.codice.ddf.registry.policy.RegistryPolicyPlugin">
 
-        <AD description="Roles/attributes required for create operations. Example: {role=role1;type=type1}"
+        <AD description="Roles/attributes required for create operations on registry entries. Example: {role=role1;type=type1}"
             name="Registry Create Attributes" id="createAccessPolicyStrings" required="true"
             type="String" cardinality="100"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>

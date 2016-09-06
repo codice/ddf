@@ -44,16 +44,6 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
 
     private Set<String> registryEntryIds = new HashSet<>();
 
-    private List<String> registryBypassPolicyStrings;
-
-    private List<String> createAccessPolicyStrings;
-
-    private List<String> updateAccessPolicyStrings;
-
-    private List<String> deleteAccessPolicyStrings;
-
-    private List<String> readAccessPolicyStrings;
-
     private Map<String, Set<String>> bypassAccessPolicy = new HashMap<>();
 
     private Map<String, Set<String>> createAccessPolicy = new HashMap<>();
@@ -107,44 +97,19 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
         this.registryDisabled = registryDisabled;
     }
 
-    /**
-     * Getter for the permissions string array
-     *
-     * @return The list of bypass permissions
-     */
-    public List<String> getRegistryBypassPolicyStrings() {
-        return this.registryBypassPolicyStrings;
-    }
-
-    public List<String> getCreateAccessPolicyStrings() {
-        return createAccessPolicyStrings;
-    }
-
     public void setCreateAccessPolicyStrings(List<String> accessPolicyStrings) {
-        this.createAccessPolicyStrings = accessPolicyStrings;
         parsePermissionsFromString(accessPolicyStrings, createAccessPolicy);
     }
 
     public void setUpdateAccessPolicyStrings(List<String> accessPolicyStrings) {
-        this.updateAccessPolicyStrings = accessPolicyStrings;
         parsePermissionsFromString(accessPolicyStrings, updateAccessPolicy);
     }
 
-    public List<String> getDeleteAccessPolicyStrings() {
-        return deleteAccessPolicyStrings;
-    }
-
     public void setDeleteAccessPolicyStrings(List<String> accessPolicyStrings) {
-        this.deleteAccessPolicyStrings = accessPolicyStrings;
         parsePermissionsFromString(accessPolicyStrings, deleteAccessPolicy);
     }
 
-    public List<String> getReadAccessPolicyStrings() {
-        return readAccessPolicyStrings;
-    }
-
     public void setReadAccessPolicyStrings(List<String> readAccessPolicyStrings) {
-        this.readAccessPolicyStrings = readAccessPolicyStrings;
         parsePermissionsFromString(readAccessPolicyStrings, readAccessPolicy);
     }
 
@@ -154,7 +119,6 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
      * @param permStrings The list of bypass permissions
      */
     public void setRegistryBypassPolicyStrings(List<String> permStrings) {
-        this.registryBypassPolicyStrings = permStrings;
         parsePermissionsFromString(permStrings, bypassAccessPolicy);
     }
 
@@ -169,7 +133,8 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
         policy.clear();
         if (permStrings != null) {
             for (String perm : permStrings) {
-                String[] parts = perm.split("=");
+                String[] parts = perm.trim()
+                        .split("=");
                 if (parts.length == 2) {
                     String attributeName = parts[0];
                     String attributeValue = parts[1];
