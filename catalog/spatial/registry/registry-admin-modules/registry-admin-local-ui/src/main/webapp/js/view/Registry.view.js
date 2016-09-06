@@ -22,13 +22,14 @@ define([
         'q',
         'wreqr',
         'js/model/Node.js',
+        'js/model/Node.collection.js',
         'js/view/NodeModal.view.js',
         'text!templates/registryPage.handlebars',
         'text!templates/nodeList.handlebars',
         'text!templates/nodeRow.handlebars',
         'text!templates/deleteNodeModal.handlebars'
     ],
-    function (ich,Backbone,Marionette,_,$,Q,wreqr,Node,NodeModal,registryPage, nodeList, nodeRow, deleteNodeModal) {
+    function (ich,Backbone,Marionette,_,$,Q,wreqr,Node, NodeCollection, NodeModal,registryPage, nodeList, nodeRow, deleteNodeModal) {
 
         var RegistryView = {};
 
@@ -66,9 +67,9 @@ define([
                 modalRegion: '#registry-modal'
             },
             onRender: function() {
-                this.identityRegion.show(new RegistryView.NodeTable({collection: new Backbone.Collection(this.model.getIdentityNode())}));
-                this.additionalRegion.show(new RegistryView.NodeTable({collection: new Backbone.Collection(this.model.getSecondaryNodes()), multiValued: true}));
-                this.remoteNodeRegion.show(new RegistryView.NodeTable({collection: new Backbone.Collection(this.model.getRemoteNodes()), multiValued:true, readOnly:true}));
+                this.identityRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getIdentityNode())}));
+                this.additionalRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getSecondaryNodes()), multiValued: true}));
+                this.remoteNodeRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getRemoteNodes()), multiValued:true, readOnly:true}));
             },
             showEditNode: function(node) {
                 wreqr.vent.trigger("showModal",
