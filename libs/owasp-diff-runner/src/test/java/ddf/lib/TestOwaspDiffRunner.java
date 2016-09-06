@@ -65,7 +65,7 @@ public class TestOwaspDiffRunner {
         fakeRepo = new TemporaryFolder();
         fakeRepo.create();
         File fakeChangedPom = fakeRepo.newFile("pom.xml");
-
+        System.setProperty("maven.repo.local", fakeChangedPom.getParent());
         //Set command line returns
         when(mavenVersionCommandProcess.getInputStream()).thenReturn(new ByteArrayInputStream((
                 "Maven home: " + fakeRepo.getRoot()
@@ -119,12 +119,8 @@ public class TestOwaspDiffRunner {
         expectedEx.expect(OwaspDiffRunnerException.class);
         expectedEx.expectMessage(OwaspDiffRunnerException.UNABLE_TO_RETRIEVE_LOCAL_MAVEN_REPO);
 
-        try {
-            System.setProperty("maven.repo.local", "not-a-real-repo");
-            owaspDiffRunner.main(null);
-        } finally {
-            System.clearProperty("maven.repo.local");
-        }
+        System.setProperty("maven.repo.local", "not-a-real-repo");
+        owaspDiffRunner.main(null);
     }
 
     @Test
