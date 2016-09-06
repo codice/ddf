@@ -11,17 +11,29 @@
  *
  **/
 -->
-<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <bean id="registryPolicyPlugin" class="org.codice.ddf.registry.policy.RegistryPolicyPlugin">
         <cm:managed-properties persistent-id="org.codice.ddf.registry.policy.RegistryPolicyPlugin"
-                               update-strategy="container-managed" />
+                               update-strategy="container-managed"/>
         <property name="registryBypassPolicyStrings">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin
+                </value>
             </array>
         </property>
-        <property name="writeAccessPolicyStrings">
+        <property name="createAccessPolicyStrings">
+            <array>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+            </array>
+        </property>
+        <property name="updateAccessPolicyStrings">
+            <array>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+            </array>
+        </property>
+        <property name="deleteAccessPolicyStrings">
             <array>
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
             </array>
