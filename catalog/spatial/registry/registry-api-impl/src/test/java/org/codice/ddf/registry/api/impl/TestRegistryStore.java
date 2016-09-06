@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,10 +42,14 @@ import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.source.CswFilterFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
@@ -59,6 +64,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
@@ -67,6 +73,7 @@ import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -82,6 +89,7 @@ import net.opengis.cat.csw.v_2_0_2.InsertResultType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.TransactionSummaryType;
 import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
+import net.opengis.filter.v_1_1_0.FilterType;
 
 public class TestRegistryStore {
 
@@ -164,6 +172,16 @@ public class TestRegistryStore {
         mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, null);
         CreateRequest request = new CreateRequestImpl(mcard);
         registryStore.create(request);
+    }
+
+    @Test
+    public void testCreateWithExistingMetacard() throws Exception {
+        Metacard mcard = getDefaultMetacard();
+        queryResults.add(new ResultImpl(mcard));
+        CreateRequest request = new CreateRequestImpl(mcard);
+        CreateResponse response = registryStore.create(request);
+        assertThat(response.getCreatedMetacards()
+                .get(0), is(mcard));
     }
 
     @Test
@@ -309,6 +327,39 @@ public class TestRegistryStore {
 
         verify(registryStore, times(0)).getConfigurationPid();
 
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Csw csw = mock(Csw.class);
+        TransactionResponseType transResponse = mock(TransactionResponseType.class);
+        TransactionSummaryType transSummary = mock(TransactionSummaryType.class);
+        when(transResponse.getTransactionSummary()).thenReturn(transSummary);
+        when(transSummary.getTotalDeleted()).thenReturn(new BigInteger("1"));
+        when(csw.transaction(any(CswTransactionRequest.class))).thenReturn(transResponse);
+        when(factory.getClientForSubject(any())).thenReturn(csw);
+        when(transformer.getTransformerIdForSchema(any())).thenReturn(null);
+        FilterAdapter mockAdaptor = mock(FilterAdapter.class);
+        CswFilterFactory filterFactory = new CswFilterFactory(CswAxisOrder.LAT_LON, false);
+        FilterType filterType = filterFactory.buildPropertyIsLikeFilter(Metacard.ID,
+                "testId",
+                false);
+        when(mockAdaptor.adapt(any(Filter.class),
+                any(FilterDelegate.class))).thenReturn(filterType);
+        registryStore.setFilterAdapter(mockAdaptor);
+        DeleteRequestImpl request = new DeleteRequestImpl(Collections.singletonList(
+                RegistryObjectMetacardType.REGISTRY_ID), "registryId", new HashMap<>());
+
+        OperationTransactionImpl opTrans =
+                new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
+                        Collections.singletonList(getDefaultMetacard()));
+        request.getProperties()
+                .put(Constants.OPERATION_TRANSACTION_KEY, opTrans);
+        registryStore.delete(request);
+
+        verify(filterBuilder).attribute(captor.capture());
+        assertThat(captor.getValue(), is("id"));
     }
 
     @Test

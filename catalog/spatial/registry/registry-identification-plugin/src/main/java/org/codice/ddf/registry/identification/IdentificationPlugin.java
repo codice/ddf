@@ -51,6 +51,8 @@ public class IdentificationPlugin implements PreIngestPlugin {
 
     private MetacardMarshaller metacardMarshaller;
 
+    private RegistryIdPostIngestPlugin registryIdPostIngestPlugin;
+
     /**
      * For registry metacards updates the tags and identifiers
      *
@@ -68,12 +70,33 @@ public class IdentificationPlugin implements PreIngestPlugin {
 
         for (Metacard metacard : input.getMetacards()) {
             if (RegistryUtility.isRegistryMetacard(metacard)) {
+                if (registryIdPostIngestPlugin.getLocalRegistryIds()
+                        .contains(RegistryUtility.getRegistryId(metacard))) {
+                    throw new StopProcessingException(
+                            "Can't create duplicate local node registry entries.");
+                }
+
+                if (!RegistryUtility.hasAttribute(metacard,
+                        RegistryObjectMetacardType.REMOTE_REGISTRY_ID)
+                        && registryIdPostIngestPlugin.getRegistryIds()
+                        .contains(RegistryUtility.getRegistryId(metacard))) {
+                    throw new StopProcessingException(
+                            "Can't create duplicate registry entries");
+                }
+
+                if (registryIdPostIngestPlugin.getRemoteMetacardIds()
+                        .contains(RegistryUtility.getStringAttribute(metacard,
+                                RegistryObjectMetacardType.REMOTE_METACARD_ID,
+                                ""))) {
+                    throw new StopProcessingException("Can't create duplicate registry entries.");
+                }
                 metacard.setAttribute(new AttributeImpl(Metacard.ID,
                         UUID.randomUUID()
                                 .toString()
                                 .replaceAll("-", "")));
                 updateTags(metacard);
                 updateIdentifiers(metacard, true);
+
             }
         }
 
@@ -277,5 +300,10 @@ public class IdentificationPlugin implements PreIngestPlugin {
 
     public void setMetacardMarshaller(MetacardMarshaller helper) {
         this.metacardMarshaller = helper;
+    }
+
+    public void setRegistryIdPostIngestPlugin(
+            RegistryIdPostIngestPlugin registryIdPostIngestPlugin) {
+        this.registryIdPostIngestPlugin = registryIdPostIngestPlugin;
     }
 }
