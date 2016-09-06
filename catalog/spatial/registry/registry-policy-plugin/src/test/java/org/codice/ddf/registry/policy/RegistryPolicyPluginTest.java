@@ -83,7 +83,7 @@ public class RegistryPolicyPluginTest {
     public void testCudRegistryOperations() throws Exception {
         RegistryPolicyPlugin rpp = createRegistryPlugin();
         rpp.setRegistryBypassPolicyStrings(Collections.singletonList("role=system-admin"));
-        rpp.setWriteAccessPolicyStrings(Collections.singletonList("role=guest"));
+        rpp.setCreateAccessPolicyStrings(Collections.singletonList("role=guest"));
 
         Metacard mcard = new MetacardImpl();
         mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
@@ -91,11 +91,11 @@ public class RegistryPolicyPluginTest {
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         PolicyResponse response = rpp.processPreCreate(mcard, null);
-        assertThat(response.operationPolicy(), equalTo(rpp.getWriteAccessPolicy()));
+        assertThat(response.operationPolicy(), equalTo(rpp.getCreateAccessPolicy()));
         response = rpp.processPreUpdate(mcard, null);
-        assertThat(response.operationPolicy(), equalTo(rpp.getWriteAccessPolicy()));
+        assertThat(response.operationPolicy(), equalTo(rpp.getCreateAccessPolicy()));
         response = rpp.processPreDelete(Collections.singletonList(mcard), null);
-        assertThat(response.operationPolicy(), equalTo(rpp.getWriteAccessPolicy()));
+        assertThat(response.operationPolicy(), equalTo(rpp.getCreateAccessPolicy()));
 
     }
 
@@ -118,7 +118,7 @@ public class RegistryPolicyPluginTest {
     public void testRemoteCudOperations() throws Exception {
         RegistryPolicyPlugin rpp = createRegistryPlugin();
         rpp.setRegistryBypassPolicyStrings(Collections.singletonList("role=system-admin"));
-        rpp.setWriteAccessPolicyStrings(Collections.singletonList("role=guest"));
+        rpp.setDeleteAccessPolicyStrings(Collections.singletonList("role=guest"));
 
         Metacard mcard = new MetacardImpl();
         mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
@@ -207,7 +207,7 @@ public class RegistryPolicyPluginTest {
     public void testUnusedMethods() throws Exception {
         RegistryPolicyPlugin rpp = createRegistryPlugin();
         rpp.setRegistryBypassPolicyStrings(Collections.singletonList("role=system-admin"));
-        rpp.setWriteAccessPolicyStrings(Collections.singletonList("role=guest"));
+        rpp.setCreateAccessPolicyStrings(Collections.singletonList("role=guest"));
         rpp.setReadAccessPolicyStrings(Collections.singletonList("role=guest"));
         rpp.setRegistryEntryIds(Collections.singleton("1234567890abcdefg987654321"));
 
@@ -216,7 +216,7 @@ public class RegistryPolicyPluginTest {
                 .get("role")
                 .iterator()
                 .next(), equalTo("system-admin"));
-        assertThat(rpp.getWriteAccessPolicy()
+        assertThat(rpp.getCreateAccessPolicy()
                 .get("role")
                 .iterator()
                 .next(), equalTo("guest"));
