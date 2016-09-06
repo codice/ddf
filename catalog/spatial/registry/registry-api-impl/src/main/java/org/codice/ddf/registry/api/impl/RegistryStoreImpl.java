@@ -49,15 +49,12 @@ import ddf.catalog.data.Result;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
@@ -174,23 +171,6 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         }
 
         return super.update(request);
-    }
-
-    @Override
-    public DeleteResponse delete(DeleteRequest request) throws IngestException {
-        //delete's for registry are normally done by registry-id but the '-' in the
-        //registry-id attribute name is not understood by the csw endpoint so we
-        //replace the request with one based on the metacard id's from the remote
-        //system which have been stored in the operation transaction
-        List<String> ids =
-                ((OperationTransaction) request.getPropertyValue(Constants.OPERATION_TRANSACTION_KEY)).getPreviousStateMetacards()
-                        .stream()
-                        .map(Metacard::getId)
-                        .collect(Collectors.toList());
-        DeleteRequest newRequest = new DeleteRequestImpl(ids.toArray(new String[ids.size()]),
-                request.getProperties());
-
-        return super.delete(newRequest);
     }
 
     @Override
