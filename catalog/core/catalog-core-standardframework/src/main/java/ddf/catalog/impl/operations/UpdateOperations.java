@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -573,7 +572,7 @@ public class UpdateOperations {
                 new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters),
                         1,  /* start index */
                         0,  /* page size */
-                        SortBy.NATURAL_ORDER,
+                        null,
                         false, /* total result count */
                         0   /* timeout */);
         return new QueryRequestImpl(queryImpl, updateRequest.getStoreIds());
