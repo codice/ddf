@@ -260,11 +260,21 @@ public class DynamicSchemaResolver {
 
                         attributeValues = byteArrays;
                     }
-                    solrInputDocument.addField(formatIndexName, attributeValues);
-                    if (!(formatIndexName.endsWith(SchemaFields.BINARY_SUFFIX)
-                            || formatIndexName.endsWith(SchemaFields.OBJECT_SUFFIX))) {
-                        solrInputDocument.addField(formatIndexName + SchemaFields.SORT_KEY_SUFFIX,
-                                attributeValues.get(0));
+
+                    // Prevent adding a field already on document
+                    if (solrInputDocument.getFieldValue(formatIndexName) == null) {
+                        solrInputDocument.addField(formatIndexName, attributeValues);
+                        if (!(formatIndexName.endsWith(SchemaFields.BINARY_SUFFIX)
+                                || formatIndexName.endsWith(SchemaFields.OBJECT_SUFFIX))) {
+                            solrInputDocument.addField(
+                                    formatIndexName + SchemaFields.SORT_KEY_SUFFIX,
+                                    attributeValues.get(0));
+                        }
+                    } else {
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("Skipping adding field already found on document ({})",
+                                    formatIndexName);
+                        }
                     }
                 }
             }
