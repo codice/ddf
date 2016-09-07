@@ -86,15 +86,9 @@ define([
             if (!this.model.get('result')) {
                 this.model.startSearch();
             }
-
-            this.listenTo(this.selectionInterface.getSelectedResults(), 'update', this.handleSelectionChange);
-            this.listenTo(this.selectionInterface.getSelectedResults(), 'add', this.handleSelectionChange);
-            this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', this.handleSelectionChange);
-            this.listenTo(this.selectionInterface.getSelectedResults(), 'reset', this.handleSelectionChange);
             this.startListeningToFilter();
             this.startListeningToSort();
             this.startListeningToResult();
-
             //metacardDefinitions.addMetacardTypes(this.model.get('result').get('metacard-types'));
         },
         startListeningToBlacklist: function(){
@@ -119,7 +113,7 @@ define([
             var alreadySelected = $(event.currentTarget).hasClass('is-selected');
             //shift key wins over all else
             if (event.shiftKey){
-                this.handleShiftClick(resultid, indexClicked);
+                this.handleShiftClick(resultid, indexClicked, alreadySelected);
             } else if (event.ctrlKey || event.metaKey){
                 this.handleControlClick(resultid, alreadySelected);
             } else {
@@ -127,12 +121,12 @@ define([
                 this.handleControlClick(resultid, alreadySelected);
             }
         },
-        handleShiftClick: function(resultid, indexClicked){
+        handleShiftClick: function(resultid, indexClicked, alreadySelected){
             var resultItems = this.$el.find('.resultSelector-list '+resultItemSelector);
             var firstIndex = resultItems.index(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').first());
             var lastIndex = resultItems.index(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').last());
             if (firstIndex === -1 && lastIndex === -1){
-                this.selectionInterface.clearSelectedResults();
+               // this.selectionInterface.clearSelectedResults();
                 this.handleControlClick(resultid, alreadySelected);
             } else if (indexClicked <= firstIndex) {
                 this.selectBetween(indexClicked, firstIndex);
@@ -150,16 +144,6 @@ define([
                 this.selectionInterface.removeSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
             } else {
                 this.selectionInterface.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
-            }
-        },
-        handleSelectionChange: function(){
-            var self = this;
-            self.$el.find('.resultSelector-list '+resultItemSelector+'[data-resultid]').removeClass('is-selected');
-            this.selectionInterface.getSelectedResults().forEach(function(metacard){
-                self.$el.find('.resultSelector-list '+resultItemSelector+'[data-resultid="'+metacard.id+'"]').addClass('is-selected');
-            });
-            if (this.selectionInterface.getSelectedResults().length === 1) {
-               // this.scrollIntoView(store.getSelectedResults().at(0).get('metacard'));
             }
         },
         scrollIntoView: function(metacard){
@@ -183,7 +167,6 @@ define([
             this.showResultDisplayDropdown();
             this.showResultFilterDropdown();
             this.showResultSortDropdown();
-            this.handleSelectionChange();
             this.handleFiltering(collapsedResults);
         },
         handleFiltering: function(resultCollection){
@@ -196,7 +179,8 @@ define([
         },
         showResultPaging: function(resultCollection){
             this.resultPaging.show(new PagingView({
-                model: resultCollection
+                model: resultCollection,
+                selectionInterface: this.selectionInterface
             }));
         },
         showResultList: function(resultCollection){

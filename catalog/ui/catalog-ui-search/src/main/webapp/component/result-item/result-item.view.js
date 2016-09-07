@@ -55,7 +55,10 @@ define([
         behaviors: {
             button: {}
         },
-        initialize: function(){
+        initialize: function(options){
+            if (!options.selectionInterface) {
+                throw 'Selection interface has not been provided';
+            }
             this.checkDisplayType();
             this.checkIfSaved();
             this.checkIsInWorkspace();
@@ -68,6 +71,13 @@ define([
             this.listenTo(user.get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
             this.listenTo(router, 'change', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences'), 'change:resultBlacklist', this.checkIfBlacklisted);
+            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.handleSelectionChange);
+            this.handleSelectionChange();
+        },
+        handleSelectionChange: function() {
+            var selectedResults = this.options.selectionInterface.getSelectedResults();
+            var isSelected = selectedResults.get(this.model.id);
+            this.$el.toggleClass('is-selected', Boolean(isSelected));
         },
         handleMetacardUpdate: function(){
             var currentWorkspace = store.getCurrentWorkspace();

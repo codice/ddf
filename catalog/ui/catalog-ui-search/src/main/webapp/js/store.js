@@ -116,6 +116,12 @@ define([
         removeSelectedResult: function(metacard){
             this.getSelectedResults().remove(metacard);
         },
+        getActiveSearchResultsAttributes: function(){
+            return this.get('content').getActiveSearchResultsAttributes();
+        },
+        getActiveSearchResults: function(){
+            return this.get('content').getActiveSearchResults();
+        },
         setActiveSearchResults: function(results){
             this.get('content').setActiveSearchResults(results);
         },

@@ -33,6 +33,11 @@ define([
                 return childView;
             }
         },
+        childViewOptions: function() {
+            return {
+                selectionInterface: this.options.selectionInterface
+            };
+        },
         className: 'is-list has-list-highlighting',
         selectionInterface: store,
         initialize: function(options){
@@ -41,13 +46,6 @@ define([
         },
         onAddChild: function (childView) {
             childView.$el.attr('data-index', this.children.length - 1);
-        },
-        onRender: function(){
-            if (!this.options.group){
-                this.selectionInterface.setActiveSearchResults(this.collection);
-            } else {
-                this.selectionInterface.addToActiveSearchResults(this.collection);
-            }
         }
     });
 });

@@ -1,0 +1,107 @@
+@{customElementNamespace}table {
+  .customElement;
+  background: inherit;
+
+  position: relative;
+  padding: 0px 20px 44px 20px;
+
+  > .tables-container {
+    display: block;
+    height: ~'calc(100% - @{minimumButtonSize})';
+    position: relative;
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  > .tables-container,
+  > .table-options,
+  > .table-visibility {
+    opacity: 1;
+    transition: opacity @coreTransitionTime linear;
+    transform: translateX(0%);
+    background: inherit;
+  }
+
+  > .table-empty {
+    text-align: center;
+    display: none;
+  }
+
+  .table-body {
+    @{customElementNamespace}result-thead {
+        visibility: hidden;
+    }
+  }
+
+  .container-header {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    background: inherit;
+  }
+
+  .container-body {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 100%;
+    overflow: auto;
+    width: 100%;
+  }
+
+  .table-header {
+    @{customElementNamespace}result-tbody {
+      visibility: hidden;
+    }
+  }
+
+  .table-body {
+    @{customElementNamespace}result-thead {
+      visibility: hidden;
+    }
+  }
+
+  > .table-options {
+    text-align: right;
+  }
+
+  > .table-options > button {
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    padding: 0px 10px;
+  }
+
+  @{customElementNamespace}table-visibility,
+  @{customElementNamespace}table-rearrange {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    z-index: 1;
+    background: rgba(0,0,0,.8);
+  }
+
+}
+
+@{customElementNamespace}table.is-empty {
+
+  > .table-empty {
+    display: block;
+  }
+
+  > .tables-container,
+  > .table-options,
+  > .table-visibility {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+}

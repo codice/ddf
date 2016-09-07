@@ -21,10 +21,11 @@ define([
     'component/visualization/maps/cesium/cesium.view',
     'component/visualization/maps/openlayers/openlayers.view',
     'component/visualization/histogram/histogram.view',
+    'component/visualization/table/table.view',
     'component/singletons/user-instance',
     'maptype'
 ], function (wreqr, Marionette, CustomElements, template, CesiumView, OpenlayersView, HistogramView,
-             user, maptype) {
+             TableView, user, maptype) {
 
     function getActiveVisualization() {
         return user.get('user').get('preferences').get('visualization');
@@ -53,6 +54,9 @@ define([
                 case 'histogram':
                     this.showHistogram();
                     break;
+                case 'table': 
+                    this.showTable();
+                    break;
             }
         },
         showOpenlayers: function(){
@@ -76,6 +80,11 @@ define([
             this.activeVisualization.show(new HistogramView({
                 selectionInterface: this.options.selectionInterface
             }));
+        },
+        showTable: function(){
+            this.activeVisualization.show(new TableView({
+                selectionInterface: this.options.selectionInterface
+            }))
         }
     });
 

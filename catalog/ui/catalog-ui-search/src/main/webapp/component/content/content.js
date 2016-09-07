@@ -58,6 +58,7 @@ define([
             filteredQueries: [],
             editing: true,
             activeSearchResults: [],
+            activeSearchResultsAttributes: [],
             drawing: false
         },
         initialize: function(){
@@ -66,7 +67,18 @@ define([
             this.listenTo(wreqr.vent, 'search:drawpoly', this.turnOnDrawing);
             this.listenTo(wreqr.vent, 'search:drawbbox', this.turnOnDrawing);
             this.listenTo(wreqr.vent, 'search:drawstop', this.turnOffDrawing);
-            this.listenTo(wreqr.vent, 'search:drawend', this.turnOffDrawing)
+            this.listenTo(wreqr.vent, 'search:drawend', this.turnOffDrawing);
+            this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
+        },
+        updateActiveSearchResultsAttributes: function(){
+            var availableAttributes = this.get('activeSearchResults').reduce(function(currentAvailable, result) {
+                currentAvailable = _.union(currentAvailable, Object.keys(result.get('metacard').get('properties').toJSON()));
+                return currentAvailable;
+            }, []).sort();
+            this.set('activeSearchResultsAttributes', availableAttributes);
+        }, 
+        getActiveSearchResultsAttributes: function(){
+            return this.get('activeSearchResultsAttributes');
         },
         turnOnDrawing: function(){
             this.set('drawing', true);
@@ -93,10 +105,10 @@ define([
             return this.get('activeSearchResults');
         },
         setActiveSearchResults: function(results){
-            this.get('activeSearchResults').reset(results.models);
+            this.get('activeSearchResults').reset(results.models || results);
         },
         addToActiveSearchResults: function(results){
-            this.get('activeSearchResults').add(results.models);
+            this.get('activeSearchResults').add(results.models || results);
         },
         getSelectedResults: function(){
             return this.get('selectedResults');

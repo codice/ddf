@@ -72,6 +72,15 @@ define([
                 action: function () {
                     user.get('user').get('preferences').set('visualization', 'histogram');
                 }
+            },
+            {
+                type: 'action',
+                name: 'Table',
+                icon: 'table',
+                help: 'Switches the visualization to a table.',
+                action: function () {
+                    user.get('user').get('preferences').set('visualization', 'table');
+                }
             }
         ]
     ];

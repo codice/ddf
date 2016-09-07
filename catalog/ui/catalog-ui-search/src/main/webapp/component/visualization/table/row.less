@@ -1,0 +1,40 @@
+@{customElementNamespace}result-row {
+  display: table-row;
+
+  td {
+    padding: 10px 20px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  td.is-hidden-column {
+    display: none;
+  }
+
+  td:not(.is-thumbnail)::after {
+    display: block;
+    content: attr(data-text);
+    font-weight: bold;
+    height: 1px;
+    color: transparent;
+    overflow: hidden;
+    visibility: hidden;
+  }
+
+  a:hover {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+
+  a:visited {
+    color:#d62a9f;
+  }
+
+  img {
+    min-width: 200px;
+    max-width: 200px;
+    max-height: 200px;
+  }
+
+  border-bottom: 1px solid @lighten-inherited-background-color;
+}

@@ -18,6 +18,7 @@ require([
     'jquery',
     'backbone',
     'marionette',
+    'js/Marionette.Region',
     'application',
     'properties',
     'handlebars/dist/handlebars',
@@ -25,7 +26,7 @@ require([
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
     'cesium.css'
-], function (_, $, Backbone, Marionette, app, properties, hbs, announcement) {
+], function (_, $, Backbone, Marionette, MarionetteRegion, app, properties, hbs, announcement) {
 
     $(window.document).ajaxError(function (event, jqxhr, settings, throwError) {
         var message;

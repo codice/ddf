@@ -51,20 +51,32 @@ define([
             currentAlert: undefined,
             currentResult: undefined,
             selectedResults: [],
-            activeSearchResults: []
+            activeSearchResults: [],
+            activeSearchResultsAttributes: [],
         },
         initialize: function(){
             this.set('currentResult', new Metacard.SearchResult());
             this.listenTo(this, 'change:currentAlert', this.clearSelectedResults);
+            this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
+        },
+        updateActiveSearchResultsAttributes: function(){
+            var availableAttributes = this.get('activeSearchResults').reduce(function(currentAvailable, result) {
+                currentAvailable = _.union(currentAvailable, Object.keys(result.get('metacard').get('properties').toJSON()));
+                return currentAvailable;
+            }, []).sort();
+            this.set('activeSearchResultsAttributes', availableAttributes);
+        }, 
+        getActiveSearchResultsAttributes: function(){
+            return this.get('activeSearchResultsAttributes');
         },
         getActiveSearchResults: function(){
             return this.get('activeSearchResults');
         },
         setActiveSearchResults: function(results){
-            this.get('activeSearchResults').reset(results.models);
+            this.get('activeSearchResults').reset(results.models || results);
         },
         addToActiveSearchResults: function(results){
-            this.get('activeSearchResults').add(results.models);
+            this.get('activeSearchResults').add(results.models || results);
         },
         getSelectedResults: function(){
             return this.get('selectedResults');
