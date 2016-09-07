@@ -80,6 +80,13 @@ Configuration via this page could result in an unstable system.
 Proceed with caution!
 ====
 
+====== Configuring Admin Poller Source Types
+Configurable source types can be adjusted by including or excluding the FactoryPid of the ManagedServiceFactory
+producing the source. By default all FactoryPids including the words *source* or *service* are included.
+If this produces undesirable results, patterns can be added via the Admin Poller Service to include
+or exclude specific FactoryPids. The system must be restarted for changes to take effect. Patterns
+are case senstive and can be exact matches or use * as a wildcard.
+
 ===== Managing Features Using the ${admin-console}
 
 . Select the appropriate application.
