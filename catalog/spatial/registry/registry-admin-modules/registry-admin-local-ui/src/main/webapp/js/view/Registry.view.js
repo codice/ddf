@@ -18,6 +18,7 @@ define([
         'backbone',
         'marionette',
         'underscore',
+        'moment',
         'jquery',
         'q',
         'wreqr',
@@ -29,7 +30,7 @@ define([
         'text!templates/nodeRow.handlebars',
         'text!templates/deleteNodeModal.handlebars'
     ],
-    function (ich,Backbone,Marionette,_,$,Q,wreqr,Node, NodeCollection, NodeModal,registryPage, nodeList, nodeRow, deleteNodeModal) {
+    function (ich,Backbone,Marionette,_,moment,$,Q,wreqr,Node, NodeCollection, NodeModal,registryPage, nodeList, nodeRow, deleteNodeModal) {
 
         var RegistryView = {};
 
@@ -188,6 +189,16 @@ define([
                 if(extrinsicData.length === 1) {
                     data.name = extrinsicData[0].Name;
                     data.slots = extrinsicData[0].Slot;
+                    data.slots.forEach(function (slotValue) {
+                        if (slotValue.slotType === "xs:dateTime") {
+                            var date = moment.parseZone(slotValue.value[0]).utc().format('MMM DD, YYYY HH:mm') + 'Z';
+                            if (slotValue.name === "lastUpdated") {
+                                data.lastUpdated = date;
+                            } else if (slotValue.name === "liveDate") {
+                                data.liveDate = date;
+                            }
+                        }
+                    });
                 }
                 return data;
             }
