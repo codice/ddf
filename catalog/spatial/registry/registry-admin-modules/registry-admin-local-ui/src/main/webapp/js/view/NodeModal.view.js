@@ -34,10 +34,7 @@ define([
         NodeModal.View = Marionette.Layout.extend({
             template: 'modalNode',
             className: 'modal',
-            /**
-             * Button events, right now there's a submit button
-             * I do not know where to go with the cancel button.
-             */
+
             events: {
                 "click .submit-button": "submitData",
                 "click .cancel-button": "cancel",
@@ -65,6 +62,10 @@ define([
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.contactInfo.get('segmentId'), this.updateContactTabError);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.serviceInfo.get('segmentId'), this.updateServiceTabError);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.contentInfo.get('segmentId'), this.updateContentTabError);
+
+                this.model.generalInfo.get('segments').forEach(function (segment){
+                    segment.set('identityNode', this.model.get('identityNode'));
+                }.bind(this));
 
                 this.generalInfoView = new Segment.SegmentCollectionView({
                     model: this.model.generalInfo,
