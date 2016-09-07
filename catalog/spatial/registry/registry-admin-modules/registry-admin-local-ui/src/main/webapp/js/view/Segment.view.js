@@ -62,7 +62,8 @@ define([
 
                 var standardFields = [];
                 var advancedFields = [];
-                this.model.get('fields').forEach( function (field) {
+                this.model.get('fields').forEach(function (field) {
+                    field.set('identityNode', this.model.get('identityNode'));
                     if (!field.get('custom') && !field.get('advanced')) {
                         standardFields.push(field);
                     }
@@ -70,7 +71,7 @@ define([
                         advancedFields.push(field);
                         this.addvancedFields = true;
                     }
-                });
+                }.bind(this));
                 this.formFieldsView = new Field.FieldCollectionView({collection: new Backbone.Collection(standardFields), readOnly: this.readOnly});
                 this.formSegmentsView = new Segment.SegmentCollectionView({
                     model: this.model,

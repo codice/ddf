@@ -14,7 +14,6 @@
 
 package org.codice.ddf.registry.federationadmin.service.impl;
 
-
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
 
 import java.io.IOException;
@@ -38,6 +37,7 @@ import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminE
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelper;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
+import org.codice.ddf.registry.schemabindings.helper.RegistryPackageTypeHelper;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -52,7 +52,6 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.VersionInfoType;
-
 
 /**
  * Creates a registry identity node when DDF Registry is first instantiated.
@@ -86,9 +85,17 @@ public class IdentityNodeInitialization {
     public void init() {
         try {
             Security.runAsAdminWithException(() -> {
-                Optional<Metacard> optional = federationAdminService.getLocalRegistryIdentityMetacard();
-                optional.ifPresent(e -> System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY,
-                        RegistryUtility.getRegistryId(e)));
+                Optional<Metacard> optional =
+                        federationAdminService.getLocalRegistryIdentityMetacard();
+                if (optional.isPresent()) {
+                    Metacard metacard = optional.get();
+                    System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY,
+                            RegistryUtility.getRegistryId(metacard));
+                    if (!metacard.getTitle()
+                            .equals(SystemInfo.getSiteName())) {
+                        updateIdentityNodeName(metacard);
+                    }
+                }
                 if (!optional.isPresent()) {
                     createIdentityNode();
                 }
@@ -102,6 +109,27 @@ public class IdentityNodeInitialization {
 
     public void destroy() {
         executorService.shutdown();
+    }
+
+    private void updateIdentityNodeName(Metacard metacard)
+            throws FederationAdminException, ParserException {
+        RegistryPackageType registryPackage = metacardMarshaller.getRegistryPackageFromMetacard(
+                metacard);
+
+        String siteName = SystemInfo.getSiteName();
+        RegistryPackageTypeHelper registryPackageTypeHelper = new RegistryPackageTypeHelper();
+
+        registryPackageTypeHelper.getExtrinsicObjects(registryPackage.getRegistryObjectList())
+                .stream()
+                .filter(extrinsicObjectType -> extrinsicObjectType.getObjectType()
+                        .equals(RegistryConstants.REGISTRY_NODE_OBJECT_TYPE))
+                .findFirst()
+                .ifPresent(extrinsicObjectType -> extrinsicObjectType.setName(
+                        internationalStringTypeHelper.create(siteName)));
+        Metacard identityMetacard = getRegistryMetacardFromRegistryPackage(registryPackage);
+        if (identityMetacard != null) {
+            federationAdminService.updateRegistryEntry(identityMetacard);
+        }
     }
 
     private void createIdentityNode() throws FederationAdminException {
