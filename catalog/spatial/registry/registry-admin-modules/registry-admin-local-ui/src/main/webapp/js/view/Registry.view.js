@@ -18,6 +18,7 @@ define([
         'backbone',
         'marionette',
         'underscore',
+        'moment',
         'jquery',
         'q',
         'wreqr',
@@ -29,7 +30,7 @@ define([
         'text!templates/nodeRow.handlebars',
         'text!templates/deleteNodeModal.handlebars'
     ],
-    function (ich,Backbone,Marionette,_,$,Q,wreqr,Node, NodeCollection, NodeModal,registryPage, nodeList, nodeRow, deleteNodeModal) {
+    function (ich,Backbone,Marionette,_,moment,$,Q,wreqr,Node, NodeCollection, NodeModal,registryPage, nodeList, nodeRow, deleteNodeModal) {
 
         var RegistryView = {};
 
@@ -41,8 +42,8 @@ define([
         RegistryView.RegistryPage = Marionette.Layout.extend({
             template: 'registryPage',
             events: {
-                'click .add-node-link' : 'showAddNode',
-                'click .refresh-button' : 'addDeleteNode'
+                'click .add-node-link': 'showAddNode',
+                'click .refresh-button': 'addDeleteNode'
             },
             modelEvents: {
                 "add": "render",
@@ -71,7 +72,7 @@ define([
                 this.additionalRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getSecondaryNodes()), multiValued: true}));
                 this.remoteNodeRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getRemoteNodes()), multiValued:true, readOnly:true}));
             },
-            showEditNode: function(node) {
+            showEditNode: function (node) {
                 wreqr.vent.trigger("showModal",
                     new NodeModal.View({
                         model: node,
@@ -79,8 +80,8 @@ define([
                     })
                 );
             },
-            showAddNode: function() {
-                if(this.model) {
+            showAddNode: function () {
+                if (this.model) {
                     wreqr.vent.trigger("showModal",
                         new NodeModal.View({
                             model: new Node.Model(),
@@ -89,8 +90,8 @@ define([
                     );
                 }
             },
-            showReadOnlyNode: function(node) {
-                if(this.model) {
+            showReadOnlyNode: function (node) {
+                if (this.model) {
                     wreqr.vent.trigger("showModal",
                         new NodeModal.View({
                             model: node,
@@ -103,7 +104,7 @@ define([
             addDeleteNode: function () {
                 var view = this;
                 var button = view.$('.refresh-button');
-                if(!button.hasClass('fa-spin')) {
+                if (!button.hasClass('fa-spin')) {
                     button.addClass('fa-spin');
                 }
                 this.model.fetch({
@@ -113,7 +114,7 @@ define([
                     }
                 });
             },
-            fetchComplete: function(view){
+            fetchComplete: function (view) {
                 var button = view.$('.refresh-button');
                 button.removeClass('fa-spin');
                 view.render();
@@ -133,7 +134,7 @@ define([
                 this.application = options.application;
                 this.listenTo(wreqr.vent, "showModal", this.showModal);
             },
-            showModal: function(modalView) {
+            showModal: function (modalView) {
 
                 var region = this.application.getRegion('modalRegion');
                 var iFrameModalDOM = $('#IframeModalDOM');
@@ -142,7 +143,7 @@ define([
                 });
                 modalView.$el.on('shown.bs.modal', function () {
                     var extraHeight = modalView.el.firstChild.clientHeight - $('#localNode').height();
-                    if(extraHeight > 0) {
+                    if (extraHeight > 0) {
                         iFrameModalDOM.height(extraHeight);
                         iFrameModalDOM.show();
                     }
@@ -156,15 +157,15 @@ define([
         });
 
 
-        RegistryView.NodeRow= Marionette.ItemView.extend({
+        RegistryView.NodeRow = Marionette.ItemView.extend({
             template: "nodeRow",
             tagName: "tr",
             className: "highlight-on-hover",
             events: {
-                'click td' : 'editNode',
+                'click td': 'editNode',
                 'click .remove-node-link': 'removeNode'
             },
-            editNode: function(evt) {
+            editNode: function (evt) {
                 evt.stopPropagation();
                 var node = this.model;
                 if (this.options.readOnly) {
@@ -173,21 +174,31 @@ define([
                     wreqr.vent.trigger('editNode', node);
                 }
             },
-            removeNode: function(evt) {
+            removeNode: function (evt) {
                 evt.stopPropagation();
                 wreqr.vent.trigger('deleteNodes', this.model);
             },
-            serializeData: function(){
+            serializeData: function () {
                 var data = {};
 
-                if(this.model) {
+                if (this.model) {
                     data = this.model.toJSON();
                 }
 
                 var extrinsicData = this.model.getObjectOfType('urn:registry:federation:node');
-                if(extrinsicData.length === 1) {
+                if (extrinsicData.length === 1) {
                     data.name = extrinsicData[0].Name;
                     data.slots = extrinsicData[0].Slot;
+                    data.slots.forEach(function (slotValue) {
+                        if (slotValue.slotType === "xs:dateTime") {
+                            var date = moment.parseZone(slotValue.value[0]).utc().format('MMM DD, YYYY HH:mm') + 'Z';
+                            if (slotValue.name === "lastUpdated") {
+                                data.lastUpdated = date;
+                            } else if (slotValue.name === "liveDate") {
+                                data.liveDate = date;
+                            }
+                        }
+                    });
                 }
                 return data;
             }
@@ -197,10 +208,10 @@ define([
             template: 'nodeList',
             itemView: RegistryView.NodeRow,
             itemViewContainer: 'tbody',
-            serializeData: function(){
+            serializeData: function () {
                 var data = {};
 
-                if(this.model) {
+                if (this.model) {
                     data = this.model.toJSON();
                 }
                 data.multiValued = this.options.multiValued;

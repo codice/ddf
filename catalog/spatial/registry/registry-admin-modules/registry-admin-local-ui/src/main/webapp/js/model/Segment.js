@@ -42,7 +42,7 @@ define([
                 properties['value' + i] = values[i];
             }
         } else if (values && field.get('type') === 'date') {
-            var dateTime = moment(values).utc();
+            var dateTime = moment.parseZone(values).utc();
 
             if (!dateTime.isValid()) {
                 dateTime = moment().utc();
