@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,11 +13,9 @@
  */
 package ddf.test.itests.catalog;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.when;
-
 import static ddf.catalog.ftp.FtpServerStarter.CLIENT_AUTH;
 import static ddf.catalog.ftp.FtpServerStarter.NEED;
 import static ddf.catalog.ftp.FtpServerStarter.WANT;
@@ -30,7 +28,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
@@ -44,6 +44,8 @@ import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.commons.net.util.KeyManagerUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -79,7 +81,19 @@ public class TestFtp extends AbstractIntegrationTest {
 
     private static final String SAMPLE_DATA = "sample test data";
 
-    private static final int SET_CLIENT_AUTH_TIMEOUT_SEC = 10;
+    private static final String SAMPLE_DATA_TITLE = "test.bin";
+
+    private static final String METACARD_TITLE = "Metacard-1.bin";
+
+    private static final String METACARD_FILE = "metacard1.xml";
+
+    private static final int SET_CLIENT_AUTH_TIMEOUT_SEC = 60;
+
+    private static final int VERIFY_INGEST_TIMEOUT_SEC = 10;
+
+    private FTPClient client;
+
+    private Set<String> metacardsToDelete;
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -93,7 +107,6 @@ public class TestFtp extends AbstractIntegrationTest {
 
             System.setProperty(FTP_PORT_PROPERTY, FTP_PORT.getPort());
             getServiceManager().startFeature(true, FTP_ENDPOINT_FEATURE);
-
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
@@ -112,6 +125,18 @@ public class TestFtp extends AbstractIntegrationTest {
         }
     }
 
+    @Before
+    public void setup() {
+        metacardsToDelete = new HashSet<>();
+    }
+
+    @After
+    public void tearDown() {
+        disconnectClient(client);
+        metacardsToDelete.forEach(TestCatalog::deleteMetacard);
+        metacardsToDelete.clear();
+    }
+
     /**
      * Simple test verifying FTP client can be connected and successfully complete SSL handshake
      * with FTP server when clientAuth = "want"
@@ -121,9 +146,8 @@ public class TestFtp extends AbstractIntegrationTest {
     @Test
     public void testFtpWantClientAuth() throws Exception {
         setClientAuthConfiguration(WANT);
-        FTPClient client = createInsecureClient();
+        client = createInsecureClient();
         assertTrue(client.sendNoOp());
-        disconnectClient(client);
     }
 
     /**
@@ -135,9 +159,8 @@ public class TestFtp extends AbstractIntegrationTest {
     @Test
     public void testFtpsWithKeystoreWantClientAuth() throws Exception {
         setClientAuthConfiguration(WANT);
-        FTPSClient client = createSecureClient(true);
+        client = createSecureClient(true);
         assertTrue(client.sendNoOp());
-        disconnectClient(client);
     }
 
     /**
@@ -149,9 +172,8 @@ public class TestFtp extends AbstractIntegrationTest {
     @Test
     public void testFtpsWithKeystoreNeedClientAuth() throws Exception {
         setClientAuthConfiguration(NEED);
-        FTPSClient client = createSecureClient(true);
+        client = createSecureClient(true);
         assertTrue(client.sendNoOp());
-        disconnectClient(client);
     }
 
     /**
@@ -163,9 +185,8 @@ public class TestFtp extends AbstractIntegrationTest {
     @Test
     public void testFtpsWithoutKeystoreWantClientAuth() throws Exception {
         setClientAuthConfiguration(WANT);
-        FTPSClient client = createSecureClient(false);
+        client = createSecureClient(false);
         assertTrue(client.sendNoOp());
-        disconnectClient(client);
     }
 
     /**
@@ -177,8 +198,7 @@ public class TestFtp extends AbstractIntegrationTest {
     @Test(expected = SSLException.class)
     public void testFtpsWithoutKeystoreNeedClientAuth() throws Exception {
         setClientAuthConfiguration(NEED);
-        FTPSClient client = createSecureClient(false);
-        disconnectClient(client);
+        client = createSecureClient(false);
     }
 
     /**
@@ -189,18 +209,12 @@ public class TestFtp extends AbstractIntegrationTest {
     @Test
     public void testFtpPut() throws Exception {
         setClientAuthConfiguration(WANT);
-        FTPClient client = createInsecureClient();
+        client = createInsecureClient();
 
-        ftpPut(client, SAMPLE_DATA);
+        ftpPut(client, SAMPLE_DATA, SAMPLE_DATA_TITLE);
 
         // verify FTP PUT resulted in ingest, catalogued data
-        Response response = executeOpenSearch("xml", "q=*", "count=100");
-        response.then()
-                .body("metacards.metacard.size()", equalTo(1));
-
-        // clean up test data
-        TestCatalog.deleteMetacard(getMetacardIdFromResponse(response));
-        disconnectClient(client);
+        verifyIngest(1, SAMPLE_DATA_TITLE);
     }
 
     /**
@@ -211,20 +225,15 @@ public class TestFtp extends AbstractIntegrationTest {
     @Test
     public void testFtpPutStream() throws Exception {
         setClientAuthConfiguration(WANT);
-        FTPClient client = createInsecureClient();
+        client = createInsecureClient();
 
         ftpPutStreaming(client,
-                IOUtils.toString(TestFtp.class.getClassLoader()
-                        .getResourceAsStream("/metacard1.xml")));
+                IOUtils.toString(getClass().getClassLoader()
+                        .getResourceAsStream(METACARD_FILE)),
+                METACARD_TITLE);
 
         // verify FTP PUT resulted in ingest, catalogued data
-        Response response = executeOpenSearch("xml", "q=*", "count=100");
-        response.then()
-                .body("metacards.metacard.size()", equalTo(1));
-
-        // clean up test data
-        TestCatalog.deleteMetacard(getMetacardIdFromResponse(response));
-        disconnectClient(client);
+        verifyIngest(1, METACARD_TITLE);
     }
 
     /**
@@ -235,18 +244,12 @@ public class TestFtp extends AbstractIntegrationTest {
     @Test
     public void testFtpsPut() throws Exception {
         setClientAuthConfiguration(NEED);
-        FTPSClient client = createSecureClient(true);
+        client = createSecureClient(true);
 
-        ftpPut(client, SAMPLE_DATA);
+        ftpPut(client, SAMPLE_DATA, SAMPLE_DATA_TITLE);
 
         // verify FTP PUT resulted in ingest, catalogued data
-        Response response = executeOpenSearch("xml", "q=*", "count=100");
-        response.then()
-                .body("metacards.metacard.size()", equalTo(1));
-
-        // clean up test data
-        TestCatalog.deleteMetacard(getMetacardIdFromResponse(response));
-        disconnectClient(client);
+        verifyIngest(1, SAMPLE_DATA_TITLE);
     }
 
     /**
@@ -257,20 +260,15 @@ public class TestFtp extends AbstractIntegrationTest {
     @Test
     public void testFtpsPutStream() throws Exception {
         setClientAuthConfiguration(NEED);
-        FTPSClient client = createSecureClient(true);
+        client = createSecureClient(true);
 
         ftpPutStreaming(client,
-                IOUtils.toString(TestFtp.class.getClassLoader()
-                        .getResourceAsStream("/metacard1.xml")));
+                IOUtils.toString(getClass().getClassLoader()
+                        .getResourceAsStream(METACARD_FILE)),
+                METACARD_TITLE);
 
         // verify FTP PUT resulted in ingest, catalogued data
-        Response response = executeOpenSearch("xml", "q=*", "count=100");
-        response.then()
-                .body("metacards.metacard.size()", equalTo(1));
-
-        // clean up test data
-        TestCatalog.deleteMetacard(getMetacardIdFromResponse(response));
-        disconnectClient(client);
+        verifyIngest(1, METACARD_TITLE);
     }
 
     private FTPClient createInsecureClient() throws Exception {
@@ -359,14 +357,14 @@ public class TestFtp extends AbstractIntegrationTest {
         return when().get(url);
     }
 
-    private void ftpPut(FTPClient client, String data) throws IOException {
+    private void ftpPut(FTPClient client, String data, String fileTitle) throws IOException {
         LOGGER.info("Start data upload via FTP PUT...");
 
         boolean done;
 
         try (InputStream ios = new ByteArrayInputStream(data.getBytes())) {
             // file will not actually be written to disk on ftp server
-            done = client.storeFile("test", ios);
+            done = client.storeFile(fileTitle, ios);
         }
 
         showServerReply(client);
@@ -378,11 +376,12 @@ public class TestFtp extends AbstractIntegrationTest {
         }
     }
 
-    private void ftpPutStreaming(FTPClient client, String data) throws IOException {
+    private void ftpPutStreaming(FTPClient client, String data, String fileName)
+            throws IOException {
         LOGGER.info("Start data upload via FTP PUT...");
 
         try (InputStream is = new ByteArrayInputStream(data.getBytes());
-                OutputStream os = client.storeFileStream("test");) {
+                OutputStream os = client.storeFileStream(fileName)) {
             byte[] bytesIn = new byte[4096];
             int read = 0;
 
@@ -420,14 +419,14 @@ public class TestFtp extends AbstractIntegrationTest {
 
     /**
      * Sets the clientAuth configuration in catalog-ftp feature.
-     * <p>
+     * <p/>
      * An FTPS client without a certificate is used to indicate when the clientAuth configuration
      * has taken effect at the FTP server level.
      * -    When the clientAuth is set to "want", this FTPS client without a certificate should be
      * able to connect to the FTP server and successfully complete the SSL handshake.
      * -    When the clientAuth is set to "need", this FTPS client without a certificate should be
      * able to connect to the FTP server but fail to complete the SSL handshake.
-     * <p>
+     * <p/>
      * SocketException and FTPConnectionClosedException are thrown when the client cannot connect to
      * the server or the connection was closed unexpectedly. These exceptions are thrown when the
      * server is being updated. SSLException is thrown only after a client has successfully
@@ -483,5 +482,32 @@ public class TestFtp extends AbstractIntegrationTest {
                         }
                     });
         }
+    }
+
+    private void verifyIngest(int expectedResults, String expectedTitle) {
+        // verify FTP PUT resulted in ingest, catalogued data
+        expect(String.format(
+                "Failed to verify FTP ingest expectedResult(s) of %d and expectedTitle of %s",
+                expectedResults,
+                expectedTitle)).within(VERIFY_INGEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+                .until(() -> {
+                    final Response response = executeOpenSearch("xml", "q=*", "count=100");
+
+                    int numOfResults = response.xmlPath()
+                            .getList("metacards.metacard")
+                            .size();
+
+                    String title = response.xmlPath()
+                            .get("metacards.metacard.string.findAll { it.@name == 'title' }.value");
+
+                    boolean success =
+                            numOfResults == expectedResults && title.equals(expectedTitle);
+
+                    if (success) {
+                        metacardsToDelete.add(getMetacardIdFromResponse(response));
+                    }
+
+                    return success;
+                });
     }
 }
