@@ -402,7 +402,7 @@ class SourceOperationsTest extends Specification {
         !available
     }
 
-    @Ignore // Currently still fails under some circumstances
+    @Ignore // These are ignored until source availibility is resolved
     def 'test source not available'() {
         setup:
         def source = Mock(Source)
@@ -425,7 +425,7 @@ class SourceOperationsTest extends Specification {
         !available
     }
 
-    @Ignore // Currently still fails under some circumstances
+    @Ignore // These are ignored until source availibility is resolved
     def 'test source is available'() {
         setup:
         def source = Mock(Source)
