@@ -299,13 +299,19 @@ public class ConfigurationApplication implements SparkApplication {
         if (StringUtils.isEmpty(imageryProviders)) {
             this.imageryProviders = Collections.emptyList();
         } else {
-            Object o = JsonFactory.create()
-                    .readValue(imageryProviders, List.class);
-            if (o != null) {
-                this.imageryProviders = (List) o;
-                setProxiesForImagery(this.imageryProviders);
-            } else {
-                LOGGER.warn("Could not parse imagery providers as JSON, {}", imageryProviders);
+            try {
+                Object o = JsonFactory.create()
+                        .readValue(imageryProviders, List.class);
+                if (o != null) {
+                    this.imageryProviders = (List) o;
+                    setProxiesForImagery(this.imageryProviders);
+                } else {
+                    this.imageryProviders = Collections.emptyList();
+                    LOGGER.warn("Could not parse imagery providers as JSON, {}", imageryProviders);
+                }
+            } catch (ClassCastException e) {
+                this.imageryProviders = Collections.emptyList();
+                LOGGER.error("Unable to parse terrain provider {} into map.", imageryProviders, e);
             }
         }
     }
@@ -323,15 +329,21 @@ public class ConfigurationApplication implements SparkApplication {
         if (StringUtils.isEmpty(terrainProvider)) {
             this.terrainProvider = null;
         } else {
-            Object o = JsonFactory.create()
-                    .readValue(terrainProvider, Map.class);
-            if (o != null) {
-                this.terrainProvider = (Map) o;
-                setProxyForTerrain(this.terrainProvider);
-            } else {
-                LOGGER.warn("Could not parse terrain providers as JSON, {}", terrainProvider);
+            try {
+                Object o = JsonFactory.create()
+                        .readValue(terrainProvider, Map.class);
+                if (o != null) {
+                    this.terrainProvider = (Map) o;
+                } else {
+                    this.terrainProvider = null;
+                    LOGGER.warn("Could not parse terrain providers as JSON, {}", terrainProvider);
+                }
+            } catch (ClassCastException e) {
+                this.terrainProvider = null;
+                LOGGER.error("Unable to parse terrain provider {} into map.", terrainProvider, e);
             }
         }
+        setProxyForTerrain(this.terrainProvider);
     }
 
     private void setProxiesForImagery(List<Map<String, Object>> newImageryProviders) {
