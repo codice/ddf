@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -46,6 +46,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -154,13 +155,14 @@ public class TestReplicationCommand {
         replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
+        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.batchSize = -1;
 
         replicationCmd.doExecute();
 
-        assertThat(consoleOutput.getOutput(), containsString(
-                "Batch Size must be between 1 and 1000."));
+        assertThat(consoleOutput.getOutput(),
+                containsString("Batch Size must be between 1 and 1000."));
         consoleOutput.reset();
     }
 
@@ -169,11 +171,12 @@ public class TestReplicationCommand {
         replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "";
+        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
 
-        assertThat(consoleOutput.getOutput(), containsString(
-                "Please enter the Source ID you would like to replicate:"));
+        assertThat(consoleOutput.getOutput(),
+                containsString("Please enter the Source ID you would like to replicate:"));
         assertThat(consoleOutput.getOutput(), containsString("sourceId1"));
         assertThat(consoleOutput.getOutput(), containsString("sourceId2"));
         consoleOutput.reset();
@@ -184,12 +187,13 @@ public class TestReplicationCommand {
         replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
+        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework, times(
-                HITS / replicationCmd.batchSize + 1)).query(argument.capture());
+        verify(catalogFramework,
+                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -204,12 +208,13 @@ public class TestReplicationCommand {
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.batchSize = 10;
+        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework, times(
-                HITS / replicationCmd.batchSize + 1)).query(argument.capture());
+        verify(catalogFramework,
+                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -225,12 +230,14 @@ public class TestReplicationCommand {
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.batchSize = 10;
         replicationCmd.maxMetacards = 20;
+        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework, times(replicationCmd.maxMetacards / replicationCmd.batchSize
-                + 1)).query(argument.capture());
+        verify(catalogFramework,
+                times(replicationCmd.maxMetacards / replicationCmd.batchSize
+                        + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -246,19 +253,20 @@ public class TestReplicationCommand {
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.batchSize = 10;
         replicationCmd.multithreaded = 4;
+        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework, times(
-                HITS / replicationCmd.batchSize + 1)).query(argument.capture());
+        verify(catalogFramework,
+                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
         assertThat(query, notNullValue());
         assertThat(query.getPageSize(), is(replicationCmd.batchSize));
-        assertThat(consoleOutput.getOutput(), containsString(
-                "1000 record(s) replicated; 0 record(s) failed"));
+        assertThat(consoleOutput.getOutput(),
+                containsString("1000 record(s) replicated; 0 record(s) failed"));
         consoleOutput.reset();
     }
 
@@ -267,12 +275,14 @@ public class TestReplicationCommand {
         replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = true;
         replicationCmd.sourceId = "sourceId1";
+        replicationCmd.temporalProperty = Core.CREATED;
+        replicationCmd.lastMinutes = 30;
 
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework, times(
-                HITS / replicationCmd.batchSize + 1)).query(argument.capture());
+        verify(catalogFramework,
+                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -301,11 +311,19 @@ public class TestReplicationCommand {
         replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
+        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
 
         assertThat(consoleOutput.getOutput(), containsString("500 record(s) failed"));
         consoleOutput.reset();
+    }
+
+    @Test
+    public void testInvalidTemporalProperty() {
+        replicationCmd.temporalProperty = "invalidTemporalProperty";
+
+        assertThat(replicationCmd.getTemporalProperty(), is(Core.CREATED));
     }
 
     private List<Result> getResultList(int size) {

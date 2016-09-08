@@ -99,7 +99,7 @@ public class ReplicationCommand extends DuplicateCommands {
         final Filter filter = (cqlFilter != null) ? CQL.toFilter(cqlFilter) : getFilter(
                 getFilterStartTime(start),
                 start,
-                Metacard.EFFECTIVE);
+                getTemporalProperty());
 
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(true);

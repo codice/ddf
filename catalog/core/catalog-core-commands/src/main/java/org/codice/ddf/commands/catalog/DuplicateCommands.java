@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,8 +26,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Option;
@@ -38,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -52,6 +55,12 @@ public abstract class DuplicateCommands extends CatalogCommands {
     private static final Logger LOGGER = LoggerFactory.getLogger(DuplicateCommands.class);
 
     private static final String DATE_FORMAT = "MM-dd-yyyy";
+
+    private static final String MUTUALLY_EXCLUSIVE_OPTION_MESSAGE =
+            "This option does not stack with other --lastXXXX options and smaller time units take precedence over larger time units.";
+
+    private static final String[] TEMPORAL_PROPERTIES =
+            {Core.CREATED, Metacard.EFFECTIVE, Core.EXPIRATION, Core.MODIFIED};
 
     protected FilterBuilder builder;
 
@@ -71,6 +80,12 @@ public abstract class DuplicateCommands extends CatalogCommands {
             "-t"}, multiValued = false, description = "Flag to use temporal criteria to query federated source. The default is to use \"keyword like * \"")
     boolean isUseTemporal = false;
 
+    @Option(name = "--temporalProperty", required = false, aliases = {
+            "-tp"}, multiValued = false, description =
+            "Option to select which temporal property to filter on. Valid values are \"modified\", \"created\", \"effective\", and"
+                    + " \"expiration\". Defaults to \"created\" if not specified or input not recognized.")
+    String temporalProperty;
+
     @Option(name = "--startDate", required = false, aliases = {
             "-s"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
     String startDate;
@@ -79,20 +94,34 @@ public abstract class DuplicateCommands extends CatalogCommands {
             "-e"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
     String endDate;
 
+    @Option(name = "--lastSeconds", required = false, aliases = {"-sec",
+            "-seconds"}, multiValued = false, description =
+            "Option to replicate the last N seconds. " + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
+    int lastSeconds;
+
+    @Option(name = "--lastMinutes", required = false, aliases = {"-min",
+            "-minutes"}, multiValued = false, description =
+            "Option to replicate the last N minutes. " + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
+    int lastMinutes;
+
     @Option(name = "--lastHours", required = false, aliases = {"-h",
-            "-hours"}, multiValued = false, description = "Option to replicate the last N hours.")
+            "-hours"}, multiValued = false, description = "Option to replicate the last N hours. "
+            + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
     int lastHours;
 
     @Option(name = "--lastDays", required = false, aliases = {"-d",
-            "-days"}, multiValued = false, description = "Option to replicate the last N days.")
+            "-days"}, multiValued = false, description = "Option to replicate the last N days. "
+            + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
     int lastDays;
 
     @Option(name = "--lastWeeks", required = false, aliases = {"-w",
-            "-weeks"}, multiValued = false, description = "Option to replicate the last N weeks.")
+            "-weeks"}, multiValued = false, description = "Option to replicate the last N weeks. "
+            + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
     int lastWeeks;
 
     @Option(name = "--lastMonths", required = false, aliases = {"-m",
-            "-months"}, multiValued = false, description = "Option to replicate the last N month.")
+            "-months"}, multiValued = false, description = "Option to replicate the last N month. "
+            + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
     int lastMonths;
 
     @Option(name = "--failedDir", required = false, aliases = {
@@ -235,7 +264,11 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
     protected long getFilterStartTime(long now) {
         long startTime = 0;
-        if (lastHours > 0) {
+        if (lastSeconds > 0) {
+            startTime = now - TimeUnit.SECONDS.toMillis(lastSeconds);
+        } else if (lastMinutes > 0) {
+            startTime = now - TimeUnit.MINUTES.toMillis(lastMinutes);
+        } else if (lastHours > 0) {
             startTime = now - TimeUnit.HOURS.toMillis(lastHours);
         } else if (lastDays > 0) {
             startTime = now - TimeUnit.DAYS.toMillis(lastDays);
@@ -251,6 +284,18 @@ public abstract class DuplicateCommands extends CatalogCommands {
             startTime = months.getTimeInMillis();
         }
         return startTime;
+    }
+
+    protected String getTemporalProperty() {
+        if (StringUtils.isNotEmpty(temporalProperty)) {
+            Optional<String> property = Stream.of(TEMPORAL_PROPERTIES)
+                    .filter(temporalProperty::equalsIgnoreCase)
+                    .findFirst();
+            if (property.isPresent()) {
+                return property.get();
+            }
+        }
+        return Core.CREATED;
     }
 
     protected String getInput(String message) throws IOException {
@@ -304,5 +349,4 @@ public abstract class DuplicateCommands extends CatalogCommands {
             }
         }
     }
-
 }

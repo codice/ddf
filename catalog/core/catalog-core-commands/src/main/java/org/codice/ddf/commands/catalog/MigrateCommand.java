@@ -103,7 +103,7 @@ public class MigrateCommand extends DuplicateCommands {
         final Filter filter = (cqlFilter != null) ? CQL.toFilter(cqlFilter) : getFilter(
                 getFilterStartTime(start),
                 start,
-                Metacard.MODIFIED);
+                getTemporalProperty());
 
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(true);
