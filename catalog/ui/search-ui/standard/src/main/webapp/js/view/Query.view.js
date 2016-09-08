@@ -377,11 +377,11 @@ define([
                 // modified (e.g., become available/unavailable)
                 this.sources.bind('add change remove', function() {
                     this.refreshSources();
-                });
+                }.bind(this));
 
                 this.types.bind('add change remove', function() {
                     this.refreshTypes();
-                });
+                }.bind(this));
 
                 this.initDateTimePicker('#absoluteStartTime');
                 this.initDateTimePicker('#absoluteEndTime');
