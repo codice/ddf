@@ -108,7 +108,7 @@ mvn install
 This will compile DDF and run all of the tests in the DDF source distribution. It usually takes some time for maven to download required dependencies in the first build.
 The distribution will be available under "distribution/ddf/target" directory.
 
-### How to build using multiple threads ###
+### How to build using multiple threads (currently not usable on Windows) ###
 
 To build DDF using the [parallel builds feature of maven](https://cwiki.apache.org/confluence/display/MAVEN/Parallel+builds+in+Maven+3), Run the following command:
 
