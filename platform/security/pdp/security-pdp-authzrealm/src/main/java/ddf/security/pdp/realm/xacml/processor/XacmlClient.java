@@ -252,7 +252,12 @@ public class XacmlClient {
         XMLReader xmlReader = null;
 
         try {
-            xmlReader = new XMLFilterImpl(XMLReaderFactory.createXMLReader()) {
+            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
+            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
+            xmlReader = new XMLFilterImpl(xmlParser) {
                 @Override
                 public void startElement(String uri, String localName, String qName,
                         Attributes attributes) throws SAXException {

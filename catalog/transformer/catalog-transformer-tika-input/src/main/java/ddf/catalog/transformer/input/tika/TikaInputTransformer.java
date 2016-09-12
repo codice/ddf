@@ -40,6 +40,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -65,6 +66,11 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
 import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
@@ -289,14 +295,30 @@ public class TikaInputTransformer implements InputTransformer {
 
     private String transformToXml(String xhtml) {
         LOGGER.debug("Transforming xhtml to xml.");
+
+        XMLReader xmlReader = null;
         try {
-            Writer xml = new StringWriter();
-            Transformer transformer = templates.newTransformer();
-            transformer.transform(new StreamSource(new StringReader(xhtml)), new StreamResult(xml));
-            return xml.toString();
-        } catch (TransformerException e) {
-            LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
-            return xhtml;
+            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
+            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
+            xmlReader = new XMLFilterImpl(xmlParser);
+        } catch (SAXException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
+        if (xmlReader != null) {
+            try {
+                Writer xml = new StringWriter();
+                Transformer transformer = templates.newTransformer();
+                transformer.transform(
+                        new SAXSource(xmlReader, new InputSource(new StringReader(xhtml))),
+                        new StreamResult(xml));
+                return xml.toString();
+            } catch (TransformerException e) {
+                LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
+            }
+        }
+        return xhtml;
     }
 }

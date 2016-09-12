@@ -168,6 +168,10 @@ Java developers should use the Java objects exclusively to complete query tasks,
 
 === Development Recommendations
 
+==== XML Parsing
+
+Restrict the use of DTD and entity expansion in XML. Follow the guidelines as outlined in https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet
+
 ==== Javascript
 
 Avoid using `console.log`

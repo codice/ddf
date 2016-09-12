@@ -13,6 +13,8 @@
  */
 package ddf.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -68,6 +70,13 @@ public class XPathHelper {
                 DocumentBuilderFactory.newInstance(org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
                         this.getClass()
                                 .getClassLoader());
+        dbf.setNamespaceAware(true);
+        try {
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to set features on document builder.", e);
+        }
         tf =
                 TransformerFactory.newInstance(org.apache.xalan.processor.TransformerFactoryImpl.class.getName(),
                         this.getClass()
@@ -228,7 +237,7 @@ public class XPathHelper {
      * {@link NamespaceContext}, the {@link NamespaceResolver} class. Allows you to also change the
      * how the type is returned.
      *
-     * @param xpathExpression
+     * @param xpathExpressionKey
      * @param returnType
      * @throws XPathExpressionException
      */
@@ -238,7 +247,7 @@ public class XPathHelper {
     }
 
     /**
-     * @param xpathExpression
+     * @param xpathExpressionKey
      * @param returnType
      * @param nsContext
      * @return
@@ -250,14 +259,29 @@ public class XPathHelper {
                 .setNamespaceContext(nsContext);
 
         XPathExpression compiledExpression = XPathCache.getCompiledExpression(xpathExpressionKey);
-
         Thread thread = Thread.currentThread();
         ClassLoader loader = thread.getContextClassLoader();
         thread.setContextClassLoader(this.getClass()
                 .getClassLoader());
 
-        try {
-            return compiledExpression.evaluate(document, returnType);
+        DocumentBuilder documentBuilder;
+        byte[] array;
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            documentBuilder = dbf.newDocumentBuilder();
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(document);
+            StreamResult result = new StreamResult(bos);
+            transformer.transform(source, result);
+            array = bos.toByteArray();
+        } catch (IOException | ParserConfigurationException | TransformerException e) {
+            throw new XPathExpressionException(e);
+        }
+
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(array)) {
+            return compiledExpression.evaluate(documentBuilder.parse(bis), returnType);
+        } catch (IOException | SAXException e) {
+            throw new XPathExpressionException(e);
         } finally {
             thread.setContextClassLoader(loader);
         }

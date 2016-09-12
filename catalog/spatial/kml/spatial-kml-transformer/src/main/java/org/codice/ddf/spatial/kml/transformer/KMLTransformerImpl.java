@@ -40,7 +40,9 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.BundleContext;
@@ -146,8 +148,15 @@ public class KMLTransformerImpl implements KMLTransformer {
         try {
             if (unmarshaller != null) {
                 LOGGER.debug("Reading in KML Style");
+                XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+                xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                        false);
+                xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+                XMLStreamReader xmlStreamReader =
+                        xmlInputFactory.createXMLStreamReader(stylingUrl.openStream());
                 JAXBElement<Kml> jaxbKmlStyle =
-                        unmarshaller.unmarshal(new StreamSource(stylingUrl.openStream()),
+                        unmarshaller.unmarshal(xmlStreamReader,
                                 Kml.class);
                 Kml kml = jaxbKmlStyle.getValue();
                 if (kml.getFeature() != null) {
@@ -155,7 +164,7 @@ public class KMLTransformerImpl implements KMLTransformer {
                             .getStyleSelector();
                 }
             }
-        } catch (JAXBException e) {
+        } catch (JAXBException | XMLStreamException e) {
             LOGGER.debug("Exception while unmarshalling default style resource.", e);
         } catch (IOException e) {
             LOGGER.debug("Exception while opening default style resource.", e);

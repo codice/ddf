@@ -51,6 +51,12 @@ public class RecordViewHelpers {
     static {
         transformerFactory = TransformerFactory.newInstance();
         documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        try {
+            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to configure features on document builder.", e);
+        }
     }
 
     public CharSequence buildMetadata(String metadata, Options options) {

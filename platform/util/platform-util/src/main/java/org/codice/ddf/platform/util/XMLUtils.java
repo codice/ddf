@@ -166,6 +166,7 @@ public class XMLUtils {
                     Boolean.FALSE);
             xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
                     Boolean.FALSE);
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
             xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
         }
     }

@@ -109,9 +109,15 @@ public class XmlParser implements Parser {
             final InputStream stream) throws ParserException {
         return unmarshal(configurator, unmarshaller -> {
             try {
-                XMLStreamReader xmlStreamReader = XMLInputFactory.newInstance()
-                        .createXMLStreamReader(stream);
-
+                XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+                xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
+                        Boolean.FALSE);
+                xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                        Boolean.FALSE);
+                xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+                xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+                xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
+                XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(stream);
                 @SuppressWarnings("unchecked")
                 T unmarshal = (T) unmarshaller.unmarshal(xmlStreamReader);
                 return unmarshal;
