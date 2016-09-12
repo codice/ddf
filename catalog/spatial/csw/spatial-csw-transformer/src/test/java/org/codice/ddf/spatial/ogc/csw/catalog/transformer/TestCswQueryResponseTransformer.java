@@ -364,7 +364,7 @@ public class TestCswQueryResponseTransformer {
     }
 
     @Test
-    public void testMarshalAcknowledgement2()
+    public void testMarshalAcknowledgementWithFailedTransforms()
             throws WebApplicationException, IOException, JAXBException,
             CatalogTransformerException {
 
@@ -379,17 +379,14 @@ public class TestCswQueryResponseTransformer {
         args.put(CswConstants.GET_RECORDS, query);
 
         PrintWriter printWriter = getSimplePrintWriter();
-
         MetacardTransformer mockMetacardTransformer = mock(MetacardTransformer.class);
 
-        AtomicLong atomicLong = new AtomicLong(0);
+        final AtomicLong atomicLong = new AtomicLong(0);
         when(mockMetacardTransformer.transform(any(Metacard.class),
                 anyMap())).then(invocationOnMock -> {
             if (atomicLong.incrementAndGet() == 2) {
-
                 throw new CatalogTransformerException("");
             }
-
             Metacard metacard = (Metacard) invocationOnMock.getArguments()[0];
             BinaryContentImpl bci = new BinaryContentImpl(IOUtils.toInputStream(
                     metacard.getId() + ","), new MimeType("application/xml"));

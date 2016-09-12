@@ -99,9 +99,9 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
     private static final String TIMESTAMP_ATTRIBUTE = "timestamp";
 
-    private static final String NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE = "numberOfRecordsMatched";
+    public static final String NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE = "numberOfRecordsMatched";
 
-    private static final String NEXT_RECORD_ATTRIBUTE = "nextRecord";
+    public static final String NEXT_RECORD_ATTRIBUTE = "nextRecord";
 
     private static final String RECORD_SCHEMA_ATTRIBUTE = "recordSchema";
 
