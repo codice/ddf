@@ -86,7 +86,7 @@ public class TestFtp extends AbstractIntegrationTest {
 
     private static final String METACARD_FILE = "metacard1.xml";
 
-    private static final int SET_CLIENT_AUTH_TIMEOUT_SEC = 60;
+    private static final int SET_CLIENT_AUTH_TIMEOUT_SEC = (int) TimeUnit.MINUTES.toSeconds(5);
 
     private static final int VERIFY_INGEST_TIMEOUT_SEC = 10;
 
@@ -226,9 +226,7 @@ public class TestFtp extends AbstractIntegrationTest {
         setClientAuthConfiguration(WANT);
         client = createInsecureClient();
 
-        ftpPutStreaming(client,
-                getFileContent(METACARD_FILE),
-                METACARD_TITLE);
+        ftpPutStreaming(client, getFileContent(METACARD_FILE), METACARD_TITLE);
 
         // verify FTP PUT resulted in ingest, catalogued data
         verifyIngest(1, METACARD_TITLE);
@@ -251,6 +249,47 @@ public class TestFtp extends AbstractIntegrationTest {
     }
 
     /**
+     * Test the ftp command sequence of uploading a dot-file (i.e. .foo) and then renaming that
+     * file to the final filename (i.e. test.txt). Confirm that the catalog contains only one
+     * object and the title of that object is "test.txt".
+     */
+    @Test
+    public void testFtpsPutDotFile() throws Exception {
+
+        setClientAuthConfiguration(NEED);
+        FTPSClient client = createSecureClient(true);
+
+        String dotFilename = ".foo";
+        String finalFilename = "test.txt";
+
+        ftpPut(client, SAMPLE_DATA, dotFilename);
+        boolean ret = client.rename(dotFilename, finalFilename);
+        assertTrue(ret);
+
+        verifyIngest(1, finalFilename);
+
+    }
+
+    @Test
+    public void testFtpsMkdirCwdPutFile() throws Exception {
+
+        setClientAuthConfiguration(NEED);
+        FTPSClient client = createSecureClient(true);
+
+        String newDir = "newDirectory";
+        String finalFilename = "test.txt";
+
+        boolean ret = client.makeDirectory(newDir);
+        assertTrue(ret);
+        ret = client.changeWorkingDirectory(newDir);
+        assertTrue(ret);
+        ftpPut(client, SAMPLE_DATA, finalFilename);
+
+        verifyIngest(1, finalFilename);
+
+    }
+
+    /**
      * Upload a file via FTPS for ingest using streaming method
      *
      * @throws Exception
@@ -260,9 +299,7 @@ public class TestFtp extends AbstractIntegrationTest {
         setClientAuthConfiguration(NEED);
         client = createSecureClient(true);
 
-        ftpPutStreaming(client,
-                getFileContent(METACARD_FILE),
-                METACARD_TITLE);
+        ftpPutStreaming(client, getFileContent(METACARD_FILE), METACARD_TITLE);
 
         // verify FTP PUT resulted in ingest, catalogued data
         verifyIngest(1, METACARD_TITLE);
