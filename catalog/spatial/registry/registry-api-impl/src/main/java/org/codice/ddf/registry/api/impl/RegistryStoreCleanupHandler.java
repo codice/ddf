@@ -67,12 +67,6 @@ public class RegistryStoreCleanupHandler implements EventHandler {
         }
     }
 
-    public void unbindRegistryStore(ServiceReference serviceReference) {
-        if (serviceReference != null) {
-            registryStorePidToServiceMap.remove(serviceReference.getProperty(Constants.SERVICE_PID));
-        }
-    }
-
     @Override
     public void handleEvent(Event event) {
         Object eventProperty = event.getProperty(EventConstants.EVENT);
@@ -95,6 +89,8 @@ public class RegistryStoreCleanupHandler implements EventHandler {
         if (service == null) {
             return;
         }
+        registryStorePidToServiceMap.remove(servicePid);
+
         executor.execute(() -> {
             String registryId = service.getRegistryId();
             try {
