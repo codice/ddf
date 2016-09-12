@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.api.internal.RegistryStore;
@@ -57,6 +58,8 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -139,6 +142,46 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
                 .anyMatch(Objects::isNull)) {
             throw new IngestException("One or more of the metacards is not a registry metacard");
         }
+
+        List<Filter> regIdFilters = request.getMetacards()
+                .stream()
+                .map(e -> filterBuilder.attribute(RegistryObjectMetacardType.REMOTE_METACARD_ID)
+                        .is()
+                        .equalTo()
+                        .text(e.getId()))
+                .collect(Collectors.toList());
+        Filter tagFilter = filterBuilder.attribute(Metacard.TAGS)
+                .is()
+                .equalTo()
+                .text(RegistryConstants.REGISTRY_TAG_INTERNAL);
+        QueryImpl query = new QueryImpl(filterBuilder.allOf(tagFilter,
+                filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE)
+                        .empty(),
+                filterBuilder.anyOf(regIdFilters)));
+        QueryRequest queryRequest = new QueryRequestImpl(query);
+        try {
+            SourceResponse queryResponse = super.query(queryRequest);
+
+            Map<String, Metacard> responseMap = queryResponse.getResults()
+                    .stream()
+                    .collect(Collectors.toMap(e -> RegistryUtility.getRegistryId(e.getMetacard()),
+                            Result::getMetacard));
+            List<Metacard> metacardsToCreate = request.getMetacards()
+                    .stream()
+                    .filter(e -> !responseMap.containsKey(RegistryUtility.getRegistryId(e)))
+                    .collect(Collectors.toList());
+            List<Metacard> allMetacards = new ArrayList<>(responseMap.values());
+            if (CollectionUtils.isNotEmpty(metacardsToCreate)) {
+                CreateResponse createResponse =
+                        super.create(new CreateRequestImpl(metacardsToCreate));
+                allMetacards.addAll(createResponse.getCreatedMetacards());
+            }
+            return new CreateResponseImpl(request, request.getProperties(), allMetacards);
+        } catch (UnsupportedQueryException e) {
+            LOGGER.warn(
+                    "Unable to perform pre-create remote query. Proceeding with original query. Error was {}",
+                    e.getMessage());
+        }
         return super.create(request);
     }
 
@@ -178,10 +221,6 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
     @Override
     public DeleteResponse delete(DeleteRequest request) throws IngestException {
-        //delete's for registry are normally done by registry-id but the '-' in the
-        //registry-id attribute name is not understood by the csw endpoint so we
-        //replace the request with one based on the metacard id's from the remote
-        //system which have been stored in the operation transaction
         List<String> ids =
                 ((OperationTransaction) request.getPropertyValue(Constants.OPERATION_TRANSACTION_KEY)).getPreviousStateMetacards()
                         .stream()

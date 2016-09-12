@@ -63,6 +63,11 @@
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

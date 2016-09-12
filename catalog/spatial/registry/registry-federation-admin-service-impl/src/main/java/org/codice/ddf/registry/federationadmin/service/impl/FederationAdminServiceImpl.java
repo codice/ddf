@@ -266,11 +266,23 @@ public class FederationAdminServiceImpl implements FederationAdminService {
 
         String deleteField = RegistryObjectMetacardType.REGISTRY_ID;
         if (CollectionUtils.isNotEmpty(destinations)) {
-            deleteField = RegistryObjectMetacardType.REMOTE_METACARD_ID;
+            deleteField = Metacard.ID;
             try {
-                List<Metacard> toDelete =
+                List<Metacard> localMetacards =
                         security.runWithSubjectOrElevate(() -> this.getRegistryMetacardsByRegistryIds(
                                 registryIds));
+                List<Filter> idFilters = localMetacards.stream()
+                        .map(e -> filterBuilder.attribute(RegistryObjectMetacardType.REMOTE_METACARD_ID)
+                                .is()
+                                .equalTo()
+                                .text(e.getId()))
+                        .collect(Collectors.toList());
+                Filter baseFilter =
+                        filterBuilder.allOf(getBasicFilter(RegistryConstants.REGISTRY_TAG_INTERNAL));
+                List<Metacard> toDelete =
+                        security.runWithSubjectOrElevate(() -> this.getRegistryMetacardsByFilter(
+                                filterBuilder.allOf(baseFilter, filterBuilder.anyOf(idFilters)),
+                                destinations));
                 serializableIds = toDelete.stream()
                         .map(e -> e.getId())
                         .collect(Collectors.toList());

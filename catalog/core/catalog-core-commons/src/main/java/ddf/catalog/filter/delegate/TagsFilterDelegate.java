@@ -69,8 +69,9 @@ public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
     @Override
     public Boolean not(Boolean operand) {
-        return operand;
+        return tags == null ? operand : !operand;
     }
+
 
     @Override
     public Boolean propertyIsEqualTo(String propertyName, String pattern, boolean isCaseSensitive) {

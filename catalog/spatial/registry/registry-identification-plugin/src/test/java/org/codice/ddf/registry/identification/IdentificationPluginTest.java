@@ -77,6 +77,7 @@ public class IdentificationPluginTest {
         parser = new XmlParser();
         identificationPlugin = new IdentificationPlugin();
         identificationPlugin.setMetacardMarshaller(new MetacardMarshaller(parser));
+        identificationPlugin.setRegistryIdPostIngestPlugin(new RegistryIdPostIngestPlugin());
         setParser(parser);
         sampleData = new MetacardImpl();
         sampleData.setId("testNewMetacardId");
