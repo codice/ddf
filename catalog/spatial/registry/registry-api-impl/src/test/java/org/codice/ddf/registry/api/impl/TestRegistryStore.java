@@ -174,6 +174,15 @@ public class TestRegistryStore {
         registryStore.create(request);
     }
 
+    @Test
+    public void testCreateWithExistingMetacard() throws Exception {
+        Metacard mcard = getDefaultMetacard();
+        queryResults.add(new ResultImpl(mcard));
+        CreateRequest request = new CreateRequestImpl(mcard);
+        CreateResponse response = registryStore.create(request);
+        assertThat(response.getCreatedMetacards()
+                .get(0), is(mcard));
+    }
 
     @Test
     public void testCreateNoExistingMetacard() throws Exception {
