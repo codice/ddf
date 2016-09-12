@@ -382,11 +382,11 @@ public class TestCswQueryResponseTransformer {
         MetacardTransformer mockMetacardTransformer = mock(MetacardTransformer.class);
 
         final AtomicLong atomicLong = new AtomicLong(0);
-        when(mockMetacardTransformer.transform(any(Metacard.class),
-                anyMap())).then(invocationOnMock -> {
+        when(mockMetacardTransformer.transform(any(Metacard.class), anyMap())).then(invocationOnMock -> {
             if (atomicLong.incrementAndGet() == 2) {
                 throw new CatalogTransformerException("");
             }
+            
             Metacard metacard = (Metacard) invocationOnMock.getArguments()[0];
             BinaryContentImpl bci = new BinaryContentImpl(IOUtils.toInputStream(
                     metacard.getId() + ","), new MimeType("application/xml"));
