@@ -78,7 +78,7 @@ public class ServiceManagerImpl implements ServiceManager {
 
     public static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
-    public static final long REQUIRED_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    public static final long FEATURES_AND_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
     public static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
@@ -222,7 +222,7 @@ public class ServiceManagerImpl implements ServiceManager {
     private FeaturesService getFeaturesService() throws InterruptedException {
         FeaturesService featuresService = null;
         boolean ready = false;
-        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
+        long timeoutLimit = System.currentTimeMillis() + FEATURES_AND_BUNDLES_TIMEOUT;
         while (!ready) {
             ServiceReference<FeaturesService> featuresServiceRef =
                     FrameworkUtil.getBundle(this.getClass())
@@ -242,7 +242,7 @@ public class ServiceManagerImpl implements ServiceManager {
             if (!ready) {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     fail(String.format("Feature service could not be resolved within %d minutes.",
-                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
+                            TimeUnit.MILLISECONDS.toMinutes(FEATURES_AND_BUNDLES_TIMEOUT)));
                 }
                 Thread.sleep(1000);
             }
@@ -330,7 +330,7 @@ public class ServiceManagerImpl implements ServiceManager {
             bundleService = getService(BundleService.class);
         }
 
-        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
+        long timeoutLimit = System.currentTimeMillis() + FEATURES_AND_BUNDLES_TIMEOUT;
         while (!ready) {
             List<Bundle> bundles = Arrays.asList(getBundleContext().getBundles());
 
@@ -364,7 +364,7 @@ public class ServiceManagerImpl implements ServiceManager {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     printInactiveBundles();
                     fail(String.format("Bundles and blueprint did not start within %d minutes.",
-                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
+                            TimeUnit.MILLISECONDS.toMinutes(FEATURES_AND_BUNDLES_TIMEOUT)));
                 }
                 LOGGER.info("Bundles not up, sleeping...");
                 Thread.sleep(1000);
@@ -382,7 +382,7 @@ public class ServiceManagerImpl implements ServiceManager {
                 .collect(Collectors.toList());
 
         WaitCondition.expect(String.format("Bundles %s uninstalled", symbolicNamesSet))
-                .within(2, TimeUnit.MINUTES)
+                .within(FEATURES_AND_BUNDLES_TIMEOUT, TimeUnit.MILLISECONDS)
                 .until(() -> bundleIds.stream()
                         .filter(id -> getBundleContext().getBundle(id) != null)
                         .collect(Collectors.toList())
@@ -395,7 +395,7 @@ public class ServiceManagerImpl implements ServiceManager {
             throws Exception {
         boolean ready = false;
 
-        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
+        long timeoutLimit = System.currentTimeMillis() + FEATURES_AND_BUNDLES_TIMEOUT;
         FeaturesService featuresService = getFeaturesService();
 
         while (!ready) {
@@ -418,7 +418,7 @@ public class ServiceManagerImpl implements ServiceManager {
                     printInactiveBundles();
                     fail(String.format("Feature did not change to State [" + predicate.toString()
                                     + "] within %d minutes.",
-                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
+                            TimeUnit.MILLISECONDS.toMinutes(FEATURES_AND_BUNDLES_TIMEOUT)));
                 }
                 LOGGER.info("Still waiting on feature [{}], current state [{}]...",
                         featureName,
