@@ -62,7 +62,6 @@ import org.apache.tika.mime.MediaType;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.platform.util.InputValidation;
 import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -1528,7 +1527,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters),
                 1,  /* start index */
                 0,  /* page size */
-                SortBy.NATURAL_ORDER,
+                null,
                 false, /* total result count */
                 0   /* timeout */);
         return new QueryRequestImpl(queryImpl, updateRequest.getStoreIds());
@@ -1800,7 +1799,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters),
                 1,  /* start index */
                 0,  /* page size */
-                SortBy.NATURAL_ORDER,
+                null,
                 false, /* total result count */
                 0   /* timeout */);
         return new QueryRequestImpl(queryImpl, deleteRequest.getStoreIds());
