@@ -37,8 +37,6 @@ define([
             },
             initialize: function () {
                 // there is no automatic chaining of initialize.
-                Modal.prototype.initialize.apply(this, arguments);
-
                 this.model = new Backbone.Model({
                     state: 'start'
                 });
