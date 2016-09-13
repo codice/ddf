@@ -23,9 +23,10 @@ define([
         'usngs',
         'wreqr',
         'js/Common',
+        'js/CacheSourceSelector',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common) {
+    function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common, CacheSourceSelector) {
         "use strict";
         var Query = {};
 
@@ -620,9 +621,19 @@ define([
                 result.set('initiated', moment().format('lll'));
                 result.get('results').fullCollection.sort();
 
+                // the "cache" source is always added to the search
                 sources.unshift("cache");
+                   
+                var cqlString = data.cql;
                 this.currentSearches = sources.map(function (src) {
                     data.src = src;
+
+                    // since the "cache" source will return all cached results, need to
+                    // limit the cached results to only those from a selected source
+                    data.cql = (src === 'cache') ?
+                        CacheSourceSelector.trimCacheSources(cqlString, sources) :
+                        cqlString;
+
                     return result.fetch({
                         data: JSON.stringify(data),
                         remove: false,
