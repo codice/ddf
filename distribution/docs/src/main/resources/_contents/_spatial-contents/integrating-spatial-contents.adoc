@@ -3598,7 +3598,7 @@ ${branding} supports the ability to integrate WFS 1.0 and WFS 2.0 Web Services.
 
 [NOTE]
 ====
-${branding} does not include a supported WFS Web Service (Endpoint) implementation.
+${branding} does not include a WFS Web Service Endpoint implementation.
 Therefore, federation for 2 ${branding} instances is not possible via WFS.
 ====
 
