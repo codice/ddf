@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -41,6 +42,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -93,6 +95,15 @@ public class IngestCommand extends CatalogCommands {
             LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static final int DEFAULT_BATCH_SIZE = 500;
+
+    /**
+     * The maximum size of the blocking queue that holds metacards in process.
+     * This value has been set to be lower than the maximum number of parties
+     * to a single Phaser to simplify the Phaser processing (obviating the need
+     * for tiered Phasers) and to protect the server from running out of memory
+     * with too many objects in the queue at any time.
+     */
+    private static final int MAX_QUEUE_SIZE = 65000;
 
     private static final String CONTENT = "content";
 
@@ -171,6 +182,12 @@ public class IngestCommand extends CatalogCommands {
 
     @Override
     protected Object executeWithSubject() throws Exception {
+        if (batchSize * multithreaded > MAX_QUEUE_SIZE) {
+            throw new IngestException(String.format(
+                    "batchsize * multithreaded cannot be larger than %d.",
+                    MAX_QUEUE_SIZE));
+        }
+
         final File inputFile = getInputFile();
         if (inputFile == null) {
             return null;
@@ -549,9 +566,11 @@ public class IngestCommand extends CatalogCommands {
 
         if (result != null) {
             try {
-                metacardQueue.put(result);
                 phaser.register();
+                metacardQueue.put(result);
             } catch (InterruptedException e) {
+                phaser.arriveAndDeregister();
+
                 INGEST_LOGGER.error("Thread interrupted while waiting to 'put' metacard: {}",
                         result.getId(),
                         e);
@@ -571,15 +590,20 @@ public class IngestCommand extends CatalogCommands {
         if (zipDecompression != null) {
 
             try (InputStream inputStream = byteSource.openBufferedStream()) {
-                List<Metacard> metacardList = zipDecompression.transform(inputStream, arguments);
+                List<Metacard> metacardList = zipDecompression.transform(inputStream, arguments)
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+
                 if (metacardList.size() != 0) {
                     metacardFileMapping = generateFileMap(new File(inputFile.getParent(),
                             CONTENT_PATH));
                     fileCount.set(metacardList.size());
+
                     for (Metacard metacard : metacardList) {
+                        phaser.register();
                         metacardQueue.put(metacard);
                     }
-                    phaser.bulkRegister(metacardList.size());
                 }
             } catch (IOException | CatalogTransformerException | InterruptedException e) {
                 // Clear the queue, to make this an all-or-nothing transaction
