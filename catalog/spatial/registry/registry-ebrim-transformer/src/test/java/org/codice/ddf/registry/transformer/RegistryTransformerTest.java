@@ -14,10 +14,10 @@
 package org.codice.ddf.registry.transformer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -57,8 +57,7 @@ public class RegistryTransformerTest {
     private Parser parser;
 
     private void assertRegistryMetacard(Metacard meta) {
-        assertThat(meta.getContentTypeName(),
-                startsWith(RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME));
+        assertThat(meta.getTags(), contains(RegistryConstants.REGISTRY_TAG));
     }
 
     @Before

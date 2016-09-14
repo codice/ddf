@@ -51,35 +51,35 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     public static final String DATA_END_DATE = "data-end-date";
 
-    public static final String LINKS = "links";
+    public static final String LINKS = "registry.links";
 
-    public static final String REGION = "region";
+    public static final String REGION = "registry.region";
 
-    public static final String DATA_SOURCES = "input-data-sources";
+    public static final String DATA_SOURCES = "registry.input-data-sources";
 
     public static final String DATA_TYPES = "data-types";
 
     //list of all the service binding ids
-    public static final String SERVICE_BINDINGS = "service-bindings";
+    public static final String SERVICE_BINDINGS = "registry.service-bindings";
 
     //list of bindingType fields from all the service bindings
-    public static final String SERVICE_BINDING_TYPES = "service-binding-types";
+    public static final String SERVICE_BINDING_TYPES = "registry.service-binding-types";
 
-    public static final String REGISTRY_ID = "registry-id";
+    public static final String REGISTRY_ID = "registry.registry-id";
 
-    public static final String REGISTRY_IDENTITY_NODE = "registry-identity-node";
+    public static final String REGISTRY_IDENTITY_NODE = "registry.local.registry-identity-node";
 
-    public static final String PUBLISHED_LOCATIONS = "published-locations";
+    public static final String PUBLISHED_LOCATIONS = "registry.local.published-locations";
 
-    public static final String LAST_PUBLISHED = "last-published";
+    public static final String LAST_PUBLISHED = "registry.local.last-published";
 
-    public static final String REGISTRY_BASE_URL = "registry-base-url";
+    public static final String REGISTRY_BASE_URL = "registry.registry-base-url";
 
-    public static final String REGISTRY_LOCAL_NODE = "registry-local-node";
+    public static final String REGISTRY_LOCAL_NODE = "registry.local.registry-local-node";
 
-    public static final String REMOTE_REGISTRY_ID = "remote-registry-id";
+    public static final String REMOTE_REGISTRY_ID = "registry.local.remote-registry-id";
 
-    public static final String REMOTE_METACARD_ID = "remote-metacard-id";
+    public static final String REMOTE_METACARD_ID = "registry.local.remote-metacard-id";
 
     public static final Set<String> TRANSIENT_ATTRIBUTES;
 
