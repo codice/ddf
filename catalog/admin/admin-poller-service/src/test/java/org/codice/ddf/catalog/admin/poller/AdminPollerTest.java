@@ -183,11 +183,11 @@ public class AdminPollerTest {
                 // Mock out the metatypes
                 Map<String, Object> metatype = new HashMap<>();
                 metatype.put("id", "OpenSearchSource");
-                metatype.put("metatype", new ArrayList<Map<String, Object>>());
+                metatype.put("OSGI-INF/blueprint/metatype", new ArrayList<Map<String, Object>>());
 
                 Map<String, Object> noConfigMetaType = new HashMap<>();
                 noConfigMetaType.put("id", "No Configurations");
-                noConfigMetaType.put("metatype", new ArrayList<Map<String, Object>>());
+                noConfigMetaType.put("OSGI-INF/blueprint/metatype", new ArrayList<Map<String, Object>>());
 
                 when(helper.getMetatypes()).thenReturn(CollectionUtils.asList(metatype,
                         noConfigMetaType));

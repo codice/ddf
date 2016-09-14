@@ -12,6 +12,7 @@
  **/
 -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
@@ -29,7 +30,22 @@
           init-method="init"
           destroy-method="destroy">
         <argument ref="configurationAdmin"/>
+        <cm:managed-properties persistent-id="org.codice.ddf.catalog.admin.poller.AdminPollerServiceBean"
+                               update-strategy="container-managed"/>
         <property name="reportActionProviders" ref="reportActionProviders"/>
         <property name="operationActionProviders" ref="operationActionProviders"/>
+        <property name="includeAsSource">
+            <list>
+                <value>*source*</value>
+                <value>*Source*</value>
+                <value>*service*</value>
+                <value>*Service*</value>
+            </list>
+        </property>
+        <property name="excludeAsSource">
+            <list>
+                <value>ddf.services.schematron.SchematronValidationService</value>
+            </list>
+        </property>
     </bean>
 </blueprint>

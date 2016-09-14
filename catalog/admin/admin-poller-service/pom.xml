@@ -59,6 +59,11 @@
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>spock-shaded</artifactId>
+            <version>${ddf.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -104,22 +109,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.55</minimum>
+                                            <minimum>.60</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.62</minimum>
+                                            <minimum>.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.45</minimum>
+                                            <minimum>.60</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.53</minimum>
+                                            <minimum>.60</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

@@ -23,6 +23,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -98,7 +99,14 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
     private List<MultiActionProvider> operationActionProviders;
 
+    private List<String> includeAsSource;
+
+    private List<String> excludeAsSource;
+
+    protected String sourceFilter;
+
     public AdminPollerServiceBean(ConfigurationAdmin configurationAdmin) {
+
         helper = getHelper();
         helper.configurationAdmin = configurationAdmin;
 
@@ -115,6 +123,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     }
 
     public void init() {
+        sourceFilter = getFilterProperties();
         try {
             try {
                 mBeanServer.registerMBean(this, objectName);
@@ -263,6 +272,22 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         return new AdminSourceHelper();
     }
 
+    protected String getFilterProperties() {
+        String includes, excludes;
+        includes = (includeAsSource == null || CollectionUtils.isEmpty(includeAsSource)) ?
+                "(service.factoryPid=*)" : includeAsSource.stream()
+                .map(pid -> String.format("(service.factoryPid=%s)", pid))
+                .collect(Collectors.joining());
+        if (excludeAsSource == null || CollectionUtils.isEmpty(excludeAsSource)) {
+            return String.format("(|%s)", includes);
+        } else {
+            excludes = excludeAsSource.stream()
+                    .map(pid -> String.format("(!(service.factoryPid=%s))", pid))
+                    .collect(Collectors.joining());
+            return String.format("(&(|%s)(&%s))", includes, excludes);
+        }
+    }
+
     protected class AdminSourceHelper {
         protected ConfigurationAdmin configurationAdmin;
 
@@ -292,7 +317,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         protected List<Map<String, Object>> getMetatypes() {
             ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(configurationAdmin);
             return configAdminExt.addMetaTypeNamesToMap(configAdminExt.getFactoryPidObjectClasses(),
-                    "(|(service.factoryPid=*source*)(service.factoryPid=*Source*)(service.factoryPid=*service*)(service.factoryPid=*Service*))",
+                    sourceFilter,
                     "service.factoryPid");
         }
 
@@ -330,5 +355,13 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
     public void setOperationActionProviders(List<MultiActionProvider> operationActionProviders) {
         this.operationActionProviders = operationActionProviders;
+    }
+
+    public void setIncludeAsSource(List<String> includeAsSource) {
+        this.includeAsSource = includeAsSource;
+    }
+
+    public void setExcludeAsSource(List<String> excludeAsSource) {
+        this.excludeAsSource = excludeAsSource;
     }
 }
