@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -28,9 +28,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
@@ -94,6 +97,20 @@ public class CometDClient {
     private final HttpClient httpClient;
 
     private final List<MessageListener> messageListeners = new ArrayList<>();
+
+    private static final String ACTIVITIES_CHANNEL = "/ddf/activities/**";
+
+    private static final String DATA_MESSAGE = "data.message";
+
+    private static final String DATA_ID = "data.id";
+
+    private static final String DOWNLOAD_CANCELLED = "Resource retrieval cancelled";
+
+    private static final String DOWNLOAD_COMPLETED = "Resource retrieval completed";
+
+    private static final String RETRIEVAL_FAILURE = "Unable to retrieve";
+
+    private Set<String> downloadIds = new HashSet<>();
 
     /**
      * Creates a CometD client without authentication.
@@ -149,6 +166,7 @@ public class CometDClient {
             LOGGER.error(message);
             throw new ConnectException(message);
         }
+
     }
 
     /**
@@ -310,6 +328,17 @@ public class CometDClient {
         data.add(dataMap);
         jsonMap.put("data", data);
         publish("/service/action", jsonMap);
+
+    }
+
+    /**
+     * Cancels all resource downloads.
+     */
+    public void cancelAllDownloads() {
+
+        downloadIds.stream()
+                .forEach(this::cancelDownload);
+
     }
 
     /**
@@ -417,6 +446,12 @@ public class CometDClient {
                 .count() == 1;
     }
 
+    public Set<String> getDownloadIds() {
+
+        return Collections.unmodifiableSet(downloadIds);
+
+    }
+
     private class MessageListener
             implements org.cometd.bayeux.client.ClientSessionChannel.MessageListener {
 
@@ -435,6 +470,33 @@ public class CometDClient {
             LOGGER.debug("timestamp of message: {}",
                     message.getDataAsMap()
                             .get("timestamp"));
+
+            JsonPath jsonPath = JsonPath.from(message.getJSON()
+                    .toString());
+            String dataMessage = jsonPath.getString(DATA_MESSAGE);
+
+            if (channel.getChannelId()
+                    .toString()
+                    .equals(ACTIVITIES_CHANNEL)) {
+
+                String downloadId = jsonPath.getString(DATA_ID);
+
+                if (StringUtils.isNotEmpty(downloadId)) {
+
+                    if (dataMessage.contains(DOWNLOAD_CANCELLED) || dataMessage.contains(
+                            DOWNLOAD_COMPLETED) || dataMessage.contains(RETRIEVAL_FAILURE)) {
+                        downloadIds.remove(downloadId);
+
+                    } else {
+
+                        downloadIds.add(downloadId);
+
+                    }
+
+                }
+
+            }
+
             messages.add(message.getJSON());
         }
 
@@ -465,4 +527,5 @@ public class CometDClient {
                     .toLocalTime();
         }
     }
+
 }
