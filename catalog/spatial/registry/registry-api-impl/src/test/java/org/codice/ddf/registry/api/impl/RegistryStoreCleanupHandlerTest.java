@@ -110,20 +110,6 @@ public class RegistryStoreCleanupHandlerTest {
     }
 
     @Test
-    public void testUnBindRegistryStore() throws Exception {
-        ServiceReference ref = getServiceReference("servicePid");
-        cleanupHandler.bindRegistryStore(ref);
-        cleanupHandler.unbindRegistryStore(ref);
-        handleEvent(null,
-                ref,
-                ServiceEvent.UNREGISTERING,
-                "registryId",
-                Collections.singletonList(mcard));
-        verify(federationAdmin,
-                never()).deleteRegistryEntriesByMetacardIds(Collections.singletonList(mcard.getId()));
-    }
-
-    @Test
     public void testUnregisterEvent() throws Exception {
         ServiceReference ref = getServiceReference("servicePid");
         handleEvent(ref,

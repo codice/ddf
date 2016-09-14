@@ -142,7 +142,15 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
                 .collect(Collectors.toCollection(HashSet::new));
 
         if (CollectionUtils.isNotEmpty(locations)) {
-            federationAdminService.updateRegistryEntry(metacard, locations);
+            try {
+                federationAdminService.updateRegistryEntry(metacard, locations);
+            } catch (FederationAdminException e) {
+                //This should not happen often but could occur if the remote registry removed the metacard
+                //that was to be updated. In that case performing an add will fix the problem. If the failure
+                //was for another reason like the site couldn't be contacted then the add will fail
+                //also and the end result will be the same.
+                federationAdminService.addRegistryEntry(metacard, locations);
+            }
             metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED,
                     Date.from(ZonedDateTime.now()
                             .toInstant())));
