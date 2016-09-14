@@ -99,7 +99,13 @@ public class ConfigurationApplication implements SparkApplication {
 
     private Boolean isExternalAuthentication = false;
 
+    private List<Long> scheduleFrequencyList;
+
     private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
+
+    public List<Long> getScheduleFrequencyList() {
+        return scheduleFrequencyList;
+    }
 
     public List<String> getSummaryShow() {
         return summaryShow;
@@ -122,6 +128,10 @@ public class ConfigurationApplication implements SparkApplication {
 
     public List<String> getHiddenAttributes() {
         return hiddenAttributes;
+    }
+
+    public void setScheduleFrequencyList(List<Long> scheduleFrequencyList) {
+        this.scheduleFrequencyList = scheduleFrequencyList;
     }
 
     public void setReadOnly(List<String> readOnly) {
@@ -227,6 +237,7 @@ public class ConfigurationApplication implements SparkApplication {
         config.put("hiddenAttributes", hiddenAttributes);
         config.put("attributeAliases", attributeAliases);
         config.put("sourcePollInterval", sourcePollInterval);
+        config.put("scheduleFrequencyList", scheduleFrequencyList);
 
         return config;
     }

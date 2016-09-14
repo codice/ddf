@@ -20,11 +20,12 @@ define([
     './query-schedule.hbs',
     'js/CustomElements',
     'js/store',
+    'properties',
     'component/property/property.view',
     'component/property/property',
     'component/dropdown/dropdown.view',
     'component/radio/radio.view'
-], function (Marionette, _, $, template, CustomElements, store, PropertyView, Property,
+], function (Marionette, _, $, template, CustomElements, store, properties, PropertyView, Property,
              DropdownView, RadioView) {
 
     return Marionette.LayoutView.extend({
@@ -51,50 +52,52 @@ define([
             }
         },
         setupInterval: function(){
-            var halfHour = 30 * 60 * 1000;
-            var hour = 2 * halfHour;
             this.propertyInterval.show(new PropertyView({
-                model: new Property({
-                    enum: [
-                        {
-                            label: 'Never',
-                            value: false
-                        },
-                        {
-                            label: '1/2 Hour',
-                            value: halfHour
-                        },
-                        {
-                            label: '1 Hour',
-                            value: hour
-                        },
-                        {
-                            label: '2 Hours',
-                            value: 2 * hour
-                        },
-                        {
-                            label: '4 Hours',
-                            value: 4 * hour
-                        },
-                        {
-                            label: '8 Hours',
-                            value: 8 * hour
-                        },
-                        {
-                            label: '16 Hours',
-                            value: 16 * hour
-                        },
-                        {
-                            label: 'Day',
-                            value: 24 * hour
-                        }
-                    ],
-                    value: [this.model.get('polling') || false],
-                    id: 'Frequency'
-                })
+                model: this.getPropertyIntervalEnum()
             }));
             this.propertyInterval.currentView.turnOffEditing();
             this.propertyInterval.currentView.turnOnLimitedWidth();
+        },
+        getPropertyIntervalEnum: function() {
+            var intervalArray;
+            intervalArray = [{
+                label: 'Never',
+                value: false
+            }];
+
+            var that = this;
+            _.each(properties.scheduleFrequencyList, function(property) {
+                this.push({
+                    label: that.parseTimeFromSeconds(property),
+                    value: property * 1000
+                });
+            }, intervalArray);
+
+            intervalArray.sort(this.compare);
+
+            return new Property({
+                enum : intervalArray,
+                value: [this.model.get('polling') || false],
+                id: 'Frequency'
+            });
+        },
+        parseTimeFromSeconds: function(seconds){
+            var hours   = Math.floor(seconds / 3600);
+            var minutes = Math.floor((seconds - (hours * 3600)) / 60);
+            var seconds = seconds - (hours * 3600) - (minutes * 60);
+
+            var result = "";
+            if(hours > 0) {
+                result += hours + " hour(s) ";
+            }
+            if(minutes > 0) {
+                result += minutes + " minute(s) ";
+            }
+            if(seconds > 0) {
+                result += seconds + " second(s)";
+            }
+
+            return result.trim();
         },
         turnOnEditing: function(){
             this.$el.addClass('is-editing');
@@ -125,6 +128,15 @@ define([
                 polling: this.propertyInterval.currentView.getCurrentValue()[0]
             });
             store.saveQuery();
+        },
+        compare: function(a, b) {
+            if (a.value < b.value) {
+                return -1;
+            }
+            if (a.value > b.value) {
+                return 1;
+            }
+            return 0;
         }
     });
 });

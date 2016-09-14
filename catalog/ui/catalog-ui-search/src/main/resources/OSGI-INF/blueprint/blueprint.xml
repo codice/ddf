@@ -50,6 +50,17 @@
                   value='[{ "type": "WMS", "url": "http://geoint.nrlssc.navy.mil/nrltileserver/wms", "layers": ["bluemarble"], "alpha": 1 }, { "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "alpha": 0.3 }]'/>
         <property name="terrainProvider"
                   value='{"type": "CT", "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'/>
+        <property name="scheduleFrequencyList">
+            <list>
+                <value>1800</value>
+                <value>3600</value>
+                <value>7200</value>
+                <value>14400</value>
+                <value>28800</value>
+                <value>57600</value>
+                <value>86400</value>
+            </list>
+        </property>
     </bean>
 
     <service interface="ddf.catalog.data.MetacardType">
