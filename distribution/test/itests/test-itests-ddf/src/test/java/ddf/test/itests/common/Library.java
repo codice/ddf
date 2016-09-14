@@ -225,7 +225,7 @@ public final class Library {
                 + "  <csw:Delete typeName=\"rim:RegistryPackage\" handle=\"something\">\n"
                 + "    <csw:Constraint version=\"2.0.0\">\n" + "      <ogc:Filter>\n"
                 + "        <ogc:PropertyIsEqualTo>\n"
-                + "            <ogc:PropertyName>remote-metacard-id</ogc:PropertyName>\n"
+                + "            <ogc:PropertyName>registry.local.remote-metacard-id</ogc:PropertyName>\n"
                 + "            <ogc:Literal>" + id + "</ogc:Literal>\n"
                 + "        </ogc:PropertyIsEqualTo>\n" + "      </ogc:Filter>\n"
                 + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";

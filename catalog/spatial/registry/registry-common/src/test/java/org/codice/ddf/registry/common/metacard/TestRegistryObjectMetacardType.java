@@ -25,30 +25,20 @@ import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
 
 public class TestRegistryObjectMetacardType {
 
     private static final String[] ATTRIBUTE_DESCRIPTORS =
-            {Metacard.TAGS, Metacard.ID, Metacard.CONTENT_TYPE, Metacard.METADATA, Metacard.CREATED,
-                    Metacard.MODIFIED, Metacard.TITLE, Metacard.DESCRIPTION,
-                    RegistryObjectMetacardType.SECURITY_LEVEL,
-                    RegistryObjectMetacardType.METACARD_TYPE, RegistryObjectMetacardType.ENTRY_TYPE,
-                    Metacard.CONTENT_TYPE_VERSION, RegistryObjectMetacardType.ORGANIZATION_NAME,
-                    RegistryObjectMetacardType.ORGANIZATION_ADDRESS,
-                    RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER,
-                    RegistryObjectMetacardType.ORGANIZATION_EMAIL, Metacard.POINT_OF_CONTACT,
-                    RegistryObjectMetacardType.LIVE_DATE,
-                    RegistryObjectMetacardType.DATA_START_DATE,
-                    RegistryObjectMetacardType.DATA_END_DATE, RegistryObjectMetacardType.LINKS,
-                    Metacard.GEOGRAPHY, RegistryObjectMetacardType.REGION,
-                    RegistryObjectMetacardType.DATA_SOURCES, RegistryObjectMetacardType.DATA_TYPES,
+            {RegistryObjectMetacardType.SECURITY_LEVEL, RegistryObjectMetacardType.LINKS,
+                    RegistryObjectMetacardType.REGION, RegistryObjectMetacardType.DATA_SOURCES,
                     RegistryObjectMetacardType.SERVICE_BINDINGS,
                     RegistryObjectMetacardType.SERVICE_BINDING_TYPES,
                     RegistryObjectMetacardType.REGISTRY_ID,
                     RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE,
                     RegistryObjectMetacardType.REGISTRY_LOCAL_NODE,
                     RegistryObjectMetacardType.REGISTRY_BASE_URL,
+                    RegistryObjectMetacardType.REMOTE_METACARD_ID,
+                    RegistryObjectMetacardType.REMOTE_REGISTRY_ID,
                     RegistryObjectMetacardType.PUBLISHED_LOCATIONS,
                     RegistryObjectMetacardType.LAST_PUBLISHED};
 
@@ -61,7 +51,7 @@ public class TestRegistryObjectMetacardType {
         assertThat(descriptors, not(nullValue()));
         assertThat(CollectionUtils.isEmpty(descriptors), is(false));
 
-        assertThat(registryObjectMetacardType.getAttributeDescriptor(Metacard.ID)
+        assertThat(registryObjectMetacardType.getAttributeDescriptor(RegistryObjectMetacardType.REGISTRY_ID)
                 .isMultiValued(), is(false));
     }
 
@@ -72,5 +62,23 @@ public class TestRegistryObjectMetacardType {
             assertThat(registryObjectMetacardType.getAttributeDescriptor(attrDesc)
                     .isStored(), is(true));
         }
+    }
+
+    @Test
+    public void testAddAttributeMethods() {
+        RegistryObjectMetacardType registryObjectMetacardType = new RegistryObjectMetacardType();
+
+        registryObjectMetacardType.addXml("title1", false);
+        registryObjectMetacardType.addQueryableGeo("title2", true);
+
+        assertThat(registryObjectMetacardType.getAttributeDescriptor("title1")
+                .isStored(), is(true));
+        assertThat(registryObjectMetacardType.getAttributeDescriptor("title1")
+                .isMultiValued(), is(false));
+
+        assertThat(registryObjectMetacardType.getAttributeDescriptor("title2")
+                .isStored(), is(true));
+        assertThat(registryObjectMetacardType.getAttributeDescriptor("title2")
+                .isMultiValued(), is(true));
     }
 }

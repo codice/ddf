@@ -614,10 +614,6 @@ public class FederationAdminServiceImpl implements FederationAdminService {
 
     private List<Filter> getBasicFilter(String tag) {
         List<Filter> filters = new ArrayList<>();
-        filters.add(filterBuilder.attribute(Metacard.CONTENT_TYPE)
-                .is()
-                .equalTo()
-                .text(RegistryConstants.REGISTRY_NODE_METACARD_TYPE_NAME));
         filters.add(filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .equalTo()
