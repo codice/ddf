@@ -51,6 +51,7 @@
     </bean>
 
     <bean id="storeCleanupHandler" class="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler">
+        <cm:managed-properties persistent-id="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler" update-strategy="container-managed"/>
         <property name="federationAdminService" ref="federationAdminService"/>
         <property name="executor" ref="cleanupHandlerExecutor"/>
     </bean>
@@ -76,8 +77,7 @@
                     availability="optional">
         <reference-listener ref="registryPublisher" bind-method="bindRegistryStore"
                             unbind-method="unbindRegistryStore"/>
-        <reference-listener ref="storeCleanupHandler" bind-method="bindRegistryStore"
-                            unbind-method="unbindRegistryStore"/>
+        <reference-listener ref="storeCleanupHandler" bind-method="bindRegistryStore"/>
     </reference-list>
 
     <service ref="registryPublisher" interface="org.osgi.service.event.EventHandler">

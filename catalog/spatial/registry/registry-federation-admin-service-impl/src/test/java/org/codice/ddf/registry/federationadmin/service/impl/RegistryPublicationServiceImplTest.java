@@ -300,7 +300,7 @@ public class RegistryPublicationServiceImplTest {
         assertThat(lastPublishedDate.after(before), is(equalTo(true)));
     }
 
-    @Test(expected = FederationAdminException.class)
+    @Test
     public void testUpdateException() throws Exception {
         doThrow(new FederationAdminException("Test Error")).when(federationAdminService)
                 .updateRegistryEntry(any(Metacard.class), any(Set.class));
@@ -309,7 +309,8 @@ public class RegistryPublicationServiceImplTest {
                 REGISTRY_STORE_REGISTRY_ID);
 
         registryPublicationService.update(mcard);
-        verify(federationAdminService, never()).updateRegistryEntry(mcard);
+        verify(federationAdminService).addRegistryEntry(mcard,
+                Collections.singleton(REGISTRY_STORE_ID));
     }
 
     @Test(expected = FederationAdminException.class)
