@@ -97,7 +97,7 @@
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
     <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
-               filter="(|(mime-type=application/xml)(mime-type=text/xml))"/>
+               filter="(id=xml)"/>
 
     <reference-list id="metacardActionProviders" interface="ddf.action.ActionProvider"
                     filter="(id=catalog.data.metacard.*)"/>
