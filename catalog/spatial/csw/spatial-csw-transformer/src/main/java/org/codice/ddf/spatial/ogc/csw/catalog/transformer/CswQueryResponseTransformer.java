@@ -25,6 +25,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -297,7 +298,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 try {
                     contents[index] = completedFuture.get()
                             .getInputStream();
-                } catch (ExecutionException e) {
+                } catch (ExecutionException | CancellationException | InterruptedException e) {
                     LOGGER.debug("Error transforming Metacard", e);
                     numResults.decrementAndGet();
                 } finally {
