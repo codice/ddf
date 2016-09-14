@@ -17,26 +17,41 @@
          name="Registry Policy Plugin"
          id="org.codice.ddf.registry.policy.RegistryPolicyPlugin">
 
-        <AD description="Roles/attributes required for CUD (create/update/delete) operations on registry entries. Example: {role=role1;type=type1}"
-            name="Registry CUD Attributes" id="writeAccessPolicyStrings" required="true" type="String" cardinality="100"
+        <AD description="Roles/attributes required for create operations on registry entries. Example: {role=role1;type=type1}"
+            name="Registry Create Attributes" id="createAccessPolicyStrings" required="true"
+            type="String" cardinality="100"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>
+
+        <AD description="Roles/attributes required for update operations on registry entries. Example: {role=role1;type=type1}"
+            name="Registry Update Attributes" id="updateAccessPolicyStrings" required="true"
+            type="String" cardinality="100"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>
+
+        <AD description="Roles/attributes required for delete operations on registry entries. Example: {role=role1;type=type1}"
+            name="Registry Delete Attributes" id="deleteAccessPolicyStrings" required="true"
+            type="String" cardinality="100"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>
 
         <AD description="Roles/attributes required for reading registry entries. Example: {role=role1;type=type1}"
-            name="Registry Read Attributes" id="readAccessPolicyStrings" required="true" type="String" cardinality="100"
+            name="Registry Read Attributes" id="readAccessPolicyStrings" required="true"
+            type="String" cardinality="100"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>
 
         <AD description="Roles/attributes required for an admin to bypass all filtering/access controls. Example: {role=role1;type=type1}"
-            name="Registry Admin Attributes" id="registryBypassPolicyStrings" required="true" type="String" cardinality="100"
+            name="Registry Admin Attributes" id="registryBypassPolicyStrings" required="true"
+            type="String" cardinality="100"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin"/>
 
         <AD description="Disables all write access to registry entries in the catalog. Only users with Registry Admin Attributes will be able to write registry entries"
-            name="Disable Registry Write Access" id="registryDisabled" required="false" type="Boolean"/>
+            name="Disable Registry Write Access" id="registryDisabled" required="false"
+            type="Boolean"/>
 
         <AD description="A flag indicating whether or not the Registry Entry Ids represent a 'white list' (allowed - checked) or a 'black list' (blocked - unchecked) ids"
             name="Entries are White List" id="whiteList" required="false" type="Boolean"/>
 
         <AD description="List of registry entry ids to be used in the white/black list."
-            name="Registry Entries Ids" id="registryEntryIds" required="false" type="String" cardinality="1000"/>
+            name="Registry Entries Ids" id="registryEntryIds" required="false" type="String"
+            cardinality="1000"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.registry.policy.RegistryPolicyPlugin">
