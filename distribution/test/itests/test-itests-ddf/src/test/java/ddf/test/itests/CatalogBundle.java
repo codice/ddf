@@ -16,8 +16,8 @@ package ddf.test.itests;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +42,8 @@ public class CatalogBundle {
 
     public static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
 
-    public static final String RESOURCE_DOWNLOAD_MANAGER_PID = "ddf.catalog.resource.download.ReliableResourceDownloadManager";
+    public static final String RESOURCE_DOWNLOAD_MANAGER_PID =
+            "ddf.catalog.resource.download.ReliableResourceDownloadManager";
 
     private final ServiceManager serviceManager;
 
@@ -159,6 +160,21 @@ public class CatalogBundle {
         serviceManager.startManagedService(CATALOG_FRAMEWORK_PID, properties);
     }
 
+    public void setFanoutTagBlacklist(List<String> blacklist) throws IOException {
+        Map<String, Object> properties = adminConfig.getDdfConfigAdmin()
+                .getProperties(CATALOG_FRAMEWORK_PID);
+
+        if (blacklist != null) {
+            if (properties == null) {
+                properties = new Hashtable<>();
+            }
+
+            properties.put("fanoutTagBlacklist", String.join(",", blacklist));
+
+            serviceManager.startManagedService(CATALOG_FRAMEWORK_PID, properties);
+        }
+    }
+
     public void setupCaching(boolean cachingEnabled) throws IOException {
         Map<String, Object> existingProperties = adminConfig.getDdfConfigAdmin()
                 .getProperties(RESOURCE_DOWNLOAD_MANAGER_PID);
@@ -173,7 +189,8 @@ public class CatalogBundle {
             updatedProperties.put("cacheEnabled", "False");
         }
 
-        Configuration configuration = adminConfig.getConfiguration(RESOURCE_DOWNLOAD_MANAGER_PID, null);
+        Configuration configuration = adminConfig.getConfiguration(RESOURCE_DOWNLOAD_MANAGER_PID,
+                null);
         configuration.update(updatedProperties);
     }
 }

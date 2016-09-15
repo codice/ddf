@@ -24,6 +24,13 @@
         <AD name="Enable Notifications" id="notificationEnabled" required="false" type="Boolean"
             default="true"
             description="Check to enable notifications."/>
+        <AD name="Fanout tag blacklist" id="fanoutTagBlacklist" required="true" type="String"
+            cardinality="100"
+            description="Ingest operations with tags in this list will be rejected."/>
+        <AD name="Fanout proxy tag blacklist" id="fanoutProxyTagBlacklist" required="true"
+            type="String" cardinality="100"
+            default="registry,registry-remote"
+            description="Query operations with tags in this list will not be passed through."/>
 
     </OCD>
 
@@ -40,7 +47,7 @@
     </Designate>
 
     <Designate pid="ddf.catalog.history.Historian">
-        <Object ocdref="ddf.catalog.history.Historian" />
+        <Object ocdref="ddf.catalog.history.Historian"/>
     </Designate>
 
 
