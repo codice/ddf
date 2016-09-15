@@ -44,6 +44,7 @@ define([
         },
         initialize: function () {
             var view = this;
+            this._resizeHandler = _.throttle(this._resizeHandler, 200);
             $(window).on(namespacedEvent('resize',view), function () {
                 view._resizeHandler();
             });

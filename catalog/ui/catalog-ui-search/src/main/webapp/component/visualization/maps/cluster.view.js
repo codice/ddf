@@ -72,12 +72,24 @@ var ClusterView = Marionette.ItemView.extend({
     },
     updateSelected: function() {
         var selected = 0;
-        this.model.get('results').forEach(function(result) {
-            if (this.options.selectionInterface.getSelectedResults().get(result)) {
-                selected++;
-            }
-        }.bind(this));
-        if (selected === this.model.get('results').length) {
+        var selectedResults = this.options.selectionInterface.getSelectedResults();
+        var results = this.model.get('results');
+        // if there are less selected results, loop over those instead of this model's results
+        if (selectedResults.length < results.length) {
+            selectedResults.some(function(result) {
+                if (results.get(result.id)) {
+                    selected++;
+                }
+                return selected === results.length;
+            }.bind(this));
+        } else {
+            results.forEach(function(result) {
+                if (selectedResults.get(result.id)) {
+                    selected++;
+                }
+            }.bind(this));
+        }
+        if (selected === results.length) {
             this.showFullySelected();
         } else if (selected > 0) {
             this.showPartiallySelected();
