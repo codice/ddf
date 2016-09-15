@@ -35,6 +35,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>geospatial</artifactId>
+            <version>${ddf.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -46,6 +51,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
+                        <Embed-Dependency>
+                            geospatial
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

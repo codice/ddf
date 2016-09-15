@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,7 +16,10 @@ package org.codice.ddf.spatial.geocoder.geonames;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.MissingResourceException;
+import java.util.Optional;
 
+import org.codice.ddf.libs.location.ISOFormatConverter;
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoder.GeoResultCreator;
@@ -81,5 +84,33 @@ public class GeoNamesLocalIndex implements GeoCoder {
         }
 
         return null;
+    }
+
+    @Override
+    public Optional<String> getCountryCode(String locationWKT, int radius) {
+        try {
+            Optional<String> alpha2CountryCode = geoEntryQueryable.getCountryCode(locationWKT,
+                    radius);
+
+            if (alpha2CountryCode.isPresent()) {
+                try {
+                    String alpha3CountryCode =
+                            ISOFormatConverter.convert(ISOFormatConverter.ENGLISH_LANG,
+                                    alpha2CountryCode.get());
+                    return Optional.of(alpha3CountryCode);
+                } catch (MissingResourceException e) {
+                    LOGGER.debug(
+                            "Failed to convert country code {} to alpha-3 format. Returning empty value",
+                            alpha2CountryCode.get(),
+                            e);
+                }
+            }
+        } catch (GeoEntryQueryException e) {
+            LOGGER.debug("Error querying the local GeoNames index", e);
+        } catch (ParseException e) {
+            LOGGER.debug("Error parsing WKT: {} ", locationWKT, e);
+        }
+
+        return Optional.empty();
     }
 }

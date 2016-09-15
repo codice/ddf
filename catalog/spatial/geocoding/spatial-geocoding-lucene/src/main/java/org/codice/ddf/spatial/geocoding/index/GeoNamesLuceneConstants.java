@@ -37,6 +37,8 @@ public class GeoNamesLuceneConstants {
 
     public static final String POPULATION_DOCVALUES_FIELD = "population_dv";
 
+    public static final String COUNTRY_CODE_FIELD = "countryCode";
+
     /**
      * By default, Lucene's SpatialPrefixTree uses 12 levels which results in sub-meter precision.
      * Our queries are on the scale of kilometers, so we don't need this level of precision -

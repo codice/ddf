@@ -33,6 +33,7 @@ public class GeoNamesCreator implements GeoEntryCreator {
                 .featureCode(fields[7])
                 .population(Long.parseLong(fields[14]))
                 .alternateNames(fields[3])
+                .countryCode(fields[8])
                 .build();
     }
 }

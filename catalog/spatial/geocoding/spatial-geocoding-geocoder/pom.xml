@@ -12,7 +12,9 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>geocoding</artifactId>
         <groupId>org.codice.ddf.spatial</groupId>
@@ -68,7 +70,12 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart,catalog-core-api-impl,spatial4j,platform-util</Embed-Dependency>
+                        <Embed-Dependency>
+                            json-smart,
+                            catalog-core-api-impl,
+                            spatial4j,
+                            platform-util
+                        </Embed-Dependency>
                         <Export-Package>org.codice.ddf.spatial.geocoder</Export-Package>
                     </instructions>
                 </configuration>
