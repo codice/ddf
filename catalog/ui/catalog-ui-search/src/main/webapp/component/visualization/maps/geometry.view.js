@@ -22,6 +22,7 @@ var GeometryView = Marionette.ItemView.extend({
         if (geometry) {
             this.geometry = [];
             this.handleGeometry(geometry.toJSON());
+            this.updateSelected();
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.updateSelected);
             this.listenTo(this.options.clusterCollection, 'add remove update', this.checkIfClustered);
         }
