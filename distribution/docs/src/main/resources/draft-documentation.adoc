@@ -1,0 +1,50 @@
+= ${branding-expanded} Documentation
+include::${project.build.directory}/doc-contents/_contents/config.adoc[]
+
+= Introduction
+
+== About ${branding}
+include::{adoc-include}/_introduction/introduction-contents.adoc[]
+
+include::{adoc-include}/_introduction/applications-contents.adoc[]
+
+== Documentation Guide
+
+include::{adoc-include}/_introduction/documentation-notes-contents.adoc[]
+
+<<<
+
+= Core Concepts
+
+== Search
+
+include::{adoc-include}/_core-concepts/search-intro-contents.adoc[]
+
+== Metadata and Metacards
+
+include::{adoc-include}/_core-concepts/metadata-intro-contents.adoc[]
+
+== Ingest
+
+include::{adoc-include}/_core-concepts/ingest-intro-contents.adoc[]
+
+== Content
+
+include::{adoc-include}/_core-concepts/content-intro-contents.adoc[]
+
+== Requests
+
+include::{adoc-include}/_core-concepts/requests-intro-contents.adoc[]
+
+== Federation
+
+include::{adoc-include}/_core-concepts/federation-intro-contents.adoc[]
+
+== Events and Subscriptions
+
+include::{adoc-include}/_core-concepts/events-subscriptions-intro-contents.adoc[]
+
+== Registry
+include::{adoc-include}/_core-concepts/registry-intro-contents.adoc[]
+
+<<<
