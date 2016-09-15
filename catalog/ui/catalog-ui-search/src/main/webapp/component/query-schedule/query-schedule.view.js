@@ -24,15 +24,42 @@ define([
     'component/property/property.view',
     'component/property/property',
     'component/dropdown/dropdown.view',
-    'component/radio/radio.view'
-], function (Marionette, _, $, template, CustomElements, store, properties, PropertyView, Property,
-             DropdownView, RadioView) {
+    'component/radio/radio.view',
+    'moment'
+], function(Marionette, _, $, template, CustomElements, store, properties, PropertyView, Property,
+    DropdownView, RadioView, Moment) {
+
+    function getHumanReadableDuration(milliseconds) {
+        var duration = Moment.duration(milliseconds);
+        var days = duration.days();
+        var hours = duration.hours();
+        var minutes = duration.minutes();
+        var seconds = duration.seconds();
+        var result = days ? (days + ' day(s) ') : '';
+        result += hours ? (hours + ' hour(s) ') : '';
+        result += minutes ? (minutes + ' minute(s) ') : '';
+        result += seconds ? (seconds + ' second(s)') : '';
+        return result.trim();
+    }
+
+    var pollingFrequencyEnum = properties.scheduleFrequencyList.sort(function(a, b) {
+        return a - b;
+    }).reduce(function(options, option) {
+        var durationInMilliseconds = option * 1000;
+        options.push({
+            label: getHumanReadableDuration(durationInMilliseconds),
+            value: durationInMilliseconds
+        });
+        return options;
+    }, [{
+        label: 'Never',
+        value: false
+    }]);
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('query-schedule'),
-        modelEvents: {
-        },
+        modelEvents: {},
         events: {
             'click .editor-edit': 'turnOnEditing',
             'click .editor-cancel': 'cancel',
@@ -41,102 +68,55 @@ define([
         regions: {
             propertyInterval: '.property-interval'
         },
-        ui: {
-        },
-        onBeforeShow: function(){
+        ui: {},
+        onBeforeShow: function() {
             this.setupInterval();
-            if (this.model._cloneOf === undefined){
+            if (this.model._cloneOf === undefined) {
                 this.turnOnEditing();
             } else {
                 this.turnOffEditing();
             }
         },
-        setupInterval: function(){
+        setupInterval: function() {
             this.propertyInterval.show(new PropertyView({
-                model: this.getPropertyIntervalEnum()
+                model: new Property({
+                    enum: pollingFrequencyEnum,
+                    value: [this.model.get('polling') || false],
+                    id: 'Frequency'
+                })
             }));
             this.propertyInterval.currentView.turnOffEditing();
             this.propertyInterval.currentView.turnOnLimitedWidth();
         },
-        getPropertyIntervalEnum: function() {
-            var intervalArray;
-            intervalArray = [{
-                label: 'Never',
-                value: false
-            }];
-
-            var that = this;
-            _.each(properties.scheduleFrequencyList, function(property) {
-                this.push({
-                    label: that.parseTimeFromSeconds(property),
-                    value: property * 1000
-                });
-            }, intervalArray);
-
-            intervalArray.sort(this.compare);
-
-            return new Property({
-                enum : intervalArray,
-                value: [this.model.get('polling') || false],
-                id: 'Frequency'
-            });
-        },
-        parseTimeFromSeconds: function(seconds){
-            var hours   = Math.floor(seconds / 3600);
-            var minutes = Math.floor((seconds - (hours * 3600)) / 60);
-            var seconds = seconds - (hours * 3600) - (minutes * 60);
-
-            var result = "";
-            if(hours > 0) {
-                result += hours + " hour(s) ";
-            }
-            if(minutes > 0) {
-                result += minutes + " minute(s) ";
-            }
-            if(seconds > 0) {
-                result += seconds + " second(s)";
-            }
-
-            return result.trim();
-        },
-        turnOnEditing: function(){
+        turnOnEditing: function() {
             this.$el.addClass('is-editing');
-            this.regionManager.forEach(function(region){
-                if (region.currentView){
+            this.regionManager.forEach(function(region) {
+                if (region.currentView) {
                     region.currentView.turnOnEditing();
                 }
             });
         },
-        turnOffEditing: function(){
-            this.regionManager.forEach(function(region){
-                if (region.currentView){
+        turnOffEditing: function() {
+            this.regionManager.forEach(function(region) {
+                if (region.currentView) {
                     region.currentView.turnOffEditing();
                 }
             });
         },
-        cancel: function(){
-            if (this.model._cloneOf === undefined){
+        cancel: function() {
+            if (this.model._cloneOf === undefined) {
                 store.resetQuery();
             } else {
                 this.$el.removeClass('is-editing');
                 this.onBeforeShow();
             }
         },
-        save: function(){
+        save: function() {
             this.$el.removeClass('is-editing');
             this.model.set({
                 polling: this.propertyInterval.currentView.getCurrentValue()[0]
             });
             store.saveQuery();
-        },
-        compare: function(a, b) {
-            if (a.value < b.value) {
-                return -1;
-            }
-            if (a.value > b.value) {
-                return 1;
-            }
-            return 0;
         }
     });
 });
