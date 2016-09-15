@@ -53,7 +53,7 @@ function createMap(insertionElement) {
     });
 
     if (properties.gazetteer) {
-        geoCoder = new geocoder.View({ el: $('#mapTools') });
+        geoCoder = new geocoder.View({ el: $(insertionElement).siblings('#mapTools') });
         geoCoder.render();
     }
     return map;
