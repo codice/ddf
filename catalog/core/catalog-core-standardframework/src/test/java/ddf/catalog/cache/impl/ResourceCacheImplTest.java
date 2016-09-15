@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Optional;
 
@@ -95,6 +97,12 @@ public class ResourceCacheImplTest {
 
         defaultProductCacheDirectory =
                 workingDir + File.separator + ResourceCacheImpl.DEFAULT_PRODUCT_CACHE_DIRECTORY;
+        File defaultProductCacheDirectoryAsFile = new File(defaultProductCacheDirectory);
+        if (!defaultProductCacheDirectoryAsFile.exists()) {
+            if (!defaultProductCacheDirectoryAsFile.mkdirs()) {
+                fail("Could not create directories for the test product cache. ");
+            }
+        }
 
         // Simulates how blueprint creates the ResourceCacheImpl instance
         Bundle bundle = mock(Bundle.class);
@@ -117,6 +125,11 @@ public class ResourceCacheImplTest {
     public void teardownTest() {
         try {
             FileUtils.cleanDirectory(new File(defaultProductCacheDirectory));
+            File windowsTempFileNeedsCleaning = new File(
+                    workingDir + File.separator + "dataProduct_Cache");
+            if (windowsTempFileNeedsCleaning.exists()) {
+                FileUtils.cleanDirectory(windowsTempFileNeedsCleaning);
+            }
         } catch (IOException e) {
             LOGGER.warn("unable to clean directory");
         }
@@ -409,7 +422,6 @@ public class ResourceCacheImplTest {
     }
 
     private Metacard createMetacard(String sourceId, String metacardId) throws URISyntaxException {
-        
         Metacard metacard = generateMetacard();
         metacard.setSourceId(sourceId);
         metacard.setAttribute(new AttributeImpl(Metacard.ID, metacardId));
@@ -428,10 +440,14 @@ public class ResourceCacheImplTest {
     }
 
     private void simulateAddFileToCacheDir(String fileName) throws IOException {
-        String originalFilePath = System.getProperty("user.dir") + File.separator +
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator
-                + fileName;
-        String destinationFilePath = defaultProductCacheDirectory + File.separator + fileName;
+        String originalFilePath = Paths.get(System.getProperty("user.dir"),
+                "src",
+                "test",
+                "resources",
+                fileName)
+                .toString();
+        String destinationFilePath = Paths.get(defaultProductCacheDirectory, fileName)
+                .toString();
         FileUtils.copyFile(new File(originalFilePath), new File(destinationFilePath));
     }
 
