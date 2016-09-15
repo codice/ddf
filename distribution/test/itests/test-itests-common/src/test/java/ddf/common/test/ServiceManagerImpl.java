@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleInfo;
@@ -67,6 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.osgi.util.OsgiStringUtils;
 
+import com.google.common.collect.Sets;
 import com.jayway.restassured.response.Response;
 
 public class ServiceManagerImpl implements ServiceManager {
@@ -76,7 +78,7 @@ public class ServiceManagerImpl implements ServiceManager {
 
     public static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
-    public static final long REQUIRED_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+    public static final long FEATURES_AND_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
     public static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
@@ -96,17 +98,6 @@ public class ServiceManagerImpl implements ServiceManager {
                 .getBundleContext();
     }
 
-    /**
-     * Creates a Managed Service that is created from a Managed Service Factory. Waits for the
-     * asynchronous call that the properties have been updated and the service can be used.
-     * <p>
-     * For Managed Services not created from a Managed Service Factory, use
-     * {@link #startManagedService(String, Map)} instead.
-     *
-     * @param factoryPid the factory pid of the Managed Service Factory
-     * @param properties the service properties for the Managed Service
-     * @throws IOException if access to persistent storage fails
-     */
     public void createManagedService(String factoryPid, Map<String, Object> properties)
             throws IOException {
 
@@ -115,17 +106,6 @@ public class ServiceManagerImpl implements ServiceManager {
         startManagedService(sourceConfig, properties);
     }
 
-    /**
-     * Starts a Managed Service. Waits for the asynchronous call that the properties have been
-     * updated and the service can be used.
-     * <p>
-     * For Managed Services created from a Managed Service Factory, use
-     * {@link #createManagedService(String, Map)} instead.
-     *
-     * @param servicePid persistent identifier of the Managed Service to start
-     * @param properties service configuration properties
-     * @throws IOException thrown if if access to persistent storage fails
-     */
     public void startManagedService(String servicePid, Map<String, Object> properties)
             throws IOException {
         Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
@@ -133,12 +113,6 @@ public class ServiceManagerImpl implements ServiceManager {
         startManagedService(sourceConfig, properties);
     }
 
-    /**
-     * Stops a managed service.
-     *
-     * @param servicePid
-     * @throws IOException
-     */
     public void stopManagedService(String servicePid) throws IOException {
         Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
         ServiceConfigurationListener listener =
@@ -215,11 +189,17 @@ public class ServiceManagerImpl implements ServiceManager {
     public void startFeature(boolean wait, String... featureNames) throws Exception {
         for (String featureName : featureNames) {
             FeatureState state = getFeaturesService().getState(featureName);
+
             if (FeatureState.Installed != state) {
                 getFeaturesService().installFeature(featureName, EnumSet.of(NoAutoRefreshBundles));
             }
         }
+
         if (wait) {
+            for (String featureName : featureNames) {
+                waitForFeature(featureName, state -> state == FeatureState.Started);
+            }
+
             waitForAllBundles();
         }
     }
@@ -228,7 +208,12 @@ public class ServiceManagerImpl implements ServiceManager {
         for (String featureName : featureNames) {
             getFeaturesService().uninstallFeature(featureName, EnumSet.of(NoAutoRefreshBundles));
         }
+
         if (wait) {
+            for (String featureName : featureNames) {
+                waitForFeature(featureName, state -> state == FeatureState.Uninstalled);
+            }
+
             waitForAllBundles();
         }
     }
@@ -237,7 +222,7 @@ public class ServiceManagerImpl implements ServiceManager {
     private FeaturesService getFeaturesService() throws InterruptedException {
         FeaturesService featuresService = null;
         boolean ready = false;
-        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
+        long timeoutLimit = System.currentTimeMillis() + FEATURES_AND_BUNDLES_TIMEOUT;
         while (!ready) {
             ServiceReference<FeaturesService> featuresServiceRef =
                     FrameworkUtil.getBundle(this.getClass())
@@ -257,7 +242,7 @@ public class ServiceManagerImpl implements ServiceManager {
             if (!ready) {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     fail(String.format("Feature service could not be resolved within %d minutes.",
-                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
+                            TimeUnit.MILLISECONDS.toMinutes(FEATURES_AND_BUNDLES_TIMEOUT)));
                 }
                 Thread.sleep(1000);
             }
@@ -273,13 +258,6 @@ public class ServiceManagerImpl implements ServiceManager {
         return getBundleContext().getService(applicationServiceRef);
     }
 
-    /**
-     * Restarts one or more bundles. The bundles will be stopped in the order provided and started
-     * in the reverse order.
-     *
-     * @param bundleSymbolicNames list of bundle symbolic names to restart
-     * @throws BundleException if one of the bundles fails to stop or start
-     */
     public void restartBundles(String... bundleSymbolicNames) throws BundleException {
         LOGGER.debug("Restarting bundles {}", bundleSymbolicNames);
 
@@ -352,7 +330,7 @@ public class ServiceManagerImpl implements ServiceManager {
             bundleService = getService(BundleService.class);
         }
 
-        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
+        long timeoutLimit = System.currentTimeMillis() + FEATURES_AND_BUNDLES_TIMEOUT;
         while (!ready) {
             List<Bundle> bundles = Arrays.asList(getBundleContext().getBundles());
 
@@ -386,7 +364,7 @@ public class ServiceManagerImpl implements ServiceManager {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     printInactiveBundles();
                     fail(String.format("Bundles and blueprint did not start within %d minutes.",
-                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
+                            TimeUnit.MILLISECONDS.toMinutes(FEATURES_AND_BUNDLES_TIMEOUT)));
                 }
                 LOGGER.info("Bundles not up, sleeping...");
                 Thread.sleep(1000);
@@ -394,17 +372,39 @@ public class ServiceManagerImpl implements ServiceManager {
         }
     }
 
+    public void waitForBundleUninstall(String... bundleSymbolicNames) {
+        Set<String> symbolicNamesSet = Sets.newHashSet(bundleSymbolicNames);
+        LOGGER.info("Waiting for bundles {} to be uninstalled...", symbolicNamesSet);
+
+        final List<Long> bundleIds = Arrays.stream(getBundleContext().getBundles())
+                .filter(b -> symbolicNamesSet.contains(b.getSymbolicName()))
+                .map(Bundle::getBundleId)
+                .collect(Collectors.toList());
+
+        WaitCondition.expect(String.format("Bundles %s uninstalled", symbolicNamesSet))
+                .within(FEATURES_AND_BUNDLES_TIMEOUT, TimeUnit.MILLISECONDS)
+                .until(() -> bundleIds.stream()
+                        .filter(id -> getBundleContext().getBundle(id) != null)
+                        .collect(Collectors.toList())
+                        .isEmpty());
+
+        LOGGER.info("Bundles {} uninstalled", symbolicNamesSet);
+    }
+
     public void waitForFeature(String featureName, Predicate<FeatureState> predicate)
             throws Exception {
         boolean ready = false;
 
-        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
+        long timeoutLimit = System.currentTimeMillis() + FEATURES_AND_BUNDLES_TIMEOUT;
         FeaturesService featuresService = getFeaturesService();
+
         while (!ready) {
+            FeatureState state = null;
+
             if (featuresService != null) {
                 Feature feature = featuresService.getFeature(featureName);
-                FeatureState state = featuresService.getState(
-                        feature.getName() + "/" + feature.getVersion());
+                state = featuresService.getState(feature.getName() + "/" + feature.getVersion());
+
                 if (state == null) {
                     LOGGER.warn("No Feature found for featureName: {}", featureName);
                     return;
@@ -418,11 +418,11 @@ public class ServiceManagerImpl implements ServiceManager {
                     printInactiveBundles();
                     fail(String.format("Feature did not change to State [" + predicate.toString()
                                     + "] within %d minutes.",
-                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
+                            TimeUnit.MILLISECONDS.toMinutes(FEATURES_AND_BUNDLES_TIMEOUT)));
                 }
-                LOGGER.info("Feature [{}] not [{}], sleeping...",
+                LOGGER.info("Still waiting on feature [{}], current state [{}]...",
                         featureName,
-                        predicate.toString());
+                        state);
                 Thread.sleep(1000);
             }
         }
