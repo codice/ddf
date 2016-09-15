@@ -2,13 +2,12 @@
     <fileIdentifier>
         <gco:CharacterString>ID</gco:CharacterString>
     </fileIdentifier>
+    <language>
+        <gco:CharacterString>eng</gco:CharacterString>
+    </language>
     <hierarchyLevel>
-        <MD_ScopeCode codeListValue="dataset" codeList="urn:catalog:metacard"/>
+        <MD_ScopeCode codeListValue="jpeg" codeList="urn:catalog:metacard"/>
     </hierarchyLevel>
-    <contact/>
-    <dateStamp>
-        <gco:DateTime>2016-11-01T00:00:00.000Z</gco:DateTime>
-    </dateStamp>
     <identificationInfo>
         <MD_DataIdentification>
             <citation>
@@ -28,19 +27,8 @@
                     </date>
                 </CI_Citation>
             </citation>
-            <abstract>
-                <gco:CharacterString></gco:CharacterString>
-            </abstract>
-            <pointOfContact>
-                <CI_ResponsibleParty>
-                    <organisationName>
-                        <gco:CharacterString></gco:CharacterString>
-                    </organisationName>
-                    <role/>
-                </CI_ResponsibleParty>
-            </pointOfContact>
             <language>
-                <gco:CharacterString>en</gco:CharacterString>
+                <gco:CharacterString>eng</gco:CharacterString>
             </language>
         </MD_DataIdentification>
     </identificationInfo>

@@ -19,9 +19,11 @@ import static org.hamcrest.core.Is.is;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -43,6 +45,12 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.DateTime;
+import ddf.catalog.data.types.Location;
+import ddf.catalog.data.types.Media;
+import ddf.catalog.data.types.Topic;
 
 public class TestGmdConverter {
 
@@ -79,7 +87,6 @@ public class TestGmdConverter {
 
         effectiveDate = new GregorianCalendar(2015, 10, 1);
         effectiveDate.setTimeZone(zone);
-
     }
 
     private String convert(Object object, boolean writeNamespaces) {
@@ -99,85 +106,96 @@ public class TestGmdConverter {
     @Test
     public void testConvertNullMetacard() {
         String xml = convert(null, true);
-
         assertThat(xml, isEmptyString());
     }
 
     @Test
     public void testConvertNonMetacard() {
-        String xml = convert(new String(), true);
-
+        String xml = convert("", true);
         assertThat(xml, isEmptyString());
     }
 
     @Test
     public void testMarshal() throws IOException, SAXException {
-        String compareString = null;
-        try (InputStream input = getClass().getResourceAsStream("/gmd/metacard-as-GMD.xml")) {
-
-            compareString = IOUtils.toString(input);
-        }
-        Metacard metacard = getTestMetacard(POLYGON_LOCATION);
-
-        String xml = convert(metacard, true);
-        Diff diff = new Diff(compareString, xml);
-
-        LOGGER.info("diff:\n" + diff.toString());
-        assertThat(diff.identical(), is(true));
+        assertMetacard(getTestMetacard(POLYGON_LOCATION), "/gmd/metacard-as-GMD.xml");
     }
 
     @Test
     public void testMarshalSparseMetacard() throws IOException, SAXException {
-        String compareString = null;
-        try (InputStream input = getClass().getResourceAsStream("/gmd/metacard-as-GMD-sparse.xml")) {
+        assertMetacard(getSparseMetacard(), "/gmd/metacard-as-GMD-sparse.xml");
+    }
 
+    private void assertMetacard(Metacard metacard, String xmlPath) throws IOException, SAXException {
+        String compareString;
+        try (InputStream input = getClass().getResourceAsStream(xmlPath)) {
             compareString = IOUtils.toString(input);
         }
-        Metacard metacard = getSparseMetacard();
 
         String xml = convert(metacard, true);
         Diff diff = new Diff(compareString, xml);
 
         LOGGER.info("diff:\n" + diff.toString());
+        System.out.println(xml);
+        System.out.println(compareString);
         assertThat(diff.identical(), is(true));
-
     }
 
     private MetacardImpl getSparseMetacard() {
-
         MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
-        metacard.setId("ID");
-        metacard.setCreatedDate(createdDate.getTime());
-        metacard.setModifiedDate(modifiedDate.getTime());
+        metacard.setAttribute(Core.ID, "ID");
+        metacard.setAttribute(Core.CREATED, createdDate.getTime());
+        metacard.setAttribute(Core.MODIFIED, modifiedDate.getTime());
 
+        /* Backwards Compatibility */
+        metacard.setContentTypeName("jpeg");
+        metacard.setContentTypeVersion("1.0.0");
+        metacard.setAttribute(Metacard.EFFECTIVE, effectiveDate.getTime());
         return metacard;
     }
 
     private MetacardImpl getTestMetacard(String wkt) {
-
         MetacardImpl metacard = getSparseMetacard();
+        metacard.setAttribute(Core.CREATED, createdDate.getTime());
+        metacard.setAttribute(Core.MODIFIED, modifiedDate.getTime());
+        metacard.setAttribute(Core.RESOURCE_DOWNLOAD_URL, RESOURCE_DOWNLOAD_URL);
+        metacard.setAttribute(Core.DESCRIPTION, "example description");
+        metacard.setAttribute(Core.LOCATION, wkt);
+        metacard.setAttribute(Core.METADATA, "</xml>");
+        metacard.setAttribute(Core.RESOURCE_SIZE, "123TB");
+        metacard.setAttribute(Core.LANGUAGE, (Serializable) Arrays.asList("ger", "eng"));
+        metacard.setAttribute(Core.SOURCE_ID, "sourceID");
+        metacard.setAttribute(Core.TITLE, "example title");
+        metacard.setAttribute(Core.ID, "1234");
+        metacard.setAttribute(Core.METACARD_CREATED, modifiedDate.getTime());
+        metacard.setAttribute(Core.METACARD_MODIFIED, modifiedDate.getTime());
 
-        metacard.setContentTypeName("jpeg");
-        metacard.setContentTypeVersion("1.0.0");
-        metacard.setCreatedDate(createdDate.getTime());
-        metacard.setEffectiveDate(effectiveDate.getTime());
-        metacard.setPointOfContact("John Doe");
-        metacard.setDescription("example description");
-        metacard.setLocation((wkt));
-        metacard.setMetadata("</xml>");
-        metacard.setResourceSize("123TB");
-        metacard.setSourceId("sourceID");
-        metacard.setTitle("example title");
+        metacard.setAttribute(Contact.POINT_OF_CONTACT_NAME, "John Doe");
+        metacard.setAttribute(Contact.POINT_OF_CONTACT_EMAIL, "john.doe@example.com");
+        metacard.setAttribute(Contact.POINT_OF_CONTACT_PHONE, "12345");
+        metacard.setAttribute(Contact.POINT_OF_CONTACT_ADDRESS, "10 Downing Street London Westminster SW1A 2AA United Kingdom");
+        metacard.setAttribute(Contact.PUBLISHER_NAME, "Jane Doe");
+        metacard.setAttribute(Contact.PUBLISHER_EMAIL, "jane.doe@example.com");
+        metacard.setAttribute(Contact.PUBLISHER_PHONE, "6789");
+        metacard.setAttribute(Contact.POINT_OF_CONTACT_ADDRESS, "123 Fake Street Springfield MO 12345");
 
-        metacard.setAttribute(Metacard.RESOURCE_DOWNLOAD_URL, RESOURCE_DOWNLOAD_URL);
+        metacard.setAttribute(Location.COORDINATE_REFERENCE_SYSTEM_CODE, "EPSG:4326");
+        metacard.setAttribute(Location.COUNTRY_CODE, "FRA");
+        metacard.setAttribute(Location.ALTITUDE, 123.0);
+
+        metacard.setAttribute(DateTime.START, effectiveDate.getTime());
+        metacard.setAttribute(DateTime.END, effectiveDate.getTime());
+
+        metacard.setAttribute(Media.FORMAT, "gzip");
+        metacard.setAttribute(Media.FORMAT_VERSION, "2.0");
+
+        metacard.setAttribute(Topic.KEYWORD, "keyword");
+        metacard.setAttribute(Topic.CATEGORY, "category");
 
         try {
-            metacard.setResourceURI(new URI(RESOURCE_URI));
+            metacard.setAttribute(Core.RESOURCE_URI, new URI(RESOURCE_URI));
         } catch (URISyntaxException e) {
             LOGGER.debug("URISyntaxException", e);
         }
-
         return metacard;
     }
-
 }

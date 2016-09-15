@@ -23,6 +23,9 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Media;
+import ddf.catalog.data.types.Topic;
 
 public class CswRecordMetacardType extends MetacardTypeImpl {
 
@@ -38,12 +41,16 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
 
     public static final String CSW_IDENTIFIER = "identifier";
 
-    /** Substitution name for "identifier" */
+    /**
+     * Substitution name for "identifier"
+     */
     public static final String CSW_BIBLIOGRAPHIC_CITATION = "bibliographicCitation";
 
     public static final String CSW_TITLE = CSW_ATTRIBUTE_PREFIX + "title";
 
-    /** Substitution name for "title" */
+    /**
+     * Substitution name for "title"
+     */
     public static final String CSW_ALTERNATIVE = "alternative";
 
     public static final String CSW_TYPE = "type";
@@ -52,83 +59,131 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
 
     public static final String CSW_FORMAT = "format";
 
-    /** Substitution name for "format" */
+    /**
+     * Substitution name for "format"
+     */
     public static final String CSW_EXTENT = "extent";
 
-    /** Substitution name for "format" */
+    /**
+     * Substitution name for "format"
+     */
     public static final String CSW_MEDIUM = "medium";
 
     public static final String CSW_RELATION = "relation";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_CONFORMS_TO = "conformsTo";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_HAS_FORMAT = "hasFormat";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_HAS_PART = "hasPart";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_HAS_VERSION = "hasVersion";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_IS_FORMAT_OF = "isFormatOf";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_IS_PART_OF = "isPartOf";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_IS_REFERENCED_BY = "isReferencedBy";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_IS_REPLACED_BY = "isReplacedBy";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_IS_REQUIRED_BY = "isRequiredBy";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_IS_VERSION_OF = "isVersionOf";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_REFERENCES = "references";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_REPLACES = "replaces";
 
-    /** Substitution name for "relation" */
+    /**
+     * Substitution name for "relation"
+     */
     public static final String CSW_REQUIRES = "requires";
 
     public static final String CSW_DATE = "date";
 
-    /** Substitution name for "date" */
+    /**
+     * Substitution name for "date"
+     */
     public static final String CSW_MODIFIED = CSW_ATTRIBUTE_PREFIX + "modified";
 
-    /** Substitution name for "date" */
+    /**
+     * Substitution name for "date"
+     */
     public static final String CSW_CREATED = CSW_ATTRIBUTE_PREFIX + "created";
 
-    /** Substitution name for "date" */
+    /**
+     * Substitution name for "date"
+     */
     public static final String CSW_DATE_ACCEPTED = "dateAccepted";
 
-    /** Substitution name for "date" */
+    /**
+     * Substitution name for "date"
+     */
     public static final String CSW_DATE_COPYRIGHTED = "dateCopyrighted";
 
-    /** Substitution name for "date" */
+    /**
+     * Substitution name for "date"
+     */
     public static final String CSW_DATE_SUBMITTED = "dateSubmitted";
 
-    /** Substitution name for "date" */
+    /**
+     * Substitution name for "date"
+     */
     public static final String CSW_ISSUED = "issued";
 
-    /** Substitution name for "date" */
+    /**
+     * Substitution name for "date"
+     */
     public static final String CSW_VALID = "valid";
 
     // Synonyms: abstract, tableOfContents
     public static final String CSW_DESCRIPTION = CSW_ATTRIBUTE_PREFIX + "description";
 
-    /** Substitution name for "description" */
+    /**
+     * Substitution name for "description"
+     */
     public static final String CSW_ABSTRACT = "abstract";
 
-    /** Substitution name for "description" */
+    /**
+     * Substitution name for "description"
+     */
     public static final String CSW_TABLE_OF_CONTENTS = "tableOfContents";
 
     // coverage: temporal and/or spatial info
@@ -150,10 +205,14 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
 
     public static final String CSW_RIGHTS = "rights";
 
-    /** Substitution name for "rights" */
+    /**
+     * Substitution name for "rights"
+     */
     public static final String CSW_ACCESS_RIGHTS = "accessRights";
 
-    /** Substitution name for "rights" */
+    /**
+     * Substitution name for "rights"
+     */
     public static final String CSW_LICENSE = "license";
 
     public static final String CSW_SOURCE = "source";
@@ -768,6 +827,28 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
+        /* TODO:  Interim Descriptors.  These were added to the metatype to avoid any errors in metacard mappings,
+           TODO:  and will be removed when CswRecordMetacardType is transitioned to the new taxonomy.
+           TODO:  See https://codice.atlassian.net/browse/DDF-2413 */
+        descriptors.add(new AttributeDescriptorImpl(Core.DATATYPE,
+                QUERYABLE /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                true/* multivalued */,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Topic.KEYWORD,
+                QUERYABLE /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                true/* multivalued */,
+                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Media.FORMAT,
+                QUERYABLE /* indexed */,
+                true /* stored */,
+                true /* tokenized */,
+                false /* multivalued */,
                 BasicTypes.STRING_TYPE));
     }
 

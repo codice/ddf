@@ -49,14 +49,15 @@ import org.mockito.Mockito;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.types.AssociationsAttributes;
 import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.DateTimeAttributes;
 import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
+import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Core;
@@ -151,8 +152,8 @@ public class TestGmdTransformer {
                 .getValue(), is(uri.toString()));
 
         assertThat(metacard.getAttribute(Contact.PUBLISHER_ADDRESS)
-                .getValues(),
-                hasItem("10 Downing Street London Westminster SW1A 2AA United Kingdom"));
+                        .getValues(), hasItem(
+                        "10 Downing Street London Westminster SW1A 2AA United Kingdom"));
 
         assertThat(metacard.getAttribute(Contact.PUBLISHER_EMAIL)
                 .getValues(), hasItem("theresa.may@gov.uk"));
@@ -279,8 +280,7 @@ public class TestGmdTransformer {
     }
 
     private Metacard getTestMetacard() {
-        return new MetacardImpl(BasicTypes.BASIC_METACARD);
-
+        return new MetacardImpl(getGmdMetacardType());
     }
 
     private MetacardImpl transform(String path) throws Exception {
@@ -288,7 +288,9 @@ public class TestGmdTransformer {
     }
 
     private static MetacardType getGmdMetacardType() {
-        return new MetacardTypeImpl("gmdMetacardType", Arrays.asList(new ContactAttributes(),
+        return new MetacardTypeImpl("gmdMetacardType", Arrays.asList(new DateTimeAttributes(),
+                new ValidationAttributes(),
+                new ContactAttributes(),
                 new LocationAttributes(),
                 new MediaAttributes(),
                 new TopicAttributes(),

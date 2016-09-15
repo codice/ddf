@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -73,7 +73,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerMana
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,8 +173,6 @@ public class TestCswEndpoint {
 
     private static CatalogFramework catalogFramework = mock(CatalogFramework.class);
 
-    private static BundleContext mockContext = mock(BundleContext.class);
-
     private static TransformerManager mockMimeTypeManager = mock(TransformerManager.class);
 
     private static TransformerManager mockSchemaManager = mock(TransformerManager.class);
@@ -235,7 +232,7 @@ public class TestCswEndpoint {
                 "source3")));
         CreateResponseImpl createResponse = new CreateResponseImpl(null,
                 null,
-                Arrays.<Metacard>asList(new MetacardImpl()));
+                Arrays.asList(new MetacardImpl()));
         when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
     }
 
@@ -658,7 +655,9 @@ public class TestCswEndpoint {
     public void testPostDescribeRecordRequestGMDTypePassed() {
         DescribeRecordType drt = createDefaultDescribeRecordType();
         List<QName> typeNames = new ArrayList<>();
-        typeNames.add(new QName(GmdConstants.GMD_NAMESPACE, GmdConstants.GMD_LOCAL_NAME, GmdConstants.GMD_PREFIX));
+        typeNames.add(new QName(GmdConstants.GMD_NAMESPACE,
+                GmdConstants.GMD_LOCAL_NAME,
+                GmdConstants.GMD_PREFIX));
         drt.setTypeName(typeNames);
         DescribeRecordResponseType drrt = null;
 
@@ -894,9 +893,7 @@ public class TestCswEndpoint {
         DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
         drr.setTypeName(VALID_TYPE);
         drr.setNamespace(null);
-        DescribeRecordResponseType drrt = null;
-
-        drrt = csw.describeRecord(drr);
+        csw.describeRecord(drr);
     }
 
     @Test(expected = CswException.class)
@@ -1093,7 +1090,9 @@ public class TestCswEndpoint {
         grr.setResultType(ResultType.RESULTS);
         QueryType query = new QueryType();
         List<QName> typeNames = new ArrayList<>();
-        typeNames.add(new QName(GmdConstants.GMD_NAMESPACE, GmdConstants.GMD_LOCAL_NAME, GmdConstants.GMD_PREFIX));
+        typeNames.add(new QName(GmdConstants.GMD_NAMESPACE,
+                GmdConstants.GMD_LOCAL_NAME,
+                GmdConstants.GMD_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(GMD_CONTEXTUAL_LIKE_QUERY);
@@ -1195,7 +1194,7 @@ public class TestCswEndpoint {
         final Metacard metacard = new MetacardImpl();
 
         final List<Result> mockResults =
-                Collections.<Result>singletonList(new ResultImpl(metacard));
+                Collections.singletonList(new ResultImpl(metacard));
         final QueryResponseImpl queryResponse = new QueryResponseImpl(null,
                 mockResults,
                 mockResults.size());
@@ -1221,7 +1220,7 @@ public class TestCswEndpoint {
         final Metacard metacard1 = new MetacardImpl();
         final Metacard metacard2 = new MetacardImpl();
 
-        final List<Result> mockResults = Arrays.<Result>asList(new ResultImpl(metacard1),
+        final List<Result> mockResults = Arrays.asList(new ResultImpl(metacard1),
                 new ResultImpl(metacard2));
         final QueryResponse queryResponse = new QueryResponseImpl(null,
                 mockResults,
@@ -1518,10 +1517,10 @@ public class TestCswEndpoint {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             StringWriter sw = new StringWriter();
 
-            JAXBElement<DescribeRecordResponseType> wrappedResponse =
-                    new JAXBElement<>(cswQnameOutPutSchema,
-                            DescribeRecordResponseType.class,
-                            response);
+            JAXBElement<DescribeRecordResponseType> wrappedResponse = new JAXBElement<>(
+                    cswQnameOutPutSchema,
+                    DescribeRecordResponseType.class,
+                    response);
 
             marshaller.marshal(wrappedResponse, sw);
 
@@ -1563,7 +1562,7 @@ public class TestCswEndpoint {
         request.getInsertActions()
                 .add(new InsertAction(CswConstants.CSW_TYPE,
                         null,
-                        Arrays.<Metacard>asList(new MetacardImpl())));
+                        Arrays.asList(new MetacardImpl())));
 
         TransactionResponseType response = csw.transaction(request);
         assertThat(response, notNullValue());
@@ -1590,7 +1589,7 @@ public class TestCswEndpoint {
         request.getInsertActions()
                 .add(new InsertAction(CswConstants.CSW_TYPE,
                         null,
-                        Arrays.<Metacard>asList(new MetacardImpl())));
+                        Arrays.asList(new MetacardImpl())));
         request.setVerbose(true);
 
         TransactionResponseType response = csw.transaction(request);
@@ -1810,14 +1809,14 @@ public class TestCswEndpoint {
                 .getValue();
         assertThat(firstUpdate.getId(), is("123"));
         assertThat(firstUpdate.getTitle(), is("foo"));
-        assertThat((String) firstUpdate.getAttribute("subject")
+        assertThat(firstUpdate.getAttribute("subject")
                 .getValue(), is("bar"));
 
         Metacard secondUpdate = updates.get(1)
                 .getValue();
         assertThat(secondUpdate.getId(), is("789"));
         assertThat(secondUpdate.getTitle(), is("foo"));
-        assertThat((String) secondUpdate.getAttribute("subject")
+        assertThat(secondUpdate.getAttribute("subject")
                 .getValue(), is("bar"));
     }
 

@@ -21,6 +21,7 @@
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.LocationAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
