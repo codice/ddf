@@ -108,6 +108,7 @@ define([
                         this.$el.find('#progress-text').show();
                     }
                 } else {
+                    this.merge();
                     this.$el.find('#progress-text').hide();
                     this.$el.find('#searching-text').show();
                 }
