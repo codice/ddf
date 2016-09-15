@@ -14,29 +14,38 @@
 
 package org.codice.ddf.registry.federationadmin.service.impl;
 
+import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.parser.xml.XmlParser;
+import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
+import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelper;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
+import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
 import org.codice.ddf.registry.transformer.RegistryTransformer;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,12 +60,15 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.Subject;
+import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IdentityNodeInitializationTest {
 
     private static final String TEST_SITE_NAME = "Slate Rock and Gravel Company";
+
+    private static final String CHANGED_TEST_SITE_NAME = "Gravel and Slate Rock Company";
 
     private static final String TEST_VERSION = "FF 2.0";
 
@@ -94,6 +106,7 @@ public class IdentityNodeInitializationTest {
         System.setProperty(SystemInfo.SITE_NAME, TEST_SITE_NAME);
         System.setProperty(SystemInfo.VERSION, TEST_VERSION);
         testMetacard = getTestMetacard();
+        testMetacard.setAttribute(new AttributeImpl(Metacard.METADATA, ""));
     }
 
     @Test
@@ -115,9 +128,35 @@ public class IdentityNodeInitializationTest {
     public void initWithPreviousPrimaryEntry() throws Exception {
         testMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
                 "registryId"));
+        testMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, TEST_SITE_NAME));
         when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.of(
                 testMetacard));
         identityNodeInitialization.init();
+        verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
+    }
+
+    @Test
+    public void initWithPreviousEntryWithNameChange() throws Exception {
+        System.setProperty(SystemInfo.SITE_NAME, CHANGED_TEST_SITE_NAME);
+        RegistryPackageType registryPackageType = buildRegistryPackageType();
+
+        testMetacard.setAttribute(new AttributeImpl(Metacard.METADATA,
+                metacardMarshaller.getRegistryPackageAsXml(registryPackageType)));
+        testMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID,
+                "registryId"));
+        testMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, TEST_SITE_NAME));
+        when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.of(
+                testMetacard));
+
+        ArgumentCaptor<Metacard> updatedMetacard = ArgumentCaptor.forClass(Metacard.class);
+        doNothing().when(federationAdminService)
+                .updateRegistryEntry(updatedMetacard.capture());
+
+        identityNodeInitialization.init();
+
+        assertThat(updatedMetacard.getValue()
+                .getTitle(), is(CHANGED_TEST_SITE_NAME));
+        verify(federationAdminService, times(1)).updateRegistryEntry(any(Metacard.class));
         verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
     }
 
@@ -169,4 +208,34 @@ public class IdentityNodeInitializationTest {
         return new MetacardImpl(new RegistryObjectMetacardType());
     }
 
+    private RegistryPackageType buildRegistryPackageType() {
+        SlotTypeHelper slotTypeHelper = new SlotTypeHelper();
+        InternationalStringTypeHelper internationalStringTypeHelper =
+                new InternationalStringTypeHelper();
+        String registryPackageId = RegistryConstants.GUID_PREFIX + UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
+        RegistryPackageType registryPackage = RIM_FACTORY.createRegistryPackageType();
+        registryPackage.setId(registryPackageId);
+        registryPackage.setObjectType(RegistryConstants.REGISTRY_NODE_OBJECT_TYPE);
+
+        ExtrinsicObjectType extrinsicObject = RIM_FACTORY.createExtrinsicObjectType();
+        extrinsicObject.setObjectType(RegistryConstants.REGISTRY_NODE_OBJECT_TYPE);
+
+        String extrinsicObjectId = RegistryConstants.GUID_PREFIX + UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
+        extrinsicObject.setId(extrinsicObjectId);
+        extrinsicObject.setName(internationalStringTypeHelper.create(TEST_SITE_NAME));
+
+        String home = SystemBaseUrl.getBaseUrl();
+        extrinsicObject.setHome(home);
+
+        registryPackage.setRegistryObjectList(RIM_FACTORY.createRegistryObjectListType());
+        registryPackage.getRegistryObjectList()
+                .getIdentifiable()
+                .add(RIM_FACTORY.createIdentifiable(extrinsicObject));
+
+        return registryPackage;
+    }
 }
