@@ -25,12 +25,13 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.service.command.CommandSession;
@@ -59,7 +60,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-public class TestReplicationCommand {
+public class ReplicateCommandTest {
 
     private static final Set<String> SOURCE_IDS = new HashSet<>(Arrays.asList("sourceId1",
             "sourceId2"));
@@ -70,17 +71,13 @@ public class TestReplicationCommand {
 
     private CatalogFramework catalogFramework;
 
-    private QueryResponse mockQueryResponse = mock(QueryResponse.class);
-
     private CreateResponse mockCreateResponse = mock(CreateResponse.class);
 
     private CommandSession mockSession = mock(CommandSession.class);
 
     private InputStream mockIS = IOUtils.toInputStream("sourceId1");
 
-    private ReplicationCommand replicationCmd;
-
-    private int pageSize;
+    private ReplicateCommand replicationCmd;
 
     @AfterClass
     public static void cleanUp() throws IOException {
@@ -97,7 +94,7 @@ public class TestReplicationCommand {
         consoleOutput.interceptSystemOut();
 
         catalogFramework = mock(CatalogFramework.class);
-        replicationCmd = new ReplicationCommand() {
+        replicationCmd = new ReplicateCommand() {
             @Override
             public String getInput(String message) throws IOException {
                 return "sourceId1";
@@ -127,6 +124,7 @@ public class TestReplicationCommand {
                 return executeWithSubject();
             }
         };
+        replicationCmd.isProvider = true;
 
         when(mockSession.getKeyboard()).thenReturn(mockIS);
 
@@ -134,14 +132,15 @@ public class TestReplicationCommand {
         when(catalogFramework.query(isA(QueryRequest.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
             QueryRequest request = (QueryRequest) args[0];
-            pageSize = request.getQuery()
-                    .getPageSize();
-            return mockQueryResponse;
+            QueryResponse mockQueryResponse = mock(QueryResponse.class);
+            when(mockQueryResponse.getHits()).thenReturn(Long.valueOf(HITS));
+            when(mockQueryResponse.getResults()).thenReturn(getResultList(Math.min(replicationCmd.batchSize,
+                    HITS - request.getQuery()
+                            .getStartIndex() + 1)));
 
+            return mockQueryResponse;
         });
 
-        when(mockQueryResponse.getHits()).thenReturn(Long.valueOf(HITS));
-        when(mockQueryResponse.getResults()).thenAnswer(invocation -> getResultList(pageSize));
         when(catalogFramework.create(isA(CreateRequest.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
             CreateRequest request = (CreateRequest) args[0];
@@ -152,80 +151,59 @@ public class TestReplicationCommand {
 
     @Test
     public void testBadBatchSize() throws Exception {
-        replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.temporalProperty = Metacard.EFFECTIVE;
-
         replicationCmd.batchSize = -1;
 
         replicationCmd.doExecute();
+        verifyConsoleOutput("Batch Size must be between 1 and 1000.");
+    }
 
-        assertThat(consoleOutput.getOutput(),
-                containsString("Batch Size must be between 1 and 1000."));
-        consoleOutput.reset();
+    @Test
+    public void testInvalidTemporalProperty() {
+        replicationCmd.temporalProperty = "invalidTemporalProperty";
+
+        assertThat(replicationCmd.getTemporalProperty(), is(Core.CREATED));
     }
 
     @Test
     public void testPrintSourceIds() throws Exception {
-        replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "";
         replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
-
-        assertThat(consoleOutput.getOutput(),
-                containsString("Please enter the Source ID you would like to replicate:"));
-        assertThat(consoleOutput.getOutput(), containsString("sourceId1"));
-        assertThat(consoleOutput.getOutput(), containsString("sourceId2"));
-        consoleOutput.reset();
+        verifyConsoleOutput("Please enter the Source ID you would like to replicate:",
+                "sourceId1",
+                "sourceId2");
     }
 
     @Test
     public void testDefaultQuery() throws Exception {
-        replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
-
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
-        QueryRequest request = argument.getValue();
-        assertThat(request, notNullValue());
-        Query query = request.getQuery();
-        assertThat(query, notNullValue());
-        assertThat(query.getPageSize(), is(ReplicationCommand.MAX_BATCH_SIZE));
-        assertThat(query.getStartIndex(), is(1));
+        verifyReplicate(HITS, Metacard.EFFECTIVE);
+        verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
     }
 
     @Test
     public void testSmallBatchSize() throws Exception {
-        replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.batchSize = 10;
         replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
-
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
-        QueryRequest request = argument.getValue();
-        assertThat(request, notNullValue());
-        Query query = request.getQuery();
-        assertThat(query, notNullValue());
-        assertThat(query.getPageSize(), is(replicationCmd.batchSize));
-        assertThat(query.getStartIndex(), is(991));
+        verifyReplicate(HITS, Metacard.EFFECTIVE);
+        verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
     }
 
     @Test
     public void testMaxMetacard() throws Exception {
-        replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.batchSize = 10;
@@ -233,22 +211,14 @@ public class TestReplicationCommand {
         replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
-
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(replicationCmd.maxMetacards / replicationCmd.batchSize
-                        + 1)).query(argument.capture());
-        QueryRequest request = argument.getValue();
-        assertThat(request, notNullValue());
-        Query query = request.getQuery();
-        assertThat(query, notNullValue());
-        assertThat(query.getPageSize(), is(replicationCmd.batchSize));
-        assertThat(query.getStartIndex(), is(11));
+        verifyReplicate(Math.min(HITS, replicationCmd.maxMetacards), Metacard.EFFECTIVE);
+        verifyConsoleOutput(
+                Math.min(HITS, replicationCmd.maxMetacards) + " record(s) replicated; " + 0
+                        + " record(s) failed;");
     }
 
     @Test
     public void testMultithreaded() throws Exception {
-        replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.batchSize = 10;
@@ -257,47 +227,25 @@ public class TestReplicationCommand {
 
         replicationCmd.doExecute();
 
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
-        QueryRequest request = argument.getValue();
-        assertThat(request, notNullValue());
-        Query query = request.getQuery();
-        assertThat(query, notNullValue());
-        assertThat(query.getPageSize(), is(replicationCmd.batchSize));
-        assertThat(consoleOutput.getOutput(),
-                containsString("1000 record(s) replicated; 0 record(s) failed"));
-        consoleOutput.reset();
+        verifyReplicate(HITS, Metacard.EFFECTIVE);
+        verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
     }
 
     @Test
     public void testTemporalFlag() throws Exception {
-        replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = true;
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.temporalProperty = Core.CREATED;
         replicationCmd.lastMinutes = 30;
 
         replicationCmd.doExecute();
-
-        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
-        QueryRequest request = argument.getValue();
-        assertThat(request, notNullValue());
-        Query query = request.getQuery();
-        assertThat(query, notNullValue());
-        assertThat(query.getPageSize(), is(replicationCmd.batchSize));
-        assertThat(query.getStartIndex(), is(1));
-        assertThat(query.getSortBy()
-                .getPropertyName()
-                .getPropertyName(), is(Metacard.EFFECTIVE));
+        verifyReplicate(HITS, Metacard.EFFECTIVE);
+        verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
         // TODO - How do I validate the actual filter
     }
 
     @Test
     public void testFailedtoIngestHalf() throws Exception {
-
         when(catalogFramework.create(isA(CreateRequest.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
             CreateRequest request = (CreateRequest) args[0];
@@ -308,33 +256,52 @@ public class TestReplicationCommand {
             return mockCreateResponse;
         });
 
-        replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
         replicationCmd.sourceId = "sourceId1";
         replicationCmd.temporalProperty = Metacard.EFFECTIVE;
 
         replicationCmd.doExecute();
-
-        assertThat(consoleOutput.getOutput(), containsString("500 record(s) failed"));
-        consoleOutput.reset();
-    }
-
-    @Test
-    public void testInvalidTemporalProperty() {
-        replicationCmd.temporalProperty = "invalidTemporalProperty";
-
-        assertThat(replicationCmd.getTemporalProperty(), is(Core.CREATED));
+        verifyReplicate(HITS, Metacard.EFFECTIVE);
+        verifyConsoleOutput(
+                (int) Math.floor(HITS / 2) + " record(s) replicated; " + (int) (HITS - Math.floor(
+                        HITS / 2)) + " record(s) failed;");
     }
 
     private List<Result> getResultList(int size) {
-        List<Result> results = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
+        return Stream.generate(() -> {
             MetacardImpl metacard = new MetacardImpl();
             metacard.setId(UUID.randomUUID()
                     .toString());
-            Result result = new ResultImpl(metacard);
-            results.add(result);
+            return new ResultImpl(metacard);
+        })
+                .limit(size)
+                .collect(Collectors.toList());
+    }
+
+    private void verifyReplicate(int actualMaxMetacards, String sortBy) throws Exception {
+        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
+        verify(catalogFramework,
+                times((int) Math.ceil(
+                        (double) actualMaxMetacards / (double) replicationCmd.batchSize))).query(
+                argument.capture());
+        QueryRequest request = argument.getValue();
+        assertThat(request, notNullValue());
+        Query query = request.getQuery();
+        assertThat(query, notNullValue());
+        assertThat(query.getPageSize(), is(replicationCmd.batchSize));
+        if (replicationCmd.multithreaded == 1) {
+            assertThat(query.getStartIndex(),
+                    is((((int) ((double) (actualMaxMetacards - 1) / (double) replicationCmd.batchSize))
+                            * replicationCmd.batchSize + 1)));
         }
-        return results;
+        assertThat(query.getSortBy()
+                .getPropertyName()
+                .getPropertyName(), is(sortBy));
+    }
+
+    private void verifyConsoleOutput(String... message) {
+        Arrays.stream(message)
+                .forEach(s -> assertThat(consoleOutput.getOutput(), containsString(s)));
+        consoleOutput.reset();
     }
 }

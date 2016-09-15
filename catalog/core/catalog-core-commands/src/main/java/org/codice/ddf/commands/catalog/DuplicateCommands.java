@@ -25,10 +25,18 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,20 +47,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 
 public abstract class DuplicateCommands extends CatalogCommands {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DuplicateCommands.class);
 
     protected static final int MAX_BATCH_SIZE = 1000;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DuplicateCommands.class);
 
     private static final String DATE_FORMAT = "MM-dd-yyyy";
 
@@ -64,12 +73,8 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
     protected FilterBuilder builder;
 
-    protected AtomicInteger failedCount = new AtomicInteger(0);
-
-    protected AtomicInteger successCount = new AtomicInteger(0);
-
     @Option(name = "--batchsize", required = false, aliases = {
-            "-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
+            "-b"}, multiValued = false, description = "Number of Metacards to query and ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = MAX_BATCH_SIZE;
 
     @Option(name = "--multithreaded", required = false, aliases = {
@@ -140,41 +145,133 @@ public abstract class DuplicateCommands extends CatalogCommands {
             "-max"}, multiValued = false, description = "Option to specify a maximum amount of metacards to ingest.")
     int maxMetacards;
 
-    private List<Metacard> failedMetacards = Collections.synchronizedList(new ArrayList<>());
+    protected AtomicInteger ingestedCount = new AtomicInteger(0);
 
-    abstract List<Metacard> query(CatalogFacade facade, int startIndex, Filter filter);
+    protected AtomicInteger failedCount = new AtomicInteger(0);
+
+    protected Set<Metacard> failedMetacards = Collections.synchronizedSet(new HashSet<>());
+
+    protected long start;
+
+    abstract SourceResponse query(CatalogFacade framework, Filter filter, int startIndex,
+            long querySize);
 
     /**
-     * @param queryFacade  - the CatalogFacade used for query
-     * @param ingestFacade - the CatalogFacade used for ingest
-     * @param startIndex   - the start index of the query
+     * In batches, loops through a query of the queryFacade and an ingest to the ingestFacade of the
+     * metacards from the response until there are no more metacards from the queryFacade or the
+     * maxMetacards has been reached.
+     *
+     * @param queryFacade  - the CatalogFacade to duplicate from
+     * @param ingestFacade - the CatalogFacade to duplicate to
      * @param filter       - the filter to query with
-     * @return - the number of successfully created metacards.
      */
-    protected int queryAndIngest(CatalogFacade queryFacade, CatalogFacade ingestFacade,
-            int startIndex, Filter filter) {
+    protected void duplicateInBatches(CatalogFacade queryFacade, CatalogFacade ingestFacade,
+            Filter filter) {
+        AtomicInteger queryIndex = new AtomicInteger(1);
 
-        // If maxMetacards is set, restrict the batchSize of the query to the remaining maxMetacards
-        if (maxMetacards > 0 && ((maxMetacards - successCount.get()) < batchSize)) {
-            batchSize = maxMetacards - successCount.get();
+        final long originalQuerySize;
+        if (maxMetacards > 0 && maxMetacards < batchSize) {
+            originalQuerySize = maxMetacards;
+        } else {
+            originalQuerySize = batchSize;
         }
 
-        List<Metacard> queryMetacards;
-        queryMetacards = query(queryFacade, startIndex, filter);
-
-        if (queryMetacards == null || queryMetacards.isEmpty()) {
-            return 0;
+        final SourceResponse originalResponse = query(queryFacade,
+                filter,
+                queryIndex.get(),
+                originalQuerySize);
+        if (originalResponse == null) {
+            return;
         }
 
-        List<Metacard> createdMetacards = ingestMetacards(ingestFacade, queryMetacards);
-        int failed = queryMetacards.size() - createdMetacards.size();
-        if (failed != 0) {
-            LOGGER.info("Not all records were ingested. [{}] failed", failed);
-            failedCount.addAndGet(failed);
-            failedMetacards.addAll(subtract(queryMetacards, createdMetacards));
+        final long totalHits = originalResponse.getHits();
+        if (totalHits <= 0) {
+            return;
         }
-        successCount.addAndGet(createdMetacards.size());
-        return createdMetacards.size();
+
+        // If the maxMetacards is set, restrict the totalWanted to the number of maxMetacards
+        final long totalWanted;
+        if (maxMetacards > 0 && maxMetacards <= totalHits) {
+            totalWanted = maxMetacards;
+        } else {
+            totalWanted = totalHits;
+        }
+
+        ingestMetacards(ingestFacade, getMetacardsFromSourceResponse(originalResponse));
+
+        if (multithreaded > 1) {
+            BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(multithreaded);
+            RejectedExecutionHandler rejectedExecutionHandler =
+                    new ThreadPoolExecutor.CallerRunsPolicy();
+            final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
+                    multithreaded,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    blockingQueue,
+                    rejectedExecutionHandler);
+            console.printf("Running a maximum of %d threads during replication.%n", multithreaded);
+
+            printProgressAndFlush(start, totalWanted, ingestedCount.get());
+            int index;
+            while ((index = queryIndex.addAndGet(batchSize)) <= totalWanted) {
+                final int i = index;
+
+                executorService.submit(() -> {
+                    final SourceResponse response = query(queryFacade,
+                            filter,
+                            i,
+                            getQuerySizeFromIndex(totalWanted, i));
+                    ingestMetacards(ingestFacade, getMetacardsFromSourceResponse(response));
+                    printProgressAndFlush(start, totalWanted, ingestedCount.get());
+                });
+            }
+
+            executorService.shutdown();
+
+            while (!executorService.isTerminated()) {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+            }
+        } else {
+            while (queryIndex.addAndGet(batchSize) <= totalWanted) {
+                printProgressAndFlush(start, totalWanted, ingestedCount.get());
+
+                final SourceResponse response = query(queryFacade,
+                        filter,
+                        queryIndex.get(),
+                        getQuerySizeFromIndex(totalWanted, queryIndex.get()));
+                ingestMetacards(ingestFacade, getMetacardsFromSourceResponse(response));
+            }
+        }
+
+        printProgressAndFlush(start, totalWanted, ingestedCount.get());
+
+        if (failedCount.get() > 0) {
+            LOGGER.info("Not all records were ingested. [{}] failed", failedCount.get());
+            if (StringUtils.isNotBlank(failedDir)) {
+                try {
+                    writeFailedMetacards(failedMetacards);
+                } catch (IOException e) {
+                    console.println("Error occurred while writing failed metacards to failedDir.");
+                }
+            }
+        }
+    }
+
+    /**
+     * On the final iteration of the loop when the maxMetacards is less than the number of metacards
+     * available in the ingestFacade, the query should only return the remaining wanted metacards,
+     * not the full batch size.
+     *
+     * @param totalPossible - the total hits from the ingestFacade or the maxMetacards
+     * @param index         - the index to be queried next
+     * @return how many metacards should be returned by a query starting at {@param index}
+     */
+    private long getQuerySizeFromIndex(final long totalPossible, final long index) {
+        return Math.min(totalPossible - (index - 1), batchSize);
     }
 
     protected List<Metacard> ingestMetacards(CatalogFacade provider, List<Metacard> metacards) {
@@ -206,6 +303,10 @@ public abstract class DuplicateCommands extends CatalogCommands {
             return createdMetacards;
         }
 
+        ingestedCount.addAndGet(createdMetacards.size());
+        failedCount.addAndGet(metacards.size() - createdMetacards.size());
+        failedMetacards.addAll(subtract(metacards, createdMetacards));
+
         return createdMetacards;
     }
 
@@ -228,6 +329,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
                 LOGGER.debug("Unexpected Exception during ingest:", e);
             }
         }
+
         return createdMetacards;
     }
 
@@ -325,7 +427,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
         return result;
     }
 
-    protected void writeFailedMetacards(List<Metacard> failedMetacards) throws IOException {
+    protected void writeFailedMetacards(Set<Metacard> failedMetacards) throws IOException {
         File directory = new File(failedDir);
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
@@ -348,5 +450,12 @@ public abstract class DuplicateCommands extends CatalogCommands {
                 oos.flush();
             }
         }
+    }
+
+    private List<Metacard> getMetacardsFromSourceResponse(SourceResponse response) {
+        return response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toList());
     }
 }

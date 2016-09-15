@@ -60,7 +60,7 @@
 		</command>
 		
 		<command name="catalog/replicate">
-			<action class="org.codice.ddf.commands.catalog.ReplicationCommand"/>
+			<action class="org.codice.ddf.commands.catalog.ReplicateCommand"/>
 		</command>
 		
 		<command name="catalog/migrate">
