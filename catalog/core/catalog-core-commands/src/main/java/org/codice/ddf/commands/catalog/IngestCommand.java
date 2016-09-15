@@ -691,7 +691,7 @@ public class IngestCommand extends CatalogCommands {
 
                 // When the producer has finished populating the queue, it will countdown
                 // the phaser. The remaining count in the phaser will be metacardCount + main thread
-                if (queueSize > batchSize || queueSize == phaser.getRegisteredParties() - 1) {
+                if (queueSize >= batchSize || queueSize == phaser.getRegisteredParties() - 1) {
                     metacardQueue.drainTo(metacardBatch, batchSize);
                 }
 
