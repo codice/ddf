@@ -36,7 +36,7 @@ From the ${admin-console}, the following configurations are available from a sta
 |Customize attributes to replace username of logged-in user.
 
 |<<sts_server_token_endpoint_table,STS Server Token Endpoint>>
-|`ddf.security.sts.StsStaticService`
+|`org.apache.cxf.sts.service.StaticService`
 |Add or update addresses to use with STS service.
 
 |<<security_soap_guest_interceptor_table,Security SOAP Guest Interceptor>>

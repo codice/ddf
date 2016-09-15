@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.security.cert.X509Certificate;
 
 import javax.security.auth.x500.X500Principal;
-import javax.xml.ws.WebServiceContext;
 
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -110,8 +109,6 @@ public class TestX509PathTokenValidator {
         when(binarySecurityTokenType.getEncodingType()).thenReturn(X509PathTokenValidator.BASE64_ENCODING);
         when(binarySecurityTokenType.getValue()).thenReturn("data");
 
-        when(tokenParameters.getWebServiceContext()).thenReturn(mock(WebServiceContext.class));
-
         TokenValidatorResponse tokenValidatorResponse = x509PathTokenValidator.validateToken(
                 tokenParameters);
 
@@ -155,7 +152,6 @@ public class TestX509PathTokenValidator {
         when(binarySecurityTokenType.getEncodingType()).thenReturn(X509PathTokenValidator.BASE64_ENCODING);
         when(binarySecurityTokenType.getValueType()).thenReturn("valuetype");
         when(binarySecurityTokenType.getValue()).thenReturn("data");
-        when(tokenParameters.getWebServiceContext()).thenReturn(mock(WebServiceContext.class));
 
         TokenValidatorResponse tokenValidatorResponse = x509PathTokenValidator.validateToken(
                 tokenParameters);
