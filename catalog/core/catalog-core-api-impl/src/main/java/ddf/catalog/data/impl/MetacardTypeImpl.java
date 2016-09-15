@@ -19,14 +19,26 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableMap;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
@@ -50,10 +62,27 @@ public class MetacardTypeImpl implements MetacardType {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Set<AttributeDescriptor> DEFAULT_ATTRIBUTES = Stream.of(new CoreAttributes(),
+            new SecurityAttributes())
+            .map(MetacardType::getAttributeDescriptors)
+            .flatMap(Set::stream)
+            .collect(Collectors.toSet());
+
+    private static final Collector<AttributeDescriptor, ?, Map<String, AttributeDescriptor>>
+            ATTRIBUTE_COLLECTOR =
+            Collectors.collectingAndThen(Collectors.toMap(AttributeDescriptor::getName,
+                    Function.identity(),
+                    (oldVal, newVal) -> oldVal), ImmutableMap::copyOf);
+
+    /*
+     * Only to be used by the getAttributeDescriptors method.
+     */
+    private Set<AttributeDescriptor> cachedDescriptors;
+
     /**
      * Set of {@link AttributeDescriptor}s
      */
-    protected transient Set<AttributeDescriptor> descriptors = new HashSet<>();
+    protected transient Map<String, AttributeDescriptor> descriptors = Collections.emptyMap();
 
     /**
      * The name of this {@code MetacardTypeImpl}
@@ -67,7 +96,9 @@ public class MetacardTypeImpl implements MetacardType {
      * {@link AttributeDescriptor}s.
      *
      * @param name        the name of this {@code MetacardTypeImpl}
-     * @param descriptors the set of descriptors for this {@code MetacardTypeImpl}
+     * @param descriptors the set of descriptors for this {@code MetacardTypeImpl}. If descriptors
+     *                    is <code>null</code> then the default descriptors will be added
+     *                    ({@link CoreAttributes} & {@link SecurityAttributes})
      */
     public MetacardTypeImpl(String name, Set<AttributeDescriptor> descriptors) {
         /*
@@ -76,10 +107,13 @@ public class MetacardTypeImpl implements MetacardType {
          * serialized object is maintained. For instance, if a null check is added in the
          * constructor, the same check should be added in the readObject() method.
          */
+
         this.name = name;
-        if (descriptors != null) {
-            this.descriptors.addAll(descriptors);
-        }
+        this.descriptors = Optional.ofNullable(descriptors)
+                .orElse(DEFAULT_ATTRIBUTES)
+                .stream()
+                .collect(ATTRIBUTE_COLLECTOR);
+        this.cachedDescriptors = new HashSet<>(this.descriptors.values());
     }
 
     /**
@@ -107,8 +141,10 @@ public class MetacardTypeImpl implements MetacardType {
                 "The set of additional descriptors cannot be null or empty");
 
         this.name = name;
-        descriptors.addAll(metacardType.getAttributeDescriptors());
-        descriptors.addAll(additionalDescriptors);
+        this.descriptors = Stream.of(metacardType.getAttributeDescriptors(), additionalDescriptors)
+                .flatMap(Set::stream)
+                .collect(ATTRIBUTE_COLLECTOR);
+        this.cachedDescriptors = new HashSet<>(this.descriptors.values());
     }
 
     /**
@@ -119,26 +155,16 @@ public class MetacardTypeImpl implements MetacardType {
      * @param metacardTypes the set of {@link MetacardType}s to compose this {@code MetacardTypeImpl}
      */
     public MetacardTypeImpl(String name, List<MetacardType> metacardTypes) {
+        notEmpty(metacardTypes, "The set of Metacard Types cannot be null or empty");
+
         this.name = name;
-        List<String> attributeNames = new ArrayList<>();
-        addAttributeDescriptors(attributeNames, new CoreAttributes().getAttributeDescriptors());
-        addAttributeDescriptors(attributeNames, new SecurityAttributes().getAttributeDescriptors());
-
-        if (metacardTypes != null) {
-            metacardTypes.forEach(metacardType -> addAttributeDescriptors(attributeNames,
-                    metacardType.getAttributeDescriptors()));
-        }
-    }
-
-    private List<String> addAttributeDescriptors(List<String> attributeNames,
-            Set<AttributeDescriptor> attributeDescriptors) {
-        attributeDescriptors.forEach(attributeDescriptor -> {
-            if (!attributeNames.contains(attributeDescriptor.getName())) {
-                descriptors.add(attributeDescriptor);
-                attributeNames.add(attributeDescriptor.getName());
-            }
-        });
-        return attributeNames;
+        this.descriptors = Stream.concat(Stream.of(new CoreAttributes(), new SecurityAttributes()),
+                metacardTypes.stream())
+                .filter(Objects::nonNull)
+                .map(MetacardType::getAttributeDescriptors)
+                .flatMap(Set::stream)
+                .collect(ATTRIBUTE_COLLECTOR);
+        this.cachedDescriptors = new HashSet<>(this.descriptors.values());
     }
 
     @Override
@@ -148,7 +174,7 @@ public class MetacardTypeImpl implements MetacardType {
 
     @Override
     public Set<AttributeDescriptor> getAttributeDescriptors() {
-        return Collections.unmodifiableSet(descriptors);
+        return Collections.unmodifiableSet(this.cachedDescriptors);
     }
 
     @Override
@@ -156,13 +182,7 @@ public class MetacardTypeImpl implements MetacardType {
         if (attributeName == null) {
             return null;
         }
-        // TODO could this be faster?
-        for (AttributeDescriptor descriptor : descriptors) {
-            if (attributeName.equals(descriptor.getName())) {
-                return descriptor;
-            }
-        }
-        return null;
+        return descriptors.get(attributeName);
     }
 
     /**
@@ -181,11 +201,13 @@ public class MetacardTypeImpl implements MetacardType {
          * defaultWriteObject() is invoked for greater flexibility and compatibility. See the
          * *Serialization Note* in MetacardImpl's class Javadoc.
          */
+        Set<AttributeDescriptor> attributeDescriptors = getAttributeDescriptors();
+
         stream.defaultWriteObject();
 
-        stream.writeInt(descriptors.size());
+        stream.writeInt(attributeDescriptors.size());
 
-        for (AttributeDescriptor descriptor : descriptors) {
+        for (AttributeDescriptor descriptor : attributeDescriptors) {
             stream.writeObject(descriptor);
         }
 
@@ -208,17 +230,26 @@ public class MetacardTypeImpl implements MetacardType {
 
         int numElements = stream.readInt();
 
-        descriptors = new HashSet<AttributeDescriptor>();
+        this.descriptors = IntStream.range(0, numElements)
+                .boxed()
+                .map(objectGetter(stream))
+                .collect(ATTRIBUTE_COLLECTOR);
+    }
 
-        for (int i = 0; i < numElements; i++) {
-            descriptors.add((AttributeDescriptor) stream.readObject());
-        }
+    private Function<Integer, AttributeDescriptor> objectGetter(ObjectInputStream stream) {
+        return (i) -> {
+            try {
+                return (AttributeDescriptor) stream.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(19, 71).append(name)
-                .append(descriptors)
+                .append(getAttributeDescriptors())
                 .toHashCode();
     }
 
@@ -234,7 +265,7 @@ public class MetacardTypeImpl implements MetacardType {
 
         MetacardType other = (MetacardType) obj;
         return new EqualsBuilder().append(name, other.getName())
-                .append(descriptors, other.getAttributeDescriptors())
+                .append(getAttributeDescriptors(), other.getAttributeDescriptors())
                 .isEquals();
     }
 }

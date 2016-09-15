@@ -82,10 +82,9 @@ public class MetacardTypeImplTest {
         assertThat(mt.getAttributeDescriptors(), hasSize(0));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testNullMetacardTypes() {
         MetacardType mt = new MetacardTypeImpl(TEST_NAME, (List<MetacardType>) null);
-        assertMetacardAttributes(mt, CORE_ATTRIBUTES.getAttributeDescriptors());
     }
 
     @Test
@@ -312,7 +311,7 @@ public class MetacardTypeImplTest {
 
     @Test
     public void testBasicType() {
-        MetacardType metacardType = new MetacardTypeImpl(TEST_NAME, new ArrayList<>());
+        MetacardType metacardType = new MetacardTypeImpl(TEST_NAME, CORE_ATTRIBUTES.getAttributeDescriptors());
         assertMetacardAttributes(metacardType, CORE_ATTRIBUTES.getAttributeDescriptors());
     }
 
