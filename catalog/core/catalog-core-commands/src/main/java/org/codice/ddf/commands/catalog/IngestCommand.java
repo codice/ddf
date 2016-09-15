@@ -25,6 +25,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -340,16 +341,19 @@ public class IngestCommand extends CatalogCommands {
 
     private int totalFileCount(File inputFile) throws IOException {
         if (inputFile.isDirectory()) {
-            int cnt = 0;
+            int currentFileCount = 0;
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(inputFile.toPath())) {
                 for (Path entry : stream) {
-                    cnt++;
+                    if (!entry.toFile()
+                            .isHidden()) {
+                        currentFileCount++;
+                    }
                 }
-                return cnt;
+                return currentFileCount;
             }
         }
 
-        return 1;
+        return inputFile.isHidden() ? 0 : 1;
     }
 
     /**
@@ -508,8 +512,8 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private void moveToFailedIngestDirectory(File source) {
-        File destination = new File(
-                failedIngestDirectory.getAbsolutePath() + File.separator + source.getName());
+        File destination = Paths.get(failedIngestDirectory.getAbsolutePath(), source.getName())
+                .toFile();
 
         if (!source.renameTo(destination)) {
             printErrorMessage("Unable to move source file [" + source.getAbsolutePath() + "] to ["
@@ -565,16 +569,20 @@ public class IngestCommand extends CatalogCommands {
         }
 
         if (result != null) {
-            try {
-                phaser.register();
-                metacardQueue.put(result);
-            } catch (InterruptedException e) {
-                phaser.arriveAndDeregister();
+            putMetacardOnQueue(metacardQueue, result);
+        }
+    }
 
-                INGEST_LOGGER.error("Thread interrupted while waiting to 'put' metacard: {}",
-                        result.getId(),
-                        e);
-            }
+    private void putMetacardOnQueue(ArrayBlockingQueue<Metacard> metacardQueue, Metacard metacard) {
+        try {
+            phaser.register();
+            metacardQueue.put(metacard);
+        } catch (InterruptedException e) {
+            phaser.arriveAndDeregister();
+
+            INGEST_LOGGER.error("Thread interrupted while waiting to 'put' metacard: {}",
+                    metacard.getId(),
+                    e);
         }
     }
 
@@ -601,13 +609,10 @@ public class IngestCommand extends CatalogCommands {
                     fileCount.set(metacardList.size());
 
                     for (Metacard metacard : metacardList) {
-                        phaser.register();
-                        metacardQueue.put(metacard);
+                        putMetacardOnQueue(metacardQueue, metacard);
                     }
                 }
-            } catch (IOException | CatalogTransformerException | InterruptedException e) {
-                // Clear the queue, to make this an all-or-nothing transaction
-                metacardQueue.clear();
+            } catch (IOException | CatalogTransformerException e) {
                 LOGGER.info("Unable to transform zip file into metacard list.", e);
                 INGEST_LOGGER.warn("Unable to transform zip file into metacard list.", e);
             }
