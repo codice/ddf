@@ -82,9 +82,13 @@ define([
                     data = this.model.toJSON();
                     data.validationError = this.model.get('error');
                     data.errorIndices = this.model.errorIndices;
+                    if (this.model.get('identityNode') && this.model.get('key') === 'Name'){
+                        data.editable = false;
+                    }
                     if (this.readOnly) {
                         data.editable = false;
                     }
+
                 }
                 return data;
             },
