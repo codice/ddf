@@ -14,41 +14,31 @@
  **/
 
 import React from 'react'
+import { togglePolling } from '../../actions'
 import { connect } from 'react-redux'
 
-import LogViewer from '../log-viewer/log-viewer'
+import './polling-button.less'
 
-import './log-panel.less'
-
-const panelClass = () => {
-  if (window === window.top) {
-    return 'panel'
-  } else {
-    return 'panel-iframe'
-  }
-}
-
-const iframeNewTab = () => {
-  if (window !== window.top) {
+const pollingButton = ({ isPolling, onTogglePolling }) => {
+  if (isPolling) {
     return (
-      <a href='/admin/logviewer/index.html' target='_blank' className='newTabLink'>
-        Open Viewer in New Tab
-      </a>
+      <button className='button-live' onClick={onTogglePolling}>
+        <span className='status-text'><b>LIVE</b></span>
+        <span >◉</span>
+      </button>
+    )
+  } else {
+    return (
+      <button className='button-paused' onClick={onTogglePolling}>
+        <span className='status-text'><b>PAUSED</b></span>
+        <span>◉</span>
+      </button>
     )
   }
 }
 
-const LogPanel = connect(({ filter, logs, displaySize, expandedHash }) => ({
-  filter, logs, displaySize, expandedHash
-}))(LogViewer)
+const mapStateToProps = ({ isPolling }) => ({ isPolling })
 
-export default () => {
-  return (
-    <div>
-      {iframeNewTab()}
-      <div className={panelClass()}>
-        <LogPanel/>
-      </div>
-    </div>
-  )
-}
+export default connect(mapStateToProps, {
+  onTogglePolling: togglePolling
+})(pollingButton)

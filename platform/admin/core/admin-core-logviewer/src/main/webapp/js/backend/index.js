@@ -13,52 +13,15 @@
  *
  **/
 
-import eventStream from 'event-stream'
-import concat from 'concat-stream'
-import http from 'http'
+require('es6-promise').polyfill()
+require('isomorphic-fetch')
 
 // retrieves logs from the endpoint
-const getLogs = function (done) {
+export const getLogs = (done) => {
   const endpoint = '/admin/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents'
 
-  http.get({
-    path: endpoint
-  }, function (res) {
-    res.pipe(concat(function (body) {
-      try {
-        done(null, JSON.parse(body))
-      } catch (e) {
-        done(e)
-      }
-    }))
-  })
-}
-
-// polls the endpoint in batches of 500 and streams them out individually
-export default () => {
-  var logs = []
-
-  return eventStream.readable(function (count, next) {
-    if (logs.length > 0) {
-      if (count > 500) {
-        // set polling interval
-        setTimeout(function () {
-          next(null, logs.shift())
-        }, 10)
-      } else {
-        next(null, logs.shift())
-      }
-
-    // fetch new logs if all have been streamed out
-    } else {
-      getLogs(function (err, body) {
-        if (err) {
-          next(err)
-        } else {
-          logs = body.value
-          next(null, logs.shift())
-        }
-      })
-    }
-  })
+  window.fetch(endpoint, {credentials: 'same-origin'})
+    .then((res) => res.json())
+    .then((json) => done(null, json.value))
+    .catch(done)
 }

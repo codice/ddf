@@ -13,23 +13,8 @@
  *
  **/
 
-import * as redux from 'redux'
-import backend from './backend'
-import * as actions from './actions'
-import uniq from './uniq'
-import batch from './batch'
+import { createStore, applyMiddleware } from 'redux'
 import reducer from './reducers'
+import thunk from 'redux-thunk'
 
-var store = redux.createStore(reducer)
-
-// added to store.js to ensure that it should only be run once
-// pipe order:
-// backend (fetch logs) -> uniq (filter out duplicates) -> dispatch action.append (append new logs)
-backend()
-  .pipe(uniq())
-  .pipe(batch())
-  .on('data', (data) => {
-    store.dispatch(actions.append(data))
-  })
-
-export default store
+export default createStore(reducer, applyMiddleware(thunk))

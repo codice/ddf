@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
 import test from 'tape'
 import reducer from '../../main/webapp/js/reducers'
 import * as actions from '../../main/webapp/js/actions'
@@ -21,7 +20,7 @@ import random from './random-entry'
 const hashOne = 'e59ff97941044f85df5297e1c302d260'
 const hashTwo = '3d98044ff54aa08c6e57cec51a21966a'
 
-test('initial state', function (t) {
+test('initial state', (t) => {
   t.plan(2)
 
   var state = reducer()
@@ -29,40 +28,61 @@ test('initial state', function (t) {
   t.deepEqual(state.filter, { level: 'ALL' })
 })
 
-test('filter logs', function (t) {
+test('filter logs', (t) => {
   t.plan(1)
 
   var state = reducer(reducer(), actions.filter({ level: 'DEBUG' }))
   t.equal(state.filter.level, 'DEBUG')
 })
 
-test('append logs', function (t) {
+test('append logs', (t) => {
   t.plan(1)
 
-  var entries = [random()]
-  var state = reducer(reducer(), actions.append(entries))
-  t.deepEqual(state.logs, entries)
+  var action = actions.append([random()])
+  var state = reducer(reducer(), action)
+  t.deepEqual(state.logs, action.entries)
 })
 
-test('set expandEntry, undefined + hashOne = hashOne', function (t) {
+test('truncate at maximum', (t) => {
+  t.plan(2)
+
+  var oldLogs = []
+  for (var i = 0; i < 5000; i++) {
+    oldLogs.push({hash: i, ...random()})
+  }
+
+  var action = actions.append(oldLogs)
+  var state = reducer(reducer(), action)
+
+  t.equal(state.logs.length, 5000, 'initial log list is not 5000 entries')
+
+  const newLogs = [{hash: 'newHash', ...random()}]
+
+  action = actions.append(newLogs)
+  state = reducer(state, action)
+
+  t.equal(state.logs.length, 5000, 'log list is not being truncated at 5000 entries')
+})
+
+test('set expandEntry, undefined + hashOne = hashOne', (t) => {
   t.plan(2)
 
   var state = reducer()
-  t.equal(state.expandedHash, undefined, 'state has an undefined hash')
+  t.equal(state.expandedHash, null, 'state has an undefined hash')
   state = reducer(state, actions.expandEntry(hashOne))
   t.equal(state.expandedHash, hashOne, 'state hash is changed to the new hash')
 })
 
-test('toggle expandEntry, hashOne + hashOne = undefined', function (t) {
+test('toggle expandEntry, hashOne + hashOne = undefined', (t) => {
   t.plan(2)
 
   var state = reducer(reducer(), actions.expandEntry(hashOne))
   t.equal(state.expandedHash, hashOne, 'state hash is set to hashOne')
   state = reducer(state, actions.expandEntry(hashOne))
-  t.equal(state.expandedHash, undefined, 'state hash is changed from hashOne to undefined')
+  t.equal(state.expandedHash, null, 'state hash is changed from hashOne to undefined')
 })
 
-test('change expandEntry, hashOne + hashTwo = hashTwo', function (t) {
+test('change expandEntry, hashOne + hashTwo = hashTwo', (t) => {
   t.plan(2)
 
   var state = reducer(reducer(), actions.expandEntry(hashOne))
