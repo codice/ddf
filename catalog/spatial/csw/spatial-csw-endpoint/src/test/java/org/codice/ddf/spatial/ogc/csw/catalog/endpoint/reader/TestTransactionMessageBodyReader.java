@@ -520,7 +520,7 @@ public class TestTransactionMessageBodyReader {
 
         Map<String, Serializable> recordProperties = secondUpdateAction.getRecordProperties();
         assertThat(recordProperties, notNullValue());
-        assertThat(recordProperties.size(), is(2));
+        assertThat(recordProperties.size(), is(1));
 
         Serializable newSubject = recordProperties.get("topic.category");
         assertThat(newSubject, is("foo"));
