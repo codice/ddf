@@ -14,46 +14,67 @@
  **/
 
 import test from 'tape'
+
 import filter from '../../main/webapp/js/filter'
 import random from './random-entry'
 
-test('level filter', function (t) {
+const getEntry = (item) => item.entry
+
+test('level filter TRACE', (t) => {
   t.plan(1)
 
-  const logs = [{ level: 'DEBUG' }, { level: 'WARN' }].map(random)
-  const filtered = filter({ level: 'DEBUG' }, logs)
+  const logs = [{ level: 'TRACE' }, { level: 'INFO' }, { level: 'ERROR' }].map(random)
+  const filtered = filter({ level: 'TRACE' }, logs).map(getEntry)
 
-  t.equal(filtered.length, 1)
+  t.deepEqual(filtered, [logs[0], logs[1], logs[2]])
 })
 
-test('text filter', function (t) {
+test('level filter WARN', (t) => {
+  t.plan(1)
+
+  const logs = [{ level: 'INFO' }, { level: 'WARN' }, { level: 'ERROR' }].map(random)
+  const filtered = filter({ level: 'WARN' }, logs).map(getEntry)
+
+  t.deepEqual(filtered, [logs[1], logs[2]])
+})
+
+test('level filter ERROR', (t) => {
+  t.plan(1)
+
+  const logs = [{ level: 'DEBUG' }, { level: 'WARN' }, { level: 'ERROR' }].map(random)
+  const filtered = filter({ level: 'ERROR' }, logs).map(getEntry)
+
+  t.deepEqual(filtered, [logs[2]])
+})
+
+test('text filter', (t) => {
   t.plan(1)
 
   const logs = [{ message: 'first' }, { message: 'second' }].map(random)
-  const filtered = filter({ message: 'first' }, logs)
+  const filtered = filter({ message: 'first' }, logs).map(getEntry)
 
-  t.equal(filtered.length, 1)
+  t.deepEqual(filtered, [logs[0]])
 })
 
-test('text filter (partial match)', function (t) {
+test('text filter (partial match)', (t) => {
   t.plan(1)
 
   const logs = [{ message: 'random' }].map(random)
-  const filtered = filter({ message: 'rand' }, logs)
+  const filtered = filter({ message: 'rand' }, logs).map(getEntry)
 
-  t.equal(filtered.length, 1)
+  t.deepEqual(filtered, [logs[0]])
 })
 
-test('text filter (regex match)', function (t) {
+test('text filter (regex match)', (t) => {
   t.plan(1)
 
   const logs = [{ message: 'one two' }, { message: 'two one' }].map(random)
-  const filtered = filter({ message: '^one' }, logs)
+  const filtered = filter({ message: '^one' }, logs).map(getEntry)
 
-  t.equal(filtered.length, 1)
+  t.deepEqual(filtered, [logs[0]])
 })
 
-test('compound filter (logical AND)', function (t) {
+test('compound filter (logical AND)', (t) => {
   t.plan(1)
 
   const logs = [
@@ -61,7 +82,7 @@ test('compound filter (logical AND)', function (t) {
     { level: 'WARN', message: 'second' }
   ].map(random)
 
-  const filtered = filter({ level: 'DEBUG', message: 'second' }, logs)
+  const filtered = filter({ level: 'DEBUG', message: 'second' }, logs).map(getEntry)
 
-  t.equal(filtered.length, 0)
+  t.deepEqual(filtered, [logs[1]])
 })

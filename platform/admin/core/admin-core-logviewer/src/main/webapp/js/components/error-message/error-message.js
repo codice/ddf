@@ -13,30 +13,29 @@
  *
  **/
 
-import eventStream from 'event-stream'
+import React from 'react'
+import { dismissError } from '../../actions'
+import { connect } from 'react-redux'
 
-const DEFAULT_INTERVAL = 250
+import './error-message.less'
 
-// adds back-pressure to handle high-volume logs (like TRACE)
-export default (interval) => {
-  var that
-  var buff = []
-
-  const flush = () => {
-    if (that !== undefined && buff.length > 0) {
-      that.emit('data', buff)
-      buff = []
-    }
+const errorMessage = ({ errorState, onDismissError }) => {
+  if (errorState.isInError) {
+    return (
+      <div onClick={onDismissError} className='error-message'>
+        <span>{errorState.message}</span>
+        <span className='float-right'>&times;</span>
+      </div>
+    )
+  } else {
+    return (
+      <span />
+    )
   }
-
-  const i = setInterval(flush, interval || DEFAULT_INTERVAL)
-
-  return eventStream.through(function (data) {
-    that = this
-    buff.unshift(data)
-  }, () => {
-    clearInterval(i)
-    flush()
-    that.emit('end')
-  })
 }
+
+const mapStateToProps = ({ errorState }) => ({ errorState })
+
+export default connect(mapStateToProps, {
+  onDismissError: dismissError
+})(errorMessage)

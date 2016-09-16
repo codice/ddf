@@ -1385,6 +1385,8 @@ Monitor system logs with the *LogViewer*, a convenient "viewing portal" for inco
 
 The LogViewer displays the most recent 500 log messages by default, but will grow to a maximum of 5000 messages.
 
+The top left button labeled LIVE/PAUSED will toggle live retrieval of incoming logs from the backend.
+
 Log events can be filtered by:
 
 * Log level (`ERROR`, `WARNING`, etc).
@@ -1393,16 +1395,18 @@ Log events can be filtered by:
 * Log message text.
 * Bundle generating the message.
 
+[NOTE]
+====
+The LogViewer settings don't change any of the underlying logging settings, only which messages are displayed.
+It does not affect the logs generated or events captured by the system logger.
+====
+
 [WARNING]
 ====
 It is not recommended to use the LogViewer if the system logger is set to a low reporting level such as `TRACE`.
 The volume of messages logged will exceed the polling rate, and incoming logs may be missed.
 
-The actual logs being polled by the LogViewer can still be accessed at `<INSTALL_HOME>/data/log`
-====
+Logs may also be missed by the LogViewer if polling is paused for an extended period of time.
 
-[NOTE]
-====
-The LogViewer settings don't change any of the underlying logging settings, only which messages are displayed.
-It does not affect the logs generated or events captured by the system logger.
+The actual logs being polled by the LogViewer can still be accessed at `<INSTALL_HOME>/data/log`
 ====

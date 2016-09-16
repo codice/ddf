@@ -13,12 +13,19 @@
  *
  **/
 
-const arrayToObject = function (key, array) {
-  var o = {}
-  array.forEach(function (element) {
+import includes from 'lodash/includes'
+
+import lvls from './levels'
+const levels = lvls()
+
+// returns a single object created from an array of objects
+// the keys in the return object are each array object's key's value
+// arrayToObject('a', [{a:b}]) => {b:{a:b}}
+const arrayToObject = (key, array) => {
+  return array.reduce((o, element) => {
     o[element[key]] = element
-  })
-  return o
+    return o
+  }, {})
 }
 
 // filter logic for log level and regex matching.
@@ -26,19 +33,28 @@ const arrayToObject = function (key, array) {
 export default (filters, logs) => {
   const level = filters.level || 'ALL'
 
-  const fields = Object.keys(filters).filter(function (field) {
+  const fields = Object.keys(filters).filter((field) => {
     return field !== 'level' && filters[field] !== ''
   })
 
+  const regexps = fields.reduce((o, field) => {
+    try {
+      o[field] = new RegExp(filters[field], 'i')
+    } catch (e) {}
+    return o
+  }, {})
+
+  // fields that have a valid regex
+  const validFields = Object.keys(regexps)
+
   const hasMarks = (row) => {
-    return Object.keys(row.marks).length === fields.length
+    return Object.keys(row.marks).length === validFields.length
   }
 
   const getMarks = (entry) => {
-    var marks = fields.map((field) => {
+    var marks = validFields.map((field) => {
       if (entry[field]) {
-        var match = entry[field].toLowerCase()
-          .match(new RegExp(filters[field], 'i'))
+        var match = entry[field].match(regexps[field])
         if (match !== null) {
           return {
             field: field,
@@ -56,7 +72,7 @@ export default (filters, logs) => {
   }
 
   const levelLogs = logs.filter((entry) => {
-    return level === 'ALL' || entry.level === level
+    return level === 'ALL' || includes(levels.slice(levels.indexOf(level)), entry.level)
   }).map(getMarks)
 
   return (fields.length > 0) ? levelLogs.filter(hasMarks) : levelLogs

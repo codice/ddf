@@ -13,17 +13,19 @@
  *
  **/
 
-import dom from 'react-dom'
+import { render } from 'react-dom'
 import React from 'react'
 
 import store from './store'
+import { fetchLoop } from './actions'
 import LogPanel from './components/log-panel/log-panel'
+import { Provider } from 'react-redux'
+import { getLogs } from './backend'
 
-const render = () => {
-  dom.render(
-    <LogPanel state={store.getState()} dispatch={store.dispatch} />,
-    document.getElementById('root'))
-}
+render(
+  <Provider store={store}>
+    <LogPanel />
+  </Provider>,
+  document.getElementById('root'))
 
-render()
-store.subscribe(render)
+store.dispatch(fetchLoop(getLogs))
