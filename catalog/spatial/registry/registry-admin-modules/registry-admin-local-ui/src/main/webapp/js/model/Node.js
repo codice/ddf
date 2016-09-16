@@ -234,12 +234,12 @@ define([
         getSecondaryNodes: function() {
             return this.models.filter(function(model){
                 var transValues = model.get('TransientValues');
-                return transValues && !transValues['registry-identity-node'] && transValues['registry-local-node'];
+                return transValues && !transValues['registry.local.registry-identity-node'] && transValues['registry.local.registry-local-node'];
             });
         },
         getIdentityNode: function(){
             var array = this.models.filter(function(model){
-                return model.get('TransientValues') && model.get('TransientValues')['registry-identity-node'];
+                return model.get('TransientValues') && model.get('TransientValues')['registry.local.registry-identity-node'];
             });
             if(array.length === 1){
                 array[0].set('identityNode',true);
@@ -250,7 +250,7 @@ define([
         getRemoteNodes: function(){
             return this.models.filter(function(model){
                 var transValues = model.get('TransientValues');
-                return !transValues || !transValues['registry-local-node'];
+                return !transValues || !transValues['registry.local.registry-local-node'];
             });
         },
         deleteNodes: function (nodes) {

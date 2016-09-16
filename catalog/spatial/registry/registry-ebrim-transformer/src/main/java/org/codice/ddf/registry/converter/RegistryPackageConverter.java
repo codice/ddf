@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -379,19 +378,6 @@ public class RegistryPackageConverter {
             metacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, registryObject.getId());
         }
 
-        if (registryObject.isSetObjectType()) {
-            String objectType = registryObject.getObjectType();
-            Matcher matcher = URN_PATTERN.matcher(objectType);
-            if (matcher.find()) {
-                objectType = matcher.group(1)
-                        .replaceAll(":", ".");
-                if (!objectType.startsWith(RegistryConstants.REGISTRY_TAG)) {
-                    objectType = String.format("%s.%s", RegistryConstants.REGISTRY_TAG, objectType);
-                }
-            }
-            metacard.setContentTypeName(objectType);
-        }
-
         if (registryObject.isSetName()) {
             setMetacardStringAttribute(INTERNATIONAL_STRING_TYPE_HELPER.getString(registryObject.getName()),
                     Metacard.TITLE,
@@ -416,11 +402,13 @@ public class RegistryPackageConverter {
                 if (extId.getId()
                         .equals(RegistryConstants.REGISTRY_MCARD_ID_LOCAL)) {
                     metacard.setId(extId.getValue());
-                } else if (extId.getId().equals(RegistryConstants.REGISTRY_ID_ORIGIN)) {
+                } else if (extId.getId()
+                        .equals(RegistryConstants.REGISTRY_ID_ORIGIN)) {
                     if (!System.getProperty(RegistryConstants.REGISTRY_ID_PROPERTY)
                             .equals(extId.getValue())) {
                         setMetacardStringAttribute(extId.getValue(),
-                                RegistryObjectMetacardType.REMOTE_REGISTRY_ID, metacard);
+                                RegistryObjectMetacardType.REMOTE_REGISTRY_ID,
+                                metacard);
                     }
                 }
             }
