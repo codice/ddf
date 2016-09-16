@@ -240,6 +240,7 @@
                                         <doctype>book</doctype>
                                         <outputDirectory>${project.build.directory}/docs/html
                                         </outputDirectory>
+                                        <imagesDir>./images</imagesDir>
                                     </configuration>
                                 </execution>
                                 <execution>
@@ -259,9 +260,10 @@
                                         <attributes>
                                             <pagenums/>
                                             <toc/>
-                                            <idprefix/>
-                                            <idseparator>-</idseparator>
+                                            <idprefix>_</idprefix>
+                                            <idseparator>_</idseparator>
                                         </attributes>
+                                        <imagesDir>images</imagesDir>
                                     </configuration>
                                 </execution>
                             </executions>
@@ -270,7 +272,6 @@
                                 </sourceDirectory>
                                 <gemPath>${project.build.directory}/gems-provided</gemPath>
                                 <headerFooter>true</headerFooter>
-                                <imagesDir>./images</imagesDir>
                                 <sourceHighlighter>coderay</sourceHighlighter>
                                 <requires>
                                     <require>asciidoctor-diagram</require>

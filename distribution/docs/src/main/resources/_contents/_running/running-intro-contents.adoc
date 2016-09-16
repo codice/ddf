@@ -1,0 +1,210 @@
+
+Follow the below steps to start and stop ${branding}.
+
+=== Starting ${branding}
+
+Run one of the start scripts from a command shell to start the distribution and open a local console:
+
+.Start Script: \*NIX
+----
+INSTALLATION_HOME/bin/${ddf-branding-lowercase}
+----
+
+.Start Script: Windows
+----
+INSTALLATION_HOME/bin/${branding-lowercase}.bat
+----
+
+==== Stopping ${branding}
+
+There are two options to stop a running instance:
+
+* Call shutdown from the console:
+
+.Shut down with a prompt
+----
+${branding-lowercase}${at-symbol}local>shutdown
+----
+
+.Force Shutdown without prompt
+----
+${branding-lowercase}${at-symbol}local>shutdown -f
+----
+
+* Keyboard shortcut for shutdown
+** `Ctrl`-`D`
+** `Cmd`-`D`
+* Or run the stop script:
+
+.*NIX
+----
+${branding}_INSTALL/bin/stop
+----
+
+.Windows
+----
+${branding}_INSTALL/bin/stop.bat
+----
+
+.Shut Down
+[IMPORTANT]
+====
+Do not shut down by closing the window (Windows, Unix) or using the `kill -9 <pid>` command (Unix).
+This prevents a clean shutdown and can cause significant problems when ${branding} is restarted.
+Always use the shutdown command or the shortcut from the command line console.
+====
+
+==== Automatic Start on System Boot
+
+Because ${branding} is built on top of Apache Karaf, ${branding} can use the Karaf Wrapper to enable automatic startup and shutdown.
+
+. Create the Karaf wrapper.
++
+.Within the ${branding} console
+----
+${branding-lowercase}${at-symbol}local> feature:install wrapper
+${branding-lowercase}${at-symbol}local> wrapper:install -s AUTO_START -n ${ddf-branding-lowercase}-d ${ddf-branding-lowercase}-D "${branding} Service"
+----
++
+. (Windows users skip to next step) (All *NIX) If ${branding} was installed to run as a non-root user (recommended,) edit `INSTALLATION_HOME/bin/${branding-lowercase}-service`.
++
+Change:
++
+.INSTALLATION_HOME/bin/${branding-lowercase}-service
+----
+#RUN_AS_USER=
+----
++
+to:
++
+.INSTALLATION_HOME/bin/${branding-lowercase}-service
+----
+RUN_AS_USER=<${ddf-branding-lowercase}-user>
+----
++
+. Set the memory in the wrapper config to match with ${branding} default memory setting.
+.. Add the setting for PermGen space under the JVM Parameters section.
+.. Update heap space to 2048.
++
+.INSTALLATION_HOME/etc/${branding-lowercase}-wrapper.conf
+[source,java,linenums]
+----
+#Add the following:
+wrapper.java.additional.11=-Dderby.system.home="..\data\derby"
+wrapper.java.additional.12=-Dderby.storage.fileSyncTransactionLog=true
+wrapper.java.additional.13=-Dcom.sun.management.jmxremote
+wrapper.java.additional.14=-Dfile.encoding=UTF8
+wrapper.java.additional.15=-D${ddf-branding-lowercase}.home=%${branding}_HOME%
+
+#Update the following:
+wrapper.java.maxmemory=2048
+----
++
+. Set the `${branding}_HOME` property.
++
+.INSTALLATION_HOME/etc/${branding-lowercase}-wrapper.conf
+----
+set.default.${branding}_HOME="%KARAF_HOME%"
+----
++
+. Install the wrapper startup/shutdown scripts.
++
+*Windows*
++
+Run the following command in a console window. The command must be run with elevated permissions.
++
+----
+INSTALLATION_HOME/bin/${branding-lowercase}-service.bat install
+----
+Startup and shutdown settings can then be managed through *Services MMC Start → Control Panel → Administrative Tools → Services*.
++
+*Redhat*
++
+----
+root${at-symbol}localhost# ln -s ${branding}_INSTALL/bin/${branding-lowercase}-service /etc/init.d/
+root${at-symbol}localhost# chkconfig ${ddf-branding-lowercase}-service --add
+root${at-symbol}localhost# chkconfig ${ddf-branding-lowercase}-service on
+----
++
+*Ubuntu*
++
+----
+root${at-symbol}localhost# ln -s ${branding}_INSTALL/bin/${branding-lowercase}-service /etc/init.d/
+root${at-symbol}localhost# update-rc.d -f ${ddf-branding-lowercase}-service defaults
+----
++
+*Solaris*
++
+----
+root${at-symbol}localhost# ln -s ${branding}_INSTALL/bin/${branding-lowercase}-service /etc/init.d/
+root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc0.d/K20${ddf-branding-lowercase}-service
+root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc1.d/K20${ddf-branding-lowercase}-service
+root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc2.d/K20${ddf-branding-lowercase}-service
+root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc3.d/S20${ddf-branding-lowercase}-service
+----
++
+[WARNING]
+====
+While it is not a necessary step, information on how to convert the System V init scripts to the Solaris System Management Facility can be found at http://www.oracle.com/technetwork/articles/servers-storage-admin/scripts-to-smf-1641705.html
+====
++
+.Solaris-Specific Modification
+[WARNING]
+====
+Due to a slight difference between the Linux and Solaris implementation of the `ps` command, the `${ddf-branding-lowercase}-service` script needs to be modified.
+====
++
+. Locate the following line in ${branding}_INSTALL/bin/${branding-lowercase}-service
++
+.Solaris ${branding}_INSTALL/bin/${branding-lowercase}-service
+----
+pidtest=`$PSEXE -p $pid -o command | grep $WRAPPER_CMD | tail -1`
+----
++
+. Change the word command to comm.
++
+.Solaris ${branding}_Install/bin/${branding-lowercase}-service
+----
+pidtest=`$PSEXE -p $pid -o comm | grep $WRAPPER_CMD | tail -1`
+----
+
+===== Karaf Documentation
+
+Because ${branding} is built on Apache Karaf, more information on operating ${branding} can be found in the http://karaf.apache.org/index/documentation.html[Karaf documentation].
+
+==== Managing Applications from ${admin-console}
+
+The *Manage* button enables activation/deactivation and adding/removing applications.
+
+===== Activating / Deactivating Applications
+
+The *Deactivate* button stops individual applications and any dependent apps.
+Certain applications are central to overall functionality and cannot be deactivated.
+These will have the *Deactivate* button disabled.
+Disabled apps will be moved to a list at the bottom of the page, with an enable button to reactivate, if desired.
+
+The *Add Application* button is at the end of the list of currently active applications.
+
+===== Removing Applications
+
+To remove an application, it must first be deactivated.
+This enables the *Remove Application* button.
+
+===== Upgrading Applications
+
+Each application tile includes an upgrade button to select a new version to install.
+
+===== System Settings Tab
+
+The configuration and features installed can be viewed and edited from the System tab as well; however, it is recommended that configuration be managed from the applications tab.
+
+[IMPORTANT]
+====
+In general, applications should be managed via the applications tab.
+Configuration via this page could result in an unstable system.
+Proceed with caution!
+====
+
+==== Federation
+
+It is recommended to use the *${ddf-catalog} App -> Sources* tab to configure and manage sites/sources.

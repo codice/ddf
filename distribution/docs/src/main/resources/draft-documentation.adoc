@@ -16,13 +16,13 @@ include::{adoc-include}/_introduction/documentation-notes-contents.adoc[]
 
 = Core Concepts
 
-== Search
-
-include::{adoc-include}/_core-concepts/search-intro-contents.adoc[]
-
 == Metadata and Metacards
 
 include::{adoc-include}/_core-concepts/metadata-intro-contents.adoc[]
+
+== Search
+
+include::{adoc-include}/_core-concepts/search-intro-contents.adoc[]
 
 == Ingest
 
@@ -46,5 +46,90 @@ include::{adoc-include}/_core-concepts/events-subscriptions-intro-contents.adoc[
 
 == Registry
 include::{adoc-include}/_core-concepts/registry-intro-contents.adoc[]
+
+<<<
+= Managing ${branding}
+[small]#Version: ${project.version}#
+
+== Quickstart Tutorial
+
+// quickstart
+include::{adoc-include}/_quickstart/quickstart-installing-contents.adoc[]
+
+include::{adoc-include}/_quickstart/quickstart-configuring-contents.adoc[]
+
+include::{adoc-include}/_quickstart/quickstart-ingesting-contents.adoc[]
+
+//installing
+== Installing ${branding}
+
+include::{adoc-include}/_installing/installing-intro-contents.adoc[]
+
+//configuring
+== Configuring ${branding}
+
+include::{adoc-include}/_configuring/configuring-intro-contents.adoc[]
+
+=== Configuring ${branding} From the ${admin-console}
+
+include::{adoc-include}/_configuring/configuring-from-the-admin-console-contents.adoc[]
+
+=== Configuring ${branding} From the ${command-console}
+
+include::{adoc-include}/_configuring/configuring-from-the-command-console-contents.adoc[]
+
+=== Configuring ${branding} From Configuration Files
+
+include::{adoc-include}/_configuring/configuring-from-configuration-files-contents.adoc[]
+
+=== Importing Configurations
+
+include::{adoc-include}/_configuring/configuring-from-import-contents.adoc[]
+
+=== Other Configurations
+
+include::{adoc-include}/_configuring/configuring-catalog-provider-contents.adoc[]
+
+include::{adoc-include}/_configuring/managing-features-contents.adoc[]
+
+//securing
+== Securing ${branding}
+
+include::{adoc-include}/_securing/securing-contents.adoc[]
+
+include::{adoc-include}/_securing/configuring-certificates-contents.adoc[]
+
+include::{adoc-include}/_securing/creating-keys-and-certificates-contents.adoc[]
+
+include::{adoc-include}/_securing/standalone-sts-contents.adoc[]
+
+//running
+== Running ${branding}
+
+include::{adoc-include}/_running/running-intro-contents.adoc[]
+
+include::{adoc-include}/_running/console-commands-contents.adoc[]
+
+include::{adoc-include}/_running/command-scheduler-contents.adoc[]
+
+=== Handling Data
+
+include::{adoc-include}/_running/ingesting-contents.adoc[]
+
+include::{adoc-include}/_running/data-migration-intro-contents.adoc[]
+
+include::{adoc-include}/_running/exporting-metadata-contents.adoc[]
+
+include::{adoc-include}/_running/ingesting-exported-metadata-contents.adoc[]
+
+include::{adoc-include}/_running/translating-exported-metadata-contents.adoc[]
+
+=== Monitoring ${branding}
+
+include::{adoc-include}/_running/monitoring-contents.adoc[]
+
+=== Troubleshooting ${branding}
+
+include::{adoc-include}/_running/troubleshooting-contents.adoc[]
 
 <<<

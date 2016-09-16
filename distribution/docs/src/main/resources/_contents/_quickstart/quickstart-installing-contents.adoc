@@ -1,0 +1,87 @@
+
+This quick tutorial will enable install, configuring and using a basic instance of ${branding}.
+Use this setup tutorial to test or try out the features of ${branding}. For a more thorough, secure installation, see <<_installing_${branding-lowercase},Installing ${branding}>>
+
+These steps will demonstrate:
+
+- [*] <<_${branding-lowercase}_quick_install_prerequisites,Prerequisites>>
+- [*] <<_quick_install_of_${branding-lowercase},Quick Install of ${branding}>>
+- [*] <<_ingesting_sample_data,Ingesting Data>>
+
+=== ${branding} Quick Install Prerequisites
+
+These are the basic requirements to set up the environment to run a ${branding}.
+
+* Install/Upgrade to Java 8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
+** The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] or later.
+* Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
+* http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
+* The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
+
+.Setting `JAVA_HOME` on *NIX
+----
+JAVA_HOME=/usr/java/jdk1.8.0_<BUILDNUMBER>
+export JAVA_HOME
+----
+
+.Setting `JAVA_HOME` on Windows
+----
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
+----
+
+.*NIX
+[WARNING]
+====
+Unlink `/usr/bin/java` if it is already linked to a previous version of the JRE:
+`unlink /usr/bin/java`
+====
+
+[TIP]
+====
+Verify that the `JAVA_HOME` was set correctly.
+
+.*NIX
+----
+echo $JAVA_HOME
+----
+
+.Windows
+----
+echo %JAVA_HOME%
+----
+====
+
+* ${branding} installation zip file.
+* A web browser.
+* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include or change the following:
+
+.File Descriptor Limit
+----
+fs.file-max = 6815744
+----
+
+.Restart
+[WARNING]
+====
+For the change to take effect, a restart is required.
+====
+
+. *Nix Restart Command
+----
+init 6
+----
+
+=== Quick Install of ${ddf-branding}
+
+. Download the ${ddf-branding} https://github.com/codice/ddf/releases[zip file].
+. Install ${branding} by unzipping the zip file.
+. This will create an installation directory, which is typically created with the name and version of the application.
+This installation directory will be referred to as `<INSTALL_DIRECTORY>`.
+(Substitute the actual directory name.)
+. Start ${branding} by running the `<INSTALL_DIRECTORY>/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
+. The ${command-console} will display.
+
+.${command-console} Prompt
+----
+${branding-lowercase}${at-symbol}local>
+----
