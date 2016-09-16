@@ -15,28 +15,19 @@ package org.codice.ddf.catalog.transformer.zip;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.cert.CertificateException;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.wss4j.common.crypto.Merlin;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ddf.security.PropertiesLoader;
 import ddf.security.SecurityConstants;
 
 public class TestZipValidator {
 
     private ZipValidator zipValidator;
-
-    private Merlin merlin;
 
     private static Properties properties;
 
@@ -96,32 +87,18 @@ public class TestZipValidator {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         zipValidator = new ZipValidator();
         zipValidator.setSignaturePropertiesPath(TestZipValidator.class.getResource(
                 "/signature.properties")
                 .getPath());
         zipValidator.init();
+    }
 
-        try {
-            KeyStore trustStore = KeyStore.getInstance(System.getProperty(
-                    "javax.net.ssl.keyStoreType"));
-            InputStream trustFIS =
-                    TestZipValidator.class.getResourceAsStream("/serverKeystore.jks");
-            try {
-                trustStore.load(trustFIS, "changeit".toCharArray());
-            } catch (CertificateException e) {
-                fail(e.getMessage());
-            } finally {
-                IOUtils.closeQuietly(trustFIS);
-            }
-
-            merlin = new Merlin(PropertiesLoader.loadProperties(TestZipValidator.class.getResource(
-                    "/signature.properties")
-                    .getPath()), ZipValidator.class.getClassLoader(), null);
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
+    @Test
+    public void testGetSignaturePropertiesPath() {
+        assertThat(TestZipValidator.class.getResource("/signature.properties")
+                .getPath(), is(zipValidator.getSignaturePropertiesPath()));
     }
 
     @Test(expected = ZipValidationException.class)

@@ -57,7 +57,9 @@ public abstract class CatalogCommands extends SubjectCommands {
 
     protected static final String WILDCARD = "*";
 
-    protected static final String DEFAULT_TRANSFORMER_ID = "ser";
+    protected static final String DEFAULT_TRANSFORMER_ID = "xml";
+
+    protected static final String SERIALIZED_OBJECT_ID = "ser";
 
     // DDF-535: remove "-provider" alias in DDF 3.0
     @Option(name = "--provider", required = false, aliases = {"-p",

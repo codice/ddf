@@ -81,6 +81,7 @@ public class TestIngestCommand extends TestAbstractCommand {
                 return bundleContext;
             }
         };
+        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
         command.filePath = testFolder.getRoot()
                 .getAbsolutePath();
     }

@@ -100,7 +100,9 @@ public class DumpCommand extends CatalogCommands {
 
     // DDF-535: remove "Transformer" alias in DDF 3.0
     @Option(name = "--transformer", required = false, aliases = {"-t",
-            "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
+            "Transformer"}, multiValued = false, description =
+            "The metacard transformer ID to use to transform metacards into data files. "
+                    + "The default metacard transformer is the XML transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
     // DDF-535: remove "Extension" alias in DDF 3.0
@@ -166,7 +168,7 @@ public class DumpCommand extends CatalogCommands {
             return null;
         }
 
-        if (!DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
+        if (!SERIALIZED_OBJECT_ID.matches(transformerId)) {
             transformers = getTransformers();
             if (transformers == null) {
                 console.println(transformerId + " is an invalid metacard transformer.");
@@ -292,11 +294,11 @@ public class DumpCommand extends CatalogCommands {
                 zipCompression = getZipCompression();
                 if (zipCompression != null) {
                     zipCompression.transform(response, zipArgs);
-                    Long resultSize = Long.valueOf(response.getResults()
-                            .size());
+                    Long resultSize = (long) response.getResults()
+                            .size();
                     printStatus(resultCount.addAndGet(resultSize));
                 } else {
-                    LOGGER.error("No Zip Transformer found.  Unable export metacards to a zip file.");
+                    LOGGER.info("No Zip Transformer found.  Unable export metacards to a zip file.");
                 }
             } else if (multithreaded > 1) {
                 final List<Result> results = new ArrayList<>(response.getResults());
@@ -314,7 +316,7 @@ public class DumpCommand extends CatalogCommands {
                         printStatus(resultCount.incrementAndGet());
                     }
                     if (transformationFailed) {
-                        LOGGER.error(
+                        LOGGER.info(
                                 "One or more metacards failed to transform. Enable debug log for more details.");
                     }
                 });
@@ -349,7 +351,7 @@ public class DumpCommand extends CatalogCommands {
         long end = System.currentTimeMillis();
         String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
         console.printf(" %d file(s) dumped in %s\t%n", resultCount.get(), elapsedTime);
-        LOGGER.info("{} file(s) dumped in {}", resultCount.get(), elapsedTime);
+        LOGGER.debug("{} file(s) dumped in {}", resultCount.get(), elapsedTime);
         console.println();
         SecurityLogger.audit("Exported {} files to {}", resultCount.get(), dirPath);
         return null;
@@ -358,7 +360,7 @@ public class DumpCommand extends CatalogCommands {
     private void exportMetacard(File dumpLocation, Metacard metacard)
             throws IOException, CatalogTransformerException {
 
-        if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
+        if (SERIALIZED_OBJECT_ID.matches(transformerId)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getOutputFile(
                     dumpLocation,
                     metacard)))) {
@@ -366,7 +368,6 @@ public class DumpCommand extends CatalogCommands {
                 oos.flush();
             }
         } else {
-
             BinaryContent binaryContent;
             if (metacard != null) {
                 try (FileOutputStream fos = new FileOutputStream(getOutputFile(dumpLocation,
@@ -423,9 +424,8 @@ public class DumpCommand extends CatalogCommands {
         }
 
         List<MetacardTransformer> metacardTransformerList = new ArrayList<>();
-        for (int i = 0; i < refs.length; i++) {
-
-            metacardTransformerList.add((MetacardTransformer) bundleContext.getService(refs[i]));
+        for (ServiceReference ref : refs) {
+            metacardTransformerList.add((MetacardTransformer) bundleContext.getService(ref));
         }
 
         return metacardTransformerList;
@@ -437,7 +437,7 @@ public class DumpCommand extends CatalogCommands {
             queryResponseTransformerList = getAllServices(QueryResponseTransformer.class,
                     "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
         } catch (InvalidSyntaxException e) {
-            LOGGER.error("Unable to get transformer id={}", ZIP_COMPRESSION, e);
+            LOGGER.info("Unable to get transformer id={}", ZIP_COMPRESSION, e);
         }
 
         if (queryResponseTransformerList != null && queryResponseTransformerList.size() > 0) {
