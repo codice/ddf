@@ -13,9 +13,14 @@
  */
 package org.codice.ddf.registry.common.metacard;
 
-import java.util.Collections;
-import java.util.HashSet;
+import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
+import static ddf.catalog.data.impl.BasicTypes.BOOLEAN_TYPE;
+import static ddf.catalog.data.impl.BasicTypes.DATE_TYPE;
+import static ddf.catalog.data.impl.BasicTypes.STRING_TYPE;
+
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -28,162 +33,139 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
  */
 public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
-    public static final String REGISTRY_METACARD_TYPE_NAME = "registry";
-
-    public static final String METACARD_TYPE = "metacard-type";
-
-    public static final String ORGANIZATION_NAME = "organization-name";
-
-    public static final String ORGANIZATION_ADDRESS = "organization-address";
-
-    public static final String ORGANIZATION_PHONE_NUMBER = "organization-phone-number";
-
-    public static final String ORGANIZATION_EMAIL = "organization-email";
-
-    public static final String ENTRY_TYPE = "entry-type";
-
-    public static final String SECURITY_LEVEL = "security-level";
-
-    public static final String LIVE_DATE = "live-date";
-
-    public static final String DATA_START_DATE = "data-start-date";
+    ////////////////////////////////////////////////////////////////////////////////////
+    // ATTRIBUTE KEYS
+    ////////////////////////////////////////////////////////////////////////////////////
 
     public static final String DATA_END_DATE = "data-end-date";
 
-    public static final String LINKS = "links";
-
-    public static final String REGION = "region";
-
     public static final String DATA_SOURCES = "input-data-sources";
+
+    public static final String DATA_START_DATE = "data-start-date";
 
     public static final String DATA_TYPES = "data-types";
 
-    //list of all the service binding ids
-    public static final String SERVICE_BINDINGS = "service-bindings";
+    public static final String ENTRY_TYPE = "entry-type";
 
-    //list of bindingType fields from all the service bindings
-    public static final String SERVICE_BINDING_TYPES = "service-binding-types";
+    public static final String LAST_PUBLISHED = "last-published";
+
+    public static final String LINKS = "links";
+
+    public static final String LIVE_DATE = "live-date";
+
+    public static final String METACARD_TYPE = "metacard-type";
+
+    public static final String ORGANIZATION_ADDRESS = "organization-address";
+
+    public static final String ORGANIZATION_EMAIL = "organization-email";
+
+    public static final String ORGANIZATION_NAME = "organization-name";
+
+    public static final String ORGANIZATION_PHONE_NUMBER = "organization-phone-number";
+
+    public static final String PUBLISHED_LOCATIONS = "published-locations";
+
+    public static final String REGION = "region";
+
+    public static final String REGISTRY_BASE_URL = "registry-base-url";
 
     public static final String REGISTRY_ID = "registry-id";
 
     public static final String REGISTRY_IDENTITY_NODE = "registry-identity-node";
 
-    public static final String PUBLISHED_LOCATIONS = "published-locations";
-
-    public static final String LAST_PUBLISHED = "last-published";
-
-    public static final String REGISTRY_BASE_URL = "registry-base-url";
-
     public static final String REGISTRY_LOCAL_NODE = "registry-local-node";
 
-    public static final String REMOTE_REGISTRY_ID = "remote-registry-id";
+    public static final String REGISTRY_METACARD_TYPE_NAME = "registry";
 
     public static final String REMOTE_METACARD_ID = "remote-metacard-id";
 
-    public static final Set<String> TRANSIENT_ATTRIBUTES;
+    public static final String REMOTE_REGISTRY_ID = "remote-registry-id";
 
-    static {
-        final Set<String> transientAttributes = new HashSet<>();
-        transientAttributes.add(REGISTRY_IDENTITY_NODE);
-        transientAttributes.add(REGISTRY_LOCAL_NODE);
-        transientAttributes.add(PUBLISHED_LOCATIONS);
-        transientAttributes.add(LAST_PUBLISHED);
-        transientAttributes.add(REMOTE_REGISTRY_ID);
-        transientAttributes.add(REMOTE_METACARD_ID);
-        TRANSIENT_ATTRIBUTES = Collections.unmodifiableSet(transientAttributes);
-    }
+    public static final String SECURITY_LEVEL = "security-level";
+
+    //list of bindingType fields from all the service bindings
+    public static final String SERVICE_BINDING_TYPES = "service-binding-types";
+
+    //list of all the service binding ids
+    public static final String SERVICE_BINDINGS = "service-bindings";
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    // ATTRIBUTE DEFINITIONS
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    public static final Set<String> TRANSIENT_ATTRIBUTES = Stream.of(LAST_PUBLISHED,
+            PUBLISHED_LOCATIONS,
+            REGISTRY_IDENTITY_NODE,
+            REGISTRY_LOCAL_NODE,
+            REMOTE_METACARD_ID,
+            REMOTE_REGISTRY_ID)
+            .collect(Collectors.toSet());
+
+    public static final Set<AttributeDescriptor> REGISTRY_ATTRIBUTES = Stream.of(//
+            new AttributeDescriptorImpl(DATA_END_DATE, true, true, false, false, DATE_TYPE),
+            new AttributeDescriptorImpl(DATA_SOURCES, true, true, false, true, STRING_TYPE),
+            new AttributeDescriptorImpl(DATA_START_DATE, true, true, false, false, DATE_TYPE),
+            new AttributeDescriptorImpl(DATA_TYPES, true, true, false, true, STRING_TYPE),
+            new AttributeDescriptorImpl(ENTRY_TYPE, true, true, false, false, STRING_TYPE),
+            new AttributeDescriptorImpl(LAST_PUBLISHED, true, true, false, false, DATE_TYPE),
+            new AttributeDescriptorImpl(LINKS, true, true, false, true, STRING_TYPE),
+            new AttributeDescriptorImpl(LIVE_DATE, true, true, false, false, DATE_TYPE),
+            new AttributeDescriptorImpl(METACARD_TYPE, true, true, false, false, STRING_TYPE),
+            new AttributeDescriptorImpl(ORGANIZATION_ADDRESS,
+                    true,
+                    true,
+                    false,
+                    false,
+                    STRING_TYPE),
+            new AttributeDescriptorImpl(ORGANIZATION_EMAIL, true, true, false, true, STRING_TYPE),
+            new AttributeDescriptorImpl(ORGANIZATION_NAME, true, true, false, false, STRING_TYPE),
+            new AttributeDescriptorImpl(ORGANIZATION_PHONE_NUMBER,
+                    true,
+                    true,
+                    false,
+                    true,
+                    STRING_TYPE),
+            new AttributeDescriptorImpl(PUBLISHED_LOCATIONS, true, true, false, true, STRING_TYPE),
+            new AttributeDescriptorImpl(REGION, true, true, false, false, STRING_TYPE),
+            new AttributeDescriptorImpl(REGISTRY_BASE_URL, true, true, false, false, STRING_TYPE),
+            new AttributeDescriptorImpl(REGISTRY_ID, true, true, false, false, STRING_TYPE),
+            new AttributeDescriptorImpl(REGISTRY_IDENTITY_NODE,
+                    true,
+                    true,
+                    false,
+                    false,
+                    BOOLEAN_TYPE),
+            new AttributeDescriptorImpl(REGISTRY_LOCAL_NODE,
+                    true,
+                    true,
+                    false,
+                    false,
+                    BOOLEAN_TYPE),
+            new AttributeDescriptorImpl(REMOTE_METACARD_ID, true, true, false, false, STRING_TYPE),
+            new AttributeDescriptorImpl(REMOTE_REGISTRY_ID, true, true, false, false, STRING_TYPE),
+            new AttributeDescriptorImpl(SECURITY_LEVEL, true, true, false, true, STRING_TYPE),
+            new AttributeDescriptorImpl(SERVICE_BINDING_TYPES,
+                    true,
+                    true,
+                    false,
+                    true,
+                    STRING_TYPE),
+            new AttributeDescriptorImpl(SERVICE_BINDINGS, true, true, false, true, STRING_TYPE))
+            .collect(Collectors.toSet());
+
+    // END ATTRIBUTE DEFINITIONS
 
     public RegistryObjectMetacardType() {
-        this(REGISTRY_METACARD_TYPE_NAME, null);
+        super(REGISTRY_METACARD_TYPE_NAME, BasicTypes.BASIC_METACARD, REGISTRY_ATTRIBUTES);
     }
 
     public RegistryObjectMetacardType(String name, Set<AttributeDescriptor> descriptors) {
-        super(name, descriptors);
-        addRegistryAttributes();
+        super(name, BASIC_METACARD, mixinDescriptors(descriptors));
     }
 
-    private void addRegistryAttributes() {
-        descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-        addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
-        addQueryableBoolean(REGISTRY_LOCAL_NODE, false);
-        addQueryableDate(DATA_END_DATE);
-        addQueryableDate(DATA_START_DATE);
-        addQueryableDate(LAST_PUBLISHED);
-        addQueryableDate(LIVE_DATE);
-        addQueryableString(DATA_SOURCES, true);
-        addQueryableString(DATA_TYPES, true);
-        addQueryableString(ENTRY_TYPE, false);  //objectType
-        addQueryableString(LINKS, true);
-        addQueryableString(METACARD_TYPE, false);
-        addQueryableString(ORGANIZATION_ADDRESS, false);
-        addQueryableString(ORGANIZATION_EMAIL, true);
-        addQueryableString(ORGANIZATION_NAME, false);
-        addQueryableString(ORGANIZATION_PHONE_NUMBER, true);
-        addQueryableString(PUBLISHED_LOCATIONS, true);
-        addQueryableString(REGION, false);
-        addQueryableString(REGISTRY_BASE_URL, false);
-        addQueryableString(REGISTRY_ID, false);
-        addQueryableString(REMOTE_METACARD_ID, false);
-        addQueryableString(REMOTE_REGISTRY_ID, false);
-        addQueryableString(SECURITY_LEVEL, true); //securityLevel
-        addQueryableString(SERVICE_BINDING_TYPES, true);
-        addQueryableString(SERVICE_BINDINGS, true);
-    }
+    private static Set<AttributeDescriptor> mixinDescriptors(Set<AttributeDescriptor> descriptors) {
+        return Stream.concat(REGISTRY_ATTRIBUTES.stream(), descriptors.stream())
+                .collect(Collectors.toSet());
 
-    /**
-     * Method to add a queryable string to the descriptors of this metacard type. Can be used to
-     * dynamically add additional descriptors to the base set.
-     *
-     * @param name        Name of the descriptor
-     * @param multivalued Whether or not this descriptor represents several values (true) or one value (false)
-     */
-    public void addQueryableString(String name, boolean multivalued) {
-        addDescriptor(name, true, multivalued, BasicTypes.STRING_TYPE);
-    }
-
-    /**
-     * Method to add a queryable date to the descriptors of this metacard type. Can be used to
-     * dynamically add additional descriptors to the base set.
-     *
-     * @param name Name of the descriptor
-     */
-    public void addQueryableDate(String name) {
-        addDescriptor(name, true, false, BasicTypes.DATE_TYPE);
-    }
-
-    /**
-     * Method to add a queryable boolean to the descriptors of this metacard type. Can be used to
-     * dynamically add additional descriptors to the base set.
-     *
-     * @param name        Name of the descriptor
-     * @param multivalued Whether or not this descriptor represents several values (true) or one value (false)
-     */
-    public void addQueryableBoolean(String name, boolean multivalued) {
-        addDescriptor(name, true, multivalued, BasicTypes.BOOLEAN_TYPE);
-    }
-
-    /**
-     * Method to add an XML entry to the descriptors of the metacard type. Can be used to
-     * dynamically add additional descriptors to the base set.
-     *
-     * @param name      Name of the descriptor
-     * @param queryable Whether or not this descriptor should be queryable.
-     */
-    public void addXml(String name, boolean queryable) {
-        addDescriptor(name, queryable, false, BasicTypes.XML_TYPE);
-    }
-
-    protected void addQueryableGeo(String name, boolean multivalued) {
-        addDescriptor(name, true, multivalued, BasicTypes.GEO_TYPE);
-    }
-
-    protected void addDescriptor(String name, boolean queryable, boolean multivalued,
-            AttributeType<?> type) {
-        descriptors.add(new AttributeDescriptorImpl(name,
-                queryable /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                multivalued /* multivalued */,
-                type));
     }
 }
