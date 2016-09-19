@@ -50,6 +50,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -107,7 +108,9 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.filter.impl.LiteralImpl;
 import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
 import ddf.catalog.filter.impl.PropertyNameImpl;
@@ -224,6 +227,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     private boolean fanoutEnabled = false;
 
+    private List<String> fanoutTagBlacklist = new ArrayList<>();
+
+    private List<String> fanoutProxyTagBlacklist;
+
+    private FilterAdapter filterAdapter;
+
     private StorageProvider storage;
 
     private FrameworkProperties frameworkProperties;
@@ -256,6 +265,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     public void setFanoutEnabled(boolean fanoutEnabled) {
         this.fanoutEnabled = fanoutEnabled;
+    }
+
+    public void setFanoutTagBlacklist(List<String> fanoutTagBlacklist) {
+        this.fanoutTagBlacklist = fanoutTagBlacklist;
+    }
+
+    public void setFanoutProxyTagBlacklist(List<String> fanoutProxyTagBlacklist) {
+        this.fanoutProxyTagBlacklist = fanoutProxyTagBlacklist;
+    }
+
+    public void setFilterAdapter(FilterAdapter filterAdapter) {
+        this.filterAdapter = filterAdapter;
     }
 
     public void setNotificationEnabled(boolean notificationEnabled) {
@@ -849,10 +870,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         setFlagsOnRequest(streamCreateRequest);
 
-        if (fanoutEnabled) {
-            throw new IngestException(FANOUT_MESSAGE);
-        }
-
         if (Requests.isLocal(streamCreateRequest) && (!sourceIsAvailable(catalog)
                 || !storageIsAvailable(storage))) {
             SourceUnavailableException sourceUnavailableException = new SourceUnavailableException(
@@ -876,6 +893,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 metacardMap,
                 contentItems,
                 tmpContentPaths);
+
+        if (fanoutEnabled && blockFanoutMetacards(metacardMap.values())) {
+            throw new IngestException(FANOUT_MESSAGE);
+        }
+
         streamCreateRequest.getProperties()
                 .put(CONTENT_PATHS, tmpContentPaths);
 
@@ -1002,7 +1024,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         boolean catalogStoreRequest = isCatalogStoreRequest(createRequest);
         setFlagsOnRequest(createRequest);
 
-        if (fanoutEnabled) {
+        if (fanoutEnabled && blockFanoutMetacards(createRequest.getMetacards())) {
             throw new IngestException(FANOUT_MESSAGE);
         }
 
@@ -1250,7 +1272,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         setFlagsOnRequest(streamUpdateRequest);
 
-        if (fanoutEnabled) {
+        if (fanoutEnabled && blockFanoutContentItems(streamUpdateRequest.getContentItems())) {
             throw new IngestException(FANOUT_MESSAGE);
         }
 
@@ -1381,7 +1403,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         boolean catalogStoreRequest = isCatalogStoreRequest(updateRequest);
         setFlagsOnRequest(updateRequest);
 
-        if (fanoutEnabled) {
+        if (fanoutEnabled && blockFanoutUpdate(updateRequest)) {
             throw new IngestException(FANOUT_MESSAGE);
         }
 
@@ -1582,10 +1604,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         boolean catalogStoreRequest = isCatalogStoreRequest(deleteRequest);
         setFlagsOnRequest(deleteRequest);
 
-        if (fanoutEnabled) {
-            throw new IngestException(FANOUT_MESSAGE);
-        }
-
         validateDeleteRequest(deleteRequest);
 
         if (Requests.isLocal(deleteRequest) && (!sourceIsAvailable(catalog) || !storageIsAvailable(
@@ -1618,6 +1636,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     .stream()
                     .map(Result::getMetacard)
                     .collect(Collectors.toList());
+
+            if (fanoutEnabled && blockFanoutMetacards(metacards)) {
+                throw new IngestException(FANOUT_MESSAGE);
+            }
 
             deleteRequest = rewriteRequestToAvoidHistoryConflicts(deleteRequest, query);
             deleteRequest.getProperties()
@@ -1841,7 +1863,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         try {
             validateQueryRequest(queryReq);
 
-            if (fanoutEnabled) {
+            if (fanoutEnabled && !blockProxyFanoutQuery(queryRequest)) {
                 // Force an enterprise query
                 queryReq = new QueryRequestImpl(queryRequest.getQuery(),
                         true,
@@ -2324,7 +2346,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * false otherwise
      */
     protected boolean hasCatalogProvider() {
-        if (!this.fanoutEnabled && this.catalog != null) {
+        if (this.catalog != null) {
             LOGGER.trace("hasCatalogProvider() returning true");
             return true;
         }
@@ -3156,24 +3178,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw new UnsupportedQueryException(
                     "Cannot perform query with null query, either passed in from endpoint, or as output from a PreQuery Plugin");
         }
-
-        if (fanoutEnabled) {
-            Set<String> sources = queryRequest.getSourceIds();
-            if (sources != null) {
-                for (String querySourceId : sources) {
-                    LOGGER.debug("validating requested sourceId {}", querySourceId);
-                    if (!querySourceId.equals(this.getId())) {
-                        UnsupportedQueryException unsupportedQueryException =
-                                new UnsupportedQueryException("Unknown source: " + querySourceId);
-                        LOGGER.debug(
-                                "Throwing unsupportedQueryException due to unknown sourceId: {}",
-                                querySourceId,
-                                unsupportedQueryException);
-                        throw unsupportedQueryException;
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -3446,5 +3450,62 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         public URI getResourceUri() {
             return resourceUri;
         }
+    }
+
+    private boolean blockFanoutUpdate(UpdateRequest updateRequest) {
+        if (updateRequest == null) {
+            return true;
+        }
+
+        return updateRequest.getUpdates()
+                .stream()
+                .anyMatch((updateEntry) -> isMetacardBlacklisted(updateEntry.getValue()));
+    }
+
+    private boolean blockFanoutMetacards(Collection<Metacard> metacards) {
+        if (CollectionUtils.isEmpty(metacards)) {
+            return true;
+        }
+        return metacards.stream()
+                .anyMatch(this::isMetacardBlacklisted);
+    }
+
+    private boolean blockFanoutContentItems(List<ContentItem> contentItems) {
+        if (CollectionUtils.isEmpty(contentItems)) {
+            return true;
+        }
+        return contentItems.stream()
+                .map(ContentItem::getMetacard)
+                .anyMatch(this::isMetacardBlacklisted);
+    }
+
+    private boolean blockProxyFanoutQuery(QueryRequest queryRequest) {
+        if (filterAdapter == null) {
+            return false;
+        }
+
+        try {
+            return filterAdapter.adapt(queryRequest.getQuery(),
+                    new TagsFilterDelegate(new HashSet<>(fanoutProxyTagBlacklist)));
+        } catch (UnsupportedQueryException e) {
+            LOGGER.debug(
+                    "Error checking if fanout query should be proxied. Defaulting to yes, proxy the query.");
+            return false;
+        }
+    }
+
+    private boolean isMetacardBlacklisted(Metacard metacard) {
+        if (metacard == null) {
+            return true;
+        }
+
+        Set<String> tags = new HashSet<>(metacard.getTags());
+
+        // default to resource tag
+        if (tags.isEmpty()) {
+            tags.add(Metacard.DEFAULT_TAG);
+        }
+
+        return CollectionUtils.containsAny(tags, fanoutTagBlacklist);
     }
 }

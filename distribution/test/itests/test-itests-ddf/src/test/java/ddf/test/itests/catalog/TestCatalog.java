@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
@@ -96,6 +95,7 @@ import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.common.test.BeforeExam;
+import ddf.common.test.catalog.CatalogIngest;
 import ddf.test.itests.AbstractIntegrationTest;
 import ddf.test.itests.common.CswQueryBuilder;
 import ddf.test.itests.common.Library;
@@ -124,53 +124,33 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     public static void deleteMetacard(String id) {
         LOGGER.info("Deleting metacard {}", id);
-        delete(REST_PATH.getUrl() + id).then()
-                .assertThat()
-                .statusCode(200)
-                .log()
-                .all();
+        CatalogIngest.deleteMetacard(id, REST_PATH.getUrl(), HttpStatus.SC_OK);
     }
 
     public static String ingestGeoJson(String json) {
-        return ingest(json, "application/json");
+        return CatalogIngest.ingestGeoJson(json, REST_PATH.getUrl());
     }
 
     public static String ingest(String data, String mimeType) {
         LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
-        return given().body(data)
-                .header(HttpHeaders.CONTENT_TYPE, mimeType)
-                .expect()
-                .log()
-                .all()
-                .statusCode(HttpStatus.SC_CREATED)
-                .when()
-                .post(REST_PATH.getUrl())
-                .getHeader("id");
+        return CatalogIngest.ingest(data, mimeType, REST_PATH.getUrl(), HttpStatus.SC_CREATED);
     }
 
     public static String ingest(String data, String mimeType, boolean checkResponse) {
         if (checkResponse) {
-            return ingest(data, mimeType);
+            return CatalogIngest.ingest(data, mimeType, REST_PATH.getUrl(), HttpStatus.SC_CREATED);
         } else {
             LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
-            return given().body(data)
-                    .header(HttpHeaders.CONTENT_TYPE, mimeType)
-                    .when()
-                    .post(REST_PATH.getUrl())
-                    .getHeader("id");
+            return CatalogIngest.ingest(data, mimeType, REST_PATH.getUrl());
         }
     }
 
     public static void update(String id, String data, String mimeType) {
         LOGGER.info("Update data of type {}:\n{}", mimeType, data);
-        given().header(HttpHeaders.CONTENT_TYPE, mimeType)
-                .body(data)
-                .expect()
-                .log()
-                .all()
-                .statusCode(HttpStatus.SC_OK)
-                .when()
-                .put(new DynamicUrl(REST_PATH, id).getUrl());
+        CatalogIngest.update(data,
+                mimeType,
+                new DynamicUrl(REST_PATH, id).getUrl(),
+                HttpStatus.SC_OK);
     }
 
     @BeforeExam
@@ -333,7 +313,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(id4);
     }
 
-    private Response ingestCswRecord() {
+    public Response ingestCswRecord() {
         return given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                 .body(Library.getCswIngest())
                 .post(CSW_PATH.getUrl());
@@ -345,7 +325,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl());
     }
 
-    private String getMetacardIdFromCswInsertResponse(Response response)
+    public String getMetacardIdFromCswInsertResponse(Response response)
             throws IOException, XPathExpressionException {
         XPath xPath = XPathFactory.newInstance()
                 .newXPath();
@@ -356,7 +336,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .evaluate(xml);
     }
 
-    private void deleteMetacard(Response response) throws IOException, XPathExpressionException {
+    public void deleteMetacard(Response response) throws IOException, XPathExpressionException {
         String id = getMetacardIdFromCswInsertResponse(response);
         deleteMetacard(id);
     }
@@ -987,18 +967,19 @@ public class TestCatalog extends AbstractIntegrationTest {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
         String url = REST_PATH.getUrl() + "sources/ddf.distribution/" + metacardId;
-        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()", Metacard.RESOURCE_CACHE_STATUS);
+        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()",
+                Metacard.RESOURCE_CACHE_STATUS);
 
         get(url).
-                then().
-                body(hasXPath(resourceCachedXpath, is("false")));
+                then()
+                .
+                        body(hasXPath(resourceCachedXpath, is("false")));
 
         deleteMetacard(metacardId);
     }
 
     @Test
-    public void testGetMetacardResourceStatusCached()
-            throws IOException, XPathExpressionException {
+    public void testGetMetacardResourceStatusCached() throws IOException, XPathExpressionException {
         String fileName = testName.getMethodName() + ".txt";
         String metacardId = ingestXmlWithProduct(fileName);
 
@@ -1008,13 +989,13 @@ public class TestCatalog extends AbstractIntegrationTest {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
         String url = REST_PATH.getUrl() + "sources/ddf.distribution/" + metacardId;
-        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()", Metacard.RESOURCE_CACHE_STATUS);
+        String resourceCachedXpath = String.format("//*[@name='%s']/*/text()",
+                Metacard.RESOURCE_CACHE_STATUS);
 
         get(url + "?transform=resource").then();
 
-        get(url).
-            then().
-                body(hasXPath(resourceCachedXpath, is("true")));
+        get(url).then()
+                .body(hasXPath(resourceCachedXpath, is("true")));
 
         deleteMetacard(metacardId);
     }
