@@ -36,8 +36,7 @@ import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.spatial4j.core.shape.Point;
+import org.locationtech.spatial4j.shape.Point;
 
 public class TestGeoNamesWebService {
     private static final String NEARBY_CITY_QUERY_TEST_RESPONSE =

@@ -26,7 +26,6 @@
     <name>DDF :: Spatial</name>
     <properties>
         <jaxb2.version>0.9.4</jaxb2.version>
-        <spatial4j.version>0.4.1</spatial4j.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -152,7 +151,7 @@
                 <version>${lucene.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.spatial4j</groupId>
+                <groupId>org.locationtech.spatial4j</groupId>
                 <artifactId>spatial4j</artifactId>
                 <version>${spatial4j.version}</version>
             </dependency>

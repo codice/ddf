@@ -65,8 +65,24 @@
             <version>${lucene.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.spatial4j</groupId>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial-extras</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial3d</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
+            <version>${spatial4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.noggit</groupId>
+            <artifactId>noggit</artifactId>
+            <version>0.6</version>
         </dependency>
         <!-- Test dependencies -->
         <dependency>
@@ -107,8 +123,11 @@
                             lucene-queries,
                             lucene-core,
                             lucene-queryparser,
+                            lucene-spatial-extras,
+                            lucene-spatial3d,
                             spatial-geocoding-api-impl,
-                            spatial4j
+                            spatial4j,
+                            noggit
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

@@ -35,10 +35,9 @@ import java.util.Optional;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
@@ -58,15 +57,10 @@ import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneConstants;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Shape;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.Shape;
 
 public class TestGeoNamesQueryLuceneIndex extends TestBase {
-    private Directory directory;
-
-    private GeoNamesQueryLuceneDirectoryIndex directoryIndex;
-
     private static final String NAME_1 = "Phoenix";
 
     private static final String NAME_2 = "Phoenix Airport";
@@ -113,8 +107,6 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
     private static final String TEST_POINT = "POINT (56.78 1.5)";
 
-    private SpatialStrategy strategy;
-
     private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder().name(NAME_1)
             .latitude(LAT_1)
             .longitude(LON_1)
@@ -141,6 +133,12 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
             .alternateNames(ALT_NAMES_3)
             .countryCode(COUNTRY_CODE3)
             .build();
+
+    private Directory directory;
+
+    private GeoNamesQueryLuceneDirectoryIndex directoryIndex;
+
+    private SpatialStrategy strategy;
 
     private void initializeIndex() throws IOException {
         directory = new RAMDirectory();
@@ -179,18 +177,15 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         document.add(new TextField(GeoNamesLuceneConstants.NAME_FIELD,
                 geoEntry.getName(),
                 Field.Store.YES));
-        document.add(new DoubleField(GeoNamesLuceneConstants.LATITUDE_FIELD,
-                geoEntry.getLatitude(),
-                Field.Store.YES));
-        document.add(new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
-                geoEntry.getLongitude(),
-                Field.Store.YES));
+        document.add(new StoredField(GeoNamesLuceneConstants.LATITUDE_FIELD,
+                geoEntry.getLatitude()));
+        document.add(new StoredField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
+                geoEntry.getLongitude()));
         document.add(new StringField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
                 geoEntry.getFeatureCode(),
                 Field.Store.YES));
-        document.add(new LongField(GeoNamesLuceneConstants.POPULATION_FIELD,
-                geoEntry.getPopulation(),
-                Field.Store.YES));
+        document.add(new StoredField(GeoNamesLuceneConstants.POPULATION_FIELD,
+                geoEntry.getPopulation()));
         document.add(new NumericDocValuesField(GeoNamesLuceneConstants.POPULATION_DOCVALUES_FIELD,
                 geoEntry.getPopulation()));
         document.add(new StringField(GeoNamesLuceneConstants.COUNTRY_CODE_FIELD,
@@ -201,8 +196,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
                 geoEntry.getAlternateNames(),
                 Field.Store.NO));
 
-        final Shape point = SPATIAL_CONTEXT.makePoint(geoEntry.getLongitude(),
-                geoEntry.getLatitude());
+        final Shape point = SPATIAL_CONTEXT.getShapeFactory()
+                .pointXY(geoEntry.getLongitude(), geoEntry.getLatitude());
         for (IndexableField field : strategy.createIndexableFields(point)) {
             document.add(field);
         }
@@ -492,7 +487,7 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         directoryIndex.doGetCountryCode(shape, 10, null);
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testDoGetCountryCodeNullLuceneDirectory() throws GeoEntryQueryException {
         Shape shape = mock(Shape.class);
         Directory directory = null;

@@ -28,8 +28,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.spatial4j</groupId>
+            <groupId>org.locationtech.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
+            <version>${spatial4j.version}</version>
         </dependency>
     </dependencies>
     <build>

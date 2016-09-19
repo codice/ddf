@@ -19,10 +19,9 @@ import static org.junit.Assert.assertThat;
 
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.junit.Test;
-
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.impl.PointImpl;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.impl.PointImpl;
 
 public class NearbyLocationImplTest {
     @Test
