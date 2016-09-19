@@ -374,6 +374,7 @@
         <module>platform-http-proxy</module>
         <module>admin</module>
         <module>landing-page</module>
+        <module>country-converter</module>
         <module>platform-app</module>
         <module>platform-filter-clientinfo</module>
     </modules>

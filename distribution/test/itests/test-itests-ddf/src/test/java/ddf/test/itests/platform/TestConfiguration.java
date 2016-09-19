@@ -740,7 +740,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     /**
      * The felix file installer keeps open file handles on files and directories in the etc directory on Windows.
-     * This prevents files and directories from being deleted in some of the TestConfiguration itests when running 
+     * This prevents files and directories from being deleted in some of the TestConfiguration itests when running
      * the itests on Windows. This method stops the felix file installer which releases the file handles.
      */
     private void closeFileHandlesInEtc() throws BundleException {

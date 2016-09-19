@@ -277,6 +277,16 @@
             <artifactId>platform-filter-clientinfo</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.country</groupId>
+            <artifactId>platform-country-converter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.country</groupId>
+            <artifactId>platform-country-converter-local</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <!-- CXF Properties used in used in platform-app's features.xml
