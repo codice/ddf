@@ -50,15 +50,12 @@ public class SystemPropertiesAdminTest {
 
     @Before
     public void setUp() throws IOException {
-        System.setProperty(SystemBaseUrl.HOST, "host");
-        expectedSystemPropertiesCount++;
         System.setProperty(SystemBaseUrl.PORT, "1234");
+        System.setProperty(SystemBaseUrl.HOST, "host");
         expectedSystemPropertiesCount++;
         System.setProperty(SystemBaseUrl.HTTP_PORT, "4567");
         expectedSystemPropertiesCount++;
         System.setProperty(SystemBaseUrl.HTTPS_PORT, "8901");
-        expectedSystemPropertiesCount++;
-        System.setProperty(SystemBaseUrl.PROTOCOL, "https://");
         expectedSystemPropertiesCount++;
         System.setProperty(SystemInfo.ORGANIZATION, "org");
         expectedSystemPropertiesCount++;
@@ -84,10 +81,8 @@ public class SystemPropertiesAdminTest {
         SystemPropertiesAdmin spa = new SystemPropertiesAdmin();
         List<SystemPropertyDetails> details = spa.readSystemProperties();
         assertThat(getDetailsValue(details, SystemBaseUrl.HOST), equalTo("host"));
-        assertThat(getDetailsValue(details, SystemBaseUrl.PORT), equalTo("1234"));
         assertThat(getDetailsValue(details, SystemBaseUrl.HTTP_PORT), equalTo("4567"));
         assertThat(getDetailsValue(details, SystemBaseUrl.HTTPS_PORT), equalTo("8901"));
-        assertThat(getDetailsValue(details, SystemBaseUrl.PROTOCOL), equalTo("https://"));
         assertThat(getDetailsValue(details, SystemInfo.ORGANIZATION), equalTo("org"));
         assertThat(getDetailsValue(details, SystemInfo.SITE_CONTACT), equalTo("contact"));
         assertThat(getDetailsValue(details, SystemInfo.SITE_NAME), equalTo("site"));
@@ -134,7 +129,7 @@ public class SystemPropertiesAdminTest {
         spa.writeSystemProperties(map);
         List<SystemPropertyDetails> details = spa.readSystemProperties();
         assertThat(SystemBaseUrl.getHost(), equalTo("newhost"));
-        assertThat(SystemBaseUrl.getPort(), equalTo("1234"));
+        assertThat(SystemBaseUrl.getPort(), equalTo("8901"));
         assertThat(SystemBaseUrl.getHttpPort(), equalTo("4567"));
         assertThat(SystemBaseUrl.getHttpsPort(), equalTo("8901"));
         assertThat(SystemBaseUrl.getProtocol(), equalTo("https://"));
@@ -149,7 +144,7 @@ public class SystemPropertiesAdminTest {
         Properties sysProps = new Properties();
         try (FileReader sysPropsReader = new FileReader(systemPropsFile)) {
             sysProps.load(sysPropsReader);
-            assertThat(sysProps.size(), is(1));
+            assertThat(sysProps.size(), is(2));
             assertThat(sysProps.getProperty(SystemBaseUrl.HOST), equalTo("newhost"));
         }
 
