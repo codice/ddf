@@ -51,7 +51,7 @@ public class ZipValidator {
                     ZipDecompression.class.getClassLoader(),
                     null);
         } catch (WSSecurityException | IOException e) {
-            LOGGER.error("Unable to read merlin properties file.", e);
+            LOGGER.warn("Unable to read merlin properties file. Unable to validate signatures.", e);
         }
     }
 
