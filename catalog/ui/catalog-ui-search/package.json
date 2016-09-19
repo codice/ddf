@@ -95,6 +95,7 @@
     "sortablejs": "^1.4.2",
     "terraformer": "1.0.5",
     "terraformer-wkt-parser": "1.1.0",
-    "uuid": "2.0.2"
+    "uuid": "2.0.2",
+    "vis": "^4.16.1"
   }
 }

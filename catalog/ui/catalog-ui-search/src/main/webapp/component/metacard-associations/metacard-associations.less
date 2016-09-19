@@ -1,127 +1,210 @@
 @{customElementNamespace}metacard-associations {
   .customElement;
 
-  .list-association {
+  > .editor-content {
+    text-align: center;
+    padding: 10px 20px;
+    max-height: ~'calc(100% - 4*@{minimumButtonSize} - 40px)';
+    overflow: auto;
+    @{customElementNamespace}dropdown .dropdown-text {
+      padding-left: 0px;
+    }
+  }
+
+  > .content-graph {
+    width: 100%;
+    height: ~'calc(100% - 2*@{minimumButtonSize})';
+    max-height: 500px;
+  }
+
+  > .list-header {
+    text-align: center;
+    padding: 10px 20px;
     white-space: nowrap;
+    > div {
+      display: inline-block;
+      width: 33%;
+      padding: 10px 0px;
+    }
+    > div + div {
+      padding-left: 20px;
+    }
+  }
+
+  > .list-footer .footer-text {
     height: @minimumButtonSize;
     line-height: @minimumButtonSize;
   }
 
-  .association-type,
-  .association-item,
-  .association-delete,
-  .association-info {
-    display: inline-block;
-    vertical-align: top;
+  > .list-footer {
+    padding: 10px 0px;
   }
 
-  .association-info {
-    width: 100%;
-    white-space: nowrap;
-    text-align: center;
-  }
-
-  .association-delete {
-    width: @minimumButtonSize;
-    text-align: center;
-  }
-
-  .association-item,
-  .association-type {
-    width: 50%;
-  }
-
-  .associations-add {
-    white-space: nowrap;
-  }
-
-  .add-type,
-  .add-select {
-    width: 50%;
-    display: inline-block;
-    vertical-align: top;
-    text-align: center;
-  }
-
-  .associations-addNew {
-    width: 100%;
-  }
-
-  .associations-footer {
-    white-space: nowrap;
-    font-size: 0px;
-    padding-top: 10px;
-  }
-
-  .associations-footer > button {
-    display: inline-block;
-  }
-
-  .associations-edit {
-    width: 100%;
-  }
-
-  .associations-cancel {
-    width: 50%;
-  }
-
-  .associations-save {
-    width: 50%;
-  }
-
-  .associations-cancel,
-  .associations-save,
-  .associations-editing,
-  .association-delete {
+  > .list-footer button {
     display: none;
+    width: 100%;
+  }
+  
+  > .editor-footer {
+    white-space: nowrap;
+    .inlineBlockDisplay(button);
+    .footer-cancel, 
+    .footer-save {
+      display: none;
+      width: 50%;
+    }
+    .footer-edit {
+      width: 100%;
+    }
   }
 
-  .associations-editing {
-    padding-top: 10px;
-    padding-bottom: 20px;
-  }
-
-  .associations-addNew {
+  @{customElementNamespace}association + @{customElementNamespace}association {
     margin-top: 10px;
   }
-
-  .item-link {
-    display: block;
-  }
-  .item-title {
-    display: none;
-  }
-
 }
 
 @{customElementNamespace}metacard-associations.is-editing {
-  overflow-y: auto;
-  .item-link {
-    display: none;
-  }
-  .item-title {
-    display: block;
-  }
+  .customElement;
 
-  .associations-edit {
-    display: none;
-  }
-
-  .associations-cancel,
-  .associations-save {
-    display: inline-block;
-  }
-
-  .associations-editing {
-    display: block;
-  }
-
-  .association-delete {
-    display: inline-block;
-  }
-
-  .association-info {
+  > .list-header {
     width: ~'calc(100% - @{minimumButtonSize})';
+    padding-right: 40px;
   }
 
+  > .list-footer .footer-text {
+    display: none;
+  }
+
+  > .list-footer button {
+    display: block;
+  }
+  
+  > .editor-footer {
+    .footer-edit {
+      display: none;
+    }
+    .footer-cancel,
+    .footer-save {
+      display: inline-block;
+    }
+  }
+}
+
+@{customElementNamespace}metacard-associations.filter-by-parent {
+
+    @{customElementNamespace}association.is-parent:not(.is-child) {
+      .association-content {
+        opacity: .2;
+      }
+
+      .association-content > div:after {
+        content: attr(data-label);
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        line-height: @minimumButtonSize;
+        opacity: .2;
+      }
+
+      .association-content > .association-relationship:after,
+      .association-content > .association-child:after {
+        padding-left: 20px;
+      }
+
+      @{customElementNamespace}dropdown,
+      .association-remove {
+        visibility: hidden;
+      }
+    }
+
+    @{customElementNamespace}association .association-child {
+      &:after {
+        content: attr(data-label);
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        line-height: @minimumButtonSize;
+        opacity: .2;
+        padding-left: 20px;
+      }
+
+      @{customElementNamespace}dropdown {
+       visibility: hidden;
+      }
+    }
+}
+
+@{customElementNamespace}metacard-associations.filter-by-child {
+
+  @{customElementNamespace}association.is-child:not(.is-parent) {
+      .association-content {
+        opacity: .2;
+      }
+
+      .association-content > div:after {
+        content: attr(data-label);
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        line-height: @minimumButtonSize;
+        opacity: .2;
+      }
+
+      .association-content > .association-relationship:after,
+      .association-content > .association-child:after {
+        padding-left: 20px;
+      }
+
+      @{customElementNamespace}dropdown,
+      .association-remove {
+        visibility: hidden;
+      }
+    }
+
+    @{customElementNamespace}association .association-parent {
+      &:after {
+        content: attr(data-label);
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        line-height: @minimumButtonSize;
+        opacity: .2;
+      }
+
+      @{customElementNamespace}dropdown {
+       visibility: hidden;
+      }
+    }
+}
+
+@{customElementNamespace}metacard-associations.show-graph {
+  > .content-graph {
+    display: block;
+  }
+
+  > .list-header,
+  > .editor-content,
+  > .list-footer {
+    display: none;
+  }
+}
+
+@{customElementNamespace}metacard-associations.show-list {
+  > .content-graph {
+    display: none;
+  }
+
+  > .list-header,
+  > .editor-content,
+  > .list-footer {
+    display: block;
+  }
 }
