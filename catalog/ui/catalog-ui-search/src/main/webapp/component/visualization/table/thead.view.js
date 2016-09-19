@@ -98,7 +98,7 @@ module.exports = Marionette.ItemView.extend({
             return {
                 label: properties.attributeAliases[property],
                 id: property,
-                hidden: hiddenColumns.indexOf(property) >= 0,
+                hidden: hiddenColumns.indexOf(property) >= 0 || properties.isHidden(property),
                 sortable: sortAttributes.indexOf(property) >= 0
             };
         });

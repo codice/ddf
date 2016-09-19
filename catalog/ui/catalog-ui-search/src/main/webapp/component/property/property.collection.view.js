@@ -24,16 +24,6 @@ define([
     'component/singletons/metacard-definitions'
 ], function(Marionette, _, $, CustomElements, PropertyView, PropertyCollection, properties, metacardDefinitions) {
 
-    function isReadOnly(readOnly, attribute) {
-        return readOnly
-            .map(function(str) {
-                return new RegExp(str);
-            })
-            .find(function(regex) {
-                return regex.exec(attribute);
-            }) !== undefined;
-    }
-
     return Marionette.CollectionView.extend({
         tagName: CustomElements.register('property-collection'),
         childView: PropertyView,
@@ -113,7 +103,7 @@ define([
                         enumFiltering: true,
                         enum: metacardDefinitions.enums[property],
                         label: properties.attributeAliases[property],
-                        readOnly: isReadOnly(properties.readOnly, property),
+                        readOnly: properties.isReadOnly(property),
                         id: property,
                         type: types[0][property].format,
                         values: {},
@@ -128,7 +118,7 @@ define([
                     enumFiltering: true,
                     enum: metacardDefinitions.enums[property],
                     label: properties.attributeAliases[property],
-                    readOnly: isReadOnly(properties.readOnly, property),
+                    readOnly: properties.isReadOnly(property),
                     id: property,
                     type: types[0][property].format,
                     values: {},
@@ -172,7 +162,7 @@ define([
                     enumFiltering: true,
                     enum: metacardDefinitions.enums[property],
                     label: properties.attributeAliases[property],
-                    readOnly: isReadOnly(properties.readOnly, property),
+                    readOnly: properties.isReadOnly(property),
                     id: property,
                     type: types[0][property].format,
                     values: {},
@@ -218,8 +208,14 @@ define([
             var propertyIntersection = attributeKeys.concat(typeKeys);
             propertyIntersection = _.intersection.apply(_, propertyIntersection);
             propertyIntersection = propertyIntersection.filter(function(property) {
-                return property === self.thumbnail || (property.indexOf('metacard') === -1 && property.indexOf('metadata') === -1 && property.indexOf('validation') === -1 && self.blacklist.indexOf(property) === -1 && self.hiddenTypes.indexOf(types[0][property].format) === -1 && self.bulkHiddenTypes.indexOf(types[0][property].format) === -1);
-            });
+                return (!properties.isHidden(property)
+                && property.indexOf('metacard') === -1
+                && property.indexOf('metadata') === -1
+                && property.indexOf('validation') === -1
+                && self.blacklist.indexOf(property) === -1
+                && self.hiddenTypes.indexOf(types[0][property].format) === -1
+                && self.bulkHiddenTypes.indexOf(types[0][property].format) === -1);
+            }).sort();
             return propertyIntersection;
         }
     });

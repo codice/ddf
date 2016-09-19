@@ -10,6 +10,15 @@
  *
  **/
 /*global define*/
+function match(regexList, attribute) {
+    return regexList
+        .map(function(str) {
+            return new RegExp(str);
+        })
+        .find(function(regex) {
+            return regex.exec(attribute);
+        }) !== undefined;
+}
 
 define(function (require) {
     'use strict';
@@ -72,6 +81,12 @@ define(function (require) {
             });
 
             return props;
+        },
+        isHidden: function(attribute){
+          return match(this.hiddenAttributes, attribute);
+        },
+        isReadOnly: function(attribute){
+          return match(this.readOnly, attribute);
         }
     };
 
