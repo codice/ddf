@@ -13,6 +13,7 @@
  *
  **/
 /*global define*/
+/*jshint -W024*/
 define([
         'icanhaz',
         'backbone',
@@ -28,9 +29,10 @@ define([
         'text!templates/registryPage.handlebars',
         'text!templates/nodeList.handlebars',
         'text!templates/nodeRow.handlebars',
-        'text!templates/deleteNodeModal.handlebars'
+        'text!templates/deleteNodeModal.handlebars',
+        'text!templates/regenerateSourcesModal.handlebars'
     ],
-    function (ich,Backbone,Marionette,_,moment,$,Q,wreqr,Node, NodeCollection, NodeModal,registryPage, nodeList, nodeRow, deleteNodeModal) {
+    function (ich,Backbone,Marionette,_,moment,$,Q,wreqr,Node, NodeCollection, NodeModal,registryPage, nodeList, nodeRow, deleteNodeModal, regenerateSourcesModal) {
 
         var RegistryView = {};
 
@@ -38,12 +40,13 @@ define([
         ich.addTemplate('nodeList', nodeList);
         ich.addTemplate('nodeRow', nodeRow);
         ich.addTemplate('deleteNodeModal', deleteNodeModal);
-
+        ich.addTemplate('regenerateSourcesModal', regenerateSourcesModal);
         RegistryView.RegistryPage = Marionette.Layout.extend({
             template: 'registryPage',
             events: {
                 'click .add-node-link': 'showAddNode',
-                'click .refresh-button': 'addDeleteNode'
+                'click .refresh-button': 'addDeleteNode',
+                'click .regenerate-sources': 'regenerateSources'
             },
             modelEvents: {
                 "add": "render",
@@ -127,6 +130,12 @@ define([
                         })
                     );
                 }
+            },
+            regenerateSources: function() {
+                    wreqr.vent.trigger("showModal",
+                        new RegistryView.RegenerateSourcesModal({nodes: this.model.models})
+                    );
+
             }
         });
         RegistryView.ModalController = Marionette.Controller.extend({
@@ -142,7 +151,7 @@ define([
                     iFrameModalDOM.hide();
                 });
                 modalView.$el.on('shown.bs.modal', function () {
-                    var extraHeight = modalView.el.firstChild.clientHeight - $('#localNode').height();
+                    var extraHeight = modalView.el.firstChild.clientHeight - $('#nodeTables').height();
                     if (extraHeight > 0) {
                         iFrameModalDOM.height(extraHeight);
                         iFrameModalDOM.show();
@@ -259,6 +268,75 @@ define([
            getNodeName: function() {
                return this.model.getObjectOfType('urn:registry:federation:node')[0].Name;
            }
+        });
+
+        RegistryView.RegenerateSourcesModal = Marionette.ItemView.extend({
+            template: 'regenerateSourcesModal',
+            className: 'modal',
+            events: {
+                'click .submit-button' : 'regenerateSources',
+                'click .cancel-button' : 'cancel',
+                'click .close': 'cancel'
+            },
+            regenerateUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/regenerateRegistrySources',
+            regenerateSources: function() {
+                var checkboxes = $('.regenerate-source-check');
+                var regIds = [];
+                _.each(checkboxes, function(input){
+                    if(input.checked) {
+                        regIds.push($(input).attr('id'));
+                    }
+                });
+                if (regIds.length === 0) {
+                    return;
+                }
+                $('.submit-button').prop("disabled",true);
+                $('.cancel-button').prop("disabled",true);
+                var mbean = 'org.codice.ddf.registry:type=FederationAdminMBean';
+                var operation = 'regenerateRegistrySources';
+                var modal = this;
+                var data = {
+                    type: 'EXEC',
+                    mbean: mbean,
+                    operation: operation
+                };
+
+                data.arguments = [regIds];
+                data = JSON.stringify(data);
+
+                $.ajax({
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: data,
+                    url: this.regenerateUrl
+                }).done(function () {
+                    modal.close();
+                });
+
+            },
+            cancel: function() {
+                this.close();
+            },
+            close: function() {
+                this.$el.off('hidden.bs.modal');
+                this.$el.off('shown.bs.modal');
+                this.$el.modal("hide");
+            },
+            serializeData: function() {
+                var data = {};
+                if (this.model) {
+                    data = this.model.toJSON();
+                }
+                var array = [];
+                _.each(this.options.nodes, function (node) {
+                    array.push({
+                        name: node.getObjectOfType('urn:registry:federation:node')[0].Name,
+                        id: node.get('id')
+                    });
+                });
+                data.registry = array;
+                return data;
+            }
         });
 
         return RegistryView;

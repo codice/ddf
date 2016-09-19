@@ -99,4 +99,11 @@ public interface FederationAdminMBean {
      */
     Map<String, Object> allRegistryMetacards();
 
+    /**
+     * Regenerates registry sources for the given registry-ids
+     *
+     * @param ids registry-ids to regenerate
+     */
+    void regenerateRegistrySources(List<String> ids);
+
 }

@@ -16,6 +16,7 @@ package org.codice.ddf.registry.source.configuration;
 import java.io.IOException;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,7 +34,9 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
+import org.codice.ddf.registry.federationadmin.service.internal.RegistrySourceConfiguration;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.schemabindings.helper.RegistryPackageTypeHelper;
 import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
@@ -63,7 +66,7 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
  * come from registry nodes. It listens to the create/update/delete events to trigger its logic.
  */
 @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
-public class SourceConfigurationHandler implements EventHandler {
+public class SourceConfigurationHandler implements EventHandler, RegistrySourceConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceConfigurationHandler.class);
 
@@ -369,7 +372,13 @@ public class SourceConfigurationHandler implements EventHandler {
                 CONFIGURATION_FILTER,
                 RegistryObjectMetacardType.REGISTRY_ID,
                 registryId));
-        if (configurations != null) {
+        if (configurations != null && configurations.length > 0) {
+            String sourceName = (String) configurations[0].getProperties()
+                    .get(ID);
+            configurations = configurationAdmin.listConfigurations(String.format(
+                    CONFIGURATION_FILTER,
+                    ID,
+                    sourceName));
             for (Configuration configuration : configurations) {
                 configuration.delete();
             }
@@ -665,12 +674,19 @@ public class SourceConfigurationHandler implements EventHandler {
     }
 
     private void updateRegistrySourceConfigurations() {
+        this.updateRegistrySourceConfigurations(false);
+    }
+
+    private void updateRegistrySourceConfigurations(boolean deleteOldConfig) {
         try {
             List<Metacard> metacards =
                     Security.runAsAdminWithException(() -> federationAdminService.getRegistryMetacards());
 
             for (Metacard metacard : metacards) {
                 try {
+                    if (deleteOldConfig) {
+                        deleteRegistryConfigurations(metacard);
+                    }
                     updateRegistryConfigurations(metacard, false);
                 } catch (InvalidSyntaxException | ParserException | IOException e) {
                     LOGGER.debug(
@@ -762,5 +778,28 @@ public class SourceConfigurationHandler implements EventHandler {
 
     public void setMetacardMarshaller(MetacardMarshaller helper) {
         this.metacardMarshaller = helper;
+    }
+
+    @Override
+    public void regenerateAllSources() throws FederationAdminException {
+        updateRegistrySourceConfigurations(true);
+    }
+
+    @Override
+    public void regenerateOneSource(String registryId) throws FederationAdminException {
+        try {
+            List<Metacard> metacards = federationAdminService.getRegistryMetacardsByRegistryIds(
+                    Collections.singletonList(registryId));
+            if (metacards.size() != 1) {
+                throw new FederationAdminException(
+                        "Error looking up metacard to regenerate sources. registry-id="
+                                + registryId);
+            }
+            deleteRegistryConfigurations(metacards.get(0));
+            updateRegistryConfigurations(metacards.get(0), false);
+        } catch (IOException | ParserException | InvalidSyntaxException e) {
+            throw new FederationAdminException(
+                    "Error regenerating sources for registry entry " + registryId, e);
+        }
     }
 }
