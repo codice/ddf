@@ -59,6 +59,8 @@ public class PlatformMigratable extends DescribableBean implements Configuration
     private static final Path APPLICATION_LIST = Paths.get("etc",
             "org.codice.ddf.admin.applicationlist.properties");
 
+    private static final Path FIPS_TO_ISO = Paths.get("etc", "fipsToIso.properties");
+
     private final MigratableUtil migratableUtil;
 
     public PlatformMigratable(@NotNull DescribableBean info,
@@ -89,6 +91,7 @@ public class PlatformMigratable extends DescribableBean implements Configuration
         migratableUtil.copyFile(APPLICATION_LIST, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(DDF_METACARD_ATTRIBUTE_RULESET, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(DDF_USER_ATTRIBUTE_RULESET, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(FIPS_TO_ISO, exportDirectory, migrationWarnings);
     }
 
     private void exportWsSecurity(Path exportDirectory,

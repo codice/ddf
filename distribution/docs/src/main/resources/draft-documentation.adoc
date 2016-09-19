@@ -168,6 +168,8 @@ include::{adoc-include}/_draft-geowebcache-contents/managing-geowebcache-content
 
 include::{adoc-include}/_draft-platform-contents/managing-platform-contents.adoc[]
 
+include::{adoc-include}/_draft-platform-contents/country-code-converter-contents.adoc[]
+
 <<<
 
 == ${ddf-registry} Application Reference
