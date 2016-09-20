@@ -44,6 +44,7 @@ import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.registry.schemabindings.helper.RegistryPackageTypeHelper;
@@ -668,6 +669,9 @@ public class SourceConfigurationHandlerTest {
 
     @Test
     public void testDeleteConfiguration() throws Exception {
+        Hashtable<String, Object> props = new Hashtable<>();
+        props.put("id", "TestRegNode");
+        when(config.getProperties()).thenReturn(props);
         when(configAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {config});
         sch.setCleanUpOnDelete(true);
         setupSerialExecutor();
@@ -828,6 +832,62 @@ public class SourceConfigurationHandlerTest {
         sch.destroy();
         verify(executorService, times(1)).awaitTermination(anyLong(), any(TimeUnit.class));
         verify(executorService, times(1)).shutdownNow();
+    }
+
+    @Test
+    public void testRegenerateOneSource() throws Exception {
+        mcard.setMetadata(getMetadata("/csw-rim-node-multi-binding.xml"));
+        Hashtable<String, Object> props = new Hashtable<>();
+        props.put("id", "TestRegNode");
+        props.put("origConfig", "origConfigValue");
+        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+                "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
+        props.put("bindingType", "CSW_2.0.2");
+        when(config.getProperties()).thenReturn(props);
+        when(config.getFactoryPid()).thenReturn("Csw_Federated_Source_disabled");
+        List<String> priority = new ArrayList<>();
+        priority.add("CSW_2.0.2");
+        List<String> bindings = new ArrayList<>();
+        bindings.add("CSW_2.0.2=Csw_Federated_Source");
+        sch.setBindingTypeFactoryPid(bindings);
+        sch.setSourceActivationPriorityOrder(priority);
+        when(adminService.getRegistryMetacardsByRegistryIds(any(List.class))).thenReturn(Collections.singletonList(mcard));
+        when(configAdmin.listConfigurations(anyString())).thenReturn(null);
+        when(configAdmin.createFactoryConfiguration(anyString(), anyString())).thenReturn(config);
+        sch.regenerateOneSource("regId");
+        verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled",
+                null);
+    }
+
+    @Test(expected = FederationAdminException.class)
+    public void testRegenerateOneSourceNoMetacardFound() throws Exception {
+        when(adminService.getRegistryMetacardsByRegistryIds(any(List.class))).thenReturn(Collections.emptyList());
+        sch.regenerateOneSource("regId");
+    }
+
+    @Test
+    public void testRegenerateAllSources() throws Exception {
+        mcard.setMetadata(getMetadata("/csw-rim-node-multi-binding.xml"));
+        Hashtable<String, Object> props = new Hashtable<>();
+        props.put("id", "TestRegNode");
+        props.put("origConfig", "origConfigValue");
+        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+                "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
+        props.put("bindingType", "CSW_2.0.2");
+        when(config.getProperties()).thenReturn(props);
+        when(config.getFactoryPid()).thenReturn("Csw_Federated_Source_disabled");
+        List<String> priority = new ArrayList<>();
+        priority.add("CSW_2.0.2");
+        List<String> bindings = new ArrayList<>();
+        bindings.add("CSW_2.0.2=Csw_Federated_Source");
+        sch.setBindingTypeFactoryPid(bindings);
+        sch.setSourceActivationPriorityOrder(priority);
+        when(adminService.getRegistryMetacards()).thenReturn(Collections.singletonList(mcard));
+        when(configAdmin.listConfigurations(anyString())).thenReturn(null);
+        when(configAdmin.createFactoryConfiguration(anyString(), anyString())).thenReturn(config);
+        sch.regenerateAllSources();
+        verify(configAdmin, times(1)).createFactoryConfiguration("Csw_Federated_Source_disabled",
+                null);
     }
 
     private String getMetadata(String path) throws Exception {
