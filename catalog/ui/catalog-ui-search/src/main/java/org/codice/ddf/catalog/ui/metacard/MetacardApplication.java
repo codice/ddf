@@ -48,7 +48,6 @@ import javax.ws.rs.NotFoundException;
 import org.apache.shiro.SecurityUtils;
 import org.boon.json.JsonFactory;
 import org.codice.ddf.catalog.ui.metacard.associations.Associated;
-import org.codice.ddf.catalog.ui.metacard.associations.AssociatedItem;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
 import org.codice.ddf.catalog.ui.metacard.edit.MetacardChanges;
 import org.codice.ddf.catalog.ui.metacard.enumerations.ExperimentalEnumerationExtractor;
@@ -592,33 +591,6 @@ public class MetacardApplication implements SparkApplication {
         return catalogFramework.create(new CreateRequestImpl(metacard))
                 .getCreatedMetacards()
                 .get(0);
-
-    }
-
-    public static class AssociationResultItem {
-        public String id;
-
-        public String title;
-
-        public AssociationResultItem(String id, String title) {
-            this.id = id;
-            this.title = title;
-        }
-    }
-
-    public static class AssociationResult {
-        public String type;
-
-        public List<AssociationResultItem> metacards;
-
-        public AssociationResult(String type, List<AssociationResultItem> metacards) {
-            this.type = type;
-            this.metacards = metacards;
-        }
-
-        public AssociationResult(String type) {
-            this(type, new ArrayList<>());
-        }
 
     }
 
