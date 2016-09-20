@@ -62,6 +62,7 @@ define([
             poller.get(this, {
                 delay: properties.sourcePollInterval
             }).start();
+            this.fetch({async: false});
         },
         types: function () {
           return this._types;

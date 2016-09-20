@@ -122,9 +122,16 @@ define([
                     var metacardId = args[0];
                     var queryForMetacard = new Query.Model({
                         cql: cql.write({
-                            type: '=',
-                            value: metacardId,
-                            property: '"id"'
+                          type: 'AND',
+                          filters: [{
+                              type: '=',
+                              value: metacardId,
+                              property: '"id"'
+                          }, {
+                              type: 'ILIKE',
+                              value: '*',
+                              property: '"metacard-tags"'
+                          }]
                         })
                     });
                     $.whenAll.apply(this, queryForMetacard.startSearch()).always(function(){

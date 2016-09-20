@@ -29,7 +29,8 @@ define([
     'component/workspace-sharing/workspace-sharing.view',
     'decorator/menu-navigation.decorator',
     'decorator/Decorators'
-], function(wreqr, Marionette, _, $, template, CustomElements, store, router, user, LoadingView, lightboxInstance, WorkspaceSharing, MenuNavigationDecorator, Decorators) {
+], function(wreqr, Marionette, _, $, template, CustomElements, store, router, user,
+    LoadingView, lightboxInstance, WorkspaceSharing, MenuNavigationDecorator, Decorators) {
 
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
@@ -44,6 +45,7 @@ define([
             'click .interaction-share': 'handleShare',
             'click .interaction-duplicate': 'handleDuplicate',
             'click .interaction-trash': 'handleTrash',
+            'click .interaction-details': 'handleDetails',
             'click .workspace-interaction': 'handleClick'
         },
         ui: {},
@@ -69,6 +71,14 @@ define([
             lightboxInstance.lightboxContent.show(new WorkspaceSharing({
                 model: this.model
             }));
+        },
+        handleDetails: function(){
+          wreqr.vent.trigger('router:navigate', {
+              fragment: 'metacards/'+this.model.id,
+              options: {
+                  trigger: true
+              }
+          });
         },
         handleDuplicate: function() {
             var loadingview = new LoadingView();
