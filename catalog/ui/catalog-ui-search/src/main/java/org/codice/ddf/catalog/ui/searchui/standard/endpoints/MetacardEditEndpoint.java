@@ -70,7 +70,7 @@ public class MetacardEditEndpoint {
         Metacard metacard = endpointUtil.getMetacard(id);
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         if (metacardAttribute == null) {
-            return Response.status(404)
+            return Response.status(200)
                     .build();
         }
         Optional<AttributeDescriptor> attributeDescriptor =
@@ -198,6 +198,8 @@ public class MetacardEditEndpoint {
             return Response.ok()
                     .build(); // TODO (RCZ) - if it wasn't there is that an okay or bad?
         }
+
+
 
         metacard.setAttribute(new AttributeImpl(attribute, (Serializable) null));
         catalogFramework.update(new UpdateRequestImpl(id, metacard));

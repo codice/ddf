@@ -186,13 +186,13 @@ public class EndpointUtil {
         return resultTypes;
     }
 
-    public List<String> getStringList(List<Serializable> list) {
+    public ArrayList<String> getStringList(List<Serializable> list) {
         if (list == null) {
             return new ArrayList<>();
         }
         return list.stream()
                 .map(String::valueOf)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public Map<String, Object> transformToMap(Metacard metacard) {
@@ -237,8 +237,7 @@ public class EndpointUtil {
         return metacardToJson(getMetacard(id));
     }
 
-    public String metacardToJson(Metacard metacard)
-            throws SourceUnavailableException, UnsupportedQueryException, FederationException {
+    public String metacardToJson(Metacard metacard) {
         return getJson(transformToMap(metacard));
     }
 
@@ -317,7 +316,7 @@ public class EndpointUtil {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, Object> getMetacardMap(Metacard metacard) {
+    public Map<String, Object> getMetacardMap(Metacard metacard) {
         Set<AttributeDescriptor> attributeDescriptors = metacard.getMetacardType()
                 .getAttributeDescriptors();
         Map<String, Object> result = new HashMap<>();
@@ -404,6 +403,10 @@ public class EndpointUtil {
     public static <T, R extends Comparable> Comparator<T> compareBy(Function<T, R> getField) {
         return (T o1, T o2) -> getField.apply(o1)
                 .compareTo(getField.apply(o2));
+    }
+
+    public FilterBuilder getFilterBuilder() {
+        return filterBuilder;
     }
 
 }

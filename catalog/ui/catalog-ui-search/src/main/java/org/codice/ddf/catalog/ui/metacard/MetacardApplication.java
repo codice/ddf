@@ -126,10 +126,12 @@ public class MetacardApplication implements SparkApplication {
 
     private final List<MetacardType> types;
 
+    private final Associated associated;
+
     public MetacardApplication(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
             EndpointUtil endpointUtil, Validator validator, WorkspaceTransformer transformer,
             ExperimentalEnumerationExtractor enumExtractor,
-            SubscriptionsPersistentStore subscriptions, List<MetacardType> types) {
+            SubscriptionsPersistentStore subscriptions, List<MetacardType> types, Associated associated) {
         this.catalogFramework = catalogFramework;
         this.filterBuilder = filterBuilder;
         this.util = endpointUtil;
@@ -138,6 +140,7 @@ public class MetacardApplication implements SparkApplication {
         this.enumExtractor = enumExtractor;
         this.subscriptions = subscriptions;
         this.types = types;
+        this.associated = associated;
     }
 
     private String getSubjectEmail() {
@@ -304,38 +307,15 @@ public class MetacardApplication implements SparkApplication {
 
         get("/associations/:id", (req, res) -> {
             String id = req.params(":id");
-            Associated associated = new Associated(catalogFramework, util, id);
-            List<AssociatedItem> associations = associated.getAssociations();
-            Map<String, AssociationResult> resultMap = new HashMap<>();
-
-            for (AssociatedItem association : associations) {
-                AssociationResult result = resultMap.getOrDefault(association.getType(),
-                        new AssociationResult(association.getType()));
-                result.metacards.add(new AssociationResultItem(association.getId(),
-                        association.getTitle()));
-                resultMap.put(association.getType(), result);
-            }
-            return util.getJson(resultMap.values());
+            return util.getJson(associated.getAssociations(id));
         });
 
         put("/associations/:id", (req, res) -> {
             String id = req.params(":id");
-            Associated associated = new Associated(catalogFramework, util, id);
-            List<AssociationResult> associationsIncoming = JsonFactory.create()
+            List<Associated.Edge> edges = JsonFactory.create()
                     .parser()
-                    .parseList(AssociationResult.class, req.body());
-
-            List<AssociatedItem> associations = new ArrayList<>();
-            for (AssociationResult incoming : associationsIncoming) {
-                for (AssociationResultItem item : incoming.metacards) {
-                    associations.add(new AssociatedItem(incoming.type, item.title, item.id));
-                }
-            }
-            List<String> emptyAssociations = associationsIncoming.stream()
-                    .filter(ar -> ar.metacards.isEmpty())
-                    .map(ar -> ar.type)
-                    .collect(Collectors.toList());
-            associated.putAssociations(associations, emptyAssociations);
+                    .parseList(Associated.Edge.class, req.body());
+            associated.putAssociations(id, edges);
             return req.body();
         });
 
@@ -534,7 +514,6 @@ public class MetacardApplication implements SparkApplication {
 
         for (MetacardChanges changeset : metacardChanges) {
             for (AttributeChange attributeChange : changeset.getAttributes()) {
-                METACARD_LOOP:
                 for (String id : changeset.getIds()) {
                     Metacard result = results.get(id)
                             .getMetacard();
@@ -557,7 +536,7 @@ public class MetacardApplication implements SparkApplication {
                                     util.parseDate(attribute.getValue())));
 
                         }
-                        continue METACARD_LOOP;
+                        continue;
                     }
 
                     if (multivalued) {
@@ -616,25 +595,31 @@ public class MetacardApplication implements SparkApplication {
 
     }
 
-    private static class AssociationResultItem {
-        String id;
+    public static class AssociationResultItem {
+        public String id;
 
-        String title;
+        public String title;
 
-        private AssociationResultItem(String id, String title) {
+        public AssociationResultItem(String id, String title) {
             this.id = id;
             this.title = title;
         }
     }
 
-    private static class AssociationResult {
-        String type;
+    public static class AssociationResult {
+        public String type;
 
-        List<AssociationResultItem> metacards = new ArrayList<>();
+        public List<AssociationResultItem> metacards;
 
-        AssociationResult(String type) {
+        public AssociationResult(String type, List<AssociationResultItem> metacards) {
             this.type = type;
+            this.metacards = metacards;
         }
+
+        public AssociationResult(String type) {
+            this(type, new ArrayList<>());
+        }
+
     }
 
     private static class ByteSourceWrapper extends ByteSource {

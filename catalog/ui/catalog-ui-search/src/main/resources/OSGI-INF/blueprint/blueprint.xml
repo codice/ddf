@@ -163,6 +163,11 @@
         </argument>
     </bean>
 
+    <bean id="associated" class="org.codice.ddf.catalog.ui.metacard.associations.Associated" >
+        <argument ref="endpointUtil" />
+        <argument ref="catalogFramework" />
+    </bean>
+
     <bean id="metacardApplication" class="org.codice.ddf.catalog.ui.metacard.MetacardApplication">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
@@ -174,6 +179,7 @@
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
+        <argument ref="associated" />
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
