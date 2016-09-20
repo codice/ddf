@@ -114,7 +114,8 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         map.put(REMOTE_NAME, value -> setRemoteName((String) value));
         map.put(PUSH_ALLOWED_PROPERTY, value -> setPushAllowed((Boolean) value));
         map.put(PULL_ALLOWED_PROPERTY, value -> setPullAllowed((Boolean) value));
-        map.put(RegistryObjectMetacardType.REGISTRY_ID, value -> setRegistryId((String) value));
+        map.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
+                value -> setRegistryId((String) value));
         return map;
     }
 
@@ -349,7 +350,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             Configuration currentConfig = configAdmin.getConfiguration(currentPid);
             Dictionary<String, Object> currentProperties = currentConfig.getProperties();
             currentProperties.put(REMOTE_NAME, remoteName);
-            currentProperties.put(RegistryObjectMetacardType.REGISTRY_ID, registryId);
+            currentProperties.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, registryId);
             currentConfig.update(currentProperties);
         } catch (IOException e) {
             LOGGER.debug("Unable to update registry configurations, ", e);

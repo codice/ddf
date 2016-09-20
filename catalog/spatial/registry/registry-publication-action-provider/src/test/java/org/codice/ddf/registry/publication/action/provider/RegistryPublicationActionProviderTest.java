@@ -117,7 +117,7 @@ public class RegistryPublicationActionProviderTest {
     public void testCanHandleRegistrySource() throws Exception {
         when(source.getId()).thenReturn("regId1");
         Dictionary<String, Object> properties = new Hashtable<>();
-        properties.put(RegistryObjectMetacardType.REGISTRY_ID, "regId1");
+        properties.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, "regId1");
         when(configuration.getProperties()).thenReturn(properties);
         assertThat(publicationActionProvider.canHandle(source), is(true));
     }
@@ -132,7 +132,7 @@ public class RegistryPublicationActionProviderTest {
     @Test
     public void testCanHandleRegistryConfig() throws Exception {
         Dictionary<String, Object> properties = new Hashtable<>();
-        properties.put(RegistryObjectMetacardType.REGISTRY_ID, "regId1");
+        properties.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, "regId1");
         when(configuration.getProperties()).thenReturn(properties);
         assertThat(publicationActionProvider.canHandle(configuration), is(true));
     }
@@ -179,7 +179,8 @@ public class RegistryPublicationActionProviderTest {
         assertThat(actions.get(0)
                         .getUrl()
                         .toString(),
-                equalTo(SystemBaseUrl.constructUrl("internal/registries/regId1/publication/regId2", true)));
+                equalTo(SystemBaseUrl.constructUrl("internal/registries/regId1/publication/regId2",
+                        true)));
     }
 
     @Test
@@ -199,7 +200,8 @@ public class RegistryPublicationActionProviderTest {
         assertThat(actions.get(0)
                         .getUrl()
                         .toString(),
-                equalTo(SystemBaseUrl.constructUrl("internal/registries/regId1/publication/regId2", true)));
+                equalTo(SystemBaseUrl.constructUrl("internal/registries/regId1/publication/regId2",
+                        true)));
     }
 
     private Metacard getRegistryMetacard(String regId) {

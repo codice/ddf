@@ -318,7 +318,7 @@ public class SourceConfigurationHandlerTest {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         props.put("origConfig", "origConfigValue");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "CSW_2.0.2");
         when(config.getProperties()).thenReturn(props);
@@ -345,7 +345,7 @@ public class SourceConfigurationHandlerTest {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         props.put("origConfig", "origConfigValue");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "CSW_2.0.2");
         when(config.getProperties()).thenReturn(props);
@@ -371,7 +371,7 @@ public class SourceConfigurationHandlerTest {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         props.put("origConfig", "origConfigValue");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "SomeOtherBindingType");
         Configuration newDisabledConfig = mock(Configuration.class);
@@ -421,7 +421,7 @@ public class SourceConfigurationHandlerTest {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         props.put("origConfig", "origConfigValue");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "SomeOtherBindingType");
         when(config.getProperties()).thenReturn(props);
@@ -453,7 +453,7 @@ public class SourceConfigurationHandlerTest {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         props.put("origConfig", "origConfigValue");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "SomeOtherBindingType");
         Configuration newDisabledConfig = mock(Configuration.class);
@@ -492,7 +492,7 @@ public class SourceConfigurationHandlerTest {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         props.put("origConfig", "origConfigValue");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "SomeOtherBindingType");
         when(config.getProperties()).thenReturn(props);
@@ -532,7 +532,7 @@ public class SourceConfigurationHandlerTest {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         props.put("origConfig", "origConfigValue");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "Some_Other_Binding_Type");
         Configuration newDisabledConfig = mock(Configuration.class);
@@ -582,7 +582,7 @@ public class SourceConfigurationHandlerTest {
         when(configAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {config});
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "CSW_2.0.2");
         when(config.getProperties()).thenReturn(props);
@@ -605,7 +605,7 @@ public class SourceConfigurationHandlerTest {
         when(configAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {config});
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "CSW2_2.0.2");
         when(config.getProperties()).thenReturn(props);
@@ -655,7 +655,7 @@ public class SourceConfigurationHandlerTest {
                 null);
         verify(newConfig).update(captor.capture());
         Dictionary passedValues = captor.getValue();
-        assertThat(passedValues.get(RegistryObjectMetacardType.REGISTRY_ID),
+        assertThat(passedValues.get(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY),
                 equalTo("urn:uuid:2014ca7f59ac46f495e32b4a67a51276"));
         assertThat(passedValues.get("attId"), equalTo("attValue"));
         assertThat(passedValues.get("urlBindingName"), equalTo("cswUrl"));
@@ -840,7 +840,7 @@ public class SourceConfigurationHandlerTest {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         props.put("origConfig", "origConfigValue");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "CSW_2.0.2");
         when(config.getProperties()).thenReturn(props);
@@ -871,7 +871,7 @@ public class SourceConfigurationHandlerTest {
         Hashtable<String, Object> props = new Hashtable<>();
         props.put("id", "TestRegNode");
         props.put("origConfig", "origConfigValue");
-        props.put(RegistryObjectMetacardType.REGISTRY_ID,
+        props.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
         props.put("bindingType", "CSW_2.0.2");
         when(config.getProperties()).thenReturn(props);
@@ -980,7 +980,7 @@ public class SourceConfigurationHandlerTest {
     }
 
     private void assertCswProperties(Dictionary passedValues) {
-        assertThat(passedValues.get(RegistryObjectMetacardType.REGISTRY_ID),
+        assertThat(passedValues.get(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY),
                 equalTo("urn:uuid:2014ca7f59ac46f495e32b4a67a51276"));
         assertThat(passedValues.get("urlBindingName"), equalTo("cswUrl"));
         assertThat(passedValues.get("id"), equalTo("TestRegNode"));
