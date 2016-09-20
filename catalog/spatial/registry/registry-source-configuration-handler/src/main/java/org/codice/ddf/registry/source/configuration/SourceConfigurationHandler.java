@@ -200,9 +200,11 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
      */
     private synchronized void updateRegistryConfigurations(Metacard metacard, boolean createEvent)
             throws IOException, InvalidSyntaxException, ParserException {
-        boolean identityNode = RegistryUtility.isIdentityNode(metacard);
+        if(RegistryUtility.isIdentityNode(metacard)){
+            return;
+        }
 
-        boolean autoActivateConfigurations = activateConfigurations && !identityNode && (createEvent
+        boolean autoActivateConfigurations = activateConfigurations && (createEvent
                 || !preserveActiveConfigurations);
 
         List<ServiceBindingType> bindingTypes = registryTypeHelper.getBindingTypes(
