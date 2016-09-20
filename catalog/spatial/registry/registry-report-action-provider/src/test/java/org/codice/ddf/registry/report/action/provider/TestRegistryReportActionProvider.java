@@ -367,7 +367,7 @@ public class TestRegistryReportActionProvider {
         configureActionProvider();
         Dictionary<String, Object> testDictionary = new Hashtable<>();
 
-        testDictionary.put(RegistryObjectMetacardType.REGISTRY_ID, SAMPLE_REGISTRY_ID);
+        testDictionary.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, SAMPLE_REGISTRY_ID);
 
         when(configuration.getProperties()).thenReturn(testDictionary);
 
@@ -389,7 +389,7 @@ public class TestRegistryReportActionProvider {
         configureActionProvider(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT);
         Dictionary<String, Object> testDictionary = new Hashtable<>();
 
-        testDictionary.put(RegistryObjectMetacardType.REGISTRY_ID, SAMPLE_REGISTRY_ID);
+        testDictionary.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, SAMPLE_REGISTRY_ID);
 
         when(configuration.getProperties()).thenReturn(testDictionary);
 

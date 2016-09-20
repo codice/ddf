@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.registry.api.internal.RegistryStore;
-import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.publication.manager.RegistryPublicationManager;
 import org.osgi.framework.InvalidSyntaxException;
@@ -150,7 +150,7 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
                         ((Source) subject).getId()));
                 return (String) Arrays.stream(configurations)
                         .map(Configuration::getProperties)
-                        .map(p -> p.get(RegistryObjectMetacardType.REGISTRY_ID))
+                        .map(p -> p.get(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY))
                         .filter(Objects::nonNull)
                         .findFirst()
                         .orElse(null);
@@ -160,7 +160,7 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
             }
         } else if (subject instanceof Configuration) {
             return (String) ((Configuration) subject).getProperties()
-                    .get(RegistryObjectMetacardType.REGISTRY_ID);
+                    .get(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY);
         }
         return null;
     }
