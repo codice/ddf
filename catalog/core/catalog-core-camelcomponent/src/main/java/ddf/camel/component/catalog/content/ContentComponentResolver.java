@@ -31,14 +31,11 @@ public class ContentComponentResolver implements ComponentResolver {
      * @param component the Camel component associated with this component resolver
      */
     public ContentComponentResolver(Component component) {
-        LOGGER.trace("INSIDE: constructor");
         this.component = component;
     }
 
     @Override
     public Component resolveComponent(String name, CamelContext context) throws Exception {
-        LOGGER.trace("INSIDE: resolveComponent");
-
         if (ContentComponent.NAME.equals(name)) {
             return component;
         }
