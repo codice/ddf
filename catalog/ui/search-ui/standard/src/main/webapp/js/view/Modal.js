@@ -30,10 +30,11 @@ define([
             initialize: function () {
                 // destroy view after animation completes.
                 // extending views must call: Modal.prototype.initialize.apply(this, arguments);
-                var view = this;
                 this.$el.one('hidden.bs.modal', function () {
-                    view.destroy();
-                });
+                    if (this.shouldDestroy()) {
+                        this.destroy();
+                    }
+                }.bind(this));
             },
             show: function () {
                 this.$el.modal({
@@ -43,6 +44,9 @@ define([
             },
             hide: function () {
                 this.$el.modal('hide');
+            },
+            shouldDestroy: function () {
+                return true;
             }
         });
         return BaseModal;
