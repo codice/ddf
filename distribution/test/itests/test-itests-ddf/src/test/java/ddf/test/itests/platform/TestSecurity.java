@@ -14,6 +14,12 @@
 package ddf.test.itests.platform;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -41,9 +47,12 @@ import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.hamcrest.xml.HasXPath;
 import org.junit.Before;
@@ -59,11 +68,7 @@ import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
 import ddf.catalog.data.Metacard;
-import ddf.common.test.BeforeExam;
 import ddf.security.SecurityConstants;
-import ddf.test.itests.AbstractIntegrationTest;
-import ddf.test.itests.catalog.TestCatalog;
-import ddf.test.itests.common.Library;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -456,15 +461,15 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testSamlFederatedAuth() throws Exception {
-        String recordId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        String recordId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
         configureRestForBasic();
 
         // Creating a new OpenSearch source with no username/password.
         // When an OpenSearch source attempts to authenticate without a username/password it will
         // use the subject in the request to create a SAML authentication token
-        OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
-                OPENSEARCH_SAML_SOURCE_ID);
-        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
+        Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
+                OPENSEARCH_SAML_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
+        getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID,
                 openSearchProperties);
 
         getCatalogBundle().waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
@@ -485,26 +490,26 @@ public class TestSecurity extends AbstractIntegrationTest {
                         + "']/value[text()='myTitle']"));
 
         configureRestForGuest();
-        TestCatalog.deleteMetacard(recordId);
+        deleteMetacard(recordId);
     }
 
     @Test
     public void testBasicFederatedAuth() throws Exception {
-        String recordId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        String recordId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
         configureRestForBasic();
 
         //Positive tests
-        OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
-                OPENSEARCH_SOURCE_ID);
+        Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
+                OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
         openSearchProperties.put("username", "admin");
         openSearchProperties.put("password", "admin");
-        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
+        getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID,
                 openSearchProperties);
 
-        CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
+        Map<String, Object> cswProperties = getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
         cswProperties.put("username", "admin");
         cswProperties.put("password", "admin");
-        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
+        getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties);
 
         getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
         getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
@@ -540,10 +545,10 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //Negative tests
         String unavailableCswSourceId = "Unavailable Csw";
-        cswProperties = new CswSourceProperties(unavailableCswSourceId);
+        cswProperties = getCswSourceProperties(unavailableCswSourceId, CSW_PATH.getUrl(), getServiceManager());
         cswProperties.put("username", "bad");
         cswProperties.put("password", "auth");
-        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
+        getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties);
 
         String cswQueryUnavail =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableCswSourceId;
@@ -585,7 +590,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                         */
 
         configureRestForGuest();
-        TestCatalog.deleteMetacard(recordId);
+        deleteMetacard(recordId);
     }
 
     @Test

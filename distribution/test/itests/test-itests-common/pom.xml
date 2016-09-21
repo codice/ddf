@@ -20,46 +20,33 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
     <artifactId>test-itests-common</artifactId>
-    <name>DDF :: Test :: Integration :: Common</name>
-    <properties>
-        <cometd.version>3.0.9</cometd.version>
-    </properties>
+    <name>DDF :: Integration Test :: Common</name>
+    <packaging>bundle</packaging>
     <dependencies>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-container-native</artifactId>
-            <version>${pax.exam.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
             <version>${pax.exam.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-wrap</artifactId>
             <version>${pax.url.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>1.1.2</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.1.2</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.framework</artifactId>
             <version>5.4.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -82,7 +69,6 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>2.1.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.karaf.itests</groupId>
@@ -94,28 +80,22 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>${commons-lang.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-container-native</artifactId>
+            <version>${pax.exam.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.admin.core</groupId>
-            <artifactId>admin-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.xebialabs.restito</groupId>
             <artifactId>restito</artifactId>
-            <version>0.8.2</version>
+            <version>${restito.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.grizzly</groupId>
             <artifactId>grizzly-http-server</artifactId>
             <version>2.3.17</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.cometd.java</groupId>
@@ -132,19 +112,83 @@
             <artifactId>cometd-java-common</artifactId>
             <version>${cometd.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-container-karaf</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
                 <executions>
                     <execution>
+                        <phase>compile</phase>
                         <goals>
-                            <goal>test-jar</goal>
+                            <goal>bundle</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>
+                            ${project.groupId}.${project.artifactId}
+                        </Bundle-SymbolicName>
+                        <Bundle-Name>${project.name}</Bundle-Name>
+                        <Import-Package>
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Export-Package>
+                            org.codice.ddf.itests.common.*
+                        </Export-Package>
+                        <Embed-Dependency>
+                            pax-exam-container-karaf,
+                            itests
+                        </Embed-Dependency>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <argLine>${argLine} -Djava.awt.headless=true -noverify -Dddf.version=${project.version}</argLine>
+                    <!--exclude karaf container for PaxExamRuleTest, there can only be one container present (Should be using NativeTestContainerFactory)-->
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExclude>org.ops4j.pax.exam:pax-exam-container-karaf</classpathDependencyExclude>
+                    </classpathDependencyExcludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

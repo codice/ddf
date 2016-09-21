@@ -13,11 +13,16 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_REGISTRY_STORE_FACTORY_PID;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswRegistryStoreProperties;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
@@ -29,6 +34,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.hamcrest.CoreMatchers;
@@ -39,13 +46,10 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.xml.sax.InputSource;
 
+import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
-
-import ddf.common.test.BeforeExam;
-import ddf.test.itests.AbstractIntegrationTest;
-import ddf.test.itests.common.Library;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -73,10 +77,9 @@ public class TestRegistry extends AbstractIntegrationTest {
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
-            CswRegistryStoreProperties cswRegistryStoreProperties = new CswRegistryStoreProperties(
-                    REGISTRY_CATALOG_STORE_ID);
-            getServiceManager().createManagedService(cswRegistryStoreProperties.FACTORY_PID,
-                    cswRegistryStoreProperties);
+
+            getServiceManager().createManagedService(CSW_REGISTRY_STORE_FACTORY_PID,
+                    getCswRegistryStoreProperties(REGISTRY_CATALOG_STORE_ID, CSW_PATH.getUrl(), getServiceManager()));
             getCatalogBundle().waitForCatalogStore(REGISTRY_CATALOG_STORE_ID);
             destinations = new HashSet<>();
             destinations.add(REGISTRY_CATALOG_STORE_ID);
@@ -102,7 +105,7 @@ public class TestRegistry extends AbstractIntegrationTest {
         Response response = given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)
-                .body(Library.getCswRegistryUpdate(id,
+                .body(getCswRegistryUpdate(id,
                         "New Node Name",
                         "2018-02-26T17:16:34.996Z",
                         regID))
@@ -132,7 +135,7 @@ public class TestRegistry extends AbstractIntegrationTest {
         given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)
-                .body(Library.getCswRegistryUpdate(regID,
+                .body(getCswRegistryUpdate(regID,
                         "New Node Name",
                         "2014-02-26T17:16:34.996Z",
                         id))
@@ -157,7 +160,8 @@ public class TestRegistry extends AbstractIntegrationTest {
         Response response = given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)
-                .body(Library.getCswRegistryDelete(mcardId))
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswRegistryDeleteRequest",
+                        ImmutableMap.of("id", mcardId)))
                 .header("Content-Type", "text/xml")
                 .expect()
                 .log()
@@ -175,6 +179,21 @@ public class TestRegistry extends AbstractIntegrationTest {
                 hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
                         CoreMatchers.is("1")));
     }
+
+    // TODO: tbatie - 9/18/16 - REMOVE ME
+//
+//    public static String getCswRegistryDelete(String id) throws IOException {
+//        return "<csw:Transaction service=\"CSW\"\n"
+//                + "   version=\"2.0.2\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+//                + "   xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
+//                + "  <csw:Delete typeName=\"rim:RegistryPackage\" handle=\"something\">\n"
+//                + "    <csw:Constraint version=\"2.0.0\">\n" + "      <ogc:Filter>\n"
+//                + "        <ogc:PropertyIsEqualTo>\n"
+//                + "            <ogc:PropertyName>registry.local.remote-metacard-id</ogc:PropertyName>\n"
+//                + "            <ogc:Literal>" + id + "</ogc:Literal>\n"
+//                + "        </ogc:PropertyIsEqualTo>\n" + "      </ogc:Filter>\n"
+//                + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";
+//    }
 
     @Test
     public void testCswRegistryStoreCreate() throws Exception {
@@ -206,7 +225,7 @@ public class TestRegistry extends AbstractIntegrationTest {
 
                 FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                         FederationAdminService.class);
-                federationAdminServiceImpl.updateRegistryEntry(Library.getRegistryNode(mcardId,
+                federationAdminServiceImpl.updateRegistryEntry(getRegistryNode(mcardId,
                         regID,
                         regID,
                         "New Node Name",
@@ -286,7 +305,7 @@ public class TestRegistry extends AbstractIntegrationTest {
         Response response = given().auth()
                 .preemptive()
                 .basic(ADMIN, ADMIN)
-                .body(Library.getCswRegistryInsert(id, regId))
+                .body(getCswRegistryInsert(id, regId))
                 .header("Content-Type", "text/xml")
                 .expect()
                 .log()
@@ -316,7 +335,7 @@ public class TestRegistry extends AbstractIntegrationTest {
             throws Exception {
         FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                 FederationAdminService.class);
-        federationAdminServiceImpl.addRegistryEntry(Library.getRegistryNode(id, regId, remoteRegId),
+        federationAdminServiceImpl.addRegistryEntry(getRegistryNode(id, regId, remoteRegId),
                 destinations);
 
         ValidatableResponse validatableResponse = getCswRegistryResponse("registry.registry-id", regId);
@@ -327,7 +346,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     private ValidatableResponse getCswRegistryResponse(String attr, String value) {
-        String regQuery = Library.getCswQuery(attr,
+        String regQuery = getCswQuery(attr,
                 value,
                 "application/xml",
                 "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0");
@@ -341,6 +360,39 @@ public class TestRegistry extends AbstractIntegrationTest {
         ValidatableResponse validatableResponse = response.then();
 
         return validatableResponse;
+    }
+
+    public static String getCswRegistryInsert(String id, String regId) throws IOException {
+        return getCswInsertRequest("rim:RegistryPackage", getRegistryNode(id, regId, regId));
+    }
+
+    public static String getCswRegistryUpdate(String id, String nodeName, String date, String uuid)
+            throws IOException {
+        return "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
+                + "    verboseResponse=\"true\"\n"
+                + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
+                + "    <csw:Update typeName=\"rim:RegistryPackage\">\n" + getRegistryNode(id,
+                uuid,
+                uuid,
+                nodeName,
+                date) + "\n" + "    </csw:Update>\n" + "</csw:Transaction>";
+    }
+    public static String getRegistryNode(String id, String regId, String remoteRegId) throws IOException {
+        return getRegistryNode(id, regId, remoteRegId, "Node Name", "2016-01-26T17:16:34.996Z");
+    }
+
+    public static String getRegistryNode(String mcardId, String regId, String remoteReg, String nodeName, String date) throws IOException {
+        return getFileContent("csw-rim-node.xml",
+                ImmutableMap.of("mcardId",
+                        mcardId,
+                        "nodeName",
+                        nodeName,
+                        "lastUpdated",
+                        date,
+                        "regId",
+                        regId,
+                        "remoteReg",
+                        remoteReg));
     }
 }
 

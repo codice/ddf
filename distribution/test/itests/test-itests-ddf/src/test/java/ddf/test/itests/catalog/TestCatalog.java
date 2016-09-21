@@ -13,7 +13,24 @@
  */
 package ddf.test.itests.catalog;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.codice.ddf.itests.common.WaitCondition.expect;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureEnforceValidityErrorsAndWarnings;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureEnforcedMetacardValidators;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardValidityFilterPlugin;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
+import static org.codice.ddf.itests.common.csw.CswQueryBuilder.AND;
+import static org.codice.ddf.itests.common.csw.CswQueryBuilder.NOT;
+import static org.codice.ddf.itests.common.csw.CswQueryBuilder.OR;
+import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
+import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getMetacardIdFromCswInsertResponse;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -25,17 +42,10 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static ddf.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME;
-import static ddf.common.test.WaitCondition.expect;
-import static ddf.test.itests.common.CswQueryBuilder.AND;
-import static ddf.test.itests.common.CswQueryBuilder.NOT;
-import static ddf.test.itests.common.CswQueryBuilder.OR;
-import static ddf.test.itests.common.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
-import static ddf.test.itests.common.CswQueryBuilder.PROPERTY_IS_LIKE;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,19 +69,23 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
+import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
+import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -88,8 +102,8 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.service.cm.Configuration;
-import org.xml.sax.InputSource;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
@@ -100,11 +114,6 @@ import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Validation;
-import ddf.common.test.BeforeExam;
-import ddf.test.itests.AbstractIntegrationTest;
-import ddf.test.itests.common.CswQueryBuilder;
-import ddf.test.itests.common.Library;
-import ddf.test.itests.common.UrlResourceReaderConfigurator;
 
 /**
  * Tests the Catalog framework components. Includes helper methods at the Catalog level.
@@ -126,66 +135,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     public TestName testName = new TestName();
 
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
-
-    public static void deleteMetacard(String id) {
-        deleteMetacard(id, true);
-    }
-
-    public static void deleteMetacard(String id, boolean checkResponse) {
-        if (checkResponse) {
-            delete(REST_PATH.getUrl() + id).then()
-                    .assertThat()
-                    .statusCode(200)
-                    .log()
-                    .all();
-        } else {
-            delete(REST_PATH.getUrl() + id).then()
-                    .log()
-                    .all();
-        }
-    }
-
-    public static String ingestGeoJson(String json) {
-        return ingest(json, "application/json");
-    }
-
-    public static String ingest(String data, String mimeType) {
-        LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
-        return given().body(data)
-                .header(HttpHeaders.CONTENT_TYPE, mimeType)
-                .expect()
-                .log()
-                .all()
-                .statusCode(HttpStatus.SC_CREATED)
-                .when()
-                .post(REST_PATH.getUrl())
-                .getHeader("id");
-    }
-
-    public static String ingest(String data, String mimeType, boolean checkResponse) {
-        if (checkResponse) {
-            return ingest(data, mimeType);
-        } else {
-            LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
-            return given().body(data)
-                    .header(HttpHeaders.CONTENT_TYPE, mimeType)
-                    .when()
-                    .post(REST_PATH.getUrl())
-                    .getHeader("id");
-        }
-    }
-
-    public static void update(String id, String data, String mimeType) {
-        LOGGER.info("Update data of type {}:\n{}", mimeType, data);
-        given().header(HttpHeaders.CONTENT_TYPE, mimeType)
-                .body(data)
-                .expect()
-                .log()
-                .all()
-                .statusCode(HttpStatus.SC_OK)
-                .when()
-                .put(new DynamicUrl(REST_PATH, id).getUrl());
-    }
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -217,7 +166,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testCreateStorage() throws IOException {
         String fileName = testName.getMethodName() + ".jpg";
         File tmpFile = createTemporaryFile(fileName,
-                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
         String id = given().multiPart(tmpFile)
                 .expect()
                 .log()
@@ -234,7 +183,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testReadStorage() throws IOException {
         String fileName = testName.getMethodName() + ".jpg";
         File tmpFile = createTemporaryFile(fileName,
-                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
         String id = given().multiPart(tmpFile)
                 .expect()
                 .log()
@@ -244,8 +193,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(REST_PATH.getUrl())
                 .getHeader("id");
 
-        final String url = CSW_PATH.getUrl() + Library.getGetRecordByIdProductRetrievalUrl()
-                .replace("placeholder_id", id);
+        final String url = CSW_PATH.getUrl() + getGetRecordByIdProductRetrievalUrl().replace(
+                "placeholder_id",
+                id);
 
         given().get(url)
                 .then()
@@ -261,8 +211,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testReadDerivedStorage() throws IOException {
         String fileName = testName.getMethodName() + ".jpg";
-        File tmpFile = createTemporaryFile(fileName,
-                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+        File tmpFile = createTemporaryFile(fileName, getFileContentAsStream(SAMPLE_IMAGE));
         String id = given().multiPart(tmpFile)
                 .expect()
                 .log()
@@ -288,7 +237,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testMetacardTransformersFromRest() {
-        String id = ingestGeoJson(Library.getSimpleGeoJson());
+        String id = ingestGeoJson(getFileContent(JSON_RECORD_RESOURCE_PATH  + "/SimpleGeoJsonRecord"));
 
         String url = REST_PATH.getUrl() + id;
         LOGGER.info("Getting response to {}", url);
@@ -348,31 +297,23 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     private Response ingestCswRecord() {
+
+        String uuid = UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
+
         return given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                .body(Library.getCswIngest())
+                .body(getCswInsertRequest("csw:Record",
+                        getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord", ImmutableMap.of("id", uuid))))
                 .post(CSW_PATH.getUrl());
     }
 
     private Response ingestXmlViaCsw() {
         return given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                .body(Library.getCswInsert("xml", Library.getSimpleXmlNoDec("http://example.com")))
+                .body(getCswInsertRequest("xml",
+                        getFileContent(XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard",
+                                ImmutableMap.of("uri", "http://example.com"))))
                 .post(CSW_PATH.getUrl());
-    }
-
-    private String getMetacardIdFromCswInsertResponse(Response response)
-            throws IOException, XPathExpressionException {
-        XPath xPath = XPathFactory.newInstance()
-                .newXPath();
-        String idPath = "//*[local-name()='identifier']/text()";
-        InputSource xml = new InputSource(IOUtils.toInputStream(response.getBody()
-                .asString(), UTF_8.name()));
-        return xPath.compile(idPath)
-                .evaluate(xml);
-    }
-
-    private void deleteMetacard(Response response) throws IOException, XPathExpressionException {
-        String id = getMetacardIdFromCswInsertResponse(response);
-        deleteMetacard(id);
     }
 
     @Test
@@ -389,7 +330,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
 
         try {
-            deleteMetacard(response);
+            CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
         } catch (IOException | XPathExpressionException e) {
             fail("Could not retrieve the ingested record's ID from the response.");
         }
@@ -408,7 +349,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
 
         try {
-            deleteMetacard(response);
+            CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
         } catch (IOException | XPathExpressionException e) {
             fail("Could not retrieve the ingested record's ID from the response.");
         }
@@ -421,7 +362,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(Library.getCswFilterDelete())
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswFilterDeleteRequest"))
                 .post(CSW_PATH.getUrl())
                 .then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
@@ -435,7 +376,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(Library.getCswCqlDelete())
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswCqlDeleteRequest",
+                        ImmutableMap.of("title", "Aliquam fermentum purus quis arcu")))
                 .post(CSW_PATH.getUrl())
                 .then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
@@ -449,7 +391,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(Library.getCswCqlDeleteNone())
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswCqlDeleteRequest",
+                        ImmutableMap.of("title", "fake title")))
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
@@ -458,7 +401,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
 
         try {
-            deleteMetacard(response);
+            CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
         } catch (IOException | XPathExpressionException e) {
             fail("Could not retrieve the ingested record's ID from the response.");
         }
@@ -472,7 +415,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         // The record being inserted in this transaction request will be deleted at the end of the
         // test.
         Response response = given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                .body(Library.getCombinedCswInsertAndDelete())
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswInsertAndDeleteRequest"))
                 .post(CSW_PATH.getUrl());
         ValidatableResponse validatableResponse = response.then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
@@ -481,7 +424,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
 
         try {
-            deleteMetacard(response);
+            CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
         } catch (IOException | XPathExpressionException e) {
             fail("Could not retrieve the ingested record's ID from the response.");
         }
@@ -494,7 +437,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(Library.getCswFilterDelete())
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswFilterDeleteRequest"))
                 .post(CSW_PATH.getUrl())
                 .then();
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("2")),
@@ -506,7 +449,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testCswUpdateByNewRecord() {
         Response response = ingestCswRecord();
 
-        String requestXml = Library.getCswUpdateByNewRecord();
+        String requestXml = getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateRecordRequest");
 
         String id;
 
@@ -560,7 +503,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testCswUpdateByNewRecordNoExistingMetacards() {
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateByNewRecord())
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateRecordRequest"))
                 .post(CSW_PATH.getUrl())
                 .then()
                 .assertThat()
@@ -574,13 +517,13 @@ public class TestCatalog extends AbstractIntegrationTest {
         try {
             ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
                     MediaType.APPLICATION_XML)
-                    .body(Library.getCswUpdateByNewRecord())
+                    .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateRecordRequest"))
                     .post(CSW_PATH.getUrl())
                     .then();
             validatableResponse.assertThat()
                     .statusCode(400);
         } finally {
-            deleteMetacard(response);
+            CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
         }
     }
 
@@ -591,7 +534,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateByFilterConstraint())
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest"))
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
@@ -646,9 +589,10 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testCswUpdateByFilterConstraintNoExistingMetacards() {
         ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateByFilterConstraint())
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest"))
                 .post(CSW_PATH.getUrl())
                 .then();
+
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
@@ -658,7 +602,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testCswUpdateByFilterConstraintNoMetacardsFound() {
         Response response = ingestCswRecord();
 
-        String updateRequest = Library.getCswUpdateByFilterConstraint();
+        String updateRequest = getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest");
 
         // Change the <Filter> property being searched for so no results will be found.
         updateRequest = updateRequest.replace("title", "subject");
@@ -674,7 +618,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
 
         try {
-            deleteMetacard(response);
+            CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
         } catch (IOException | XPathExpressionException e) {
             fail("Could not retrieve the ingested record's ID from the response.");
         }
@@ -685,7 +629,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         Response response = ingestCswRecord();
 
-        String query = Library.getCswQuery("AnyText", "*");
+        String query = getCswQuery("AnyText",
+                "*",
+                "application/xml",
+                "http://www.opengis.net/cat/csw/2.0.2");
 
         String id;
 
@@ -748,7 +695,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(Library.getCswUpdateRemoveAttributesByCqlConstraint())
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateRemoveAttributesByCqlConstraintRequest"))
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
@@ -781,9 +728,15 @@ public class TestCatalog extends AbstractIntegrationTest {
         final String secondId = getMetacardIdFromCswInsertResponse(secondResponse);
         final String requestIds = firstId + "," + secondId;
 
+        String cswUrlGetRecordsParmaters =
+                "?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="
+                        + "http://www.opengis.net/cat/csw/2.0.2&ElementSetName=full&"
+                        + "outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&"
+                        + "id=placeholder_id";
+
         // Request the records we just added.
-        final String url = CSW_PATH.getUrl() + Library.getGetRecordByIdUrl()
-                .replace("placeholder_id", requestIds);
+        final String url = CSW_PATH.getUrl() + cswUrlGetRecordsParmaters.replace("placeholder_id",
+                requestIds);
 
         final ValidatableResponse response = when().get(url)
                 .then()
@@ -804,8 +757,9 @@ public class TestCatalog extends AbstractIntegrationTest {
         final String firstId = getMetacardIdFromCswInsertResponse(firstResponse);
         final String secondId = getMetacardIdFromCswInsertResponse(secondResponse);
 
-        final String requestXml = Library.getGetRecordByIdXml()
-                .replace("placeholder_id_1", firstId)
+        final String requestXml = getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdsQuery").replace(
+                "placeholder_id_1",
+                firstId)
                 .replace("placeholder_id_2", secondId);
 
         final ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
@@ -824,8 +778,9 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testGetRecordByIdProductRetrieval() throws IOException, XPathExpressionException {
         String fileName = testName.getMethodName() + ".txt";
         String metacardId = ingestXmlWithProduct(fileName);
-        final String url = CSW_PATH.getUrl() + Library.getGetRecordByIdProductRetrievalUrl()
-                .replace("placeholder_id", metacardId);
+        final String url = CSW_PATH.getUrl() + getGetRecordByIdProductRetrievalUrl().replace(
+                "placeholder_id",
+                metacardId);
 
         String productDirectory = new File(fileName).getAbsoluteFile()
                 .getParent();
@@ -847,9 +802,9 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testUpdateContentResourceUri() throws IOException {
         String fileName = testName.getMethodName() + ".txt";
         String metacardId = ingestXmlWithProduct(fileName);
-        update(metacardId, Library.getSimpleXml("content:" + metacardId), "text/xml");
+        update(metacardId, getSimpleXml("content:" + metacardId), "text/xml");
         given().header(HttpHeaders.CONTENT_TYPE, "text/xml")
-                .body(Library.getSimpleXml("foo:bar"))
+                .body(getSimpleXml("foo:bar"))
                 .expect()
                 .log()
                 .all()
@@ -862,7 +817,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testCachedContentLengthHeader() throws IOException {
         String fileName = "testCachedContentLengthHeader" + ".jpg";
         File tmpFile = createTemporaryFile(fileName,
-                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
 
         String id = given().multiPart(tmpFile)
                 .expect()
@@ -904,8 +859,10 @@ public class TestCatalog extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
-        final String requestXml = Library.getGetRecordByIdProductRetrievalXml()
-                .replace("placeholder_id_1", metacardId);
+        final String requestXml =
+                getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery").replace(
+                        "placeholder_id_1",
+                        metacardId);
 
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_XML)
                 .body(requestXml)
@@ -931,8 +888,10 @@ public class TestCatalog extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
-        final String requestXml = Library.getGetRecordByIdProductRetrievalXml()
-                .replace("placeholder_id_1", metacardId);
+        final String requestXml =
+                getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery").replace(
+                        "placeholder_id_1",
+                        metacardId);
 
         int offset = 4;
         byte[] sampleDataByteArray = SAMPLE_DATA.getBytes();
@@ -969,8 +928,10 @@ public class TestCatalog extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
-        final String requestXml = Library.getGetRecordByIdProductRetrievalXml()
-                .replace("placeholder_id_1", metacardId);
+        final String requestXml =
+                getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery").replace(
+                        "placeholder_id_1",
+                        metacardId);
 
         String invalidRange = "100";
 
@@ -1020,17 +981,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
 
         //Configure to enforce errors but not warnings
-        configureEnforceValidityErrorsAndWarnings("true", "false");
+        configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
 
         //Configure to show invalid metacards to show that invalid metacards were not ingested
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml", false);
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml", false);
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1063,17 +1024,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
 
         //Configure to enforce warnings but not errors
-        configureEnforceValidityErrorsAndWarnings("false", "true");
+        configureEnforceValidityErrorsAndWarnings("false", "true", getAdminConfig());
 
         //Configure to show invalid metacards to show that invalid metacards were not ingested
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml", false);
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml", false);
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1106,17 +1067,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
 
         //Configure to enforce errors and warnings
-        configureEnforceValidityErrorsAndWarnings("true", "true");
+        configureEnforceValidityErrorsAndWarnings("true", "true", getAdminConfig());
 
         //Configure to show invalid metacards to show that invalid metacards were not ingested
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml", false);
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml", false);
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml", false);
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml", false);
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1149,17 +1110,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
 
         //Configure to enforce neither errors nor warnings
-        configureEnforceValidityErrorsAndWarnings("false", "false");
+        configureEnforceValidityErrorsAndWarnings("false", "false", getAdminConfig());
 
         //Configure to show invalid metacards to show that invalid metacards were not ingested
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1192,17 +1153,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Don't enforce the validator, so that it will be marked but ingested
-        configureEnforcedMetacardValidators(Collections.singletonList(""));
+        configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
         //Configure to show invalid metacards so the marked ones will appear in search
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
         //Configure to not filter invalid metacards
-        configureFilterInvalidMetacards("false", "false");
+        configureFilterInvalidMetacards("false", "false", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1235,17 +1196,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Don't enforce the validator, so that it will be marked but ingested
-        configureEnforcedMetacardValidators(Collections.singletonList(""));
+        configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
         //Configure to show invalid metacards so the marked ones will appear in search
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
         //Configure to not filter invalid metacards
-        configureFilterInvalidMetacards("false", "false");
+        configureFilterInvalidMetacards("false", "false", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1319,20 +1280,21 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure not enforcing validators so invalid metacards can ingest
-        configureEnforcedMetacardValidators(Collections.singletonList(""));
+        configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
         // Configure invalid filtering
-        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"),
+                getAdminConfig());
 
         // Configure query to request invalid metacards
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
         //Configure to filter metacards with validation warnings but not validation errors
-        configureFilterInvalidMetacards("false", "true");
+        configureFilterInvalidMetacards("false", "true", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1356,7 +1318,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id3);
             getServiceManager().stopFeature(true, "sample-validator");
             configureFilterInvalidMetacardsReset();
-            configureMetacardValidityFilterPlugin(Arrays.asList(""));
+            configureMetacardValidityFilterPlugin(Arrays.asList(""), getAdminConfig());
             configureShowInvalidMetacardsReset();
         }
     }
@@ -1366,20 +1328,21 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure not enforcing validators so invalid metacards can ingest
-        configureEnforcedMetacardValidators(Collections.singletonList(""));
+        configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
         // Configure invalid filtering
-        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"),
+                getAdminConfig());
 
         // Configure query to request invalid metacards
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
         //Configure to filter metacards with validation errors but not validation warnings
-        configureFilterInvalidMetacards("true", "false");
+        configureFilterInvalidMetacards("true", "false", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1401,10 +1364,10 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             deleteMetacard(id3);
-            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
             getServiceManager().stopFeature(true, "sample-validator");
             configureFilterInvalidMetacardsReset();
-            configureMetacardValidityFilterPlugin(Arrays.asList(""));
+            configureMetacardValidityFilterPlugin(Arrays.asList(""), getAdminConfig());
             configureShowInvalidMetacardsReset();
         }
     }
@@ -1414,20 +1377,21 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure not enforcing validators so invalid metacards can ingest
-        configureEnforcedMetacardValidators(Collections.singletonList(""));
+        configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
         // Configure invalid filtering
-        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"),
+                getAdminConfig());
 
         // Configure query to request invalid metacards
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
         //configure to filter both metacards with validation errors and validation warnings
-        configureFilterInvalidMetacards("true", "true");
+        configureFilterInvalidMetacards("true", "true", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1449,10 +1413,10 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id3);
             deleteMetacard(id2);
-            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
             getServiceManager().stopFeature(true, "sample-validator");
             configureFilterInvalidMetacardsReset();
-            configureMetacardValidityFilterPlugin(Arrays.asList(""));
+            configureMetacardValidityFilterPlugin(Arrays.asList(""), getAdminConfig());
             configureShowInvalidMetacardsReset();
         }
     }
@@ -1462,20 +1426,21 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure not enforcing validators so invalid metacards can ingest
-        configureEnforcedMetacardValidators(Collections.singletonList(""));
+        configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
         // Configure invalid filtering
-        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"),
+                getAdminConfig());
 
         // Configure query to request invalid metacards
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
         //Configure to not filter metacard with validation errors or warnings
-        configureFilterInvalidMetacards("false", "false");
+        configureFilterInvalidMetacards("false", "false", getAdminConfig());
 
-        String id1 = ingestXmlFromResource("/FilterPluginRes/sampleErrorMetacard.xml");
-        String id2 = ingestXmlFromResource("/FilterPluginRes/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource("/FilterPluginRes/sampleWarningMetacard.xml");
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
+        String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1497,10 +1462,10 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             deleteMetacard(id3);
-            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
             getServiceManager().stopFeature(true, "sample-validator");
             configureFilterInvalidMetacardsReset();
-            configureMetacardValidityFilterPlugin(Arrays.asList(""));
+            configureMetacardValidityFilterPlugin(Arrays.asList(""), getAdminConfig());
             configureShowInvalidMetacardsReset();
         }
     }
@@ -1509,7 +1474,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testIngestPlugin() throws Exception {
 
         //ingest a data set to make sure we don't have any issues initially
-        String id1 = ingestGeoJson(Library.getSimpleGeoJson());
+        String id1 = ingestGeoJson(getFileContent(JSON_RECORD_RESOURCE_PATH  + "/SimpleGeoJsonRecord"));
         String xPath1 = String.format(METACARD_X_PATH, id1);
 
         //verify ingest by querying
@@ -1525,10 +1490,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                 null);
         Dictionary<String, Object> configProps = new Hashtable<>(catalogPolicyProperties);
         config.update(configProps);
-        waitForAllBundles();
+        getServiceManager().waitForAllBundles();
 
         //try ingesting again - it should fail this time
-        given().body(Library.getSimpleGeoJson())
+        given().body(getFileContent(JSON_RECORD_RESOURCE_PATH  + "/SimpleGeoJsonRecord"))
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .expect()
                 .log()
@@ -1545,7 +1510,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         configProps.put("createPermissions",
                 new String[] {"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"});
         config.update(configProps);
-        waitForAllBundles();
+        getServiceManager().waitForAllBundles();
 
         deleteMetacard(id1);
     }
@@ -1553,8 +1518,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testVideoThumbnail() throws Exception {
 
-        try (InputStream inputStream = getClass().getClassLoader()
-                .getResourceAsStream("sample.mp4")) {
+        try (InputStream inputStream = IOUtils.toInputStream(getFileContent("sample.mp4"))) {
             final byte[] fileBytes = IOUtils.toByteArray(inputStream);
 
             final ValidatableResponse response = given().multiPart("file",
@@ -1576,17 +1540,16 @@ public class TestCatalog extends AbstractIntegrationTest {
         Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp.xml");
         tmpFile.toFile()
                 .deleteOnExit();
-        Files.copy(this.getClass()
-                        .getClassLoader()
-                        .getResourceAsStream("metacard5.xml"),
+        Files.copy(IOUtils.toInputStream(getFileContent("metacard5.xml")),
                 tmpFile,
                 StandardCopyOption.REPLACE_EXISTING);
 
         Map<String, Object> cdmProperties = new HashMap<>();
-        cdmProperties.putAll(getMetatypeDefaults("content-core-directorymonitor",
+        cdmProperties.putAll(getServiceManager().getMetatypeDefaults("content-core-directorymonitor",
                 "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
         cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
-        createManagedService("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor",
+        getServiceManager().createManagedService(
+                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor",
                 cdmProperties);
 
         long startTime = System.nanoTime();
@@ -1626,7 +1589,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testValidationEnforced() throws Exception {
         getServiceManager().startFeature(true, "sample-validator");
         // Update metacardMarkerPlugin config with enforcedMetacardValidators
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
         String id2 = ingestXmlFromResource("/metacard2.xml", false);
@@ -1708,7 +1671,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     id2))));
         } finally {
             deleteMetacard(id1);
-            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
             getServiceManager().stopFeature(true, "sample-validator");
         }
     }
@@ -1716,7 +1679,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testValidationUnenforced() throws Exception {
         getServiceManager().startFeature(true, "sample-validator");
-        configureEnforcedMetacardValidators(Collections.singletonList(""));
+        configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
         String id2 = ingestXmlFromResource("/metacard2.xml");
@@ -1829,10 +1792,9 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         try {
             // Enforce the sample metacard validator
-            configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"));
+            configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
 
-            String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
-                    .getResourceAsStream("metacard2.xml"), UTF_8.name());
+            String metacard2Xml = getFileContent("metacard2.xml");
             given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .body(metacard2Xml)
                     .put(new DynamicUrl(REST_PATH, id1).getUrl())
@@ -1840,8 +1802,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .statusCode(HttpStatus.SC_BAD_REQUEST);
 
-            String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
-                    .getResourceAsStream("metacard1.xml"), UTF_8.name());
+            String metacard1Xml = getFileContent("metacard1.xml");
             given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .body(metacard1Xml)
                     .put(new DynamicUrl(REST_PATH, id2).getUrl())
@@ -1868,7 +1829,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            configureEnforcedMetacardValidators(Collections.singletonList(""));
+            configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
             getServiceManager().stopFeature(true, "sample-validator");
         }
     }
@@ -1881,8 +1842,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         final String id2 = ingestXmlFromResource("/metacard2.xml");
 
         try {
-            String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
-                    .getResourceAsStream("metacard2.xml"), UTF_8.name());
+            String metacard2Xml = getFileContent("metacard2.xml");
             given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .body(metacard2Xml)
                     .put(new DynamicUrl(REST_PATH, id1).getUrl())
@@ -1890,8 +1850,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .statusCode(HttpStatus.SC_OK);
 
-            String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
-                    .getResourceAsStream("metacard1.xml"), UTF_8.name());
+            String metacard1Xml = getFileContent("metacard1.xml");
             given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                     .body(metacard1Xml)
                     .put(new DynamicUrl(REST_PATH, id2).getUrl())
@@ -1899,7 +1858,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .statusCode(HttpStatus.SC_OK);
 
-            configureShowInvalidMetacards("true", "true");
+            configureShowInvalidMetacards("true", "true", getAdminConfig());
 
             String metacard1Path = String.format(METACARD_X_PATH, id1);
             String metacard2Path = String.format(METACARD_X_PATH, id2);
@@ -1933,10 +1892,11 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "catalog-security-filter", "sample-validator");
 
         // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-        configureEnforcedMetacardValidators(Arrays.asList(""));
+        configureEnforcedMetacardValidators(Arrays.asList(""), getAdminConfig());
 
         // Configure invalid filtering
-        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"),
+                getAdminConfig());
 
         // Configure the PDP
         PdpProperties pdpProperties = new PdpProperties();
@@ -1987,7 +1947,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                     id2))));
 
             // Configure invalid filtering
-            configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin,guest"));
+            configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin,guest"),
+                    getAdminConfig());
 
             response = given().auth()
                     .preemptive()
@@ -2030,12 +1991,12 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testValidationChecker() throws Exception {
         getServiceManager().startFeature(true, "sample-validator");
 
-        configureEnforcedMetacardValidators(Arrays.asList(""));
+        configureEnforcedMetacardValidators(Arrays.asList(""), getAdminConfig());
 
         // Configure invalid filtering
-        configureMetacardValidityFilterPlugin(Arrays.asList(""));
+        configureMetacardValidityFilterPlugin(Arrays.asList(""), getAdminConfig());
 
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
         String id2 = ingestXmlFromResource("/metacard2.xml");
@@ -2133,8 +2094,9 @@ public class TestCatalog extends AbstractIntegrationTest {
         Path tmpFile = definitionsDirPath.resolve(filename);
         tmpFile.toFile()
                 .deleteOnExit();
-        Files.copy(getClass().getClassLoader()
-                .getResourceAsStream(filename), tmpFile, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(IOUtils.toInputStream(getFileContent(filename)),
+                tmpFile,
+                StandardCopyOption.REPLACE_EXISTING);
         return tmpFile.toFile();
     }
 
@@ -2162,14 +2124,13 @@ public class TestCatalog extends AbstractIntegrationTest {
             return null;
         });
 
-        String ddfMetacardXml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard1.xml"), UTF_8.name());
+        String ddfMetacardXml = getFileContent("metacard1.xml");
 
         String modifiedMetacardXml = ddfMetacardXml.replaceFirst("ddf\\.metacard",
                 newMetacardTypeName)
                 .replaceFirst("resource-uri", "new-attribute-required-2");
         String id = ingest(modifiedMetacardXml, "text/xml");
-        configureShowInvalidMetacards("true", "true");
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
         try {
             String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]", id);
 
@@ -2196,7 +2157,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                                 .isPresent());
                 return null;
             });
-            configureShowInvalidMetacards("false", "false");
+            configureShowInvalidMetacards("false", "false", getAdminConfig());
         }
     }
 
@@ -2230,11 +2191,9 @@ public class TestCatalog extends AbstractIntegrationTest {
             return null;
         });
 
-        String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard1.xml"), UTF_8.name());
+        String metacard1Xml = getFileContent("metacard1.xml");
 
-        String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard2.xml"), UTF_8.name());
+        String metacard2Xml = getFileContent("metacard2.xml");
 
         metacard2Xml = metacard2Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
 
@@ -2297,13 +2256,11 @@ public class TestCatalog extends AbstractIntegrationTest {
             return null;
         });
 
-        String metacard1Xml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard1.xml"), UTF_8.name());
+        String metacard1Xml = getFileContent("metacard1.xml");
 
         final String id1 = ingest(metacard1Xml, MediaType.APPLICATION_XML);
 
-        String metacard2Xml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard2.xml"), UTF_8.name());
+        String metacard2Xml = getFileContent("metacard2.xml");
 
         metacard2Xml = metacard2Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
 
@@ -2371,9 +2328,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         final String id = ingestXmlFromResource("/metacard-injections.xml");
 
-        final String originalMetacardXml = IOUtils.toString(getClass().getClassLoader()
-                .getResourceAsStream("metacard-injections.xml"), UTF_8.name());
-
+        final String originalMetacardXml = getFileContent("metacard-injections.xml");
         final String basicMetacardTypeName = DEFAULT_METACARD_TYPE_NAME;
         final String otherMetacardTypeName = "other.metacard.type";
 
@@ -2424,8 +2379,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             final String basicMetacardTypeName = DEFAULT_METACARD_TYPE_NAME;
             final String otherMetacardTypeName = "other.metacard.type";
 
-            final String updateBasicMetacardXml = IOUtils.toString(getClass().getClassLoader()
-                    .getResourceAsStream("metacard-injections.xml"), UTF_8.name());
+            final String updateBasicMetacardXml = getFileContent("metacard-injections.xml");
 
             final String updateOtherMetacardXml = updateBasicMetacardXml.replaceFirst(Pattern.quote(
                     basicMetacardTypeName), otherMetacardTypeName);
@@ -2464,9 +2418,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().stopFeature(true, "catalog-solr-embedded-provider");
     }
 
+    @Ignore("Ignored until DDF-1571 is addressed")
     @Test
-    @Ignore
-    // Ignored until DDF-1571 is addressed
     public void persistLargeObjectToWorkspace() throws Exception {
         persistToWorkspace(40000);
     }
@@ -2522,10 +2475,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         String fileName1 = "testcontent" + ".jpg";
         File tmpFile1 = createTemporaryFile(fileName1,
-                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
         String fileName2 = "testcontent2" + ".mp4";
         File tmpFile2 = createTemporaryFile(fileName2,
-                TestCatalog.class.getResourceAsStream(SAMPLE_MP4));
+                IOUtils.toInputStream(getFileContent(SAMPLE_MP4)));
 
         String id = given().multiPart(tmpFile1)
                 .expect()
@@ -2603,7 +2556,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             invalidCardId = ingestXmlFromResource("/metacard-datatype-validation.xml");
 
-            configureShowInvalidMetacards("true", "true");
+            configureShowInvalidMetacards("true", "true", getAdminConfig());
             String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]",
                     invalidCardId);
 
@@ -2613,8 +2566,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .body(hasXPath("count(" + newMetacardXpath
                             + "/string[@name=\"validation-errors\"]/value)", is("1")));
 
-            String ddfMetacardXml = IOUtils.toString(getClass().getClassLoader()
-                    .getResourceAsStream("metacard-datatype-validation.xml"), UTF_8.name());
+            String ddfMetacardXml = getFileContent("metacard-datatype-validation.xml");
 
             String modifiedMetacardXml = ddfMetacardXml.replaceFirst("Invalid Type", "Image");
             validCardId = ingest(modifiedMetacardXml, "text/xml");
@@ -2681,7 +2633,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     protected String ingestXmlFromResource(String resourceName) throws IOException {
         StringWriter writer = new StringWriter();
-        IOUtils.copy(getClass().getResourceAsStream(resourceName), writer);
+        IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
         return ingest(writer.toString(), "text/xml");
     }
 
@@ -2691,7 +2643,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             return ingestXmlFromResource(resourceName);
         } else {
             StringWriter writer = new StringWriter();
-            IOUtils.copy(getClass().getResourceAsStream(resourceName), writer);
+            IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
             return ingest(writer.toString(), "text/xml", checkResponse);
         }
     }
@@ -2706,7 +2658,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .toURL()
                 .toString();
         LOGGER.debug("File Location: {}", fileLocation);
-        String metacardId = ingest(Library.getSimpleXml(fileLocation), "text/xml");
+        String metacardId = ingest(getSimpleXml(fileLocation), "text/xml");
         return metacardId;
     }
 
@@ -2726,7 +2678,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         public static final String FACTORY_PID = "ddf.security.pdp.realm.AuthzRealm";
 
         public PdpProperties() {
-            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+            this.putAll(getServiceManager().getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
         }
 
     }
@@ -2737,7 +2689,33 @@ public class TestCatalog extends AbstractIntegrationTest {
         public static final String FACTORY_PID = "org.codice.ddf.catalog.security.CatalogPolicy";
 
         public CatalogPolicyProperties() {
-            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+            this.putAll(getServiceManager().getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
         }
+    }
+
+    public static String getGetRecordByIdProductRetrievalUrl() {
+        return "?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="
+                + "http://www.opengis.net/cat/csw/2.0.2&"
+                + "outputFormat=application/octet-stream&outputSchema="
+                + "http://www.iana.org/assignments/media-types/application/octet-stream&"
+                + "id=placeholder_id";
+    }
+
+    public static String getSimpleXml(String uri) {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + getFileContent(
+                XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard",
+                ImmutableMap.of("uri", uri));
+    }
+
+    public void configureShowInvalidMetacardsReset() throws IOException {
+        configureShowInvalidMetacards("false", "true", getAdminConfig());
+    }
+
+    public void configureFilterInvalidMetacardsReset() throws IOException {
+        configureFilterInvalidMetacards("true", "false", getAdminConfig());
+    }
+
+    protected void configureEnforceValidityErrorsAndWarningsReset() throws IOException {
+        configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
     }
 }

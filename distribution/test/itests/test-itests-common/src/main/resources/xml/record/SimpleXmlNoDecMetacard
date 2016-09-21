@@ -1,0 +1,37 @@
+<metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language">
+    <type>ddf.metacard</type>
+    <source>ddf.distribution</source>
+    <string name="metadata-content-type-version">
+        <value>myVersion</value>
+    </string>
+    <string name="title">
+        <value>myXmlTitle</value>
+    </string>
+    <geometry name="location">
+        <value>
+            <ns2:Point>
+                <ns2:pos>30.0 10.0</ns2:pos>
+            </ns2:Point>
+        </value>
+    </geometry>
+    <dateTime name="created">
+        <value>2013-04-18T10:50:27.371-07:00</value>
+    </dateTime>
+    <dateTime name="modified">
+        <value>2013-04-18T10:50:27.371-07:00</value>
+    </dateTime>
+    <base64Binary name="thumbnail">
+        <value>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAALAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ//9k=</value>
+    </base64Binary>
+    <stringxml name="metadata">
+        <value>
+            <xml xmlns:ns6="urn:catalog:metacard" xmlns="">text</xml>
+        </value>
+    </stringxml>
+    <string name="metadata-content-type">
+        <value>myType</value>
+    </string>
+    <string name="resource-uri">
+        <value>$uri$</value>
+    </string>
+</metacard>

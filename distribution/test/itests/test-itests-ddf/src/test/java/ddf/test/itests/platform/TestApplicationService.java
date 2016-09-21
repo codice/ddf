@@ -34,6 +34,9 @@ import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.KarafConsole;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,10 +47,7 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.common.test.BeforeExam;
-import ddf.common.test.KarafConsole;
 import ddf.security.common.util.Security;
-import ddf.test.itests.AbstractIntegrationTest;
 
 /**
  * Note: Tests prefixed with aRunFirst NEED to run before any other tests.  For this reason, we

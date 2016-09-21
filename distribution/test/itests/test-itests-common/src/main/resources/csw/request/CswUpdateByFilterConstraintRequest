@@ -1,0 +1,25 @@
+<csw:Transaction service="CSW" version="2.0.2" verboseResponse="true" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Update>
+      <csw:RecordProperty>
+        <csw:Name>title</csw:Name>
+        <csw:Value>Updated Title</csw:Value>
+      </csw:RecordProperty>
+      <csw:RecordProperty>
+        <csw:Name>date</csw:Name>
+        <csw:Value>2015-08-25</csw:Value>
+      </csw:RecordProperty>
+      <csw:RecordProperty>
+        <csw:Name>format</csw:Name>
+        <csw:Value></csw:Value>
+      </csw:RecordProperty>
+      <csw:Constraint version="2.0.0">
+        <ogc:Filter>
+          <ogc:PropertyIsEqualTo>
+            <ogc:PropertyName>title</ogc:PropertyName>
+            <ogc:Literal>Aliquam fermentum purus quis arcu</ogc:Literal>
+          </ogc:PropertyIsEqualTo>
+        </ogc:Filter>
+      </csw:Constraint>
+    </csw:Update>
+</csw:Transaction>
+

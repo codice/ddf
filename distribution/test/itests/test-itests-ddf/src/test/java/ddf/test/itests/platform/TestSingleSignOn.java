@@ -13,6 +13,7 @@
  */
 package ddf.test.itests.platform;
 
+import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
@@ -27,7 +28,6 @@ import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
-import static ddf.common.test.WaitCondition.expect;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -47,10 +47,11 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,9 +63,7 @@ import org.xml.sax.SAXException;
 
 import com.jayway.restassured.response.Response;
 
-import ddf.common.test.BeforeExam;
 import ddf.security.samlp.SamlProtocol;
-import ddf.test.itests.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -151,8 +150,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         // Prepare the schema and xml
         String schemaFileName = "saml-schema-" + schema.toString()
                 .toLowerCase() + "-2.0.xsd";
-        URL schemaURL = getClass().getClassLoader()
-                .getResource(schemaFileName);
+        URL schemaURL = AbstractIntegrationTest.class.getClassLoader().getResource(schemaFileName);
         StreamSource streamSource = new StreamSource(new StringReader(xml));
 
         // If we fail to create a validator we don't want to stop the show, so we just log a warning
@@ -260,8 +258,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         setConfig("org.codice.ddf.security.idp.server.IdpEndpoint", "strictSignature", false);
 
         // Set the metadata
-        String confluenceSpMetadata = String.format(IOUtils.toString(getClass().
-                        getResourceAsStream("/confluence-sp-metadata.xml")),
+        String confluenceSpMetadata = String.format(getFileContent("confluence-sp-metadata.xml"),
                 AUTHENTICATION_REQUEST_ISSUER,
                 binding.toString());
         validateSaml(confluenceSpMetadata, SamlSchema.METADATA);
@@ -270,8 +267,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 new String[] {confluenceSpMetadata});
 
         // Get the authn request
-        String mockAuthnRequest = String.format(IOUtils.toString(getClass().
-                        getResourceAsStream("/confluence-sp-authentication-request.xml")),
+        String mockAuthnRequest = String.format(getFileContent("confluence-sp-authentication-request.xml"),
                 binding.toString(),
                 AUTHENTICATION_REQUEST_ISSUER);
         validateSaml(mockAuthnRequest, SamlSchema.PROTOCOL);

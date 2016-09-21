@@ -15,6 +15,19 @@ package ddf.test.itests.catalog;
 
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
+import static org.codice.ddf.itests.common.WaitCondition.expect;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_CONNECTED_SOURCE_FACTORY_PID;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.GMD_CSW_FEDERATED_SOURCE_FACTORY_PID;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswConnectedSourceProperties;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSubscription;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -47,8 +60,6 @@ import static com.xebialabs.restito.semantics.Action.ok;
 import static com.xebialabs.restito.semantics.Action.success;
 import static com.xebialabs.restito.semantics.Condition.post;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
-import static ddf.common.test.WaitCondition.expect;
-import static ddf.test.itests.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,6 +88,15 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleService;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.cometd.CometDClient;
+import org.codice.ddf.itests.common.cometd.CometDMessageValidator;
+import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
+import org.codice.ddf.itests.common.csw.CswQueryBuilder;
+import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
+import org.codice.ddf.itests.common.restito.ChunkedContent;
+import org.codice.ddf.itests.common.restito.HeaderCapture;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -111,16 +131,7 @@ import com.xebialabs.restito.server.secure.SecureStubServer;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
-import ddf.common.test.BeforeExam;
-import ddf.common.test.cometd.CometDClient;
-import ddf.common.test.cometd.CometDMessageValidator;
-import ddf.common.test.mock.csw.FederatedCswMockServer;
-import ddf.common.test.restito.ChunkedContent;
-import ddf.common.test.restito.HeaderCapture;
-import ddf.test.itests.AbstractIntegrationTest;
-import ddf.test.itests.common.CswQueryBuilder;
-import ddf.test.itests.common.Library;
-import ddf.test.itests.common.UrlResourceReaderConfigurator;
+
 
 /**
  * Tests Federation aspects.
@@ -240,9 +251,9 @@ public class TestFederation extends AbstractIntegrationTest {
             getCatalogBundle().setupMaxDownloadRetryAttempts(MAX_DOWNLOAD_RETRY_ATTEMPTS);
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
 
-            OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
-                    OPENSEARCH_SOURCE_ID);
-            getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
+            Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
+                    OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
+            getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID,
                     openSearchProperties);
 
             cswServer = new FederatedCswMockServer(CSW_STUB_SOURCE_ID,
@@ -250,31 +261,34 @@ public class TestFederation extends AbstractIntegrationTest {
                     Integer.parseInt(CSW_STUB_SERVER_PORT.getPort()));
             cswServer.start();
 
-            CswSourceProperties cswStubServerProperties =
-                    new CswSourceProperties(CSW_STUB_SOURCE_ID);
+            Map<String, Object> cswStubServerProperties = getCswSourceProperties(CSW_STUB_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
             cswStubServerProperties.put("cswUrl", CSW_STUB_SERVER_PATH.getUrl());
             cswStubServerProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-            getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
+            getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID,
                     cswStubServerProperties);
 
             getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
             get(CSW_PATH + "?_wadl").prettyPrint();
-            CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
+
+            Map<String, Object> cswProperties = getCswSourceProperties(CSW_SOURCE_ID,
+                    CSW_PATH.getUrl(),
+                    getServiceManager());
+
             cswProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-            getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
+            getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID,
                     cswProperties);
 
-            CswSourceProperties cswProperties2 = new CswSourceProperties(
-                    CSW_SOURCE_WITH_METACARD_XML_ID);
+            Map<String, Object> cswProperties2 = getCswSourceProperties(CSW_SOURCE_WITH_METACARD_XML_ID, CSW_PATH.getUrl(), getServiceManager());
             cswProperties2.put("outputSchema", "urn:catalog:metacard");
             cswProperties2.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-            getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
+            getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID,
                     cswProperties2);
 
-            CswSourceProperties gmdProperties = new CswSourceProperties(GMD_SOURCE_ID,
-                    CswSourceProperties.GMD_FACTORY_PID);
+            Map<String, Object> gmdProperties = getCswSourceProperties(GMD_SOURCE_ID,
+                    GMD_CSW_FEDERATED_SOURCE_FACTORY_PID, CSW_PATH.getUrl(), getServiceManager());
+
             gmdProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-            getServiceManager().createManagedService(CswSourceProperties.GMD_FACTORY_PID,
+            getServiceManager().createManagedService(GMD_CSW_FEDERATED_SOURCE_FACTORY_PID,
                     gmdProperties);
 
             getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
@@ -290,7 +304,7 @@ public class TestFederation extends AbstractIntegrationTest {
                     CSW_SOURCE_WITH_METACARD_XML_ID,
                     GMD_SOURCE_ID);
 
-            metacardIds[GEOJSON_RECORD_INDEX] = TestCatalog.ingest(Library.getSimpleGeoJson(),
+            metacardIds[GEOJSON_RECORD_INDEX] = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
                     "application/json");
 
             metacardIds[XML_RECORD_INDEX] = ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
@@ -331,7 +345,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
         if (metacardsToDelete != null) {
             for (String metacardId : metacardsToDelete) {
-                TestCatalog.deleteMetacard(metacardId);
+                deleteMetacard(metacardId);
             }
             metacardsToDelete.clear();
         }
@@ -517,11 +531,11 @@ public class TestFederation extends AbstractIntegrationTest {
         String newOpenSearchSourceId = OPENSEARCH_SOURCE_ID + "2";
         try {
             //change the opensearch source id
-            OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
-                    newOpenSearchSourceId);
+            Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
+                    newOpenSearchSourceId, OPENSEARCH_PATH.getUrl(), getServiceManager());
             Configuration[] configs = configAdmin.listConfigurations(String.format("(%s=%s)",
                     ConfigurationAdmin.SERVICE_FACTORYPID,
-                    OpenSearchSourceProperties.FACTORY_PID));
+                    OPENSEARCH_FACTORY_PID));
             openSourceConfig = configs[0];
             Dictionary<String, ?> configProps = new Hashtable<>(openSearchProperties);
             openSourceConfig.update(configProps);
@@ -537,8 +551,8 @@ public class TestFederation extends AbstractIntegrationTest {
             // @formatter:on
         } finally {
             //reset the opensearch source id
-            OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
-                    OPENSEARCH_SOURCE_ID);
+            Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
+                    OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
             Dictionary<String, ?> configProps = new Hashtable<>(openSearchProperties);
             openSourceConfig.update(configProps);
             getServiceManager().waitForAllBundles();
@@ -737,7 +751,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswQueryByWildCardSearchPhrase() throws Exception {
-        String wildcardQuery = Library.getCswQuery("AnyText", "*");
+        String wildcardQuery = getCswQuery("AnyText", "*", "application/xml", "http://www.opengis.net/cat/csw/2.0.2");
 
         // @formatter:off
         given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_PATH.getUrl())
@@ -794,7 +808,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswQueryByTitle() throws Exception {
-        String titleQuery = Library.getCswQuery("title", "myTitle");
+        String titleQuery = getCswQuery("title", "myTitle", "application/xml", "http://www.opengis.net/cat/csw/2.0.2");
 
         // @formatter:off
         given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl()).then()
@@ -808,7 +822,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswQueryForMetacardXml() throws Exception {
-        String titleQuery = Library.getCswQueryMetacardXml("title", "myTitle");
+        String titleQuery = getCswQuery("title", "myTitle", "application/xml", "urn:catalog:metacard");
 
         // @formatter:off
         given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl()).then()
@@ -824,7 +838,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswQueryForJson() throws Exception {
-        String titleQuery = Library.getCswQueryJson("title", "myTitle");
+        String titleQuery = getCswQuery("title", "myTitle", "application/json", null);
 
         // @formatter:off
         given().headers("Accept", "application/json", "Content-Type", "application/xml")
@@ -977,7 +991,7 @@ public class TestFederation extends AbstractIntegrationTest {
         whenHttp(server).match(Condition.put(SUBSCRIBER))
                 .then(success());
 
-        String wildcardQuery = Library.getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
+        String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
 
         // @formatter:off
         String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
@@ -991,7 +1005,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
         // @formatter:on
 
-        String metacardId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        String metacardId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
 
         metacardsToDelete.add(metacardId);
 
@@ -1024,7 +1038,7 @@ public class TestFederation extends AbstractIntegrationTest {
         whenHttp(server).match(Condition.put(SUBSCRIBER))
                 .then(success());
 
-        String wildcardQuery = Library.getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
+        String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
 
         //CswSubscribe
         // @formatter:off
@@ -1053,7 +1067,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
         // @formatter:on
 
-        String metacardId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        String metacardId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
 
         metacardsToDelete.add(metacardId);
 
@@ -1086,10 +1100,10 @@ public class TestFederation extends AbstractIntegrationTest {
         whenHttp(server).match(Condition.put(SUBSCRIBER))
                 .then(success());
 
-        String wildcardQuery = Library.getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
+        String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
 
         String metacardId = "5b1688fa85fd46268e4ab7402a1750e0";
-        String event = Library.getCswRecordResponse();
+        String event = getFileContent("get-records-response.xml");
 
         // @formatter:off
         String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
@@ -2607,7 +2621,7 @@ public class TestFederation extends AbstractIntegrationTest {
         String modifiedTime = modifiedTimestamp.format(DateTimeFormatter.ofPattern(
                 "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
 
-        return Library.getFileContent("/csw-query-response.xml",
+        return getFileContent("csw-query-response.xml",
                 ImmutableMap.of("sourceId",
                         CSW_STUB_SOURCE_ID,
                         "httpRoot",
@@ -2697,10 +2711,8 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     private void setupConnectedSources() throws IOException {
-        CswConnectedSourceProperties connectedSourceProperties = new CswConnectedSourceProperties(
-                CONNECTED_SOURCE_ID);
-        getServiceManager().createManagedService(CswConnectedSourceProperties.FACTORY_PID,
-                connectedSourceProperties);
+        getServiceManager().createManagedService(CSW_CONNECTED_SOURCE_FACTORY_PID,
+                getCswConnectedSourceProperties(CONNECTED_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()));
     }
 
     private String ingestXmlWithProduct(String fileName) throws IOException {
@@ -2713,7 +2725,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .toURL()
                 .toString();
         LOGGER.debug("File Location: {}", fileLocation);
-        return TestCatalog.ingest(Library.getSimpleXml(fileLocation), "text/xml");
+        return ingest(getSimpleXml(fileLocation), "text/xml");
     }
 
     private Action getCswRetrievalHeaders(String filename) {
@@ -2751,6 +2763,11 @@ public class TestFederation extends AbstractIntegrationTest {
     @Override
     protected Option[] configureCustom() {
         return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
+    }
+
+    public static String getSimpleXml(String uri) {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                + getFileContent(XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard", ImmutableMap.of("uri", uri));
     }
 
     /**

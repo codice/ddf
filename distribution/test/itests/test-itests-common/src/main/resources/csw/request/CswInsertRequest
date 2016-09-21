@@ -1,0 +1,8 @@
+<csw:Transaction
+    service="CSW"
+    version="2.0.2"
+    verboseResponse="true"
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    <csw:Insert typeName="$typeName$">
+$record$    </csw:Insert>
+</csw:Transaction>

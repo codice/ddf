@@ -20,6 +20,8 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -28,8 +30,7 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 import com.jayway.restassured.response.Response;
 
-import ddf.common.test.BeforeExam;
-import ddf.test.itests.AbstractIntegrationTest;
+
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

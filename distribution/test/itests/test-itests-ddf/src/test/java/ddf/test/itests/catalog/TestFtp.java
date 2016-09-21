@@ -13,13 +13,13 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.when;
 import static ddf.catalog.ftp.FtpServerStarter.CLIENT_AUTH;
 import static ddf.catalog.ftp.FtpServerStarter.NEED;
 import static ddf.catalog.ftp.FtpServerStarter.WANT;
-import static ddf.common.test.WaitCondition.expect;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -37,13 +37,16 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.commons.net.util.KeyManagerUtils;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.AfterExam;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,10 +58,6 @@ import org.osgi.service.cm.Configuration;
 
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Response;
-
-import ddf.common.test.AfterExam;
-import ddf.common.test.BeforeExam;
-import ddf.test.itests.AbstractIntegrationTest;
 
 /**
  * Integration Tests for the FTP/S Endpoint supporting ingest.
@@ -133,7 +132,7 @@ public class TestFtp extends AbstractIntegrationTest {
     @After
     public void tearDown() {
         disconnectClient(client);
-        metacardsToDelete.forEach(TestCatalog::deleteMetacard);
+        metacardsToDelete.forEach(CatalogTestCommons::deleteMetacard);
         metacardsToDelete.clear();
     }
 
@@ -228,8 +227,7 @@ public class TestFtp extends AbstractIntegrationTest {
         client = createInsecureClient();
 
         ftpPutStreaming(client,
-                IOUtils.toString(getClass().getClassLoader()
-                        .getResourceAsStream(METACARD_FILE)),
+                getFileContent(METACARD_FILE),
                 METACARD_TITLE);
 
         // verify FTP PUT resulted in ingest, catalogued data
@@ -263,8 +261,7 @@ public class TestFtp extends AbstractIntegrationTest {
         client = createSecureClient(true);
 
         ftpPutStreaming(client,
-                IOUtils.toString(getClass().getClassLoader()
-                        .getResourceAsStream(METACARD_FILE)),
+                getFileContent(METACARD_FILE),
                 METACARD_TITLE);
 
         // verify FTP PUT resulted in ingest, catalogued data
