@@ -105,7 +105,6 @@
                         </ul>
                     </div>
 
-
                     {{#if properties.thumbnail}}
                         <div class="col-sm-12 holder-row">
                             <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=thumbnail" target="_blank"><img class='thumbnail' alt='{{properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{properties.thumbnail}}' /> </a>
@@ -144,13 +143,23 @@
                                 {{#is @key 'resource-size'}}
                                     <td>{{fileSize this}}</td>
                                 {{else}}
-                                    {{#isUrl this}}
-                                    <td>
-                                        <a target='_blank' title="{{propertyTitle @key}}" href='{{safeString this}}'>{{safeString this}}</a>
-                                    </td>
+                                    {{#is @key 'resource.derived-download-url'}}
+                                        <td>
+                                            {{#each this}}
+                                                {{#isUrl this}}
+                                                    <a target='_blank' href='{{safeString this}}'>{{safeString this}}</a>
+                                                {{/isUrl}}
+                                            {{/each}}
+                                        </td>
                                     {{else}}
-                                    <td>{{safeString this}}</td>
-                                    {{/isUrl}}
+                                        {{#isUrl this}}
+                                            <td>
+                                                <a target='_blank' title="{{propertyTitle @key}}" href='{{safeString this}}'>{{safeString this}}</a>
+                                            </td>
+                                        {{else}}
+                                            <td>{{safeString this}}</td>
+                                        {{/isUrl}}
+                                     {{/is}}
                                 {{/is}}
                             {{/is}}
                         </tr>
@@ -202,4 +211,3 @@
     </div>
 
 </div>
-
