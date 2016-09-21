@@ -134,7 +134,7 @@ define([
                     state: 'start',
                     error: data.errorThrown,
                     cancellable: true,
-                    progress: parseInt(data.loaded / data.total * 100, 10)
+                    progress: parseInt(data.loaded / data.total * 100, 10) || 0
                 });
             },
             checkIfDialogComplete: function () {
