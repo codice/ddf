@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -118,7 +118,8 @@ public class RegistryReportActionProvider implements MultiActionProvider {
                 if (configurations.length > 0) {
                     for (Configuration configuration : configurations) {
                         if (configuration.getProperties()
-                                .get(RegistryObjectMetacardType.REGISTRY_ID) != null) {
+                                .get(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY)
+                                != null) {
                             return processSubject(configuration);
                         }
                     }
@@ -132,10 +133,10 @@ public class RegistryReportActionProvider implements MultiActionProvider {
 
     private List<Action> processSubject(Configuration configuration) {
         if (configuration.getProperties()
-                .get(RegistryObjectMetacardType.REGISTRY_ID) != null) {
+                .get(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY) != null) {
             try {
                 String registryId = URLEncoder.encode(configuration.getProperties()
-                        .get(RegistryObjectMetacardType.REGISTRY_ID)
+                        .get(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY)
                         .toString(), (StandardCharsets.UTF_8).toString());
                 Action action = getAction(registryId, "");
 
@@ -190,7 +191,7 @@ public class RegistryReportActionProvider implements MultiActionProvider {
                 && RegistryUtility.isRegistryMetacard((Metacard) subject))
                 || subject instanceof Source || (subject instanceof Configuration &&
                 ((Configuration) subject).getProperties()
-                        .get(RegistryObjectMetacardType.REGISTRY_ID) != null);
+                        .get(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY) != null);
 
     }
 
