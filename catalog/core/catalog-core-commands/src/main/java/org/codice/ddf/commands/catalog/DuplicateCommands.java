@@ -142,7 +142,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
     String cqlFilter = null;
 
     @Option(name = "--maxMetacards", required = false, aliases = {"-mm",
-            "-max"}, multiValued = false, description = "Option to specify a maximum amount of metacards to ingest.")
+            "-max"}, multiValued = false, description = "Option to specify a maximum amount of metacards to query.")
     int maxMetacards;
 
     protected AtomicInteger ingestedCount = new AtomicInteger(0);
@@ -186,6 +186,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
         final long totalHits = originalResponse.getHits();
         if (totalHits <= 0) {
+            LOGGER.debug("Query returned 0 hits.");
             return;
         }
 

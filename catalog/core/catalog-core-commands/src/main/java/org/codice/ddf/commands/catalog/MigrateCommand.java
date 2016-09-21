@@ -13,12 +13,16 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Provider;
 import org.geotools.filter.text.cql2.CQL;
@@ -43,44 +47,68 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.ServiceComparator;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards "
-        + "from a Configured External Provider into the Catalog.  The migrate command currently "
-        + "picks the first Catalog provider as the FROM and the second Catalog provider as the TO. "
-        + "Additional support will be added to specify which provider will be migrated TO and FROM "
-        + "in the future.")
+        + "from one Provider to another Provider.")
 public class MigrateCommand extends DuplicateCommands {
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrateCommand.class);
 
+    @Option(name = "--list", required = false, aliases = {
+            "-list"}, multiValued = false, description = "Print a list of Providers.")
+    boolean listProviders = false;
+
+    @Option(name = "--from", required = false, aliases = {
+            "-from"}, multiValued = false, description = "The Source ID of the Provider to migrate from.")
+    String fromProviderId;
+
+    @Option(name = "--to", required = false, aliases = {
+            "-to"}, multiValued = false, description = "The Source ID of the Provider to migrate to.")
+    String toProviderId;
+
     @Override
     protected Object executeWithSubject() throws Exception {
-        if (batchSize > MAX_BATCH_SIZE || batchSize < 1) {
-            console.println("Batch Size must be between 1 and 1000.");
+        final List<CatalogProvider> providers = getCatalogProviders();
+
+        if (listProviders) {
+            if (providers.size() == 0) {
+                console.println("There are no available providers.");
+                return null;
+            }
+            console.println("Available providers:");
+            providers.stream()
+                    .map(p -> p.getClass()
+                            .getSimpleName())
+                    .forEach(id -> console.println("\t" + id));
+
             return null;
         }
 
-        List<CatalogProvider> providers = getCatalogProviders();
+        if (batchSize > MAX_BATCH_SIZE || batchSize < 1) {
+            console.println("Batch Size must be between 1 and " + MAX_BATCH_SIZE + ".");
+            return null;
+        }
 
         if (providers.isEmpty() || providers.size() < 2) {
-            console.println("Not enough CatalogProviders installed to migrate");
+            console.println("Not enough CatalogProviders installed to migrate.");
             return null;
         }
 
-        console.println("The \"FROM\" provider is: " + providers.get(0)
-                .getClass()
-                .getSimpleName());
-        CatalogProvider provider = providers.get(1);
-        console.println("The \"TO\" provider is: " + provider.getClass()
-                .getSimpleName());
-        String answer = getInput("Do you wish to continue? (yes/no)");
-        if (!"yes".equalsIgnoreCase(answer)) {
-            console.println();
-            console.println("Now exiting...");
-            console.flush();
+        final CatalogProvider fromProvider = promptForProvider("FROM", fromProviderId, providers);
+        if (fromProvider == null) {
+            console.println("Invalid \"FROM\" provider id.");
             return null;
         }
+        console.println("FROM provider ID: " + fromProvider.getClass()
+                .getSimpleName());
 
-        CatalogFacade ingestProvider = new Provider(provider);
+        final CatalogProvider toProvider = promptForProvider("TO", toProviderId, providers);
+        if (toProvider == null) {
+            console.println("Invalid \"TO\" provider id.");
+            return null;
+        }
+        console.println("TO provider ID: " + toProvider.getClass()
+                .getSimpleName());
 
-        CatalogFacade framework = getCatalog();
+        CatalogFacade queryProvider = new Provider(fromProvider);
+        CatalogFacade ingestProvider = new Provider(toProvider);
 
         start = System.currentTimeMillis();
 
@@ -91,7 +119,7 @@ public class MigrateCommand extends DuplicateCommands {
 
         console.println("Starting migration.");
 
-        duplicateInBatches(framework, ingestProvider, filter);
+        duplicateInBatches(queryProvider, ingestProvider, filter);
 
         console.println();
         long end = System.currentTimeMillis();
@@ -104,6 +132,33 @@ public class MigrateCommand extends DuplicateCommands {
         console.println(completed);
 
         return null;
+    }
+
+    private CatalogProvider promptForProvider(String whichProvider, String id,
+            List<CatalogProvider> providers) throws IOException {
+        List<String> providersIdList = providers.stream()
+                .map(p -> p.getClass()
+                        .getSimpleName())
+                .collect(Collectors.toList());
+        while (true) {
+            if (StringUtils.isBlank(id) || !providersIdList.contains(id)) {
+                console.println(
+                        "Please enter the Source ID of the \"" + whichProvider + "\" provider:");
+            } else {
+                break;
+            }
+            id = getInput(whichProvider + " provider ID: ");
+        }
+
+        final String providerId = id;
+        final CatalogProvider provider = providers.stream()
+                .filter(p -> p.getClass()
+                        .getSimpleName()
+                        .equals(providerId))
+                .findFirst()
+                .orElse(null);
+
+        return provider;
     }
 
     @Override
