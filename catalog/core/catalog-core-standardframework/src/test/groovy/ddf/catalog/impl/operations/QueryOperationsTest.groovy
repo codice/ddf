@@ -21,6 +21,7 @@ import ddf.catalog.data.Result
 import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.federation.FederationException
 import ddf.catalog.federation.FederationStrategy
+import ddf.catalog.filter.FilterAdapter
 import ddf.catalog.impl.FrameworkProperties
 import ddf.catalog.impl.QueryResponsePostProcessor
 import ddf.catalog.operation.Query
@@ -56,6 +57,7 @@ class QueryOperationsTest extends Specification {
     private OperationsSecuritySupport opsSecurity
     private OperationsMetacardSupport opsMetacard
     private QueryOperations queryOperations
+    private FilterAdapter filterAdapter;
 
     def setup() {
         frameworkProperties = new FrameworkProperties()
@@ -65,6 +67,7 @@ class QueryOperationsTest extends Specification {
         connSources = ['conn1', 'conn2'].collect { mockConnectedSource(it) }
         pollerRunner = new SourcePollerRunner()
         sourcePoller = new SourcePoller(pollerRunner)
+        filterAdapter = Mock(FilterAdapter)
 
         frameworkProperties.with {
             catalogProviders = this.catalogProviders
@@ -91,19 +94,19 @@ class QueryOperationsTest extends Specification {
     def 'test querysources init default'() {
         setup:
         def mockForQueryOps = Mock(QueryOperations)
-        mockForQueryOps.hasCatalogProvider(false) >> { true }
+        mockForQueryOps.hasCatalogProvider() >> { true }
         def request = Mock(QueryRequest)
         request.isEnterprise() >> { false }
 
         when:
         def sources = new QueryOperations.QuerySources(frameworkProperties)
-        sources = sources.initializeSources(mockForQueryOps, request, sourceIds, false)
+        sources = sources.initializeSources(mockForQueryOps, request, sourceIds)
 
         then:
         sources.isEmpty()
         sources.exceptions.isEmpty()
         sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider(false)
+        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
 
         where:
         sourceIds << [null, [] as Set]
@@ -115,7 +118,7 @@ class QueryOperationsTest extends Specification {
         mockSourceOps.isSourceAvailable(_) >> { true }
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
-        mockForQueryOps.hasCatalogProvider(false) >> { true }
+        mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.canAccessSource(_, _) >> { src, req ->
             true
         }
@@ -124,11 +127,11 @@ class QueryOperationsTest extends Specification {
 
         when:
         def sources = new QueryOperations.QuerySources(frameworkProperties)
-        sources = sources.initializeSources(mockForQueryOps, request, null, false)
+        sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
         sources.addConnectedSources
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider(false)
+        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.sourcesToQuery as Set == frameworkProperties.federatedSources.values() as Set
         sources.exceptions.isEmpty()
     }
@@ -139,7 +142,7 @@ class QueryOperationsTest extends Specification {
         mockSourceOps.isSourceAvailable(_) >> { true }
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
-        mockForQueryOps.hasCatalogProvider(false) >> { true }
+        mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.canAccessSource(_, _) >> { src, req ->
             false
         }
@@ -148,11 +151,11 @@ class QueryOperationsTest extends Specification {
 
         when:
         def sources = new QueryOperations.QuerySources(frameworkProperties)
-        sources = sources.initializeSources(mockForQueryOps, request, null, false)
+        sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
         sources.addConnectedSources
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider(false)
+        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.isEmpty()
         sources.exceptions.size() == frameworkProperties.federatedSources.size()
     }
@@ -163,7 +166,7 @@ class QueryOperationsTest extends Specification {
         mockSourceOps.isSourceAvailable(_) >> { true }
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
-        mockForQueryOps.hasCatalogProvider(false) >> { true }
+        mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.canAccessSource(_, _) >> { src, req ->
             src.id == 'fed1'
         }
@@ -172,11 +175,11 @@ class QueryOperationsTest extends Specification {
 
         when:
         def sources = new QueryOperations.QuerySources(frameworkProperties)
-        sources = sources.initializeSources(mockForQueryOps, request, null, false)
+        sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
         sources.addConnectedSources
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider(false)
+        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.get('fed1')] as Set
         sources.exceptions.size() == frameworkProperties.federatedSources.size() - 1
     }
@@ -188,7 +191,7 @@ class QueryOperationsTest extends Specification {
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        mockForQueryOps.hasCatalogProvider(false) >> { true }
+        mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.includesLocalSources(_) >> { true }
         mockForQueryOps.canAccessSource(_, _) >> { src, req ->
             true
@@ -198,11 +201,11 @@ class QueryOperationsTest extends Specification {
 
         when:
         def sources = new QueryOperations.QuerySources(frameworkProperties)
-        sources = sources.initializeSources(mockForQueryOps, request, [SOURCE_ID] as Set, false)
+        sources = sources.initializeSources(mockForQueryOps, request, [SOURCE_ID] as Set)
 
         then:
         sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider(false)
+        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.isEmpty()
         sources.exceptions.isEmpty()
     }
@@ -214,7 +217,7 @@ class QueryOperationsTest extends Specification {
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        mockForQueryOps.hasCatalogProvider(false) >> { true }
+        mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.includesLocalSources(_) >> { true }
         mockForQueryOps.canAccessSource(_, _) >> { src, req ->
             true
@@ -224,11 +227,11 @@ class QueryOperationsTest extends Specification {
 
         when:
         def sources = new QueryOperations.QuerySources(frameworkProperties)
-        sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set, false)
+        sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set)
 
         then:
         sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider(false)
+        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.get('fed1')] as Set
         sources.exceptions.isEmpty()
     }
@@ -240,7 +243,7 @@ class QueryOperationsTest extends Specification {
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        mockForQueryOps.hasCatalogProvider(false) >> { true }
+        mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.includesLocalSources(_) >> { true }
         mockForQueryOps.canAccessSource(_, _) >> { src, req ->
             true
@@ -250,11 +253,11 @@ class QueryOperationsTest extends Specification {
 
         when:
         def sources = new QueryOperations.QuerySources(frameworkProperties)
-        sources = sources.initializeSources(mockForQueryOps, request, ["unknown"] as Set, false)
+        sources = sources.initializeSources(mockForQueryOps, request, ["unknown"] as Set)
 
         then:
         sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider(false)
+        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.isEmpty()
         sources.exceptions.size() == 1
     }
@@ -266,7 +269,7 @@ class QueryOperationsTest extends Specification {
         def mockForQueryOps = Mock(QueryOperations,
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.getId() >> { SOURCE_ID }
-        mockForQueryOps.hasCatalogProvider(false) >> { true }
+        mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.includesLocalSources(_) >> { true }
         mockForQueryOps.canAccessSource(_, _) >> { src, req ->
             false
@@ -276,11 +279,11 @@ class QueryOperationsTest extends Specification {
 
         when:
         def sources = new QueryOperations.QuerySources(frameworkProperties)
-        sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set, false)
+        sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set)
 
         then:
         sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider(false)
+        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.isEmpty()
         sources.exceptions.size() == 1
     }
@@ -649,20 +652,6 @@ class QueryOperationsTest extends Specification {
         notThrown(FederationException)
     }
 
-    def 'test query in fanout with non-local source'() {
-        setup:
-        def request = Mock(QueryRequest)
-        request.getProperties() >> [:]
-        request.query >> Mock(Query)
-        request.getSourceIds() >> { ['unknown'] as Set }
-
-        when:
-        queryOperations.query(request, null, false, true)
-
-        then:
-        thrown(UnsupportedQueryException)
-    }
-
     def 'ensure query request policy map populated'() {
         setup:
         def request = Mock(QueryRequest)
@@ -689,7 +678,6 @@ class QueryOperationsTest extends Specification {
         }
         frameworkProperties.federationStrategy.federate(_, request) >> response
     }
-
 
 
     private def mockCatalogProvider(def id) {

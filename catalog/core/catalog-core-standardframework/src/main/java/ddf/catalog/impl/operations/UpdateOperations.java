@@ -529,8 +529,7 @@ public class UpdateOperations {
         QueryResponse query;
         try {
             query = queryOperations.doQuery(queryRequest,
-                    frameworkProperties.getFederationStrategy(),
-                    false);
+                    frameworkProperties.getFederationStrategy());
         } catch (FederationException e) {
             LOGGER.debug("Unable to complete query for updated metacards.", e);
             throw new IngestException("Exception during runtime while performing update");

@@ -118,7 +118,7 @@ public class DeleteOperations {
     //
     // Delegate methods
     //
-    public DeleteResponse delete(DeleteRequest deleteRequest)
+    public DeleteResponse delete(DeleteRequest deleteRequest, List<String> fanoutTagBlacklist)
             throws IngestException, SourceUnavailableException {
         DeleteStorageRequest deleteStorageRequest = null;
 
@@ -129,7 +129,8 @@ public class DeleteOperations {
         deleteRequest = validateLocalSource(deleteRequest);
 
         try {
-            deleteRequest = populateMetacards(deleteRequest);
+            deleteRequest = populateMetacards(deleteRequest, fanoutTagBlacklist);
+
             deleteStorageRequest = new DeleteStorageRequestImpl(getDeleteMetacards(deleteRequest),
                     deleteRequest.getProperties());
 
@@ -359,14 +360,13 @@ public class DeleteOperations {
         return deleteRequest;
     }
 
-    private DeleteRequest populateMetacards(DeleteRequest deleteRequest)
-            throws IngestException, StopProcessingException {
+    private DeleteRequest populateMetacards(DeleteRequest deleteRequest,
+            List<String> fanoutTagBlacklist) throws IngestException, StopProcessingException {
         QueryRequestImpl queryRequest = createQueryRequest(deleteRequest);
         QueryResponse query;
         try {
             query = queryOperations.doQuery(queryRequest,
-                    frameworkProperties.getFederationStrategy(),
-                    false);
+                    frameworkProperties.getFederationStrategy());
         } catch (FederationException e) {
             LOGGER.debug("Unable to complete query for updated metacards.", e);
             throw new IngestException("Exception during runtime while performing delete");
@@ -376,6 +376,13 @@ public class DeleteOperations {
                 .stream()
                 .map(Result::getMetacard)
                 .collect(Collectors.toList());
+
+        if (blockDeleteMetacards(metacards, fanoutTagBlacklist)) {
+            String message =
+                    "Fanout proxy does not support delete operations with blacklisted metacard tag";
+            LOGGER.debug("{}. Tags blacklist: {}", message, fanoutTagBlacklist);
+            throw new IngestException(message);
+        }
 
         if (!foundAllDeleteRequestMetacards(deleteRequest, query)) {
             logFailedQueryInfo(deleteRequest, query);
@@ -389,6 +396,23 @@ public class DeleteOperations {
                                 metacards));
         return deleteRequest;
 
+    }
+
+    private boolean blockDeleteMetacards(List<Metacard> metacards,
+            List<String> fanoutTagBlacklist) {
+        return metacards.stream()
+                .anyMatch((metacard) -> isMetacardBlacklisted(metacard, fanoutTagBlacklist));
+    }
+
+    private boolean isMetacardBlacklisted(Metacard metacard, List<String> fanoutTagBlacklist) {
+        Set<String> tags = new HashSet<>(metacard.getTags());
+
+        // defaulting to resource tag if the metacard doesn't contain any tags
+        if (tags.isEmpty()) {
+            tags.add(Metacard.DEFAULT_TAG);
+        }
+
+        return CollectionUtils.containsAny(tags, fanoutTagBlacklist);
     }
 
     private QueryRequestImpl createQueryRequest(DeleteRequest deleteRequest) {

@@ -30,6 +30,8 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+
+import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
@@ -84,6 +86,24 @@ public class CatalogTestCommons {
                     .post(REST_PATH.getUrl())
                     .getHeader("id");
         }
+    }
+
+    /**
+     *
+     * @param data - body of the message containing metacard to be ingested
+     * @param mimeType - content type header value
+     * @param expectedStatusCode - expected status code to check for
+     * @return id of ingested metacard
+     */
+    public static String ingest(String data, String mimeType, int expectedStatusCode) {
+        return given().body(data)
+                .header(HttpHeaders.CONTENT_TYPE, mimeType)
+                .expect()
+                .statusCode(expectedStatusCode)
+                .log()
+                .ifValidationFails(LogDetail.ALL)
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
     }
 
     public static String ingestGeoJson(String json) {
@@ -156,6 +176,23 @@ public class CatalogTestCommons {
     }
 
     /**
+     *
+     * @param id - id of metacard to update
+     * @param data - body of request to update with
+     * @param mimeType - content type header value
+     * @param expectedStatusCode - expected status code to check for
+     */
+    public static void update(String id, String data, String mimeType, int expectedStatusCode) {
+        given().header(HttpHeaders.CONTENT_TYPE, mimeType)
+                .body(data)
+                .expect()
+                .log()
+                .ifValidationFails(LogDetail.ALL)
+                .statusCode(expectedStatusCode)
+                .put(new AbstractIntegrationTest.DynamicUrl(REST_PATH, id).getUrl());
+    }
+
+    /**
      * Performs a delete request on the given metacard id
      * @param id - id of metacard to delete
      */
@@ -172,7 +209,7 @@ public class CatalogTestCommons {
         if (checkResponse) {
             delete(REST_PATH.getUrl() + id).then()
                     .assertThat()
-                    .statusCode(200)
+                    .statusCode(HttpStatus.SC_OK)
                     .log()
                     .all();
         } else {
@@ -180,6 +217,14 @@ public class CatalogTestCommons {
                     .log()
                     .all();
         }
+    }
+
+    public static void deleteMetacard(String id, int expectedStatusCode) {
+        delete(REST_PATH.getUrl() + id).then()
+                .assertThat()
+                .statusCode(expectedStatusCode)
+                .log()
+                .ifValidationFails(LogDetail.ALL);
     }
 
     /**
