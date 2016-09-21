@@ -47,6 +47,15 @@ define([
                 this.listenTo(this.collection, "add", this.checkIfDialogComplete);
                 this.listenTo(this.collection, "remove", this.checkIfDialogComplete);
             },
+            shouldDestroy: function() {
+                if (this.model === undefined) {
+                    return false;
+                }
+                else {
+                    return !(this.model.get('state') === 'uploading' ||
+                            this.model.get('state') === 'uploaded');
+                }
+            },
             regions: {
                 fileUploadListRegion: '.file-upload-region'
             },
@@ -199,9 +208,9 @@ define([
                     this.$('.upload-info').toggleClass('hidden', true);
                 }
             },
-            isUnfinished: function () {
-                return this.model.get('state') === 'uploading' ||
-                    this.model.get('state') === 'uploaded';
+            isFinished: function () {
+                return !(this.model.get('state') === 'uploading' ||
+                    this.model.get('state') === 'uploaded');
             }
         });
         return IngestModal;

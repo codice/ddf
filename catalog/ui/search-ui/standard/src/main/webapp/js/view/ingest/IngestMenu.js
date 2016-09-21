@@ -44,10 +44,13 @@ define([
                 this.listenTo(wreqr.vent, 'upload:finish', this.onUploadFinish);
             },
             showModal: function() {
-                var keepCurrentModal = this.modal && this.modal.isUnfinished();
-                if (!keepCurrentModal) {
+                if (this.modal === undefined) {
+                    this.modal = new IngestModal();
+                } else if (this.modal.isFinished()) {
+                    this.modal.destroy();
                     this.modal = new IngestModal();
                 }
+
                 wreqr.vent.trigger('showModal', this.modal);
             },
             onUploadStart: function() {
