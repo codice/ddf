@@ -45,10 +45,19 @@
     </bean>
 
     <bean id="cfQueryOps" class="ddf.catalog.impl.operations.QueryOperations">
+        <cm:managed-properties persistent-id="ddf.catalog.impl.operations.QueryOperations"
+                               update-strategy="container-managed"/>
         <argument ref="frameworkProperties"/>
         <argument ref="cfSourceOps"/>
         <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
+        <property name="filterAdapter" ref="filterAdapter"/>
+        <property name="fanoutProxyTagBlacklist">
+            <list value-type="java.lang.String">
+                <value>registry</value>
+                <value>registry-remote</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="cfResourceOps" class="ddf.catalog.impl.operations.ResourceOperations">

@@ -17,25 +17,46 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.activation.MimeType;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteSource;
 
+import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
+import ddf.catalog.content.StorageProvider;
+import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.content.data.impl.ContentItemImpl;
+import ddf.catalog.content.impl.MockMemoryStorageProvider;
+import ddf.catalog.content.operation.CreateStorageRequest;
+import ddf.catalog.content.operation.UpdateStorageRequest;
+import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
+import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
 import ddf.catalog.impl.operations.MetacardFactory;
@@ -48,19 +69,30 @@ import ddf.catalog.impl.operations.ResourceOperations;
 import ddf.catalog.impl.operations.SourceOperations;
 import ddf.catalog.impl.operations.TransformOperations;
 import ddf.catalog.impl.operations.UpdateOperations;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceInfoRequest;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PostIngestPlugin;
+import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourcePollerRunner;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeToTransformerMapper;
 
 public class FanoutCatalogFrameworkTest {
     private static final String OLD_SOURCE_ID = "oldSourceId";
@@ -341,6 +373,211 @@ public class FanoutCatalogFrameworkTest {
         // Assert not null simply to prove that we returned an object.
         assertNotNull(framework.getSourceInfo(request));
 
+    }
+
+    @Test(expected = IngestException.class)
+    public void testBlacklistedTagCreateRequestFails() throws Exception {
+        Metacard metacard = new MetacardImpl();
+        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+        CreateRequest request = new CreateRequestImpl(metacard);
+        framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
+        framework.create(request);
+    }
+
+    @Test(expected = IngestException.class)
+    public void testBlacklistedTagUpdateRequestFails() throws Exception {
+        Metacard metacard = new MetacardImpl();
+        metacard.setAttribute(new AttributeImpl(Metacard.ID, "metacardId"));
+        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+
+        UpdateRequest request = new UpdateRequestImpl(metacard.getId(), metacard);
+        framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
+        framework.update(request);
+    }
+
+    @Test(expected = IngestException.class)
+    public void testBlacklistedTagDeleteRequestFails() throws Exception {
+        Metacard metacard = new MetacardImpl();
+        metacard.setAttribute(new AttributeImpl(Metacard.ID, "metacardId"));
+        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+
+        CatalogProvider catalogProvider = mock(CatalogProvider.class);
+        doReturn(true).when(catalogProvider)
+                .isAvailable();
+        StorageProvider storageProvider = new MockMemoryStorageProvider();
+
+        FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+        FilterAdapter filterAdapter = mock(FilterAdapter.class);
+
+        ValidationQueryFactory validationQueryFactory = new ValidationQueryFactory(filterAdapter,
+                filterBuilder);
+
+        QueryRequestImpl queryRequest = new QueryRequestImpl(mock(Query.class));
+        ResultImpl result = new ResultImpl(metacard);
+        List<Result> results = new ArrayList<>();
+        results.add(result);
+
+        QueryResponseImpl queryResponse = new QueryResponseImpl(queryRequest, results, 1);
+        FederationStrategy strategy = mock(FederationStrategy.class);
+        when(strategy.federate(anyList(), any())).thenReturn(queryResponse);
+
+        QueryResponsePostProcessor queryResponsePostProcessor =
+                mock(QueryResponsePostProcessor.class);
+        doNothing().when(queryResponsePostProcessor)
+                .processResponse(any());
+
+        frameworkProperties.setCatalogProviders(Collections.singletonList(catalogProvider));
+        frameworkProperties.setStorageProviders(Collections.singletonList(storageProvider));
+        frameworkProperties.setFilterBuilder(filterBuilder);
+        frameworkProperties.setValidationQueryFactory(validationQueryFactory);
+        frameworkProperties.setFederationStrategy(strategy);
+        frameworkProperties.setQueryResponsePostProcessor(queryResponsePostProcessor);
+
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        MetacardFactory metacardFactory =
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
+                metacardFactory);
+        SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+        sourceOperations.bind(catalogProvider);
+        sourceOperations.bind(storageProvider);
+
+        TransformOperations transformOperations = new TransformOperations(frameworkProperties);
+
+        QueryOperations queryOperations = new QueryOperations(frameworkProperties,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(
+                frameworkProperties,
+                sourceOperations);
+        ResourceOperations resourceOperations = new ResourceOperations(frameworkProperties,
+                queryOperations,
+                opsSecurity);
+
+        DeleteOperations deleteOperations = new DeleteOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                null,
+                opsCatStore);
+
+        framework = new CatalogFrameworkImpl(null,
+                null,
+                deleteOperations,
+                queryOperations,
+                resourceOperations,
+                sourceOperations,
+                transformOperations);
+        framework.setId(NEW_SOURCE_ID);
+        framework.setFanoutEnabled(true);
+        framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
+
+        DeleteRequest request = new DeleteRequestImpl(metacard.getId());
+        framework.delete(request);
+    }
+
+    @Test(expected = IngestException.class)
+    public void testBlacklistedTagCreateStorageRequestFails() throws Exception {
+        Metacard metacard = new MetacardImpl();
+        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+
+        CatalogProvider catalogProvider = mock(CatalogProvider.class);
+        doReturn(true).when(catalogProvider)
+                .isAvailable();
+        StorageProvider storageProvider = new MockMemoryStorageProvider();
+        MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
+        doReturn("extension").when(mimeTypeMapper)
+                .getFileExtensionForMimeType(anyString());
+        InputTransformer transformer = mock(InputTransformer.class);
+        doReturn(metacard).when(transformer)
+                .transform(any(InputStream.class));
+
+        MimeTypeToTransformerMapper mimeTypeToTransformerMapper =
+                mock(MimeTypeToTransformerMapper.class);
+        doReturn(Collections.singletonList(transformer)).when(mimeTypeToTransformerMapper)
+                .findMatches(any(Class.class), any(MimeType.class));
+
+        frameworkProperties.setCatalogProviders(Collections.singletonList(catalogProvider));
+        frameworkProperties.setStorageProviders(Collections.singletonList(storageProvider));
+        frameworkProperties.setMimeTypeMapper(mimeTypeMapper);
+        frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
+
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        MetacardFactory metacardFactory =
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
+                metacardFactory);
+        SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+        sourceOperations.bind(catalogProvider);
+        sourceOperations.bind(storageProvider);
+
+        TransformOperations transformOperations = new TransformOperations(frameworkProperties);
+
+        QueryOperations queryOperations = new QueryOperations(frameworkProperties,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(
+                frameworkProperties,
+                sourceOperations);
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
+                queryOperations);
+        ResourceOperations resourceOperations = new ResourceOperations(frameworkProperties,
+                queryOperations,
+                opsSecurity);
+
+        OperationsMetacardSupport opsMetacardSupport = new OperationsMetacardSupport(
+                frameworkProperties,
+                metacardFactory);
+        // Need to set these for InputValidation to work
+        System.setProperty("bad.files", "none");
+        System.setProperty("bad.file.extensions", "none");
+        System.setProperty("bad.mime.types", "none");
+
+        CreateOperations createOperations = new CreateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacardSupport,
+                opsCatStore,
+                opsStorage);
+
+        framework = new CatalogFrameworkImpl(createOperations,
+                null,
+                null,
+                queryOperations,
+                resourceOperations,
+                sourceOperations,
+                transformOperations);
+        framework.setId(NEW_SOURCE_ID);
+        framework.setFanoutEnabled(true);
+        framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
+
+        ContentItem item = new ContentItemImpl(ByteSource.empty(),
+                "text/xml",
+                "filename.xml",
+                metacard);
+        CreateStorageRequest request = new CreateStorageRequestImpl(Collections.singletonList(item),
+                new HashMap<>());
+
+        framework.create(request);
+    }
+
+    @Test(expected = IngestException.class)
+    public void testBlacklistedTagUpdateStorageRequestFails() throws Exception {
+        Metacard metacard = new MetacardImpl();
+        metacard.setAttribute(new AttributeImpl(Metacard.ID, "metacardId"));
+        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
+
+        ContentItem item = new ContentItemImpl(ByteSource.empty(),
+                "text/xml",
+                "filename.xml",
+                metacard);
+        UpdateStorageRequest request = new UpdateStorageRequestImpl(Collections.singletonList(item),
+                new HashMap<>());
+        framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
+        framework.update(request);
     }
 
 }

@@ -15,11 +15,16 @@ package ddf.catalog.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.codice.ddf.configuration.SystemInfo;
 import org.osgi.framework.Bundle;
@@ -28,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.data.BinaryContent;
@@ -81,6 +87,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     //
     private boolean fanoutEnabled;
 
+    private List<String> fanoutTagBlacklist = new ArrayList<>();
+
     private Masker masker;
 
     private CreateOperations createOperations;
@@ -100,16 +108,17 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Instantiates a new CatalogFrameworkImpl which delegates its work to surrogate operations classes.
      *
-     * @param createOperations      delegate that handles create operations
-     * @param updateOperations      delegate that handles update operations
-     * @param deleteOperations      delegate that handles delete operations
-     * @param queryOperations       delegate that handles query operations
-     * @param resourceOperations    delegate that handles resource operations
-     * @param sourceOperations      delegate that handles source operations
-     * @param transformOperations   delegate that handles transformation operations
+     * @param createOperations    delegate that handles create operations
+     * @param updateOperations    delegate that handles update operations
+     * @param deleteOperations    delegate that handles delete operations
+     * @param queryOperations     delegate that handles query operations
+     * @param resourceOperations  delegate that handles resource operations
+     * @param sourceOperations    delegate that handles source operations
+     * @param transformOperations delegate that handles transformation operations
      */
-    public CatalogFrameworkImpl(CreateOperations createOperations, UpdateOperations updateOperations,
-            DeleteOperations deleteOperations, QueryOperations queryOperations, ResourceOperations resourceOperations,
+    public CatalogFrameworkImpl(CreateOperations createOperations,
+            UpdateOperations updateOperations, DeleteOperations deleteOperations,
+            QueryOperations queryOperations, ResourceOperations resourceOperations,
             SourceOperations sourceOperations, TransformOperations transformOperations) {
 
         this.createOperations = createOperations;
@@ -154,6 +163,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     public void setFanoutEnabled(boolean fanoutEnabled) {
         this.fanoutEnabled = fanoutEnabled;
+    }
+
+    public void setFanoutTagBlacklist(List<String> fanoutTagBlacklist) {
+        this.fanoutTagBlacklist = fanoutTagBlacklist;
     }
 
     /**
@@ -212,17 +225,19 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     @Override
     public CreateResponse create(CreateStorageRequest createRequest)
             throws IngestException, SourceUnavailableException {
+        List<String> blacklist = Collections.emptyList();
+
         if (fanoutEnabled) {
-            throw new IngestException(FANOUT_MESSAGE);
+            blacklist = new ArrayList<>(fanoutTagBlacklist);
         }
 
-        return createOperations.create(createRequest);
+        return createOperations.create(createRequest, blacklist);
     }
 
     @Override
     public CreateResponse create(CreateRequest createRequest)
             throws IngestException, SourceUnavailableException {
-        if (fanoutEnabled) {
+        if (fanoutEnabled && blockFanoutCreate(createRequest)) {
             throw new IngestException(FANOUT_MESSAGE);
         }
 
@@ -232,7 +247,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     @Override
     public UpdateResponse update(UpdateStorageRequest updateRequest)
             throws IngestException, SourceUnavailableException {
-        if (fanoutEnabled) {
+        if (fanoutEnabled && blockFanoutStorageRequest(updateRequest)) {
             throw new IngestException(FANOUT_MESSAGE);
         }
 
@@ -242,7 +257,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     @Override
     public UpdateResponse update(UpdateRequest updateRequest)
             throws IngestException, SourceUnavailableException {
-        if (fanoutEnabled) {
+        if (fanoutEnabled && blockFanoutUpdate(updateRequest)) {
             throw new IngestException(FANOUT_MESSAGE);
         }
 
@@ -252,11 +267,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     @Override
     public DeleteResponse delete(DeleteRequest deleteRequest)
             throws IngestException, SourceUnavailableException {
-        if (fanoutEnabled) {
-            throw new IngestException(FANOUT_MESSAGE);
-        }
 
-        return deleteOperations.delete(deleteRequest);
+        List<String> blacklist = Collections.emptyList();
+
+        if (fanoutEnabled) {
+            blacklist = new ArrayList<>(fanoutTagBlacklist);
+        }
+        return deleteOperations.delete(deleteRequest, blacklist);
     }
 
     @Override
@@ -328,5 +345,38 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
+    }
+
+    private boolean blockFanoutStorageRequest(UpdateStorageRequest updateStorageRequest) {
+        return blockFanoutContentItems(updateStorageRequest.getContentItems());
+    }
+
+    private boolean blockFanoutContentItems(List<ContentItem> contentItems) {
+        return contentItems.stream()
+                .map(ContentItem::getMetacard)
+                .anyMatch(this::isMetacardBlacklisted);
+    }
+
+    private boolean blockFanoutCreate(CreateRequest createRequest) {
+        return createRequest.getMetacards()
+                .stream()
+                .anyMatch(this::isMetacardBlacklisted);
+    }
+
+    private boolean blockFanoutUpdate(UpdateRequest updateRequest) {
+        return updateRequest.getUpdates()
+                .stream()
+                .anyMatch((updateEntry) -> isMetacardBlacklisted(updateEntry.getValue()));
+    }
+
+    private boolean isMetacardBlacklisted(Metacard metacard) {
+        Set<String> tags = new HashSet<>(metacard.getTags());
+
+        // defaulting to resource tag if the metacard doesn't contain any tags
+        if (tags.isEmpty()) {
+            tags.add(Metacard.DEFAULT_TAG);
+        }
+
+        return CollectionUtils.containsAny(tags, fanoutTagBlacklist);
     }
 }

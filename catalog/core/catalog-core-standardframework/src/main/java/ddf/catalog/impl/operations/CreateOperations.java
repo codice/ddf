@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -165,7 +166,8 @@ public class CreateOperations {
             throw new IngestException(PRE_INGEST_ERROR, see);
         } catch (RuntimeException re) {
             ingestError = re;
-            throw new InternalIngestException("Exception during runtime while performing create", re);
+            throw new InternalIngestException("Exception during runtime while performing create",
+                    re);
         } finally {
             if (ingestError != null && INGEST_LOGGER.isInfoEnabled()) {
                 INGEST_LOGGER.info("Error on create operation. {} metacards failed to ingest. {}",
@@ -196,8 +198,8 @@ public class CreateOperations {
         return createResponse;
     }
 
-    public CreateResponse create(CreateStorageRequest streamCreateRequest)
-            throws IngestException, SourceUnavailableException {
+    public CreateResponse create(CreateStorageRequest streamCreateRequest,
+            List<String> fanoutTagBlacklist) throws IngestException, SourceUnavailableException {
         Optional<String> historianTransactionKey = Optional.empty();
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems()
@@ -217,6 +219,13 @@ public class CreateOperations {
                 metacardMap,
                 contentItems,
                 tmpContentPaths);
+
+        if (blockCreateMetacards(metacardMap.values(), fanoutTagBlacklist)) {
+            String message =
+                    "Fanout proxy does not support create operations with blacklisted metacard tag";
+            LOGGER.debug("{}. Tags blacklist: {}", message, fanoutTagBlacklist);
+            throw new IngestException(message);
+        }
 
         streamCreateRequest.getProperties()
                 .put(CONTENT_PATHS, tmpContentPaths);
@@ -279,6 +288,22 @@ public class CreateOperations {
     //
     // Private helper methods
     //
+    private boolean blockCreateMetacards(Collection<Metacard> metacards,
+            List<String> fanoutBlacklist) {
+        return metacards.stream()
+                .anyMatch((metacard) -> isMetacardBlacklisted(metacard, fanoutBlacklist));
+    }
+
+    private boolean isMetacardBlacklisted(Metacard metacard, List<String> fanoutBlacklist) {
+        Set<String> tags = new HashSet<>(metacard.getTags());
+
+        if (tags.isEmpty()) {
+            tags.add(Metacard.DEFAULT_TAG);
+        }
+
+        return CollectionUtils.containsAny(tags, fanoutBlacklist);
+    }
+
     private CreateRequest injectAttributes(CreateRequest request) {
         List<Metacard> metacards = request.getMetacards()
                 .stream()

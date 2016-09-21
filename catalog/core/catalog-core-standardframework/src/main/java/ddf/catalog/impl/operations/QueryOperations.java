@@ -37,6 +37,8 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryRequest;
@@ -84,6 +86,10 @@ public class QueryOperations extends DescribableImpl {
 
     private final OperationsMetacardSupport opsMetacardSupport;
 
+    private FilterAdapter filterAdapter;
+
+    private List<String> fanoutProxyTagBlacklist = new ArrayList<>();
+
     public QueryOperations(FrameworkProperties frameworkProperties,
             SourceOperations sourceOperations, OperationsSecuritySupport opsSecuritySupport,
             OperationsMetacardSupport opsMetacardSupport) {
@@ -91,6 +97,14 @@ public class QueryOperations extends DescribableImpl {
         this.sourceOperations = sourceOperations;
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
+    }
+
+    public void setFanoutProxyTagBlacklist(List<String> fanoutProxyTagBlacklist) {
+        this.fanoutProxyTagBlacklist = fanoutProxyTagBlacklist;
+    }
+
+    public void setFilterAdapter(FilterAdapter filterAdapter) {
+        this.filterAdapter = filterAdapter;
     }
 
     //
@@ -120,12 +134,12 @@ public class QueryOperations extends DescribableImpl {
         queryRequest = setFlagsOnRequest(queryRequest);
 
         try {
-            queryRequest = validateQueryRequest(queryRequest, fanoutEnabled);
+            queryRequest = validateQueryRequest(queryRequest);
             queryRequest = getFanoutQuery(queryRequest, fanoutEnabled);
             queryRequest = populateQueryRequestPolicyMap(queryRequest);
             queryRequest = processPreQueryAccessPlugins(queryRequest);
             queryRequest = processPreQueryPlugins(queryRequest);
-            queryRequest = validateQueryRequest(queryRequest, fanoutEnabled);
+            queryRequest = validateQueryRequest(queryRequest);
 
             if (fedStrategy == null) {
                 if (frameworkProperties.getFederationStrategy() == null) {
@@ -139,7 +153,7 @@ public class QueryOperations extends DescribableImpl {
                 }
             }
 
-            queryResponse = doQuery(queryRequest, fedStrategy, fanoutEnabled);
+            queryResponse = doQuery(queryRequest, fedStrategy);
             queryResponse = injectAttributes(queryResponse);
             queryResponse = validateFixQueryResponse(queryResponse,
                     overrideFanoutRename,
@@ -161,21 +175,19 @@ public class QueryOperations extends DescribableImpl {
      * Based on the isEnterprise and sourceIds list in the query request, the federated query may
      * include the local provider and {@link ConnectedSource}s.
      *
-     * @param queryRequest  the {@link QueryRequest}
-     * @param strategy      the {@link FederationStrategy}
-     * @param fanoutEnabled
+     * @param queryRequest the {@link QueryRequest}
+     * @param strategy     the {@link FederationStrategy}
      * @return the {@link QueryResponse}
      * @throws FederationException
      */
-    QueryResponse doQuery(QueryRequest queryRequest, FederationStrategy strategy,
-            boolean fanoutEnabled) throws FederationException {
+    QueryResponse doQuery(QueryRequest queryRequest, FederationStrategy strategy)
+            throws FederationException {
         Set<String> sourceIds = getCombinedIdSet(queryRequest);
         LOGGER.debug("source ids: {}", sourceIds);
 
         QuerySources querySources = new QuerySources(frameworkProperties).initializeSources(this,
                 queryRequest,
-                sourceIds,
-                fanoutEnabled)
+                sourceIds)
                 .addConnectedSources(this, frameworkProperties)
                 .addCatalogProvider(this);
 
@@ -273,12 +285,11 @@ public class QueryOperations extends DescribableImpl {
     /**
      * Whether this {@link ddf.catalog.CatalogFramework} is configured with a {@code CatalogProvider}.
      *
-     * @param fanoutEnabled
      * @return true if this has a {@code CatalogProvider} configured,
      * false otherwise
      */
-    boolean hasCatalogProvider(boolean fanoutEnabled) {
-        if (!fanoutEnabled && sourceOperations.getCatalog() != null) {
+    boolean hasCatalogProvider() {
+        if (sourceOperations.getCatalog() != null) {
             LOGGER.trace("hasCatalogProvider() returning true");
             return true;
         }
@@ -404,23 +415,38 @@ public class QueryOperations extends DescribableImpl {
     }
 
     private QueryRequest getFanoutQuery(QueryRequest queryRequest, boolean fanoutEnabled) {
-        if (!fanoutEnabled) {
+        if (!fanoutEnabled || blockProxyFanoutQuery(queryRequest)) {
             return queryRequest;
         }
+
         return new QueryRequestImpl(queryRequest.getQuery(),
                 true,
                 null,
                 queryRequest.getProperties());
     }
 
+    private boolean blockProxyFanoutQuery(QueryRequest queryRequest) {
+        if (filterAdapter == null) {
+            return false;
+        }
+
+        try {
+            return filterAdapter.adapt(queryRequest.getQuery(),
+                    new TagsFilterDelegate(new HashSet<>(fanoutProxyTagBlacklist)));
+        } catch (UnsupportedQueryException e) {
+            LOGGER.debug(
+                    "Error checking if fanout query should be proxied. Defaulting to yes, proxy the query");
+            return false;
+        }
+    }
+
     /**
      * Validates that the {@link QueryRequest} is non-null and that the query in it is non-null.
      *
-     * @param queryRequest  the {@link QueryRequest}
-     * @param fanoutEnabled
+     * @param queryRequest the {@link QueryRequest}
      * @throws UnsupportedQueryException if the {@link QueryRequest} is null or the query in it is null
      */
-    private QueryRequest validateQueryRequest(QueryRequest queryRequest, boolean fanoutEnabled)
+    private QueryRequest validateQueryRequest(QueryRequest queryRequest)
             throws UnsupportedQueryException {
         if (queryRequest == null) {
             throw new UnsupportedQueryException(
@@ -430,24 +456,6 @@ public class QueryOperations extends DescribableImpl {
         if (queryRequest.getQuery() == null) {
             throw new UnsupportedQueryException(
                     "Cannot perform query with null query, either passed in from endpoint, or as output from a PreQuery Plugin");
-        }
-
-        if (fanoutEnabled) {
-            Set<String> sources = queryRequest.getSourceIds();
-            if (sources != null) {
-                for (String querySourceId : sources) {
-                    LOGGER.debug("validating requested sourceId {}", querySourceId);
-                    if (!querySourceId.equals(this.getId())) {
-                        UnsupportedQueryException unsupportedQueryException =
-                                new UnsupportedQueryException("Unknown source: " + querySourceId);
-                        LOGGER.debug(
-                                "Throwing unsupportedQueryException due to unknown sourceId: {}",
-                                querySourceId,
-                                unsupportedQueryException);
-                        throw unsupportedQueryException;
-                    }
-                }
-            }
         }
 
         return queryRequest;
@@ -578,10 +586,10 @@ public class QueryOperations extends DescribableImpl {
         }
 
         QuerySources initializeSources(QueryOperations queryOps, QueryRequest queryRequest,
-                Set<String> sourceIds, boolean fanoutEnabled) {
+                Set<String> sourceIds) {
             if (queryRequest.isEnterprise()) { // Check if it's an enterprise query
                 addConnectedSources = true;
-                addCatalogProvider = queryOps.hasCatalogProvider(fanoutEnabled);
+                addCatalogProvider = queryOps.hasCatalogProvider();
 
                 if (sourceIds != null && !sourceIds.isEmpty()) {
                     LOGGER.debug(
@@ -614,7 +622,7 @@ public class QueryOperations extends DescribableImpl {
                     LOGGER.debug("Local source is included in sourceIds");
                     addConnectedSources =
                             CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
-                    addCatalogProvider = queryOps.hasCatalogProvider(fanoutEnabled);
+                    addCatalogProvider = queryOps.hasCatalogProvider();
                     sourceIds.remove(queryOps.getId());
                     sourceIds.remove(null);
                     sourceIds.remove("");
@@ -663,7 +671,7 @@ public class QueryOperations extends DescribableImpl {
                 // default to local sources
                 addConnectedSources =
                         CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
-                addCatalogProvider = queryOps.hasCatalogProvider(fanoutEnabled);
+                addCatalogProvider = queryOps.hasCatalogProvider();
             }
 
             return this;

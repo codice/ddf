@@ -17,6 +17,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -156,6 +157,21 @@ public class CatalogBundle {
         }
 
         serviceManager.startManagedService(CATALOG_FRAMEWORK_PID, properties);
+    }
+
+    public void setFanoutTagBlacklist(List<String> blacklist) throws IOException {
+        Map<String, Object> properties = adminConfig.getDdfConfigAdmin()
+                .getProperties(CATALOG_FRAMEWORK_PID);
+
+        if (blacklist != null) {
+            if (properties == null) {
+                properties = new Hashtable<>();
+            }
+
+            properties.put("fanoutTagBlacklist", String.join(",", blacklist));
+
+            serviceManager.startManagedService(CATALOG_FRAMEWORK_PID, properties);
+        }
     }
 
     public void setupCaching(boolean cachingEnabled) throws IOException {
