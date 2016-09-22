@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.parser.ParserException;
-import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
@@ -254,7 +254,8 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
             serviceConfigurationProperties.putAll(slotMap);
             serviceConfigurationProperties.put(ID, configId);
             serviceConfigurationProperties.put(SHORTNAME, configId);
-            serviceConfigurationProperties.put(RegistryObjectMetacardType.REGISTRY_ID, registryId);
+            serviceConfigurationProperties.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
+                    registryId);
 
             curConfig.update(serviceConfigurationProperties);
             fpidToConfigurationMap.remove(curConfig.getFactoryPid()
@@ -370,7 +371,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
 
         Configuration[] configurations = configurationAdmin.listConfigurations(String.format(
                 CONFIGURATION_FILTER,
-                RegistryObjectMetacardType.REGISTRY_ID,
+                RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 registryId));
         if (configurations != null && configurations.length > 0) {
             String sourceName = (String) configurations[0].getProperties()
@@ -444,7 +445,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
         Map<String, Configuration> configurationMap = new HashMap<>();
         Configuration[] configurations = configurationAdmin.listConfigurations(String.format(
                 CONFIGURATION_FILTER,
-                RegistryObjectMetacardType.REGISTRY_ID,
+                RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 registryId));
 
         if (configurations == null) {
@@ -499,7 +500,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
         String configRegistryId = null;
         for (Configuration config : configurations) {
             configRegistryId = (String) config.getProperties()
-                    .get(RegistryObjectMetacardType.REGISTRY_ID);
+                    .get(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY);
             if (configRegistryId != null) {
                 break;
             }
