@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -79,7 +79,7 @@ import ddf.security.Subject;
 
 /**
  * Support class for create delegate operations for the {@code CatalogFrameworkImpl}.
- *
+ * <p>
  * This class contains two delegated methods and methods to support them. No
  * operations/support methods should be added to this class except in support of CFI
  * create operations.
@@ -148,9 +148,9 @@ public class CreateOperations {
             createRequest = processPrecreateAccessPlugins(createRequest);
 
             createRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
-                                    Collections.emptyList()));
+                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
+                            OperationTransaction.OperationType.CREATE,
+                            Collections.emptyList()));
 
             createRequest = processPreIngestPlugins(createRequest);
             createRequest = validateCreateRequest(createRequest);
@@ -230,6 +230,8 @@ public class CreateOperations {
         streamCreateRequest.getProperties()
                 .put(CONTENT_PATHS, tmpContentPaths);
 
+        injectAttributes(metacardMap);
+        setDefaultValues(metacardMap);
         streamCreateRequest = applyAttributeOverrides(streamCreateRequest, metacardMap);
 
         try {
@@ -302,6 +304,19 @@ public class CreateOperations {
         }
 
         return CollectionUtils.containsAny(tags, fanoutBlacklist);
+    }
+
+    private void injectAttributes(Map<String, Metacard> metacardMap) {
+        for(Map.Entry<String, Metacard> entry : metacardMap.entrySet()) {
+            Metacard originalMetacard = entry.getValue();
+            metacardMap.put(entry.getKey(), opsMetacardSupport.applyInjectors(originalMetacard,
+                    frameworkProperties.getAttributeInjectors()));
+        }
+    }
+
+    private void setDefaultValues(Map<String, Metacard> metacardMap) {
+        metacardMap.values()
+                .forEach(opsMetacardSupport::setDefaultValues);
     }
 
     private CreateRequest injectAttributes(CreateRequest request) {
@@ -624,8 +639,8 @@ public class CreateOperations {
                         .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
                                 contentItem.getUri()));
                 contentItem.getMetacard()
-                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
-                                String.valueOf(contentItem.getSize())));
+                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(
+                                contentItem.getSize())));
             }
             metacardMap.put(contentItem.getId(), contentItem.getMetacard());
         }
