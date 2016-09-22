@@ -20,6 +20,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
+import javax.servlet.SessionCookieConfig;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -67,6 +68,8 @@ public class FilterInjector {
         LOGGER.debug("Adding Servlet Filter for {}", refBundle.getSymbolicName());
         BundleContext bundlectx = refBundle.getBundleContext();
         ServletContext context = bundlectx.getService(serviceReference);
+        SessionCookieConfig sessionCookieConfig = context.getSessionCookieConfig();
+        sessionCookieConfig.setPath("/");
 
         //Jetty will place non-programmatically added filters (filters added via web.xml) in front of programmatically
         //added filters. This is probably OK in most instances, however, this security filter must ALWAYS be first.

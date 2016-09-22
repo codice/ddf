@@ -19,10 +19,15 @@
 	<welcome-file-list>
 		<welcome-file>SearchPage.jsp</welcome-file>
 	</welcome-file-list>
-	
+
     <context-param>
         <param-name>org.eclipse.jetty.servlet.SessionIdPathParameterName</param-name>
         <param-value>none</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>org.eclipse.jetty.servlet.SessionPath</param-name>
+        <param-value>/</param-value>
     </context-param>
     
 </web-app>

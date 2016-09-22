@@ -25,6 +25,7 @@ import java.util.Dictionary;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
+import javax.servlet.SessionCookieConfig;
 
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -76,6 +77,7 @@ public class FilterInjectorTest {
         curContext = mock(ServletContext.class);
         FilterRegistration.Dynamic filterReg = mock(FilterRegistration.Dynamic.class);
         when(curContext.addFilter(anyString(), any(Filter.class))).thenReturn(filterReg);
+        when(curContext.getSessionCookieConfig()).thenReturn(mock(SessionCookieConfig.class));
         curRegistration = mock(ServiceRegistration.class);
         when(context.registerService(eq(Filter.class),
                 Mockito.any(Filter.class),
