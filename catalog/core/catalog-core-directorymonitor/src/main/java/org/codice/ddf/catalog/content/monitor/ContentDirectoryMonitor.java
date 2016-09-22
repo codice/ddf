@@ -13,9 +13,15 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static org.codice.ddf.security.common.Security.runAsAdmin;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.camel.CamelContext;
@@ -32,9 +38,12 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.security.common.util.Security;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 
 /**
- * @author rodgersh
+ * Container class for managing the configuration of a Camel Route that allows content to be
+ * automatically ingested when dropped into the specified monitored directory.
  */
 public class ContentDirectoryMonitor implements DirectoryMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
@@ -43,11 +52,17 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
     private boolean copyIngestedFiles = false;
 
-    private CamelContext camelContext;
+    private final CamelContext camelContext;
 
     private List<RouteDefinition> routeCollection;
 
     private List<String> attributeOverrides;
+
+    private final int maxRetries;
+
+    private final int delayBetweenRetries;
+
+    private final Executor configurationExecutor;
 
     Processor systemSubjectBinder = new SystemSubjectBinder();
 
@@ -61,9 +76,26 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      *                     updated accordingly.
      */
     public ContentDirectoryMonitor(CamelContext camelContext) {
-        LOGGER.trace("ContentDirectoryMonitor(CamelContext) constructor: {}", camelContext);
+        this(camelContext, 20, 5, Executors.newSingleThreadExecutor());
+    }
+
+    /**
+     * Constructs a monitor that uses the given RetryPolicy while waiting for the content scheme,
+     * and the given Executor to run the setup and Camel configuration.
+     *
+     * @param camelContext          the Camel context to use across all Content directory monitors.
+     * @param maxRetries            Policy for polling the 'content' CamelComponent. Specifies, for any content
+     *                              directory monitor, the number of times it will poll.
+     * @param delayBetweenRetries   Policy for polling the 'content' CamelComponent. Specifies, for any content
+     *                              directory monitor, the number of seconds it will wait between consecutive polls.
+     * @param configurationExecutor the executor used to run configuration and updates.
+     */
+    public ContentDirectoryMonitor(CamelContext camelContext, int maxRetries,
+            int delayBetweenRetries, Executor configurationExecutor) {
         this.camelContext = camelContext;
-        LOGGER.trace("ContentDirectoryMonitor(CamelContext) constructor done");
+        this.maxRetries = maxRetries;
+        this.delayBetweenRetries = delayBetweenRetries;
+        this.configurationExecutor = configurationExecutor;
     }
 
     /**
@@ -74,32 +106,55 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      * also called whenever an existing route is updated.
      */
     public void init() {
-        LOGGER.trace("INSIDE: init()");
-
         if (routeCollection != null) {
             try {
                 // This stops the route before trying to remove it
                 LOGGER.debug("Removing {} routes", routeCollection.size());
                 camelContext.removeRouteDefinitions(routeCollection);
             } catch (Exception e) {
-                LOGGER.warn(e.getMessage());
+                LOGGER.debug("Unable to remove Camel routes from Content Directory Monitor", e);
             }
         } else {
             LOGGER.debug("No routes to remove before configuring a new route");
         }
 
-        org.codice.ddf.security.common.Security.runAsAdmin(() -> {
-            configureCamelRoute();
+        runAsAdmin(this::configure);
+    }
+
+    private Object configure() {
+        if (StringUtils.isEmpty(monitoredDirectory)) {
+            LOGGER.warn("Cannot setup camel route - must specify a directory to be monitored");
             return null;
-        });
+        }
+
+        CompletableFuture.runAsync(this::attemptAddRoutes, configurationExecutor);
+        return null;
     }
 
     /**
-     * Invoked when a configuration is destroyed from the container
+     * Invoked when a configuration is destroyed from the container.
+     * <p>
+     * Only remove routes that this Content Directory Monitor created since the same CamelContext
+     * is shared across all Content Directory Monitors.
      */
     public void destroy(int code) {
-        LOGGER.trace("INSIDE: destroy()");
-        removeRoutes();
+        List<RouteDefinition> routeDefinitions = camelContext.getRouteDefinitions();
+        for (RouteDefinition routeDef : routeDefinitions) {
+            try {
+                String routeId = routeDef.getId();
+                if (isMyRoute(routeId)) {
+                    LOGGER.debug("Stopping route with ID = {} and path {}",
+                            routeId,
+                            monitoredDirectory);
+                    camelContext.stopRoute(routeId);
+                    boolean status = camelContext.removeRoute(routeId);
+                    LOGGER.debug("Status of removing route {} is {}", routeId, status);
+                    camelContext.removeRouteDefinition(routeDef);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
+            }
+        }
     }
 
     /**
@@ -110,8 +165,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      * @param properties - properties map for the configuration
      */
     public void updateCallback(Map<String, Object> properties) {
-        LOGGER.trace("ENTERING: updateCallback");
-
         if (properties != null) {
             setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
             setCopyIngestedFiles((Boolean) properties.get("copyIngestedFiles"));
@@ -121,16 +174,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             }
             init();
         }
-
-        LOGGER.trace("EXITING: updateCallback");
     }
 
     /**
      * @param monitoredDirectoryPath - directory path for the monitored directory
      */
     public void setMonitoredDirectoryPath(String monitoredDirectoryPath) {
-        LOGGER.trace("INSIDE: setMonitoredDirectoryPath");
-
         this.monitoredDirectory = monitoredDirectoryPath;
     }
 
@@ -138,29 +187,77 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      * @param copyIngestedFiles - flag to copy ingested files
      */
     public void setCopyIngestedFiles(boolean copyIngestedFiles) {
-        LOGGER.trace("INSIDE: setCopyIngestedFiles");
-
         this.copyIngestedFiles = copyIngestedFiles;
     }
 
+    /**
+     * @param attributeOverrides - a list of attributes to override
+     */
     public void setAttributeOverrides(List<String> attributeOverrides) {
         this.attributeOverrides = attributeOverrides;
     }
 
-    public List<String> getAttributeOverrides() {
-        return this.attributeOverrides;
+    public List<RouteDefinition> getRouteDefinitions() {
+        return camelContext.getRouteDefinitions();
     }
 
-    private void configureCamelRoute() {
-        LOGGER.trace("ENTERING: configureCamelRoute");
-
-        // Must have a directory to be monitored to be able to configure the Camel route.
-        if (StringUtils.isEmpty(monitoredDirectory)) {
-            LOGGER.debug("Cannot setup camel route - must specify a directory to be monitored");
-            return;
+    /*
+        Task that waits for the "content" CamelComponent before adding the routes from the
+        RouteBuilder to the CamelContext. This ensures content directory monitors will
+        automatically start after a system shutdown.
+     */
+    private void attemptAddRoutes() {
+        LOGGER.debug("Attempting to add routes for content directory monitor watching {}",
+                monitoredDirectory);
+        RouteBuilder routeBuilder = createRouteBuilder();
+        try {
+            verifyContentCamelComponentIsAvailable();
+            camelContext.addRoutes(routeBuilder);
+            setRouteCollection(routeBuilder);
+        } catch (Exception e) {
+            LOGGER.warn("{} {}",
+                    "Unable to configure Camel route.",
+                    "This content directory monitor will be unusable.");
+        } finally {
+            if (LOGGER.isDebugEnabled()) {
+                dumpCamelContext("after attemptAddRoutes()");
+            }
         }
+    }
 
-        RouteBuilder routeBuilder = new RouteBuilder() {
+    /*
+        Do not attempt to add routes to the CamelContext until we know the content scheme is ready.
+     */
+    private void verifyContentCamelComponentIsAvailable() {
+        Failsafe.with(new RetryPolicy().retryWhen(null)
+                .withMaxRetries(maxRetries)
+                .withDelay(delayBetweenRetries, TimeUnit.SECONDS))
+            .withFallback(() -> {
+                throw new IllegalStateException("Could not get Camel component 'content'");
+            })
+            .get(() -> camelContext.getComponent("content"));
+    }
+
+    /*
+        Assign this content directory monitor's routeCollection to the routes generated by
+        this content directory monitor's RouteBuilder.
+     */
+    private void setRouteCollection(RouteBuilder routeBuilder) {
+        routeCollection = routeBuilder.getRouteCollection()
+                .getRoutes();
+    }
+
+    /*
+        Does the given routeId belong to this content directory monitor's routeCollection?
+     */
+    private boolean isMyRoute(String routeId) {
+        return this.routeCollection != null && this.routeCollection.stream()
+                .map(RouteDefinition::getId)
+                .anyMatch(routeId::equals);
+    }
+
+    private RouteBuilder createRouteBuilder() {
+        return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
                 String inbox = "file:" + monitoredDirectory + "?moveFailed=.errors";
@@ -181,113 +278,11 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                             simple(attributeOverrideString));
                 }
 
+                LOGGER.trace("About to process scheme content:framework");
                 routeDefinition.process(systemSubjectBinder)
                         .to("content:framework");
             }
         };
-
-        try {
-            // Add the routes that will be built by the RouteBuilder class above
-            // to this CamelContext.
-            // The addRoutes() method will instantiate the RouteBuilder class above,
-            // and start the routes (only) if the camelContext has already been started.
-            camelContext.addRoutes(routeBuilder);
-
-            // Save the routes created by RouteBuilder so that they can be
-            // stopped and removed later if the route(s) are modified by the
-            // administrator or this ContentDirectoryMonitor is deleted.
-            this.routeCollection = routeBuilder.getRouteCollection()
-                    .getRoutes();
-
-            // Start route that was just added.
-            // If the route was just added for the first time, i.e., this not a bundle
-            // restart, then this method will do nothing since the addRoutes() above
-            // already started the route. But for bundle (or system) restart this call
-            // is needed since the addRoutes() for whatever reason did not start the route.
-            startRoutes();
-
-            if (LOGGER.isDebugEnabled()) {
-                dumpCamelContext("after configureCamelRoute()");
-            }
-        } catch (Exception e) {
-            LOGGER.error(
-                    "Unable to configure Camel route - this Content Directory Monitor will be unusable",
-                    e);
-        }
-
-        LOGGER.trace("EXITING: configureCamelRoute");
-    }
-
-    public List<RouteDefinition> getRouteDefinitions() {
-        return camelContext.getRouteDefinitions();
-    }
-
-    private void startRoutes() {
-        LOGGER.trace("ENTERING: startRoutes");
-        List<RouteDefinition> routeDefinitions = camelContext.getRouteDefinitions();
-        for (RouteDefinition routeDef : routeDefinitions) {
-            startRoute(routeDef);
-        }
-        LOGGER.trace("EXITING: startRoutes");
-    }
-
-    private void startRoute(RouteDefinition routeDef) {
-        String routeId = routeDef.getId();
-        try {
-            if (isMyRoute(routeId)) {
-                ServiceStatus routeStatus = camelContext.getRouteStatus(routeId);
-                // Only start the route if it is not already started
-                if (routeStatus == null || !routeStatus.isStarted()) {
-                    LOGGER.trace("Starting route with ID = {}", routeId);
-                    camelContext.startRoute(routeDef);  //DEPRECATED
-                    // this method does not reliably start a route that was created, then
-                    // app shutdown, and restarted
-                    //                camelContext.startRoute(routeId);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Unable to start Camel route with route ID = {}", routeId, e);
-        }
-    }
-
-    private void removeRoutes() {
-        LOGGER.trace("ENTERING: stopRoutes");
-        List<RouteDefinition> routeDefinitions = camelContext.getRouteDefinitions();
-        for (RouteDefinition routeDef : routeDefinitions) {
-            try {
-                // Only remove routes that this Content Directory Monitor created
-                // (since same camelContext shared across all ContentDirectoryMonitors
-                // this is necessary)
-                if (isMyRoute(routeDef.getId())) {
-                    LOGGER.trace("Stopping route with ID = {}", routeDef.getId());
-                    camelContext.stopRoute(routeDef);  //DEPRECATED
-                    //                    camelContext.stopRoute(routeDef.getId());
-                    boolean status = camelContext.removeRoute(routeDef.getId());
-                    LOGGER.trace("Status of removing route {} is {}", routeDef.getId(), status);
-                    camelContext.removeRouteDefinition(routeDef);
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
-            }
-        }
-
-        LOGGER.trace("EXITING: stopRoutes");
-    }
-
-    private boolean isMyRoute(String routeId) {
-
-        boolean status = false;
-
-        if (this.routeCollection != null) {
-            for (RouteDefinition routeDef : this.routeCollection) {
-                if (routeDef.getId()
-                        .equals(routeId)) {
-                    return true;
-                }
-            }
-        }
-
-        return status;
     }
 
     private void dumpCamelContext(String msg) {
