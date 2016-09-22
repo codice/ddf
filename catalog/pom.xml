@@ -481,7 +481,7 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>0.9.24</version>
+                <version>${logback.classic.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>

@@ -108,6 +108,7 @@
         <commons-pool.version>1.6</commons-pool.version>
         <servicemix.bundles.junit.version>4.11_2</servicemix.bundles.junit.version>
         <jackson2.version>2.8.2</jackson2.version>
+        <logback.classic.version>1.1.7</logback.classic.version>
         <!-- Artemis dependencies -->
         <artemis.version>1.3.0</artemis.version>
         <proton.version>0.12.2</proton.version>
