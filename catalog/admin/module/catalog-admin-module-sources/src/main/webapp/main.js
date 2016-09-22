@@ -140,7 +140,7 @@
         app.start();
 
         require(['js/module'], function () {
-
+            $("#page-loading").addClass('hide');
         });
 
     });
