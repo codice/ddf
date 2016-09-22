@@ -43,10 +43,14 @@
 </td>
 <td colspan="4">
     {{#if currentConfiguration}}
-        {{#if available}}
-            <span class='label label-success'>Available</span>
+        {{#if loading}}
+            <span class='label label-info'>Loading</span>
         {{else}}
-            <span class='label label-warning'>Unavailable</span>
+            {{#if available}}
+                <span class='label label-success'>Available</span>
+            {{else}}
+                <span class='label label-warning'>Unavailable</span>
+            {{/if}}
         {{/if}}
     {{/if}}
 </td>

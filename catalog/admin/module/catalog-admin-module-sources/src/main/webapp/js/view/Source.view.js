@@ -73,7 +73,13 @@ define([
                 if (this.model && this.model.has('disabledConfigurations')) {
                     data.disabledConfigurations = this.model.get('disabledConfigurations').toJSON();
                 }
-                data.available = this.model.get('available');
+
+                if(typeof this.model.get('available') === 'undefined') {
+                    data.loading = true;
+                } else {
+                    data.available = this.model.get('available');
+                }
+
                 data.name = this.model.get('name');
 
                 return data;
@@ -137,7 +143,23 @@ define([
             template: 'sourceList',
             itemView: SourceView.SourceRow,
             emptyView: EmptyView.sources,
-            itemViewContainer: 'tbody'
+            itemViewContainer: 'tbody',
+
+            initialize: function() {
+                this.showSourcesLoading();
+            },
+            collectionEvents: {
+                "request": "showSourcesLoading",
+                "sync": "hideSourcesLoading"
+            },
+            showSourcesLoading: function() {
+                this.$el.find('table').addClass('hide');
+                this.$el.find("#sources-loading").removeClass('hide');
+            },
+            hideSourcesLoading: function() {
+                this.$el.find("#sources-loading").addClass('hide');
+                this.$el.find('table').removeClass('hide');
+            }
         });
 
         SourceView.SourcePage = Marionette.Layout.extend({
@@ -167,18 +189,22 @@ define([
             },
             onRender: function () {
                 var collection = this.model.get('collection');
-                this.collectionRegion.show(new SourceView.SourceTable({
+                var table = new SourceView.SourceTable({
                     model: this.model,
                     collection: collection
-                }));
+                });
+                this.collectionRegion.show(table);
+                this.refreshSources();
             },
             refreshSources: function () {
                 var view = this;
+                view.model.get('collection').trigger('request');
                 view.model.get('model').clear();
                 view.model.get('model').fetch({
                     success: function () {
                         view.model.get('collection').sort();
                         view.model.get('collection').trigger('reset');
+                        view.model.get('collection').trigger('sync');
                         view.refreshButton.done();
                     }
                 });
