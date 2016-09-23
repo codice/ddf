@@ -14,6 +14,7 @@
 package ddf.catalog.source.solr;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
@@ -69,6 +70,20 @@ public class TestSolrFilterDelegate {
         // then return a valid Solr query using the given WKT
         assertThat(query.getQuery(),
                 is("testProperty_geohash_index:\"Intersects(invalid JTS wkt)\""));
+    }
+
+    @Test
+    public void intersectsWithValidJtsWkt() {
+        // given a geospatial property
+        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
+                "testProperty_geohash_index");
+
+        // when the delegate intersects on WKT not handled by JTS
+        SolrQuery query = toTest.intersects("testProperty", "POINT(1 0)");
+
+        // then return a valid Solr query using the given WKT
+        assertThat(query.getQuery(),
+                startsWith("testProperty_geohash_index:\"Intersects(BUFFER(POINT(1.0 0.0), "));
     }
 
     @Test

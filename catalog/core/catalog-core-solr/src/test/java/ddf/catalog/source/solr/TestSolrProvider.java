@@ -67,6 +67,7 @@ import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.internal.util.collections.Sets;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
@@ -4866,24 +4867,50 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
-    public void testSpatialDistanceCalculationBetweenTwoPoints() throws Exception {
+    public void testSpatialDistanceCalculationBetweenTwoPointsUsingDistanceSortBy() throws Exception {
+        spatialDistanceCalculationBetweenTwoPoints(Metacard.GEOGRAPHY, Result.DISTANCE);
+
+    }
+
+    @Test
+    public void testSpatialDistanceCalculationBetweenTwoPointsUsingAttributeSortBy() throws Exception {
+        spatialDistanceCalculationBetweenTwoPoints("geoattribute", "geoattribute");
+
+    }
+
+    private void spatialDistanceCalculationBetweenTwoPoints(String attribute, String sortBy) throws Exception {
         deleteAllIn(provider);
 
         // given
         double radiusInKilometers = 500;
         double radiusInMeters = radiusInKilometers * METERS_PER_KM;
-        Filter positiveFilter = filterBuilder.attribute(Metacard.GEOGRAPHY)
+        Filter positiveFilter = filterBuilder.attribute(attribute)
                 .withinBuffer()
                 .wkt(PHOENIX_POINT_WKT, radiusInMeters);
 
-        MetacardImpl metacard = new MockMetacard(Library.getFlagstaffRecord());
-        metacard.setLocation(LAS_VEGAS_POINT_WKT);
+        MetacardImpl metacard;
+        if (attribute.equals(Metacard.GEOGRAPHY)) {
+            metacard = new MockMetacard(Library.getFlagstaffRecord());
+        } else {
+            metacard = new MockMetacard(Library.getFlagstaffRecord(),
+                    new MetacardTypeImpl("distanceTest",
+                            BasicTypes.BASIC_METACARD,
+                            Sets.newSet(new AttributeDescriptorImpl(attribute,
+                                    true,
+                                    true,
+                                    true,
+                                    true,
+                                    BasicTypes.GEO_TYPE))));
+
+        }
+
+        metacard.setAttribute(attribute, LAS_VEGAS_POINT_WKT);
         List<Metacard> list = Arrays.asList((Metacard) metacard);
 
         create(list);
 
         QueryImpl query = new QueryImpl(positiveFilter);
-        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE,
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(sortBy,
                 SortOrder.ASCENDING));
 
         // when
