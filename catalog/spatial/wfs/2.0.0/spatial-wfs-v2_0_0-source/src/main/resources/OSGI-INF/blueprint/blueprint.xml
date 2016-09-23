@@ -60,6 +60,8 @@
             <property name="disableSorting" value="false"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
+            <property name="srsName" value=""/>
+
             <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>

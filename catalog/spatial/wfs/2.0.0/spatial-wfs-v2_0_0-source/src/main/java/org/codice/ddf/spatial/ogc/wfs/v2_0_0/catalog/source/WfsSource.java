@@ -165,6 +165,8 @@ public class WfsSource extends MaskableImpl
 
     private static final String RECEIVE_TIMEOUT_PROPERTY = "receiveTimeout";
 
+    private static final String SRS_NAME_PROPERTY = "srsName";
+
     private static final String WFS_ERROR_MESSAGE = "Error received from Wfs Server.";
 
     private static final String UNKNOWN = "unknown";
@@ -244,6 +246,8 @@ public class WfsSource extends MaskableImpl
 
     private String forcedFeatureType;
 
+    private String srsName;
+
     public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
             SecureCxfClientFactory factory, EncryptionService encryptionService)
             throws SecurityServiceException {
@@ -303,6 +307,7 @@ public class WfsSource extends MaskableImpl
 
         setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
         setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
+        setSrsName((String) configuration.get(SRS_NAME_PROPERTY));
 
         String[] nonQueryableProperties =
                 (String[]) configuration.get(NON_QUERYABLE_PROPS_PROPERTY);
@@ -801,6 +806,10 @@ public class WfsSource extends MaskableImpl
                             .getLocalPart();
                 }
 
+                if(StringUtils.isNotBlank(srsName)) {
+                    wfsQuery.setSrsName(srsName);
+                }
+
                 wfsQuery.setTypeNames(Arrays.asList(typeName));
                 wfsQuery.setHandle(filterDelegateEntry.getKey()
                         .getLocalPart());
@@ -1180,6 +1189,14 @@ public class WfsSource extends MaskableImpl
 
     public Integer getReceiveTimeout() {
         return this.receiveTimeout;
+    }
+
+    public void setSrsName(String srsName) {
+        this.srsName = srsName;
+    }
+
+    public String getSrsName() {
+        return this.srsName;
     }
 
     public void setFilterAdapter(FilterAdapter filterAdapter) {
