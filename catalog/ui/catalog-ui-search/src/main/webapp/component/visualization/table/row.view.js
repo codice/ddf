@@ -77,13 +77,13 @@ module.exports = Marionette.ItemView.extend({
                         default:
                             if (value.constructor === String && value.indexOf('http') === 0) {
                                 text = properties.attributeAliases[property] || property;
-                                html = '<a href="' + value + '" target="_blank">' + text + '</a>';
+                                html = '<a href="' + Common.escapeHTML(value) + '" target="_blank">' + text + '</a>';
                             }
                             break;
                     }
                 }
                 if (property === 'thumbnail') {
-                    html = '<img src="' + value + '">';
+                    html = '<img src="' +  Common.escapeHTML(value) + '">';
                     className = "is-thumbnail";
                 }
                 return {

@@ -94,6 +94,9 @@ define([
             window.requestAnimationFrame(function(){
                 repaint();
             });
+        },
+        escapeHTML: function(value){
+            return $("<div>").text(value).html();
         }
     };
 });
