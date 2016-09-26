@@ -93,7 +93,8 @@ public interface RESTService {
     @PUT
     @Path("/{id}")
     Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
-            @Context HttpServletRequest httpRequest, InputStream message);
+            @Context HttpServletRequest httpRequest,
+            @QueryParam("transform") String transformerParam, InputStream message);
 
     /**
      * REST Put. Updates the specified metadata entry with the provided metadata.
@@ -106,7 +107,7 @@ public interface RESTService {
     @Path("/{id}")
     Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
             @Context HttpServletRequest httpRequest, MultipartBody multipartBody,
-            InputStream message);
+            @QueryParam("transform") String transformerParam, InputStream message);
 
     /**
      * REST Post. Creates a new metadata entry in the catalog.
@@ -116,7 +117,8 @@ public interface RESTService {
      */
     @POST
     Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
-            @Context HttpServletRequest httpRequest, InputStream message);
+            @Context HttpServletRequest httpRequest,
+            @QueryParam("transform") String transformerParam, InputStream message);
 
     /**
      * REST Post. Creates a new metadata entry in the catalog.
@@ -127,7 +129,7 @@ public interface RESTService {
     @POST
     Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
             @Context HttpServletRequest httpRequest, MultipartBody multipartBody,
-            InputStream message);
+            @QueryParam("transform") String transformerParam, InputStream message);
 
     /**
      * REST Delete. Deletes a record from the catalog.

@@ -208,6 +208,8 @@ public class UpdateOperations {
         streamUpdateRequest.getProperties()
                 .put(CONTENT_PATHS, tmpContentPaths);
 
+        streamUpdateRequest = applyAttributeOverrides(streamUpdateRequest, metacardMap);
+
         try {
             if (!contentItems.isEmpty()) {
                 updateStorageRequest = new UpdateStorageRequestImpl(contentItems,
@@ -233,7 +235,17 @@ public class UpdateOperations {
                 updateStorageResponse = processPostUpdateStoragePlugins(updateStorageResponse);
 
                 for (ContentItem contentItem : updateStorageResponse.getUpdatedContentItems()) {
-                    metacardMap.put(contentItem.getId(), contentItem.getMetacard());
+                    Metacard metacard = metacardMap.get(contentItem.getId());
+
+                    Metacard overrideMetacard = contentItem.getMetacard();
+
+                    Metacard updatedMetacard = OverrideAttributesSupport.overrideMetacard(metacard,
+                            overrideMetacard, true, true);
+
+                    updatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                            String.valueOf(contentItem.getSize())));
+
+                    metacardMap.put(contentItem.getId(), updatedMetacard);
                 }
             }
 
@@ -646,5 +658,12 @@ public class UpdateOperations {
                             .filter(s -> !queryResults.contains(s))
                             .collect(Collectors.joining(", ", "[", "]")));
         }
+    }
+
+    private UpdateStorageRequest applyAttributeOverrides(UpdateStorageRequest updateStorageRequest,
+            Map<String, Metacard> metacardMap) {
+        OverrideAttributesSupport.overrideAttributes(updateStorageRequest.getContentItems(),
+                metacardMap);
+        return updateStorageRequest;
     }
 }

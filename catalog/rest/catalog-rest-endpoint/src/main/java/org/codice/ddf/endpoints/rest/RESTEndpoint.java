@@ -21,14 +21,18 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -60,6 +64,11 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.opengis.filter.Filter;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,13 +82,18 @@ import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
@@ -166,6 +180,8 @@ public class RESTEndpoint implements RESTService {
 
     }
 
+    private List<MetacardType> metacardTypes;
+
     private MimeTypeMapper mimeTypeMapper;
 
     private FilterBuilder filterBuilder;
@@ -180,6 +196,11 @@ public class RESTEndpoint implements RESTService {
         LOGGER.trace("Constructing REST Endpoint");
         this.catalogFramework = framework;
         LOGGER.trace(("Rest Endpoint constructed successfully"));
+    }
+
+    BundleContext getBundleContext() {
+        Bundle bundle = FrameworkUtil.getBundle(RESTEndpoint.class);
+        return bundle.getBundleContext();
     }
 
     /**
@@ -420,8 +441,8 @@ public class RESTEndpoint implements RESTService {
      * specified by sourceid. Transformer argument is optional, but is used to specify what format
      * the data should be returned.
      *
-     * @param sourceid
-     * @param id
+     * @param encodedSourceId
+     * @param encodedId
      * @param transformerParam
      * @param uriInfo
      * @return
@@ -629,7 +650,7 @@ public class RESTEndpoint implements RESTService {
         }
 
         try {
-            Metacard metacard = generateMetacard(mimeType, "assigned-when-ingested", stream);
+            Metacard metacard = generateMetacard(mimeType, "assigned-when-ingested", stream, null);
             String metacardId = metacard.getId();
             LOGGER.debug("Metacard {} created", metacardId);
             LOGGER.debug("Transforming metacard {} to {} to be able to return it to client",
@@ -663,8 +684,9 @@ public class RESTEndpoint implements RESTService {
     @Path("/{id}")
     @Consumes({"text/*", "application/*"})
     public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
-            @Context HttpServletRequest httpRequest, InputStream message) {
-        return updateDocument(id, headers, httpRequest, null, message);
+            @Context HttpServletRequest httpRequest,
+            @QueryParam("transform") String transformerParam, InputStream message) {
+        return updateDocument(id, headers, httpRequest, null, transformerParam, message);
     }
 
     /**
@@ -679,7 +701,7 @@ public class RESTEndpoint implements RESTService {
     @Consumes("multipart/*")
     public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
             @Context HttpServletRequest httpRequest, MultipartBody multipartBody,
-            InputStream message) {
+            @QueryParam("transform") String transformerParam, InputStream message) {
         LOGGER.trace("PUT");
         Response response;
 
@@ -700,17 +722,14 @@ public class RESTEndpoint implements RESTService {
 
                 if (createInfo == null) {
                     UpdateRequest updateRequest = new UpdateRequestImpl(id,
-                            generateMetacard(mimeType, id, message));
+                            generateMetacard(mimeType, id, message, transformerParam));
                     catalogFramework.update(updateRequest);
                 } else {
                     UpdateStorageRequest streamUpdateRequest = new UpdateStorageRequestImpl(
-                            Collections.singletonList(new IncomingContentItem(id,
-                                    createInfo.getStream(),
-                                    createInfo.getContentType(),
-                                    createInfo.getFilename(),
-                                    0,
-                                    null)),
-                            null);
+                            Collections.singletonList(
+                                    new IncomingContentItem(id, createInfo.getStream(),
+                                            createInfo.getContentType(), createInfo.getFilename(),
+                                            0, createInfo.getMetacard())), null);
                     catalogFramework.update(streamUpdateRequest);
                 }
 
@@ -741,8 +760,9 @@ public class RESTEndpoint implements RESTService {
     @POST
     @Consumes({"text/*", "application/*"})
     public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
-            @Context HttpServletRequest httpRequest, InputStream message) {
-        return addDocument(headers, requestUriInfo, httpRequest, null, message);
+            @Context HttpServletRequest httpRequest,
+            @QueryParam("transform") String transformerParam, InputStream message) {
+        return addDocument(headers, requestUriInfo, httpRequest, null, transformerParam, message);
     }
 
     /**
@@ -755,7 +775,7 @@ public class RESTEndpoint implements RESTService {
     @Consumes("multipart/*")
     public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
             @Context HttpServletRequest httpRequest, MultipartBody multipartBody,
-            InputStream message) {
+            @QueryParam("transform") String transformerParam, InputStream message) {
         LOGGER.debug("POST");
         Response response;
 
@@ -767,7 +787,7 @@ public class RESTEndpoint implements RESTService {
                 if (multipartBody != null) {
                     List<Attachment> contentParts = multipartBody.getAllAttachments();
                     if (contentParts != null && contentParts.size() > 0) {
-                        createInfo = parseAttachment(contentParts.get(0));
+                        createInfo = parseAttachments(contentParts, transformerParam);
                     } else {
                         LOGGER.debug("No file contents attachment found");
                     }
@@ -775,17 +795,15 @@ public class RESTEndpoint implements RESTService {
 
                 CreateResponse createResponse;
                 if (createInfo == null) {
-                    CreateRequest createRequest = new CreateRequestImpl(generateMetacard(mimeType,
-                            null,
-                            message));
+                    CreateRequest createRequest = new CreateRequestImpl(
+                            generateMetacard(mimeType, null, message, transformerParam));
                     createResponse = catalogFramework.create(createRequest);
                 } else {
                     CreateStorageRequest streamCreateRequest = new CreateStorageRequestImpl(
-                            Collections.singletonList(new IncomingContentItem(createInfo.getStream(),
-                                    createInfo.getContentType(),
-                                    createInfo.getFilename(),
-                                    null)),
-                            null);
+                            Collections.singletonList(
+                                    new IncomingContentItem(createInfo.getStream(),
+                                            createInfo.getContentType(), createInfo.getFilename(),
+                                            createInfo.getMetacard())), null);
                     createResponse = catalogFramework.create(streamCreateRequest);
                 }
 
@@ -836,9 +854,136 @@ public class RESTEndpoint implements RESTService {
         return response;
     }
 
+    CreateInfo parseAttachments(List<Attachment> contentParts, String transformerParam) {
+
+        if (contentParts.size() == 1) {
+            Attachment contentPart = contentParts.get(0);
+            return parseAttachment(contentPart);
+        }
+        List<Attribute> attributes = new ArrayList<>(contentParts.size());
+        Metacard metacard = null;
+        CreateInfo createInfo = null;
+
+        for (Attachment attachment : contentParts) {
+            String name = attachment.getContentDisposition()
+                    .getParameter("name");
+            String parsedName = (name.startsWith("parse.")) ? name.substring(6) : name;
+            try {
+                InputStream inputStream = attachment.getDataHandler()
+                        .getInputStream();
+                if (name.equals("parse.resource")) {
+                    createInfo = parseAttachment(attachment);
+                } else if (name.equals("parse.metadata")) {
+                    metacard = parseMetadata(transformerParam, metacard, attachment, inputStream);
+                } else {
+                    parseOverrideAttributes(attributes, parsedName, inputStream);
+                }
+            } catch (IOException e) {
+                LOGGER.debug(
+                        "Unable to get input stream for mime attachment. Ignoring override attribute: {}",
+                        name, e);
+            }
+
+        }
+        if (createInfo == null) {
+            throw new IllegalArgumentException("No parse.resource specified in request.");
+        }
+        if (metacard == null) {
+            metacard = new MetacardImpl();
+        }
+        for (Attribute attribute : attributes) {
+            metacard.setAttribute(attribute);
+        }
+        createInfo.setMetacard(metacard);
+
+        return createInfo;
+    }
+
+    private void parseOverrideAttributes(List<Attribute> attributes, String parsedName,
+            InputStream inputStream) {
+        Optional<AttributeType.AttributeFormat> attributeFormat = metacardTypes.stream()
+                .map(metacardType -> metacardType.getAttributeDescriptor(parsedName))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(AttributeDescriptor::getType)
+                .map(AttributeType::getAttributeFormat);
+        attributeFormat.ifPresent(attributeFormat1 -> {
+            try {
+                switch (attributeFormat1) {
+                case XML:
+                case GEOMETRY:
+                case STRING:
+                    attributes.add(new AttributeImpl(parsedName,
+                            IOUtils.toString(inputStream)));
+                    break;
+                case BOOLEAN:
+                    attributes.add(new AttributeImpl(parsedName,
+                            Boolean.valueOf(IOUtils.toString(inputStream))));
+                    break;
+                case SHORT:
+                    attributes.add(new AttributeImpl(parsedName,
+                            Short.valueOf(IOUtils.toString(inputStream))));
+                    break;
+                case LONG:
+                    attributes.add(new AttributeImpl(parsedName,
+                            Long.valueOf(IOUtils.toString(inputStream))));
+                    break;
+                case INTEGER:
+                    attributes.add(new AttributeImpl(parsedName,
+                            Integer.valueOf(IOUtils.toString(inputStream))));
+                    break;
+                case FLOAT:
+                    attributes.add(new AttributeImpl(parsedName,
+                            Float.valueOf(IOUtils.toString(inputStream))));
+                    break;
+                case DOUBLE:
+                    attributes.add(new AttributeImpl(parsedName,
+                            Double.valueOf(IOUtils.toString(inputStream))));
+                    break;
+                case DATE:
+                    attributes.add(new AttributeImpl(parsedName, Date.from(
+                            Instant.parse(IOUtils.toString(inputStream)))));
+                    break;
+                case BINARY:
+                    attributes.add(new AttributeImpl(parsedName,
+                            IOUtils.toByteArray(inputStream)));
+                    break;
+                case OBJECT:
+                    LOGGER.debug("Object type not supported for override");
+                    break;
+                }
+            } catch (IOException e) {
+                LOGGER.debug("Unable to read attribute to override", e);
+            } finally {
+                IOUtils.closeQuietly(inputStream);
+            }
+
+        });
+    }
+
+    private Metacard parseMetadata(String transformerParam, Metacard metacard,
+            Attachment attachment, InputStream inputStream) {
+        String transformer = DEFAULT_METACARD_TRANSFORMER;
+        if (transformerParam != null) {
+            transformer = transformerParam;
+        }
+        try {
+            MimeType mimeType = new MimeType(attachment.getContentType()
+                    .toString());
+            metacard = generateMetacard(mimeType,
+                    "assigned-when-ingested", inputStream, transformer);
+        } catch (MimeTypeParseException | MetacardCreationException e) {
+            LOGGER.debug("Unable to parse metadata {}",
+                    attachment.getContentType()
+                            .toString());
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
+        return metacard;
+    }
+
     CreateInfo parseAttachment(Attachment contentPart) {
         CreateInfo createInfo = new CreateInfo();
-
         InputStream stream = null;
         FileBackedOutputStream fbos = null;
         String filename = null;
@@ -882,7 +1027,8 @@ public class RESTEndpoint implements RESTService {
                     fileExtension = DEFAULT_FILE_EXTENSION;
                 }
             } catch (MimeTypeResolutionException e) {
-                LOGGER.debug("Exception getting file extension for contentType = {}", contentType);
+                LOGGER.debug("Exception getting file extension for contentType = {}",
+                        contentType);
             }
             filename = DEFAULT_FILE_NAME + "." + fileExtension; // DDF-2263
             LOGGER.debug("No filename parameter provided - default to {}", filename);
@@ -895,14 +1041,13 @@ public class RESTEndpoint implements RESTService {
             if (StringUtils.isEmpty(contentType) || REFINEABLE_MIME_TYPES.contains(contentType)) {
                 String fileExtension = FilenameUtils.getExtension(filename);
                 LOGGER.debug("fileExtension = {}, contentType before refinement = {}",
-                        fileExtension,
-                        contentType);
+                        fileExtension, contentType);
                 try {
                     contentType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
                 } catch (MimeTypeResolutionException e) {
-                    LOGGER.debug("Unable to refine contentType {} based on filename extension {}",
-                            contentType,
-                            fileExtension);
+                    LOGGER.debug(
+                            "Unable to refine contentType {} based on filename extension {}",
+                            contentType, fileExtension);
                 }
                 LOGGER.debug("Refined contentType = {}", contentType);
             }
@@ -974,8 +1119,8 @@ public class RESTEndpoint implements RESTService {
         return convertedMap;
     }
 
-    private Metacard generateMetacard(MimeType mimeType, String id, InputStream message)
-            throws MetacardCreationException {
+    private Metacard generateMetacard(MimeType mimeType, String id, InputStream message,
+            String transformerId) throws MetacardCreationException {
 
         List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
                 InputTransformer.class,
@@ -1000,6 +1145,14 @@ public class RESTEndpoint implements RESTService {
             }
 
             Iterator<InputTransformer> it = listOfCandidates.iterator();
+            if (StringUtils.isNotEmpty(transformerId)) {
+                BundleContext bundleContext = getBundleContext();
+                Collection<ServiceReference<InputTransformer>> serviceReferences = bundleContext.getServiceReferences(
+                        InputTransformer.class, "(id=" + transformerId + ")");
+                it = serviceReferences.stream()
+                        .map(bundleContext::getService)
+                        .iterator();
+            }
 
             StringBuilder causeMessage = new StringBuilder(
                     "Could not create metacard with mimeType ");
@@ -1042,6 +1195,8 @@ public class RESTEndpoint implements RESTService {
             }
         } catch (IOException e) {
             throw new MetacardCreationException("Could not create metacard.", e);
+        } catch (InvalidSyntaxException e) {
+            throw new MetacardCreationException("Could not determine transformer", e);
         }
         return generatedMetacard;
 
@@ -1152,12 +1307,18 @@ public class RESTEndpoint implements RESTService {
         this.mimeTypeMapper = mimeTypeMapper;
     }
 
+    public void setMetacardTypes(List<MetacardType> metacardTypes) {
+        this.metacardTypes = metacardTypes;
+    }
+
     protected static class CreateInfo {
         InputStream stream = null;
 
         String filename = null;
 
         String contentType = null;
+
+        Metacard metacard = null;
 
         public InputStream getStream() {
             return stream;
@@ -1181,6 +1342,14 @@ public class RESTEndpoint implements RESTService {
 
         public void setContentType(String contentType) {
             this.contentType = contentType;
+        }
+
+        public Metacard getMetacard() {
+            return metacard;
+        }
+
+        public void setMetacard(Metacard metacard) {
+            this.metacard = metacard;
         }
     }
 

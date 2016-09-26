@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -79,7 +79,7 @@ import ddf.security.Subject;
 
 /**
  * Support class for create delegate operations for the {@code CatalogFrameworkImpl}.
- * <p>
+ *
  * This class contains two delegated methods and methods to support them. No
  * operations/support methods should be added to this class except in support of CFI
  * create operations.
@@ -633,16 +633,21 @@ public class CreateOperations {
     private void populateMetacardMap(Map<String, Metacard> metacardMap,
             CreateStorageResponse createStorageResponse) throws IOException {
         for (ContentItem contentItem : createStorageResponse.getCreatedContentItems()) {
-            if (contentItem.getMetacard()
-                    .getResourceURI() == null && StringUtils.isBlank(contentItem.getQualifier())) {
-                contentItem.getMetacard()
-                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
-                                contentItem.getUri()));
-                contentItem.getMetacard()
-                        .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(
-                                contentItem.getSize())));
+            if (StringUtils.isBlank(contentItem.getQualifier())) {
+                Metacard metacard = metacardMap.get(contentItem.getId());
+
+                Metacard overrideMetacard = contentItem.getMetacard();
+
+                Metacard updatedMetacard = OverrideAttributesSupport.overrideMetacard(metacard,
+                        overrideMetacard, true, true);
+
+                updatedMetacard.setAttribute(
+                        new AttributeImpl(Metacard.RESOURCE_URI, contentItem.getUri()));
+                updatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                        String.valueOf(contentItem.getSize())));
+
+                metacardMap.put(contentItem.getId(), updatedMetacard);
             }
-            metacardMap.put(contentItem.getId(), contentItem.getMetacard());
         }
     }
 
@@ -676,12 +681,14 @@ public class CreateOperations {
     private CreateStorageRequest applyAttributeOverrides(CreateStorageRequest createStorageRequest,
             Map<String, Metacard> metacardMap) {
         // Get attributeOverrides, apply them and then remove them from the streamCreateRequest so they are not exposed to plugins
-        Map<String, String> attributeOverrideHeaders =
-                (HashMap<String, String>) createStorageRequest.getProperties()
-                        .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
+        Map<String, String> attributeOverrideHeaders = (HashMap<String, String>) createStorageRequest.getProperties()
+                .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
         applyAttributeOverridesToMetacardMap(attributeOverrideHeaders, metacardMap);
         createStorageRequest.getProperties()
                 .remove(Constants.ATTRIBUTE_OVERRIDES_KEY);
+
+        OverrideAttributesSupport.overrideAttributes(createStorageRequest.getContentItems(),
+                metacardMap);
 
         return createStorageRequest;
     }
