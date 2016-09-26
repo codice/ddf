@@ -61,6 +61,16 @@
                 <value>86400</value>
             </list>
         </property>
+        <property name="hiddenAttributes">
+            <list>
+                <value>metacard.modified</value>
+                <value>metacard.created</value>
+                <value>metacard.owner</value>
+                <value>metacard-tags</value>
+                <value>validation-errors</value>
+                <value>validation-warnings</value>
+            </list>
+        </property>
     </bean>
 
     <service interface="ddf.catalog.data.MetacardType">
