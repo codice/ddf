@@ -61,6 +61,36 @@ define([
                             value: then
                         }
                     ]
+                },
+                {
+                    type: 'AND',
+                    filters: [
+                        {
+                            property: '"metacard.created"',
+                            type: 'BEFORE',
+                            value: now
+                        },
+                        {
+                            property: '"metacard.created"',
+                            type: 'AFTER',
+                            value: then
+                        }
+                    ]
+                },
+                {
+                    type: 'AND',
+                    filters: [
+                        {
+                            property: '"metacard.modified"',
+                            type: 'BEFORE',
+                            value: now
+                        },
+                        {
+                            property: '"metacard.modified"',
+                            type: 'AFTER',
+                            value: then
+                        }
+                    ]
                 }
             ]
         };
