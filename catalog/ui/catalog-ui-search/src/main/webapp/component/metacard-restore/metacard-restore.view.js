@@ -64,7 +64,7 @@ define([
         restore: function () {
             var model = this.model;
 
-            var historyId = model.get('metacard').get('properties').get('metacard.history.id');
+            var historyId = model.get('metacard').get('properties').get('metacard.version.id');
             var metacardId = model.get('metacard').get('id');
             var revert = '/search/catalog/internal/history/' + historyId + '/revert/' + metacardId;
 
