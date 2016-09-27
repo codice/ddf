@@ -1032,6 +1032,12 @@
         <feature>banana</feature>
     </feature>
 
+    <feature name="clientinfo-filter" install="auto" version="${project.version}"
+             description="Servlet filter to extract client information from the request">
+        <feature prerequisite="true">security-core-api</feature>
+        <bundle>mvn:ddf.platform/platform-filter-clientinfo/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-paxweb-jettyconfig" install="manual" version="${project.version}"
              description="Custom Session Manager">
         <feature>pax-jetty</feature>

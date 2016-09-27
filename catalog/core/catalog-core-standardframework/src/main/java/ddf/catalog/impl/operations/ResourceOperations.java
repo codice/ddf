@@ -52,6 +52,7 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostResourcePlugin;
+import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
@@ -68,7 +69,7 @@ import ddf.catalog.util.impl.DescribableImpl;
 
 /**
  * Support class for resource delegate operations for the {@code CatalogFrameworkImpl}.
- *
+ * <p>
  * This class contains six delegated resource methods and methods to support them. No
  * operations/support methods should be added to this class except in support of CFI
  * resource operations.
@@ -321,6 +322,7 @@ public class ResourceOperations extends DescribableImpl {
 
         validateGetResourceRequest(resourceReq);
         try {
+            resourceReq = preProcessPreAuthorizationPlugins(resourceReq);
             resourceReq = processPreResourcePolicyPlugins(resourceReq);
             resourceReq = processPreResourceAccessPlugins(resourceReq);
             resourceReq = processPreResourcePlugins(resourceReq);
@@ -404,6 +406,7 @@ public class ResourceOperations extends DescribableImpl {
 
             resourceResponse = validateFixGetResourceResponse(resourceResponse, resourceReq);
 
+            resourceResponse = postProcessPreAuthorizationPlugins(resourceResponse, metacard);
             resourceResponse = processPostResourcePolicyPlugins(resourceResponse, metacard);
             resourceResponse = processPostResourceAccessPlugins(resourceResponse, metacard);
             resourceResponse = processPostResourcePlugins(resourceResponse);
@@ -428,8 +431,7 @@ public class ResourceOperations extends DescribableImpl {
             ResourceResponse resourceResponse) {
         if (resourceResponse != null) {
             // must add the request properties into response properties in case the source forgot to
-            Map<String, Serializable> properties =
-                    new HashMap<>(resourceResponse.getProperties());
+            Map<String, Serializable> properties = new HashMap<>(resourceResponse.getProperties());
             resourceRequest.getProperties()
                     .forEach(properties::putIfAbsent);
             resourceResponse = new ResourceResponseImpl(resourceResponse.getRequest(),
@@ -438,7 +440,6 @@ public class ResourceOperations extends DescribableImpl {
         }
         return resourceResponse;
     }
-
 
     private ResourceResponse processPostResourcePlugins(ResourceResponse resourceResponse)
             throws StopProcessingException {
@@ -510,6 +511,22 @@ public class ResourceOperations extends DescribableImpl {
         return resourceReq;
     }
 
+    private ResourceRequest preProcessPreAuthorizationPlugins(ResourceRequest resourceRequest)
+            throws StopProcessingException {
+        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
+            resourceRequest = plugin.processPreResource(resourceRequest);
+        }
+        return resourceRequest;
+    }
+
+    private ResourceResponse postProcessPreAuthorizationPlugins(ResourceResponse resourceResponse,
+            Metacard metacard) throws StopProcessingException {
+        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
+            resourceResponse = plugin.processPostResource(resourceResponse, metacard);
+        }
+        return resourceResponse;
+    }
+
     /**
      * Retrieves a resource by URI.
      * <p/>
@@ -563,11 +580,12 @@ public class ResourceOperations extends DescribableImpl {
 
                     // if isEnterprise, go out and obtain the actual source
                     // where the product's metacard is stored.
-                    QueryRequest queryRequest =
-                            new QueryRequestImpl(anyTag(propertyEqualToUriQuery, site, isEnterprise),
-                                    isEnterprise,
-                                    Collections.singletonList(site == null ? this.getId() : site),
-                                    resourceRequest.getProperties());
+                    QueryRequest queryRequest = new QueryRequestImpl(anyTag(propertyEqualToUriQuery,
+                            site,
+                            isEnterprise),
+                            isEnterprise,
+                            Collections.singletonList(site == null ? this.getId() : site),
+                            resourceRequest.getProperties());
 
                     QueryResponse queryResponse = queryOperations.query(queryRequest,
                             null,
