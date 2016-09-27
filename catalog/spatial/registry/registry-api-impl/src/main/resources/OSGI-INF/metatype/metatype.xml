@@ -25,7 +25,7 @@
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
             required="false" type="String"/>
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
-            required="false" type="Password"/>
+            required="false" type="Password" default=""/>
 
         <AD description="Enable push (write) to this registry"
             name="Allow Push" id="pushAllowed" required="true"
