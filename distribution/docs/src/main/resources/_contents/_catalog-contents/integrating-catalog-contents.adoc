@@ -1135,7 +1135,12 @@ The configurable properties for the FTP Endpoint are accessed from the *FTP Endp
 
 ====== Using the endpoint
 
-The FTP endpoint supports the PUT and MPUT operations. Any other operation, such as DELETE, will return a 550 action not taken response.
+The FTP endpoint supports the PUT, MPUT, MKD, DELE, RETR, RMD, APPE, RNTO, STOU, and SITE operations.
+
+The FTP endpoint supports files being upload as a dot-file (e.g., .foo) and then being renamed to
+the final filename (e.g., some-file.pdf). The endpoint will complete the ingest process when
+the rename command is sent. The endpoint also supports clients that create a directory,
+change to the new directory and then upload a file.
 
 ====== From Code:
 
