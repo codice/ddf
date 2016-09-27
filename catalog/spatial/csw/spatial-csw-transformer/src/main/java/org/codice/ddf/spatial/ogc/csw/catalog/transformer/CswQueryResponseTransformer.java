@@ -256,13 +256,17 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         return writer.makeString();
     }
 
-    /*
-        Multi-threaded marshal of metacard assumes:
-        - cpu-bound => optimum utilization from availableProcessors()+1 thread pool.
-        - query size is unbounded => guard against resource exhaustion with fixed thread-pool,
-          fixed work-queue.
+    /**
+     * Multi-threaded marshal of metacard assumes that the query size is unbounded to guard against
+     * resource exhaustion with fixed thread-pool and fixed work-queue.  CPU-bound for optimum utilization
+     * from availableProcessors()+1 thread pool.
+     *
+     * @param results - the list of results to marshal
+     * @param recordSchema - the schema
+     * @param arguments - additional args
+     * @return - the marshaled results
+     * @throws CatalogTransformerException
      */
-    //private void multiThreadedMarshal(PrintWriter writer, List<Result> results,
     private String multiThreadedMarshal(List<Result> results, AtomicLong numResults,
             String recordSchema, final Map<String, Serializable> arguments)
             throws CatalogTransformerException {
@@ -288,6 +292,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 return content;
             }), result);
         }
+
 
         InputStream[] contents = new InputStream[results.size()];
 
@@ -463,7 +468,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 numThreads,
                 0L,
                 TimeUnit.MILLISECONDS,
-                new LinkedBlockingDeque<Runnable>(BLOCKING_Q_INITIAL_SIZE),
+                new LinkedBlockingDeque<>(BLOCKING_Q_INITIAL_SIZE),
                 new CswThreadFactory(),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
@@ -488,12 +493,10 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r, QUERY_POOL_NAME + "-" + suffix.incrementAndGet());
-            thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                @Override
-                public void uncaughtException(Thread t, Throwable e) {
-                    LOGGER.debug("UNCAUGHT exception in thread {}", t.getName(), e);
-                }
-            });
+            thread.setUncaughtExceptionHandler((t, e) -> LOGGER.debug(
+                    "UNCAUGHT exception in thread {}",
+                    t.getName(),
+                    e));
             return thread;
         }
     }

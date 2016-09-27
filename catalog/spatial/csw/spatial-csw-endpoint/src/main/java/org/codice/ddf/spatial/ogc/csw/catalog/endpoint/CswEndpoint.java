@@ -570,7 +570,7 @@ public class CswEndpoint implements Csw {
                         updateAction.getHandle());
             }
         }
-        LOGGER.debug("{} records inserted.", numInserted);
+        LOGGER.debug("{} records updated.", numUpdated);
         response.getTransactionSummary()
                 .setTotalUpdated(BigInteger.valueOf(numUpdated));
 

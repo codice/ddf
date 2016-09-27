@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,7 +63,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
@@ -89,6 +87,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.Query;
@@ -116,6 +115,7 @@ import ddf.security.Subject;
 import ddf.security.common.util.Security;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
+
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
@@ -161,8 +161,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     protected static final String METACARD_MAPPINGS_PROPERTY = "metacardMappings";
 
     protected static final String COORDINATE_ORDER_PROPERTY = "coordinateOrder";
-
-    protected static final String CSW_AXIS_ORDER_PROPERTY = "cswAxisOrder";
 
     protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
 
@@ -429,8 +427,8 @@ public abstract class AbstractCswSource extends MaskableImpl
         consumerMap.put(CONNECTION_TIMEOUT_PROPERTY,
                 value -> cswSourceConfiguration.setConnectionTimeout((Integer) value));
 
-        consumerMap.put(RECEIVE_TIMEOUT_PROPERTY,
-                value -> cswSourceConfiguration.setReceiveTimeout((Integer) value));
+        consumerMap.put(RECEIVE_TIMEOUT_PROPERTY, value -> cswSourceConfiguration.setReceiveTimeout(
+                (Integer) value));
 
         consumerMap.put(OUTPUT_SCHEMA_PROPERTY,
                 value -> setConsumerOutputSchemaProperty((String) value));
@@ -624,7 +622,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         String currentContentTypeMapping = (String) configuration.get(Metacard.CONTENT_TYPE);
         if (StringUtils.isBlank(currentContentTypeMapping)) {
             cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE,
-                    CswRecordMetacardType.CSW_TYPE);
+                    CswConstants.CSW_TYPE);
         }
 
         //if the event service address has changed attempt to remove the subscription before changing to the new event service address
@@ -903,7 +901,7 @@ public abstract class AbstractCswSource extends MaskableImpl
             // If no resource reader was found, retrieve the product through a GetRecordById request
             Serializable serializableId = null;
             if (requestProperties != null) {
-                serializableId = requestProperties.get(Metacard.ID);
+                serializableId = requestProperties.get(Core.ID);
             }
 
             if (serializableId == null) {
@@ -924,10 +922,9 @@ public abstract class AbstractCswSource extends MaskableImpl
             long requestedBytesToSkip = 0;
             if (requestProperties.containsKey(CswConstants.BYTES_TO_SKIP)) {
                 requestedBytesToSkip = (Long) requestProperties.get(CswConstants.BYTES_TO_SKIP);
-                rangeValue = String.format("%s%s-",
-                        CswConstants.BYTES_EQUAL,
-                        requestProperties.get(CswConstants.BYTES_TO_SKIP)
-                                .toString());
+                rangeValue = String.format("%s%s-", CswConstants.BYTES_EQUAL, requestProperties.get(
+                        CswConstants.BYTES_TO_SKIP)
+                        .toString());
                 LOGGER.debug("Range: {}", rangeValue);
             }
             CswRecordCollection recordCollection;
@@ -938,11 +935,14 @@ public abstract class AbstractCswSource extends MaskableImpl
                 if (resource != null) {
 
                     long responseBytesSkipped = 0L;
-                    if (recordCollection.getResourceProperties().get(BYTES_SKIPPED) != null) {
+                    if (recordCollection.getResourceProperties()
+                            .get(BYTES_SKIPPED) != null) {
                         responseBytesSkipped = (Long) recordCollection.getResourceProperties()
                                 .get(BYTES_SKIPPED);
                     }
-                    alignStream(resource.getInputStream(), requestedBytesToSkip, responseBytesSkipped);
+                    alignStream(resource.getInputStream(),
+                            requestedBytesToSkip,
+                            responseBytesSkipped);
 
                     return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(
                             resource.getInputStream()),
@@ -1164,10 +1164,10 @@ public abstract class AbstractCswSource extends MaskableImpl
                     .getPropertyName();
             if (propName != null) {
                 if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
-                    propName = Metacard.MODIFIED;
+                    propName = Core.MODIFIED;
                 } else if (Result.RELEVANCE.equals(propName)
                         || Metacard.ANY_TEXT.equals(propName)) {
-                    propName = Metacard.TITLE;
+                    propName = Core.TITLE;
                 } else if (Result.DISTANCE.equals(propName) || Metacard.ANY_GEO.equals(propName)) {
                     return null;
                 }
@@ -1219,7 +1219,6 @@ public abstract class AbstractCswSource extends MaskableImpl
             throw new UnsupportedQueryException(cswSourceConfiguration.getId()
                     + ": CSW Source did not provide Filter Capabilities, unable to preform query.");
         }
-
         return this.filterAdapter.adapt(query, cswFilterDelegate);
     }
 
@@ -1237,19 +1236,19 @@ public abstract class AbstractCswSource extends MaskableImpl
         for (Metacard metacard : cswRecordCollection.getCswRecords()) {
             MetacardImpl wrappedMetacard = new MetacardImpl(metacard);
             wrappedMetacard.setSourceId(getId());
-            if (wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL) != null &&
-                    wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
+            if (wrappedMetacard.getAttribute(Core.RESOURCE_DOWNLOAD_URL) != null &&
+                    wrappedMetacard.getAttribute(Core.RESOURCE_DOWNLOAD_URL)
                             .getValue() != null) {
-                wrappedMetacard.setAttribute(Metacard.RESOURCE_URI,
-                        wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
+                wrappedMetacard.setAttribute(Core.RESOURCE_URI,
+                        wrappedMetacard.getAttribute(Core.RESOURCE_DOWNLOAD_URL)
                                 .getValue());
             }
-            if (wrappedMetacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL) != null
-                    && !wrappedMetacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL)
+            if (wrappedMetacard.getAttribute(Core.DERIVED_RESOURCE_DOWNLOAD_URL) != null
+                    && !wrappedMetacard.getAttribute(Core.DERIVED_RESOURCE_DOWNLOAD_URL)
                     .getValues()
                     .isEmpty()) {
-                wrappedMetacard.setAttribute(new AttributeImpl(Metacard.DERIVED_RESOURCE_URI,
-                        wrappedMetacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL)
+                wrappedMetacard.setAttribute(new AttributeImpl(Core.DERIVED_RESOURCE_URI,
+                        wrappedMetacard.getAttribute(Core.DERIVED_RESOURCE_DOWNLOAD_URL)
                                 .getValues()));
             }
             Metacard tranformedMetacard = wrappedMetacard;
@@ -1306,7 +1305,8 @@ public abstract class AbstractCswSource extends MaskableImpl
 
         if (refs == null || refs.length == 0) {
             LOGGER.debug("{}: Metadata Transformer {} not found.",
-                    cswSourceConfiguration.getId(), transformerId);
+                    cswSourceConfiguration.getId(),
+                    transformerId);
             return null;
         } else {
             return (MetadataTransformer) context.getService(refs[0]);
@@ -1396,7 +1396,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     /**
      * Parses the getRecords {@link Operation} to understand the capabilities of the org.codice.ddf.spatial.ogc.csw.catalog.common.Csw Server. A
      * sample GetRecords Operation may look like this:
-     * <p/>
+     * <p>
      * <pre>
      *   <ows:Operation name="GetRecords">
      *     <ows:DCP>
@@ -1477,8 +1477,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                 isConstraintCql = false;
             }
 
-            setFilterDelegate(getMetacardType(),
-                    getRecordsOp,
+            setFilterDelegate(getRecordsOp,
                     capabilitiesType.getFilterCapabilities(),
                     outputFormatValues,
                     resultTypesValues,
@@ -1500,35 +1499,22 @@ public abstract class AbstractCswSource extends MaskableImpl
         }
     }
 
-    private MetacardType getMetacardType() {
-        Optional<MetacardType> type = metacardTypes.stream()
-                .filter(t -> StringUtils.equals(cswSourceConfiguration.getQueryTypeName(),
-                        t.getName()))
-                .findFirst();
-        if (type.isPresent()) {
-            return type.get();
-        }
-        return new CswRecordMetacardType();
-    }
-
     /**
      * Sets the {@link ddf.catalog.filter.FilterDelegate} used by the AbstractCswSource. May be overridden
      * in order to provide a custom ddf.catalog.filter.FilterDelegate implementation.
      *
-     * @param metacardType
      * @param getRecordsOp
      * @param filterCapabilities
      * @param outputFormatValues
      * @param resultTypesValues
      * @param cswSourceConfiguration
      */
-    protected void setFilterDelegate(MetacardType metacardType, Operation getRecordsOp,
-            FilterCapabilities filterCapabilities, DomainType outputFormatValues,
-            DomainType resultTypesValues, CswSourceConfiguration cswSourceConfiguration) {
+    protected void setFilterDelegate(Operation getRecordsOp, FilterCapabilities filterCapabilities,
+            DomainType outputFormatValues, DomainType resultTypesValues,
+            CswSourceConfiguration cswSourceConfiguration) {
         LOGGER.trace("Setting cswFilterDelegate to default CswFilterDelegate");
 
-        cswFilterDelegate = new CswFilterDelegate(metacardType,
-                getRecordsOp,
+        cswFilterDelegate = new CswFilterDelegate(getRecordsOp,
                 filterCapabilities,
                 outputFormatValues,
                 resultTypesValues,
@@ -1599,7 +1585,9 @@ public abstract class AbstractCswSource extends MaskableImpl
             }
         }
         LOGGER.debug("{}: CSW Operation \"{}\" did not contain the \"{}\" parameter",
-                cswSourceConfiguration.getId(), operation.getName(), name);
+                cswSourceConfiguration.getId(),
+                operation.getName(),
+                name);
         return null;
     }
 
@@ -1720,7 +1708,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     /**
      * Callback class to check the Availability of the CswSource.
-     * <p/>
+     * <p>
      * NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
      * have an AvailabilityTask that cached each Source's availability. Until that is done, allow
      * the command to handle the logic of managing availability.
@@ -1835,7 +1823,8 @@ public abstract class AbstractCswSource extends MaskableImpl
             } catch (CswException e) {
                 LOGGER.info(
                         "Failed to remove filterless subscription registered for id {} for csw source with id of {}",
-                        filterlessSubscriptionId, this.getId());
+                        filterlessSubscriptionId,
+                        this.getId());
             }
             filterlessSubscriptionId = null;
 

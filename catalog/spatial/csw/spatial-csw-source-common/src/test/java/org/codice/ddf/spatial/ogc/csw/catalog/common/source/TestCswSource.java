@@ -16,11 +16,10 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
@@ -39,7 +38,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,7 +56,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
@@ -90,6 +87,13 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.TopicAttributes;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.operation.ResourceResponse;
@@ -103,6 +107,7 @@ import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
+
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
@@ -121,10 +126,8 @@ public class TestCswSource extends TestCswSourceBase {
     public void testParseCapabilities() throws CswException, SecurityServiceException {
         AbstractCswSource source = getCswSource(createMockCsw(), mockContext);
 
-        assertTrue(source.isAvailable());
-        assertEquals(10,
-                source.getContentTypes()
-                        .size());
+        assertThat(source.isAvailable(), is(true));
+        assertThat(source.getContentTypes(), hasSize(10));
         Set<ContentType> expected = generateContentType(Arrays.asList("a",
                 "b",
                 "c",
@@ -140,13 +143,10 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testInitialContentList() throws CswException, SecurityServiceException {
-
         AbstractCswSource source = getCswSource(createMockCsw(), mockContext);
 
-        assertTrue(source.isAvailable());
-        assertEquals(10,
-                source.getContentTypes()
-                        .size());
+        assertThat(source.isAvailable(), is(true));
+        assertThat(source.getContentTypes(), hasSize(10));
         Set<ContentType> expected = generateContentType(Arrays.asList("a",
                 "b",
                 "c",
@@ -181,8 +181,8 @@ public class TestCswSource extends TestCswSourceBase {
         LOGGER.info("mockRegisteredMetacardType: {}", mockRegisteredMetacardType);
         doReturn(mockRegisteredMetacardType).when(mockContext)
                 .registerService(eq(MetacardType.class.getName()),
-                        any(CswRecordMetacardType.class),
-                        Matchers.<Dictionary<String, ?>>any());
+                        any(MetacardType.class),
+                        Matchers.any());
         ServiceReference<?> mockServiceReference =
                 (ServiceReference<?>) mock(ServiceReference.class);
         doReturn(mockServiceReference).when(mockRegisteredMetacardType)
@@ -191,9 +191,7 @@ public class TestCswSource extends TestCswSourceBase {
 
         AbstractCswSource source = getCswSource(mockCsw, mockContext);
 
-        assertEquals(10,
-                source.getContentTypes()
-                        .size());
+        assertThat(source.getContentTypes(), hasSize(10));
 
         Set<ContentType> expected = generateContentType(expectedNames);
         assertThat(source.getContentTypes(), is(expected));
@@ -214,9 +212,7 @@ public class TestCswSource extends TestCswSourceBase {
 
         source.query(new QueryRequestImpl(propertyIsLikeQuery));
 
-        assertEquals(13,
-                source.getContentTypes()
-                        .size());
+        assertThat(source.getContentTypes(), hasSize(13));
         assertThat(source.getContentTypes(), is(expected));
     }
 
@@ -453,7 +449,7 @@ public class TestCswSource extends TestCswSourceBase {
                 .getPropertyName()
                 .getContent()
                 .get(0)
-                .toString(), equalTo(Metacard.TITLE));
+                .toString(), equalTo(Core.TITLE));
         assertThat(cswQuery.getSortBy()
                 .getSortProperty()
                 .get(0)
@@ -517,7 +513,7 @@ public class TestCswSource extends TestCswSourceBase {
                 .getPropertyName()
                 .getContent()
                 .get(0)
-                .toString(), equalTo(Metacard.MODIFIED));
+                .toString(), equalTo(Core.MODIFIED));
         assertThat(cswQuery.getSortBy()
                 .getSortProperty()
                 .get(0)
@@ -552,9 +548,7 @@ public class TestCswSource extends TestCswSourceBase {
                 .text(format));
         propertyIsEqualToQuery.setPageSize(pageSize);
 
-        AbstractCswSource cswSource = getCswSource(mockCsw,
-                mockContext,
-                CswRecordMetacardType.CSW_FORMAT);
+        AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, CswConstants.CSW_FORMAT);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -621,9 +615,7 @@ public class TestCswSource extends TestCswSourceBase {
         QueryImpl propertyIsEqualToQuery = new QueryImpl(filter);
         propertyIsEqualToQuery.setPageSize(pageSize);
 
-        AbstractCswSource cswSource = getCswSource(mockCsw,
-                mockContext,
-                CswRecordMetacardType.CSW_FORMAT);
+        AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, CswConstants.CSW_FORMAT);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -669,8 +661,8 @@ public class TestCswSource extends TestCswSourceBase {
                 + "    xmlns:ogc=\"http://www.opengis.net/ogc\">\n "
                 + "    <Query typeNames=\"csw:Record\">\r\n"
                 + "        <ElementSetName>full</ElementSetName>\r\n"
-                + "        <Constraint version=\"1.1.0\">\r\n" // Line break
-                + "            <ogc:Filter>\r\n" // Line break
+                + "        <Constraint version=\"1.1.0\">\r\n"
+                + "            <ogc:Filter>\r\n"
                 + "                <ogc:PropertyIsBetween>\r\n"
                 + "                    <ogc:PropertyName>effective</ogc:PropertyName>\r\n"
                 + "                    <ogc:LowerBoundary>\r\n"
@@ -679,10 +671,10 @@ public class TestCswSource extends TestCswSourceBase {
                 + "                    <ogc:UpperBoundary>\r\n"
                 + "                        <ogc:Literal>END_DATE_TIME</ogc:Literal>\r\n"
                 + "                    </ogc:UpperBoundary>\r\n"
-                + "                </ogc:PropertyIsBetween>\r\n" // Line break
-                + "            </ogc:Filter>\r\n" // Line break
-                + "        </Constraint>\r\n" // Line break
-                + "    </Query>\r\n" // Line break
+                + "                </ogc:PropertyIsBetween>\r\n"
+                + "            </ogc:Filter>\r\n"
+                + "        </Constraint>\r\n"
+                + "    </Query>\r\n"
                 + "</GetRecords>";
 
         final int pageSize = 10;
@@ -757,9 +749,9 @@ public class TestCswSource extends TestCswSourceBase {
                 + "    xmlns:ogc=\"http://www.opengis.net/ogc\">\r\n"
                 + "    <Query typeNames=\"csw:Record\">\r\n"
                 + "        <ElementSetName>full</ElementSetName>\r\n"
-                + "        <Constraint version=\"1.1.0\">\r\n" // Line break
-                + "            <ogc:Filter>\r\n" // Line break
-                + "                <ogc:Or>\r\n" // Line break
+                + "        <Constraint version=\"1.1.0\">\r\n"
+                + "            <ogc:Filter>\r\n"
+                + "                <ogc:Or>\r\n"
                 + "                    <ogc:PropertyIsBetween>\r\n"
                 + "                        <ogc:PropertyName>effective</ogc:PropertyName>\r\n"
                 + "                        <ogc:LowerBoundary>\r\n"
@@ -778,10 +770,10 @@ public class TestCswSource extends TestCswSourceBase {
                 + "                            <ogc:Literal>END2_DATE_TIME</ogc:Literal>\r\n"
                 + "                        </ogc:UpperBoundary>\r\n"
                 + "                    </ogc:PropertyIsBetween>\r\n"
-                + "                </ogc:Or>\r\n" // Line break
-                + "            </ogc:Filter>\r\n" // Line break
-                + "        </Constraint>\r\n" // Line break
-                + "    </Query>\r\n" // Line break
+                + "                </ogc:Or>\r\n"
+                + "            </ogc:Filter>\r\n"
+                + "        </Constraint>\r\n"
+                + "    </Query>\r\n"
                 + "</GetRecords>\r\n";
 
         final int pageSize = 10;
@@ -897,10 +889,10 @@ public class TestCswSource extends TestCswSourceBase {
         configuration.put("pollInterval", 5);
         cswSource.refresh(configuration);
 
-        assertEquals(cswSource.getConnectionTimeout()
-                .intValue(), 10000);
-        assertEquals(cswSource.getReceiveTimeout()
-                .intValue(), 10000);
+        assertThat(cswSource.getConnectionTimeout()
+                .intValue(), is(10000));
+        assertThat(cswSource.getReceiveTimeout()
+                .intValue(), is(10000));
     }
 
     @Test
@@ -1244,8 +1236,8 @@ public class TestCswSource extends TestCswSourceBase {
         assertThat(cswQuery.getTypeNames()
                 .size(), is(1));
         assertThat(cswQuery.getTypeNames()
-                        .get(0),
-                is(new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME)));
+                        .get(0), is(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                        CswConstants.CSW_RECORD_LOCAL_NAME)));
     }
 
     @Test
@@ -1266,7 +1258,7 @@ public class TestCswSource extends TestCswSourceBase {
             metacard.setContentTypeName("myContentType");
             metacard.setResourceURI(URI.create("http://example.com/resource"));
             if (i == 1) {
-                metacard.setAttribute(Metacard.RESOURCE_DOWNLOAD_URL,
+                metacard.setAttribute(Core.RESOURCE_DOWNLOAD_URL,
                         "http://example.com/SECOND/RESOURCE");
             }
             metacards.add(metacard);
@@ -1276,21 +1268,18 @@ public class TestCswSource extends TestCswSourceBase {
         List<Result> results = cswSource.createResults(recordCollection);
 
         assertThat(results, notNullValue());
-        assertThat(results.size(),
-                is(recordCollection.getCswRecords()
+        assertThat(results.size(), is(recordCollection.getCswRecords()
                         .size()));
         assertThat(results.get(0)
                         .getMetacard()
-                        .getResourceURI(),
-                is(recordCollection.getCswRecords()
+                        .getResourceURI(), is(recordCollection.getCswRecords()
                         .get(0)
                         .getResourceURI()));
         assertThat(results.get(1)
                         .getMetacard()
-                        .getResourceURI(),
-                is(URI.create(recordCollection.getCswRecords()
+                        .getResourceURI(), is(URI.create(recordCollection.getCswRecords()
                         .get(1)
-                        .getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
+                        .getAttribute(Core.RESOURCE_DOWNLOAD_URL)
                         .getValue()
                         .toString())));
 
@@ -1308,7 +1297,7 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setResourceReader(reader);
 
         Map<String, Serializable> props = new HashMap<>();
-        props.put(Metacard.ID, "ID");
+        props.put(Core.ID, "ID");
         cswSource.retrieveResource(new URI("http://example.com/resource"), props);
         // Verify
         verify(reader, times(1)).retrieveResource(any(URI.class), anyMap());
@@ -1331,7 +1320,7 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setResourceReader(reader);
 
         Map<String, Serializable> props = new HashMap<>();
-        props.put(Metacard.ID, "ID");
+        props.put(Core.ID, "ID");
         cswSource.retrieveResource(new URI("http://example.com/resource"), props);
         // Verify
         verify(csw, times(1)).getRecordById(any(GetRecordByIdRequest.class), any(String.class));
@@ -1366,7 +1355,7 @@ public class TestCswSource extends TestCswSourceBase {
         }
         if (contentTypeMapping == null) {
             cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE,
-                    CswRecordMetacardType.CSW_TYPE);
+                    CswConstants.CSW_TYPE);
         } else {
             cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentTypeMapping);
         }
@@ -1374,9 +1363,8 @@ public class TestCswSource extends TestCswSourceBase {
         cswSourceConfiguration.setQueryTypeName(queryTypeQName);
         cswSourceConfiguration.setId(ID);
         cswSourceConfiguration.setCswUrl(URL);
-        cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED, Metacard.MODIFIED);
-        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID,
-                CswRecordMetacardType.CSW_IDENTIFIER);
+        cswSourceConfiguration.putMetacardCswMapping(Core.MODIFIED, Core.MODIFIED);
+        cswSourceConfiguration.putMetacardCswMapping(Core.ID, CswConstants.CSW_IDENTIFIER);
         cswSourceConfiguration.setCswAxisOrder(CswAxisOrder.LON_LAT);
         cswSourceConfiguration.setUsername("user");
         cswSourceConfiguration.setPassword("pass");
@@ -1418,6 +1406,7 @@ public class TestCswSource extends TestCswSourceBase {
                 mockProvider,
                 mockFactory,
                 encryptionService);
+        setMetacardType(cswSource);
         cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
         cswSource.setFilterBuilder(builder);
         cswSource.setContext(context);
@@ -1440,24 +1429,23 @@ public class TestCswSource extends TestCswSourceBase {
                 is(defaultCswSourceConfiguration.getConnectionTimeout()));
         assertThat(cswSourceConfiguration.getReceiveTimeout(),
                 is(defaultCswSourceConfiguration.getReceiveTimeout()));
-        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.ID),
-                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.ID)));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Core.ID), is(
+                defaultCswSourceConfiguration.getMetacardMapping(Core.ID)));
         assertThat(cswSourceConfiguration.getDisableCnCheck(),
                 is(defaultCswSourceConfiguration.getDisableCnCheck()));
         assertThat(cswSourceConfiguration.getCswAxisOrder()
-                        .toString(),
-                is(defaultCswSourceConfiguration.getCswAxisOrder()
-                        .toString()));
+                .toString(), is(defaultCswSourceConfiguration.getCswAxisOrder()
+                .toString()));
         assertThat(cswSourceConfiguration.isSetUsePosList(),
                 is(defaultCswSourceConfiguration.isSetUsePosList()));
-        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.CREATED),
-                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.CREATED)));
-        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.EFFECTIVE),
-                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.EFFECTIVE)));
-        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.MODIFIED),
-                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.MODIFIED)));
-        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE),
-                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE)));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Core.CREATED), is(
+                defaultCswSourceConfiguration.getMetacardMapping(Core.CREATED)));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.EFFECTIVE), is(
+                defaultCswSourceConfiguration.getMetacardMapping(Metacard.EFFECTIVE)));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Core.MODIFIED), is(
+                defaultCswSourceConfiguration.getMetacardMapping(Core.MODIFIED)));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE), is(
+                defaultCswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE)));
         assertThat(cswSourceConfiguration.getPollIntervalMinutes(),
                 is(defaultCswSourceConfiguration.getPollIntervalMinutes()));
         assertThat(cswSourceConfiguration.getCswUrl(),
@@ -1475,15 +1463,15 @@ public class TestCswSource extends TestCswSourceBase {
         assertThat(cswSourceConfiguration.getOutputSchema(), is(OUTPUT_SCHEMA));
         assertThat(cswSourceConfiguration.getQueryTypeName(), is(QUERY_TYPE_NAME));
         assertThat(cswSourceConfiguration.getQueryTypeNamespace(), is(QUERY_TYPE_NAMESPACE));
-        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.ID), is(IDENTIFIER_MAPPING));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Core.ID), is(IDENTIFIER_MAPPING));
         assertThat(cswSourceConfiguration.getDisableCnCheck(), is(false));
         assertThat(cswSourceConfiguration.getCswAxisOrder()
                 .toString(), is(COORDINATE_ORDER));
         assertThat(cswSourceConfiguration.isSetUsePosList(), is(false));
-        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.CREATED), is(CREATED_DATE));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Core.CREATED), is(CREATED_DATE));
         assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.EFFECTIVE),
                 is(EFFECTIVE_DATE));
-        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.MODIFIED), is(MODIFIED_DATE));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Core.MODIFIED), is(MODIFIED_DATE));
         assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE),
                 is(CONTENT_TYPE));
         assertThat(cswSourceConfiguration.getPollIntervalMinutes(), is(POLL_INTERVAL));
@@ -1509,5 +1497,15 @@ public class TestCswSource extends TestCswSourceBase {
         configuration.put(cswSource.CSWURL_PROPERTY, URL);
         configuration.put(cswSource.IS_CQL_FORCED_PROPERTY, false);
         return configuration;
+    }
+
+    private void setMetacardType(CswSourceStub cswSourceStub) {
+        cswSourceStub.setMetacardTypes(Arrays.asList(new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
+                Arrays.asList(new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new TopicAttributes(),
+                        new AssociationsAttributes()))));
+
     }
 }

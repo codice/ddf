@@ -15,11 +15,8 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
@@ -31,7 +28,6 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,12 +39,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -61,6 +54,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.Resource;
 import ddf.security.encryption.EncryptionService;
 
@@ -82,8 +76,8 @@ public class TestGetRecordsMessageBodyReader {
         config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setCswAxisOrder(CswAxisOrder.LAT_LON);
-        config.putMetacardCswMapping(Metacard.THUMBNAIL, CswRecordMetacardType.CSW_REFERENCES);
-        config.putMetacardCswMapping(Metacard.RESOURCE_URI, CswRecordMetacardType.CSW_SOURCE);
+        config.putMetacardCswMapping(Core.THUMBNAIL, CswConstants.CSW_REFERENCES);
+        config.putMetacardCswMapping(Core.RESOURCE_URI, CswConstants.CSW_SOURCE);
 
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
         InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(
@@ -104,10 +98,10 @@ public class TestGetRecordsMessageBodyReader {
         assertThat(context.get(CswConstants.CSW_MAPPING), notNullValue());
         Object cswMapping = context.get(CswConstants.CSW_MAPPING);
         assertThat(cswMapping, instanceOf(Map.class));
-        assertThat(context.get(Metacard.RESOURCE_URI), instanceOf(String.class));
-        assertThat(context.get(Metacard.RESOURCE_URI), is(CswRecordMetacardType.CSW_SOURCE));
-        assertThat(context.get(Metacard.THUMBNAIL), instanceOf(String.class));
-        assertThat(context.get(Metacard.THUMBNAIL), is(CswRecordMetacardType.CSW_REFERENCES));
+        assertThat(context.get(Core.RESOURCE_URI), instanceOf(String.class));
+        assertThat(context.get(Core.RESOURCE_URI), is(CswConstants.CSW_SOURCE));
+        assertThat(context.get(Core.THUMBNAIL), instanceOf(String.class));
+        assertThat(context.get(Core.THUMBNAIL), is(CswConstants.CSW_REFERENCES));
         assertThat(context.get(CswConstants.AXIS_ORDER_PROPERTY), instanceOf(CswAxisOrder.class));
         assertThat(context.get(CswConstants.AXIS_ORDER_PROPERTY), is(CswAxisOrder.LAT_LON));
 
@@ -136,15 +130,15 @@ public class TestGetRecordsMessageBodyReader {
 
         CswSourceConfiguration config = new CswSourceConfiguration(encryptionService);
         Map<String, String> mappings = new HashMap<>();
-        mappings.put(Metacard.CREATED, "dateSubmitted");
+        mappings.put(Core.CREATED, "dateSubmitted");
         mappings.put(Metacard.EFFECTIVE, "created");
-        mappings.put(Metacard.MODIFIED, "modified");
+        mappings.put(Core.MODIFIED, "modified");
         mappings.put(Metacard.CONTENT_TYPE, "type");
         config.setMetacardCswMappings(mappings);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setCswAxisOrder(CswAxisOrder.LAT_LON);
-        config.putMetacardCswMapping(Metacard.THUMBNAIL, CswRecordMetacardType.CSW_REFERENCES);
-        config.putMetacardCswMapping(Metacard.RESOURCE_URI, CswRecordMetacardType.CSW_SOURCE);
+        config.putMetacardCswMapping(Core.THUMBNAIL, CswConstants.CSW_REFERENCES);
+        config.putMetacardCswMapping(Core.RESOURCE_URI, CswConstants.CSW_SOURCE);
 
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
         InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(
@@ -159,7 +153,6 @@ public class TestGetRecordsMessageBodyReader {
                 is);
 
         List<Metacard> metacards = cswRecords.getCswRecords();
-
         assertThat(metacards, contains(metacard));
     }
 
@@ -202,8 +195,8 @@ public class TestGetRecordsMessageBodyReader {
         ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
         MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
         httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
-                String.format("inline; filename=ResourceName"));
+        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, String.format(
+                "inline; filename=ResourceName"));
         MediaType mediaType = new MediaType("text", "plain");
 
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
@@ -214,11 +207,11 @@ public class TestGetRecordsMessageBodyReader {
                 dataInputStream);
 
         Resource resource = cswRecords.getResource();
-        assertThat(resource, not(nullValue()));
-        assertThat(resource.getName(), equalTo("ResourceName"));
+        assertThat(resource, notNullValue());
+        assertThat(resource.getName(), is("ResourceName"));
         assertThat(resource.getMimeType()
-                .toString(), is(equalTo(MediaType.TEXT_PLAIN)));
-        assertThat(resource.getByteArray(), is(equalTo(data)));
+                .toString(), is(MediaType.TEXT_PLAIN));
+        assertThat(resource.getByteArray(), is(data));
     }
 
     @Test
@@ -233,10 +226,11 @@ public class TestGetRecordsMessageBodyReader {
         ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
         MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
         httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
-                String.format("inline; filename=ResourceName"));
-        httpHeaders.add(HttpHeaders.CONTENT_RANGE,
-                String.format("bytes 1-%d/%d", sampleData.length() - 1, sampleData.length()));
+        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, String.format(
+                "inline; filename=ResourceName"));
+        httpHeaders.add(HttpHeaders.CONTENT_RANGE, String.format("bytes 1-%d/%d",
+                sampleData.length() - 1,
+                sampleData.length()));
         MediaType mediaType = new MediaType("text", "plain");
 
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
@@ -249,7 +243,8 @@ public class TestGetRecordsMessageBodyReader {
         Resource resource = cswRecords.getResource();
 
         // assert that the CswRecordCollection properly extracted the bytes skipped from the Partial Content response
-        assertThat(cswRecords.getResourceProperties().get(GetRecordsMessageBodyReader.BYTES_SKIPPED), is(equalTo(1L)));
+        assertThat(cswRecords.getResourceProperties()
+                .get(GetRecordsMessageBodyReader.BYTES_SKIPPED), is(1L));
 
         // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has the number
         // of bytes that was attempted to be skipped, the stream must be aligned there instead.
@@ -268,8 +263,8 @@ public class TestGetRecordsMessageBodyReader {
         ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
         MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
         httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
-                String.format("inline; filename=ResourceName"));
+        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, String.format(
+                "inline; filename=ResourceName"));
         MediaType mediaType = new MediaType("text", "plain");
 
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
@@ -282,45 +277,11 @@ public class TestGetRecordsMessageBodyReader {
         Resource resource = cswRecords.getResource();
 
         // assert that the CswRecordCollection property is not set if the server does not support Partial Content responses
-        assertThat(cswRecords.getResourceProperties().get(GetRecordsMessageBodyReader.BYTES_SKIPPED), is(nullValue()));
+        assertThat(cswRecords.getResourceProperties()
+                .get(GetRecordsMessageBodyReader.BYTES_SKIPPED), nullValue());
 
         // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has the number
         // of bytes that was attempted to be skipped, the stream must be aligned there instead.
         assertThat(resource.getByteArray(), is(data));
-    }
-
-    private void assertListStringAttribute(Metacard mc, String attrName, String[] expectedValues) {
-        List<?> values = mc.getAttribute(attrName)
-                .getValues();
-        assertThat(values, not(nullValue()));
-        assertThat(values.size(), equalTo(expectedValues.length));
-
-        List<String> valuesList = new ArrayList<>();
-        valuesList.addAll((List<? extends String>) values);
-        assertThat(valuesList, hasItems(expectedValues));
-    }
-
-    private Map<String, Object> getExpectedMap(String id, String title, String dateString,
-            String[] subject, String description, String[] rights, String dataset, String format,
-            String poly) {
-        Map<String, Object> expectedValues = new HashMap<>();
-        expectedValues.put(Metacard.ID, id);
-        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER, new String[] {id});
-        expectedValues.put(Metacard.TITLE, title);
-        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {title});
-        DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
-        Date expectedModifiedDate = dateFormatter.parseDateTime(dateString)
-                .toDate();
-        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED, new String[] {dateString});
-        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, subject);
-        expectedValues.put(Metacard.DESCRIPTION, new String[] {description});
-        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, rights);
-        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
-        expectedValues.put(CswRecordMetacardType.CSW_TYPE, dataset);
-        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {format});
-        expectedValues.put(Metacard.GEOGRAPHY, poly);
-        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, new String[] {poly});
-        return expectedValues;
     }
 }

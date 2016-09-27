@@ -33,7 +33,6 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
@@ -49,22 +48,29 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 
 public class TransactionRequestConverter implements Converter {
-    private static final CswRecordMetacardType CSW_RECORD_METACARD_TYPE =
-            new CswRecordMetacardType();
-
     private static JAXBContext jaxBContext;
 
     private Converter delegatingTransformer;
 
+    private CswRecordConverter cswRecordConverter;
+
     public TransactionRequestConverter(Converter itp) {
         this.delegatingTransformer = itp;
+    }
+
+    public CswRecordConverter getCswRecordConverter() {
+        return this.cswRecordConverter;
+    }
+
+    public void setCswRecordConverter(CswRecordConverter cswRecordConverter) {
+        this.cswRecordConverter = cswRecordConverter;
     }
 
     @Override
@@ -235,7 +241,8 @@ public class TransactionRequestConverter implements Converter {
 
                     if (reader.getNodeName()
                             .contains("Value")) {
-                        newValue = getRecordPropertyValue(reader, cswField);
+                        newValue = getRecordPropertyValue(reader, DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(
+                                cswField));
                     } else {
                         throw new ConversionException(
                                 "Invalid Parameter Value: invalid element in a RecordProperty.");
@@ -244,8 +251,8 @@ public class TransactionRequestConverter implements Converter {
                     // Back to the <RecordProperty>.
                     reader.moveUp();
                 }
-
-                cswRecordProperties.put(cswField, newValue);
+                cswRecordProperties.put(DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(
+                        cswField), newValue);
 
                 // Back to the <Update>, look for the next <RecordProperty>.
                 reader.moveUp();
@@ -321,40 +328,25 @@ public class TransactionRequestConverter implements Converter {
     }
 
     private Serializable getRecordPropertyValue(HierarchicalStreamReader reader, String cswField) {
-        AttributeDescriptor attributeDescriptor = CSW_RECORD_METACARD_TYPE.getAttributeDescriptor(
-                cswField);
-
-        if (attributeDescriptor != null) {
-            try {
-                Serializable newValue;
-                if (reader.hasMoreChildren()) {
-                    reader.moveDown();
-                    newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(
-                            attributeDescriptor.getType()
-                                    .getAttributeFormat(),
-                            reader,
-                            CswAxisOrder.LON_LAT);
-                    reader.moveUp();
-                } else {
-                    newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(
-                            attributeDescriptor.getType()
-                                    .getAttributeFormat(),
-                            reader,
-                            CswAxisOrder.LON_LAT);
-                }
-
-                return newValue;
-            } catch (NumberFormatException e) {
-                throw new ConversionException("Invalid Parameter Value: a RecordProperty " +
-                        "specified a Value that does not match the type " +
-                        attributeDescriptor.getType()
-                                .getBinding() + " expected by " +
-                        CSW_RECORD_METACARD_TYPE.getName() + " for the field " + cswField, e);
+        try {
+            Serializable newValue;
+            if (reader.hasMoreChildren()) {
+                reader.moveDown();
+                newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(cswField,
+                        reader,
+                        CswAxisOrder.LON_LAT);
+                reader.moveUp();
+            } else {
+                newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(cswField,
+                        reader,
+                        CswAxisOrder.LON_LAT);
             }
-        } else {
-            throw new ConversionException("Invalid Parameter Value: a RecordProperty specified " +
-                    cswField + " as the Name, which is not a valid record attribute for " +
-                    CSW_RECORD_METACARD_TYPE.getName());
+
+            return newValue;
+        } catch (NumberFormatException e) {
+            throw new ConversionException("Invalid Parameter Value: a RecordProperty " +
+                    "specified a Value that does not match the type " +
+                    cswField + " expected by  for the field " + cswField, e);
         }
     }
 

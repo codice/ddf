@@ -46,6 +46,7 @@ import com.thoughtworks.xstream.converters.Converter;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -150,7 +151,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
                     .flatMap(Collection::stream)
                     .map(id -> {
                         processedIds.add(id);
-                        return filterBuilder.attribute(Metacard.ID)
+                        return filterBuilder.attribute(Core.ID)
                                 .is()
                                 .equalTo()
                                 .text(id);
@@ -333,12 +334,11 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
 
     private List<Metacard> transactionQuery(List<Filter> idFilters)
             throws UnsupportedQueryException {
-        Filter createFilter = filterBuilder.allOf(filterBuilder.anyOf(filterBuilder.attribute(
-                Metacard.TAGS)
+        Filter createFilter = filterBuilder.allOf(filterBuilder.anyOf(filterBuilder.attribute(Core.METACARD_TAGS)
                         .is()
                         .like()
                         .text(FilterDelegate.WILDCARD_CHAR),
-                filterBuilder.attribute(Metacard.TAGS)
+                filterBuilder.attribute(Core.METACARD_TAGS)
                         .empty()), filterBuilder.anyOf(idFilters));
 
         Query query = new QueryImpl(createFilter);

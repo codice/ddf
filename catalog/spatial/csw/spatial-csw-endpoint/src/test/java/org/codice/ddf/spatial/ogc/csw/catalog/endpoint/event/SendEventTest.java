@@ -13,10 +13,9 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyObject;
@@ -48,8 +47,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerMana
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.osgi.framework.InvalidSyntaxException;
 
 import ddf.catalog.data.BinaryContent;
@@ -60,6 +57,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.security.Subject;
+
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
@@ -138,15 +136,9 @@ public class SendEventTest {
         AccessPlugin accessPlugin = mock(AccessPlugin.class);
         accessPlugins.add(accessPlugin);
         when(mockCxfClientFactory.getWebClient()).thenReturn(webclient);
-        //        when(webclient.head()).thenReturn(response);
         when(webclient.invoke(anyString(), any(QueryResponse.class))).thenReturn(response);
         when(response.getHeaders()).thenReturn(headers);
-        when(accessPlugin.processPostQuery(any(QueryResponse.class))).thenAnswer(new Answer<QueryResponse>() {
-            @Override
-            public QueryResponse answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return (QueryResponse) invocationOnMock.getArguments()[0];
-            }
-        });
+        when(accessPlugin.processPostQuery(any(QueryResponse.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
 
         sendEvent = new SendEventExtension(transformerManager,
                 request,
@@ -195,15 +187,15 @@ public class SendEventTest {
         while (sendEvent.getRetryCount() < 7) {
             available = sendEvent.ping();
         }
-        assertFalse(available);
-        assertNotEquals(lastPing, sendEvent.getLastPing());
+        assertThat(available, is(false));
+        assertThat(lastPing, not(sendEvent.getLastPing()));
         lastPing = sendEvent.getLastPing();
         Thread.sleep(1);
         //run again this time within a backoff period and verify that it doesn't retry this is
         available = sendEvent.ping();
-        assertFalse(available);
-        assertEquals(7, sendEvent.getRetryCount());
-        assertEquals(lastPing, sendEvent.getLastPing());
+        assertThat(available, is(false));
+        assertThat(7, is(sendEvent.getRetryCount()));
+        assertThat(lastPing, is(sendEvent.getLastPing()));
 
     }
 
@@ -215,7 +207,7 @@ public class SendEventTest {
                 .thenReturn(new Date(System.currentTimeMillis() + 600000L))
                 .thenReturn(new Date());
         sendEvent.setSubject(subject);
-        boolean available = false;
+        boolean available;
         while (!sendEvent.ping()) {
 
         }
@@ -224,31 +216,31 @@ public class SendEventTest {
         Thread.sleep(1);
         //run within the expiration period of the assertion
         available = sendEvent.ping();
-        assertTrue(available);
-        assertEquals(lastPing, sendEvent.getLastPing());
+        assertThat(available, is(true));
+        assertThat(lastPing, is(sendEvent.getLastPing()));
         //sleep incase the test runs too fast we want to make sure their is a time difference
         Thread.sleep(1);
         //run with expired assertion
         available = sendEvent.ping();
-        assertTrue(available);
-        assertNotEquals(lastPing, sendEvent.getLastPing());
+        assertThat(available, is(true));
+        assertThat(lastPing, not(sendEvent.getLastPing()));
     }
 
     @Test
     public void testIsAvailableNoExperation() throws Exception {
         long lastPing = sendEvent.getLastPing();
         when(webclient.invoke(eq("HEAD"), isNull())).thenReturn(response);
-        boolean available = false;
+        boolean available;
         while (!sendEvent.ping()) {
 
         }
-        assertNotEquals(lastPing, sendEvent.getLastPing());
+        assertThat(lastPing, not(sendEvent.getLastPing()));
         lastPing = sendEvent.getLastPing();
         Thread.sleep(1);
         //run within the expiration period of the assertion
         available = sendEvent.ping();
-        assertTrue(available);
-        assertEquals(lastPing, sendEvent.getLastPing());
+        assertThat(available, is(true));
+        assertThat(lastPing, is(sendEvent.getLastPing()));
     }
 
     private class SendEventExtension extends SendEvent {

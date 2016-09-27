@@ -27,27 +27,25 @@ import javax.ws.rs.ext.Provider;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.TransactionRequestConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 
-/**
- */
+import ddf.catalog.data.MetacardType;
+
 @Provider
 @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
 public class TransactionMessageBodyReader implements MessageBodyReader<CswTransactionRequest> {
-
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(TransactionMessageBodyReader.class);
-
     private Converter cswRecordConverter;
 
-    public TransactionMessageBodyReader(Converter converter) {
+    private MetacardType metacardType;
+
+    public TransactionMessageBodyReader(Converter converter, MetacardType metacardType) {
         this.cswRecordConverter = converter;
+        this.metacardType = metacardType;
     }
 
     @Override
@@ -62,7 +60,10 @@ public class TransactionMessageBodyReader implements MessageBodyReader<CswTransa
             MultivaluedMap<String, String> multivaluedMap, InputStream inputStream)
             throws IOException, WebApplicationException {
         XStream xStream = new XStream(new Xpp3Driver());
-        xStream.registerConverter(new TransactionRequestConverter(cswRecordConverter));
+        TransactionRequestConverter transactionRequestConverter = new TransactionRequestConverter(
+                cswRecordConverter);
+        transactionRequestConverter.setCswRecordConverter(new CswRecordConverter(metacardType));
+        xStream.registerConverter(transactionRequestConverter);
         xStream.alias("csw:" + CswConstants.TRANSACTION, CswTransactionRequest.class);
         xStream.alias(CswConstants.TRANSACTION, CswTransactionRequest.class);
         return (CswTransactionRequest) xStream.fromXML(inputStream);

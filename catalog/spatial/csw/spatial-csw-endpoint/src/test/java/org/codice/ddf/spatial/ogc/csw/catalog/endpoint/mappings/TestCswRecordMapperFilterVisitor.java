@@ -13,24 +13,19 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.xml.namespace.QName;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
@@ -64,6 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.FuzzyFunction;
 
@@ -79,6 +76,8 @@ public class TestCswRecordMapperFilterVisitor {
 
     private static CswRecordMapperFilterVisitor visitor;
 
+    private static MetacardType metacardType;
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         factory = new FilterFactoryImpl();
@@ -89,48 +88,47 @@ public class TestCswRecordMapperFilterVisitor {
 
         created =
                 new AttributeExpressionImpl(new NameImpl(new QName(CswConstants.DUBLIN_CORE_SCHEMA,
-                        Metacard.CREATED,
+                        Core.CREATED,
                         CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
-
-        visitor = new CswRecordMapperFilterVisitor();
+        metacardType = CswQueryFactoryTest.getCswMetacardType();
+        visitor = new CswRecordMapperFilterVisitor(metacardType);
     }
 
     @Test
     public void testVisitWithUnmappedName() {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType);
 
         PropertyName propertyName = (PropertyName) visitor.visit(attrExpr, null);
 
-        assertThat(propertyName.getPropertyName(), equalTo(UNMAPPED_PROPERTY));
+        assertThat(propertyName.getPropertyName(), is(UNMAPPED_PROPERTY));
     }
 
     @Test
     public void testVisitWithBoundingBoxProperty() {
         AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(new QName(
                 CswConstants.DUBLIN_CORE_SCHEMA,
-                CswRecordMetacardType.OWS_BOUNDING_BOX,
+                CswConstants.OWS_BOUNDING_BOX,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType);
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
 
-        assertThat(propertyName.getPropertyName(), equalTo(Metacard.ANY_GEO));
+        assertThat(propertyName.getPropertyName(), is(Metacard.ANY_GEO));
     }
 
     @Test
     public void testVisitWithMappedName() {
         AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(new QName(
                 CswConstants.DUBLIN_CORE_SCHEMA,
-                CswRecordMetacardType.CSW_ALTERNATIVE,
+                CswConstants.CSW_ALTERNATIVE,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType);
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
 
-        assertThat(propertyName.getPropertyName(), equalTo(Metacard.TITLE));
-        assertThat(propertyName.getPropertyName(),
-                not(equalTo(CswRecordMetacardType.CSW_ALTERNATIVE)));
+        assertThat(propertyName.getPropertyName(), is(Core.TITLE));
+        assertThat(propertyName.getPropertyName(), not(is(CswConstants.CSW_ALTERNATIVE)));
     }
 
     @Test
@@ -146,10 +144,10 @@ public class TestCswRecordMapperFilterVisitor {
 
         Beyond duplicate = (Beyond) visitor.visit(filter, null);
 
-        assertThat(duplicate.getExpression1(), equalTo(pt1));
-        assertThat(duplicate.getExpression2(), equalTo(pt2));
-        assertThat(duplicate.getDistanceUnits(), equalTo(UomOgcMapping.METRE.name()));
-        assertThat(duplicate.getDistance(), equalTo(1000 * val));
+        assertThat(duplicate.getExpression1(), is(pt1));
+        assertThat(duplicate.getExpression2(), is(pt2));
+        assertThat(duplicate.getDistanceUnits(), is(UomOgcMapping.METRE.name()));
+        assertThat(duplicate.getDistance(), is(1000 * val));
     }
 
     @Test
@@ -163,9 +161,9 @@ public class TestCswRecordMapperFilterVisitor {
 
         Within duplicate = (Within) obj;
 
-        assertThat(duplicate.getExpression1(), equalTo(attrExpr));
+        assertThat(duplicate.getExpression1(), is(attrExpr));
         assertThat(duplicate.getExpression2()
-                .toString(), equalTo(polygon));
+                .toString(), is(polygon));
 
     }
 
@@ -182,10 +180,10 @@ public class TestCswRecordMapperFilterVisitor {
 
         DWithin duplicate = (DWithin) visitor.visit(filter, null);
 
-        assertThat(duplicate.getExpression1(), equalTo(pt1));
-        assertThat(duplicate.getExpression2(), equalTo(pt2));
-        assertThat(duplicate.getDistanceUnits(), equalTo(UomOgcMapping.METRE.name()));
-        assertThat(duplicate.getDistance(), equalTo(val));
+        assertThat(duplicate.getExpression1(), is(pt1));
+        assertThat(duplicate.getExpression2(), is(pt2));
+        assertThat(duplicate.getDistanceUnits(), is(UomOgcMapping.METRE.name()));
+        assertThat(duplicate.getDistance(), is(val));
     }
 
     @Test
@@ -197,9 +195,9 @@ public class TestCswRecordMapperFilterVisitor {
 
         PropertyIsBetween duplicate = (PropertyIsBetween) visitor.visit(filter, null);
 
-        assertThat(duplicate.getExpression(), equalTo(attrExpr));
-        assertThat(duplicate.getLowerBoundary(), equalTo(lower));
-        assertThat(duplicate.getUpperBoundary(), equalTo(upper));
+        assertThat(duplicate.getExpression(), is(attrExpr));
+        assertThat(duplicate.getLowerBoundary(), is(lower));
+        assertThat(duplicate.getUpperBoundary(), is(upper));
     }
 
     @Test
@@ -210,14 +208,14 @@ public class TestCswRecordMapperFilterVisitor {
 
         PropertyIsEqualTo duplicate = (PropertyIsEqualTo) visitor.visit(filter, null);
 
-        assertThat(duplicate.getExpression1(), equalTo(attrExpr));
-        assertThat(duplicate.getExpression2(), equalTo(val));
-        assertTrue(duplicate.isMatchingCase());
+        assertThat(duplicate.getExpression1(), is(attrExpr));
+        assertThat(duplicate.getExpression2(), is(val));
+        assertThat(duplicate.isMatchingCase(), is(true));
     }
 
     @Test
     public void testVisitPropertyIsFuzzy() {
-        visitor = new CswRecordMapperFilterVisitor();
+        visitor = new CswRecordMapperFilterVisitor(metacardType);
         Expression val1 = factory.property("fooProperty");
         Expression val2 = factory.literal("fooLiteral");
 
@@ -229,8 +227,8 @@ public class TestCswRecordMapperFilterVisitor {
                 .fuzzyText(val2.toString());
         PropertyIsLike visitedFilter = (PropertyIsLike) visitor.visit(fuzzySearch, null);
 
-        assertTrue(visitedFilter.getExpression() instanceof FuzzyFunction);
-        assertThat(visitedFilter.getLiteral(), equalTo(val2.toString()));
+        assertThat(visitedFilter.getExpression(), is(instanceOf(FuzzyFunction.class)));
+        assertThat(visitedFilter.getLiteral(), is(val2.toString()));
     }
 
     @Test
@@ -241,9 +239,9 @@ public class TestCswRecordMapperFilterVisitor {
 
         PropertyIsEqualTo duplicate = (PropertyIsEqualTo) visitor.visit(filter, null);
 
-        assertThat(duplicate.getExpression1(), equalTo(attrExpr));
-        assertThat(duplicate.getExpression2(), equalTo(val));
-        assertFalse(duplicate.isMatchingCase());
+        assertThat(duplicate.getExpression1(), is(attrExpr));
+        assertThat(duplicate.getExpression2(), is(val));
+        assertThat(duplicate.isMatchingCase(), is(false));
     }
 
     @Test
@@ -254,9 +252,9 @@ public class TestCswRecordMapperFilterVisitor {
 
         PropertyIsNotEqualTo duplicate = (PropertyIsNotEqualTo) visitor.visit(filter, null);
 
-        assertThat(duplicate.getExpression1(), equalTo(attrExpr));
-        assertThat(duplicate.getExpression2(), equalTo(val));
-        assertFalse(duplicate.isMatchingCase());
+        assertThat(duplicate.getExpression1(), is(attrExpr));
+        assertThat(duplicate.getExpression2(), is(val));
+        assertThat(duplicate.isMatchingCase(), is(false));
     }
 
     @Test
@@ -268,8 +266,8 @@ public class TestCswRecordMapperFilterVisitor {
 
         assertThat(obj, instanceOf(PropertyIsGreaterThan.class));
         PropertyIsGreaterThan duplicate = (PropertyIsGreaterThan) obj;
-        assertThat(duplicate.getExpression1(), equalTo(attrExpr));
-        assertThat(duplicate.getExpression2(), equalTo(val));
+        assertThat(duplicate.getExpression1(), is(attrExpr));
+        assertThat(duplicate.getExpression2(), is(val));
     }
 
     @Ignore("not supported by solr provider")
@@ -282,8 +280,8 @@ public class TestCswRecordMapperFilterVisitor {
 
         assertThat(obj, instanceOf(After.class));
         After duplicate = (After) obj;
-        assertThat(duplicate.getExpression1(), equalTo(created));
-        assertThat(duplicate.getExpression2(), equalTo(val));
+        assertThat(duplicate.getExpression1(), is(created));
+        assertThat(duplicate.getExpression2(), is(val));
     }
 
     @Test
@@ -295,8 +293,8 @@ public class TestCswRecordMapperFilterVisitor {
 
         assertThat(obj, instanceOf(PropertyIsGreaterThanOrEqualTo.class));
         PropertyIsGreaterThanOrEqualTo duplicate = (PropertyIsGreaterThanOrEqualTo) obj;
-        assertThat(duplicate.getExpression1(), equalTo(attrExpr));
-        assertThat(duplicate.getExpression2(), equalTo(val));
+        assertThat(duplicate.getExpression1(), is(attrExpr));
+        assertThat(duplicate.getExpression2(), is(val));
     }
 
     @Ignore("not supported by solr provider")
@@ -313,8 +311,8 @@ public class TestCswRecordMapperFilterVisitor {
         for (Filter child : duplicate.getChildren()) {
             BinaryTemporalOperator binary = (BinaryTemporalOperator) child;
             assertThat(binary, anyOf(instanceOf(TEquals.class), instanceOf(After.class)));
-            assertThat(binary.getExpression1(), equalTo(created));
-            assertThat(binary.getExpression2(), equalTo(val));
+            assertThat(binary.getExpression1(), is(created));
+            assertThat(binary.getExpression2(), is(val));
         }
     }
 
@@ -328,8 +326,8 @@ public class TestCswRecordMapperFilterVisitor {
 
         assertThat(obj, instanceOf(PropertyIsLessThan.class));
         PropertyIsLessThan duplicate = (PropertyIsLessThan) obj;
-        assertThat(duplicate.getExpression1(), equalTo(attrExpr));
-        assertThat(duplicate.getExpression2(), equalTo(val));
+        assertThat(duplicate.getExpression1(), is(attrExpr));
+        assertThat(duplicate.getExpression2(), is(val));
     }
 
     @Test
@@ -342,8 +340,8 @@ public class TestCswRecordMapperFilterVisitor {
 
         assertThat(obj, instanceOf(Before.class));
         Before duplicate = (Before) obj;
-        assertThat(duplicate.getExpression1(), equalTo(created));
-        assertThat(duplicate.getExpression2(), equalTo(val));
+        assertThat(duplicate.getExpression1(), is(created));
+        assertThat(duplicate.getExpression2(), is(val));
     }
 
     @Test
@@ -356,8 +354,8 @@ public class TestCswRecordMapperFilterVisitor {
 
         assertThat(obj, instanceOf(PropertyIsLessThanOrEqualTo.class));
         PropertyIsLessThanOrEqualTo duplicate = (PropertyIsLessThanOrEqualTo) obj;
-        assertThat(duplicate.getExpression1(), equalTo(attrExpr));
-        assertThat(duplicate.getExpression2(), equalTo(val));
+        assertThat(duplicate.getExpression1(), is(attrExpr));
+        assertThat(duplicate.getExpression2(), is(val));
     }
 
     @Ignore("not supported by solr provider")
@@ -372,15 +370,11 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(obj, instanceOf(Or.class));
         Or duplicate = (Or) obj;
 
-        List<Class<? extends BinaryTemporalOperator>> classes =
-                new ArrayList<Class<? extends BinaryTemporalOperator>>();
-
         for (Filter child : duplicate.getChildren()) {
             BinaryTemporalOperator binary = (BinaryTemporalOperator) child;
             assertThat(binary, anyOf(instanceOf(TEquals.class), instanceOf(Before.class)));
-            classes.add(binary.getClass());
-            assertThat(binary.getExpression1(), equalTo(created));
-            assertThat(binary.getExpression2(), equalTo(val));
+            assertThat(binary.getExpression1(), is(created));
+            assertThat(binary.getExpression2(), is(val));
         }
     }
 
@@ -394,7 +388,7 @@ public class TestCswRecordMapperFilterVisitor {
         Literal literal = (Literal) visitor.visit(val, created);
 
         assertThat(literal.getValue(), instanceOf(Date.class));
-        assertThat((Date) literal.getValue(), equalTo(date));
+        assertThat(literal.getValue(), is(date));
     }
 
     @Test
@@ -407,7 +401,7 @@ public class TestCswRecordMapperFilterVisitor {
         Literal literal = (Literal) visitor.visit(val, attrExpr);
 
         assertThat(literal.getValue(), instanceOf(String.class));
-        assertThat((String) literal.getValue(), equalTo(dateString));
+        assertThat(literal.getValue(), is(dateString));
     }
 
     @Test
@@ -420,7 +414,7 @@ public class TestCswRecordMapperFilterVisitor {
         Literal literal = (Literal) visitor.visit(val, null);
 
         assertThat(literal.getValue(), instanceOf(String.class));
-        assertThat((String) literal.getValue(), equalTo(dateString));
+        assertThat(literal.getValue(), is(dateString));
     }
 
     @Test
@@ -428,7 +422,7 @@ public class TestCswRecordMapperFilterVisitor {
         Expression val = factory.literal("source1");
         Expression val2 = factory.literal("source2");
 
-        Expression sourceExpr = factory.property(Metacard.SOURCE_ID);
+        Expression sourceExpr = factory.property(Core.SOURCE_ID);
 
         PropertyIsEqualTo filter = factory.equal(sourceExpr, val, false);
 
@@ -444,8 +438,8 @@ public class TestCswRecordMapperFilterVisitor {
 
         assertThat(obj, instanceOf(PropertyIsLike.class));
         PropertyIsLike duplicate = (PropertyIsLike) obj;
-        assertThat(duplicate.getExpression(), equalTo(attrExpr));
-        assertThat(duplicate.getLiteral(), equalTo("something"));
+        assertThat(duplicate.getExpression(), is(attrExpr));
+        assertThat(duplicate.getLiteral(), is("something"));
         assertThat(visitor.getSourceIds()
                 .size(), is(2));
     }

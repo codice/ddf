@@ -187,7 +187,7 @@ public class TestGmdTransformer {
 
         assertThat(metacard.getContentTypeName(), is("dataset"));
 
-        assertThat(metacard.getAttribute(Metacard.DESCRIPTION)
+        assertThat(metacard.getAttribute(Core.DESCRIPTION)
                 .getValue(), is(
                 "Vector Map: a general purpose database design to support GIS applications"));
 

@@ -50,7 +50,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
@@ -62,6 +63,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.permission.Permissions;
+
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -85,16 +87,20 @@ public class CswQueryFactory {
 
     private final FilterAdapter adapter;
 
+    private MetacardType metacardType;
+
     private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
 
-    public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter) {
+    public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter,
+            MetacardType metacardType) {
         this.builder = filterBuilder;
         this.adapter = adapter;
+        this.metacardType = metacardType;
     }
 
     public QueryRequest getQueryById(List<String> ids) {
         List<Filter> filters = ids.stream()
-                .map(id -> builder.attribute(Metacard.ID)
+                .map(id -> builder.attribute(Core.ID)
                         .is()
                         .equalTo()
                         .text(id))
@@ -123,7 +129,7 @@ public class CswQueryFactory {
             frameworkQuery.setPageSize(request.getMaxRecords()
                     .intValue());
         }
-        QueryRequest queryRequest = null;
+        QueryRequest queryRequest;
         boolean isDistributed = request.getDistributedSearch() != null && (
                 request.getDistributedSearch()
                         .getHopCount()
@@ -149,7 +155,7 @@ public class CswQueryFactory {
 
     private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint)
             throws CswException {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType);
         Filter filter = null;
         if (constraint != null) {
             if (constraint.isSetCqlText()) {
@@ -165,7 +171,7 @@ public class CswQueryFactory {
         } else {
             // not supported by catalog:
             //filter = Filter.INCLUDE;
-            filter = builder.attribute(Metacard.ID)
+            filter = builder.attribute(Core.ID)
                     .is()
                     .like()
                     .text(FilterDelegate.WILDCARD_CHAR);
@@ -232,19 +238,18 @@ public class CswQueryFactory {
             return null;
         }
 
-        if (!DefaultCswRecordMap
-                .hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
-                                .getPropertyName(),
-                        sortBy.getPropertyName()
-                                .getNamespaceContext())) {
+        if (!DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+                        .getPropertyName(),
+                sortBy.getPropertyName()
+                        .getNamespaceContext())) {
             throw new CswException("Property " + sortBy.getPropertyName()
                     .getPropertyName() + " is not a valid SortBy Field",
                     CswConstants.INVALID_PARAMETER_VALUE,
                     "SortProperty");
         }
 
-        String name = DefaultCswRecordMap
-                .getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+        String name =
+                DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
                                 .getPropertyName(),
                         sortBy.getPropertyName()
                                 .getNamespaceContext());
@@ -263,7 +268,7 @@ public class CswQueryFactory {
 
     private Object parseJaxB(JAXBElement<?> element) throws CswException {
         Parser parser = new Parser(PARSER_CONFIG);
-        InputStream inputStream = null;
+        InputStream inputStream;
 
         try {
             inputStream = marshalJaxB(element);
@@ -320,7 +325,7 @@ public class CswQueryFactory {
         if (!adapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate(tags, true))) {
             List<Filter> filters = new ArrayList<>(tags.size());
             for (String tag : tags) {
-                filters.add(builder.attribute(Metacard.TAGS)
+                filters.add(builder.attribute(Core.METACARD_TAGS)
                         .is()
                         .like()
                         .text(tag));

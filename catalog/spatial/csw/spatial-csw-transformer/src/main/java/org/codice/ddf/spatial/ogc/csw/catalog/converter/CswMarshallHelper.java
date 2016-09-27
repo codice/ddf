@@ -32,7 +32,6 @@ import javax.xml.namespace.QName;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
@@ -49,9 +48,9 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 
 class CswMarshallHelper {
@@ -86,31 +85,28 @@ class CswMarshallHelper {
             MetacardImpl metacard) {
         StringBuilder sb = new StringBuilder();
         sb.append(ISODateTimeFormat.dateTime()
-                .print(((Date) metacard.getEffectiveDate()).getTime()))
+                .print(metacard.getEffectiveDate()
+                        .getTime()))
                 .append(" to ")
                 .append(ISODateTimeFormat.dateTime()
-                        .print(((Date) metacard.getExpirationDate()).getTime()));
-        writeValue(writer, context, null, CswRecordMetacardType.CSW_TEMPORAL_QNAME, sb.toString());
+                        .print((metacard.getExpirationDate()).getTime()));
+        writeValue(writer, context, null, CswConstants.CSW_TEMPORAL_QNAME, sb.toString());
     }
 
     static void writeFields(HierarchicalStreamWriter writer, MarshallingContext context,
             MetacardImpl metacard, List<QName> fieldsToWrite) {
-
         for (QName qName : fieldsToWrite) {
-            if (qName != null && !qName.equals(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
+            if (qName != null && !qName.equals(CswConstants.OWS_BOUNDING_BOX_QNAME)) {
+
                 String attrName = DefaultCswRecordMap.getDefaultCswRecordMap()
                         .getDefaultMetacardFieldFor(qName);
                 AttributeDescriptor ad = metacard.getMetacardType()
                         .getAttributeDescriptor(attrName);
-                if (ad == null) {
-                    ad = new AttributeDescriptorImpl(attrName,
-                            false,
-                            false,
-                            false,
-                            false,
-                            BasicTypes.STRING_TYPE);
-                }
 
+                 /*  Backwards Compatibility */
+                if (ad == null) {
+                    ad = BasicTypes.BASIC_METACARD.getAttributeDescriptor(attrName);
+                }
                 writeAttribute(writer, context, metacard, ad, qName);
             }
         }
@@ -119,16 +115,19 @@ class CswMarshallHelper {
     static void writeAttribute(HierarchicalStreamWriter writer, MarshallingContext context,
             Metacard metacard, AttributeDescriptor attributeDescriptor, QName field) {
         if (attributeDescriptor != null) {
+
             Attribute attr = metacard.getAttribute(attributeDescriptor.getName());
             if (attr != null) {
                 if (attributeDescriptor.isMultiValued()) {
+
                     for (Serializable value : attr.getValues()) {
+
                         writeValue(writer, context, attributeDescriptor, field, value);
                     }
                 } else {
                     writeValue(writer, context, attributeDescriptor, field, attr.getValue());
                 }
-            } else if (CswRecordMetacardType.REQUIRED_FIELDS.contains(field)) {
+            } else if (CswConstants.REQUIRED_FIELDS.contains(field)) {
                 writeValue(writer, context, attributeDescriptor, field, "");
             }
         }
@@ -150,7 +149,7 @@ class CswMarshallHelper {
     }
 
     static Map<String, Object> getArguments(MarshallingContext context) {
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
 
         Object writeNamespaceObj = context.get(CswConstants.WRITE_NAMESPACES);
         Boolean doWriteNamespaces = false;
@@ -173,27 +172,27 @@ class CswMarshallHelper {
 
             switch (elementSetType) {
             case BRIEF:
-                elementsToWrite = CswRecordMetacardType.BRIEF_CSW_RECORD_FIELDS;
+                elementsToWrite = CswConstants.BRIEF_CSW_RECORD_FIELDS;
                 rootNodeName = CswConstants.CSW_BRIEF_RECORD;
                 break;
             case SUMMARY:
-                elementsToWrite = CswRecordMetacardType.SUMMARY_CSW_RECORD_FIELDS;
+                elementsToWrite = CswConstants.SUMMARY_CSW_RECORD_FIELDS;
                 rootNodeName = CswConstants.CSW_SUMMARY_RECORD;
                 break;
             case FULL:
             default:
-                elementsToWrite = CswRecordMetacardType.FULL_CSW_RECORD_FIELDS;
+                elementsToWrite = CswConstants.FULL_CSW_RECORD_FIELDS;
                 break;
             }
 
             args.put(CswConstants.ELEMENT_NAMES, elementsToWrite);
             args.put(CswConstants.ROOT_NODE_NAME, rootNodeName);
         } else if (elementNamesObj instanceof List<?>) {
-            args.put(CswConstants.ELEMENT_NAMES, (List<?>) elementNamesObj);
+            args.put(CswConstants.ELEMENT_NAMES, elementNamesObj);
             args.put(CswConstants.ROOT_NODE_NAME, rootNodeName);
         } else {
             args.put(CswConstants.ROOT_NODE_NAME, rootNodeName);
-            args.put(CswConstants.ELEMENT_NAMES, CswRecordMetacardType.FULL_CSW_RECORD_FIELDS);
+            args.put(CswConstants.ELEMENT_NAMES, CswConstants.FULL_CSW_RECORD_FIELDS);
         }
 
         return args;
@@ -203,7 +202,7 @@ class CswMarshallHelper {
             Metacard metacard) {
         Set<AttributeDescriptor> attrDescs = metacard.getMetacardType()
                 .getAttributeDescriptors();
-        List<Geometry> geometries = new LinkedList<Geometry>();
+        List<Geometry> geometries = new LinkedList<>();
 
         for (AttributeDescriptor ad : attrDescs) {
             if (ad.getType() != null && AttributeType.AttributeFormat.GEOMETRY.equals(ad.getType()
@@ -230,7 +229,7 @@ class CswMarshallHelper {
 
         if (!bounds.isNull()) {
             String bbox = CswConstants.OWS_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
-                    + CswRecordMetacardType.OWS_BOUNDING_BOX;
+                    + CswConstants.OWS_BOUNDING_BOX;
             String lower = CswConstants.OWS_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
                     + CswConstants.OWS_LOWER_CORNER;
             String upper = CswConstants.OWS_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
@@ -262,7 +261,7 @@ class CswMarshallHelper {
             attrFormat = AttributeType.AttributeFormat.STRING;
         }
 
-        String name = null;
+        String name;
 
         if (!StringUtils.isBlank(field.getNamespaceURI())) {
             if (!StringUtils.isBlank(field.getPrefix())) {

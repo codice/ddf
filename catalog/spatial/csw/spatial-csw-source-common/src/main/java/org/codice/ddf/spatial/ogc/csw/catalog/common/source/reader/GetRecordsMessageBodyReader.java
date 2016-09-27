@@ -52,7 +52,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.impl.ResourceImpl;
 
 /**
@@ -84,8 +84,8 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
         argumentHolder.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, configuration.getOutputSchema());
         argumentHolder.put(CswConstants.CSW_MAPPING, configuration.getMetacardCswMappings());
         argumentHolder.put(CswConstants.AXIS_ORDER_PROPERTY, configuration.getCswAxisOrder());
-        argumentHolder.put(Metacard.RESOURCE_URI, configuration.getMetacardMapping(Metacard.RESOURCE_URI));
-        argumentHolder.put(Metacard.THUMBNAIL, configuration.getMetacardMapping(Metacard.THUMBNAIL));
+        argumentHolder.put(Core.RESOURCE_URI, configuration.getMetacardMapping(Core.RESOURCE_URI));
+        argumentHolder.put(Core.THUMBNAIL, configuration.getMetacardMapping(Core.THUMBNAIL));
         argumentHolder.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManager.SCHEMA);
         argumentHolder.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, configuration.getOutputSchema());
     }
@@ -107,7 +107,9 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
         // Check if the server returned a Partial Content response (hopefully in response to a range header)
         String contentRangeHeader = httpHeaders.getFirst(HttpHeaders.CONTENT_RANGE);
         if (StringUtils.isNotBlank(contentRangeHeader)) {
-            contentRangeHeader = StringUtils.substringBetween(contentRangeHeader.toLowerCase(), "bytes ", "-");
+            contentRangeHeader = StringUtils.substringBetween(contentRangeHeader.toLowerCase(),
+                    "bytes ",
+                    "-");
             long bytesSkipped = Long.parseLong(contentRangeHeader);
             resourceProperties.put(BYTES_SKIPPED, Long.valueOf(bytesSkipped));
         }

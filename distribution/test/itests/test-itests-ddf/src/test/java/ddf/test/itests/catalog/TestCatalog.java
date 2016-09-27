@@ -478,9 +478,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .log()
                 .all()
                 .assertThat()
-                .body(hasXPath("//metacard/dateTime[@name='date']/value", startsWith("2015-08-10")),
+                .body(hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-10")),
                         hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
-                        hasXPath("//metacard/string[@name='subject']/value", is("Updated Subject")),
+                        hasXPath("//metacard/string[@name='topic.category']/value", is("Updated Subject")),
                         hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[1]",
                                 is("1.0 2.0")),
@@ -560,11 +560,11 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 // Check that the updated attributes were changed.
-                .body(hasXPath("//metacard/dateTime[@name='date']/value", startsWith("2015-08-25")),
+                .body(hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-25")),
                         hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
-                        hasXPath("//metacard/string[@name='format']/value", is("")),
+                        hasXPath("//metacard/string[@name='media.format']/value", is("")),
                         // Check that an attribute that was not updated was not changed.
-                        hasXPath("//metacard/string[@name='subject']/value",
+                        hasXPath("//metacard/string[@name='topic.category']/value",
                                 is("Hydrography--Dictionaries")));
 
         String secondUrl = REST_PATH.getUrl() + secondId;
@@ -574,11 +574,11 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 // Check that the updated attributes were changed.
-                .body(hasXPath("//metacard/dateTime[@name='date']/value", startsWith("2015-08-25")),
+                .body(hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-25")),
                         hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
-                        hasXPath("//metacard/string[@name='format']/value", is("")),
+                        hasXPath("//metacard/string[@name='media.format']/value", is("")),
                         // Check that an attribute that was not updated was not changed.
-                        hasXPath("//metacard/string[@name='subject']/value",
+                        hasXPath("//metacard/string[@name='topic.category']/value",
                                 is("Hydrography--Dictionaries")));
 
         deleteMetacard(firstId);
@@ -689,7 +689,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 // Check that the attributes about to be removed in the update are present.
-                .body(hasXPath("//metacard/dateTime[@name='date']"),
+                .body(hasXPath("//metacard/dateTime[@name='modified']"),
                         hasXPath("//metacard/string[@name='title']"),
                         hasXPath("//metacard/geometry[@name='location']"));
 
@@ -709,11 +709,11 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 // Check that the updated attributes were removed.
-                .body(not(hasXPath("//metacard/dateTime[@name='date']")),
-                        not(hasXPath("//metacard/string[@name='title']")),
+                .body(not(hasXPath("//metacard/string[@name='title']")),
                         not(hasXPath("//metacard/geometry[@name='location']")),
                         // Check that an attribute that was not updated was not changed.
-                        hasXPath("//metacard/string[@name='subject']/value",
+                        hasXPath("//metacard/dateTime[@name='modified']"),
+                        hasXPath("//metacard/string[@name='topic.category']/value",
                                 is("Hydrography--Dictionaries")));
 
         deleteMetacard(id);

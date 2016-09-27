@@ -124,6 +124,7 @@
     <bean id="transactionMessageBodyReader"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader">
         <argument ref="transformProvider"/>
+        <argument ref="cswMetacardType"/>
     </bean>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
@@ -155,10 +156,13 @@
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.Validator">
     </bean>
 
+    <reference id="cswMetacardType" interface="ddf.catalog.data.MetacardType" filter="(name=csw:Record)"/>
+
     <bean id="cswFilterFactory"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory">
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
+        <argument ref="cswMetacardType"/>
         <property name="schemaToTagsMapping">
             <array value-type="java.lang.String">
                 <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry,registry-remote</value>
