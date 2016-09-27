@@ -516,5 +516,10 @@
             <artifactId>catalog-plugin-clientinfo</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-metacardtype</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

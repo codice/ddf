@@ -13,14 +13,21 @@
  **/
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-        <!-- The tika input transformer programmatically registers itself as a service -->
+    <!-- The tika input transformer programmatically registers itself as a service -->
     <bean id="tikaTransformer" class="ddf.catalog.transformer.input.tika.TikaInputTransformer">
-		    <argument ref="blueprintBundleContext"/>
-		</bean>
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="commonMetacardType"/>
+    </bean>
 
-    <reference-list id="contentExtractors" interface="ddf.catalog.content.operation.ContentMetadataExtractor"
+    <reference id="commonMetacardType" interface="ddf.catalog.data.MetacardType"
+               filter="(name=common)"
+               availability="mandatory"/>
+
+    <reference-list id="contentExtractors"
+                    interface="ddf.catalog.content.operation.ContentMetadataExtractor"
                     availability="optional">
-        <reference-listener bind-method="addContentMetadataExtractors" unbind-method="removeContentMetadataExtractor"
+        <reference-listener bind-method="addContentMetadataExtractors"
+                            unbind-method="removeContentMetadataExtractor"
                             ref="tikaTransformer"/>
     </reference-list>
 </blueprint>

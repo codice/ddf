@@ -42,6 +42,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
@@ -53,11 +54,17 @@ public class VideoInputTransformer implements InputTransformer {
 
     private Templates templates = null;
 
-    public VideoInputTransformer() {
+    private MetacardType metacardType = null;
+
+    public VideoInputTransformer(MetacardType metacardType) {
+
+        this.metacardType = metacardType;
+
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            Thread.currentThread()
+                    .setContextClassLoader(getClass().getClassLoader());
             templates = TransformerFactory.newInstance(TransformerFactoryImpl.class.getName(),
                     this.getClass()
                             .getClassLoader())
@@ -66,7 +73,8 @@ public class VideoInputTransformer implements InputTransformer {
         } catch (TransformerConfigurationException e) {
             LOGGER.debug("Couldn't create XML transformer", e);
         } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            Thread.currentThread()
+                    .setContextClassLoader(tccl);
         }
     }
 
@@ -89,7 +97,7 @@ public class VideoInputTransformer implements InputTransformer {
             metadataText = transformToXml(metadataText);
         }
 
-        return MetacardCreator.createBasicMetacard(metadata, id, metadataText);
+        return MetacardCreator.createMetacard(metadata, id, metadataText, metacardType);
     }
 
     private String transformToXml(String xhtml) {

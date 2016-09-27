@@ -32,13 +32,15 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.input.tika.TikaInputTransformer;
 
 public class PptxInputTransformerTest {
 
-    private final InputTransformer inputTransformer = new TikaInputTransformer(null);
+    private final InputTransformer inputTransformer = new TikaInputTransformer(null,
+            mock(MetacardType.class));
 
     private InputStream getResource(String resourceName) {
         return PptxInputTransformerTest.class.getResourceAsStream(resourceName);

@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -27,6 +28,7 @@ import java.util.TimeZone;
 import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 
 public class VideoInputTransformerTest {
     @Test
@@ -47,7 +49,8 @@ public class VideoInputTransformerTest {
     }
 
     private Metacard transform(InputStream stream) throws Exception {
-        VideoInputTransformer videoInputTransformer = new VideoInputTransformer();
+        VideoInputTransformer videoInputTransformer =
+                new VideoInputTransformer(mock(MetacardType.class));
         return videoInputTransformer.transform(stream);
     }
 
