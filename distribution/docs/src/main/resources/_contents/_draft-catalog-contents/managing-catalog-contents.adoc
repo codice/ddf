@@ -1,0 +1,47 @@
+
+The ${ddf-catalog} provides a framework for storing, searching, processing, and transforming information.
+
+Clients typically perform create, read, update, and delete (CRUD) operations against the Catalog.
+
+At the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+
+=== ${ddf-catalog} Application Prerequisites
+
+To use the ${ddf-catalog} Application, the following applications/features must be installed:
+
+* ${ddf-platform}
+
+=== Installing the ${ddf-catalog} Application
+
+The ${ddf-catalog} is pre-installed with a standard installation.
+
+=== Configuring the ${ddf-catalog} Application
+
+.${ddf-catalog} Available Configurations
+[cols="1,1m,2" options="header"]
+|===
+|Configuration
+|ID
+|Description
+
+include::{adoc-include}/_tables/conf-plugin.backup-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-OpenSearchSource-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-org.codice.ddf.catalog.security.CatalogPolicy-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-ddf.catalog.CatalogFrameworkImpl-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-ddf.services.schematron.SchematronValidationService-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-ddf.catalog.transformer.xml.XmlResponseQueueTransformer-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-ddf.catalog.metacard.duplication.DuplicationValidator-table-contents.adoc[]
+
+|===

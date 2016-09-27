@@ -1,4 +1,4 @@
-= ${branding-expanded} Documentation
+= DRAFT ${branding-expanded} Documentation
 include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 
 = Introduction
@@ -88,6 +88,9 @@ include::{adoc-include}/_configuring/configuring-from-import-contents.adoc[]
 
 === Other Configurations
 
+
+include::{adoc-include}/_configuring/configuring-as-fanout-proxy-contents.adoc[]
+
 include::{adoc-include}/_configuring/configuring-catalog-provider-contents.adoc[]
 
 include::{adoc-include}/_configuring/managing-features-contents.adoc[]
@@ -131,5 +134,37 @@ include::{adoc-include}/_running/monitoring-contents.adoc[]
 === Troubleshooting ${branding}
 
 include::{adoc-include}/_running/troubleshooting-contents.adoc[]
+
+= Application Reference
+
+====
+Installation and configuration details by application.
+====
+
+== ${ddf-admin} Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_draft-admin-contents/managing-admin-contents.adoc[]
+
+<<<
+
+== ${ddf-catalog} Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_draft-catalog-contents/managing-catalog-contents.adoc[]
+
+<<<
+
+== ${ddf-geowebcache} Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_draft-geowebcache-contents/managing-geowebcache-contents.adoc[]
+
+<<<
+
+== ${ddf-platform} Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_draft-platform-contents/managing-platform-contents.adoc[]
 
 <<<

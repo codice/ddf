@@ -1,0 +1,14 @@
+
+==== Configuring ${branding} as a Fanout Proxy
+
+This scenario describes how to configure ${branding} as a fanout proxy such that only queries and resource retrieval requests are processed and create/update/delete requests are rejected.
+Additionally, all queries are enterprise queries and no catalog provider needs to be configured.
+
+. Start ${branding} following the Starting and Stopping instructions.
+. Reconfigure ${branding} in fanout proxy mode by going to the Features tab in the ${admin-console}.
+The Standard Catalog Framework (`catalog-core-standardframework` feature) has a property (`fanout`) that needs to be enabled.
+
+${branding} is now operating as a fanout proxy.
+Only queries and resource retrieval requests will be allowed.
+All queries will be federated.
+Create, update, and delete requests will throw an `UnsupportedOperationException`, even if a Catalog Provider was configured prior to the reconfiguration to fanout.

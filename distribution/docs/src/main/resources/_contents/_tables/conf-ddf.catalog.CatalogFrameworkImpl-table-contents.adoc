@@ -1,0 +1,4 @@
+|<<ddf.catalog.CatalogFrameworkImpl,Catalog Standard Framework>>
+|ddf.catalog.CatalogFrameworkImpl
+|DDF Local site
+

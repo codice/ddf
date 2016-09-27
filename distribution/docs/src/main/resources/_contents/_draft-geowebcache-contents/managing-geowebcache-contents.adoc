@@ -1,26 +1,31 @@
-${ddf-geowebcache} enables a server providing a tile cache and tile service aggregation.
+
+${ddf-geowebcache} enables a server providing a map tile cache and tile service aggregation.
 See (http://geowebcache.org[GeoWebCache]) for more information.
 This application also provides an administrative plugin for the management of GeoWebCached layers.
-GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at \${secure_url}/geowebcache/.
+GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at ${secure_url}/geowebcache/.
 
-=== Prerequisites for ${ddf-geowebcache}
+=== ${ddf-geowebcache} Application Prerequisites
 
-none.
+None.
 
 === Installing ${ddf-geowebcache}
 
-The ${ddf-geowebcache} application is *not* installed by default. To install:
+The ${ddf-geowebcache} application is *not* installed by default.
+
+To install:
 
 * Navigate to the ${admin-console}.
 * Select *Manage*.
-* Select the ${ddf-geowebcache} application
 * Select the application *Start* button. The application will move to *Active Applications* on startup.
+* Select *Back* in ${admin-console}.
 
 === Configuring ${ddf-geowebcache}
 
 ${ddf-geowebcache} can be configured to cache layers locally, using the following procedures.
 
 ==== Adding GeoWebCache Layers
+
+Add layers to the local cache:
 
 * Navigate to the ${admin-console}.
 * Select the ${ddf-geowebcache} Application.
