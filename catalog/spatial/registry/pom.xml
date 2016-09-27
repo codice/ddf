@@ -27,7 +27,6 @@
     <name>DDF :: Registry</name>
     <properties>
         <jaxb2.version>0.9.4</jaxb2.version>
-        <spatial4j.version>0.4.1</spatial4j.version>
     </properties>
     <dependencyManagement>
         <dependencies>

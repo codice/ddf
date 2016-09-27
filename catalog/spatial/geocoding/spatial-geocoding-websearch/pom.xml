@@ -52,8 +52,14 @@
             <artifactId>cxf-rt-rs-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.spatial4j</groupId>
+            <groupId>org.locationtech.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
+            <version>${spatial4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.noggit</groupId>
+            <artifactId>noggit</artifactId>
+            <version>0.6</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
@@ -73,7 +79,7 @@
                             json-smart,
                             spatial4j,
                             spatial-geocoding-api-impl,
-                            commons-lang3,
+                            noggit,
                             geospatial
                         </Embed-Dependency>
                     </instructions>

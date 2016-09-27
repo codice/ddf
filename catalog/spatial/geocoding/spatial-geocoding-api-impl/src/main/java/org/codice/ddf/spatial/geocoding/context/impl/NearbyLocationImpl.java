@@ -15,10 +15,9 @@
 package org.codice.ddf.spatial.geocoding.context.impl;
 
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
-
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.Point;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.distance.DistanceUtils;
+import org.locationtech.spatial4j.shape.Point;
 
 public class NearbyLocationImpl implements NearbyLocation {
     private static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;

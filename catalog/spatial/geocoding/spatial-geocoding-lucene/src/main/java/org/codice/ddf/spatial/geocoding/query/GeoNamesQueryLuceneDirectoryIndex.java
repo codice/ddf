@@ -29,17 +29,16 @@ import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneIndexer;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.Shape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Shape;
-
 public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex {
-    private String indexLocation;
-
     private static final Logger LOGGER =
             LoggerFactory.getLogger(GeoNamesQueryLuceneDirectoryIndex.class);
+
+    private String indexLocation;
 
     public void setIndexLocation(final String indexLocation) {
         this.indexLocation = indexLocation;

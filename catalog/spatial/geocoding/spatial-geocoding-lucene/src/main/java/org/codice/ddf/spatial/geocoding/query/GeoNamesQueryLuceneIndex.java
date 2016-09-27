@@ -35,8 +35,8 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.DisjunctionMaxQuery;
-import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -57,14 +57,13 @@ import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.context.impl.NearbyLocationImpl;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneConstants;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.distance.DistanceUtils;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.impl.PointImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.impl.PointImpl;
 
 public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesQueryLuceneIndex.class);
@@ -82,15 +81,17 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
             {"PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLC", "PPLCH", "PPLF", "PPLG", "PPLL",
                     "PPLR", "PPLS", "PPLX"};
 
-    private static final BooleanQuery PPL_QUERY = new BooleanQuery();
+    private static final BooleanQuery PPL_QUERY;
 
     static {
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
         // Create an OR query on the feature_code field that will accept any of the above feature
         // codes.
         for (String fc : CITY_FEATURE_CODES) {
-            PPL_QUERY.add(new TermQuery(new Term(GeoNamesLuceneConstants.FEATURE_CODE_FIELD, fc)),
+            builder.add(new TermQuery(new Term(GeoNamesLuceneConstants.FEATURE_CODE_FIELD, fc)),
                     BooleanClause.Occur.SHOULD);
         }
+        PPL_QUERY = builder.build();
     }
 
     protected abstract Directory openDirectory() throws IOException;
@@ -162,9 +163,9 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         name. */
 
         // Surround with quotes so Lucene looks for the words in the query as a phrase.
-        final Query phraseNameQuery = nameQueryParser.parse("\"" + queryString + "\"");
         // Phrase query gets the biggest boost - 3.2 was obtained after some experimentation.
-        phraseNameQuery.setBoost(3.2f);
+        final Query phraseNameQuery = new BoostQuery(nameQueryParser.parse(
+                "\"" + queryString + "\""), 3.2f);
 
         // By default, QueryParser uses OR to separate terms.
         // We give OR queries the lowest boost because they're not as good as phrase matches or
@@ -172,10 +173,9 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         final Query orNameQuery = nameQueryParser.parse(queryString);
 
         nameQueryParser.setDefaultOperator(QueryParser.AND_OPERATOR);
-        final Query andNameQuery = nameQueryParser.parse(queryString);
         // We give AND queries the second-biggest boost because they're better than OR matches but
         // not as good as phrase matches - 2 was obtained after some experimentation.
-        andNameQuery.setBoost(2f);
+        final Query andNameQuery = new BoostQuery(nameQueryParser.parse(queryString), 2f);
 
         final List<Query> nameQueryList = Arrays.asList(phraseNameQuery, orNameQuery, andNameQuery);
         // This query will score each document by the maximum of the three sub-queries.
@@ -187,9 +187,9 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         // For the alternate names, we perform an AND query and an OR query, both of which are
         // boosted less than the name query because the alternate names are generally not as
         // important.
-        final Query orAlternateNamesQuery = alternateNamesQueryParser.parse(queryString);
         // The OR query gets a lower boost - 0.5 was obtained after some experimentation.
-        orAlternateNamesQuery.setBoost(0.5f);
+        final Query orAlternateNamesQuery = new BoostQuery(alternateNamesQueryParser.parse(
+                queryString), 0.5f);
 
         alternateNamesQueryParser.setDefaultOperator(QueryParser.AND_OPERATOR);
         // The AND query gets a higher boost - 1 (the default boost value) was obtained after some
@@ -243,13 +243,14 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
 
             final Point center = shape.getCenter();
 
-            final Filter filter = createSpatialFilter(center, radiusInKm);
+            final Query filter = createSpatialQuery(center, radiusInKm);
 
             // Query for all the documents in the index that are cities, then filter those
             // results for the ones that are in the search area.
-            final BooleanQuery booleanQuery = new BooleanQuery();
-            booleanQuery.add(PPL_QUERY, BooleanClause.Occur.MUST);
-            booleanQuery.add(filter, BooleanClause.Occur.FILTER);
+            final BooleanQuery booleanQuery = new BooleanQuery.Builder().add(PPL_QUERY,
+                    BooleanClause.Occur.MUST)
+                    .add(filter, BooleanClause.Occur.FILTER)
+                    .build();
 
             final TopDocs topDocs = indexSearcher.search(booleanQuery, maxResults, SORT);
 
@@ -296,10 +297,11 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
 
             final Point center = shape.getCenter();
 
-            final Filter filter = createSpatialFilter(center, radiusInKm);
+            final Query filter = createSpatialQuery(center, radiusInKm);
 
-            final BooleanQuery booleanQuery = new BooleanQuery();
-            booleanQuery.add(filter, BooleanClause.Occur.FILTER);
+            final BooleanQuery booleanQuery = new BooleanQuery.Builder().add(filter,
+                    BooleanClause.Occur.FILTER)
+                    .build();
 
             final TopDocs topDocs = indexSearcher.search(booleanQuery, 1, SORT);
 
@@ -317,7 +319,7 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         }
     }
 
-    private Filter createSpatialFilter(Point shapeCenter, int radiusInKm) {
+    private Query createSpatialQuery(Point shapeCenter, int radiusInKm) {
         final SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT,
                 GeoNamesLuceneConstants.GEOHASH_LEVELS);
 
@@ -328,8 +330,9 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         // search radius around the metacard's center.
         final double searchRadiusDegrees = radiusInKm * DistanceUtils.KM_TO_DEG;
         final SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects,
-                SPATIAL_CONTEXT.makeCircle(shapeCenter, searchRadiusDegrees));
+                SPATIAL_CONTEXT.getShapeFactory()
+                        .circle(shapeCenter, searchRadiusDegrees));
 
-        return strategy.makeFilter(args);
+        return strategy.makeQuery(args);
     }
 }
