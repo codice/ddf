@@ -147,13 +147,8 @@ define(['backbone',
                 data+= "\t</wmsUrl>";
                 if(layerData.wmsLayerNames.length > 0) {
                     data+="\t<wmsLayers>";
-                    $.each(layerData.wmsLayerNames, function(index,value) {
-                        data +=  value;
-                         if(index < layerData.wmsLayerNames.length -1) {
-                            data+=",";
-                         }
-                    });
-                    data+="\t</wmsLayers>";
+                    data+=layerData.wmsLayerNames.join(",");
+                    data+="</wmsLayers>";
                 }
                 data+= "</wmsLayer>";
                 return data;
