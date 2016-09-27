@@ -20,9 +20,10 @@ define([
     'component/metacard-associations/metacard-associations.view',
     'component/metacard-quality/metacard-quality.view',
     'component/metacard-actions/metacard-actions.view',
-    'component/metacard-archive/metacard-archive.view'
+    'component/metacard-archive/metacard-archive.view',
+    'component/metacard-overwrite/metacard-overwrite.view'
 ], function (_, Tabs, store, MetacardBasicView, MetacardAdvancedView, MetacardHistoryView,
-             MetacardAssociationsView, MetacardQualityView, MetacardActionsView, MetacardArchiveView) {
+             MetacardAssociationsView, MetacardQualityView, MetacardActionsView, MetacardArchiveView, MetacardOverwriteView) {
 
     return Tabs.extend({
         defaults: {
@@ -33,7 +34,8 @@ define([
                 'Associations': MetacardAssociationsView,
                 'Quality': MetacardQualityView,
                 'Actions': MetacardActionsView,
-                'Archive': MetacardArchiveView
+                'Archive': MetacardArchiveView,
+                'Overwrite': MetacardOverwriteView
             }
         }
     });

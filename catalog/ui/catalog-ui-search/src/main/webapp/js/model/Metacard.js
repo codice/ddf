@@ -9,11 +9,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, setTimeout*/
 /*jshint loopfunc: true, latedef: nofunc */
 define([
         'backbone',
         'underscore',
+        'jquery',
         'wreqr',
         'component/singletons/metacard-definitions',
         'terraformer',
@@ -23,7 +24,7 @@ define([
         'backboneassociations',
         'backbone.paginator'
     ],
-    function (Backbone, _, wreqr, metacardDefinitions, Terraformer, TerraformerWKTParser, CQLUtils,
+    function (Backbone, _, $, wreqr, metacardDefinitions, Terraformer, TerraformerWKTParser, CQLUtils,
               Turf) {
         "use strict";
 
@@ -475,6 +476,47 @@ define([
                 }
             ],
             initialize: function(){
+                this.refreshData = _.throttle(this.refreshData, 200);
+            },
+            refreshData: function(){
+                //let solr flush
+                setTimeout(function() {
+                    var req = {
+                        count: 1,
+                        cql: CQLUtils.transformFilterToCQL({
+                            type: '=', 
+                            property: '"id"', 
+                            value: this.get('metacard').id
+                        }),
+                        id: '0',
+                        sort: 'modified:desc',
+                        src: this.get('metacard').get('properties').get('source-id'),
+                        start: 1
+                    };
+                    $.post('/search/catalog/internal/cql', JSON.stringify(req)).then(this.parseRefresh.bind(this), this.handleRefreshError.bind(this));
+                }.bind(this), 1000);
+            },
+            handleRefreshError: function(){
+                //do nothing for now, should we announce this?
+            },
+            parseRefresh: function(response){
+                var queryId = this.get('metacard').get('queryId');
+                var color = this.get('metacard').get('color');
+                _.forEach(response.results, function (result) {
+                    result.propertyTypes = response.types[result.metacard.properties['metacard-type']];
+                    result.metacardType = result.metacard.properties['metacard-type'];
+                    result.metacard.id = result.metacard.properties.id;
+                    result.id = result.metacard.id + result.metacard.properties['source-id'];
+                    result.metacard.queryId = queryId;
+                    result.metacard.color = color;
+                    var thumbnailAction = _.findWhere(result.actions, {id: 'catalog.data.metacard.thumbnail'});
+                    if (result.hasThumbnail && thumbnailAction) {
+                        result.metacard.properties.thumbnail = thumbnailAction.url + '&_='+Date.now();
+                    } else {
+                        result.metacard.properties.thumbnail = undefined;
+                    }
+                });
+                this.set(response.results[0]);
             }
         });
 
@@ -607,7 +649,7 @@ define([
 
                         var thumbnailAction = _.findWhere(result.actions, {id: 'catalog.data.metacard.thumbnail'});
                         if (result.hasThumbnail && thumbnailAction) {
-                            result.metacard.properties.thumbnail = thumbnailAction.url;
+                            result.metacard.properties.thumbnail = thumbnailAction.url + '&_='+Date.now();
                         }
                     });
                 }
