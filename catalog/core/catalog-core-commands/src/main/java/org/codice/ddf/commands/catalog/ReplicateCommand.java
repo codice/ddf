@@ -50,7 +50,7 @@ public class ReplicateCommand extends DuplicateCommands {
     @Override
     protected Object executeWithSubject() throws Exception {
         if (batchSize > MAX_BATCH_SIZE || batchSize < 1) {
-            console.println("Batch Size must be between 1 and 1000.");
+            console.println("Batch Size must be between 1 and " + MAX_BATCH_SIZE + ".");
             return null;
         }
 
