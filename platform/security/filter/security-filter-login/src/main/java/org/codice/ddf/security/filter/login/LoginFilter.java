@@ -439,7 +439,9 @@ public class LoginFilter implements Filter {
                     SecurityLogger.audit("Subject has logged in with admin privileges", subject);
                 }
             }
-            addSamlToSession(httpRequest, token.getRealm(), securityToken);
+            if (!wasReference && firstLogin) {
+                addSamlToSession(httpRequest, token.getRealm(), securityToken);
+            }
         } catch (SecurityServiceException e) {
             LOGGER.error("Unable to get subject from SAML request.", e);
             throw new ServletException(e);
