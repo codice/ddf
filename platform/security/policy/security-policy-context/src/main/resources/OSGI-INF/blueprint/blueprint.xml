@@ -53,6 +53,7 @@
                 <value>${org.codice.ddf.system.rootContext}/idp</value>
                 <value>/idp</value>
                 <value>${org.codice.ddf.system.rootContext}/platform/config/ui</value>
+                <value>/login</value>
             </array>
         </property>
     </bean>
