@@ -737,7 +737,7 @@ All bundles are then packaged into the KAR archive.
 	            Location of the features.xml file. If it references properties that need to be filtered, e.g., ${project.version}, it will need to be
 	            filtered by the maven-resources-plugin.
 	            -->
-	            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
+	            <featuresFile><basedir>/target/classes/features.xml</featuresFile>
 
 	            <!-- Name of the kar file (.kar extension added by default). If not specified, defaults to ${project.build.finalName} -->
 	            <finalName>${ddf-branding-lowercase}-ifis-${project.version}</finalName>
