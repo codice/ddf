@@ -86,7 +86,7 @@ define([
         },
         setupHomeDisplay: function(){
             var preferences = user.get('user').get('preferences');
-            this.homeDisplay.show(FilterDropdownView.createSimpleDropdown(
+            this.homeDisplay.show(DisplayDropdownView.createSimpleDropdown(
                 {
                     list: [
                         {
