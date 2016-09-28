@@ -39,7 +39,6 @@ import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
@@ -81,8 +80,6 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     private CswSourceConfiguration cswSourceConfiguration;
 
-    private MetacardType metacardType;
-
     private CswFilterFactory cswFilterFactory;
 
     /**
@@ -93,11 +90,10 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
      * @param outputFormatValues An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of valid Output Formats supported
      * @param resultTypesValues  An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of Result Types supported
      */
-    public CswFilterDelegate(MetacardType metacardType, Operation getRecordsOp,
-            FilterCapabilities filterCapabilities, DomainType outputFormatValues,
-            DomainType resultTypesValues, CswSourceConfiguration cswSourceConfiguration) {
+    public CswFilterDelegate(Operation getRecordsOp, FilterCapabilities filterCapabilities,
+            DomainType outputFormatValues, DomainType resultTypesValues,
+            CswSourceConfiguration cswSourceConfiguration) {
         super(getRecordsOp, outputFormatValues, resultTypesValues);
-        this.metacardType = metacardType;
         this.cswSourceConfiguration = cswSourceConfiguration;
         this.cswFilterFactory = new CswFilterFactory(cswSourceConfiguration.getCswAxisOrder(),
                 cswSourceConfiguration.isSetUsePosList());
@@ -146,7 +142,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     convertDateToIso8601Format(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -159,7 +155,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     Integer.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -172,7 +168,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     Short.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -185,7 +181,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     Long.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -198,7 +194,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     new Float(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -211,7 +207,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     new Double(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -224,7 +220,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     Boolean.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -251,7 +247,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     this.convertDateToIso8601Format(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -264,7 +260,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     Integer.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -277,7 +273,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     Short.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -290,7 +286,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     Long.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -303,7 +299,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     new Float(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -316,7 +312,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     new Double(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -329,7 +325,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     Boolean.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -1292,7 +1288,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     private List<QName> getGeometryOperands(SpatialOperatorNameType spatialOperatorName) {
         SpatialOperatorType spatialOperatorType = spatialOps.get(spatialOperatorName);
-        List<QName> geometryOperands = new ArrayList<QName>();
+        List<QName> geometryOperands = new ArrayList<>();
         if (spatialOperatorType != null) {
             GeometryOperandsType geometryOperandsType = spatialOperatorType.getGeometryOperands();
             if (geometryOperandsType != null) {
@@ -1353,16 +1349,13 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
      * @param filterCapabilities The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood by the Csw service
      */
     private final void updateAllowedOperations(FilterCapabilities filterCapabilities) {
-        comparisonOps =
-                Collections.newSetFromMap(new ConcurrentHashMap<ComparisonOperatorType, Boolean>(new EnumMap<ComparisonOperatorType, Boolean>(
-                        ComparisonOperatorType.class)));
+        comparisonOps = Collections.newSetFromMap(new ConcurrentHashMap<>(new EnumMap<>(
+                ComparisonOperatorType.class)));
 
-        spatialOps =
-                new ConcurrentHashMap<SpatialOperatorNameType, SpatialOperatorType>(new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
-                        SpatialOperatorNameType.class));
+        spatialOps = new ConcurrentHashMap<>(new EnumMap<>(SpatialOperatorNameType.class));
         logicalOps = true;
         if (null == filterCapabilities) {
-            LOGGER.error("CSW Service doesn't support any filters");
+            LOGGER.debug("CSW Service doesn't support any filters");
             return;
         }
 
@@ -1406,9 +1399,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     public void setSpatialOps(SpatialOperatorsType spatialOperators) {
-        spatialOps =
-                new ConcurrentHashMap<SpatialOperatorNameType, SpatialOperatorType>(new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
-                        SpatialOperatorNameType.class));
+        spatialOps = new ConcurrentHashMap<>(new EnumMap<>(SpatialOperatorNameType.class));
 
         for (SpatialOperatorType spatialOp : spatialOperators.getSpatialOperator()) {
             LOGGER.debug("Adding key [spatialOp Name: {}]", spatialOp.getName());

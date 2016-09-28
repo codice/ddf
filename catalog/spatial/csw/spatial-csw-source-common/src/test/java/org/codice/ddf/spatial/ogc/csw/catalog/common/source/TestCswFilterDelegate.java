@@ -15,10 +15,10 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static net.opengis.filter.v_1_1_0.ComparisonOperatorType.BETWEEN;
@@ -133,17 +133,15 @@ public class TestCswFilterDelegate {
     private static final Date SAMPLE_NON_ISO_8601_DATE;
 
     // NOTE: The contents of these maps ARE mutable
-    private static final Map<String, String> POS_LIST_GEO_FILTER_PROP_MAP =
-            new HashMap<String, String>();
+    private static final Map<String, String> POS_LIST_GEO_FILTER_PROP_MAP = new HashMap<>();
 
-    private static final Map<String, String> SAMPLE_DISTANCE_GEO_FILTER_PROP_MAP =
-            new HashMap<String, String>();
+    private static final Map<String, String> SAMPLE_DISTANCE_GEO_FILTER_PROP_MAP = new HashMap<>();
 
     private static final Map<String, String> SAMPLE_DISTANCE_POS_LIST_GEO_FILTER_PROP_MAP =
-            new HashMap<String, String>();
+            new HashMap<>();
 
     private static final Map<String, String> THOUSAND_METER_DISTANCE_GEO_FILTER_PROP_MAP =
-            new HashMap<String, String>();
+            new HashMap<>();
 
     private static Marshaller marshaller = null;
 
@@ -196,7 +194,7 @@ public class TestCswFilterDelegate {
 
     private final boolean booleanLiteral = true;
 
-    private final boolean isCaseSensitive = false;
+    private final boolean isCaseSensitive = true;
 
     private final String stringLowerBoundary = "5";
 
@@ -749,7 +747,7 @@ public class TestCswFilterDelegate {
         THOUSAND_METER_DISTANCE_GEO_FILTER_PROP_MAP.put(DISTANCE_GEO_FILTER_PROP_MAP_KEY, "1000.0");
 
         // XPath query support.
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put("", "http://www.opengis.net/cat/csw/2.0.2");
         map.put("ogc", "http://www.opengis.net/ogc");
         NamespaceContext ctx = new SimpleNamespaceContext(map);
@@ -777,7 +775,7 @@ public class TestCswFilterDelegate {
     }
 
     private static List<SpatialOperatorType> getSpatialOperatorsList() {
-        List<SpatialOperatorType> spatialOperatorList = new ArrayList<SpatialOperatorType>();
+        List<SpatialOperatorType> spatialOperatorList = new ArrayList<>();
         SpatialOperatorType intersectsSpatialOperator = new SpatialOperatorType();
         intersectsSpatialOperator.setName(INTERSECTS);
         spatialOperatorList.add(intersectsSpatialOperator);
@@ -813,7 +811,7 @@ public class TestCswFilterDelegate {
     }
 
     private static List<ComparisonOperatorType> getFullComparisonOpsList() {
-        List<ComparisonOperatorType> comparisonOpsList = new ArrayList<ComparisonOperatorType>();
+        List<ComparisonOperatorType> comparisonOpsList = new ArrayList<>();
         comparisonOpsList.add(ComparisonOperatorType.EQUAL_TO);
         comparisonOpsList.add(ComparisonOperatorType.LIKE);
         comparisonOpsList.add(ComparisonOperatorType.NOT_EQUAL_TO);
@@ -828,7 +826,7 @@ public class TestCswFilterDelegate {
     }
 
     private static SpatialCapabilitiesType getSpatialCapabilities(List<String> geometries) {
-        List<QName> mockGeometryOperands = new ArrayList<QName>();
+        List<QName> mockGeometryOperands = new ArrayList<>();
         String nameSpaceUri = "http://www.opengis.net/gml";
         String prefix = "gml";
 
@@ -874,7 +872,7 @@ public class TestCswFilterDelegate {
     }
 
     private static Operation getOperation() {
-        List<DomainType> getRecordsParameters = new ArrayList<DomainType>(6);
+        List<DomainType> getRecordsParameters = new ArrayList<>(6);
         DomainType typeName = new DomainType();
         typeName.setName(CswConstants.TYPE_NAME_PARAMETER);
         getRecordsParameters.add(typeName);
@@ -897,7 +895,7 @@ public class TestCswFilterDelegate {
         Operation getRecords = new Operation();
         getRecords.setName(CswConstants.GET_RECORDS);
         getRecords.setParameter(getRecordsParameters);
-        List<Operation> operations = new ArrayList<Operation>(1);
+        List<Operation> operations = new ArrayList<>(1);
         operations.add(getRecords);
 
         return getRecords;
@@ -967,7 +965,7 @@ public class TestCswFilterDelegate {
                     + isCaseSensitive + "\"";
         } else if (comparisonOp.getComparatorType()
                 == ComparisonOperator.ComparisonStringOperatorType.STRING) {
-            expression += " matchCase=\"false\"";
+            expression += " matchCase=\"true\"";
         }
 
         expression += ">" + "<ns3:PropertyName>" + propertyName + "</ns3:PropertyName>";
@@ -1229,14 +1227,14 @@ public class TestCswFilterDelegate {
             Map<String, String> propertyMap) {
 
         if (null == propertyMap) {
-            propertyMap = new HashMap<String, String>();
+            propertyMap = new HashMap<>();
         }
 
         char[] delimiters = {'_'};
         String spatialOpName = WordUtils.capitalizeFully(spatialOperator.name(), delimiters)
                 .replaceAll("_", "");
 
-        String geoTypeName = null;
+        String geoTypeName;
         switch (geoType) {
         case LINESTRING:
             geoTypeName = "LineString";
@@ -1680,7 +1678,7 @@ public class TestCswFilterDelegate {
                         CswRecordMetacardType.CSW_IDENTIFIER);
         CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
 
-        Map<String, Object> propMap = new HashMap<String, Object>();
+        Map<String, Object> propMap = new HashMap<>();
         propMap.put("extendedComparisonOp", "relative");
         propMap.put("duration", new Long(duration));
 
@@ -2290,7 +2288,7 @@ public class TestCswFilterDelegate {
         FilterType propertyIsEqualFilter = cswFilterDelegateLatLon.propertyIsEqualTo(propertyName,
                 booleanLiteral);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(propertyIsEqualFilter);
         filters.add(propertyIsLikeFilter);
         FilterType filterType = cswFilterDelegateLatLon.or(filters);
@@ -2308,7 +2306,7 @@ public class TestCswFilterDelegate {
         FilterType propertyIsEqualFilter = cswFilterDelegateLatLon.propertyIsEqualTo(propertyName,
                 booleanLiteral);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(notFilter);
         filters.add(propertyIsEqualFilter);
         FilterType filterType = cswFilterDelegateLatLon.or(filters);
@@ -2327,7 +2325,7 @@ public class TestCswFilterDelegate {
                 likeLiteral,
                 isCaseSensitive);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(spatialFilter);
         filters.add(propertyIsLikeFilter);
 
@@ -2342,21 +2340,19 @@ public class TestCswFilterDelegate {
         ObjectFactory filterObjectFactory = new ObjectFactory();
         FeatureIdType fidType = new FeatureIdType();
         fidType.setFid("cswRecord.1234");
-        List<JAXBElement<? extends AbstractIdType>> fidFilters =
-                new ArrayList<JAXBElement<? extends AbstractIdType>>();
+        List<JAXBElement<? extends AbstractIdType>> fidFilters = new ArrayList<>();
         fidFilters.add(filterObjectFactory.createFeatureId(fidType));
         FilterType idFilter = new FilterType();
         idFilter.setId(fidFilters);
 
         FeatureIdType fidType2 = new FeatureIdType();
         fidType2.setFid("cswRecord.5678");
-        List<JAXBElement<? extends AbstractIdType>> fidFilters2 =
-                new ArrayList<JAXBElement<? extends AbstractIdType>>();
+        List<JAXBElement<? extends AbstractIdType>> fidFilters2 = new ArrayList<>();
         fidFilters2.add(filterObjectFactory.createFeatureId(fidType2));
         FilterType idFilter2 = new FilterType();
         idFilter2.setId(fidFilters2);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(idFilter);
         filters.add(idFilter2);
 
@@ -2373,8 +2369,7 @@ public class TestCswFilterDelegate {
         ObjectFactory filterObjectFactory = new ObjectFactory();
         FeatureIdType fidType = new FeatureIdType();
         fidType.setFid("cswRecord.1234");
-        List<JAXBElement<? extends AbstractIdType>> fidFilters =
-                new ArrayList<JAXBElement<? extends AbstractIdType>>();
+        List<JAXBElement<? extends AbstractIdType>> fidFilters = new ArrayList<>();
         fidFilters.add(filterObjectFactory.createFeatureId(fidType));
 
         FilterType idFilter = new FilterType();
@@ -2384,7 +2379,7 @@ public class TestCswFilterDelegate {
                 likeLiteral,
                 isCaseSensitive);
 
-        List<FilterType> filterList = new ArrayList<FilterType>();
+        List<FilterType> filterList = new ArrayList<>();
         filterList.add(idFilter);
         filterList.add(propertyIsLikeFilter);
 
@@ -2393,7 +2388,7 @@ public class TestCswFilterDelegate {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testPropertyLikeOrEmptyList() {
-        cswFilterDelegateLatLon.or(new ArrayList<FilterType>());
+        cswFilterDelegateLatLon.or(new ArrayList<>());
     }
 
     @Test
@@ -2404,7 +2399,7 @@ public class TestCswFilterDelegate {
         FilterType propertyIsEqualFilter = cswFilterDelegateLatLon.propertyIsEqualTo(propertyName,
                 booleanLiteral);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(propertyIsEqualFilter);
         filters.add(propertyIsLikeFilter);
         FilterType filterType = cswFilterDelegateLatLon.and(filters);
@@ -2421,7 +2416,7 @@ public class TestCswFilterDelegate {
         FilterType propertyIsEqualFilter = cswFilterDelegateLatLon.propertyIsEqualTo(propertyName,
                 booleanLiteral);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(notFilter);
         filters.add(propertyIsEqualFilter);
         FilterType filterType = cswFilterDelegateLatLon.and(filters);
@@ -2439,7 +2434,7 @@ public class TestCswFilterDelegate {
                 likeLiteral,
                 isCaseSensitive);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(spatialFilter);
         filters.add(propertyIsLikeFilter);
 
@@ -2450,7 +2445,7 @@ public class TestCswFilterDelegate {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testPropertyIsLikeAndEmptyList() {
-        cswFilterDelegateLatLon.and(new ArrayList<FilterType>());
+        cswFilterDelegateLatLon.and(new ArrayList<>());
     }
 
     @Test
@@ -2460,12 +2455,12 @@ public class TestCswFilterDelegate {
                 isCaseSensitive);
         FilterType emptyFilter = new FilterType();
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(emptyFilter);
         filters.add(propertyIsLikeFilter);
 
         FilterType filter = cswFilterDelegateLatLon.and(filters);
-        assertNotNull(filter.getComparisonOps());
+        assertThat(filter.getComparisonOps(), notNullValue());
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -2474,7 +2469,7 @@ public class TestCswFilterDelegate {
                 likeLiteral,
                 isCaseSensitive);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(null);
         filters.add(propertyIsLikeFilter);
 
@@ -2487,14 +2482,14 @@ public class TestCswFilterDelegate {
                 likeLiteral,
                 isCaseSensitive);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(new FilterType());
         filters.add(propertyIsLikeFilter);
 
         FilterType filter = cswFilterDelegateLatLon.or(filters);
 
-        assertNotNull(filter.getComparisonOps());
-        assertNull(filter.getLogicOps());
+        assertThat(filter.getComparisonOps(), notNullValue());
+        assertThat(filter.getLogicOps(), nullValue());
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -2503,7 +2498,7 @@ public class TestCswFilterDelegate {
                 likeLiteral,
                 isCaseSensitive);
 
-        List<FilterType> filters = new ArrayList<FilterType>();
+        List<FilterType> filters = new ArrayList<>();
         filters.add(null);
         filters.add(propertyIsLikeFilter);
 
@@ -2519,12 +2514,12 @@ public class TestCswFilterDelegate {
 
         FilterType filter = cswFilterDelegateLatLon.not(propertyIsLikeFilter);
 
-        assertNotNull(filter);
-        assertEquals(filter.getLogicOps()
-                .getName(), NOT_LOGIC_OPS_NAME);
+        assertThat(filter, notNullValue());
+        assertThat(filter.getLogicOps()
+                .getName(), is(NOT_LOGIC_OPS_NAME));
         UnaryLogicOpType ulot = (UnaryLogicOpType) filter.getLogicOps()
                 .getValue();
-        assertNotNull(ulot);
+        assertThat(ulot, notNullValue());
     }
 
     @Test
@@ -2606,7 +2601,7 @@ public class TestCswFilterDelegate {
         FilterType filterType = localCswFilterDelegate.intersects(propName, polygonWkt);
         Diff diff = XMLUnit.compareXML(bboxXmlPropertyOwsBoundingBox,
                 getXmlFromMarshaller(filterType));
-        assertTrue("XML Similar", diff.similar());
+        assertThat("XML Similar", diff.similar(), is(true));
     }
 
     @Test
@@ -3001,6 +2996,7 @@ public class TestCswFilterDelegate {
                         polygonWkt));
     }
 
+    @Test
     public void testTouchesPropertyOwsBoundingBoxPolygonPosList()
             throws JAXBException, SAXException, IOException {
 
@@ -3166,7 +3162,7 @@ public class TestCswFilterDelegate {
         ComparisonOperatorsType mockComparisonOps = mock(ComparisonOperatorsType.class);
         when(mockComparisonOps.getComparisonOperator()).thenReturn(getFullComparisonOpsList());
 
-        List<SpatialOperatorType> spatialOperatorList = new ArrayList<SpatialOperatorType>();
+        List<SpatialOperatorType> spatialOperatorList = new ArrayList<>();
 
         for (SpatialOperatorNameType spatialOperatorNameType : spatialOperatorNameTypes) {
             SpatialOperatorType spatialOperatorType = new SpatialOperatorType();
@@ -3189,7 +3185,7 @@ public class TestCswFilterDelegate {
     }
 
     private JAXBElement<FilterType> getFilterTypeJaxbElement(FilterType filterType) {
-        JAXBElement<FilterType> filterTypeJaxbElement = new JAXBElement<FilterType>(new QName(
+        JAXBElement<FilterType> filterTypeJaxbElement = new JAXBElement<>(new QName(
                 "http://www.opengis.net/ogc",
                 FILTER_QNAME_LOCAL_PART), FilterType.class, filterType);
         return filterTypeJaxbElement;
@@ -3219,12 +3215,8 @@ public class TestCswFilterDelegate {
                 resultTypesValues = dt;
             }
         }
-        if (type == null) {
-            type = new CswRecordMetacardType();
-        }
 
-        CswFilterDelegate cswFilterDelegate = new CswFilterDelegate(type,
-                getOperation(),
+        CswFilterDelegate cswFilterDelegate = new CswFilterDelegate(getOperation(),
                 getMockFilterCapabilities(),
                 outputFormatValues,
                 resultTypesValues,
@@ -3248,8 +3240,7 @@ public class TestCswFilterDelegate {
             }
         }
 
-        CswFilterDelegate cswFilterDelegate = new CswFilterDelegate(new CswRecordMetacardType(),
-                getOperation(),
+        CswFilterDelegate cswFilterDelegate = new CswFilterDelegate(getOperation(),
                 filterCapabilities,
                 outputFormatValues,
                 resultTypesValues,
@@ -3315,7 +3306,7 @@ public class TestCswFilterDelegate {
          * be performed.
          */
         public ComparisonStringOperatorType getComparatorType() {
-            ComparisonStringOperatorType returnType = null;
+            ComparisonStringOperatorType returnType;
             switch (this) {
 
             case PROPERTY_IS_GREATER_THAN:

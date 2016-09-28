@@ -32,8 +32,14 @@
                     availability="optional">
         <reference-listener ref="saxEventHandlerFactoriesList" bind-method="bindPlugin"
                             unbind-method="unbindPlugin"/>
+        <reference-listener ref="dynamicMetacardTypeRegister" bind-method="bind"
+                            unbind-method="unbind"/>
     </reference-list>
 
+    <bean id="dynamicMetacardTypeRegister"
+          class="org.codice.ddf.transformer.xml.streaming.lib.MetacardTypeRegister">
+        <property name="id" value=""/>
+    </bean>
 
     <cm:managed-service-factory id="XmlInputTransformerFactory"
                                 factory-pid="XmlInputTransformer"
@@ -64,7 +70,7 @@
                 <list>
                 </list>
             </property>
-
+            <property name="dynamicMetacardTypeRegister" ref="dynamicMetacardTypeRegister"/>
 
             <cm:managed-properties persistent-id=""
                                    update-strategy="container-managed"/>

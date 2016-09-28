@@ -124,5 +124,10 @@
             <artifactId>sample-storageplugins</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>sample-metacard-type</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

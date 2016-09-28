@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -161,8 +160,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     protected static final String METACARD_MAPPINGS_PROPERTY = "metacardMappings";
 
     protected static final String COORDINATE_ORDER_PROPERTY = "coordinateOrder";
-
-    protected static final String CSW_AXIS_ORDER_PROPERTY = "cswAxisOrder";
 
     protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
 
@@ -1479,8 +1476,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                 isConstraintCql = false;
             }
 
-            setFilterDelegate(getMetacardType(),
-                    getRecordsOp,
+            setFilterDelegate(getRecordsOp,
                     capabilitiesType.getFilterCapabilities(),
                     outputFormatValues,
                     resultTypesValues,
@@ -1502,35 +1498,22 @@ public abstract class AbstractCswSource extends MaskableImpl
         }
     }
 
-    private MetacardType getMetacardType() {
-        Optional<MetacardType> type = metacardTypes.stream()
-                .filter(t -> StringUtils.equals(cswSourceConfiguration.getQueryTypeName(),
-                        t.getName()))
-                .findFirst();
-        if (type.isPresent()) {
-            return type.get();
-        }
-        return new CswRecordMetacardType();
-    }
-
     /**
      * Sets the {@link ddf.catalog.filter.FilterDelegate} used by the AbstractCswSource. May be overridden
      * in order to provide a custom ddf.catalog.filter.FilterDelegate implementation.
      *
-     * @param metacardType
      * @param getRecordsOp
      * @param filterCapabilities
      * @param outputFormatValues
      * @param resultTypesValues
      * @param cswSourceConfiguration
      */
-    protected void setFilterDelegate(MetacardType metacardType, Operation getRecordsOp,
+    protected void setFilterDelegate(Operation getRecordsOp,
             FilterCapabilities filterCapabilities, DomainType outputFormatValues,
             DomainType resultTypesValues, CswSourceConfiguration cswSourceConfiguration) {
         LOGGER.trace("Setting cswFilterDelegate to default CswFilterDelegate");
 
-        cswFilterDelegate = new CswFilterDelegate(metacardType,
-                getRecordsOp,
+        cswFilterDelegate = new CswFilterDelegate(getRecordsOp,
                 filterCapabilities,
                 outputFormatValues,
                 resultTypesValues,

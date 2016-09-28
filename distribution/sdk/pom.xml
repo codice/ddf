@@ -37,6 +37,7 @@
         <module>sample-storageplugins</module>
         <module>sample-twitter-source</module>
         <module>sdk-app</module>
+        <module>sample-metacard-type</module>
     </modules>
     <dependencyManagement>
         <dependencies>

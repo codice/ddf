@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
@@ -83,11 +84,18 @@ public class CswQueryFactory {
 
     private final FilterAdapter adapter;
 
+    private MetacardType metacardType;
+
     private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
 
-    public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter) {
+    private List<MetacardType> metacardTypes;
+
+    public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter,
+            MetacardType metacardType, List<MetacardType> metacardTypes) {
         this.builder = filterBuilder;
         this.adapter = adapter;
+        this.metacardType = metacardType;
+        this.metacardTypes = metacardTypes;
     }
 
     public QueryRequest getQueryById(List<String> ids) {
@@ -121,7 +129,7 @@ public class CswQueryFactory {
             frameworkQuery.setPageSize(request.getMaxRecords()
                     .intValue());
         }
-        QueryRequest queryRequest = null;
+        QueryRequest queryRequest;
         boolean isDistributed = request.getDistributedSearch() != null && (
                 request.getDistributedSearch()
                         .getHopCount()
@@ -147,7 +155,7 @@ public class CswQueryFactory {
 
     private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint)
             throws CswException {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType, metacardTypes);
         Filter filter = null;
         if (constraint != null) {
             if (constraint.isSetCqlText()) {
@@ -192,18 +200,17 @@ public class CswQueryFactory {
         SortBy[] sortByArr = parseSortBy(sort);
 
         if (sortByArr.length > 1) {
-            LOGGER.warn("Query request has multiple sort criteria, only primary will be used");
+            LOGGER.debug("Query request has multiple sort criteria, only primary will be used");
         }
 
         SortBy sortBy = sortByArr[0];
 
         if (sortBy.getPropertyName() == null) {
-            LOGGER.warn("No property name in primary sort criteria");
+            LOGGER.debug("No property name in primary sort criteria");
             return null;
         }
 
-        if (!DefaultCswRecordMap.getDefaultCswRecordMap()
-                .hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+        if (!DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
                                 .getPropertyName(),
                         sortBy.getPropertyName()
                                 .getNamespaceContext())) {
@@ -213,8 +220,7 @@ public class CswQueryFactory {
                     "SortProperty");
         }
 
-        String name = DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+        String name = DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
                                 .getPropertyName(),
                         sortBy.getPropertyName()
                                 .getNamespaceContext());
@@ -233,7 +239,7 @@ public class CswQueryFactory {
 
     private Object parseJaxB(JAXBElement<?> element) throws CswException {
         Parser parser = new Parser(PARSER_CONFIG);
-        InputStream inputStream = null;
+        InputStream inputStream;
 
         try {
             inputStream = marshalJaxB(element);
