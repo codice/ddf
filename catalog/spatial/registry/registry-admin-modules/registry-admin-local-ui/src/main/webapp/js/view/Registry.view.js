@@ -74,6 +74,9 @@ define([
                 this.identityRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getIdentityNode())}));
                 this.additionalRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getSecondaryNodes()), multiValued: true}));
                 this.remoteNodeRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getRemoteNodes()), multiValued:true, readOnly:true}));
+                if(this.model.models.length <= 1){
+                    $('.regenerate-sources').prop("disabled",true);
+                }
             },
             showEditNode: function (node) {
                 wreqr.vent.trigger("showModal",
@@ -327,14 +330,20 @@ define([
                 if (this.model) {
                     data = this.model.toJSON();
                 }
-                var array = [];
+                var nodes = [];
                 _.each(this.options.nodes, function (node) {
-                    array.push({
+                    if(node.get('identityNode')){
+                        return;
+                    }
+                    nodes.push({
                         name: node.getObjectOfType('urn:registry:federation:node')[0].Name,
                         id: node.get('id')
                     });
                 });
-                data.registry = array;
+                nodes = _.sortBy(nodes, function(o){
+                   return o.name.toLowerCase();
+                });
+                data.registry = nodes;
                 return data;
             }
         });

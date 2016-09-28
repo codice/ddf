@@ -24,7 +24,7 @@ define([
         comparator: function(model){
             var fedNode = model.getObjectOfType('urn:registry:federation:node');
             if (fedNode !== null && fedNode.length > 0) {
-                return fedNode[0].Name;
+                return fedNode[0].Name.toLowerCase();
             }
         }
     });
