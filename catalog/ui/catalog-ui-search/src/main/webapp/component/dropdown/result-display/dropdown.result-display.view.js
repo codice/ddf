@@ -28,7 +28,7 @@ define([
             })[0];
             return {
                 selection: selection,
-                icon: selection.value === 'List' ? 'fa-bars' : 'fa-th'
+                icon: selection.value === 'List' ? 'fa-bars' : 'fa-picture-o'
             };
         }
     });

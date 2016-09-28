@@ -206,7 +206,7 @@ define([
                         label: 'List',
                         value: 'List'
                     }, {
-                        label: 'Grid',
+                        label: 'Gallery',
                         value: 'Grid'
                     }],
                     defaultSelection: [user.get('user').get('preferences').get('resultDisplay')]
