@@ -196,11 +196,19 @@ define([
             if (this.parents[0].isGuestUser()) {
                 window.localStorage.setItem('preferences', JSON.stringify(this.toJSON()));
             } else {
-                this.save();
+                this.save(this.attributes, {
+                    drop: true
+                });
             }
         },
         resetBlacklist: function(){
             this.set('resultBlacklist', []);
+        },
+        parse: function(data, options){
+            if (options && options.drop) {
+                return {};
+            }
+            return data;
         }
     });
 
