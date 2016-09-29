@@ -81,19 +81,28 @@ define([
         getMomentDate: function(date){
            return moment(date).fromNow();
         },
+        cancelRepaintForTimeframe: function(requestDetails){
+            if (requestDetails) {
+                window.cancelAnimationFrame(requestDetails.requestId);
+            }
+        },
         repaintForTimeframe: function(time, callback){
+            var requestDetails = {
+                requestId: undefined
+            };
             var timeEnd = Date.now() + time;
             var repaint = function(){
                 callback();
                 if (Date.now() < timeEnd){
-                    window.requestAnimationFrame(function(){
+                    requestDetails.requestId = window.requestAnimationFrame(function(){
                         repaint();
                     });
                 }
             };
-            window.requestAnimationFrame(function(){
+            requestDetails.requestId = window.requestAnimationFrame(function(){
                 repaint();
             });
+            return requestDetails;
         },
         escapeHTML: function(value){
             return $("<div>").text(value).html();

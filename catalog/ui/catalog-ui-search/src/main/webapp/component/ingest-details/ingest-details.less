@@ -1,0 +1,126 @@
+@{customElementNamespace}ingest-details {
+    .customElement;
+    animation: new-ingest .250s 1 ease-in-out;
+    padding: 10px;
+    
+    .details-files{
+        display: none;
+    }
+
+    .details-dropzone {
+        position: relative;
+        .customElement;
+        font-size: 3rem;
+        border: 2px dashed @primary-color;
+        cursor: pointer;
+        transition: height @coreTransitionTime linear;
+    }
+
+    .details-summary {
+        transition: height @coreTransitionTime linear;
+        height: 0px;
+        overflow: hidden;
+    }
+
+    .dropzone-text {
+        position: absolute;
+        left: 0px;
+        top: 25%;
+        text-align: center;
+        width: 100%;
+        white-space: normal;
+    }
+
+    .dz-preview {
+        display: none;
+    }
+
+    .details-footer {
+        overflow: hidden;
+        margin-top: 10px;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: transform @coreTransitionTime linear, opacity @coreTransitionTime linear;
+        white-space: nowrap;
+        .inlineBlockDisplay(button);
+        > button {
+            width: 50%;
+            transition: transform @coreTransitionTime linear;
+        }
+    }
+
+    @keyframes new-ingest{
+        0% {
+            transform: scale(0);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+}
+
+@{customElementNamespace}ingest-details.has-files {
+
+    .details-files {
+        display: block;
+        position: relative;
+        max-height: ~'calc(100% - 4*@{minimumButtonSize})';
+        overflow: auto;
+        margin-bottom: 10px;
+        padding: 0px 20px;
+    }
+
+    .details-dropzone {
+        min-height: 2*@minimumButtonSize;
+    }
+
+    .dropzone-text {
+        position: absolute;
+        left: 0px;
+        top: 25%;
+        text-align: center;
+        width: 100%;
+        white-space: normal;
+    }
+
+    .details-footer {
+        opacity: 1;
+        transform: translateY(0%);
+    }
+}
+
+@{customElementNamespace}ingest-details.is-sending {
+    .details-dropzone {
+        height: 0px !important;
+        min-height: 0px;
+        overflow: hidden;
+        border: 0px;
+    }
+
+    .details-summary {
+        height: 2*@minimumButtonSize;
+    }
+
+    .details-footer button {
+        transform: translateX(-200%);
+    }
+}
+
+@{customElementNamespace}ingest-details.is-finished {
+    .details-footer button {
+        transform: translateX(-300%);
+    }
+}
+
+@{customElementNamespace}ingest-details.starting-new {
+    animation: starting-new-ingest .250s 1 ease-in-out;
+
+    @keyframes starting-new-ingest{
+        0% {
+            transform: scale(1);
+        }
+        100% {
+            transform: scale(0);
+        }
+    }
+}

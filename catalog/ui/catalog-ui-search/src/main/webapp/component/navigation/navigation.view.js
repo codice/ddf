@@ -44,6 +44,7 @@ define([
         events: {
             'click > .navigation-left > .navigation-home': 'navigateHome',
             'click > .navigation-right > .item-help': 'toggleHelp',
+            'click > .navigation-right > .item-ingest': 'navigateIngest',
             'mousedown > .navigation-right > .item-help': 'preventPropagation'
         },
         ui: {
@@ -72,6 +73,14 @@ define([
         navigateHome: function(){
             wreqr.vent.trigger('router:navigate', {
                 fragment: 'workspaces',
+                options: {
+                    trigger: true
+                }
+            });
+        },
+        navigateIngest: function(){
+            wreqr.vent.trigger('router:navigate', {
+                fragment: 'ingest',
                 options: {
                     trigger: true
                 }

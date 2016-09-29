@@ -1,0 +1,50 @@
+@{customElementNamespace}upload-summary {
+    display: block;
+    height: 2*@minimumButtonSize;
+    position: relative;
+
+    .summary-info {
+        z-index: 1;
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        padding: 0px 10px;
+    }
+
+    .info-files,
+    .info-percentage {
+        height: @minimumButtonSize;
+        font-size: 2rem;
+        line-height: @minimumButtonSize;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .summary-progress {
+        z-index: 0;
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 0%;
+        height: 100%;
+        background: @positive-color;
+        transition: width @coreTransitionTime linear;
+    }
+
+    .files-issues {
+        opacity: 0;
+        color: @warning-color;
+        transition: transform @coreTransitionTime linear;
+        transform: scale(0);
+    }
+}
+
+@{customElementNamespace}upload-summary.has-issues {
+    .files-issues {
+        opacity: .7;
+        transform: scale(1);
+    }
+}

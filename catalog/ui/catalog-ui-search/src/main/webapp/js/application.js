@@ -49,6 +49,7 @@ define([
         metacardRegion: '#metacard',
         alertRegion: '#alert',
         recentRegion: '#recent',
+        ingestRegion: '#ingest',
         controlPanelRegion: '#controlPanel',
         modalRegion: '#modalRegion'
     });

@@ -12,27 +12,46 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './ingest.hbs',
-    'js/CustomElements'
-], function (Marionette, _, $, workspacesTemplate, CustomElements) {
+/*global require*/
+var wreqr = require('wreqr');
+var Marionette = require('marionette');
+var _ = require('underscore');
+var $ = require('jquery');
+var template = require('./ingest.hbs');
+var CustomElements = require('js/CustomElements');
+var router = require('component/router/router');
+var NavigationView = require('component/navigation/ingest/navigation.ingest.view');
+var IngestDetails = require('component/ingest-details/ingest-details.view');
 
-    return Marionette.LayoutView.extend({
-        template: workspacesTemplate,
-        tagName: CustomElements.register('ingest'),
-        modelEvents: {
-        },
-        ui: {
-        },
-        regions: {
-            'ingestUpload': '.ingest-upload',
-            'ingestDetails': '.ingest-details'
-        },
-        initialize: function(){
+module.exports = Marionette.LayoutView.extend({
+    template: template,
+    tagName: CustomElements.register('ingest'),
+    modelEvents: {},
+    events: {},
+    ui: {},
+    regions: {
+        ingestMenu: '.ingest-menu',
+        ingestDetails: '.ingest-details'
+    },
+    childEvents: {
+        'ingestDetails:new' : 'showNewIngest'
+    },
+    initialize: function() {
+        this.listenTo(router, 'change', this.handleRoute);
+        this.handleRoute();
+    },
+    handleRoute: function() {
+        if (router.toJSON().name === 'openIngest') {
+            this.$el.removeClass('is-hidden');
+        } else {
+            this.$el.addClass('is-hidden');
         }
-    });
+    },
+    onBeforeShow: function() {
+        this.ingestMenu.show(new NavigationView());
+        this.ingestDetails.show(new IngestDetails());
+    },
+    showNewIngest: function(){
+        this.ingestDetails.show(new IngestDetails());
+    }
 });

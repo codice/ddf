@@ -1,3 +1,32 @@
 @{customElementNamespace}ingest {
+  .customElement;
+  overflow: hidden;
 
+  > .ingest-menu {
+    margin: auto;
+  }
+
+  > .ingest-menu {
+    height: 60px;
+  }
+
+  > .ingest-details {
+    height: ~'calc(100% - 60px)';
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}ingest {
+    > .ingest-menu,
+    > .ingest-details {
+      max-width: 100%;
+    }
+    > .ingest-menu {
+      padding: 0px 0px;
+    }
+    > .ingest-details {
+      padding: 0px 0px;
+    }
+  }
 }

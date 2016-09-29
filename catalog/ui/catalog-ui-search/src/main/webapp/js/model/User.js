@@ -19,8 +19,9 @@ define([
     'properties',
     './Alert',
     'js/Common',
+    'js/model/UploadBatch',
     'backboneassociations'
-], function (_, wreqr, Backbone, properties, Alert, Common) {
+], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch) {
     'use strict';
 
     var User = {};
@@ -137,7 +138,8 @@ define([
                 resultBlacklist: [],
                 visualization: 'map',
                 columnHide: [],
-                columnOrder: ['title', 'created', 'modified', 'thumbnail']
+                columnOrder: ['title', 'created', 'modified', 'thumbnail'],
+                uploads: []
             };
         },
         relations: [
@@ -156,6 +158,11 @@ define([
                 type: Backbone.Many,
                 key: 'alerts',
                 relatedModel: Alert
+            },
+            {
+                type: Backbone.Many,
+                key: 'uploads',
+                relatedModel: UploadBatch
             }
         ],
         initialize: function(){
@@ -169,10 +176,16 @@ define([
                 this.get('alerts').remove(expiredAlerts);
             }
             this.listenTo(wreqr.vent, 'alerts:add', this.addAlert);
+            this.listenTo(wreqr.vent, 'uploads:add', this.addUpload);
+            this.listenTo(wreqr.vent, 'preferences:save', this.savePreferences);
             this.listenTo(this.get('alerts'), 'remove', this.handleRemove);
             this.listenTo(this, 'change:visualization', this.savePreferences);
         },
         handleRemove: function(){
+            this.savePreferences();
+        },
+        addUpload: function(upload){
+            this.get('uploads').add(upload);
             this.savePreferences();
         },
         addAlert: function(alertDetails){

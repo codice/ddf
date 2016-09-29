@@ -29,12 +29,13 @@ define([
     'component/alert/alert.view',
     'component/recent/recent',
     'component/recent/recent.view',
+    'component/ingest/ingest.view',
     'component/router/router',
     'component/singletons/user-instance',
     'js/jquery.whenAll'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
-            recentInstance, RecentView, router, user) {
+            recentInstance, RecentView, IngestView, router, user) {
 
     function hideViews() {
         Application.App.workspaceRegion.$el.addClass("is-hidden");
@@ -42,6 +43,7 @@ define([
         Application.App.metacardRegion.$el.addClass("is-hidden");
         Application.App.alertRegion.$el.addClass("is-hidden");
         Application.App.recentRegion.$el.addClass("is-hidden");
+        Application.App.ingestRegion.$el.addClass('is-hidden');
     }
 
     var Router = Marionette.AppRouter.extend({
@@ -63,6 +65,9 @@ define([
             },
             openRecent: function(){
                 //console.log('route to recent uploads');
+            },
+            openIngest: function(){
+                //console.log('route to ingest');
             }
         },
         appRoutes: {
@@ -71,7 +76,8 @@ define([
             'workspaces(/)': 'workspaces',
             'metacards/:id': 'openMetacard',
             'alerts/:id': 'openAlert',
-            'recent(/)': 'openRecent'
+            'recent(/)': 'openRecent',
+            'ingest(/)': 'openIngest'
         },
         initialize: function(){
             this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
@@ -240,6 +246,13 @@ define([
                             self.updateRoute(name, path, args);
                         });
                     });
+                    break;
+                case 'openIngest':
+                    if (Application.App.ingestRegion.currentView === undefined){
+                        Application.App.ingestRegion.show(new IngestView());
+                    }
+                    Application.App.ingestRegion.$el.removeClass('is-hidden');
+                    this.updateRoute(name, path, args);
                     break;
                 case 'home':
                     if (Application.App.workspacesRegion.currentView===undefined) {
