@@ -65,6 +65,13 @@ public class SolrMetacardClient {
 
     protected static final String RELEVANCE_SORT_FIELD = "score";
 
+    private static final String DISTANCE_SORT_FUNCTION = "geodist()";
+
+    private static final String DISTANCE_SORT_FIELD = "_distance_";
+
+    private static final String GEOMETRY_SORT_FIELD =
+            Metacard.GEOGRAPHY + SchemaFields.GEO_SUFFIX + SchemaFields.SORT_KEY_SUFFIX;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrMetacardClient.class);
 
     private static final String QUOTE = "\"";
@@ -92,7 +99,6 @@ public class SolrMetacardClient {
         }
 
         SolrQuery query = getSolrQuery(request, filterDelegateFactory.newInstance(resolver));
-        String sortProperty = getSortProperty(request, query);
 
         long totalHits;
         List<Result> results = new ArrayList<>();
@@ -109,7 +115,7 @@ public class SolrMetacardClient {
                 }
                 ResultImpl tmpResult;
                 try {
-                    tmpResult = createResult(doc, sortProperty);
+                    tmpResult = createResult(doc);
                     // TODO: register metacard type???
                 } catch (MetacardCreationException e) {
                     LOGGER.warn("Metacard creation exception creating result", e);
@@ -288,20 +294,23 @@ public class SolrMetacardClient {
         query.setStart(request.getQuery()
                 .getStartIndex() - 1);
 
-        checkSpatialFunction(filterDelegate, query);
+        setSortProperty(request, query, filterDelegate);
 
         return query;
     }
 
-    private void checkSpatialFunction(SolrFilterDelegate solrFilterDelegate, SolrQuery query) {
-        if (solrFilterDelegate.isSortedByDistance()) {
-            String queryPhrase = query.getQuery()
-                    .trim();
-            query.setQuery(SolrFilterDelegate.SCORE_DISTANCE + queryPhrase);
+    private void addDistanceSort(SolrQuery query, String sortField, SolrQuery.ORDER order,
+            SolrFilterDelegate delegate) {
+        if (delegate.isSortedByDistance()) {
+            query.addSort(DISTANCE_SORT_FUNCTION, order);
+            query.setFields("*", RELEVANCE_SORT_FIELD, DISTANCE_SORT_FIELD + ":" + DISTANCE_SORT_FUNCTION);
+            query.add("sfield", sortField);
+            query.add("pt", delegate.getSortedDistancePoint());
         }
     }
 
-    protected String getSortProperty(QueryRequest request, SolrQuery query) {
+    protected String setSortProperty(QueryRequest request, SolrQuery query,
+            SolrFilterDelegate solrFilterDelegate) {
         SortBy sortBy = request.getQuery()
                 .getSortBy();
         String sortProperty = "";
@@ -315,9 +324,12 @@ public class SolrMetacardClient {
                 order = SolrQuery.ORDER.asc;
             }
 
-            if (Result.RELEVANCE.equals(sortProperty) || Result.DISTANCE.equals(sortProperty)) {
-                query.setFields("*", RELEVANCE_SORT_FIELD);
+            query.setFields("*", RELEVANCE_SORT_FIELD);
+
+            if (Result.RELEVANCE.equals(sortProperty)) {
                 query.addSort(RELEVANCE_SORT_FIELD, order);
+            } else if (Result.DISTANCE.equals(sortProperty)) {
+                addDistanceSort(query, GEOMETRY_SORT_FIELD, order, solrFilterDelegate);
             } else if (sortProperty.equals(Result.TEMPORAL)) {
                 query.addSort(resolver.getSortKey(resolver.getField(Metacard.EFFECTIVE,
                         AttributeType.AttributeFormat.DATE,
@@ -327,13 +339,16 @@ public class SolrMetacardClient {
 
                 if (!resolvedProperties.isEmpty()) {
                     for (String sortField : resolvedProperties) {
-                        if (!(sortField.endsWith(SchemaFields.BINARY_SUFFIX) || sortField.endsWith(
+                        if (sortField.endsWith(SchemaFields.GEO_SUFFIX)) {
+                            addDistanceSort(query,
+                                    resolver.getSortKey(sortField),
+                                    order,
+                                    solrFilterDelegate);
+                        } else if (!(sortField.endsWith(SchemaFields.BINARY_SUFFIX) || sortField.endsWith(
                                 SchemaFields.OBJECT_SUFFIX))) {
                             query.addSort(resolver.getSortKey(sortField), order);
                         }
                     }
-
-                    query.add("fl", "*," + RELEVANCE_SORT_FIELD);
                 } else {
                     LOGGER.info(
                             "No schema field was found for sort property [{}]. No sort field was added to the query.",
@@ -346,23 +361,23 @@ public class SolrMetacardClient {
         return resolver.getSortKey(sortProperty);
     }
 
-    private ResultImpl createResult(SolrDocument doc, String sortProperty)
+    private ResultImpl createResult(SolrDocument doc)
             throws MetacardCreationException {
         ResultImpl result = new ResultImpl(createMetacard(doc));
 
         if (doc.get(RELEVANCE_SORT_FIELD) != null) {
-            if (Result.RELEVANCE.equals(sortProperty)) {
-                result.setRelevanceScore(((Float) (doc.get(RELEVANCE_SORT_FIELD))).doubleValue());
-            } else if (Result.DISTANCE.equals(sortProperty)) {
-                Object distance = doc.getFieldValue(RELEVANCE_SORT_FIELD);
+            result.setRelevanceScore(((Float) (doc.get(RELEVANCE_SORT_FIELD))).doubleValue());
+        }
 
-                if (distance != null) {
-                    LOGGER.debug("Distance returned from Solr [{}]", distance);
-                    double convertedDistance = degreesToMeters(Double.valueOf(distance.toString()));
+        if (doc.get(DISTANCE_SORT_FIELD) != null) {
+            Object distance = doc.getFieldValue(DISTANCE_SORT_FIELD);
 
-                    LOGGER.debug("Converted distance into meters [{}]", convertedDistance);
-                    result.setDistanceInMeters(convertedDistance);
-                }
+            if (distance != null) {
+                LOGGER.debug("Distance returned from Solr [{}]", distance);
+                double convertedDistance = new Distance(Double.valueOf(distance.toString()),
+                        Distance.LinearUnit.KILOMETER).getAs(Distance.LinearUnit.METER);
+
+                result.setDistanceInMeters(convertedDistance);
             }
         }
 
