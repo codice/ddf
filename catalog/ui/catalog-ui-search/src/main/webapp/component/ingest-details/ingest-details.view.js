@@ -43,7 +43,8 @@ module.exports = Marionette.LayoutView.extend({
         'click > .details-footer .footer-clear': 'newUpload',
         'click > .details-footer .footer-start': 'startUpload',
         'click > .details-footer .footer-cancel': 'cancelUpload',
-        'click > .details-footer .footer-new': 'newUpload'
+        'click > .details-footer .footer-new': 'newUpload',
+        'click > .details-dropzone .dropzone-text': 'addFiles'
     },
     regions: {
         files: '> .details-files',
@@ -94,6 +95,9 @@ module.exports = Marionette.LayoutView.extend({
             method: 'post',
             autoProcessQueue: false
         });
+    },
+    addFiles: function(){
+        this.$el.find('.details-dropzone').click();
     },
     showFiles: function() {
         this.files.show(new UploadItemCollectionView({
