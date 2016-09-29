@@ -40,7 +40,7 @@ import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
-import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.codice.solr.query.SolrQueryFilterVisitor;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
@@ -297,7 +297,7 @@ public class PersistentStoreImpl implements PersistentStore {
         SolrClient coreSolrClient = null;
         try {
             Future<SolrClient> coreSolrClientFuture =
-                    SolrClientFactory.getHttpSolrClient(solrUrl.getResolvedString(), storeName);
+                    HttpSolrClientFactory.getHttpSolrClient(solrUrl.getResolvedString(), storeName);
             coreSolrClient = coreSolrClientFuture.get(5, TimeUnit.SECONDS);
             coreSolrClients.put(storeName, coreSolrClient);
 

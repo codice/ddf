@@ -21,7 +21,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
-import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.osgi.service.cm.Configuration;
 
 @Command(scope = SolrCommands.NAMESPACE, name = "backup", description = "Makes a backup of the selected Solr core.")
@@ -81,7 +81,7 @@ public class BackupCommand extends SolrCommands {
     }
 
     private String getBackupUrl(String coreName) {
-        String backupUrl = SolrClientFactory.getDefaultHttpsAddress();
+        String backupUrl = HttpSolrClientFactory.getDefaultHttpsAddress();
 
         if (configurationAdmin != null) {
             try {
@@ -105,7 +105,7 @@ public class BackupCommand extends SolrCommands {
                             LOGGER.debug("Trying system configured URL instead: {}", backupUrl);
                         } else {
                             LOGGER.info("No Solr url configured, defaulting to: {}",
-                                    SolrClientFactory.getDefaultHttpsAddress());
+                                    HttpSolrClientFactory.getDefaultHttpsAddress());
                         }
                     }
                 }

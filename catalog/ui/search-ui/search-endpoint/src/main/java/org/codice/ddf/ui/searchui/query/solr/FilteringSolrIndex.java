@@ -13,9 +13,9 @@
  */
 package org.codice.ddf.ui.searchui.query.solr;
 
-import static org.codice.solr.factory.EmbeddedSolrFactory.IMMEMORY_SOLRCONFIG_XML;
-import static org.codice.solr.factory.EmbeddedSolrFactory.getConfigFile;
-import static org.codice.solr.factory.SolrClientFactory.DEFAULT_SCHEMA_XML;
+import static org.codice.solr.factory.impl.EmbeddedSolrFactory.IMMEMORY_SOLRCONFIG_XML;
+import static org.codice.solr.factory.impl.EmbeddedSolrFactory.getConfigFile;
+import static org.codice.solr.factory.impl.HttpSolrClientFactory.DEFAULT_SCHEMA_XML;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,10 +32,10 @@ import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.schema.IndexSchema;
-import org.codice.solr.factory.ConfigurationFileProxy;
-import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.EmbeddedSolrFactory;
-import org.codice.solr.factory.SolrCoreContainer;
+import org.codice.solr.factory.impl.ConfigurationFileProxy;
+import org.codice.solr.factory.impl.ConfigurationStore;
+import org.codice.solr.factory.impl.EmbeddedSolrFactory;
+import org.codice.solr.factory.impl.SolrCoreContainer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -88,8 +88,8 @@ public class FilteringSolrIndex {
     private static EmbeddedSolrServer createSolrServer(String coreName,
             ConfigurationFileProxy configProxy) {
 
-        File configFile = getConfigFile(IMMEMORY_SOLRCONFIG_XML, configProxy);
-        File schemaFile = getConfigFile(DEFAULT_SCHEMA_XML, configProxy);
+        File configFile = getConfigFile(IMMEMORY_SOLRCONFIG_XML, configProxy, coreName);
+        File schemaFile = getConfigFile(DEFAULT_SCHEMA_XML, configProxy, coreName);
         File solrConfigHome = new File(configFile.getParent());
 
         ClassLoader tccl = Thread.currentThread()

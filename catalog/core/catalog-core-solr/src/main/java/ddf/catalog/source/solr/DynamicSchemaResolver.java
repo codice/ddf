@@ -50,7 +50,7 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
-import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

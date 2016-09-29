@@ -30,6 +30,62 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>txt</type>
+            <classifier>protwords</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>schema</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>solr</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>solrconfig</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>solrconfig-inmemory</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>txt</type>
+            <classifier>stopwords_en</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>txt</type>
+            <classifier>stopwords</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>platform-solr-server-standalone</artifactId>
+            <version>${project.version}</version>
+            <type>txt</type>
+            <classifier>synonyms</classifier>
+        </dependency>
+        <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
@@ -50,6 +106,16 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>failsafe</artifactId>
+            <version>0.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -62,6 +128,7 @@
                         <includes>
                             <include>ddf.lib:common-system</include>
                             <include>com.google.guava:guava</include>
+                            <include>net.jodah:failsafe</include>
                             <!-- Solrj dependencies -->
                             <include>org.apache.solr:solr-solrj</include>
                             <include>commons-lang:commons-lang</include>
@@ -97,6 +164,119 @@
                 </executions>
             </plugin>
             <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>txt</type>
+                                    <classifier>protwords</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
+                                    <destFileName>protwords.txt</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>xml</type>
+                                    <classifier>schema</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
+                                    <destFileName>schema.xml</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>xml</type>
+                                    <classifier>solr</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
+                                    <destFileName>solr.xml</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>xml</type>
+                                    <classifier>solrconfig</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
+                                    <destFileName>solrconfig.xml</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>xml</type>
+                                    <classifier>solrconfig-inmemory</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
+                                    <destFileName>solrconfig-inmemory.xml</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>txt</type>
+                                    <classifier>stopwords_en</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
+                                    <destFileName>stopwords_en.txt</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>txt</type>
+                                    <classifier>stopwords</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
+                                    <destFileName>stopwords.txt</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>platform-solr-server-standalone</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>txt</type>
+                                    <classifier>synonyms</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
+                                    <destFileName>synonyms.txt</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
@@ -114,22 +294,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.11</minimum>
+                                            <minimum>0.09</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.15</minimum>
+                                            <minimum>0.11</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.10</minimum>
+                                            <minimum>0.07</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.13</minimum>
+                                            <minimum>0.10</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

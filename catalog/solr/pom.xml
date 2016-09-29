@@ -35,6 +35,7 @@
     <modules>
         <module>catalog-solr-embedded-provider</module>
         <module>catalog-solr-external-provider</module>
+        <module>catalog-solr-cloud-provider</module>
         <module>solr-app</module>
     </modules>
 </project>

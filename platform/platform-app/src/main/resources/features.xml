@@ -864,16 +864,13 @@
         <bundle>mvn:ddf.compression/compression-gzip/${project.version}</bundle>
     </feature>
 
-    <feature name="banana" install="manual" version="${project.version}"
+    <feature name="banana" install="auto" version="${project.version}"
              description="Adds banana">
         <feature prerequisite="true">platform-dependencies</feature>
         <feature prerequisite="true" version="${project.version}">solr</feature>
         <bundle>mvn:ddf.platform.solr/solr-banana/${project.version}/war</bundle>
         <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
 
-        <configfile finalname="/data/solr/banana/conf/solrconfig.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
-        </configfile>
         <configfile finalname="/data/solr/banana/conf/schema.xml">
             mvn:ddf.platform.solr/solr-banana/${project.version}/xml/bananaschema
         </configfile>
@@ -929,73 +926,8 @@
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
 
         <bundle>mvn:ddf.persistence.core/persistence-core-listeners/${project.version}</bundle>
-        <configfile finalname="/data/solr/activity/conf/solr.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/solrconfig.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/schema.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/protwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/stopwords_en.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/stopwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/synonyms.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
-        </configfile>
-
-        <configfile finalname="/data/solr/notification/conf/solr.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/solrconfig.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/schema.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/protwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/stopwords_en.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/stopwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/synonyms.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
-        </configfile>
-
 
         <bundle>mvn:ddf.persistence.core/persistence-core-attributes-impl/${project.version}</bundle>
-        <configfile finalname="/data/solr/attributes/conf/solr.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/solrconfig.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/schema.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/protwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/stopwords_en.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/stopwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/synonyms.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
-        </configfile>
     </feature>
 
     <feature name="error" install="manual" version="${project.version}"
@@ -1079,7 +1011,6 @@
         <feature>error</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
-        <feature>banana</feature>
     </feature>
 
     <feature name="clientinfo-filter" install="auto" version="${project.version}"

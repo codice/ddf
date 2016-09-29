@@ -109,5 +109,10 @@
             <artifactId>catalog-solr-external-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.solr.cloud</groupId>
+            <artifactId>catalog-solr-cloud-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -11,32 +11,32 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.solr.external;
+package ddf.catalog.solr.cloud;
 
 import java.util.Optional;
 import java.util.concurrent.Future;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
+import org.codice.solr.factory.impl.SolrCloudClientFactory;
 
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.source.solr.RemoteSolrCatalogProvider;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 
 /**
- * Catalog Provider that interfaces with a Standalone external (HTTP) Solr Server
+ * Catalog Provider that interfaces with a Solr Cloud
  */
-public class SolrHttpCatalogProvider extends RemoteSolrCatalogProvider {
+public class SolrCloudCatalogProvider extends RemoteSolrCatalogProvider {
 
-    public SolrHttpCatalogProvider(FilterAdapter filterAdapter,
+    public SolrCloudCatalogProvider(FilterAdapter filterAdapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
         super(filterAdapter, solrFilterDelegateFactory);
     }
 
     @Override
     protected Future<SolrClient> createClient() {
-        return HttpSolrClientFactory.getHttpSolrClient(Optional.ofNullable(url)
-                .orElse(HttpSolrClientFactory.getDefaultHttpsAddress()), SOLR_CATALOG_CORE_NAME);
+        return SolrCloudClientFactory.getClient(Optional.ofNullable(url)
+                .orElse(SolrCloudClientFactory.DEFAULT_ZOOKEEPER_HOST), SOLR_CATALOG_CORE_NAME);
     }
 
 }

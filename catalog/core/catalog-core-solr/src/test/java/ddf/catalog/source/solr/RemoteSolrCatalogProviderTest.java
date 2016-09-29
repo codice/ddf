@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.solr.external;
+package ddf.catalog.source.solr;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -25,17 +25,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.util.NamedList;
-import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.impl.ConfigurationStore;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.QueryRequest;
@@ -44,14 +46,7 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-/**
- * Unit tests for {@link SolrHttpCatalogProvider}
- *
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- *
- */
-public class TestSolrHttpCatalogProvider {
+public class RemoteSolrCatalogProviderTest {
 
     private static String cipherSuites;
 
@@ -82,7 +77,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test
     public void testId() {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         provider.maskId("myId");
 
@@ -92,7 +87,7 @@ public class TestSolrHttpCatalogProvider {
     @Test
     public void testDescribableProperties() {
 
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         assertNotNull(provider.getTitle());
         assertNotNull(provider.getDescription());
@@ -104,7 +99,7 @@ public class TestSolrHttpCatalogProvider {
     @Test
     public void testUnconfiguredCreate() throws IngestException, SolrServerException, IOException {
         SolrClient givenClient = givenSolrClient(false);
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
 
         try {
             provider.create(mock(CreateRequest.class));
@@ -127,7 +122,7 @@ public class TestSolrHttpCatalogProvider {
         // given
         SolrClient givenClient = mock(SolrClient.class);
         when(givenClient.ping()).thenThrow(SolrException.class);
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
 
         // when
         String message = null;
@@ -145,7 +140,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnconfiguredDelete() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         provider.delete(mock(DeleteRequest.class));
 
@@ -153,7 +148,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnconfiguredUpdate() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         provider.update(mock(UpdateRequest.class));
 
@@ -161,7 +156,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnconfiguredQuery() throws UnsupportedQueryException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         provider.query(mock(QueryRequest.class));
 
@@ -169,21 +164,21 @@ public class TestSolrHttpCatalogProvider {
 
     @Test
     public void testAvailability() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         assertThat(provider.isAvailable(), is(false));
     }
 
     @Test
     public void testAvailabilitySourceMonitor() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         assertThat(provider.isAvailable(null), is(false));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnconfiguredGetContentTypes() throws IngestException {
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         provider.getContentTypes();
 
@@ -191,7 +186,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test()
     public void testUpdateConfigurationNullProperties() throws IngestException {
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         provider.updateClient(null);
 
@@ -204,7 +199,7 @@ public class TestSolrHttpCatalogProvider {
             throws IngestException, SolrServerException, IOException {
         // given
         SolrClient givenClient = givenSolrClient(true);
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
 
         // when
         provider.updateClient(null);
@@ -225,7 +220,7 @@ public class TestSolrHttpCatalogProvider {
     @Test()
     public void testForceAutoCommit() throws IngestException {
 
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
 
         provider.setForceAutoCommit(true);
 
@@ -249,7 +244,7 @@ public class TestSolrHttpCatalogProvider {
         String badAddress = "http://localhost:8183/solr";
         boolean clientStatus = false;
         SolrClient givenClient = givenSolrClient(clientStatus);
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
         // when
         try {
             provider.create(mock(CreateRequest.class));
@@ -267,7 +262,7 @@ public class TestSolrHttpCatalogProvider {
     public void testShutdown() throws SolrServerException, IOException {
         boolean clientStatus = true;
         SolrClient givenClient = givenSolrClient(clientStatus);
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
 
         provider.shutdown();
         verify(givenClient, times(1)).close();
@@ -298,4 +293,16 @@ public class TestSolrHttpCatalogProvider {
         return client;
     }
 
+    private class MockedRemoteSolrCatalogProvider extends RemoteSolrCatalogProvider {
+
+        public MockedRemoteSolrCatalogProvider(FilterAdapter filterAdapter, SolrClient client,
+                SolrFilterDelegateFactory solrFilterDelegateFactory) {
+            super(filterAdapter, client, solrFilterDelegateFactory);
+        }
+
+        @Override
+        protected Future<SolrClient> createClient() {
+            return null;
+        }
+    }
 }

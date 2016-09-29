@@ -11,14 +11,28 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory;
+package org.codice.solr.factory.impl;
 
 import java.util.concurrent.Future;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.codice.solr.factory.SolrClientFactory;
 
-public interface SolrClientFactory {
+public class SolrClientFactoryImpl implements SolrClientFactory {
 
-    Future<SolrClient> newClient(String core);
+    public Future<SolrClient> newClient(String core) {
+        String clientType = System.getProperty("solr.client", "HttpSolrClient");
+        SolrClientFactory factory;
+
+        if ("EmbeddedSolrServer".equals(clientType)) {
+            factory = new EmbeddedSolrFactory();
+        } else if ("CloudSolrClient".equals(clientType)) {
+            factory = new SolrCloudClientFactory();
+        } else { // Use HttpSolrClient by default
+            factory = new HttpSolrClientFactory();
+        }
+
+        return factory.newClient(core);
+    }
 
 }

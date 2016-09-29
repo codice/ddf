@@ -11,13 +11,14 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory;
+package org.codice.solr.factory.impl;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.Future;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -31,33 +32,39 @@ import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.schema.IndexSchema;
+import org.codice.solr.factory.SolrClientFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class EmbeddedSolrFactory extends SolrClientFactory {
+import com.google.common.util.concurrent.Futures;
+
+public class EmbeddedSolrFactory implements SolrClientFactory {
+
+    protected static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedSolrFactory.class);
 
     public static final String DEFAULT_EMBEDDED_CORE_NAME = "embedded";
 
     public static final String IMMEMORY_SOLRCONFIG_XML = "solrconfig-inmemory.xml";
 
-    public static final String DEFAULT_SOLR_XML = "solr.xml";
-
-    /**
-     * Hiding constructor
-     */
-    private EmbeddedSolrFactory() {
-
+    @Override
+    public Future<SolrClient> newClient(String core) {
+        return Futures.immediateFuture(getEmbeddedSolrServer(core,
+                HttpSolrClientFactory.DEFAULT_SOLRCONFIG_XML,
+                null,
+                null));
     }
 
     /**
      * @return {@link org.apache.solr.client.solrj.SolrClient} instance
      */
     public static SolrClient getEmbeddedSolrServer() {
-        return getEmbeddedSolrServer(DEFAULT_SOLRCONFIG_XML, null, null);
+        return getEmbeddedSolrServer(DEFAULT_EMBEDDED_CORE_NAME, HttpSolrClientFactory.DEFAULT_SOLRCONFIG_XML, null, null);
     }
 
     public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml) {
-        return getEmbeddedSolrServer(solrConfigXml, null, null);
+        return getEmbeddedSolrServer(DEFAULT_EMBEDDED_CORE_NAME, solrConfigXml, null, null);
     }
 
     /**
@@ -72,7 +79,7 @@ public class EmbeddedSolrFactory extends SolrClientFactory {
      *                             {@link ConfigurationFileProxy} is used instead.
      * @return {@link org.apache.solr.client.solrj.SolrClient} instance
      */
-    public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml, String schemaXml,
+    public static EmbeddedSolrServer getEmbeddedSolrServer(String coreName, String solrConfigXml, String schemaXml,
             ConfigurationFileProxy givenConfigFileProxy) {
 
         LOGGER.debug("Retrieving embedded solr with the following properties: [{},{},{}]",
@@ -80,8 +87,8 @@ public class EmbeddedSolrFactory extends SolrClientFactory {
                 schemaXml,
                 givenConfigFileProxy);
 
-        String solrConfigFileName = DEFAULT_SOLRCONFIG_XML;
-        String schemaFileName = DEFAULT_SCHEMA_XML;
+        String solrConfigFileName = HttpSolrClientFactory.DEFAULT_SOLRCONFIG_XML;
+        String schemaFileName = HttpSolrClientFactory.DEFAULT_SCHEMA_XML;
 
         if (isNotBlank(solrConfigXml)) {
             solrConfigFileName = solrConfigXml;
@@ -97,8 +104,9 @@ public class EmbeddedSolrFactory extends SolrClientFactory {
             configProxy = new ConfigurationFileProxy(ConfigurationStore.getInstance());
         }
 
-        File solrConfigFile = getConfigFile(solrConfigFileName, configProxy);
-        File solrSchemaFile = getConfigFile(schemaFileName, configProxy);
+        configProxy.writeBundleFilesTo(coreName);
+        File solrConfigFile = getConfigFile(solrConfigFileName, configProxy, coreName);
+        File solrSchemaFile = getConfigFile(schemaFileName, configProxy, coreName);
 
         File solrConfigHome = new File(solrConfigFile.getParent());
 
@@ -134,11 +142,11 @@ public class EmbeddedSolrFactory extends SolrClientFactory {
                 }
             }
             CoreDescriptor coreDescriptor = new CoreDescriptor(container,
-                    DEFAULT_EMBEDDED_CORE_NAME,
+                    coreName,
                     solrConfig.getResourceLoader()
                             .getInstancePath());
 
-            SolrCore core = new SolrCore(DEFAULT_EMBEDDED_CORE_NAME,
+            SolrCore core = new SolrCore(coreName,
                     dataDirPath,
                     solrConfig,
                     indexSchema,
@@ -147,9 +155,9 @@ public class EmbeddedSolrFactory extends SolrClientFactory {
                     null,
                     null,
                     null);
-            container.register(DEFAULT_EMBEDDED_CORE_NAME, core, false);
+            container.register(coreName, core, false);
 
-            return new EmbeddedSolrServer(container, DEFAULT_EMBEDDED_CORE_NAME);
+            return new EmbeddedSolrServer(container, coreName);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             throw new IllegalArgumentException(
                     "Unable to parse Solr configuration file: " + solrConfigFileName, e);
@@ -159,8 +167,9 @@ public class EmbeddedSolrFactory extends SolrClientFactory {
         }
     }
 
-    public static File getConfigFile(String configFileName, ConfigurationFileProxy configProxy) {
-        return FileUtils.toFile(configProxy.getResource(configFileName));
+    public static File getConfigFile(String configFileName, ConfigurationFileProxy configProxy,
+            String core) {
+        return FileUtils.toFile(configProxy.getResource(configFileName, core));
     }
 
 }

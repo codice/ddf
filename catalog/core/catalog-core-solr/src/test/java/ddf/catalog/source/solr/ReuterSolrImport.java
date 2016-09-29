@@ -27,9 +27,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.codice.solr.factory.ConfigurationFileProxy;
-import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.EmbeddedSolrFactory;
+import org.codice.solr.factory.impl.ConfigurationFileProxy;
+import org.codice.solr.factory.impl.ConfigurationStore;
+import org.codice.solr.factory.impl.EmbeddedSolrFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -58,7 +58,7 @@ public class ReuterSolrImport implements Runnable {
 
         try {
 
-            this.solr = EmbeddedSolrFactory.getEmbeddedSolrServer("solrconfigSoft.xml",
+            this.solr = EmbeddedSolrFactory.getEmbeddedSolrServer("catalog", "solrconfigSoft.xml",
                     "schema.xml",
                     new ConfigurationFileProxy(ConfigurationStore.getInstance()));
 
