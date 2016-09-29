@@ -90,6 +90,7 @@ define([
             if (workspace){
                 if (Object.keys(workspace.changedAttributes())[0] === 'currentWorkspace'){
                     this.updatePanelOne();
+                    store.clearSelectedResults();
                 }
             } else {
                 this.panelOne.show(new WorkspaceContentTabsView({
