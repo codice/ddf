@@ -12,18 +12,38 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define */
+/* global define,setInterval,clearInterval */
 define([
     'marionette',
     'icanhaz',
-    'text!iframeView'
-    ],function (Marionette, ich, iframeView) {
+    'text!iframeView',
+    'text!waitForVisible'
+    ],function (Marionette, ich, iframeView, waitForVisible) {
 
     ich.addTemplate('iframeView',iframeView);
+    ich.addTemplate('waitForVisible',waitForVisible);
 
     var IFrameView = Marionette.ItemView.extend({
         template: 'iframeView',
         className: 'iframe-view'
     });
-    return IFrameView;
+
+    return Marionette.Layout.extend({
+        template: 'waitForVisible',
+        isVisible: function () {
+            return this.$el.is(':visible');
+        },
+        regions: { iframe: '.wait-for-visible' },
+        initialize: function () {
+            // delay rendering of iframe until the element is actually visible
+            var interval = setInterval(function () {
+                if (this.isVisible()) {
+                    // once this is visible, show iframe and stop polling for visibility
+                    this.iframe.show(new IFrameView({ model: this.model }));
+                    clearInterval(interval);
+                }
+            }.bind(this), 250);
+        }
+    });
+
 });
