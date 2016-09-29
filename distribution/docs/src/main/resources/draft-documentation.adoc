@@ -204,4 +204,9 @@ include::{adoc-include}/_draft-ui-contents/managing-ui-contents.adoc[]
 
 <<<
 
+== ${ddf-resource-management} Application Reference
+[small]#Version: ${project.version}#
 
+include::{adoc-include}/_resource-management-contents/managing-resource-management-contents.adoc[]
+
+<<<
