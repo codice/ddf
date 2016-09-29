@@ -45,7 +45,7 @@
         .inlineBlockDisplay(button);
         > button {
             width: 50%;
-            transition: transform @coreTransitionTime linear;
+            transition: transform @coreTransitionTime linear, width @coreTransitionTime linear;
         }
     }
 
@@ -109,6 +109,11 @@
 @{customElementNamespace}ingest-details.is-finished {
     .details-footer button {
         transform: translateX(-300%);
+    }
+
+    .details-footer button.footer-new {
+        transform: translateX(-150%);
+        width: 100%;
     }
 }
 

@@ -32,7 +32,8 @@ module.exports = Backbone.AssociatedModel.extend({
             amount: 0,
             issues: 0,
             sending: false,
-            finished: false
+            finished: false,
+            sentAt: undefined
         };
     },
     relations: [{
@@ -41,7 +42,6 @@ module.exports = Backbone.AssociatedModel.extend({
         relatedModel: UploadModel
     }],
     initialize: function(attributes, options) {
-
         this.options = options;
         if (!this.id) {
             this.set('id', Common.generateUUID());
@@ -59,6 +59,8 @@ module.exports = Backbone.AssociatedModel.extend({
             this.options.dropzone.on('success', this.handleSuccess.bind(this));
             this.options.dropzone.on('error', this.handleError.bind(this));
             this.options.dropzone.on('complete', this.handleComplete.bind(this));
+        } else {
+            this.set('finished', true);
         }
     },
     handleAddFile: function(file) {
@@ -79,7 +81,7 @@ module.exports = Backbone.AssociatedModel.extend({
         }
     },
     handleComplete: function(file) {
-        if (file.status !== 'canceled') {
+        if (file.status === 'success') {
             this.set('complete', this.get('complete') + 1);
         }
         updatePreferences();
@@ -127,7 +129,8 @@ module.exports = Backbone.AssociatedModel.extend({
             this.options.dropzone.options.autoProcessQueue = true;
             this.options.dropzone.processQueue();
             this.set({
-                sending: true
+                sending: true,
+                sentAt: Date.now()
             });
         }
     }

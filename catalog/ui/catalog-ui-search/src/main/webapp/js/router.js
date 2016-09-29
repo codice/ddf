@@ -32,10 +32,12 @@ define([
     'component/ingest/ingest.view',
     'component/router/router',
     'component/singletons/user-instance',
+    'component/upload/upload',
+    'component/upload/upload.view',
     'js/jquery.whenAll'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
-            recentInstance, RecentView, IngestView, router, user) {
+            recentInstance, RecentView, IngestView, router, user, uploadInstance, UploadView) {
 
     function hideViews() {
         Application.App.workspaceRegion.$el.addClass("is-hidden");
@@ -44,6 +46,7 @@ define([
         Application.App.alertRegion.$el.addClass("is-hidden");
         Application.App.recentRegion.$el.addClass("is-hidden");
         Application.App.ingestRegion.$el.addClass('is-hidden');
+        Application.App.uploadRegion.$el.addClass('is-hidden');
     }
 
     var Router = Marionette.AppRouter.extend({
@@ -68,6 +71,9 @@ define([
             },
             openIngest: function(){
                 //console.log('route to ingest');
+            },
+            openUpload: function(){
+                //console.log('route to upload');
             }
         },
         appRoutes: {
@@ -77,7 +83,8 @@ define([
             'metacards/:id': 'openMetacard',
             'alerts/:id': 'openAlert',
             'recent(/)': 'openRecent',
-            'ingest(/)': 'openIngest'
+            'ingest(/)': 'openIngest',
+            'uploads/:id': 'openUpload'
         },
         initialize: function(){
             this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
@@ -98,6 +105,7 @@ define([
         onRoute: function(name, path, args){
             hideViews();
             var self = this;
+            var queryForMetacards, queryForMetacard;
             switch(name){
                 case 'openWorkspace':
                     var workspaceId = args[0];
@@ -126,7 +134,7 @@ define([
                     break;
                 case 'openMetacard':
                     var metacardId = args[0];
-                    var queryForMetacard = new Query.Model({
+                    queryForMetacard = new Query.Model({
                         cql: cql.write({
                           type: 'AND',
                           filters: [{
@@ -187,7 +195,7 @@ define([
                                 });
                             });
                     } else {
-                        var queryForMetacards = new Query.Model({
+                        queryForMetacards = new Query.Model({
                             cql: cql.write({
                                 type: 'OR',
                                 filters: alert.get('metacardIds').map(function(metacardId){
@@ -219,10 +227,61 @@ define([
                         });
                     }
                     break;
+                case 'openUpload':
+                    var uploadId = args[0];
+                    var upload = user.get('user').get('preferences').get('uploads').get(uploadId);
+                    if (!upload) {
+                        self.listenTo(ConfirmationView.generateConfirmation({
+                                prompt: 'Upload unable to be found.  ',
+                                yes: 'Go to Workspaces home screen'
+                            }),
+                            'change:choice',
+                            function () {
+                                wreqr.vent.trigger('router:navigate', {
+                                    fragment: 'workspaces',
+                                    options: {
+                                        trigger: true
+                                    }
+                                });
+                            });
+                    } else {
+                        queryForMetacards = new Query.Model({
+                            cql: cql.write({
+                                type: 'OR',
+                                filters: upload.get('uploads').filter(function(file){
+                                    return file.id;
+                                }).map(function(file){
+                                    return {
+                                        type: '=',
+                                        value: file.id,
+                                        property: '"id"'
+                                    };
+                                }).concat({
+                                    type: '=',
+                                    value: -1,
+                                    property: '"id"'
+                                })
+                            })
+                        });
+                        $.whenAll.apply(this, queryForMetacards.startSearch()).always(function(){
+                                uploadInstance.set({
+                                    currentResult: queryForMetacards.get('result'),
+                                    currentUpload: upload,
+                                    currentQuery: queryForMetacards
+                                });
+                                uploadInstance.trigger('change:currentUpload', upload);
+                                if (Application.App.uploadRegion.currentView === undefined) {
+                                    Application.App.uploadRegion.show(new UploadView());
+                                }
+                                Application.App.uploadRegion.$el.removeClass('is-hidden');
+                                self.updateRoute(name, path, args);
+                        });
+                    }
+                    break;
                 case 'openRecent':
                     $.get('/search/catalog/internal/metacards/recent').then(function(response){
                         response.push('Invalid Id');
-                        var queryForMetacards = new Query.Model({
+                        queryForMetacards = new Query.Model({
                             cql: cql.write({
                                 type: 'OR',
                                 filters: response.map(function(metacardId){

@@ -1,0 +1,72 @@
+@{customElementNamespace}upload-batch-item {
+  display: block;
+  white-space: nowrap;
+  position: relative;
+  height: 3*@minimumButtonSize;
+  overflow: hidden;
+  cursor: pointer;
+
+  .upload-details,
+  .upload-actions {
+    display: inline-block;
+  }
+
+  .upload-details {
+    max-width: 420px;
+    min-width: 300px;
+    width: 10vw;
+    padding-right: @minimumButtonSize;
+  }
+
+  .details-date {
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .details-summary {
+    height: 2*@minimumButtonSize;
+  }
+
+  .upload-actions {
+    width: @minimumButtonSize;
+    height: 100%;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    overflow: hidden;
+  }
+
+  .upload-actions  {
+
+    .inlineBlockDisplay(button);
+
+    button {
+      width: @minimumButtonSize;
+      height: 100%;
+      transform: translateX(0%);
+      transition: transform @coreTransitionTime linear;
+    }
+  }
+}
+
+@{customElementNamespace}upload-batch-item.is-finished {
+  cursor: pointer;
+  .upload-actions button {
+    transform: translateX(-100%);
+  }
+}
+
+@{customElementNamespace}upload-batch-item-collection {
+
+  @{customElementNamespace}upload-batch-item + @{customElementNamespace}upload-batch-item {
+    margin-top: 10px;
+  }
+
+  .alert-empty {
+    box-shadow: none;
+    width: 282px;
+    text-align: center;
+  }
+}

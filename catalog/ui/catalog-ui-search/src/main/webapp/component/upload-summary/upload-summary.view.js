@@ -31,6 +31,9 @@ module.exports = Marionette.ItemView.extend({
         'change:sending': 'handleSending',
         'change:issues': 'handleIssues'
     },
+    events: {
+        'click': 'expandUpload'
+    },
     initialize: function() {
     },
     onRender: function(){
@@ -39,6 +42,7 @@ module.exports = Marionette.ItemView.extend({
         this.handleError();
         this.handleSuccess();
         this.handleIssues();
+        this.handleFileInfo();
     },
     handleFileInfo: function(){
         var amount = this.model.get('amount');
@@ -68,9 +72,16 @@ module.exports = Marionette.ItemView.extend({
         var issues = this.model.get('issues');
         this.$el.toggleClass('has-issues', issues > 0);
     },
+    expandUpload: function(){
+        wreqr.vent.trigger('router:navigate', {
+            fragment: 'uploads/' + this.model.id,
+            options: {
+                trigger: true
+            }
+        });
+    },
     serializeData: function(){
         var modelJSON = this.model.toJSON();
-        console.log(modelJSON);
         return modelJSON;
     }
 });

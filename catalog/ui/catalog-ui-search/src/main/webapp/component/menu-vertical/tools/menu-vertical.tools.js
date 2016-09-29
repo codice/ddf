@@ -14,13 +14,14 @@
  **/
 /*global define*/
 define([
+    'wreqr',
     'underscore',
     'backbone',
     '../menu-vertical',
     'component/lightbox/lightbox.view.instance',
     'component/ingest/ingest.view',
     'js/view/ingest/IngestModal.view'
-], function (_, Backbone, Vertical, lightboxInstance, IngestView, IngestModalView) {
+], function (wreqr, _, Backbone, Vertical, lightboxInstance, IngestView, IngestModalView) {
 
     var definition = [
         [
@@ -37,9 +38,12 @@ define([
                     ]
                 },
                 action: function () {
-                    lightboxInstance.model.updateTitle('Ingest');
-                    lightboxInstance.model.open();
-                    lightboxInstance.lightboxContent.show(new IngestModalView());
+                    wreqr.vent.trigger('router:navigate', {
+                        fragment: 'ingest',
+                        options: {
+                            trigger: true
+                        }
+                    });
                 }
             }
         ]

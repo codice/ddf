@@ -58,6 +58,7 @@ module.exports = Backbone.Model.extend({
             this.options.dropzone.on('uploadprogress', this.handleUploadProgress.bind(this));
             this.options.dropzone.on('error', this.handleError.bind(this));
             this.options.dropzone.on('success', this.handleSuccess.bind(this));
+            this.options.dropzone.on('complete', this.handleComplete.bind(this));
         }
     },
     handleSending: function(file) {
@@ -72,9 +73,9 @@ module.exports = Backbone.Model.extend({
             this.set('percentage', percentage);
         }
     },
-    handleError: function(file, response) {
+    handleError: function(file) {
         if (fileMatches(file, this)) {
-            var message = file.name + ' could not be uploaded successfully. ' + response;
+            var message = file.name + ' could not be uploaded successfully.';
             this.set({
                 error: true,
                 message: message
@@ -92,13 +93,20 @@ module.exports = Backbone.Model.extend({
             checkValidation(this);
         }
     },
+    handleComplete: function(file) {
+        if (fileMatches(file, this) && file.status === 'canceled') {
+            this.collection.remove(this);
+        }
+    },
     checkValidation: function() {
         checkValidation(this);
     },
     cancel: function() {
         if (this.options.dropzone) {
             this.options.dropzone.removeFile(this.get('file'));
-            this.collection.remove(this);
+            if (this.collection) {
+                this.collection.remove(this);
+            }
         }
     }
 });

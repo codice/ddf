@@ -44,12 +44,25 @@
         width: @minimumButtonSize;
         height: 2*@minimumButtonSize;
         overflow: hidden;
+        .inlineBlockDisplay(div);
+        .inlineBlockDisplay(button);
     }
 
-    .upload-actions button {
+    .upload-actions button,
+    .upload-actions div {
         width: 100%;
         height: 100%;
         transition: transform @coreTransitionTime linear;
+        line-height: 2*@minimumButtonSize;
+        text-align: center;
+    }
+
+    .upload-actions div span {
+        font-size: 2rem;
+    }
+
+    .upload-fail {
+        background: @negative-color;
     }
 
     .info-progress {
@@ -59,7 +72,7 @@
         top: 0px;
         width: 0%;
         height: 100%;
-        background: @positive-color;
+        background: @lighten-inherited-background-color;
         transition: width @coreTransitionTime linear;
     }
 
@@ -91,9 +104,11 @@
 
     @keyframes new-upload{
         0% {
+            transform: scaleY(0);
             height: 0px;
         }
         100% {
+            transform: scaleY(1);
             height: 2*@minimumButtonSize;
         }
     }
@@ -104,9 +119,11 @@
 
      @keyframes removed-upload{
         0% {
+            transform: scaleY(1);
             height: 2*@minimumButtonSize;
         }
         100% {
+            transform: scaleY(0);
             height: 0px;
         }
     }
@@ -133,9 +150,10 @@
 }
 
 @{customElementNamespace}upload-item.has-success {
+    cursor: pointer;
     .info-success {
         height: 100%;
-        background: @positive-color;
+        background: @lighten-inherited-background-color;
         line-height: 2*@minimumButtonSize;
         padding: 0px 10px;
     }
@@ -155,7 +173,7 @@
 @{customElementNamespace}upload-item.has-error {
     .info-error {
         height: 100%;
-        background: @negative-color;
+        background: @lighten-inherited-background-color;
         line-height: 2*@minimumButtonSize;
         padding: 0px 10px;
     }

@@ -30,7 +30,7 @@ function namespacedEvent(event, view) {
     return event + '.' + view.cid;
 }
 
-function updateDropzoneHeight(view){
+function updateDropzoneHeight(view) {
     var filesHeight = view.$el.find('.details-files').height();
     var elementHeight = view.$el.height();
     view.$el.find('.details-dropzone').css('height', elementHeight - filesHeight - 64);
@@ -40,11 +40,10 @@ module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('ingest-details'),
     events: {
-        'click > .details-footer .footer-clear': 'clearUploads',
+        'click > .details-footer .footer-clear': 'newUpload',
         'click > .details-footer .footer-start': 'startUpload',
         'click > .details-footer .footer-cancel': 'cancelUpload',
-        'click > .details-footer .footer-new': 'newUpload',
-        'click > .details-footer .footer-expand': 'expandUpload'
+        'click > .details-footer .footer-new': 'newUpload'
     },
     regions: {
         files: '> .details-files',
@@ -61,25 +60,24 @@ module.exports = Marionette.LayoutView.extend({
         this.showSummary();
     },
     setupBatchModel: function() {
-        this.uploadBatchModel = new UploadBatchModel({
-        }, {
+        this.uploadBatchModel = new UploadBatchModel({}, {
             dropzone: this.dropzone
         });
         this.setupBatchModelListeners();
     },
-    setupBatchModelListeners: function(){
+    setupBatchModelListeners: function() {
         this.listenTo(this.uploadBatchModel, 'add:uploads remove:uploads reset:uploads', this.handleUploadUpdate);
         this.listenTo(this.uploadBatchModel, 'change:sending', this.handleSending);
         this.listenTo(this.uploadBatchModel, 'change:finished', this.handleFinished);
     },
-    handleFinished: function(){
+    handleFinished: function() {
         this.$el.toggleClass('is-finished', this.uploadBatchModel.get('finished'));
     },
-    handleSending: function(){
+    handleSending: function() {
         this.$el.toggleClass('is-sending', this.uploadBatchModel.get('sending'));
     },
-    handleUploadUpdate: function(){
-        if (this.uploadBatchModel.get('uploads').length === 0){
+    handleUploadUpdate: function() {
+        if (this.uploadBatchModel.get('uploads').length === 0 && !this.uploadBatchModel.get('sending')) {
             Common.cancelRepaintForTimeframe(this.dropzoneAnimationRequestDetails);
             this.$el.toggleClass('has-files', false);
             this.unlistenToResize();
@@ -102,39 +100,44 @@ module.exports = Marionette.LayoutView.extend({
             collection: this.uploadBatchModel.get('uploads')
         }));
     },
-    showSummary: function(){
+    showSummary: function() {
         this.summary.show(new UploadSummary({
             model: this.uploadBatchModel
         }));
     },
-    clearUploads: function(){
+    clearUploads: function() {
         this.uploadBatchModel.clear();
     },
-    startUpload: function(){
+    startUpload: function() {
         this.uploadBatchModel.start();
     },
-    cancelUpload: function(){
+    cancelUpload: function() {
         this.uploadBatchModel.cancel();
     },
-    newUpload: function(){
+    newUpload: function() {
         this.$el.addClass('starting-new');
         setTimeout(function() {
             this.triggerMethod('ingestDetails:new');
         }.bind(this), 250);
     },
-    expandUpload: function(){
-        
+    expandUpload: function() {
+        wreqr.vent.trigger('router:navigate', {
+            fragment: 'uploads/' + this.uploadBatchModel.id,
+            options: {
+                trigger: true
+            }
+        });
     },
     updateDropzoneHeight: function() {
         updateDropzoneHeight(this);
         this.listenToResize();
         Common.cancelRepaintForTimeframe(this.dropzoneAnimationRequestDetails);
-        this.dropzoneAnimationRequestDetails = Common.repaintForTimeframe(500, updateDropzoneHeight.bind(this, this));  
+        this.dropzoneAnimationRequestDetails = Common.repaintForTimeframe(500, updateDropzoneHeight.bind(this, this));
     },
     listenToResize: function() {
         $(window).off(namespacedEvent('resize', this)).on(namespacedEvent('resize', this), this.updateDropzoneHeight.bind(this));
     },
-    unlistenToResize: function(){
+    unlistenToResize: function() {
         $(window).off(namespacedEvent('resize', this));
     },
     onBeforeDestroy: function() {

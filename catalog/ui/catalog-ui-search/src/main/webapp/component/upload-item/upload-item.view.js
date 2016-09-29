@@ -25,7 +25,8 @@ module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('upload-item'),
     events: {
         'click .upload-cancel': 'cancelUpload',
-        'click .upload-expand': 'expandUpload'
+        'click .upload-expand': 'expandUpload',
+        'click': 'expandIfSuccess'
     },
     modelEvents: {
         'change:percentage': 'handlePercentage',
@@ -94,5 +95,10 @@ module.exports = Marionette.LayoutView.extend({
                 trigger: true
             }
         });
+    },
+    expandIfSuccess: function(){
+        if (this.model.get('success')){
+            this.expandUpload();
+        }
     }
 });
