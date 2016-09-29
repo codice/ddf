@@ -22,9 +22,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
@@ -39,6 +40,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 /**
  * Deletes records by ID.
  */
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "remove", description = "Deletes a record from the Catalog.")
 public class RemoveCommand extends CatalogCommands {
 
@@ -74,7 +76,6 @@ public class RemoveCommand extends CatalogCommands {
     }
 
     private Object executeRemoveFromCache() throws Exception {
-
         String[] idsArray = new String[ids.size()];
         idsArray = ids.toArray(idsArray);
         getCacheProxy().removeById(idsArray);

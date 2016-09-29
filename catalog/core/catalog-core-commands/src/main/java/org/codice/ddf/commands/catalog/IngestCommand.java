@@ -49,18 +49,18 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.Exceptions;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,10 +87,13 @@ import ddf.security.common.audit.SecurityLogger;
 /**
  * Custom Karaf command for ingesting records into the Catalog.
  */
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "ingest", description = "Ingests Metacards into the Catalog.")
 public class IngestCommand extends CatalogCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestCommand.class);
+
+    private static final String NEW_LINE = System.getProperty("line.separator");
 
     private static final Logger INGEST_LOGGER =
             LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
@@ -179,7 +182,8 @@ public class IngestCommand extends CatalogCommands {
     @Option(name = "--include-content", required = false, aliases = {}, multiValued = false, description = "Ingest a zip file that contains metacards and content using the default transformer.  The specified zip must be signed externally using DDF certificates.")
     boolean includeContent = false;
 
-    private static final String NEW_LINE = System.getProperty("line.separator");
+    @Reference
+    StorageProvider storageProvider;
 
     @Override
     protected Object executeWithSubject() throws Exception {
@@ -544,6 +548,7 @@ public class IngestCommand extends CatalogCommands {
 
     private void addFileToQueue(ArrayBlockingQueue<Metacard> metacardQueue, long start, File file) {
         if (file.isHidden()) {
+            fileCount.incrementAndGet();
             ignoreCount.incrementAndGet();
             return;
         }
@@ -625,8 +630,6 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private void submitToStorageProvider(List<Metacard> metacardList) {
-        StorageProvider storageProvider = getAllServices(StorageProvider.class).get(0);
-
         metacardList.stream()
                 .filter(metacard -> metacardFileMapping.containsKey(metacard.getId()))
                 .map(metacard -> {
@@ -720,10 +723,10 @@ public class IngestCommand extends CatalogCommands {
         Map<String, List<File>> fileMap = new HashMap<>();
         Files.walkFileTree(inputFile.toPath(), new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs)
+            public FileVisitResult visitFile(Path filePathToVisit, BasicFileAttributes attrs)
                     throws IOException {
 
-                File file = filePath.toFile();
+                File file = filePathToVisit.toFile();
 
                 if (file.getParent()
                         .contains(CONTENT) && !file.isDirectory() && !file.isHidden()) {
@@ -750,37 +753,23 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private InputCollectionTransformer getZipDecompression() {
-        List<InputCollectionTransformer> inputCollectionTransformerList = null;
         try {
-            inputCollectionTransformerList = getAllServices(InputCollectionTransformer.class,
+            return getServiceByFilter(InputCollectionTransformer.class,
                     "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_DECOMPRESSION + ")" + ")");
         } catch (InvalidSyntaxException e) {
             LOGGER.info("Unable to get transformer id={}", ZIP_DECOMPRESSION, e);
-        }
-
-        if (inputCollectionTransformerList != null && inputCollectionTransformerList.size() > 0) {
-            return inputCollectionTransformerList.get(0);
         }
 
         return null;
     }
 
     private InputTransformer getTransformer() {
-        BundleContext bundleContext = getBundleContext();
-        ServiceReference[] refs;
-
         try {
-            refs = bundleContext.getServiceReferences(InputTransformer.class.getName(),
+            return getServiceByFilter(InputTransformer.class,
                     "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
         } catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException(
                     "Invalid transformer transformerId: " + transformerId, e);
-        }
-
-        if (refs == null || refs.length == 0) {
-            throw new IllegalArgumentException("Transformer " + transformerId + " not found");
-        } else {
-            return (InputTransformer) bundleContext.getService(refs[0]);
         }
     }
 }

@@ -22,12 +22,15 @@ import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
 import org.codice.ddf.commands.catalog.facade.Provider;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.cache.SolrCacheMBean;
@@ -66,6 +69,18 @@ public abstract class CatalogCommands extends SubjectCommands {
             "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
     boolean isProvider = false;
 
+    @Reference
+    CatalogProvider catalogProvider;
+
+    @Reference
+    CatalogFramework catalogFramework;
+
+    @Reference
+    BundleContext bundleContext;
+
+    @Reference
+    FilterBuilder filterBuilder;
+
     protected SolrCacheMBean getCacheProxy()
             throws IOException, MalformedObjectNameException, InstanceNotFoundException {
         ObjectName solrCacheObjectName = new ObjectName(SolrCacheMBean.OBJECTNAME);
@@ -78,14 +93,19 @@ public abstract class CatalogCommands extends SubjectCommands {
 
     protected CatalogFacade getCatalog() throws InterruptedException {
         if (isProvider) {
-            return new Provider(getService(CatalogProvider.class));
+            return new Provider(catalogProvider);
         } else {
             // otherwise use default
-            return new Framework(getService(CatalogFramework.class));
+            return new Framework(catalogFramework);
         }
     }
 
-    protected FilterBuilder getFilterBuilder() throws InterruptedException {
-        return getService(FilterBuilder.class);
+    protected <T> T getServiceByFilter(Class<T> clazz, String filter)
+            throws InvalidSyntaxException {
+        return bundleContext.getServiceReferences(clazz, filter)
+                .stream()
+                .findFirst()
+                .map(ref -> bundleContext.getService(ref))
+                .orElse(null);
     }
 }

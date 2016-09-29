@@ -16,14 +16,14 @@ package org.codice.ddf.commands.catalog;
 import java.io.PrintStream;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
 import org.fusesource.jansi.Ansi;
 
 /**
  * CommandSupport provides printing and progress bar support for
  * extending classes
  */
-public abstract class CommandSupport extends OsgiCommandSupport {
+public abstract class CommandSupport implements Action {
 
     protected static final double MS_PER_SECOND = 1000.0;
 

@@ -29,7 +29,7 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
-import org.apache.felix.service.command.CommandSession;
+import org.apache.karaf.shell.api.console.Session;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.security.common.Security;
 import org.junit.Before;
@@ -43,7 +43,7 @@ import ddf.security.Subject;
 import ddf.security.service.SecurityServiceException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestSubjectCommands {
+public class SubjectCommandsTest {
 
     private static final String ERROR = "Error!";
 
@@ -54,13 +54,13 @@ public class TestSubjectCommands {
     private static final String PASSWORD = "password";
 
     @Mock
-    private Security security;
-
-    @Mock
-    CommandSession session;
+    Session session;
 
     @Mock
     Subject subject;
+
+    @Mock
+    private Security security;
 
     private ByteArrayOutputStream console = new ByteArrayOutputStream();
 
@@ -72,10 +72,10 @@ public class TestSubjectCommands {
     }
 
     @Test
-    public void doExecute() throws Exception {
+    public void execute() throws Exception {
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::executeCommand);
 
-        Object result = subjectCommands.doExecute();
+        Object result = subjectCommands.execute();
 
         assertThat(result, is(SUCCESS));
     }
@@ -88,7 +88,7 @@ public class TestSubjectCommands {
         when(security.getSubject(USERNAME, PASSWORD)).thenReturn(subject);
         when(subject.execute(any(Callable.class))).thenAnswer(this::executeCommand);
 
-        Object result = subjectCommands.doExecute();
+        Object result = subjectCommands.execute();
 
         assertThat(result, is(SUCCESS));
         assertThat(console.toString(), containsString("Password for " + USERNAME));
@@ -102,7 +102,7 @@ public class TestSubjectCommands {
         when(session.getKeyboard()).thenReturn(new ByteArrayInputStream(PASSWORD.getBytes()));
         when(security.getSubject(USERNAME, PASSWORD)).thenReturn(null);
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
         assertThat(console.toString(), containsString("Invalid username/password"));
         verify(security).getSubject(USERNAME, PASSWORD);
@@ -116,7 +116,7 @@ public class TestSubjectCommands {
         when(session.getKeyboard()).thenReturn(keyboard);
         when(keyboard.read()).thenThrow(new IOException());
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
         assertThat(console.toString(), containsString("Failed to read password"));
     }
@@ -130,7 +130,7 @@ public class TestSubjectCommands {
         when(subject.execute(any(Callable.class))).thenThrow(new ExecutionException(new IllegalStateException(
                 ERROR)));
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
         verify(security).getSubject(USERNAME, PASSWORD);
         assertThat(console.toString(), containsString(ERROR));
@@ -142,7 +142,7 @@ public class TestSubjectCommands {
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new SecurityServiceException(
                 ERROR));
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
         assertThat(console.toString(), containsString(ERROR));
     }
@@ -153,7 +153,7 @@ public class TestSubjectCommands {
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new InvocationTargetException(
                 new IllegalStateException(ERROR)));
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
         assertThat(console.toString(), containsString(ERROR));
     }
@@ -166,8 +166,8 @@ public class TestSubjectCommands {
 
         SubjectCommandsUnderTest() {
             super(security);
-            this.session = TestSubjectCommands.this.session;
-            this.console = new PrintStream(TestSubjectCommands.this.console);
+            this.session = SubjectCommandsTest.this.session;
+            this.console = new PrintStream(SubjectCommandsTest.this.console);
         }
 
         @Override

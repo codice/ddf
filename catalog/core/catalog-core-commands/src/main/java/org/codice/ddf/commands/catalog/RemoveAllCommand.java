@@ -25,9 +25,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
@@ -49,6 +50,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 /**
  * Command used to remove all or a subset of records (in bulk) from the Catalog.
  */
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the catalog.")
 public class RemoveAllCommand extends CatalogCommands {
 
@@ -93,7 +95,6 @@ public class RemoveAllCommand extends CatalogCommands {
 
     @Override
     protected Object executeWithSubject() throws Exception {
-
         if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
             printErrorMessage(String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
             return null;
@@ -109,11 +110,9 @@ public class RemoveAllCommand extends CatalogCommands {
         } else {
             return executeRemoveAllFromStore();
         }
-
     }
 
     private Object executeRemoveAllFromCache() throws Exception {
-
         long start = System.currentTimeMillis();
 
         getCacheProxy().removeAll();
@@ -133,9 +132,7 @@ public class RemoveAllCommand extends CatalogCommands {
     }
 
     private Object executeRemoveAllFromStore() throws Exception {
-        CatalogFacade catalog = this.getCatalog();
-
-        FilterBuilder filterBuilder = getFilterBuilder();
+        CatalogFacade catalog = getCatalog();
 
         QueryRequest firstQuery = getIntendedQuery(filterBuilder, true);
         QueryRequest subsequentQuery = getIntendedQuery(filterBuilder, false);
@@ -216,7 +213,6 @@ public class RemoveAllCommand extends CatalogCommands {
     }
 
     private boolean needsAlternateQueryAndResponse(SourceResponse response) {
-
         Set<ProcessingDetails> processingDetails =
                 (Set<ProcessingDetails>) response.getProcessingDetails();
 
@@ -275,7 +271,6 @@ public class RemoveAllCommand extends CatalogCommands {
     }
 
     private String getTotalAmount(long hits) {
-
         if (hits <= UNKNOWN_AMOUNT) {
             return "UNKNOWN";
         }
@@ -285,7 +280,6 @@ public class RemoveAllCommand extends CatalogCommands {
 
     private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
-
         Filter filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.ID)
                 .is()
                 .like()
@@ -311,7 +305,6 @@ public class RemoveAllCommand extends CatalogCommands {
 
     private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
-
         Filter filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.ANY_TEXT)
                 .is()
                 .like()

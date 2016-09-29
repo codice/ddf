@@ -17,8 +17,9 @@ import java.util.Arrays;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
 import org.geotools.filter.text.cql2.CQL;
@@ -27,7 +28,6 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.impl.SortByImpl;
@@ -39,9 +39,11 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "replicate", description = "Replicates Metacards"
         + " from a Federated Source into the Catalog.")
 public class ReplicateCommand extends DuplicateCommands {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ReplicateCommand.class);
 
     @Argument(name = "Source Id", description = "The ID of the Source to replicate the data from.", index = 0, multiValued = false, required = false)
@@ -55,8 +57,7 @@ public class ReplicateCommand extends DuplicateCommands {
         }
 
         final CatalogFacade catalog = getCatalog();
-
-        final CatalogFacade framework = new Framework(getService(CatalogFramework.class));
+        final CatalogFacade framework = new Framework(catalogFramework);
         Set<String> sourceIds = framework.getSourceIds();
 
         while (true) {

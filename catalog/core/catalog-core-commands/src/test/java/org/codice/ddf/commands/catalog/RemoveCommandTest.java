@@ -32,11 +32,17 @@ import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
-public class TestRemoveCommand {
+public class RemoveCommandTest {
+
+    private static ConsoleOutput consoleOutput;
 
     private List<Metacard> metacardList = getMetacardList(5);
 
-    private static ConsoleOutput consoleOutput;
+    @AfterClass
+    public static void tearDownClass() throws IOException {
+        consoleOutput.resetSystemOut();
+        consoleOutput.closeBuffer();
+    }
 
     @Before
     public void setup() {
@@ -44,12 +50,6 @@ public class TestRemoveCommand {
 
         consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws IOException {
-        consoleOutput.resetSystemOut();
-        consoleOutput.closeBuffer();
     }
 
     @Test
@@ -65,18 +65,12 @@ public class TestRemoveCommand {
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
             }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
         };
 
         removeCommand.ids = ids;
-
         removeCommand.cache = true;
 
-        removeCommand.doExecute();
+        removeCommand.executeWithSubject();
 
         String[] idsArray = new String[ids.size()];
         idsArray = ids.toArray(idsArray);
@@ -100,18 +94,13 @@ public class TestRemoveCommand {
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
             }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
         };
 
         removeCommand.ids = ids;
 
         removeCommand.cache = true;
 
-        removeCommand.doExecute();
+        removeCommand.executeWithSubject();
 
         String[] idsArray = new String[ids.size()];
         idsArray = ids.toArray(idsArray);
@@ -133,16 +122,11 @@ public class TestRemoveCommand {
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
             }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
         };
 
         removeCommand.ids = null;
 
-        removeCommand.doExecute();
+        removeCommand.executeWithSubject();
 
         assertThat(consoleOutput.getOutput(), containsString("Nothing to remove."));
 
@@ -150,21 +134,17 @@ public class TestRemoveCommand {
     }
 
     private java.util.List<Metacard> getMetacardList(int amount) {
-
         List<Metacard> metacards = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
-
             String id = UUID.randomUUID()
                     .toString();
             MetacardImpl metacard = new MetacardImpl();
             metacard.setId(id);
 
             metacards.add(metacard);
-
         }
 
         return metacards;
     }
-
 }

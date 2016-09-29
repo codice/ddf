@@ -18,8 +18,9 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
@@ -33,8 +34,10 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "latest", description = "Retrieves the latest records from the catalog based on METACARD MODIFIED date.")
 public class LatestCommand extends CatalogCommands {
+
     private static final int MAX_LENGTH = 40;
 
     private static final String ID = "ID ";
@@ -50,7 +53,6 @@ public class LatestCommand extends CatalogCommands {
 
     @Override
     protected Object executeWithSubject() throws Exception {
-
         String formatString = "%1$-7s %2$-33s %3$-26s %4$-" + MAX_LENGTH + "s%n";
 
         console.printf(formatString, "", "", "", "");
@@ -58,7 +60,7 @@ public class LatestCommand extends CatalogCommands {
 
         CatalogFacade catalogProvider = getCatalog();
 
-        Filter filter = getFilterBuilder().attribute(Metacard.MODIFIED)
+        Filter filter = filterBuilder.attribute(Metacard.MODIFIED)
                 .before()
                 .date(new Date());
 
@@ -70,7 +72,7 @@ public class LatestCommand extends CatalogCommands {
 
         QueryRequest queryRequest = new QueryRequestImpl(query);
 
-        SourceResponse response = catalogProvider.query(queryRequest);
+        SourceResponse response = getCatalog().query(queryRequest);
 
         List<Result> results = response.getResults();
 
@@ -107,5 +109,4 @@ public class LatestCommand extends CatalogCommands {
 
         return null;
     }
-
 }

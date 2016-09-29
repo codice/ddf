@@ -21,8 +21,9 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Provider;
 import org.geotools.filter.text.cql2.CQL;
@@ -46,6 +47,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.ServiceComparator;
 
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards "
         + "from one Provider to another Provider.")
 public class MigrateCommand extends DuplicateCommands {
@@ -191,7 +193,7 @@ public class MigrateCommand extends DuplicateCommands {
     }
 
     private List<CatalogProvider> getCatalogProviders() {
-        ServiceTracker st = new ServiceTracker(getBundleContext(),
+        ServiceTracker st = new ServiceTracker(bundleContext,
                 CatalogProvider.class.getName(),
                 null);
         st.open();

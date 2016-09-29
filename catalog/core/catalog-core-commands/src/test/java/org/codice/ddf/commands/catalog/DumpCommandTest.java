@@ -23,8 +23,6 @@ import java.io.File;
 import java.net.URI;
 import java.util.List;
 
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.commands.catalog.facade.Framework;
 import org.fusesource.jansi.Ansi;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,10 +31,8 @@ import org.junit.rules.TemporaryFolder;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
@@ -45,13 +41,7 @@ import ddf.catalog.resource.impl.ResourceImpl;
 /**
  * Tests the {@link DumpCommand} output.
  */
-public class TestDumpCommand extends TestAbstractCommand {
-
-    private static final String CONTENT_FILENAME = "content.txt";
-
-    private static final String CONTENT_PATH = TestDumpCommand.class.getResource(
-            "/" + CONTENT_FILENAME)
-            .getPath();
+public class DumpCommandTest extends AbstractCommandTest {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
             .reset()
@@ -60,6 +50,12 @@ public class TestDumpCommand extends TestAbstractCommand {
     static final String RED_CONSOLE_COLOR = Ansi.ansi()
             .fg(Ansi.Color.RED)
             .toString();
+
+    private static final String CONTENT_FILENAME = "content.txt";
+
+    private static final String CONTENT_PATH = DumpCommandTest.class.getResource(
+            "/" + CONTENT_FILENAME)
+            .getPath();
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -71,22 +67,16 @@ public class TestDumpCommand extends TestAbstractCommand {
      */
     @Test
     public void testNonExistentOutputDirectory() throws Exception {
-
         ConsoleOutput consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
 
         // given
-        DumpCommand command = new DumpCommand() {
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
-        };
-        command.dirPath = "nosuchdirectoryanywherehereman";
-        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+        DumpCommand dumpCommand = new DumpCommand();
+        dumpCommand.dirPath = "nosuchdirectoryanywherehereman";
+        dumpCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
 
         // when
-        command.doExecute();
+        dumpCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();
@@ -98,7 +88,6 @@ public class TestDumpCommand extends TestAbstractCommand {
                     File.separator);
             String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
             assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
-
         } finally {
             consoleOutput.closeBuffer();
         }
@@ -111,23 +100,18 @@ public class TestDumpCommand extends TestAbstractCommand {
      */
     @Test
     public void testOutputDirectoryIsFile() throws Exception {
-
         ConsoleOutput consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
 
         // given
-        DumpCommand command = new DumpCommand() {
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
-        };
+        DumpCommand dumpCommand = new DumpCommand();
         File testFile = testFolder.newFile("somefile.txt");
         String testFilePath = testFile.getAbsolutePath();
-        command.dirPath = testFilePath;
-        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+        dumpCommand.dirPath = testFilePath;
+        dumpCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+
         // when
-        command.doExecute();
+        dumpCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();
@@ -137,7 +121,6 @@ public class TestDumpCommand extends TestAbstractCommand {
             String message = "Path [" + testFilePath + "] must be a directory.";
             String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
             assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
-
         } finally {
             testFile.delete();
             consoleOutput.closeBuffer();
@@ -151,35 +134,20 @@ public class TestDumpCommand extends TestAbstractCommand {
      */
     @Test
     public void testNormalOperation() throws Exception {
-
         ConsoleOutput consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
 
         // given
-        final CatalogFramework catalogFramework = givenCatalogFramework(getResultList("id1",
-                "id2"));
-        DumpCommand command = new DumpCommand() {
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
-
-            @Override
-            protected FilterBuilder getFilterBuilder() throws InterruptedException {
-                return new GeotoolsFilterBuilder();
-            }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
-        };
+        DumpCommand dumpCommand = new DumpCommand();
+        dumpCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
+        dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
         File outputDirectory = testFolder.newFolder("somedirectory");
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
-        command.dirPath = outputDirectoryPath;
-        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+        dumpCommand.dirPath = outputDirectoryPath;
+        dumpCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+
         // when
-        command.doExecute();
+        dumpCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();
@@ -199,34 +167,20 @@ public class TestDumpCommand extends TestAbstractCommand {
      */
     @Test
     public void testNormalOperationNoFiles() throws Exception {
-
         ConsoleOutput consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
 
         // given
-        final CatalogFramework catalogFramework = givenCatalogFramework(getEmptyResultList());
-        DumpCommand command = new DumpCommand() {
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
-
-            @Override
-            protected FilterBuilder getFilterBuilder() throws InterruptedException {
-                return new GeotoolsFilterBuilder();
-            }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
-        };
+        DumpCommand dumpCommand = new DumpCommand();
+        dumpCommand.catalogFramework = givenCatalogFramework(getEmptyResultList());
+        dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
         File outputDirectory = testFolder.newFolder("somedirectory");
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
-        command.dirPath = outputDirectoryPath;
-        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+        dumpCommand.dirPath = outputDirectoryPath;
+        dumpCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+
         // when
-        command.doExecute();
+        dumpCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();
@@ -235,7 +189,6 @@ public class TestDumpCommand extends TestAbstractCommand {
         try {
             String expectedPrintOut = " 0 file(s) dumped in ";
             assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
-
         } finally {
             consoleOutput.closeBuffer();
         }
@@ -248,7 +201,6 @@ public class TestDumpCommand extends TestAbstractCommand {
      */
     @Test
     public void testNormalOperationWithContent() throws Exception {
-
         ResourceResponse resourceResponse = mock(ResourceResponse.class);
         File file = new File(CONTENT_PATH);
         ByteSource byteSource = Files.asByteSource(file);
@@ -263,39 +215,22 @@ public class TestDumpCommand extends TestAbstractCommand {
         MetacardImpl metacard2 = new MetacardImpl(resultList.get(1)
                 .getMetacard());
         metacard1.setResourceURI(new URI("content:" + metacard1.getId()));
-
         metacard2.setResourceURI(new URI("content:" + metacard2.getId() + "#preview"));
 
         Resource resource = new ResourceImpl(byteSource.openStream(), CONTENT_FILENAME);
-
         when(resourceResponse.getResource()).thenReturn(resource);
 
         // given
-        final CatalogFramework catalogFramework = givenCatalogFramework(resultList);
-
-        DumpCommand command = new DumpCommand() {
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
-
-            @Override
-            protected FilterBuilder getFilterBuilder() throws InterruptedException {
-                return new GeotoolsFilterBuilder();
-            }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
-        };
+        DumpCommand dumpCommand = new DumpCommand();
+        dumpCommand.catalogFramework = givenCatalogFramework(resultList);
+        dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
         File outputDirectory = testFolder.newFolder("somedirectory");
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
-        command.dirPath = outputDirectoryPath;
-        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+        dumpCommand.dirPath = outputDirectoryPath;
+        dumpCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
 
         // when
-        command.doExecute();
+        dumpCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();
@@ -307,5 +242,4 @@ public class TestDumpCommand extends TestAbstractCommand {
             consoleOutput.closeBuffer();
         }
     }
-
 }

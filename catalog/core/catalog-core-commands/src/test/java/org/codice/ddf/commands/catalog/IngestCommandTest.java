@@ -16,6 +16,7 @@ package org.codice.ddf.commands.catalog;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -23,10 +24,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.commands.catalog.facade.Framework;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -34,55 +33,41 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.transform.InputTransformer;
 
 /**
  * Tests the {@link IngestCommand} output.
  */
-public class TestIngestCommand extends TestAbstractCommand {
+public class IngestCommandTest extends AbstractCommandTest {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
     ConsoleOutput consoleOutput;
 
-    IngestCommand command;
-
-    CatalogFramework catalogFramework;
+    IngestCommand ingestCommand;
 
     @Before
     public void setup() throws Exception {
         consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
-        catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
 
-        command = new IngestCommand() {
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
+        ingestCommand = new IngestCommand();
+        ingestCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
 
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
+        BundleContext bundleContext = mock(BundleContext.class);
+        try {
+            when(bundleContext.getServiceReferences(anyString(),
+                    anyString())).thenReturn(new ServiceReference[] {mock(ServiceReference.class)});
+            InputTransformer inputTransformer = mock(InputTransformer.class);
+            when(bundleContext.getService(anyObject())).thenReturn(inputTransformer);
+        } catch (InvalidSyntaxException e) {
+            //ignore
+        }
+        ingestCommand.bundleContext = bundleContext;
 
-            public BundleContext getBundleContext() {
-                BundleContext bundleContext = mock(BundleContext.class);
-                try {
-                    when(bundleContext.getServiceReferences(anyString(), anyString())).thenReturn(
-                            new ServiceReference[] {mock(ServiceReference.class)});
-                    InputTransformer inputTransformer = mock(InputTransformer.class);
-                    when(bundleContext.getService(anyObject())).thenReturn(inputTransformer);
-                } catch (InvalidSyntaxException e) {
-                    //ignore
-                }
-                return bundleContext;
-            }
-        };
-        command.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
-        command.filePath = testFolder.getRoot()
+        ingestCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
+        ingestCommand.filePath = testFolder.getRoot()
                 .getAbsolutePath();
     }
 
@@ -95,7 +80,7 @@ public class TestIngestCommand extends TestAbstractCommand {
     public void testNoFiles() throws Exception {
 
         // when
-        command.doExecute();
+        ingestCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();
@@ -125,7 +110,7 @@ public class TestIngestCommand extends TestAbstractCommand {
         testFolder.newFile("somefile5.txt");
 
         // when
-        command.doExecute();
+        ingestCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();
@@ -158,10 +143,10 @@ public class TestIngestCommand extends TestAbstractCommand {
 
         ArrayList<String> ignoreList = new ArrayList<>();
         ignoreList.add(".txt");
-        command.ignoreList = ignoreList;
+        ingestCommand.ignoreList = ignoreList;
 
         // when
-        command.doExecute();
+        ingestCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();
@@ -186,9 +171,8 @@ public class TestIngestCommand extends TestAbstractCommand {
      * @throws Exception
      */
     @Test
-    @Ignore
-    //TODO: Use a conditional ignore from JUnit to skip this test on Windows
     public void testIgnoreHiddenFiles() throws Exception {
+        assumeFalse(SystemUtils.IS_OS_WINDOWS);
 
         testFolder.newFile(".somefile1");
         testFolder.newFile(".somefile2");
@@ -197,7 +181,7 @@ public class TestIngestCommand extends TestAbstractCommand {
         testFolder.newFile("somefile5");
 
         // when
-        command.doExecute();
+        ingestCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();
@@ -223,10 +207,10 @@ public class TestIngestCommand extends TestAbstractCommand {
     @Test
     public void testIncludeContentNonZipFile() throws Exception {
 
-        command.includeContent = true;
+        ingestCommand.includeContent = true;
 
         // when
-        command.doExecute();
+        ingestCommand.executeWithSubject();
 
         // cleanup
         consoleOutput.resetSystemOut();

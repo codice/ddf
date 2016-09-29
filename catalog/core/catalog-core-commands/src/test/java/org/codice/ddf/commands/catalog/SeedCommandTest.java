@@ -57,7 +57,8 @@ import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 
-public class TestSeedCommand extends TestAbstractCommand {
+public class SeedCommandTest extends AbstractCommandTest {
+
     private SeedCommand seedCommand;
 
     private ConsoleOutput consoleOutput;
@@ -269,19 +270,6 @@ public class TestSeedCommand extends TestAbstractCommand {
         return new QueryWithStartIndex(test);
     }
 
-    private class QueryWithStartIndex extends ArgumentMatcher<QueryRequest> {
-        private final Predicate<QueryRequest> test;
-
-        private QueryWithStartIndex(Predicate<QueryRequest> test) {
-            this.test = test;
-        }
-
-        @Override
-        public boolean matches(Object o) {
-            return test.test((QueryRequest) o);
-        }
-    }
-
     private void verifyResourceRequest(ResourceRequest request, String expectedAttributeValue) {
         assertThat(request.getAttributeName(), is(Metacard.ID));
         assertThat(request.getAttributeValue(), is(expectedAttributeValue));
@@ -298,5 +286,18 @@ public class TestSeedCommand extends TestAbstractCommand {
         ResourceResponse mockResponse = mock(ResourceResponse.class);
         when(mockResponse.getResource()).thenReturn(mockResource);
         return mockResponse;
+    }
+
+    private class QueryWithStartIndex extends ArgumentMatcher<QueryRequest> {
+        private final Predicate<QueryRequest> test;
+
+        private QueryWithStartIndex(Predicate<QueryRequest> test) {
+            this.test = test;
+        }
+
+        @Override
+        public boolean matches(Object o) {
+            return test.test((QueryRequest) o);
+        }
     }
 }

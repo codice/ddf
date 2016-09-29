@@ -33,9 +33,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.geotools.filter.text.cql2.CQL;
 import org.joda.time.DateTime;
@@ -43,7 +44,6 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import org.opengis.filter.Filter;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -54,7 +54,6 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -63,6 +62,7 @@ import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.security.common.audit.SecurityLogger;
 
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.\n\tDate filters are ANDed together, and are exclusive for range.\n\tISO8601 format includes YYYY-MM-dd, YYYY-MM-ddTHH, YYYY-MM-ddTHH:mm, YYYY-MM-ddTHH:mm:ss, YYY-MM-ddTHH:mm:ss.sss, THH:mm:sss. See documentation for full syntax and examples.")
 public class DumpCommand extends CatalogCommands {
 
@@ -176,7 +176,7 @@ public class DumpCommand extends CatalogCommands {
             }
         }
 
-        if(StringUtils.isNotBlank(zipFileName) && new File(dirPath + zipFileName).exists()) {
+        if (StringUtils.isNotBlank(zipFileName) && new File(dirPath + zipFileName).exists()) {
             console.println("Cannot dump catalog.  Zip file " + zipFileName + " already exists.");
             return null;
         }
@@ -184,25 +184,24 @@ public class DumpCommand extends CatalogCommands {
         SecurityLogger.audit("Called catalog:dump command with path : {}", dirPath);
 
         CatalogFacade catalog = getCatalog();
-        FilterBuilder builder = getFilterBuilder();
 
         Filter createdFilter = null;
         if ((createdAfter != null) && (createdBefore != null)) {
             DateTime createStartDateTime = DateTime.parse(createdAfter);
             DateTime createEndDateTime = DateTime.parse(createdBefore);
-            createdFilter = builder.attribute(Metacard.CREATED)
+            createdFilter = filterBuilder.attribute(Metacard.CREATED)
                     .is()
                     .during()
                     .dates(createStartDateTime.toDate(), createEndDateTime.toDate());
         } else if (createdAfter != null) {
             DateTime createStartDateTime = DateTime.parse(createdAfter);
-            createdFilter = builder.attribute(Metacard.CREATED)
+            createdFilter = filterBuilder.attribute(Metacard.CREATED)
                     .is()
                     .after()
                     .date(createStartDateTime.toDate());
         } else if (createdBefore != null) {
             DateTime createEndDateTime = DateTime.parse(createdBefore);
-            createdFilter = builder.attribute(Metacard.CREATED)
+            createdFilter = filterBuilder.attribute(Metacard.CREATED)
                     .is()
                     .before()
                     .date(createEndDateTime.toDate());
@@ -212,19 +211,19 @@ public class DumpCommand extends CatalogCommands {
         if ((modifiedAfter != null) && (modifiedBefore != null)) {
             DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
             DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED)
+            modifiedFilter = filterBuilder.attribute(Metacard.MODIFIED)
                     .is()
                     .during()
                     .dates(modifiedStartDateTime.toDate(), modifiedEndDateTime.toDate());
         } else if (modifiedAfter != null) {
             DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED)
+            modifiedFilter = filterBuilder.attribute(Metacard.MODIFIED)
                     .is()
                     .after()
                     .date(modifiedStartDateTime.toDate());
         } else if (modifiedBefore != null) {
             DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED)
+            modifiedFilter = filterBuilder.attribute(Metacard.MODIFIED)
                     .is()
                     .before()
                     .date(modifiedEndDateTime.toDate());
@@ -233,7 +232,7 @@ public class DumpCommand extends CatalogCommands {
         Filter filter;
         if ((createdFilter != null) && (modifiedFilter != null)) {
             // Filter by both created and modified dates
-            filter = builder.allOf(createdFilter, modifiedFilter);
+            filter = filterBuilder.allOf(createdFilter, modifiedFilter);
         } else if (createdFilter != null) {
             // Only filter by created date
             filter = createdFilter;
@@ -242,7 +241,7 @@ public class DumpCommand extends CatalogCommands {
             filter = modifiedFilter;
         } else {
             // Don't filter by date range
-            filter = builder.attribute(Metacard.ID)
+            filter = filterBuilder.attribute(Metacard.ID)
                     .is()
                     .like()
                     .text(WILDCARD);
@@ -257,11 +256,11 @@ public class DumpCommand extends CatalogCommands {
             zipArgs.put(FILE_PATH, dirPath + zipFileName);
         }
 
-        Filter metacardTagFilter = builder.attribute(Metacard.TAGS)
+        Filter metacardTagFilter = filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .like()
                 .text(WILDCARD);
-        Filter combinedFilter = builder.allOf(metacardTagFilter, filter);
+        Filter combinedFilter = filterBuilder.allOf(metacardTagFilter, filter);
 
         QueryImpl query = new QueryImpl(combinedFilter);
         query.setRequestsTotalResultsCount(false);
@@ -359,7 +358,6 @@ public class DumpCommand extends CatalogCommands {
 
     private void exportMetacard(File dumpLocation, Metacard metacard)
             throws IOException, CatalogTransformerException {
-
         if (SERIALIZED_OBJECT_ID.matches(transformerId)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getOutputFile(
                     dumpLocation,
@@ -409,8 +407,6 @@ public class DumpCommand extends CatalogCommands {
     }
 
     private List<MetacardTransformer> getTransformers() {
-
-        BundleContext bundleContext = getBundleContext();
         ServiceReference[] refs = null;
         try {
             refs = bundleContext.getAllServiceReferences(MetacardTransformer.class.getName(),
@@ -432,16 +428,11 @@ public class DumpCommand extends CatalogCommands {
     }
 
     private QueryResponseTransformer getZipCompression() {
-        List<QueryResponseTransformer> queryResponseTransformerList = null;
         try {
-            queryResponseTransformerList = getAllServices(QueryResponseTransformer.class,
+            return getServiceByFilter(QueryResponseTransformer.class,
                     "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
         } catch (InvalidSyntaxException e) {
             LOGGER.info("Unable to get transformer id={}", ZIP_COMPRESSION, e);
-        }
-
-        if (queryResponseTransformerList != null && queryResponseTransformerList.size() > 0) {
-            return queryResponseTransformerList.get(0);
         }
 
         return null;

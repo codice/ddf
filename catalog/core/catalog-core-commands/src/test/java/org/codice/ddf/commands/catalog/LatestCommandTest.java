@@ -16,15 +16,11 @@ package org.codice.ddf.commands.catalog;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.commands.catalog.facade.Framework;
 import org.junit.Test;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
-public class TestLatestCommand extends TestAbstractCommand {
+public class LatestCommandTest extends AbstractCommandTest {
 
     /**
      * When no title is provided, output should still be displayed.
@@ -40,41 +36,20 @@ public class TestLatestCommand extends TestAbstractCommand {
 
         try {
             // given
-            final CatalogFramework catalogFramework = givenCatalogFramework(getResultList("id1",
-                    "id2"));
-
-            LatestCommand latestCommand = new LatestCommand() {
-                @Override
-                protected CatalogFacade getCatalog() throws InterruptedException {
-                    return new Framework(catalogFramework);
-                }
-
-                @Override
-                protected FilterBuilder getFilterBuilder() throws InterruptedException {
-                    return new GeotoolsFilterBuilder();
-                }
-
-                @Override
-                protected Object doExecute() throws Exception {
-                    return executeWithSubject();
-                }
-            };
+            LatestCommand latestCommand = new LatestCommand();
+            latestCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
+            latestCommand.filterBuilder = new GeotoolsFilterBuilder();
 
             // when
-            latestCommand.doExecute();
+            latestCommand.executeWithSubject();
 
             // then
-
             assertThat(consoleOutput.getOutput(), containsString("id1"));
             assertThat(consoleOutput.getOutput(), containsString("id2"));
-
         } finally {
             /* cleanup */
             consoleOutput.resetSystemOut();
-
             consoleOutput.closeBuffer();
         }
-
     }
-
 }

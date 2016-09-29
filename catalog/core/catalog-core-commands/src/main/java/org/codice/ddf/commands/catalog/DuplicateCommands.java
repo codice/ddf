@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -50,7 +50,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.SourceResponse;
@@ -70,8 +69,6 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
     private static final String[] TEMPORAL_PROPERTIES =
             {Core.CREATED, Metacard.EFFECTIVE, Core.EXPIRATION, Core.MODIFIED};
-
-    protected FilterBuilder builder;
 
     @Option(name = "--batchsize", required = false, aliases = {
             "-b"}, multiValued = false, description = "Number of Metacards to query and ingest at a time. Change this argument based on system memory and catalog provider limits.")
@@ -334,31 +331,27 @@ public abstract class DuplicateCommands extends CatalogCommands {
         return createdMetacards;
     }
 
-    protected Filter getFilter(long start, long end, String temporalProperty)
+    protected Filter getFilter(long filterStart, long filterEnd, String filterTemporalProperty)
             throws InterruptedException, ParseException {
-        if (builder == null) {
-            builder = getFilterBuilder();
-        }
-
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
         if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
-            return builder.attribute(temporalProperty)
+            return filterBuilder.attribute(filterTemporalProperty)
                     .is()
                     .during()
                     .dates(formatter.parse(startDate), formatter.parse(endDate));
-        } else if (start > 0 && end > 0) {
-            return builder.attribute(temporalProperty)
+        } else if (filterStart > 0 && filterEnd > 0) {
+            return filterBuilder.attribute(filterTemporalProperty)
                     .is()
                     .during()
-                    .dates(new Date(start), new Date(end));
+                    .dates(new Date(filterStart), new Date(filterEnd));
         } else if (isUseTemporal) {
-            return builder.attribute(temporalProperty)
+            return filterBuilder.attribute(filterTemporalProperty)
                     .is()
                     .during()
-                    .last(start);
+                    .last(filterStart);
         } else {
-            return builder.attribute(Metacard.ANY_TEXT)
+            return filterBuilder.attribute(Metacard.ANY_TEXT)
                     .is()
                     .like()
                     .text(WILDCARD);
@@ -428,7 +421,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
         return result;
     }
 
-    protected void writeFailedMetacards(Set<Metacard> failedMetacards) throws IOException {
+    protected void writeFailedMetacards(Set<Metacard> failedMetacardsToWrite) throws IOException {
         File directory = new File(failedDir);
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
@@ -442,7 +435,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
             printErrorMessage("Directory [" + directory.getAbsolutePath() + "] is not writable.");
             return;
         }
-        for (Metacard metacard : failedMetacards) {
+        for (Metacard metacard : failedMetacardsToWrite) {
 
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(
                     directory.getAbsolutePath(),

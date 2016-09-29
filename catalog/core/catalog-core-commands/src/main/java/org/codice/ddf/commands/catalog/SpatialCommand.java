@@ -15,12 +15,14 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.PrintStream;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.util.SpatialOperations;
 
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "spatial", description = "Searches spatially the catalog provider.")
 public class SpatialCommand extends CatalogCommands {
 

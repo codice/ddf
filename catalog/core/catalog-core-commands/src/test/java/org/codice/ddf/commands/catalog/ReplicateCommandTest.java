@@ -35,8 +35,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.service.command.CommandSession;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.commands.catalog.facade.Framework;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +47,6 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -77,7 +74,7 @@ public class ReplicateCommandTest {
 
     private InputStream mockIS = IOUtils.toInputStream("sourceId1");
 
-    private ReplicateCommand replicationCmd;
+    private ReplicateCommand replicateCommand;
 
     @AfterClass
     public static void cleanUp() throws IOException {
@@ -94,37 +91,14 @@ public class ReplicateCommandTest {
         consoleOutput.interceptSystemOut();
 
         catalogFramework = mock(CatalogFramework.class);
-        replicationCmd = new ReplicateCommand() {
+        replicateCommand = new ReplicateCommand() {
             @Override
             public String getInput(String message) throws IOException {
                 return "sourceId1";
             }
-
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
-
-            @Override
-            protected FilterBuilder getFilterBuilder() throws InterruptedException {
-                return new GeotoolsFilterBuilder();
-            }
-
-            @Override
-            protected <T> T getService(Class<T> classObject) {
-                T service = null;
-                if (classObject.equals(CatalogFramework.class)) {
-                    return (T) catalogFramework;
-                }
-                return service;
-            }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
         };
-        replicationCmd.isProvider = true;
+        replicateCommand.catalogFramework = catalogFramework;
+        replicateCommand.filterBuilder = new GeotoolsFilterBuilder();
 
         when(mockSession.getKeyboard()).thenReturn(mockIS);
 
@@ -134,7 +108,7 @@ public class ReplicateCommandTest {
             QueryRequest request = (QueryRequest) args[0];
             QueryResponse mockQueryResponse = mock(QueryResponse.class);
             when(mockQueryResponse.getHits()).thenReturn(Long.valueOf(HITS));
-            when(mockQueryResponse.getResults()).thenReturn(getResultList(Math.min(replicationCmd.batchSize,
+            when(mockQueryResponse.getResults()).thenReturn(getResultList(Math.min(replicateCommand.batchSize,
                     HITS - request.getQuery()
                             .getStartIndex() + 1)));
 
@@ -151,29 +125,29 @@ public class ReplicateCommandTest {
 
     @Test
     public void testBadBatchSize() throws Exception {
-        replicationCmd.isUseTemporal = false;
-        replicationCmd.sourceId = "sourceId1";
-        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
-        replicationCmd.batchSize = -1;
+        replicateCommand.isUseTemporal = false;
+        replicateCommand.sourceId = "sourceId1";
+        replicateCommand.temporalProperty = Metacard.EFFECTIVE;
+        replicateCommand.batchSize = -1;
 
-        replicationCmd.doExecute();
+        replicateCommand.executeWithSubject();
         verifyConsoleOutput("Batch Size must be between 1 and 1000.");
     }
 
     @Test
     public void testInvalidTemporalProperty() {
-        replicationCmd.temporalProperty = "invalidTemporalProperty";
+        replicateCommand.temporalProperty = "invalidTemporalProperty";
 
-        assertThat(replicationCmd.getTemporalProperty(), is(Core.CREATED));
+        assertThat(replicateCommand.getTemporalProperty(), is(Core.CREATED));
     }
 
     @Test
     public void testPrintSourceIds() throws Exception {
-        replicationCmd.isUseTemporal = false;
-        replicationCmd.sourceId = "";
-        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
+        replicateCommand.isUseTemporal = false;
+        replicateCommand.sourceId = "";
+        replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-        replicationCmd.doExecute();
+        replicateCommand.executeWithSubject();
         verifyConsoleOutput("Please enter the Source ID you would like to replicate:",
                 "sourceId1",
                 "sourceId2");
@@ -181,51 +155,51 @@ public class ReplicateCommandTest {
 
     @Test
     public void testDefaultQuery() throws Exception {
-        replicationCmd.isUseTemporal = false;
-        replicationCmd.sourceId = "sourceId1";
-        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
+        replicateCommand.isUseTemporal = false;
+        replicateCommand.sourceId = "sourceId1";
+        replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-        replicationCmd.doExecute();
+        replicateCommand.executeWithSubject();
         verifyReplicate(HITS, Metacard.EFFECTIVE);
         verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
     }
 
     @Test
     public void testSmallBatchSize() throws Exception {
-        replicationCmd.isUseTemporal = false;
-        replicationCmd.sourceId = "sourceId1";
-        replicationCmd.batchSize = 10;
-        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
+        replicateCommand.isUseTemporal = false;
+        replicateCommand.sourceId = "sourceId1";
+        replicateCommand.batchSize = 10;
+        replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-        replicationCmd.doExecute();
+        replicateCommand.executeWithSubject();
         verifyReplicate(HITS, Metacard.EFFECTIVE);
         verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
     }
 
     @Test
     public void testMaxMetacard() throws Exception {
-        replicationCmd.isUseTemporal = false;
-        replicationCmd.sourceId = "sourceId1";
-        replicationCmd.batchSize = 10;
-        replicationCmd.maxMetacards = 20;
-        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
+        replicateCommand.isUseTemporal = false;
+        replicateCommand.sourceId = "sourceId1";
+        replicateCommand.batchSize = 10;
+        replicateCommand.maxMetacards = 20;
+        replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-        replicationCmd.doExecute();
-        verifyReplicate(Math.min(HITS, replicationCmd.maxMetacards), Metacard.EFFECTIVE);
+        replicateCommand.executeWithSubject();
+        verifyReplicate(Math.min(HITS, replicateCommand.maxMetacards), Metacard.EFFECTIVE);
         verifyConsoleOutput(
-                Math.min(HITS, replicationCmd.maxMetacards) + " record(s) replicated; " + 0
+                Math.min(HITS, replicateCommand.maxMetacards) + " record(s) replicated; " + 0
                         + " record(s) failed;");
     }
 
     @Test
     public void testMultithreaded() throws Exception {
-        replicationCmd.isUseTemporal = false;
-        replicationCmd.sourceId = "sourceId1";
-        replicationCmd.batchSize = 10;
-        replicationCmd.multithreaded = 4;
-        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
+        replicateCommand.isUseTemporal = false;
+        replicateCommand.sourceId = "sourceId1";
+        replicateCommand.batchSize = 10;
+        replicateCommand.multithreaded = 4;
+        replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-        replicationCmd.doExecute();
+        replicateCommand.executeWithSubject();
 
         verifyReplicate(HITS, Metacard.EFFECTIVE);
         verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
@@ -233,12 +207,12 @@ public class ReplicateCommandTest {
 
     @Test
     public void testTemporalFlag() throws Exception {
-        replicationCmd.isUseTemporal = true;
-        replicationCmd.sourceId = "sourceId1";
-        replicationCmd.temporalProperty = Core.CREATED;
-        replicationCmd.lastMinutes = 30;
+        replicateCommand.isUseTemporal = true;
+        replicateCommand.sourceId = "sourceId1";
+        replicateCommand.temporalProperty = Core.CREATED;
+        replicateCommand.lastMinutes = 30;
 
-        replicationCmd.doExecute();
+        replicateCommand.executeWithSubject();
         verifyReplicate(HITS, Metacard.EFFECTIVE);
         verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
         // TODO - How do I validate the actual filter
@@ -256,11 +230,11 @@ public class ReplicateCommandTest {
             return mockCreateResponse;
         });
 
-        replicationCmd.isUseTemporal = false;
-        replicationCmd.sourceId = "sourceId1";
-        replicationCmd.temporalProperty = Metacard.EFFECTIVE;
+        replicateCommand.isUseTemporal = false;
+        replicateCommand.sourceId = "sourceId1";
+        replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
-        replicationCmd.doExecute();
+        replicateCommand.executeWithSubject();
         verifyReplicate(HITS, Metacard.EFFECTIVE);
         verifyConsoleOutput(
                 (int) Math.floor(HITS / 2) + " record(s) replicated; " + (int) (HITS - Math.floor(
@@ -282,17 +256,18 @@ public class ReplicateCommandTest {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         verify(catalogFramework,
                 times((int) Math.ceil(
-                        (double) actualMaxMetacards / (double) replicationCmd.batchSize))).query(
+                        (double) actualMaxMetacards / (double) replicateCommand.batchSize))).query(
                 argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
         assertThat(query, notNullValue());
-        assertThat(query.getPageSize(), is(replicationCmd.batchSize));
-        if (replicationCmd.multithreaded == 1) {
+        assertThat(query.getPageSize(), is(replicateCommand.batchSize));
+        if (replicateCommand.multithreaded == 1) {
             assertThat(query.getStartIndex(),
-                    is((((int) ((double) (actualMaxMetacards - 1) / (double) replicationCmd.batchSize))
-                            * replicationCmd.batchSize + 1)));
+                    is((((int) ((double) (actualMaxMetacards - 1)
+                            / (double) replicateCommand.batchSize)) * replicateCommand.batchSize
+                            + 1)));
         }
         assertThat(query.getSortBy()
                 .getPropertyName()

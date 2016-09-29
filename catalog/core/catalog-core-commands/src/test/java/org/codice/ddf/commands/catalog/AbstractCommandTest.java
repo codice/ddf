@@ -34,7 +34,7 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-public class TestAbstractCommand {
+public class AbstractCommandTest {
 
     protected CatalogFramework givenCatalogFramework(List<Result> list)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
@@ -49,18 +49,14 @@ public class TestAbstractCommand {
     }
 
     protected List<Result> getResultList(String... ids) {
-
         List<Result> results = new ArrayList<>();
 
         for (int i = 0; i < ids.length; i++) {
 
             String id = ids[i];
             MetacardImpl metacard = new MetacardImpl();
-            metacard.setAttribute(new AttributeImpl(Metacard.CREATED, new DateTime(2010 + i,
-                    3,
-                    11,
-                    14,
-                    3).toDate()));
+            metacard.setAttribute(new AttributeImpl(Metacard.CREATED,
+                    new DateTime(2010 + i, 3, 11, 14, 3).toDate()));
             metacard.setId(id);
             Result result = new ResultImpl(metacard);
             results.add(result);

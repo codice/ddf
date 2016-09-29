@@ -15,9 +15,10 @@ package org.codice.ddf.commands.catalog;
 
 import java.util.List;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQL;
@@ -32,6 +33,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.util.XPathHelper;
 
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the catalog provider.")
 public class SearchCommand extends CatalogCommands {
 
@@ -79,12 +81,12 @@ public class SearchCommand extends CatalogCommands {
                 searchPhrase = "*";
             }
             if (caseSensitive) {
-                filter = getFilterBuilder().attribute(Metacard.ANY_TEXT)
+                filter = filterBuilder.attribute(Metacard.ANY_TEXT)
                         .is()
                         .like()
                         .caseSensitiveText(searchPhrase);
             } else {
-                filter = getFilterBuilder().attribute(Metacard.ANY_TEXT)
+                filter = filterBuilder.attribute(Metacard.ANY_TEXT)
                         .is()
                         .like()
                         .text(searchPhrase);
@@ -231,5 +233,4 @@ public class SearchCommand extends CatalogCommands {
 
         return null;
     }
-
 }

@@ -20,7 +20,6 @@ import java.io.PrintStream;
 /**
  * Class is used to intercept System.out to verify what has been written to the PrintStream by
  * various Commands.
- *
  */
 public class ConsoleOutput {
 
@@ -34,11 +33,9 @@ public class ConsoleOutput {
         this.buffer = new ByteArrayOutputStream();
 
         System.setOut(new PrintStream(this.buffer));
-
     }
 
     public void closeBuffer() throws IOException {
-
         buffer.close();
     }
 

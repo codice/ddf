@@ -33,7 +33,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
@@ -72,7 +71,8 @@ import ddf.catalog.resource.ResourceNotSupportedException;
                 + "control is returned to the console. Also, resource caching must be enabled in the catalog framework "
                 + "for this command to seed the resource cache.")
 //@formatter:on
-public class SeedCommand extends SubjectCommands implements Action {
+public class SeedCommand extends SubjectCommands {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SeedCommand.class);
 
     private static final Map<String, Serializable> CACHE_UPDATE_PROPERTIES =
@@ -128,11 +128,6 @@ public class SeedCommand extends SubjectCommands implements Action {
                     .like()
                     .text(WILDCARD_CHAR);
         }
-    }
-
-    @Override
-    public Object execute() throws Exception {
-        return doExecute();
     }
 
     @Override
