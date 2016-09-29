@@ -65,8 +65,8 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
@@ -170,7 +170,8 @@
                         <Embed-Dependency>
                             jaxb2-basics-runtime,
                             registry-common,
-                            catalog-core-api-impl;scope=!test
+                            catalog-core-api-impl;scope=!test,
+                            commons-lang3
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
@@ -220,7 +221,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
+                                            <minimum>0.83</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
