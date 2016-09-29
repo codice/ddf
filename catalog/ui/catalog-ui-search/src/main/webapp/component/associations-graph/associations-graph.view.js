@@ -318,6 +318,12 @@ module.exports = Marionette.LayoutView.extend({
         this.handleSelection();
     },
     addEdge: function() {
+        this.graphInspector.show(new AssociationView({
+            model: new Association(),
+            selectionInterface: this.options.selectionInterface,
+            knownMetacards: this.options.knownMetacards,
+            currentMetacard: this.options.currentMetacard
+        }));
         this.collection.add(this.graphInspector.currentView.model);
         this.$el.toggleClass('has-association-selected', true);
     },

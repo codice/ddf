@@ -41,10 +41,10 @@ module.exports = Marionette.LayoutView.extend({
                 label: 'All associations',
                 value: 'all'
             }, {
-                label: 'Associated by me',
+                label: 'Outgoing associations',
                 value: 'child'
             }, {
-                label: 'Associated to me',
+                label: 'Incoming associations',
                 value: 'parent'
             }],
             defaultSelection: filterType
