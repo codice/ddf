@@ -106,6 +106,9 @@ define([
         },
         escapeHTML: function(value){
             return $("<div>").text(value).html();
+        },
+        duplicate: function(reference){
+            return JSON.parse(JSON.stringify(reference));
         }
     };
 });

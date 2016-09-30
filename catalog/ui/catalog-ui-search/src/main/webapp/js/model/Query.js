@@ -566,7 +566,7 @@ define([
             startSearch: function () {
                 this.cancelCurrentSearches();
 
-                var data = this.buildSearchData();
+                var data = Common.duplicate(this.buildSearchData());
                 var sources = data.src;
                 var initialStatus = sources.map(function (src) {
                     return {
