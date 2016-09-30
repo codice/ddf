@@ -21,7 +21,6 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
-import org.geotools.filter.text.cql2.CQL;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opengis.filter.Filter;
@@ -34,8 +33,8 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.util.XPathHelper;
 
 @Service
-@Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the catalog provider.")
-public class SearchCommand extends CatalogCommands {
+@Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the Catalog Provider.")
+public class SearchCommand extends CqlCommands {
 
     private static final String ID = "ID ";
 
@@ -52,53 +51,23 @@ public class SearchCommand extends CatalogCommands {
     @Argument(name = "NUMBER_OF_ITEMS", description = "Number of maximum records to display.", index = 1, multiValued = false, required = false)
     int numberOfItems = -1;
 
-    @Argument(name = "SEARCH_PHRASE", index = 0, multiValued = false, required = false,
-            description = "Phrase to query the catalog provider.")
-    String searchPhrase = null;
+    @Argument(name = "SEARCH_PHRASE", index = 0, multiValued = false, required = false, description = "Phrase to query the Catalog Provider. Will take precedence over --searchPhrase option.")
+    String searchPhraseArgument = WILDCARD;
 
-    @Option(name = "case-sensitive", required = false, aliases = {
-            "-c"}, multiValued = false, description = "Makes the search case sensitive. NOTE: Does not apply to CQL filters")
-    boolean caseSensitive = false;
-
-    @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
-            "Search using CQL Filter expressions.\n" + "CQL Examples:\n"
-                    + "\tTextual:   search --cql \"title like 'some text'\"\n"
-                    + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
-                    + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
-                    + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
-    String cqlFilter = null;
-
-    @Option(name = "--cache", aliases = {}, required = false, multiValued = false, description = "Only search cached entries.")
+    @Option(name = "--cache", required = false, multiValued = false, aliases = {}, description = "Only search cached entries.")
     boolean cache = false;
 
     @Override
     protected Object executeWithSubject() throws Exception {
-        Filter filter = null;
-        if (cqlFilter != null) {
-            filter = CQL.toFilter(cqlFilter);
-        } else {
-            if (searchPhrase == null) {
-                searchPhrase = "*";
-            }
-            if (caseSensitive) {
-                filter = filterBuilder.attribute(Metacard.ANY_TEXT)
-                        .is()
-                        .like()
-                        .caseSensitiveText(searchPhrase);
-            } else {
-                filter = filterBuilder.attribute(Metacard.ANY_TEXT)
-                        .is()
-                        .like()
-                        .text(searchPhrase);
-            }
-        }
+        searchPhrase = searchPhraseArgument;
+
+        final Filter filter = getFilter();
 
         if (this.cache) {
             return executeSearchCache(filter);
         } else {
             return executeSearchStore(filter);
         }
-
     }
 
     private Object executeSearchStore(Filter filter) throws Exception {
@@ -195,8 +164,11 @@ public class SearchCommand extends CatalogCommands {
                         .getTime()).toString(DATETIME_FORMATTER);
             }
 
-            console.printf(formatString, metacard.getId(), modifiedDate, title.substring(0,
-                    Math.min(title.length(), TITLE_MAX_LENGTH)), excerpt);
+            console.printf(formatString,
+                    metacard.getId(),
+                    modifiedDate,
+                    title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)),
+                    excerpt);
         }
 
         return null;
@@ -227,8 +199,10 @@ public class SearchCommand extends CatalogCommands {
                 modifiedDate = dt.toString(DATETIME_FORMATTER);
             }
 
-            console.printf(formatString, metacard.getId(), modifiedDate, title.substring(0,
-                    Math.min(title.length(), TITLE_MAX_LENGTH)));
+            console.printf(formatString,
+                    metacard.getId(),
+                    modifiedDate,
+                    title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)));
         }
 
         return null;

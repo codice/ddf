@@ -18,16 +18,13 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import java.io.IOException;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.CatalogProvider;
 
-public class DescribeCommandTest {
+public class DescribeCommandTest extends ConsoleOutputCommon {
 
     private static final String TEST_CATALOG_PROVIDER_TITLE = "test catalog provider title";
 
@@ -49,13 +46,8 @@ public class DescribeCommandTest {
 
     private DescribeCommand describeCommand;
 
-    private ConsoleOutput consoleOutput;
-
     @Before
     public void setUp() throws Exception {
-        consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
         describeCommand = new DescribeCommand();
 
         CatalogProvider catalogProvider = mock(CatalogProvider.class);
@@ -81,12 +73,6 @@ public class DescribeCommandTest {
         describeCommand.catalogFramework = catalogFramework;
     }
 
-    @After
-    public void tearDown() throws IOException {
-        consoleOutput.resetSystemOut();
-        consoleOutput.closeBuffer();
-    }
-
     @Test
     public void testDescribeProvider() throws Exception {
         describeCommand.isProvider = true;
@@ -98,7 +84,6 @@ public class DescribeCommandTest {
         assertThat(consoleOutput.getOutput(), containsString("id=" + TEST_CATALOG_PROVIDER_ID));
         assertThat(consoleOutput.getOutput(),
                 containsString("version=" + TEST_CATALOG_PROVIDER_VERSION));
-        consoleOutput.reset();
     }
 
     @Test
@@ -112,6 +97,5 @@ public class DescribeCommandTest {
         assertThat(consoleOutput.getOutput(), containsString("id=" + TEST_CATALOG_FRAMEWORK_ID));
         assertThat(consoleOutput.getOutput(),
                 containsString("version=" + TEST_CATALOG_FRAMEWORK_VERSION));
-        consoleOutput.reset();
     }
 }

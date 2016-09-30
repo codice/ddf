@@ -15,6 +15,7 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.Optional;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -66,7 +67,8 @@ public abstract class CatalogCommands extends SubjectCommands {
 
     // DDF-535: remove "-provider" alias in DDF 3.0
     @Option(name = "--provider", required = false, aliases = {"-p",
-            "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
+            "-provider"}, multiValued = false, description = "Interacts with the Provider directly "
+            + "instead of the framework. NOTE: This option picks the first Provider.")
     boolean isProvider = false;
 
     @Reference
@@ -91,6 +93,7 @@ public abstract class CatalogCommands extends SubjectCommands {
                 false);
     }
 
+    //TODO Optional
     protected CatalogFacade getCatalog() throws InterruptedException {
         if (isProvider) {
             return new Provider(catalogProvider);
@@ -100,12 +103,11 @@ public abstract class CatalogCommands extends SubjectCommands {
         }
     }
 
-    protected <T> T getServiceByFilter(Class<T> clazz, String filter)
+    protected <T> Optional<T> getServiceByFilter(Class<T> clazz, String filter)
             throws InvalidSyntaxException {
         return bundleContext.getServiceReferences(clazz, filter)
                 .stream()
                 .findFirst()
-                .map(ref -> bundleContext.getService(ref))
-                .orElse(null);
+                .map(ref -> bundleContext.getService(ref));
     }
 }

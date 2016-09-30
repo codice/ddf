@@ -19,6 +19,8 @@ import org.fusesource.jansi.Ansi;
 
 public class ValidatePrinter {
 
+    protected final PrintStream console = System.out;
+
     private final String errorColor = Ansi.ansi()
             .fg(Ansi.Color.RED)
             .toString();
@@ -30,8 +32,6 @@ public class ValidatePrinter {
     private final String defaultColor = Ansi.ansi()
             .fg(Ansi.Color.DEFAULT)
             .toString();
-
-    protected final PrintStream console = System.out;
 
     public void print(ValidateReport report) {
         console.println(report.getId());

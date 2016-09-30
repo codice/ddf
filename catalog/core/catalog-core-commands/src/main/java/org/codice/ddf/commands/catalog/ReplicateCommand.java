@@ -22,7 +22,6 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
-import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -40,8 +39,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
 @Service
-@Command(scope = CatalogCommands.NAMESPACE, name = "replicate", description = "Replicates Metacards"
-        + " from a Federated Source into the Catalog.")
+@Command(scope = CatalogCommands.NAMESPACE, name = "replicate", description = "Replicates Metacards from a Federated Source into the Catalog.")
 public class ReplicateCommand extends DuplicateCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReplicateCommand.class);
@@ -74,14 +72,9 @@ public class ReplicateCommand extends DuplicateCommands {
 
         start = System.currentTimeMillis();
 
-        final Filter filter = (cqlFilter != null) ? CQL.toFilter(cqlFilter) : getFilter(
-                getFilterStartTime(start),
-                start,
-                getTemporalProperty());
-
         console.println("Starting replication.");
 
-        duplicateInBatches(framework, catalog, filter);
+        duplicateInBatches(framework, catalog, getFilter());
 
         console.println();
         long end = System.currentTimeMillis();

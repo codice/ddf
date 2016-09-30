@@ -23,18 +23,18 @@ import java.util.List;
 import org.joda.time.DateTime;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-public class AbstractCommandTest {
+public class CommandCatalogFrameworkCommon extends ConsoleOutputCommon {
 
     protected CatalogFramework givenCatalogFramework(List<Result> list)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
@@ -55,7 +55,7 @@ public class AbstractCommandTest {
 
             String id = ids[i];
             MetacardImpl metacard = new MetacardImpl();
-            metacard.setAttribute(new AttributeImpl(Metacard.CREATED,
+            metacard.setAttribute(new AttributeImpl(Core.CREATED,
                     new DateTime(2010 + i, 3, 11, 14, 3).toDate()));
             metacard.setId(id);
             Result result = new ResultImpl(metacard);

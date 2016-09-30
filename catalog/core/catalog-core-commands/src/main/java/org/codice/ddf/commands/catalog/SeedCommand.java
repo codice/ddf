@@ -17,9 +17,6 @@ import static java.util.AbstractMap.SimpleEntry;
 import static java.util.Map.Entry;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static ddf.catalog.data.Metacard.ANY_TEXT;
-import static ddf.catalog.filter.FilterDelegate.WILDCARD_CHAR;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,18 +32,13 @@ import java.util.function.Predicate;
 
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
-import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.geotools.filter.text.cql2.CQL;
-import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -66,12 +58,13 @@ import ddf.catalog.resource.ResourceNotSupportedException;
                 + "the size of the `--resource-limit` argument (default 20) until that number of resource downloads "
                 + "have started or until there are no more results. Local resources will not be added to the cache. "
                 + "This command will not re-download resources that are up-to-date in the cache, so subsequent runs "
-                + "of the command will attempt to cache metacards and resources that have not already been cached.\n\n"
+                + "of the command will attempt to cache metacards and resources that have not already been cached.\n"
+                + "\n"
                 + "Note: this command will trigger resource downloads in the background and they may continue after "
-                + "control is returned to the console. Also, resource caching must be enabled in the catalog framework "
+                + "control is returned to the console. Also, resource caching must be enabled in the Catalog Framework "
                 + "for this command to seed the resource cache.")
 //@formatter:on
-public class SeedCommand extends SubjectCommands {
+public class SeedCommand extends CqlCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SeedCommand.class);
 
@@ -91,44 +84,20 @@ public class SeedCommand extends SubjectCommands {
         EXECUTOR.allowCoreThreadTimeOut(true);
     }
 
+    private final Predicate<Metacard> isNonCachedResource = metacard -> {
+        Attribute cached = metacard.getAttribute(RESOURCE_CACHE_STATUS);
+        return cached == null || (cached.getValue() instanceof Boolean && !((Boolean) cached.getValue()));
+    };
+
     @Option(name = "--source", multiValued = true, aliases = {
             "-s"}, description = "Source(s) to query (e.g., -s source1 -s source2). Default is to query the entire enterprise.")
     List<String> sources;
-
-    @Option(name = "--cql", description = "CQL expression specifying the metacards to seed.\n"
-            + "CQL Examples:\n" + "\tTextual:   seed --cql \"title like 'some text'\"\n"
-            + "\tTemporal:  seed --cql \"modified before 2012-09-01T12:30:00Z\"\n"
-            + "\tSpatial:   seed --cql \"DWITHIN(location, POINT (1 2), 10, kilometers)\"\n"
-            + "\tComplex:   seed --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
-    String cql;
 
     @Option(name = "--resource-limit", aliases = {"-rl"}, description =
             "The maximum number of resources to download to the cache. The number of metacards cached "
                     + "might not be equal to this number because some metacards may not have associated "
                     + "resources.")
     int resourceLimit = 20;
-
-    @Reference
-    CatalogFramework framework;
-
-    @Reference
-    FilterBuilder filterBuilder;
-
-    private final Predicate<Metacard> isNonCachedResource = metacard -> {
-        Attribute cached = metacard.getAttribute(RESOURCE_CACHE_STATUS);
-        return cached == null || !((Boolean) cached.getValue());
-    };
-
-    private Filter createFilter() throws Exception {
-        if (isNotBlank(cql)) {
-            return CQL.toFilter(cql);
-        } else {
-            return filterBuilder.attribute(ANY_TEXT)
-                    .is()
-                    .like()
-                    .text(WILDCARD_CHAR);
-        }
-    }
 
     @Override
     protected Object executeWithSubject() throws Exception {
@@ -138,15 +107,13 @@ public class SeedCommand extends SubjectCommands {
             return null;
         }
 
-        final Filter filter = createFilter();
-
         final long start = System.currentTimeMillis();
         int resourceDownloads = 0;
         int downloadErrors = 0;
         int pageCount = 0;
 
         while (resourceDownloads < resourceLimit) {
-            final QueryImpl query = new QueryImpl(filter);
+            final QueryImpl query = new QueryImpl(getFilter());
             query.setPageSize(resourceLimit);
             query.setStartIndex(pageCount * resourceLimit + 1);
             ++pageCount;
@@ -159,7 +126,7 @@ public class SeedCommand extends SubjectCommands {
             }
             queryRequest.setProperties(new HashMap<>(CACHE_UPDATE_PROPERTIES));
 
-            final QueryResponse queryResponse = framework.query(queryRequest);
+            final QueryResponse queryResponse = catalogFramework.query(queryRequest);
 
             if (queryResponse.getResults()
                     .isEmpty()) {
@@ -178,7 +145,7 @@ public class SeedCommand extends SubjectCommands {
             for (Entry<? extends ResourceRequest, String> requestAndSourceId : resourceRequests) {
                 final ResourceRequest request = requestAndSourceId.getKey();
                 try {
-                    ResourceResponse response = framework.getResource(request,
+                    ResourceResponse response = catalogFramework.getResource(request,
                             requestAndSourceId.getValue());
                     ++resourceDownloads;
                     EXECUTOR.execute(new ResourceCloseHandler(response));

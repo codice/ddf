@@ -17,17 +17,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -37,7 +31,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Option;
@@ -49,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.SourceResponse;
@@ -57,90 +49,11 @@ import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 
-public abstract class DuplicateCommands extends CatalogCommands {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DuplicateCommands.class);
+public abstract class DuplicateCommands extends CqlCommands {
 
     protected static final int MAX_BATCH_SIZE = 1000;
 
-    private static final String DATE_FORMAT = "MM-dd-yyyy";
-
-    private static final String MUTUALLY_EXCLUSIVE_OPTION_MESSAGE =
-            "This option does not stack with other --lastXXXX options and smaller time units take precedence over larger time units.";
-
-    private static final String[] TEMPORAL_PROPERTIES =
-            {Core.CREATED, Metacard.EFFECTIVE, Core.EXPIRATION, Core.MODIFIED};
-
-    @Option(name = "--batchsize", required = false, aliases = {
-            "-b"}, multiValued = false, description = "Number of Metacards to query and ingest at a time. Change this argument based on system memory and catalog provider limits.")
-    int batchSize = MAX_BATCH_SIZE;
-
-    @Option(name = "--multithreaded", required = false, aliases = {
-            "-m"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
-    int multithreaded = 1;
-
-    @Option(name = "--temporal", required = false, aliases = {
-            "-t"}, multiValued = false, description = "Flag to use temporal criteria to query federated source. The default is to use \"keyword like * \"")
-    boolean isUseTemporal = false;
-
-    @Option(name = "--temporalProperty", required = false, aliases = {
-            "-tp"}, multiValued = false, description =
-            "Option to select which temporal property to filter on. Valid values are \"modified\", \"created\", \"effective\", and"
-                    + " \"expiration\". Defaults to \"created\" if not specified or input not recognized.")
-    String temporalProperty;
-
-    @Option(name = "--startDate", required = false, aliases = {
-            "-s"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
-    String startDate;
-
-    @Option(name = "--endDate", required = false, aliases = {
-            "-e"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
-    String endDate;
-
-    @Option(name = "--lastSeconds", required = false, aliases = {"-sec",
-            "-seconds"}, multiValued = false, description =
-            "Option to replicate the last N seconds. " + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
-    int lastSeconds;
-
-    @Option(name = "--lastMinutes", required = false, aliases = {"-min",
-            "-minutes"}, multiValued = false, description =
-            "Option to replicate the last N minutes. " + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
-    int lastMinutes;
-
-    @Option(name = "--lastHours", required = false, aliases = {"-h",
-            "-hours"}, multiValued = false, description = "Option to replicate the last N hours. "
-            + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
-    int lastHours;
-
-    @Option(name = "--lastDays", required = false, aliases = {"-d",
-            "-days"}, multiValued = false, description = "Option to replicate the last N days. "
-            + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
-    int lastDays;
-
-    @Option(name = "--lastWeeks", required = false, aliases = {"-w",
-            "-weeks"}, multiValued = false, description = "Option to replicate the last N weeks. "
-            + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
-    int lastWeeks;
-
-    @Option(name = "--lastMonths", required = false, aliases = {"-m",
-            "-months"}, multiValued = false, description = "Option to replicate the last N month. "
-            + MUTUALLY_EXCLUSIVE_OPTION_MESSAGE)
-    int lastMonths;
-
-    @Option(name = "--failedDir", required = false, aliases = {
-            "-f"}, multiValued = false, description = "Option to specify where to write metacards that failed to ingest.")
-    String failedDir;
-
-    @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
-            "Ingest Metacards that match a CQL Filter expression. It is recommended to use the search command (catalog:search) first to see which metacards will be ingested.\n"
-                    + "CQL Examples:\n" + "\tTextual:   search --cql \"title like 'some text'\"\n"
-                    + "\tTemporal:  --cql \"modified before 2012-09-01T12:30:00Z\"\n"
-                    + "\tSpatial:   --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
-                    + "\tComplex:   --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
-    String cqlFilter = null;
-
-    @Option(name = "--maxMetacards", required = false, aliases = {"-mm",
-            "-max"}, multiValued = false, description = "Option to specify a maximum amount of metacards to query.")
-    int maxMetacards;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DuplicateCommands.class);
 
     protected AtomicInteger ingestedCount = new AtomicInteger(0);
 
@@ -149,6 +62,22 @@ public abstract class DuplicateCommands extends CatalogCommands {
     protected Set<Metacard> failedMetacards = Collections.synchronizedSet(new HashSet<>());
 
     protected long start;
+
+    @Option(name = "--batchsize", required = false, aliases = {
+            "-b"}, multiValued = false, description = "Number of Metacards to query and ingest at a time. Change this argument based on system memory and Catalog Provider limits.")
+    int batchSize = MAX_BATCH_SIZE;
+
+    @Option(name = "--multithreaded", required = false, aliases = {
+            "-m"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
+    int multithreaded = 1;
+
+    @Option(name = "--failedDir", required = false, aliases = {
+            "-f"}, multiValued = false, description = "Option to specify where to write metacards that failed to ingest.")
+    String failedDir;
+
+    @Option(name = "--maxMetacards", required = false, aliases = {"-mm",
+            "-max"}, multiValued = false, description = "Option to specify a maximum amount of metacards to query.")
+    int maxMetacards;
 
     abstract SourceResponse query(CatalogFacade framework, Filter filter, int startIndex,
             long querySize);
@@ -329,69 +258,6 @@ public abstract class DuplicateCommands extends CatalogCommands {
         }
 
         return createdMetacards;
-    }
-
-    protected Filter getFilter(long filterStart, long filterEnd, String filterTemporalProperty)
-            throws InterruptedException, ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-
-        if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
-            return filterBuilder.attribute(filterTemporalProperty)
-                    .is()
-                    .during()
-                    .dates(formatter.parse(startDate), formatter.parse(endDate));
-        } else if (filterStart > 0 && filterEnd > 0) {
-            return filterBuilder.attribute(filterTemporalProperty)
-                    .is()
-                    .during()
-                    .dates(new Date(filterStart), new Date(filterEnd));
-        } else if (isUseTemporal) {
-            return filterBuilder.attribute(filterTemporalProperty)
-                    .is()
-                    .during()
-                    .last(filterStart);
-        } else {
-            return filterBuilder.attribute(Metacard.ANY_TEXT)
-                    .is()
-                    .like()
-                    .text(WILDCARD);
-        }
-    }
-
-    protected long getFilterStartTime(long now) {
-        long startTime = 0;
-        if (lastSeconds > 0) {
-            startTime = now - TimeUnit.SECONDS.toMillis(lastSeconds);
-        } else if (lastMinutes > 0) {
-            startTime = now - TimeUnit.MINUTES.toMillis(lastMinutes);
-        } else if (lastHours > 0) {
-            startTime = now - TimeUnit.HOURS.toMillis(lastHours);
-        } else if (lastDays > 0) {
-            startTime = now - TimeUnit.DAYS.toMillis(lastDays);
-        } else if (lastWeeks > 0) {
-            Calendar weeks = GregorianCalendar.getInstance();
-            weeks.setTimeInMillis(now);
-            weeks.add(Calendar.WEEK_OF_YEAR, -1 * lastWeeks);
-            startTime = weeks.getTimeInMillis();
-        } else if (lastMonths > 0) {
-            Calendar months = GregorianCalendar.getInstance();
-            months.setTimeInMillis(now);
-            months.add(Calendar.MONTH, -1 * lastMonths);
-            startTime = months.getTimeInMillis();
-        }
-        return startTime;
-    }
-
-    protected String getTemporalProperty() {
-        if (StringUtils.isNotEmpty(temporalProperty)) {
-            Optional<String> property = Stream.of(TEMPORAL_PROPERTIES)
-                    .filter(temporalProperty::equalsIgnoreCase)
-                    .findFirst();
-            if (property.isPresent()) {
-                return property.get();
-            }
-        }
-        return Core.CREATED;
     }
 
     protected String getInput(String message) throws IOException {

@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
-public class LatestCommandTest extends AbstractCommandTest {
+public class LatestCommandTest extends CommandCatalogFrameworkCommon {
 
     /**
      * When no title is provided, output should still be displayed.
@@ -29,27 +29,16 @@ public class LatestCommandTest extends AbstractCommandTest {
      */
     @Test
     public void testNoTitle() throws Exception {
+        // given
+        LatestCommand latestCommand = new LatestCommand();
+        latestCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
+        latestCommand.filterBuilder = new GeotoolsFilterBuilder();
 
-        ConsoleOutput consoleOutput = new ConsoleOutput();
+        // when
+        latestCommand.executeWithSubject();
 
-        consoleOutput.interceptSystemOut();
-
-        try {
-            // given
-            LatestCommand latestCommand = new LatestCommand();
-            latestCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
-            latestCommand.filterBuilder = new GeotoolsFilterBuilder();
-
-            // when
-            latestCommand.executeWithSubject();
-
-            // then
-            assertThat(consoleOutput.getOutput(), containsString("id1"));
-            assertThat(consoleOutput.getOutput(), containsString("id2"));
-        } finally {
-            /* cleanup */
-            consoleOutput.resetSystemOut();
-            consoleOutput.closeBuffer();
-        }
+        // then
+        assertThat(consoleOutput.getOutput(), containsString("id1"));
+        assertThat(consoleOutput.getOutput(), containsString("id2"));
     }
 }

@@ -31,11 +31,11 @@ public abstract class CommandSupport implements Action {
 
     protected static final int PROGESS_BAR_NOTCH_LENGTH = 50;
 
-    private static final Ansi.Color ERROR_COLOR = Ansi.Color.RED;
+    protected static final Ansi.Color ERROR_COLOR = Ansi.Color.RED;
 
-    private static final Ansi.Color HEADER_COLOR = Ansi.Color.CYAN;
+    protected static final Ansi.Color HEADER_COLOR = Ansi.Color.CYAN;
 
-    private static final Ansi.Color SUCCESS_COLOR = Ansi.Color.GREEN;
+    protected static final Ansi.Color SUCCESS_COLOR = Ansi.Color.GREEN;
 
     protected PrintStream console = System.out;
 

@@ -14,7 +14,7 @@
 package org.codice.ddf.commands.catalog;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeFalse;
 import static org.mockito.Matchers.anyObject;
@@ -38,20 +38,15 @@ import ddf.catalog.transform.InputTransformer;
 /**
  * Tests the {@link IngestCommand} output.
  */
-public class IngestCommandTest extends AbstractCommandTest {
+public class IngestCommandTest extends CommandCatalogFrameworkCommon {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
-
-    ConsoleOutput consoleOutput;
 
     IngestCommand ingestCommand;
 
     @Before
     public void setup() throws Exception {
-        consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
         ingestCommand = new IngestCommand();
         ingestCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
 
@@ -78,21 +73,12 @@ public class IngestCommandTest extends AbstractCommandTest {
      */
     @Test
     public void testNoFiles() throws Exception {
-
         // when
         ingestCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            String expectedIngested = "0 file(s) ingested";
-            assertThat(consoleOutput.getOutput(), containsString(expectedIngested));
-
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        String expectedIngested = "0 file(s) ingested";
+        assertThat(consoleOutput.getOutput(), containsString(expectedIngested));
     }
 
     /**
@@ -102,7 +88,7 @@ public class IngestCommandTest extends AbstractCommandTest {
      */
     @Test
     public void testExpectedCounts() throws Exception {
-
+        // given
         testFolder.newFile("somefile1.txt");
         testFolder.newFile("somefile2.jpg");
         testFolder.newFile("somefile3.txt");
@@ -112,19 +98,11 @@ public class IngestCommandTest extends AbstractCommandTest {
         // when
         ingestCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            String expectedIngested = "0 file(s) ingested";
-            String expectedFailed = "5 file(s) failed";
-            assertThat(consoleOutput.getOutput(), containsString(expectedIngested));
-            assertThat(consoleOutput.getOutput(), containsString(expectedFailed));
-
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        String expectedIngested = "0 file(s) ingested";
+        String expectedFailed = "5 file(s) failed";
+        assertThat(consoleOutput.getOutput(), containsString(expectedIngested));
+        assertThat(consoleOutput.getOutput(), containsString(expectedFailed));
     }
 
     /**
@@ -134,7 +112,7 @@ public class IngestCommandTest extends AbstractCommandTest {
      */
     @Test
     public void testExpectedCountsWithIgnore() throws Exception {
-
+        // given
         testFolder.newFile("somefile1.txt");
         testFolder.newFile("somefile2.jpg");
         testFolder.newFile("somefile3.txt");
@@ -148,21 +126,13 @@ public class IngestCommandTest extends AbstractCommandTest {
         // when
         ingestCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            String expectedIngested = "0 file(s) ingested";
-            String expectedIgnored = "3 file(s) ignored";
-            String expectedFailed = "2 file(s) failed";
-            assertThat(consoleOutput.getOutput(), containsString(expectedIngested));
-            assertThat(consoleOutput.getOutput(), containsString(expectedFailed));
-            assertThat(consoleOutput.getOutput(), containsString(expectedIgnored));
-
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        String expectedIngested = "0 file(s) ingested";
+        String expectedIgnored = "3 file(s) ignored";
+        String expectedFailed = "2 file(s) failed";
+        assertThat(consoleOutput.getOutput(), containsString(expectedIngested));
+        assertThat(consoleOutput.getOutput(), containsString(expectedFailed));
+        assertThat(consoleOutput.getOutput(), containsString(expectedIgnored));
     }
 
     /**
@@ -174,6 +144,7 @@ public class IngestCommandTest extends AbstractCommandTest {
     public void testIgnoreHiddenFiles() throws Exception {
         assumeFalse(SystemUtils.IS_OS_WINDOWS);
 
+        // given
         testFolder.newFile(".somefile1");
         testFolder.newFile(".somefile2");
         testFolder.newFile(".somefile3");
@@ -183,44 +154,28 @@ public class IngestCommandTest extends AbstractCommandTest {
         // when
         ingestCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            String expectedIngested = "0 file(s) ingested";
-            String expectedFailed = "1 file(s) failed";
+        String expectedIngested = "0 file(s) ingested";
+        String expectedFailed = "1 file(s) failed";
 
-            String firstOutput = consoleOutput.getOutput();
-            String secondOutput = consoleOutput.getOutput();
+        String firstOutput = consoleOutput.getOutput();
+        String secondOutput = consoleOutput.getOutput();
 
-            assertThat(firstOutput, containsString(expectedIngested));
-            assertThat(secondOutput, containsString(expectedFailed));
-            assertFalse(consoleOutput.getOutput()
-                    .contains("ignored"));
-
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        assertThat(firstOutput, containsString(expectedIngested));
+        assertThat(secondOutput, containsString(expectedFailed));
+        assertThat(consoleOutput.getOutput(), not(containsString("ignored")));
     }
 
     @Test
     public void testIncludeContentNonZipFile() throws Exception {
-
+        // given
         ingestCommand.includeContent = true;
 
         // when
         ingestCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            String expectedMessage = "must be a zip file";
-            assertThat(consoleOutput.getOutput(), containsString(expectedMessage));
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        String expectedMessage = "must be a zip file";
+        assertThat(consoleOutput.getOutput(), containsString(expectedMessage));
     }
 }

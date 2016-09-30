@@ -13,11 +13,10 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import static org.codice.ddf.commands.catalog.CommandSupport.ERROR_COLOR;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.net.URI;
@@ -28,34 +27,22 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import com.google.common.io.ByteSource;
-import com.google.common.io.Files;
-
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.impl.ResourceImpl;
 
 /**
  * Tests the {@link DumpCommand} output.
  */
-public class DumpCommandTest extends AbstractCommandTest {
+public class DumpCommandTest extends CommandCatalogFrameworkCommon {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
             .reset()
             .toString();
 
     static final String RED_CONSOLE_COLOR = Ansi.ansi()
-            .fg(Ansi.Color.RED)
+            .fg(ERROR_COLOR)
             .toString();
-
-    private static final String CONTENT_FILENAME = "content.txt";
-
-    private static final String CONTENT_PATH = DumpCommandTest.class.getResource(
-            "/" + CONTENT_FILENAME)
-            .getPath();
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -67,9 +54,6 @@ public class DumpCommandTest extends AbstractCommandTest {
      */
     @Test
     public void testNonExistentOutputDirectory() throws Exception {
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
         // given
         DumpCommand dumpCommand = new DumpCommand();
         dumpCommand.dirPath = "nosuchdirectoryanywherehereman";
@@ -78,19 +62,11 @@ public class DumpCommandTest extends AbstractCommandTest {
         // when
         dumpCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            String message = String.format(
-                    "Directory [nosuchdirectoryanywherehereman%s] must exist.",
-                    File.separator);
-            String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
-            assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        String message = String.format("Directory [nosuchdirectoryanywherehereman%s] must exist.",
+                File.separator);
+        String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
+        assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
     }
 
     /**
@@ -100,9 +76,6 @@ public class DumpCommandTest extends AbstractCommandTest {
      */
     @Test
     public void testOutputDirectoryIsFile() throws Exception {
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
         // given
         DumpCommand dumpCommand = new DumpCommand();
         File testFile = testFolder.newFile("somefile.txt");
@@ -113,9 +86,6 @@ public class DumpCommandTest extends AbstractCommandTest {
         // when
         dumpCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
         try {
             String message = "Path [" + testFilePath + "] must be a directory.";
@@ -123,7 +93,6 @@ public class DumpCommandTest extends AbstractCommandTest {
             assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
         } finally {
             testFile.delete();
-            consoleOutput.closeBuffer();
         }
     }
 
@@ -134,9 +103,6 @@ public class DumpCommandTest extends AbstractCommandTest {
      */
     @Test
     public void testNormalOperation() throws Exception {
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
         // given
         DumpCommand dumpCommand = new DumpCommand();
         dumpCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
@@ -149,15 +115,8 @@ public class DumpCommandTest extends AbstractCommandTest {
         // when
         dumpCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            assertThat(consoleOutput.getOutput(), containsString(" 2 file(s) dumped in "));
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        assertThat(consoleOutput.getOutput(), containsString(" 2 file(s) dumped in "));
     }
 
     /**
@@ -167,9 +126,6 @@ public class DumpCommandTest extends AbstractCommandTest {
      */
     @Test
     public void testNormalOperationNoFiles() throws Exception {
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
         // given
         DumpCommand dumpCommand = new DumpCommand();
         dumpCommand.catalogFramework = givenCatalogFramework(getEmptyResultList());
@@ -182,16 +138,9 @@ public class DumpCommandTest extends AbstractCommandTest {
         // when
         dumpCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            String expectedPrintOut = " 0 file(s) dumped in ";
-            assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        String expectedPrintOut = " 0 file(s) dumped in ";
+        assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
     }
 
     /**
@@ -201,13 +150,6 @@ public class DumpCommandTest extends AbstractCommandTest {
      */
     @Test
     public void testNormalOperationWithContent() throws Exception {
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-        File file = new File(CONTENT_PATH);
-        ByteSource byteSource = Files.asByteSource(file);
-
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
         // given
         List<Result> resultList = getResultList("id1", "id2");
         MetacardImpl metacard1 = new MetacardImpl(resultList.get(0)
@@ -217,10 +159,6 @@ public class DumpCommandTest extends AbstractCommandTest {
         metacard1.setResourceURI(new URI("content:" + metacard1.getId()));
         metacard2.setResourceURI(new URI("content:" + metacard2.getId() + "#preview"));
 
-        Resource resource = new ResourceImpl(byteSource.openStream(), CONTENT_FILENAME);
-        when(resourceResponse.getResource()).thenReturn(resource);
-
-        // given
         DumpCommand dumpCommand = new DumpCommand();
         dumpCommand.catalogFramework = givenCatalogFramework(resultList);
         dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
@@ -232,14 +170,7 @@ public class DumpCommandTest extends AbstractCommandTest {
         // when
         dumpCommand.executeWithSubject();
 
-        // cleanup
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            assertThat(consoleOutput.getOutput(), containsString(" 2 file(s) dumped in "));
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        assertThat(consoleOutput.getOutput(), containsString(" 2 file(s) dumped in "));
     }
 }

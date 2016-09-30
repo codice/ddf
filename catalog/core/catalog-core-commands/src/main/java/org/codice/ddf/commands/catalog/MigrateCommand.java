@@ -26,7 +26,6 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Provider;
-import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.ServiceReference;
@@ -48,9 +47,9 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.ServiceComparator;
 
 @Service
-@Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards "
-        + "from one Provider to another Provider.")
+@Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards from one Provider to another Provider.")
 public class MigrateCommand extends DuplicateCommands {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrateCommand.class);
 
     @Option(name = "--list", required = false, aliases = {
@@ -71,10 +70,10 @@ public class MigrateCommand extends DuplicateCommands {
 
         if (listProviders) {
             if (providers.size() == 0) {
-                console.println("There are no available providers.");
+                console.println("There are no available Providers.");
                 return null;
             }
-            console.println("Available providers:");
+            console.println("Available Providers:");
             providers.stream()
                     .map(p -> p.getClass()
                             .getSimpleName())
@@ -95,18 +94,18 @@ public class MigrateCommand extends DuplicateCommands {
 
         final CatalogProvider fromProvider = promptForProvider("FROM", fromProviderId, providers);
         if (fromProvider == null) {
-            console.println("Invalid \"FROM\" provider id.");
+            console.println("Invalid \"FROM\" Provider id.");
             return null;
         }
-        console.println("FROM provider ID: " + fromProvider.getClass()
+        console.println("FROM Provider ID: " + fromProvider.getClass()
                 .getSimpleName());
 
         final CatalogProvider toProvider = promptForProvider("TO", toProviderId, providers);
         if (toProvider == null) {
-            console.println("Invalid \"TO\" provider id.");
+            console.println("Invalid \"TO\" Provider id.");
             return null;
         }
-        console.println("TO provider ID: " + toProvider.getClass()
+        console.println("TO Provider ID: " + toProvider.getClass()
                 .getSimpleName());
 
         CatalogFacade queryProvider = new Provider(fromProvider);
@@ -114,14 +113,9 @@ public class MigrateCommand extends DuplicateCommands {
 
         start = System.currentTimeMillis();
 
-        final Filter filter = (cqlFilter != null) ? CQL.toFilter(cqlFilter) : getFilter(
-                getFilterStartTime(start),
-                start,
-                getTemporalProperty());
-
         console.println("Starting migration.");
 
-        duplicateInBatches(queryProvider, ingestProvider, filter);
+        duplicateInBatches(queryProvider, ingestProvider, getFilter());
 
         console.println();
         long end = System.currentTimeMillis();
@@ -145,11 +139,11 @@ public class MigrateCommand extends DuplicateCommands {
         while (true) {
             if (StringUtils.isBlank(id) || !providersIdList.contains(id)) {
                 console.println(
-                        "Please enter the Source ID of the \"" + whichProvider + "\" provider:");
+                        "Please enter the Source ID of the \"" + whichProvider + "\" Provider:");
             } else {
                 break;
             }
-            id = getInput(whichProvider + " provider ID: ");
+            id = getInput(whichProvider + " Provider ID: ");
         }
 
         final String providerId = id;

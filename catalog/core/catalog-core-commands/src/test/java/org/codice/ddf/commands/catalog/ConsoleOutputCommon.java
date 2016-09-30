@@ -11,33 +11,33 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.catalog.validation;
 
-import java.util.List;
+package org.codice.ddf.commands.catalog;
 
-public class ValidateReportEntry {
+import java.io.IOException;
 
-    private String validatorName;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
-    private List<String> errors;
+public class ConsoleOutputCommon {
 
-    private List<String> warnings;
+    protected static ConsoleOutput consoleOutput;
 
-    public ValidateReportEntry(String validatorName, List<String> errors, List<String> warnings) {
-        this.validatorName = validatorName;
-        this.errors = errors;
-        this.warnings = warnings;
+    @BeforeClass
+    public static void setUpConsoleOutput() {
+        consoleOutput = new ConsoleOutput();
+        consoleOutput.interceptSystemOut();
     }
 
-    public String getValidatorName() {
-        return validatorName;
+    @After
+    public void resetConsoleOutput() {
+        consoleOutput.reset();
     }
 
-    public List<String> getErrors() {
-        return errors;
-    }
-
-    public List<String> getWarnings() {
-        return warnings;
+    @AfterClass
+    public static void closeConsoleOutput() throws IOException {
+        consoleOutput.resetSystemOut();
+        consoleOutput.closeBuffer();
     }
 }

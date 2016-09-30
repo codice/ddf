@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import static org.codice.ddf.commands.catalog.CommandSupport.ERROR_COLOR;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.isA;
@@ -40,14 +41,14 @@ import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 
-public class RemoveAllCommandTest {
+public class RemoveAllCommandTest extends ConsoleOutputCommon {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
             .reset()
             .toString();
 
     static final String RED_CONSOLE_COLOR = Ansi.ansi()
-            .fg(Ansi.Color.RED)
+            .fg(ERROR_COLOR)
             .toString();
 
     /**
@@ -57,10 +58,6 @@ public class RemoveAllCommandTest {
      */
     @Test
     public void testBadBatchSize() throws Exception {
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-
-        consoleOutput.interceptSystemOut();
-
         // given
         RemoveAllCommand command = new RemoveAllCommand();
         command.batchSize = 0;
@@ -68,17 +65,10 @@ public class RemoveAllCommandTest {
         // when
         command.executeWithSubject();
 
-        /* cleanup */
-        consoleOutput.resetSystemOut();
-
         // then
-        try {
-            String message = String.format(RemoveAllCommand.BATCH_SIZE_ERROR_MESSAGE_FORMAT, 0);
-            String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
-            assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
-        } finally {
-            consoleOutput.closeBuffer();
-        }
+        String message = String.format(RemoveAllCommand.BATCH_SIZE_ERROR_MESSAGE_FORMAT, 0);
+        String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
+        assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
     }
 
     /**
@@ -88,6 +78,7 @@ public class RemoveAllCommandTest {
      */
     @Test
     public void testExecuteWithSubject() throws Exception {
+        // given
         RemoveAllCommand removeAllCommand = new RemoveAllCommand();
 
         final CatalogFramework catalogFramework = mock(CatalogFramework.class);
@@ -105,8 +96,10 @@ public class RemoveAllCommandTest {
         removeAllCommand.batchSize = 11;
         removeAllCommand.force = true;
 
+        // when
         removeAllCommand.executeWithSubject();
 
+        // then
         verify(catalogFramework, times(1)).delete(isA(DeleteRequest.class));
     }
 
@@ -116,7 +109,8 @@ public class RemoveAllCommandTest {
      * @throws Exception
      */
     @Test
-    public void testdoExecuteWithCache() throws Exception {
+    public void testExecuteWithSubjectWithCache() throws Exception {
+        // given
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
         RemoveAllCommand removeAllCommand = new RemoveAllCommand() {
@@ -128,8 +122,10 @@ public class RemoveAllCommandTest {
         removeAllCommand.force = true;
         removeAllCommand.cache = true;
 
+        // when
         removeAllCommand.executeWithSubject();
 
+        // then
         verify(mbean, times(1)).removeAll();
     }
 

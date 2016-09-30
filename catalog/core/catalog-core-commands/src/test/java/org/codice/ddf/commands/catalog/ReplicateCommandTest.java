@@ -35,7 +35,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.service.command.CommandSession;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -57,14 +56,12 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-public class ReplicateCommandTest {
+public class ReplicateCommandTest extends ConsoleOutputCommon {
 
     private static final Set<String> SOURCE_IDS = new HashSet<>(Arrays.asList("sourceId1",
             "sourceId2"));
 
     private static final int HITS = 1000;
-
-    private static ConsoleOutput consoleOutput;
 
     private CatalogFramework catalogFramework;
 
@@ -76,20 +73,10 @@ public class ReplicateCommandTest {
 
     private ReplicateCommand replicateCommand;
 
-    @AfterClass
-    public static void cleanUp() throws IOException {
-        consoleOutput.resetSystemOut();
-        consoleOutput.closeBuffer();
-    }
-
     @Before
     public void setUp()
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
             IngestException {
-
-        consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
         catalogFramework = mock(CatalogFramework.class);
         replicateCommand = new ReplicateCommand() {
             @Override
@@ -277,6 +264,5 @@ public class ReplicateCommandTest {
     private void verifyConsoleOutput(String... message) {
         Arrays.stream(message)
                 .forEach(s -> assertThat(consoleOutput.getOutput(), containsString(s)));
-        consoleOutput.reset();
     }
 }

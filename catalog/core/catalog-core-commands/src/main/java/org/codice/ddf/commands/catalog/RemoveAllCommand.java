@@ -51,7 +51,7 @@ import ddf.catalog.source.UnsupportedQueryException;
  * Command used to remove all or a subset of records (in bulk) from the Catalog.
  */
 @Service
-@Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the catalog.")
+@Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the Catalog.")
 public class RemoveAllCommand extends CatalogCommands {
 
     static final int PAGE_SIZE_LOWER_LIMIT = 1;

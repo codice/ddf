@@ -19,12 +19,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,40 +30,28 @@ import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
-public class RemoveCommandTest {
-
-    private static ConsoleOutput consoleOutput;
+public class RemoveCommandTest extends ConsoleOutputCommon {
 
     private List<Metacard> metacardList = getMetacardList(5);
-
-    @AfterClass
-    public static void tearDownClass() throws IOException {
-        consoleOutput.resetSystemOut();
-        consoleOutput.closeBuffer();
-    }
 
     @Before
     public void setup() {
         metacardList = getMetacardList(5);
-
-        consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
     }
 
     @Test
     public void testSingleItemList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
-
-        List<String> ids = new ArrayList<>();
-        ids.add(metacardList.get(0)
-                .getId());
-
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
             }
         };
+
+        List<String> ids = new ArrayList<>();
+        ids.add(metacardList.get(0)
+                .getId());
 
         removeCommand.ids = ids;
         removeCommand.cache = true;
@@ -80,6 +66,12 @@ public class RemoveCommandTest {
     @Test
     public void testMultipleItemList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
+        RemoveCommand removeCommand = new RemoveCommand() {
+            @Override
+            protected SolrCacheMBean getCacheProxy() {
+                return mbean;
+            }
+        };
 
         List<String> ids = new ArrayList<>();
         ids.add(metacardList.get(0)
@@ -89,15 +81,7 @@ public class RemoveCommandTest {
         ids.add(metacardList.get(2)
                 .getId());
 
-        RemoveCommand removeCommand = new RemoveCommand() {
-            @Override
-            protected SolrCacheMBean getCacheProxy() {
-                return mbean;
-            }
-        };
-
         removeCommand.ids = ids;
-
         removeCommand.cache = true;
 
         removeCommand.executeWithSubject();
@@ -116,7 +100,6 @@ public class RemoveCommandTest {
     @Test
     public void testNullList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
-
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
             protected SolrCacheMBean getCacheProxy() {
@@ -129,8 +112,6 @@ public class RemoveCommandTest {
         removeCommand.executeWithSubject();
 
         assertThat(consoleOutput.getOutput(), containsString("Nothing to remove."));
-
-        consoleOutput.reset();
     }
 
     private java.util.List<Metacard> getMetacardList(int amount) {
