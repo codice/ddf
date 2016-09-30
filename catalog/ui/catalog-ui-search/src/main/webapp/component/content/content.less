@@ -101,13 +101,14 @@
 
     .content-panelOne {
       width: @panelOneWidth;
+      float: left;
     }
 
     .content-panel.content-panelTwo {
       width: ~'calc(100% - @{panelOneWidth})';
       height: 50%;
       vertical-align: top !important;
-      float: right;
+      float: left;
       transition: height @coreTransitionTime ease-in-out;
     }
 
@@ -116,6 +117,7 @@
       height: 50%;
       width: ~'calc(100% - @{panelOneWidth})';
       transition: height @coreTransitionTime ease-in-out;
+      float: left;
     }
 
     &.hide-panelTwo {
