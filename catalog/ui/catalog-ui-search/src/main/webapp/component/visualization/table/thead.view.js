@@ -38,6 +38,7 @@ module.exports = Marionette.ItemView.extend({
         this.listenTo(this.options.selectionInterface, 'reset:activeSearchResults add:activeSearchResults', this.render);
         this.listenTo(user.get('user').get('preferences'), 'change:columnHide', this.render);
         this.listenTo(user.get('user').get('preferences'), 'change:columnOrder', this.render);
+        this.updateSorting = _.debounce(this.updateSorting, 500);
     },
     onRender: function() {
         this.handleSorting();
