@@ -20,13 +20,12 @@ import java.util.Stack;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.codice.ddf.transformer.xml.streaming.AbstractSaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
-import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventToXmlElementConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
-import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -45,7 +44,7 @@ import ddf.catalog.validation.ValidationException;
  * Note: ONLY CAN PARSE GML2 points. Will throw hard-to-debug Null Pointer Exceptions if used with GML3 or other GML2 geometries.
  * {@inheritDoc}
  */
-public class GmlHandler implements SaxEventHandler {
+public class GmlHandler extends AbstractSaxEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GmlHandler.class);
 
@@ -87,32 +86,12 @@ public class GmlHandler implements SaxEventHandler {
     }
 
     @Override
-    public void setDocumentLocator(Locator locator) {
-
-    }
-
-    @Override
-    public void startDocument() throws SAXException {
-
-    }
-
-    @Override
-    public void endDocument() throws SAXException {
-
-    }
-
-    @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
         try {
             gml3Element.addNamespace(prefix, uri);
         } catch (XMLStreamException e) {
             LOGGER.debug("Error adding namespace to SaxEventToXmlConverter()", e);
         }
-    }
-
-    @Override
-    public void endPrefixMapping(String prefix) throws SAXException {
-
     }
 
     /**
@@ -220,21 +199,6 @@ public class GmlHandler implements SaxEventHandler {
                 }
             }
         }
-
-    }
-
-    @Override
-    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-
-    }
-
-    @Override
-    public void processingInstruction(String target, String data) throws SAXException {
-
-    }
-
-    @Override
-    public void skippedEntity(String name) throws SAXException {
 
     }
 }
