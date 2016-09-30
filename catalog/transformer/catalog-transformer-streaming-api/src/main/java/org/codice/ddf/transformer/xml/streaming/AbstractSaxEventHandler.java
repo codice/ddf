@@ -45,16 +45,6 @@ public abstract class AbstractSaxEventHandler implements SaxEventHandler {
     }
 
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
-
-    }
-
-    @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
-
-    }
-
-    @Override
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
 
     }
