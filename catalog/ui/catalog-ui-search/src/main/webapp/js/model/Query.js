@@ -24,9 +24,10 @@ define([
         'wreqr',
         'js/Common',
         'js/CacheSourceSelector',
+        'component/announcement',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common, CacheSourceSelector) {
+    function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common, CacheSourceSelector, announcement) {
         "use strict";
         var Query = {};
 
@@ -568,6 +569,14 @@ define([
 
                 var data = Common.duplicate(this.buildSearchData());
                 var sources = data.src;
+                if (sources.length === 0){
+                    announcement.announce({
+                        title: 'Query "'+ this.get('title') + '" cannot be run.',
+                        message: 'No sources are currently selected.  Edit the query and select at least one source.',
+                        type: 'warn'
+                    });
+                    return [];
+                }
                 var initialStatus = sources.map(function (src) {
                     return {
                         id: src
