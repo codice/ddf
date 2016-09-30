@@ -569,14 +569,6 @@ define([
 
                 var data = Common.duplicate(this.buildSearchData());
                 var sources = data.src;
-                if (sources.length === 0){
-                    announcement.announce({
-                        title: 'Query "'+ this.get('title') + '" cannot be run.',
-                        message: 'No sources are currently selected.  Edit the query and select at least one source.',
-                        type: 'warn'
-                    });
-                    return [];
-                }
                 var initialStatus = sources.map(function (src) {
                     return {
                         id: src
@@ -629,6 +621,15 @@ define([
 
                 result.set('initiated', moment().format('lll'));
                 result.get('results').fullCollection.sort();
+
+                if (sources.length === 0){
+                    announcement.announce({
+                        title: 'Query "'+ this.get('title') + '" cannot be run.',
+                        message: 'No sources are currently selected.  Edit the query and select at least one source.',
+                        type: 'warn'
+                    });
+                    return [];
+                }
 
                 // the "cache" source is always added to the search
                 sources.unshift("cache");

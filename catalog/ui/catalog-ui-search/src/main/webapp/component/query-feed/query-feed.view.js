@@ -31,8 +31,8 @@ define([
         var searching = _.every(data, function(status) {
             return _.isUndefined(status.successful);
         });
-        if (searching) {
-            return 'Searching...'
+        if (searching && data.length > 0) {
+            return 'Searching...';
         }
         if (hits === count || count > hits) {
             return count + ' results';
