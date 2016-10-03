@@ -158,11 +158,19 @@
 
     <reference id="cswMetacardType" interface="ddf.catalog.data.MetacardType" filter="(name=csw:Record)"/>
 
+    <bean id="metacardTypes" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <reference-list id="metacardTypeList"
+                    interface="ddf.catalog.data.MetacardType">
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
+                            ref="metacardTypes"/>
+    </reference-list>
+
     <bean id="cswFilterFactory"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory">
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
         <argument ref="cswMetacardType"/>
+        <argument ref="metacardTypes"/>
         <property name="schemaToTagsMapping">
             <array value-type="java.lang.String">
                 <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry,registry-remote</value>

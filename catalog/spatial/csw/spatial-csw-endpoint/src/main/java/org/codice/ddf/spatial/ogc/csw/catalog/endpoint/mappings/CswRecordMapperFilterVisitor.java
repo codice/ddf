@@ -17,8 +17,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -80,6 +82,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         return sourceIds;
     }
 
+    private Map<String, AttributeType> attributeTypes;
+
     private MetacardType metacardType;
 
     public Filter getVisitedFilter() {
@@ -90,8 +94,15 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         visitedFilter = filter;
     }
 
-    public CswRecordMapperFilterVisitor(MetacardType metacardType) {
+    public CswRecordMapperFilterVisitor(MetacardType metacardType,
+            List<MetacardType> metacardTypes) {
         this.metacardType = metacardType;
+        attributeTypes = new HashMap<>();
+        for (MetacardType type : metacardTypes) {
+            for (AttributeDescriptor ad : type.getAttributeDescriptors()) {
+                attributeTypes.put(ad.getName(), ad.getType());
+            }
+        }
     }
 
     @Override
@@ -138,8 +149,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         String name;
 
         if (CswConstants.BBOX_PROP.equals(propertyName) || CswConstants.OWS_BOUNDING_BOX.equals(
-                propertyName) ||
-                GmdConstants.APISO_BOUNDING_BOX.equals(propertyName)) {
+                propertyName) || GmdConstants.APISO_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
             NamespaceSupport namespaceSupport = expression.getNamespaceContext();
@@ -178,10 +188,19 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
             sourceIds.add((String) ((Literal) filter.getExpression2()).getValue());
             return null;
         }
+        AttributeType type =
+                attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+        if (type != null) {
+            type.getBinding()
+                    .cast(((Literal) filter.getExpression2()).getValue());
+        }
+
         Expression expr1 = visit(filter.getExpression1(), extraData);
         Expression expr2 = visit(filter.getExpression2(), expr1);
         boolean matchCase = filter.isMatchingCase();
-        return getFactory(extraData).equal(expr1, expr2, matchCase);
+        return ((Literal) (filter.getExpression2())).getValue() instanceof String ? getFactory(
+                extraData).equal(expr1, expr2, matchCase) : getFactory(extraData).equal(expr1,
+                expr2);
     }
 
     @Override

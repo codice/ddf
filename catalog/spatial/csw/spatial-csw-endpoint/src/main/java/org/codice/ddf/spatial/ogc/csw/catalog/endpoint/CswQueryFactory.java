@@ -63,7 +63,6 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.permission.Permissions;
-
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -91,11 +90,14 @@ public class CswQueryFactory {
 
     private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
 
+    private List<MetacardType> metacardTypes;
+
     public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter,
-            MetacardType metacardType) {
+            MetacardType metacardType, List<MetacardType> metacardTypes) {
         this.builder = filterBuilder;
         this.adapter = adapter;
         this.metacardType = metacardType;
+        this.metacardTypes = metacardTypes;
     }
 
     public QueryRequest getQueryById(List<String> ids) {
@@ -155,7 +157,7 @@ public class CswQueryFactory {
 
     private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint)
             throws CswException {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType);
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType, metacardTypes);
         Filter filter = null;
         if (constraint != null) {
             if (constraint.isSetCqlText()) {

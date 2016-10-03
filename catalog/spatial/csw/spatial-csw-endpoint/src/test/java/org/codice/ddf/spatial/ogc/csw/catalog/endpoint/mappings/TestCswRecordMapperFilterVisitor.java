@@ -20,7 +20,9 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -79,6 +81,8 @@ public class TestCswRecordMapperFilterVisitor {
 
     private static MetacardType metacardType;
 
+    private static List<MetacardType> mockMetacardTypeList;
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         factory = new FilterFactoryImpl();
@@ -92,12 +96,17 @@ public class TestCswRecordMapperFilterVisitor {
                         Core.CREATED,
                         CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
         metacardType = CswQueryFactoryTest.getCswMetacardType();
-        visitor = new CswRecordMapperFilterVisitor(metacardType);
+
+        mockMetacardTypeList = new ArrayList<>();
+        mockMetacardTypeList.add(metacardType);
+
+        visitor = new CswRecordMapperFilterVisitor(metacardType, mockMetacardTypeList);
     }
 
     @Test
     public void testVisitWithUnmappedName() {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType);
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
+                mockMetacardTypeList);
 
         PropertyName propertyName = (PropertyName) visitor.visit(attrExpr, null);
 
@@ -110,7 +119,8 @@ public class TestCswRecordMapperFilterVisitor {
                 CswConstants.DUBLIN_CORE_SCHEMA,
                 CswConstants.OWS_BOUNDING_BOX,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType);
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
+                mockMetacardTypeList);
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
 
@@ -124,7 +134,8 @@ public class TestCswRecordMapperFilterVisitor {
                 CswConstants.CSW_ALTERNATIVE,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType);
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
+                mockMetacardTypeList);
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
 
@@ -216,7 +227,7 @@ public class TestCswRecordMapperFilterVisitor {
 
     @Test
     public void testVisitPropertyIsFuzzy() {
-        visitor = new CswRecordMapperFilterVisitor(metacardType);
+        visitor = new CswRecordMapperFilterVisitor(metacardType, mockMetacardTypeList);
         Expression val1 = factory.property("fooProperty");
         Expression val2 = factory.literal("fooLiteral");
 
