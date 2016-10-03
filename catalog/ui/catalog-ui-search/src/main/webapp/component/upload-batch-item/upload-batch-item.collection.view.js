@@ -24,7 +24,7 @@ define([
 
     return Marionette.CollectionView.extend({
         emptyView: Marionette.ItemView.extend({className: 'alert-empty', template: 'No Recent Uploads'}),
-        className: 'is-list',
+        className: 'is-list has-list-highlighting',
         setDefaultCollection: function(){
             this.collection = user.get('user').get('preferences').get('uploads');
         },
