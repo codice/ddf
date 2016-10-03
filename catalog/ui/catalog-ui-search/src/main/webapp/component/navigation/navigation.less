@@ -5,6 +5,7 @@
   color: @text-color;
   height: 60px;
   overflow: hidden;
+  white-space: nowrap;
   .vertical-borders(1px, @heavily-lighten-inherited-background-color);
 
   > .navigation-left,
@@ -49,6 +50,13 @@
     cursor: pointer;
     width: @minimumButtonSize;
     text-align: center;
+  }
+
+  > .navigation-middle {
+    max-width: ~'calc(100% - 450px)';
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-overflow: ellipsis;
   }
 
 }
