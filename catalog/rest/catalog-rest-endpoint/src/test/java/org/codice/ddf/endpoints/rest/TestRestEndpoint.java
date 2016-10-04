@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
@@ -34,6 +35,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +60,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +72,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
@@ -88,6 +95,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolutionException;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.tika.TikaMimeTypeResolver;
 import net.minidev.json.JSONArray;
@@ -164,7 +173,7 @@ public class TestRestEndpoint {
         HttpHeaders headers = mock(HttpHeaders.class);
 
         rest.addDocument(headers, mock(UriInfo.class), mock(HttpServletRequest.class),
-                mock(MultipartBody.class), null);
+                mock(MultipartBody.class), null, null);
 
     }
 
@@ -200,7 +209,7 @@ public class TestRestEndpoint {
         UriInfo info = givenUriInfo(SAMPLE_ID);
 
         Response response = rest.addDocument(headers, info, mock(HttpServletRequest.class),
-                mock(MultipartBody.class), new ByteArrayInputStream("".getBytes()));
+                mock(MultipartBody.class), null, new ByteArrayInputStream("".getBytes()));
 
         LOGGER.debug(ToStringBuilder.reflectionToString(response));
 
@@ -212,6 +221,130 @@ public class TestRestEndpoint {
                 .get(Metacard.ID)
                 .get(0)
                 .toString(), equalTo(SAMPLE_ID));
+    }
+
+    @Test()
+    public void testAddDocumentWithMetadataPositiveCase()
+            throws IOException, CatalogTransformerException, IngestException,
+            SourceUnavailableException, URISyntaxException, InvalidSyntaxException,
+            MimeTypeResolutionException {
+
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+
+        HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
+        BundleContext bundleContext = mock(BundleContext.class);
+        Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
+        ServiceReference serviceReference = mock(ServiceReference.class);
+        InputTransformer inputTransformer = mock(InputTransformer.class);
+        when(inputTransformer.transform(any())).thenReturn(new MetacardImpl());
+        when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
+        serviceReferences.add(serviceReference);
+        when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)")).thenReturn(serviceReferences);
+
+        RESTEndpoint rest = new RESTEndpoint(framework) {
+            @Override
+            BundleContext getBundleContext() {
+                return bundleContext;
+            }
+        };
+        rest.setMetacardTypes(Collections.singletonList(BasicTypes.BASIC_METACARD));
+        MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
+        when(mimeTypeMapper.getMimeTypeForFileExtension("txt")).thenReturn("text/plain");
+        when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
+        rest.setMimeTypeMapper(mimeTypeMapper);
+
+        addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+
+        UriInfo info = givenUriInfo(SAMPLE_ID);
+
+        List<Attachment> attachments = new ArrayList<>();
+        ContentDisposition contentDisposition = new ContentDisposition(
+                "form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
+        Attachment attachment = new Attachment("parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
+        attachments.add(attachment);
+        ContentDisposition contentDisposition1 = new ContentDisposition(
+                "form-data; name=parse.metadata; filename=C:\\DDF\\metacard.xml");
+        Attachment attachment1 = new Attachment("parse.metadata", new ByteArrayInputStream("Some Text Again".getBytes()), contentDisposition1);
+        attachments.add(attachment1);
+        ContentDisposition contentDisposition2 = new ContentDisposition(
+                "form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
+        Attachment attachment2 = new Attachment("metadata", new ByteArrayInputStream("<meta>beta</meta>".getBytes()), contentDisposition2);
+        attachments.add(attachment2);
+        MultipartBody multipartBody = new MultipartBody(attachments);
+
+        Response response = rest.addDocument(headers, info, mock(HttpServletRequest.class),
+                multipartBody, null, new ByteArrayInputStream("".getBytes()));
+
+        LOGGER.debug(ToStringBuilder.reflectionToString(response));
+
+        assertThat(response.getStatus(), equalTo(201));
+
+        assertThat(response.getMetadata(), notNullValue());
+
+        assertThat(response.getMetadata()
+                .get(Metacard.ID)
+                .get(0)
+                .toString(), equalTo(SAMPLE_ID));
+    }
+
+    @Test
+    public void testParseAttachments()
+            throws IOException, CatalogTransformerException, SourceUnavailableException,
+            IngestException, InvalidSyntaxException, MimeTypeResolutionException,
+            URISyntaxException {
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        BundleContext bundleContext = mock(BundleContext.class);
+        Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
+        ServiceReference serviceReference = mock(ServiceReference.class);
+        InputTransformer inputTransformer = mock(InputTransformer.class);
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setMetadata("Some Text Again");
+        when(inputTransformer.transform(any())).thenReturn(metacard);
+        when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
+        serviceReferences.add(serviceReference);
+        when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)")).thenReturn(serviceReferences);
+
+        RESTEndpoint rest = new RESTEndpoint(framework) {
+            @Override
+            BundleContext getBundleContext() {
+                return bundleContext;
+            }
+        };
+        rest.setMetacardTypes(Collections.singletonList(BasicTypes.BASIC_METACARD));
+        MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
+        when(mimeTypeMapper.getMimeTypeForFileExtension("txt")).thenReturn("text/plain");
+        when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
+        rest.setMimeTypeMapper(mimeTypeMapper);
+
+        addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+
+        List<Attachment> attachments = new ArrayList<>();
+        ContentDisposition contentDisposition = new ContentDisposition(
+                "form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
+        Attachment attachment = new Attachment("parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
+        attachments.add(attachment);
+        ContentDisposition contentDisposition1 = new ContentDisposition(
+                "form-data; name=parse.metadata; filename=C:\\DDF\\metacard.xml");
+        Attachment attachment1 = new Attachment("parse.metadata", new ByteArrayInputStream("Some Text Again".getBytes()), contentDisposition1);
+        attachments.add(attachment1);
+
+        RESTEndpoint.CreateInfo createInfo = rest.parseAttachments(attachments, "xml");
+        assertThat(createInfo.getMetacard().getMetadata(), equalTo("Some Text Again"));
+
+        ContentDisposition contentDisposition2 = new ContentDisposition(
+                "form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
+        Attachment attachment2 = new Attachment("metadata", new ByteArrayInputStream("<meta>beta</meta>".getBytes()), contentDisposition2);
+        attachments.add(attachment2);
+
+        ContentDisposition contentDisposition3 = new ContentDisposition(
+                "form-data; name=foo; filename=C:\\DDF\\metacard.xml");
+        Attachment attachment3 = new Attachment("foo", new ByteArrayInputStream("bar".getBytes()), contentDisposition3);
+        attachments.add(attachment3);
+
+        createInfo = rest.parseAttachments(attachments, "xml");
+
+        assertThat(createInfo.getMetacard().getMetadata(), equalTo("<meta>beta</meta>"));
+        assertThat(createInfo.getMetacard().getAttribute("foo"), equalTo(null));
     }
 
     /**
@@ -760,7 +893,7 @@ public class TestRestEndpoint {
 
         try {
             rest.addDocument(headers, info, mock(HttpServletRequest.class),
-                    mock(MultipartBody.class), new ByteArrayInputStream("".getBytes()));
+                    mock(MultipartBody.class), null, new ByteArrayInputStream("".getBytes()));
             fail();
         } catch (ServerErrorException e) {
             if (klass.getName()

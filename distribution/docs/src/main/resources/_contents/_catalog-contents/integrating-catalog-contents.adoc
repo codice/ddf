@@ -100,7 +100,9 @@ The RESTful CRUD Endpoint provides the capability to query, create, update, and 
 |`create`
 |HTTP POST
 |HTTP request body contains the input to be ingested.
-|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog
+|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog?transform=<input transformer>
+
+where <input transformer> is the name of the transformer to use when parsing metadata (optional).
 
 |`update`
 |HTTP PUT
@@ -108,9 +110,10 @@ The RESTful CRUD Endpoint provides the capability to query, create, update, and 
 
 The updated metadata is contained in the HTTP body.
 
-|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>
+|\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>?transform=<input transformer>
 
 where `<metacardId>` is the `Metacard.ID` of the metacard to be updated
+and <input transformer> is the name of the transformer to use when parsing an override metadata attribute (optional).
 
 |`delete`
 |HTTP DELETE
@@ -178,6 +181,31 @@ Note that for all RESTful CRUD commands only one metacard ID is supported in t
 
 Any web browser can be used to perform a REST read.
 Various other tools and libraries can be used to perform the other HTTP operations on the REST endpoint (e.g., soapUI, cURL, etc.)
+
+The REST endpoint can be used to upload resources as attachments. The `create` and `update` methods both support the multipart mime format. If only a single attachment exists, it will be interpreted as a resource to be parsed, which will result in a metacard and resource being stored in the system.
+
+If multiple attachments exist, then the REST endpoint will assume that 1 attachment is the actual resource (attachment should be named `parse.resource`) and the other attachments are overrides of metacard attributes (attachment names should follow metacard attribute names). In the case of the metadata attribute, it is possible to also have the system transform that metadata and use the results of that to override the metacard that would be generated from the resource (attachment should be named `parse.metadata`).
+
+For example:
+[source,http]
+----
+POST /services/catalog?transform=xml HTTP/1.1
+Host: localhost:8993
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Cache-Control: no-cache
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="parse.resource"; filename=""
+Content-Type:
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="parse.metadata"; filename=""
+Content-Type:
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+----
 
 ===== Metacard Transforms with the REST CRUD Endpoint
 
