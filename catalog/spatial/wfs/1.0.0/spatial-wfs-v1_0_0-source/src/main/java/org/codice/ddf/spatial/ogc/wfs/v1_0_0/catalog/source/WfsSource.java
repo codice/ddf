@@ -274,6 +274,10 @@ public class WfsSource extends MaskableImpl
         String username = (String) configuration.get(USERNAME_PROPERTY);
         Boolean disableCnCheckProp = (Boolean) configuration.get(DISABLE_CN_CHECK_PROPERTY);
         String id = (String) configuration.get(ID_PROPERTY);
+        if(hasSourceIdChanged(id)) {
+            super.setId(id);
+            configureWfsFeatures();
+        }
 
         setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
         setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
@@ -284,7 +288,6 @@ public class WfsSource extends MaskableImpl
         this.nonQueryableProperties = nonQueryableProperties;
 
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
-        super.setId(id);
 
         if (hasWfsUrlChanged(wfsUrl) || hasDisableCnCheck(disableCnCheckProp)) {
             this.wfsUrl = wfsUrl;
@@ -363,6 +366,10 @@ public class WfsSource extends MaskableImpl
 
     private boolean hasWfsUrlChanged(String wfsUrl) {
         return !StringUtils.equals(this.wfsUrl, wfsUrl);
+    }
+
+    private boolean hasSourceIdChanged(String id) {
+        return !StringUtils.equals(getId(), id);
     }
 
     private boolean hasPasswordChanged(String password) {
