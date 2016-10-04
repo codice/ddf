@@ -19,13 +19,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +51,9 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlInputTransformer.class);
 
+    private Map<String, ServiceRegistration> metacardTypeServiceRegistrations =
+            new HashMap<String, ServiceRegistration>();
+
     /*
      * The Describable attributes that can be used to describe this (specific configuration of) transformer
      */
@@ -59,6 +66,8 @@ public class XmlInputTransformer implements InputTransformer, Describable {
     private String version = "DEFAULT_VERSION";
 
     private String organization = "DEFAULT_ORGANIZATION";
+
+    private BundleContext context;
 
     /*
      * List of all SaxEventHandlerFactories, used in creating the corresponding, properly configured SaxEventHandlerDelegate.
@@ -75,7 +84,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
     /**
      * Method to create a new {@link SaxEventHandlerDelegate}, configured to parse a metacard
-     * according to {@link XmlInputTransformer#saxEventHandlerConfiguration} and {@link XmlInputTransformer#metacardType}
+     * according to {@link XmlInputTransformer#saxEventHandlerConfiguration}.
      *
      * @return a new SaxEventHandlerDelegate
      */
@@ -260,9 +269,37 @@ public class XmlInputTransformer implements InputTransformer, Describable {
             }
         }
         attributeDescriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-        return new DynamicMetacardType(attributeDescriptors, id);
+
+        DynamicMetacardType dynamicMetacardType = new DynamicMetacardType(attributeDescriptors, id);
+        registerMetacardType(dynamicMetacardType);
+        return dynamicMetacardType;
     }
 
+    private void registerMetacardType(MetacardType metacardType) {
+        unregisterMetacardType(metacardType);
+
+        ServiceRegistration serviceRegistration =
+                context.registerService(MetacardType.class.getName(), metacardType, null);
+
+        this.metacardTypeServiceRegistrations.put(metacardType.getName(), serviceRegistration);
+    }
+
+    private void unregisterMetacardType(MetacardType metacardType) {
+        ServiceRegistration serviceRegistration =
+                metacardTypeServiceRegistrations.get(metacardType.getName());
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+            metacardTypeServiceRegistrations.remove(metacardType.getName());
+        }
+    }
+
+    public void setContext(BundleContext context) {
+        this.context = context;
+    }
+
+    public BundleContext getContext() {
+        return context;
+    }
 }
 
 class DynamicMetacardType implements MetacardType {

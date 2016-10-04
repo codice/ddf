@@ -34,6 +34,7 @@ import java.util.Set;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.junit.Test;
+import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Attribute;
@@ -57,6 +58,7 @@ public class TestGenericXmlLib {
         SaxEventHandler handler = getNewHandler();
         when(saxEventHandlerFactory.getNewSaxEventHandler()).thenReturn(handler);
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setContext(mock(BundleContext.class));
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
@@ -83,6 +85,7 @@ public class TestGenericXmlLib {
         SaxEventHandler handler = getNewHandler();
         when(saxEventHandlerFactory.getNewSaxEventHandler()).thenReturn(handler);
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setContext(mock(BundleContext.class));
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
@@ -101,6 +104,7 @@ public class TestGenericXmlLib {
         SaxEventHandler handler = getNewHandler();
         when(saxEventHandlerFactory.getNewSaxEventHandler()).thenReturn(handler);
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setContext(mock(BundleContext.class));
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
@@ -119,6 +123,7 @@ public class TestGenericXmlLib {
         SaxEventHandler handler = getNewHandler();
         when(saxEventHandlerFactory.getNewSaxEventHandler()).thenReturn(handler);
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setContext(mock(BundleContext.class));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
         MetacardType metacardType = xmlInputTransformer.getMetacardType();
@@ -129,6 +134,7 @@ public class TestGenericXmlLib {
     @Test
     public void testNoFactoriesTransform() {
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setContext(mock(BundleContext.class));
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(null);
         MetacardType metacardType = xmlInputTransformer.getMetacardType();
@@ -167,6 +173,7 @@ public class TestGenericXmlLib {
 
         when(saxEventHandlerFactory.getNewSaxEventHandler()).thenReturn(handler);
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setContext(mock(BundleContext.class));
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
@@ -186,6 +193,7 @@ public class TestGenericXmlLib {
     @Test
     public void testDescribableGettersSetters() {
         XmlInputTransformer inputTransformer = new XmlInputTransformer();
+        inputTransformer.setContext(mock(BundleContext.class));
         inputTransformer.setDescription("foo");
         inputTransformer.setId("foo");
         inputTransformer.setOrganization("foo");
