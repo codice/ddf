@@ -40,6 +40,7 @@ import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventHandlerDelegate;
 import org.codice.ddf.transformer.xml.streaming.lib.XmlInputTransformer;
 import org.junit.Test;
+import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -204,6 +205,7 @@ public class TestXmlInputTransformer {
     public void testGml3Conversion() throws FileNotFoundException, CatalogTransformerException {
         inputStream = new FileInputStream("src/test/resources/metacard1.xml");
         xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setContext(mock(BundleContext.class));
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("gml-handler"));
         GmlHandlerFactory factory = new GmlHandlerFactory();
         factory.setGml3ToWkt(gml3ToWkt);
@@ -220,6 +222,7 @@ public class TestXmlInputTransformer {
             throws FileNotFoundException, CatalogTransformerException, ValidationException {
         inputStream = new FileInputStream("src/test/resources/metacard1.xml");
         xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setContext(mock(BundleContext.class));
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("gml-handler"));
         GmlHandlerFactory factory = new GmlHandlerFactory();
         Gml3ToWkt badGml3toWkt = mock(Gml3ToWkt.class);
