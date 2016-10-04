@@ -162,8 +162,8 @@
     <!--<dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>-->
     <!--<dynamicField name="*_ds" type="double" indexed="true"  stored="true"  multiValued="true"/>-->
 
-    <!--&lt;!&ndash; Type used to index the lat and lon components for the "location" FieldType &ndash;&gt;-->
-    <!--<dynamicField name="*_coordinate"  type="tdouble" indexed="true"  stored="false" />-->
+    <!-- Type used to index the lat and lon components for the "location" FieldType -->
+    <dynamicField name="*_coordinate"  type="tdouble" indexed="true"  stored="false" />
 
     <!--<dynamicField name="*_dt"  type="date"    indexed="true"  stored="true"/>-->
     <!--<dynamicField name="*_dts" type="date"    indexed="true"  stored="true" multiValued="true"/>-->
@@ -212,7 +212,7 @@
     <dynamicField name="*_dbl_sk" type="tdouble" indexed="true" stored="false"/>
     <dynamicField name="*_tdt_sk" type="tdate" indexed="true" stored="false"/>
     <dynamicField name="*_bln_sk" type="boolean" indexed="true" stored="false"/>
-    <dynamicField name="*_geo_sk" type="text_general" indexed="true" stored="false"/>
+    <dynamicField name="*_geo_sk" type="location" indexed="true" stored="false"/>
     <dynamicField name="*_txt_sk" type="text_general" indexed="true" stored="false"/>
     <dynamicField name="*_xml_sk" type="text_general" indexed="true" stored="false"/>
 

@@ -27,11 +27,9 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.joda.time.DateTime;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +60,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     public static final String XPATH_FILTER_QUERY = "xpath";
 
     public static final String XPATH_FILTER_QUERY_INDEX = XPATH_FILTER_QUERY + "_index";
-
-    public static final String SCORE_DISTANCE = "{! score=distance}";
 
     private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
@@ -125,6 +121,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private SortBy sortBy;
 
     private boolean isSortedByDistance = false;
+
+    private String sortedDistancePoint;
 
     public SolrFilterDelegate(DynamicSchemaResolver resolver) {
         this.resolver = resolver;
@@ -565,7 +563,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                         NEAREST_NEIGHBOR_DISTANCE_LIMIT,
                         pnt);
 
-                query = getSolrQueryWithSort(nearestNeighborQuery);
+                updateDistanceSort(propertyName, pnt);
+                query = new SolrQuery(nearestNeighborQuery);
             }
             return query;
         } else {
@@ -597,7 +596,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                         distanceInDegrees,
                         pnt);
 
-                return getSolrQueryWithSort(pointRadiusQuery);
+                updateDistanceSort(propertyName, pnt);
+                return new SolrQuery(pointRadiusQuery);
             } else {
                 Geometry bufferGeo = geo.buffer(distanceInDegrees, QUADRANT_SEGMENTS);
                 String bufferWkt = WKT_WRITER.write(bufferGeo);
@@ -637,7 +637,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                             DEFAULT_ERROR_IN_DEGREES,
                             pnt);
 
-                    return getSolrQueryWithSort(pointRadiusQuery);
+                    updateDistanceSort(propertyName, pnt);
+                    return new SolrQuery(pointRadiusQuery);
                 }
                 if (MultiPoint.class.getSimpleName()
                         .equals(geo.getGeometryType()) && geo.getCoordinates().length == 1) {
@@ -646,7 +647,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                             DEFAULT_ERROR_IN_DEGREES,
                             pnt);
 
-                    return getSolrQueryWithSort(pointRadiusQuery);
+                    updateDistanceSort(propertyName, pnt);
+                    return new SolrQuery(pointRadiusQuery);
                 }
             }
         }
@@ -716,27 +718,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return solrQuery;
     }
 
-    private SolrQuery getSolrQueryWithSort(String givenSpatialString) {
-
-        if (sortBy != null && sortBy.getPropertyName() != null
-                && Result.DISTANCE.equals(sortBy.getPropertyName()
-                .getPropertyName())) {
-            isSortedByDistance = true;
-
-            SolrQuery solrQuery = new SolrQuery(givenSpatialString);
-            solrQuery.setFields("*", "score");
-
-            ORDER sortOrder = ORDER.asc;
-            if (SortOrder.DESCENDING.equals(sortBy.getSortOrder())) {
-                sortOrder = ORDER.desc;
+    private void updateDistanceSort(String propertyName, Point point) {
+        if (sortBy != null && sortBy.getPropertyName() != null) {
+            String sortByPropertyName = sortBy.getPropertyName()
+                    .getPropertyName();
+            if (Result.DISTANCE.equals(sortByPropertyName) || propertyName.equals(sortByPropertyName)) {
+                isSortedByDistance = true;
+                sortedDistancePoint = point.getY() + "," + point.getX();
             }
-
-            solrQuery.addSort("score", sortOrder);
-
-            return solrQuery;
-
-        } else {
-            return new SolrQuery(givenSpatialString);
         }
     }
 
@@ -900,16 +889,19 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private SolrQuery operationToQuery(String operation, String propertyName, String wkt) {
         String geoIndexName = getMappedPropertyName(propertyName, AttributeFormat.GEOMETRY, false);
-        return operationOnIndexToQuery(operation, geoIndexName, wkt);
-    }
 
-    private SolrQuery operationOnIndexToQuery(String operation, String indexName, String wkt) {
-        if (StringUtils.isNotEmpty(wkt)) {
-            String geoQuery = indexName + ":\"" + operation + "(" + wkt + ")\"";
-            return getSolrQueryWithSort(geoQuery);
-        } else {
+        if (!StringUtils.isNotEmpty(wkt)) {
             throw new UnsupportedOperationException("Wkt should not be null or empty.");
         }
+
+        String geoQuery = geoIndexName + ":\"" + operation + "(" + wkt + ")\"";
+
+        Geometry pnt = getGeometry(wkt);
+        if (pnt != null) {
+            updateDistanceSort(propertyName, pnt.getCentroid());
+        }
+
+        return new SolrQuery(geoQuery);
     }
 
     private boolean isPoint(Geometry geo) {
@@ -923,5 +915,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     public boolean isSortedByDistance() {
         return isSortedByDistance;
+    }
+
+    public String getSortedDistancePoint() {
+        return sortedDistancePoint;
     }
 }

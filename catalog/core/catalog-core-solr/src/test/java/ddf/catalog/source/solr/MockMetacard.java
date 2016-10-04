@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 
 public class MockMetacard extends MetacardImpl {
@@ -35,7 +37,8 @@ public class MockMetacard extends MetacardImpl {
 
     private static final long serialVersionUID = -189776439741244547L;
 
-    public MockMetacard(String metadata) {
+    public MockMetacard(String metadata, MetacardType type) {
+        super(type);
         // make a simple metacard
         this.setCreatedDate(Calendar.getInstance()
                 .getTime());
@@ -54,6 +57,10 @@ public class MockMetacard extends MetacardImpl {
         // this.setSourceId(DEFAULT_SOURCE_ID) ;
         this.setTitle(DEFAULT_TITLE);
         this.setSecurity(new HashMap<String, List<String>>());
+    }
+
+    public MockMetacard(String metadata) {
+        this(metadata, BasicTypes.BASIC_METACARD);
     }
 
     public static List<String> toStringList(List<Metacard> cards) {
