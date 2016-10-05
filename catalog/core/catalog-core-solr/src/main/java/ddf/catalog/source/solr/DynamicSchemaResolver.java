@@ -54,6 +54,13 @@ import org.codice.solr.factory.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -106,6 +113,8 @@ public class DynamicSchemaResolver {
             SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME,
             LUX_XML_FIELD_NAME,
             SCORE_FIELD_NAME);
+
+    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
@@ -265,17 +274,19 @@ public class DynamicSchemaResolver {
                     // Prevent adding a field already on document
                     if (solrInputDocument.getFieldValue(formatIndexName) == null) {
                         solrInputDocument.addField(formatIndexName, attributeValues);
-                        if (!(formatIndexName.endsWith(SchemaFields.BINARY_SUFFIX)
-                                || formatIndexName.endsWith(SchemaFields.OBJECT_SUFFIX))) {
+                        if (AttributeFormat.GEOMETRY.equals(format)) {
+                            solrInputDocument.addField(
+                                    formatIndexName + SchemaFields.SORT_KEY_SUFFIX,
+                                    createCenterPoint(attributeValues));
+                        } else if (!(AttributeFormat.BINARY.equals(format)
+                                || AttributeFormat.OBJECT.equals(format))) {
                             solrInputDocument.addField(
                                     formatIndexName + SchemaFields.SORT_KEY_SUFFIX,
                                     attributeValues.get(0));
                         }
                     } else {
-                        if (LOGGER.isTraceEnabled()) {
-                            LOGGER.trace("Skipping adding field already found on document ({})",
-                                    formatIndexName);
-                        }
+                        LOGGER.trace("Skipping adding field already found on document ({})",
+                                formatIndexName);
                     }
                 }
             }
@@ -314,6 +325,36 @@ public class DynamicSchemaResolver {
         }
 
         solrInputDocument.addField(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME, metacardTypeBytes);
+    }
+
+    private String createCenterPoint(List<Serializable> values) {
+        WKTReader reader = new WKTReader(GEOMETRY_FACTORY);
+        List<Geometry> geometries = new ArrayList<>();
+
+        for (Serializable serializable : values) {
+            String wkt = serializable.toString();
+            try {
+                geometries.add(reader.read(wkt));
+            } catch (ParseException e) {
+                LOGGER.debug("Failed to read WKT, skipping: {}", wkt, e);
+            }
+        }
+
+        if (geometries.isEmpty()) {
+            return null;
+        }
+
+        Point centerPoint;
+        if (geometries.size() > 1) {
+            GeometryCollection geoCollection =
+                    GEOMETRY_FACTORY.createGeometryCollection(geometries.toArray(new Geometry[geometries.size()]));
+
+            centerPoint = geoCollection.getCentroid();
+        } else {
+            centerPoint = geometries.get(0).getCentroid();
+        }
+
+        return centerPoint.getY() + "," + centerPoint.getX();
     }
 
     private byte[] createTinyBinary(String xml) throws XMLStreamException, SaxonApiException {
