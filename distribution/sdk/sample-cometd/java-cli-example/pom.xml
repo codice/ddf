@@ -41,7 +41,7 @@
         <dependency>
             <groupId>ddf.distribution.sdk.sample-cometd</groupId>
             <artifactId>cometd-java-example</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <!--this is just to replace the 4.0 version excluded above it is supposedly binary compatible-->
         <dependency>
