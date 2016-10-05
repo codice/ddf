@@ -29,19 +29,11 @@ import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSubscription
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -131,7 +123,6 @@ import com.xebialabs.restito.server.secure.SecureStubServer;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
-
 
 /**
  * Tests Federation aspects.
@@ -252,16 +243,19 @@ public class TestFederation extends AbstractIntegrationTest {
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
 
             Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
-                    OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
-            getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID,
-                    openSearchProperties);
+                    OPENSEARCH_SOURCE_ID,
+                    OPENSEARCH_PATH.getUrl(),
+                    getServiceManager());
+            getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
 
             cswServer = new FederatedCswMockServer(CSW_STUB_SOURCE_ID,
                     INSECURE_ROOT,
                     Integer.parseInt(CSW_STUB_SERVER_PORT.getPort()));
             cswServer.start();
 
-            Map<String, Object> cswStubServerProperties = getCswSourceProperties(CSW_STUB_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
+            Map<String, Object> cswStubServerProperties = getCswSourceProperties(CSW_STUB_SOURCE_ID,
+                    CSW_PATH.getUrl(),
+                    getServiceManager());
             cswStubServerProperties.put("cswUrl", CSW_STUB_SERVER_PATH.getUrl());
             cswStubServerProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
             getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID,
@@ -278,14 +272,19 @@ public class TestFederation extends AbstractIntegrationTest {
             getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID,
                     cswProperties);
 
-            Map<String, Object> cswProperties2 = getCswSourceProperties(CSW_SOURCE_WITH_METACARD_XML_ID, CSW_PATH.getUrl(), getServiceManager());
+            Map<String, Object> cswProperties2 = getCswSourceProperties(
+                    CSW_SOURCE_WITH_METACARD_XML_ID,
+                    CSW_PATH.getUrl(),
+                    getServiceManager());
             cswProperties2.put("outputSchema", "urn:catalog:metacard");
             cswProperties2.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
             getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID,
                     cswProperties2);
 
             Map<String, Object> gmdProperties = getCswSourceProperties(GMD_SOURCE_ID,
-                    GMD_CSW_FEDERATED_SOURCE_FACTORY_PID, CSW_PATH.getUrl(), getServiceManager());
+                    GMD_CSW_FEDERATED_SOURCE_FACTORY_PID,
+                    CSW_PATH.getUrl(),
+                    getServiceManager());
 
             gmdProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
             getServiceManager().createManagedService(GMD_CSW_FEDERATED_SOURCE_FACTORY_PID,
@@ -304,8 +303,8 @@ public class TestFederation extends AbstractIntegrationTest {
                     CSW_SOURCE_WITH_METACARD_XML_ID,
                     GMD_SOURCE_ID);
 
-            metacardIds[GEOJSON_RECORD_INDEX] = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
-                    "application/json");
+            metacardIds[GEOJSON_RECORD_INDEX] = ingest(getFileContent(
+                    JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
 
             metacardIds[XML_RECORD_INDEX] = ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
 
@@ -364,13 +363,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
         getSecurityPolicy().configureRestForGuest();
 
-        // @formatter:off
-// TODO: Will be fixed under DDF-2381
-//        expect("List of active downloads is empty").within(30, SECONDS)
-//                .until(()-> when().get(RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl())
-//                        .then().log().all().extract().body().jsonPath().getList(""), hasSize(0));
-        // @formatter:on
-
         if (server != null) {
             server.stop();
         }
@@ -379,11 +371,19 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     private void cleanupCometDClients() {
+
         Arrays.asList(cometDClient, adminCometDClient, localhostCometDClient)
                 .stream()
                 .filter(Objects::nonNull)
                 .forEach(cometDClient -> {
                     try {
+
+                        cometDClient.cancelAllDownloads();
+
+                        expect("Waiting for all cancels to be completed.").within(30, SECONDS)
+                                .until(() -> cometDClient.getDownloadIds()
+                                        .isEmpty());
+
                         cometDClient.shutdown();
                     } catch (Exception e) {
                         fail("Failed to shutdown cometD client!");
@@ -532,7 +532,9 @@ public class TestFederation extends AbstractIntegrationTest {
         try {
             //change the opensearch source id
             Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
-                    newOpenSearchSourceId, OPENSEARCH_PATH.getUrl(), getServiceManager());
+                    newOpenSearchSourceId,
+                    OPENSEARCH_PATH.getUrl(),
+                    getServiceManager());
             Configuration[] configs = configAdmin.listConfigurations(String.format("(%s=%s)",
                     ConfigurationAdmin.SERVICE_FACTORYPID,
                     OPENSEARCH_FACTORY_PID));
@@ -552,7 +554,9 @@ public class TestFederation extends AbstractIntegrationTest {
         } finally {
             //reset the opensearch source id
             Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
-                    OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
+                    OPENSEARCH_SOURCE_ID,
+                    OPENSEARCH_PATH.getUrl(),
+                    getServiceManager());
             Dictionary<String, ?> configProps = new Hashtable<>(openSearchProperties);
             openSourceConfig.update(configProps);
             getServiceManager().waitForAllBundles();
@@ -751,7 +755,10 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswQueryByWildCardSearchPhrase() throws Exception {
-        String wildcardQuery = getCswQuery("AnyText", "*", "application/xml", "http://www.opengis.net/cat/csw/2.0.2");
+        String wildcardQuery = getCswQuery("AnyText",
+                "*",
+                "application/xml",
+                "http://www.opengis.net/cat/csw/2.0.2");
 
         // @formatter:off
         given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_PATH.getUrl())
@@ -808,7 +815,10 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswQueryByTitle() throws Exception {
-        String titleQuery = getCswQuery("title", "myTitle", "application/xml", "http://www.opengis.net/cat/csw/2.0.2");
+        String titleQuery = getCswQuery("title",
+                "myTitle",
+                "application/xml",
+                "http://www.opengis.net/cat/csw/2.0.2");
 
         // @formatter:off
         given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl()).then()
@@ -822,7 +832,10 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswQueryForMetacardXml() throws Exception {
-        String titleQuery = getCswQuery("title", "myTitle", "application/xml", "urn:catalog:metacard");
+        String titleQuery = getCswQuery("title",
+                "myTitle",
+                "application/xml",
+                "urn:catalog:metacard");
 
         // @formatter:off
         given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl()).then()
@@ -1005,7 +1018,8 @@ public class TestFederation extends AbstractIntegrationTest {
                 .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
         // @formatter:on
 
-        String metacardId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
+        String metacardId = ingest(getFileContent(
+                JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
 
         metacardsToDelete.add(metacardId);
 
@@ -1067,7 +1081,8 @@ public class TestFederation extends AbstractIntegrationTest {
                 .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
         // @formatter:on
 
-        String metacardId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
+        String metacardId = ingest(getFileContent(
+                JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
 
         metacardsToDelete.add(metacardId);
 
@@ -1680,234 +1695,6 @@ public class TestFederation extends AbstractIntegrationTest {
                         Condition.parameter("id", metacardId));
     }
 
-    // TODO: Will be fixed under DDF-2381
-    @Ignore
-    @Test
-    public void testProductDownloadListEmptyWhenNoDownloads() {
-        String getAllDownloadsUrl = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl();
-
-        assertThat(when().get(getAllDownloadsUrl)
-                .then()
-                .log()
-                .all()
-                .extract()
-                .body()
-                .jsonPath()
-                .getList(""), is(empty()));
-    }
-
-    // TODO: Will be fixed under DDF-2381
-    @Ignore
-    @Test
-    public void testProductDownloadListWithOneActiveDownload() throws IOException {
-        getCatalogBundle().setupCaching(true);
-        String filename = "product.txt";
-        String metacardId = generateUniqueMetacardId();
-        String resourceData = getResourceData(metacardId);
-
-        int delayBetweenChunksInMillis = 500;
-
-        DownloadHandle downloadHandle = new DownloadHandle(metacardId,
-                filename,
-                resourceData,
-                NO_RETRIES,
-                delayBetweenChunksInMillis);
-
-        downloadHandle.startDownload();
-
-        String getAllDownloadsUrl = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl();
-
-        // @formatter:off
-        List<Map<String, Object>> downloads = expect("List of active downloads is not empty").within(30, SECONDS)
-                .until(() -> when().get(getAllDownloadsUrl)
-                        .then().log().all().extract().body().jsonPath().getList(""), hasSize(1)).lastResult();
-        // @formatter:on
-
-        Map download = downloads.get(0);
-        assertThat(download.size(), is(DOWNLOAD_SIZE));
-
-        downloadHandle.verifyGuestDownloadInProgress(download);
-
-    }
-
-    /**
-     * Similar to the test for one active download but checks that two downloads can be active at once.
-     *
-     * @throws Exception
-     */
-    // TODO: Will be fixed under DDF-2381
-    @Ignore
-    @Test
-    public void testProductDownloadListWithTwoActiveDownloads() throws IOException {
-        getCatalogBundle().setupCaching(true);
-        String filename1 = "product1.txt";
-        String metacardId1 = generateUniqueMetacardId();
-        String resourceData1 = getResourceData(metacardId1);
-
-        String filename2 = "product2.txt";
-        String metacardId2 = generateUniqueMetacardId();
-        String resourceData2 = getResourceData(metacardId2);
-
-        int delayBetweenChunksInMillis = 200;
-
-        DownloadHandle downloadHandle1 = new DownloadHandle(metacardId1,
-                filename1,
-                resourceData1,
-                NO_RETRIES,
-                delayBetweenChunksInMillis);
-
-        DownloadHandle downloadHandle2 = new DownloadHandle(metacardId2,
-                filename2,
-                resourceData2,
-                NO_RETRIES,
-                delayBetweenChunksInMillis);
-
-        downloadHandle1.startDownload();
-        String downloadId1 = downloadHandle1.getDownloadId();
-
-        downloadHandle2.startDownload();
-        String downloadId2 = downloadHandle2.getDownloadId();
-
-        String getAllDownloadsUrl = RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl();
-
-        // @formatter:off
-        List<Map<String, Object>> downloads =
-                expect("List of active downloads is not empty").within(30, SECONDS)
-                        .until(() -> when().get(getAllDownloadsUrl).then().log().all()
-                                .extract().body().jsonPath().getList(""), hasSize(2))
-                        .lastResult();
-        // @formatter:on
-
-        Map download1 = downloads.get(0);
-        assertThat(download1.size(), is(DOWNLOAD_SIZE));
-        Map download2 = downloads.get(1);
-        assertThat(download2.size(), is(DOWNLOAD_SIZE));
-
-        if (download1.get("downloadId")
-                .equals(downloadId1)) {
-            downloadHandle1.verifyGuestDownloadInProgress(download1);
-            downloadHandle2.verifyGuestDownloadInProgress(download2);
-
-        } else if (download1.get("downloadId")
-                .equals(downloadId2)) {
-            downloadHandle2.verifyGuestDownloadInProgress(download1);
-            downloadHandle1.verifyGuestDownloadInProgress(download2);
-        } else {
-            LOGGER.error("Unexpected data in the download");
-            fail("Unexpected data in the download");
-        }
-    }
-
-    /**
-     * Determines that when two downloads are downloaded at once and one fails, it does not affect the
-     * success of the other download.
-     *
-     * @throws Exception
-     */
-    // TODO: Will be fixed under DDF-2381
-    @Ignore
-    @Test
-    public void testProductDownloadListWithTwoActiveDownloadsOneFails() throws Exception {
-        getCatalogBundle().setupCaching(true);
-        cometDClient = setupCometDClient(Arrays.asList(ACTIVITIES_CHANNEL));
-
-        String filename1 = "product1.txt";
-        String metacardId1 = generateUniqueMetacardId();
-        String resourceData1 = getResourceData(metacardId1);
-
-        String failFilename = "failProduct.txt";
-        String failMetacardId = generateUniqueMetacardId();
-        String failResourceData = getResourceData(failMetacardId);
-
-        int delayBetweenChunksInMillis = 200;
-
-        String restUrlFail =
-                REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + failMetacardId
-                        + "?transform=resource" + "&session=" + cometDClient.getClientId();
-
-        String restUrl = REST_PATH.getUrl() + "sources/" + CSW_STUB_SOURCE_ID + "/" + metacardId1
-                + "?transform=resource" + "&session=" + cometDClient.getClientId();
-
-        DownloadHandle downloadHandle1 = new DownloadHandle(metacardId1,
-                filename1,
-                resourceData1,
-                NO_RETRIES,
-                delayBetweenChunksInMillis);
-        DownloadHandle downloadHandleFail = new DownloadHandle(failMetacardId,
-                failFilename,
-                failResourceData,
-                FAIL_RETRIES,
-                delayBetweenChunksInMillis);
-
-        // Verify that product retrieval fails from the csw stub server.
-        // @formatter:off
-        when().get(restUrlFail).then().log().all().assertThat().statusCode(500).contentType("text/plain")
-                .body(containsString("cannot retrieve product"));
-        // @formatter:on
-
-        //verify that before the successful download is started, there are zero requests for it
-        //(to later confirm that the one request received is the test's request)
-        cswServer.verifyHttp()
-                .times(0,
-                        Condition.uri("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"),
-                        Condition.parameter("id", metacardId1));
-
-        // Verify that the testData from the csw stub server is returned.
-        // @formatter:off
-        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(resourceData1));
-        // @formatter:on
-
-        expect("Waiting for activities").within(10, SECONDS)
-                .until(() -> {
-                    List<String> activities = cometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
-                    if (foundExpectedActivity(activities, filename1, ACTIVITES_STARTED_MESSAGE)
-                            && foundExpectedActivity(activities,
-                            failFilename,
-                            ACTIVITES_STARTED_MESSAGE) && foundExpectedActivity(activities,
-                            failFilename,
-                            ACTIVITIES_FAILED_MESSAGE) && foundExpectedActivity(activities,
-                            filename1,
-                            ACTIVITIES_COMPLETED_MESSAGE)) {
-                        return true;
-                    }
-                    return false;
-                });
-
-        downloadHandleFail.startDownload();
-        downloadHandle1.startDownload();
-
-        cswServer.verifyHttp()
-                .times(1,
-                        Condition.uri("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"),
-                        Condition.parameter("id", metacardId1));
-
-        //download again to confirm the successfully downloaded product is not downloaded from
-        //the server a second time
-        DownloadHandle repeatDownloadHandle = new DownloadHandle(metacardId1,
-                filename1,
-                resourceData1,
-                NO_RETRIES,
-                delayBetweenChunksInMillis);
-        repeatDownloadHandle.startDownload();
-
-        // @formatter:off
-        when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
-                .body(is(resourceData1));
-        // @formatter:on
-
-        //we should still only have accessed the server once, because the data should come from
-        //the cache the second time it is requested
-        cswServer.verifyHttp()
-                .times(1,
-                        Condition.uri("/services/csw"),
-                        Condition.parameter("request", "GetRecordById"),
-                        Condition.parameter("id", metacardId1));
-
-    }
-
     /**
      * Helper method used to determine that a certain message is showing up in the cometDClient activities.
      *
@@ -1948,8 +1735,6 @@ public class TestFederation extends AbstractIntegrationTest {
         return found;
     }
 
-    // TODO: Will be fixed under DDF-2381
-    @Ignore
     @Test
     public void testCancelDownload() throws Exception {
         getCatalogBundle().setupCaching(true);
@@ -1985,40 +1770,48 @@ public class TestFederation extends AbstractIntegrationTest {
                 RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + "?source=" + CSW_STUB_SOURCE_ID
                         + "&metacard=" + metacardId;
 
-        // @formatter:off
-        String downloadId = given().auth().preemptive().basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
-                .get(startDownloadUrl).then().log().all()
-                .extract().jsonPath().getString("downloadId");
-        // @formatter:on
+        given().auth()
+                .preemptive()
+                .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
+                .get(startDownloadUrl)
+                .then()
+                .log()
+                .all();
+
+        expect("Waiting for download to start.").within(30, SECONDS)
+                .until(() -> localhostCometDClient.getDownloadIds()
+                        .size() > 0);
+
+        assertThat(localhostCometDClient.getDownloadIds()
+                .size(), is(1));
+
+        String downloadId = localhostCometDClient.getDownloadIds()
+                .iterator()
+                .next();
 
         localhostCometDClient.cancelDownload(downloadId);
 
-        expect("Waiting for notifications.").within(10, SECONDS)
-                .until(() -> localhostCometDClient.getMessages(NOTIFICATIONS_CHANNEL)
-                        .size() == 1);
-
-        /**
-         * Wait for 2 activities. The first one is the download started, and the second one is the
-         * download canceled.
-         */
-        expect("Waiting for activities.").within(10, SECONDS)
-                .until(() -> localhostCometDClient.getMessages(ACTIVITIES_CHANNEL)
-                        .size() == 2);
+        // Wait for download cancellation
+        expect("Waiting for cancellation.").within(30, SECONDS)
+                .until(() -> localhostCometDClient.getDownloadIds()
+                        .isEmpty());
 
         List<String> notifications = localhostCometDClient.getMessagesInAscOrder(
                 NOTIFICATIONS_CHANNEL);
 
         List<String> activities = localhostCometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
 
-        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(0)),
+        CometDMessageValidator.verifyNotification(JsonPath.from(notifications.get(
+                notifications.size() - 1)),
                 filename,
                 "Resource retrieval cancelled. ",
                 "cancelled");
 
-        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(1)),
+        CometDMessageValidator.verifyActivity(JsonPath.from(activities.get(activities.size() - 1)),
                 filename,
                 "Resource retrieval cancelled. ",
                 "STOPPED");
+
     }
 
     @Ignore
@@ -2238,8 +2031,6 @@ public class TestFederation extends AbstractIntegrationTest {
                 "COMPLETE");
     }
 
-    // TODO: Will be fixed under DDF-2381
-    @Ignore
     @Test
     public void testSingleUserDownloadSameProductSyncAndAsync() throws Exception {
         getCatalogBundle().setupCaching(true);
@@ -2266,44 +2057,40 @@ public class TestFederation extends AbstractIntegrationTest {
                         + "&metacard=" + metacardId;
 
         // Download product via async and then sync, should only call the stub server to download once
-        String downloadId = given().auth()
-                .preemptive()
-                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-                .when()
-                .get(resourceDownloadUrlLocalhostUserAsync)
-                .then()
-                .log()
-                .all()
-                .extract()
-                .jsonPath()
-                .getString("downloadId");
-        assertThat(downloadId, is(notNullValue()));
         given().auth()
                 .preemptive()
                 .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-                .when()
+                .get(resourceDownloadUrlLocalhostUserAsync)
+                .then()
+                .log()
+                .all();
+
+        given().auth()
+                .preemptive()
+                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
                 .get(resourceDownloadUrlLocalhostUserSync)
                 .then()
                 .log()
-                .all()
-                .assertThat()
-                .contentType("text/plain")
-                .body(is(resourceData));
+                .all();
 
         verifyCswStubCall(1, metacardId);
 
-        List<String> adminNotifications = adminCometDClient.getMessagesInAscOrder(
-                NOTIFICATIONS_CHANNEL);
-        assertThat(adminNotifications.size(), is(1));
-        CometDMessageValidator.verifyNotification(JsonPath.from(adminNotifications.get(0)),
+        expect("Waiting for activities.").within(30, SECONDS)
+                .until(() -> adminCometDClient.getMessages(ACTIVITIES_CHANNEL)
+                        .size() > 1);
+
+        List<String> adminActivities = adminCometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
+
+        assertThat(adminActivities.size(), is(2));
+        CometDMessageValidator.verifyActivity(JsonPath.from(adminActivities.get(
+                adminActivities.size() - 1)),
                 filename,
                 String.format("Resource retrieval completed, %d bytes retrieved. ",
                         resourceData.length()),
-                "complete");
+                "COMPLETE");
+
     }
 
-    // TODO: Will be fixed under DDF-2381
-    @Ignore
     @Test
     public void testSingleUserDownloadSameProductAsync() throws Exception {
         getCatalogBundle().setupCaching(true);
@@ -2326,41 +2113,38 @@ public class TestFederation extends AbstractIntegrationTest {
                         + "&metacard=" + metacardId;
 
         // Download product twice via async, should only call the stub server to download once
-        String downloadId = given().auth()
+        given().auth()
                 .preemptive()
                 .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-                .when()
                 .get(resourceDownloadUrlLocalhostUserAsync)
                 .then()
                 .log()
-                .all()
-                .extract()
-                .jsonPath()
-                .getString("downloadId");
-        assertThat(downloadId, is(notNullValue()));
-        String downloadId2 = given().auth()
+                .all();
+
+        given().auth()
                 .preemptive()
                 .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
-                .when()
                 .get(resourceDownloadUrlLocalhostUserAsync)
                 .then()
                 .log()
-                .all()
-                .extract()
-                .jsonPath()
-                .getString("downloadId");
-        assertThat(downloadId2, is(nullValue()));
+                .all();
 
         verifyCswStubCall(1, metacardId);
 
-        List<String> adminNotifications = adminCometDClient.getMessagesInAscOrder(
-                NOTIFICATIONS_CHANNEL);
-        assertThat(adminNotifications.size(), is(1));
-        CometDMessageValidator.verifyNotification(JsonPath.from(adminNotifications.get(0)),
+        expect("Waiting for activities.").within(30, SECONDS)
+                .until(() -> adminCometDClient.getMessages(ACTIVITIES_CHANNEL)
+                        .size() > 1);
+
+        List<String> adminActivities = adminCometDClient.getMessagesInAscOrder(ACTIVITIES_CHANNEL);
+
+        assertThat(adminActivities.size(), is(2));
+        CometDMessageValidator.verifyActivity(JsonPath.from(adminActivities.get(
+                adminActivities.size() - 1)),
                 filename,
                 String.format("Resource retrieval completed, %d bytes retrieved. ",
                         resourceData.length()),
-                "complete");
+                "COMPLETE");
+
     }
 
     private void setupStubCswResponse(String filename, String metacardId, String resourceData) {
@@ -2494,13 +2278,13 @@ public class TestFederation extends AbstractIntegrationTest {
                         .size() >= 1);
 
         Optional<String> searchResult = cometDClient.searchMessages(metacardId);
-     
+
         assertThat("Async download action not found", searchResult.isPresent(), is(true));
 
         JsonPath path = JsonPath.from(searchResult.get());
 
-        assertThat(path.getString(String.format(FIND_ACTION_URL_BY_TITLE_PATTERN,
-                actionTitle)), is(expectedUrl));
+        assertThat(path.getString(String.format(FIND_ACTION_URL_BY_TITLE_PATTERN, actionTitle)),
+                is(expectedUrl));
     }
 
     private void setupCswServerForSuccess(CometDClient cometDClient, String filename)
@@ -2712,7 +2496,9 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private void setupConnectedSources() throws IOException {
         getServiceManager().createManagedService(CSW_CONNECTED_SOURCE_FACTORY_PID,
-                getCswConnectedSourceProperties(CONNECTED_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()));
+                getCswConnectedSourceProperties(CONNECTED_SOURCE_ID,
+                        CSW_PATH.getUrl(),
+                        getServiceManager()));
     }
 
     private String ingestXmlWithProduct(String fileName) throws IOException {
@@ -2766,91 +2552,9 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     public static String getSimpleXml(String uri) {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-                + getFileContent(XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard", ImmutableMap.of("uri", uri));
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + getFileContent(
+                XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard",
+                ImmutableMap.of("uri", uri));
     }
 
-    /**
-     * Sets up a download response and starts a download for testing in progress downloads.
-     */
-    private class DownloadHandle {
-
-        private String filename;
-
-        private String resourceData;
-
-        private String startDownloadUrl;
-
-        String downloadId;
-
-        DownloadHandle(String metacardId, String filename, String resourceData, int retries,
-                int delayBetweenChunksInMillis) {
-
-            this.filename = filename;
-            this.resourceData = resourceData;
-            downloadId = "";
-
-            Action response =
-                    new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
-                            Duration.ofMillis(delayBetweenChunksInMillis))
-                            .fail(retries)
-                            .build();
-
-            cswServer.whenHttp()
-                    .match(post("/services/csw"),
-                            withPostBodyContaining("GetRecords"),
-                            withPostBodyContaining(metacardId))
-                    .then(ok(),
-                            contentType("text/xml"),
-                            bytesContent(getCswQueryResponse(metacardId).getBytes()));
-
-            cswServer.whenHttp()
-                    .match(Condition.get("/services/csw"),
-                            Condition.parameter("request", "GetRecordById"),
-                            Condition.parameter("id", metacardId))
-                    .then(getCswRetrievalHeaders(filename), response);
-
-            startDownloadUrl =
-                    RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + "?source=" + CSW_STUB_SOURCE_ID
-                            + "&metacard=" + metacardId;
-        }
-
-        /**
-         * Starts the download and stores the download Id. This must be called before
-         * getDownloadId() to get a valid download id.
-         */
-        public void startDownload() {
-            // @formatter:off
-            downloadId = when().get(startDownloadUrl).then().log().all()
-                    .extract().jsonPath().getString("downloadId");
-            // @formatter:on
-            assertThat(downloadId, not(isEmptyString()));
-        }
-
-        /**
-         * Used to compare the expected information about the download and the actual information
-         * pulled from the list about a download.
-         *
-         * @param download the map containing the actual download list information to compare.
-         */
-        public void verifyGuestDownloadInProgress(Map download) {
-            assertThat(download.get("downloadId"), is(downloadId));
-            assertThat(download.get("fileName"), is(filename));
-            assertThat(download.get("status"), is("IN_PROGRESS"));
-            int bytesDownloaded = (int) download.get("bytesDownloaded");
-            assertThat(bytesDownloaded, is(greaterThan(0)));
-            assertThat(bytesDownloaded, is(lessThan(resourceData.length() + 1)));
-            assertTrue(((String) download.get("percentDownloaded")).matches(
-                    "UNKNOWN|[0-9]|[0-9]{2}|100"));
-            assertThat((List<String>) download.get("users"), contains("Guest@Guest@127.0.0.1"));
-
-        }
-
-        /**
-         * @return the download id. If there is no valid download id, it will be an empty string.
-         */
-        public String getDownloadId() {
-            return downloadId;
-        }
-    }
 }
