@@ -1,0 +1,152 @@
+
+==== Standard Catalog Framework
+
+The Standard Catalog Framework provides the reference implementation of a Catalog Framework that implements all requirements of the ${ddf-catalog} API. 
+`CatalogFrameworkImpl` is the implementation of the ${branding} Standard Catalog Framework.
+
+The Standard Catalog Framework is the core class of ${branding}.
+It provides the methods for create, update, delete, and resource retrieval (CRUD) operations on the `Sources`.
+By contrast, the Fanout Catalog Framework only allows for query and resource retrieval operations, no catalog modifications, and all queries are enterprise-wide.
+
+Use this framework if:
+
+* access to a catalog provider is required to create, update, and delete catalog entries.
+* queries to specific sites are required.
+* queries to only the local provider are required.
+
+It is possible to have only remote Sources configured with no local `CatalogProvider` configured and be able to execute queries to specific remote sources by specifying the site name(s) in the query request.
+
+The Standard Catalog Framework also maintains a list of `ResourceReaders` for resource retrieval operations.
+A resource reader is matched to the scheme (i.e., protocol, such as `file://`) in the URI of the resource specified in the request to be retrieved.
+
+Site information about the catalog provider and/or any federated source(s) can be retrieved using the Standard Catalog Framework.
+Site information includes the source's name, version, availability, and the list of unique content types currently stored in the source (e.g., NITF).
+If no local catalog provider is configured, the site information returned includes site info for the catalog framework with no content types included.
+
+===== Installing the Standard Catalog Framework
+
+The Standard Catalog Framework is bundled as the `catalog-core-standardframework` feature and can be installed and uninstalled using the normal processes described in Configuration.
+
+When this feature is installed, the Catalog Fanout Framework App feature `catalog-core-fanoutframework` should be uninstalled, as both catalog frameworks should not be installed simultaneously.
+
+===== Configuring the Standard Catalog Framework
+
+These are the configurable properties on the Standard Catalog Framework.
+
+include::{adoc-include}/_tables/ddf.catalog.CatalogFrameworkImpl-table-contents.adoc[]
+
+.Standard Catalog Framework Exported Services
+[cols="3m,1,2m", options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+|ddf.catalog.federation.FederationStrategy
+|shortname
+|sorted
+
+|org.osgi.service.event.EventHandler
+|event.topics
+|ddf/catalog/event/CREATED, ddf/catalog/event/UPDATED, ddf/catalog/event/DELETED
+
+|ddf.catalog.CatalogFramework
+|
+|
+
+|ddf.catalog.event.EventProcessor
+|
+|
+
+|ddf.catalog.plugin.PostIngestPlugin
+|
+|
+
+|===
+
+.Standard Catalog Framwork Imported Services
+[cols="3m,1,1m" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|ddf.catalog.plugin.PostFederatedQueryPlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PostIngestPlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PostQueryPlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PostResourcePlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PreDeliveryPlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PreFederatedQueryPlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PreIngestPlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PreQueryPlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PreResourcePlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PreSubscriptionPlugin
+|optional
+|true
+
+|ddf.catalog.plugin.PolicyPlugin
+|optional
+|true
+
+|ddf.catalog.plugin.AccessPlugin
+|optional
+|true
+
+|ddf.catalog.resource.ResourceReader
+|optional
+|true
+
+|ddf.catalog.source.CatalogProvider
+|optional
+|true
+
+|ddf.catalog.source.ConnectedSource
+|optional
+|true
+
+|ddf.catalog.source.FederatedSource
+|optional
+|true
+
+|ddf.cache.CacheManager
+| 
+|false
+
+|org.osgi.service.event.EventAdmin
+| 
+|false
+
+|===
+
+===== Known Issues with Standard Catalog Framework
+
+None.

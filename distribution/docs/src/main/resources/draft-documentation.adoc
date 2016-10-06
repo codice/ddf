@@ -4,6 +4,7 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 = Introduction
 
 == About ${branding}
+
 include::{adoc-include}/_introduction/introduction-contents.adoc[]
 
 include::{adoc-include}/_introduction/applications-contents.adoc[]
@@ -210,3 +211,32 @@ include::{adoc-include}/_draft-ui-contents/managing-ui-contents.adoc[]
 include::{adoc-include}/_resource-management-contents/managing-resource-management-contents.adoc[]
 
 <<<
+= Integrating ${branding}
+[small]#Version: ${project.version}#
+
+//Catalog Frameworks
+== The Catalog Framework
+
+include::{adoc-include}/_catalog-frameworks/catalog-architecture-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/catalog-framework-intro-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/catalog-frameworks-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/catalog-api-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/standard-catalog-framework-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/catalog-framework-camel-component-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/developing-catalog-frameworks-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/metacard-type-definition-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/global-attribute-validators-definition-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/attribute-type-definition-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/default-attribute-values-contents.adoc[]
+
+include::{adoc-include}/_catalog-frameworks/attribute-injection-definition-contents.adoc[]
