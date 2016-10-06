@@ -53,9 +53,9 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.helpers.NamespaceSupport;
 
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.measure.Distance;
@@ -149,7 +149,9 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
             if (SPATIAL_QUERY_TAG.equals(extraData)) {
                 AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(name);
-                if (attrDesc != null && !BasicTypes.GEO_TYPE.equals(attrDesc.getType())) {
+                if (attrDesc != null
+                        && !AttributeType.AttributeFormat.GEOMETRY.equals(attrDesc.getType()
+                        .getAttributeFormat())) {
                     throw new UnsupportedOperationException(
                             "Attempted a spatial query on a non-geometry-valued attribute ("
                                     + propertyName + ")");
@@ -375,8 +377,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
             AttributeDescriptor attrDesc =
                     metacardType.getAttributeDescriptor(((PropertyName) expr).getPropertyName());
             if (attrDesc != null) {
-                return attrDesc.getType()
-                        .equals(BasicTypes.DATE_TYPE);
+                return AttributeType.AttributeFormat.DATE.equals(attrDesc.getType()
+                        .getAttributeFormat());
             }
         }
         return false;

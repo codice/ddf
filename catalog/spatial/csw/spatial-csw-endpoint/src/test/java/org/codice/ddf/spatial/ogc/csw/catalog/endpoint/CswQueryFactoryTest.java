@@ -27,6 +27,8 @@ import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -68,8 +70,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.types.AssociationsAttributes;
 import ddf.catalog.data.impl.types.ContactAttributes;
@@ -88,7 +92,6 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-
 import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -1121,7 +1124,24 @@ public class CswQueryFactoryTest {
                         new LocationAttributes(),
                         new MediaAttributes(),
                         new TopicAttributes(),
-                        new AssociationsAttributes()));
+                        new AssociationsAttributes(),
+                        new MetacardTypeImpl("TestDate",
+                                Collections.singleton(new AttributeDescriptorImpl("TestDate",
+                                        true,
+                                        true,
+                                        true,
+                                        false,
+                                        new AttributeType<Date>() {
+                                            @Override
+                                            public Class<Date> getBinding() {
+                                                return Date.class;
+                                            }
+
+                                            @Override
+                                            public AttributeFormat getAttributeFormat() {
+                                                return AttributeFormat.DATE;
+                                            }
+                                        })))));
     }
 
 }
