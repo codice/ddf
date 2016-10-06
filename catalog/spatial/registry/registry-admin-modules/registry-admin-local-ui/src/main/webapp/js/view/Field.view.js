@@ -42,6 +42,7 @@ define([
                 "change:error": "showHideError",
                 "change": "fieldChanged"
             },
+
             initialize: function (options) {
                 this.readOnly = options.readOnly;
                 this.modelBinder = new Backbone.ModelBinder();
@@ -53,6 +54,16 @@ define([
             onRender: function () {
                 var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
                 this.modelBinder.bind(this.model, this.$el, bindings);
+                var possibleValues = this.model.get('possibleValues');
+                if(possibleValues){
+                    this.$('.'+this.model.get('key')).autocomplete({
+                        source: possibleValues,
+                        change: function(event) {
+                           $(event.target).change();
+                        }
+                    });
+                }
+
             },
             addValue: function () {
                 this.model.addValue('');
