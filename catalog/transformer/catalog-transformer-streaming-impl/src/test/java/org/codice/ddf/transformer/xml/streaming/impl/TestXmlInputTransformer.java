@@ -204,8 +204,12 @@ public class TestXmlInputTransformer {
     @Test
     public void testGml3Conversion() throws FileNotFoundException, CatalogTransformerException {
         inputStream = new FileInputStream("src/test/resources/metacard1.xml");
-        xmlInputTransformer = new XmlInputTransformer();
-        xmlInputTransformer.setContext(mock(BundleContext.class));
+        xmlInputTransformer = new XmlInputTransformer() {
+            @Override
+            public BundleContext getContext() {
+                return mock(BundleContext.class);
+            }
+        };
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("gml-handler"));
         GmlHandlerFactory factory = new GmlHandlerFactory();
         factory.setGml3ToWkt(gml3ToWkt);
@@ -221,8 +225,12 @@ public class TestXmlInputTransformer {
     public void testBadGml3Converter()
             throws FileNotFoundException, CatalogTransformerException, ValidationException {
         inputStream = new FileInputStream("src/test/resources/metacard1.xml");
-        xmlInputTransformer = new XmlInputTransformer();
-        xmlInputTransformer.setContext(mock(BundleContext.class));
+        xmlInputTransformer = new XmlInputTransformer() {
+            @Override
+            public BundleContext getContext() {
+                return mock(BundleContext.class);
+            }
+        };
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("gml-handler"));
         GmlHandlerFactory factory = new GmlHandlerFactory();
         Gml3ToWkt badGml3toWkt = mock(Gml3ToWkt.class);

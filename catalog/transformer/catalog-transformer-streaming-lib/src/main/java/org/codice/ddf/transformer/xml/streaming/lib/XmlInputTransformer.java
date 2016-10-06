@@ -26,9 +26,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.felix.utils.collections.MapToDictionary;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +54,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlInputTransformer.class);
 
     private Map<String, ServiceRegistration> metacardTypeServiceRegistrations =
-            new HashMap<String, ServiceRegistration>();
+            new HashMap<>();
 
     /*
      * The Describable attributes that can be used to describe this (specific configuration of) transformer
@@ -67,7 +69,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
     private String organization = "DEFAULT_ORGANIZATION";
 
-    private BundleContext context;
+    private MetacardType metacardType;
 
     /*
      * List of all SaxEventHandlerFactories, used in creating the corresponding, properly configured SaxEventHandlerDelegate.
@@ -201,6 +203,8 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      */
     public void setSaxEventHandlerConfiguration(List<String> saxEventHandlerConfiguration) {
         this.saxEventHandlerConfiguration = saxEventHandlerConfiguration;
+
+        setMetacardType();
     }
 
     @Override
@@ -255,7 +259,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
      */
 
-    public MetacardType getMetacardType() {
+    public void setMetacardType() {
         Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
         if (saxEventHandlerConfiguration != null && saxEventHandlerFactories != null) {
@@ -272,19 +276,28 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
         DynamicMetacardType dynamicMetacardType = new DynamicMetacardType(attributeDescriptors, id);
         registerMetacardType(dynamicMetacardType);
-        return dynamicMetacardType;
+        metacardType = dynamicMetacardType;
     }
 
-    private void registerMetacardType(MetacardType metacardType) {
+    public MetacardType getMetacardType() {
+        return metacardType;
+    }
+
+    private synchronized void registerMetacardType(MetacardType metacardType) {
         unregisterMetacardType(metacardType);
 
+        Map<String, Object> serviceProperties = new HashMap<>();
+        serviceProperties.put("name", metacardType.getName());
+
         ServiceRegistration serviceRegistration =
-                context.registerService(MetacardType.class.getName(), metacardType, null);
+                getContext().registerService(MetacardType.class.getName(),
+                        metacardType,
+                        new MapToDictionary(serviceProperties));
 
         this.metacardTypeServiceRegistrations.put(metacardType.getName(), serviceRegistration);
     }
 
-    private void unregisterMetacardType(MetacardType metacardType) {
+    private synchronized void unregisterMetacardType(MetacardType metacardType) {
         ServiceRegistration serviceRegistration =
                 metacardTypeServiceRegistrations.get(metacardType.getName());
         if (serviceRegistration != null) {
@@ -293,12 +306,9 @@ public class XmlInputTransformer implements InputTransformer, Describable {
         }
     }
 
-    public void setContext(BundleContext context) {
-        this.context = context;
-    }
-
     public BundleContext getContext() {
-        return context;
+        return FrameworkUtil.getBundle(this.getClass())
+                .getBundleContext();
     }
 }
 

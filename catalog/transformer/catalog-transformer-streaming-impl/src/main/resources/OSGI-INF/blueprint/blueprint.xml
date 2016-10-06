@@ -64,7 +64,6 @@
                 <list>
                 </list>
             </property>
-            <property name="context" ref="blueprintBundleContext"/>
 
             <cm:managed-properties persistent-id=""
                                    update-strategy="container-managed"/>
