@@ -74,6 +74,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
+            <artifactId>versioning-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
             <artifactId>versioning-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -335,6 +340,7 @@
                             ddf.catalog.content.operation;version="2.0",
                             ddf.catalog.content.plugin;version="2.0",
                             ddf.catalog.content;version="2.0",
+                            ddf.catalog.core.versioning,
                             ddf.catalog.data;version="2.0",
                             ddf.catalog.event;version="2.0",
                             ddf.catalog.federation;version="2.0",

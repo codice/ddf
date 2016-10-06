@@ -202,7 +202,6 @@ public class CreateOperations {
 
     public CreateResponse create(CreateStorageRequest streamCreateRequest,
             List<String> fanoutTagBlacklist) throws IngestException, SourceUnavailableException {
-        Optional<String> historianTransactionKey = Optional.empty();
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems()
                 .size());
@@ -252,8 +251,6 @@ public class CreateOperations {
                     throw new IngestException("Could not store content items.", e);
                 }
 
-                historianTransactionKey = historian.version(createStorageRequest);
-
                 createStorageResponse = processPostCreateStoragePlugins(createStorageResponse);
 
                 populateMetacardMap(metacardMap, createStorageResponse);
@@ -266,7 +263,7 @@ public class CreateOperations {
                                     .orElseGet(HashMap::new));
 
             createResponse = create(createRequest);
-        } catch (StorageException | IOException | RuntimeException e) {
+        } catch (IOException | RuntimeException e) {
             if (createStorageRequest != null) {
                 try {
                     sourceOperations.getStorage()
@@ -281,9 +278,7 @@ public class CreateOperations {
                     "Unable to store products for request: " + streamCreateRequest.getId(), e);
 
         } finally {
-            opsStorageSupport.commitAndCleanup(createStorageRequest,
-                    historianTransactionKey,
-                    tmpContentPaths);
+            opsStorageSupport.commitAndCleanup(createStorageRequest, tmpContentPaths);
         }
 
         return createResponse;
@@ -561,9 +556,8 @@ public class CreateOperations {
             return null;
         }
 
-        CreateResponse createResponse = sourceOperations.getCatalog()
+        return sourceOperations.getCatalog()
                 .create(createRequest);
-        return historian.version(createResponse);
     }
 
     private CreateRequest processPreIngestPlugins(CreateRequest createRequest)

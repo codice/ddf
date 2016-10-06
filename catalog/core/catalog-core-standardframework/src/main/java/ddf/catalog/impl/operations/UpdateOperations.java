@@ -187,7 +187,6 @@ public class UpdateOperations {
 
     public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
             throws IngestException, SourceUnavailableException {
-        Optional<String> historianTransactionKey = Optional.empty();
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamUpdateRequest.getContentItems()
                 .size());
@@ -224,15 +223,12 @@ public class UpdateOperations {
                             .update(updateStorageRequest);
                     updateStorageResponse.getProperties()
                             .put(CONTENT_PATHS, tmpContentPaths);
+                    updateStorageResponse = historian.version(streamUpdateRequest, updateStorageResponse);
                 } catch (StorageException e) {
                     throw new IngestException(
                             "Could not store content items. Removed created metacards.",
                             e);
                 }
-
-                historianTransactionKey = historian.version(streamUpdateRequest,
-                        updateStorageResponse,
-                        tmpContentPaths);
 
                 updateStorageResponse = processPostUpdateStoragePlugins(updateStorageResponse);
 
@@ -276,9 +272,7 @@ public class UpdateOperations {
                     "Unable to store products for request: " + streamUpdateRequest.getId(), e);
 
         } finally {
-            opsStorageSupport.commitAndCleanup(updateStorageRequest,
-                    historianTransactionKey,
-                    tmpContentPaths);
+            opsStorageSupport.commitAndCleanup(updateStorageRequest, tmpContentPaths);
         }
 
         return updateResponse;

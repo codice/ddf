@@ -11,8 +11,9 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.core.versioning
+package ddf.catalog.core.versioning.impl
 
+import ddf.catalog.core.versioning.MetacardVersion
 import ddf.catalog.data.Metacard
 import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.AttributeImpl
@@ -26,7 +27,7 @@ import spock.lang.Specification
 
 import java.time.Instant
 
-import static MetacardVersion.Action
+import static ddf.catalog.core.versioning.MetacardVersion.Action
 
 class HistoryMetacardImplSpecTest extends Specification {
 
@@ -46,7 +47,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         Instant start = Instant.now()
 
         when:
-        MetacardVersion history = new MetacardVersion(
+        MetacardVersionImpl history = new MetacardVersionImpl(
                 meta.metacard,
                 action,
                 SecurityUtils.subject)
@@ -74,7 +75,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         setup:
         def meta = defaultMetacard()
         Action action = Action.CREATED
-        MetacardVersion history = new MetacardVersion(
+        MetacardVersionImpl history = new MetacardVersionImpl(
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject)
@@ -96,7 +97,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         Action action = Action.CREATED
 
         when: "History items are created from non basic metacard types"
-        MetacardVersion history = new MetacardVersion(
+        MetacardVersionImpl history = new MetacardVersionImpl(
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject,
@@ -127,7 +128,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         Action action = Action.CREATED
 
         when: "History items are created from non basic metacard types"
-        MetacardVersion history = new MetacardVersion(
+        MetacardVersionImpl history = new MetacardVersionImpl(
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject)

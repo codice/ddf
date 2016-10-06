@@ -276,7 +276,12 @@ public class DeleteOperations {
         DeleteResponse deleteResponse = sourceOperations.getCatalog()
                 .delete(deleteRequest);
         deleteResponse = injectAttributes(deleteResponse);
-        historian.version(deleteResponse);
+        try {
+            historian.version(deleteResponse);
+        } catch (SourceUnavailableException e) {
+            LOGGER.debug("Could not version deleted item!", e);
+            throw new IngestException("Could not version deleted Item!");
+        }
         return deleteResponse;
     }
 

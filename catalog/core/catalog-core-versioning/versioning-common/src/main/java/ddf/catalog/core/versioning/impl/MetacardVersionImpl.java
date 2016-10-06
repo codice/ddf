@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.core.versioning;
+package ddf.catalog.core.versioning.impl;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -21,19 +21,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -43,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
@@ -55,209 +55,88 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.security.SubjectUtils;
 
 /**
+ * Experimental. Subject to change.
+ * <br/>
  * Represents a version at a particular instant. Also included are the {@link Action} that was
  * performed, who it was edited by, and what time it was edited on.
  */
-public class MetacardVersion extends MetacardImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardVersion.class);
+public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardVersionImpl.class);
+
+    private static final MetacardType METACARD_VERSION;
 
     private static final Set<AttributeDescriptor> VERSION_DESCRIPTORS =
             new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
 
-    private static final String VERSION_PREFIX = "metacard.version";
-
-    private static final Function<String, String> PREFIX = s -> String.format("%s.%s",
-            VERSION_PREFIX,
-            s);
-
-    private static final MetacardType METACARD_VERSION;
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // OPERATION PROPERTIES
-    ////////////////////////////////////////////////////////////////////////////////////
-
-    public static final String SKIP_VERSIONING = "skip-versioning";
-
-    public static final String HISTORY_METACARDS_PROPERTY = "history-metacards";
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // ATTRIBUTE VALUES
-    ////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * {@link ddf.catalog.data.Attribute} value for {@link ddf.catalog.data.Metacard#TAGS} when
-     * a metacard is a History Metacard.
-     */
-    public static final String VERSION_TAG = "revision";
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // ATTRIBUTE NAMES
-    ////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for action of the current {@link MetacardVersion}.
-     * Can be one of <code>Created</code>, <code>Updated</code>, or <code>Deleted</code>.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String ACTION = PREFIX.apply("action");
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for the editor of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String EDITED_BY = PREFIX.apply("edited-by");
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for version date of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String VERSIONED_ON = PREFIX.apply("versioned-on");
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for metacard ID on a history item of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String VERSION_OF_ID = PREFIX.apply("id");
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for original tags of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String VERSION_TAGS = PREFIX.apply("tags");
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for original metacard type of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String VERSION_TYPE = PREFIX.apply("type");
-
-    /**
-     * {@link ddf.catalog.data.Attribute} name for original serialized metacard type  of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    public static final String VERSION_TYPE_BINARY = PREFIX.apply("type-binary");
-
     static {
         VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(ACTION,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
+                true,
+                true,
+                false,
+                false,
                 BasicTypes.STRING_TYPE));
         VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(EDITED_BY,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
+                true,
+                true,
+                false,
+                false,
                 BasicTypes.STRING_TYPE));
         VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSIONED_ON,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
+                true,
+                true,
+                false,
+                false,
                 BasicTypes.DATE_TYPE));
         VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSION_OF_ID,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
+                true,
+                true,
+                false,
+                false,
                 BasicTypes.STRING_TYPE));
         VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSION_TAGS,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                true /* multivalued */,
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.STRING_TYPE));
         VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSION_TYPE,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
+                true,
+                true,
+                false,
+                false,
                 BasicTypes.STRING_TYPE));
         VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSION_TYPE_BINARY,
-                false /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
+                false,
+                true,
+                false,
+                false,
                 BasicTypes.BINARY_TYPE));
-        METACARD_VERSION = new MetacardTypeImpl(VERSION_PREFIX, VERSION_DESCRIPTORS);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // ENUMERATIONS
-    ////////////////////////////////////////////////////////////////////////////////////
-    public enum Action {
-        // @formatter:off
-        CREATED("Created"),
-        CREATED_CONTENT("Created-Content"),
-        UPDATED("Updated"),
-        UPDATED_CONTENT("Updated-Content"),
-        DELETED("Deleted");
-        // @formatter:on
-
-        private static Map<String, Action> keyMap = new HashMap<>();
-
-        static {
-            for (Action action : Action.values()) {
-                keyMap.put(action.getKey(), action);
-            }
-        }
-
-        private String key;
-
-        Action(String key) {
-            this.key = key;
-        }
-
-        public String getKey() {
-            return this.key;
-        }
-
-        public static Action fromKey(String key) {
-            return keyMap.get(key);
-        }
-
-        public static Action ofMetacard(Metacard metacard) {
-            if (isNotVersion(metacard)) {
-                throw new IllegalArgumentException(
-                        "Cannot get action of a non version metacard [" + metacard.getId() + "]");
-            }
-            Serializable svalue = Optional.ofNullable(metacard.getAttribute(ACTION))
-                    .map(Attribute::getValue)
-                    .orElse(null);
-            if (!(svalue instanceof String)) {
-                throw new IllegalArgumentException("The action attribute must be a string");
-            }
-            String value = (String) svalue;
-            return keyMap.get(value);
-        }
-
+        VERSION_DESCRIPTORS.add(new AttributeDescriptorImpl(VERSIONED_RESOURCE_URI,
+                true,
+                true,
+                true,
+                false,
+                BasicTypes.STRING_TYPE));
+        METACARD_VERSION = new MetacardTypeImpl(PREFIX, VERSION_DESCRIPTORS);
     }
 
     /**
-     * Will convert the given {@link Metacard} to a {@link MetacardVersion} by cloning
+     * Will convert the given {@link Metacard} to a {@link MetacardVersionImpl} by cloning
      * it and adding the current subject, time, and a random UUID. Cannot take a
-     * {@link MetacardVersion} as the sourceMetacard.
+     * {@link MetacardVersionImpl} as the sourceMetacard.
      *
      * @param sourceMetacard Metacard to clone and create a history item from
      * @param action         Which action was done to modify the metacard
      * @throws IllegalArgumentException
      */
-    public MetacardVersion(Metacard sourceMetacard, Action action, Subject subject) {
+    public MetacardVersionImpl(Metacard sourceMetacard, Action action, Subject subject) {
         this(sourceMetacard, action, subject, Collections.singletonList(BasicTypes.BASIC_METACARD));
     }
 
     /**
-     * Will convert the given {@link Metacard} to a {@link MetacardVersion} by cloning
+     * Will convert the given {@link Metacard} to a {@link MetacardVersionImpl} by cloning
      * it and adding the current subject, time, and a random UUID. Cannot take a
-     * {@link MetacardVersion} as the sourceMetacard.
+     * {@link MetacardVersionImpl} as the sourceMetacard.
      * <br/>
      * The {@link MetacardType}s list will affect whether the metacard type is stored by name
      * or entirely by serializing the type and storing it in the metacard.
@@ -267,18 +146,13 @@ public class MetacardVersion extends MetacardImpl {
      * @param types          A list of currently defined types in the system
      * @throws IllegalArgumentException
      */
-    public MetacardVersion(Metacard sourceMetacard, Action action, Subject subject,
+    public MetacardVersionImpl(Metacard sourceMetacard, Action action, Subject subject,
             List<MetacardType> types) {
         super(sourceMetacard,
-                new MetacardTypeImpl(VERSION_PREFIX,
+                new MetacardTypeImpl(PREFIX,
                         METACARD_VERSION,
                         sourceMetacard.getMetacardType()
                                 .getAttributeDescriptors()));
-
-        if (sourceMetacard instanceof MetacardVersion) {
-            throw new IllegalArgumentException(
-                    "Cannot create a history item from a history metacard.");
-        }
 
         this.setAction(action);
         this.setVersionOfId(sourceMetacard.getId());
@@ -306,6 +180,7 @@ public class MetacardVersion extends MetacardImpl {
         this.setId(UUID.randomUUID()
                 .toString()
                 .replace("-", ""));
+        this.setVersionResourceUri(sourceMetacard.getResourceURI());
         this.setTags(Collections.singleton(VERSION_TAG));
     }
 
@@ -320,7 +195,7 @@ public class MetacardVersion extends MetacardImpl {
     }
 
     /**
-     * Reverts the {@link MetacardVersion} to the original {@link Metacard}
+     * Reverts the {@link MetacardVersionImpl} to the original {@link Metacard}
      *
      * @return The converted metacard
      * @throws IllegalStateException
@@ -349,6 +224,12 @@ public class MetacardVersion extends MetacardImpl {
                         cannotDeserializeException)));
         result.setId(id);
         result.setTags(getVersionTags(source));
+        try {
+            result.setResourceURI(new URI(String.valueOf(source.getAttribute(VERSIONED_RESOURCE_URI)
+                    .getValue())));
+        } catch (URISyntaxException e) {
+            LOGGER.debug("Could not replace the versioned resource URI, It might not be valid", e);
+        }
 
         sanitizeVersionAttributes(result);
         return result;
@@ -412,6 +293,18 @@ public class MetacardVersion extends MetacardImpl {
         return metacard instanceof MetacardVersion || getMetacardVersionType().getName()
                 .equals(metacard.getMetacardType()
                         .getName());
+    }
+
+    public URI getVersionResourceUri() {
+        return requestData(VERSIONED_RESOURCE_URI, URI.class);
+    }
+
+    public void setVersionResourceUri(String uri) {
+        setAttribute(VERSIONED_RESOURCE_URI, uri);
+    }
+
+    public void setVersionResourceUri(URI uri) {
+        setVersionResourceUri(uri.toString());
     }
 
     public String getVersionOfId() {

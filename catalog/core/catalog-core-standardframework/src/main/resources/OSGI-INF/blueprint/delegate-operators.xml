@@ -21,6 +21,10 @@
                                update-strategy="container-managed"/>
         <property name="catalogProviders" ref="catalogProviderSortedList"/>
         <property name="storageProviders" ref="storageProviderSortedList"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="metacardTypes">
+            <reference-list interface="ddf.catalog.data.MetacardType"/>
+        </property>
     </bean>
 
     <bean id="cfOpsSecurity" class="ddf.catalog.impl.operations.OperationsSecuritySupport"/>
