@@ -66,6 +66,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 
 public abstract class AbstractFeatureConverter implements FeatureConverter {
 
@@ -174,7 +175,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                     .equals(attributeDescriptor.getType()
                             .getAttributeFormat()))) {
                 if (StringUtils.isNotBlank(mappedMetacardAttribute)) {
-                    if (StringUtils.equals(mappedMetacardAttribute, Metacard.RESOURCE_SIZE)) {
+                    if (StringUtils.equals(mappedMetacardAttribute, Core.RESOURCE_SIZE)) {
                         String sizeBeforeConversion = reader.getValue();
                         String bytes = convertToBytes(reader, metacardMapper.getDataUnit());
                         if (StringUtils.isNotBlank(bytes)) {

@@ -49,6 +49,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 
 public class TestGenericFeatureConverter {
 
@@ -108,7 +109,7 @@ public class TestGenericFeatureConverter {
                 mc.getMetacardType()
                         .getName());
         assertEquals(SOURCE_ID, mc.getSourceId());
-        assertEquals("video_data_set.2", mc.getTitle());
+        assertEquals("video_data_set.2", mc.getAttribute(Core.TITLE).getValue());
 
         assertEquals(2L,
                 mc.getAttribute(PROPERTY_PREFIX + ID_ELEMENT)
@@ -143,14 +144,14 @@ public class TestGenericFeatureConverter {
                 mc.getAttribute(PROPERTY_PREFIX + WIDTH_ELEMENT)
                         .getValue());
 
-        assertEquals(getLocation(), mc.getLocation());
+        assertEquals(getLocation(), mc.getAttribute(Core.LOCATION).getValue());
         assertEquals(mc.getLocation(),
                 mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT)
                         .getValue());
 
-        assertNotNull(mc.getCreatedDate());
         assertNotNull(mc.getEffectiveDate());
-        assertNotNull(mc.getModifiedDate());
+        assertNotNull(mc.getAttribute(Core.CREATED));
+        assertNotNull(mc.getAttribute(Core.MODIFIED));
 
         assertNotNull(mc.getContentTypeNamespace());
         assertEquals(mc.getContentTypeNamespace()

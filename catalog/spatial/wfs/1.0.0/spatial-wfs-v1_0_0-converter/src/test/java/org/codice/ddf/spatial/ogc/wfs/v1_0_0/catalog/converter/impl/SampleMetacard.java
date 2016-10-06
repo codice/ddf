@@ -20,9 +20,11 @@ import java.util.Set;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 
 public class SampleMetacard {
 
@@ -33,15 +35,15 @@ public class SampleMetacard {
     public SampleMetacard() {
         metacard.setContentTypeName("I have some content type");
         metacard.setContentTypeVersion("1.0.0");
-        metacard.setCreatedDate(new Date());
+        metacard.setAttribute(new AttributeImpl(Core.CREATED, new Date()));
         metacard.setEffectiveDate(new Date());
         metacard.setId("ID");
-        metacard.setLocation("POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))");
-        metacard.setMetadata("metadata a whole bunch of metadata");
-        metacard.setModifiedDate(new Date());
-        metacard.setResourceSize("123 is the size");
+        metacard.setAttribute(new AttributeImpl(Core.LOCATION, "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))"));
+        metacard.setAttribute(new AttributeImpl(Core.METADATA, "metadata a whole bunch of metadata"));
+        metacard.setAttribute(new AttributeImpl(Core.MODIFIED, new Date()));
+        metacard.setAttribute(new AttributeImpl(Core.RESOURCE_SIZE, 123));
         metacard.setSourceId("sourceID");
-        metacard.setTitle("This is my title");
+        metacard.setAttribute(new AttributeImpl(Core.TITLE, "This is my title"));
 
         Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
         descriptors.add(new AttributeDescriptorImpl("id",
