@@ -53,6 +53,7 @@ import org.opengis.filter.spatial.Within;
 import org.opengis.filter.temporal.After;
 import org.opengis.filter.temporal.Before;
 import org.opengis.filter.temporal.BinaryTemporalOperator;
+import org.opengis.filter.temporal.During;
 import org.opengis.filter.temporal.TEquals;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -270,17 +271,21 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(duplicate.getExpression2(), is(val));
     }
 
-    @Ignore("not supported by solr provider")
+
     @Test
     public void testVisitPropertyIsGreaterThanTemporal() {
-        Expression val = factory.literal(new Date());
+        Expression val = factory.literal(new Date(System.currentTimeMillis() - 1000));
+        Expression test =
+                new AttributeExpressionImpl(new NameImpl(new QName(CswConstants.DUBLIN_CORE_SCHEMA,
+                        "TestDate",
+                        CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
-        PropertyIsGreaterThan filter = factory.greater(created, val);
+        PropertyIsGreaterThan filter = factory.greater(test, val);
         Object obj = visitor.visit(filter, null);
 
-        assertThat(obj, instanceOf(After.class));
-        After duplicate = (After) obj;
-        assertThat(duplicate.getExpression1(), is(created));
+        assertThat(obj, instanceOf(During.class));
+        During duplicate = (During) obj;
+        assertThat(duplicate.getExpression1(), is(test));
         assertThat(duplicate.getExpression2(), is(val));
     }
 
