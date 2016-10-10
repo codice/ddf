@@ -143,13 +143,23 @@
                                 {{#is @key 'resource-size'}}
                                     <td>{{fileSize this}}</td>
                                 {{else}}
-                                    {{#isUrl this}}
-                                    <td>
-                                        <a target='_blank' title="{{propertyTitle @key}}" href='{{safeString this}}'>{{safeString this}}</a>
-                                    </td>
+                                    {{#is @key 'resource.derived-download-url'}}
+                                        <td>
+                                            {{#each this}}
+                                                {{#isUrl this}}
+                                                    <a target='_blank' href='{{safeString this}}'>{{safeString this}}</a>
+                                                {{/isUrl}}
+                                            {{/each}}
+                                        </td>
                                     {{else}}
-                                    <td>{{safeString this}}</td>
-                                    {{/isUrl}}
+                                        {{#isUrl this}}
+                                            <td>
+                                                <a target='_blank' title="{{propertyTitle @key}}" href='{{safeString this}}'>{{safeString this}}</a>
+                                            </td>
+                                        {{else}}
+                                            <td>{{safeString this}}</td>
+                                        {{/isUrl}}
+                                     {{/is}}
                                 {{/is}}
                             {{/is}}
                         </tr>
