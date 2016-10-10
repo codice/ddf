@@ -179,8 +179,13 @@ Admin Console.
  -TMS (TileMapService), +
  -GE (GoogleEarth), +
  Examples: +
- -{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5} +
- -{"type" "WMT" "url" "http://example.com" "layer" "layer1" "style" "default" "tileMatrixSetID" "tileSetId"}
+ -{"type" "OSM" "url" "http://example.osm.org" "fileExtension" "png" "alpha" 0.3 } +
+ -{"type" "AGM" "url" "http://example.agm.org"} +
+ -{"type" "BM" "url" "https://example.bm.org" "key" "API KEY"} +
+ -{"type" "WMS" "url" "http://example.wms.org" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5} +
+ -{"type" "WMT" "url" "http://example.wmt.org" "layer" "layer1" "style" "default" "tileMatrixSetID" "tileSetId"} +
+ -{"type" "TMS" "url" "http://example.tms.org/tms/1.0.0/ne:ne@EPSG:900913@png/{z}/{x}/{y}.png"} +
+ -{"type" "GE" "url" "http://example.ge.org" "channel" "10008"}
 |no
 
 |Terrain Providers
