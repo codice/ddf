@@ -53,8 +53,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlInputTransformer.class);
 
-    private Map<String, ServiceRegistration> metacardTypeServiceRegistrations =
-            new HashMap<>();
+    private Map<String, ServiceRegistration> metacardTypeServiceRegistrations = new HashMap<>();
 
     /*
      * The Describable attributes that can be used to describe this (specific configuration of) transformer
@@ -253,7 +252,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
     }
 
     /**
-     * Defines and returns a {@link DynamicMetacardType} based on component Sax Event Handler Factories
+     * Defines a {@link DynamicMetacardType} based on component Sax Event Handler Factories
      * and what attributes they populate
      *
      * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
@@ -280,6 +279,10 @@ public class XmlInputTransformer implements InputTransformer, Describable {
     }
 
     public MetacardType getMetacardType() {
+        if (metacardType == null) {
+            setMetacardType();
+        }
+
         return metacardType;
     }
 
@@ -298,6 +301,10 @@ public class XmlInputTransformer implements InputTransformer, Describable {
     }
 
     private synchronized void unregisterMetacardType(MetacardType metacardType) {
+        if (metacardType == null) {
+            return;
+        }
+
         ServiceRegistration serviceRegistration =
                 metacardTypeServiceRegistrations.get(metacardType.getName());
         if (serviceRegistration != null) {

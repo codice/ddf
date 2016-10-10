@@ -142,7 +142,6 @@ public class TestGenericXmlLib {
         };
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        xmlInputTransformer.setMetacardType();
         MetacardType metacardType = xmlInputTransformer.getMetacardType();
         assertThat(metacardType.getAttributeDescriptors(),
                 is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
