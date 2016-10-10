@@ -167,5 +167,10 @@
             <artifactId>admin-core-configpolicy</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.admin.modules</groupId>
+            <artifactId>admin-docs-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
