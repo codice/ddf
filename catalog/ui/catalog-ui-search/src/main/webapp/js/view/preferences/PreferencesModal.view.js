@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define,setTimeout,require*/
+/* global define,require*/
 define([
     'application',
     'underscore',
@@ -51,9 +51,6 @@ define([
             this.layerTabView = new PrefsModalView.LayerTabView({
                 model: this.model.get('mapLayers')
             });
-            setTimeout(function () {
-                this.layerTabView.setupMap();
-            }.bind(this), 100);
         },
         onRender: function () {
             this.layerTabRegion.show(this.layerTabView);
@@ -84,6 +81,8 @@ define([
             layerButtonsRegion: '#layerButtons'
         },
         initialize: function () {
+        },
+        onRender: function () {
             var viewLayerModels = [];
             this.model.each(function (layerModel) {
                 var clonedLayerModel = layerModel.clone();
@@ -126,6 +125,7 @@ define([
                         childViewOptions: { widgetController: this.widgetController }
                     });
                     this.layerButtons = new PrefsModalView.Buttons({ tabView: this });
+                    this.showLayerPickersAndLayerButtons();
                 }.bind(this));
             } else if (maptype.is2d()) {
                 require(['js/controllers/ol.layerCollection.controller'], function(OpenLayersController){
@@ -150,19 +150,13 @@ define([
                         childViewOptions: { widgetController: this.widgetController }
                     });
                     this.layerButtons = new PrefsModalView.Buttons({ tabView: this });
+                    this.showLayerPickersAndLayerButtons();
                 }.bind(this));
             }
         },
-        onRender: function () {
+        showLayerPickersAndLayerButtons: function(){
             this.layerPickersRegion.show(this.layerPickers);
             this.layerButtonsRegion.show(this.layerButtons);
-        },
-        setupMap: function () {
-            /*
-                 maps are sensitive to DOM state.
-                 cesium must be created sometime after containing DOM is "attached".
-                 openlayers must be created sometime after containing DOM is "visible".
-                 */
             this.widgetController.showMap('layerPickerMap');
         },
         onDestroy: function () {
