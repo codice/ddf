@@ -81,7 +81,6 @@ import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Core;
-
 import net.opengis.filter.v_1_1_0.AbstractIdType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
@@ -198,7 +197,7 @@ public class TestCswFilterDelegate {
 
     private final boolean booleanLiteral = true;
 
-    private final boolean isCaseSensitive = false;
+    private final boolean isCaseSensitive = true;
 
     private final String stringLowerBoundary = "5";
 
@@ -740,8 +739,8 @@ public class TestCswFilterDelegate {
 
         POS_LIST_GEO_FILTER_PROP_MAP.put(USE_POS_LIST_GEO_FILTER_PROP_MAP_KEY, "true");
 
-        SAMPLE_DISTANCE_GEO_FILTER_PROP_MAP.put(DISTANCE_GEO_FILTER_PROP_MAP_KEY, Double.toString(
-                SAMPLE_DISTANCE));
+        SAMPLE_DISTANCE_GEO_FILTER_PROP_MAP.put(DISTANCE_GEO_FILTER_PROP_MAP_KEY,
+                Double.toString(SAMPLE_DISTANCE));
 
         SAMPLE_DISTANCE_POS_LIST_GEO_FILTER_PROP_MAP.put(USE_POS_LIST_GEO_FILTER_PROP_MAP_KEY,
                 "true");
@@ -969,7 +968,7 @@ public class TestCswFilterDelegate {
                     + isCaseSensitive + "\"";
         } else if (comparisonOp.getComparatorType()
                 == ComparisonOperator.ComparisonStringOperatorType.STRING) {
-            expression += " matchCase=\"false\"";
+            expression += " matchCase=\"true\"";
         }
 
         expression += ">" + "<ns3:PropertyName>" + propertyName + "</ns3:PropertyName>";
@@ -1031,8 +1030,7 @@ public class TestCswFilterDelegate {
             String... expressions) {
         String compoundExpression = null;
 
-        if (compoundOperator != null && expressions != null &&
-                expressions.length > 0) {
+        if (compoundOperator != null && expressions != null && expressions.length > 0) {
             compoundExpression = getXmlHeaderString() + "<ns3:" + compoundOperator + ">";
 
             for (String expression : expressions) {
@@ -1074,8 +1072,8 @@ public class TestCswFilterDelegate {
         }
 
         for (int ii = 0; ii + 1 < coordinatesArray.length; ii = ii + 2) {
-            pointStr += "<ns4:pos>" + coordinatesArray[ii] + " " +
-                    coordinatesArray[ii + 1] + "</ns4:pos>";
+            pointStr += "<ns4:pos>" + coordinatesArray[ii] + " " + coordinatesArray[ii + 1]
+                    + "</ns4:pos>";
         }
 
         return pointStr;
@@ -1117,8 +1115,8 @@ public class TestCswFilterDelegate {
     private String createPointFilterString(String pointCoordinatesString) {
         int numCoords = pointCoordinatesString.split(" ").length;
         if (numCoords != 2) {
-            throw new IllegalArgumentException("Invalid pointString \"" +
-                    pointCoordinatesString + "\"");
+            throw new IllegalArgumentException(
+                    "Invalid pointString \"" + pointCoordinatesString + "\"");
         }
 
         return "<ns4:Point>" + createPosElementsString(pointCoordinatesString) + "</ns4:Point>";
@@ -1145,8 +1143,7 @@ public class TestCswFilterDelegate {
 
         for (int ii = 0; ii + 1 < coordinates.length; ii = ii + 2) {
             multiPointMembersFilter += "<ns4:pointMember>" + createPointFilterString(
-                    coordinates[ii] + " " + coordinates[ii + 1]) +
-                    "</ns4:pointMember>";
+                    coordinates[ii] + " " + coordinates[ii + 1]) + "</ns4:pointMember>";
         }
 
         return multiPointMembersFilter;
@@ -1441,8 +1438,8 @@ public class TestCswFilterDelegate {
             throws JAXBException, ParseException, SAXException, IOException {
 
         LOGGER.debug("Input date: {}", SAMPLE_NON_ISO_8601_DATE);
-        LOGGER.debug("ISO 8601 formatted date: {}", convertDateToIso8601Format(
-                SAMPLE_NON_ISO_8601_DATE));
+        LOGGER.debug("ISO 8601 formatted date: {}",
+                convertDateToIso8601Format(SAMPLE_NON_ISO_8601_DATE));
         FilterType filterType = cswFilterDelegateLatLon.propertyIsEqualTo(propertyName,
                 SAMPLE_NON_ISO_8601_DATE);
         assertXMLEqual(propertyIsEqualToXmlWithNonIso8601Date, getXmlFromMarshaller(filterType));
@@ -2593,13 +2590,13 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
-                getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(BBOX), Arrays.asList(
-                        "Envelope")),
+                getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(BBOX),
+                        Arrays.asList("Envelope")),
                 initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswConstants.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.intersects(propName, polygonWkt);
-        Diff diff = XMLUnit.compareXML(bboxXmlPropertyOwsBoundingBox, getXmlFromMarshaller(
-                filterType));
+        Diff diff = XMLUnit.compareXML(bboxXmlPropertyOwsBoundingBox,
+                getXmlFromMarshaller(filterType));
         assertThat(diff.similar(), is(true));
     }
 
@@ -2612,8 +2609,8 @@ public class TestCswFilterDelegate {
         cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, CswConstants.CSW_TYPE);
 
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
-                getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(DISJOINT), Arrays.asList(
-                        "Polygon")),
+                getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(DISJOINT),
+                        Arrays.asList("Polygon")),
                 initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswConstants.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.intersects(propName, polygonWkt);
@@ -2808,8 +2805,8 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegateLatLon.intersects(propName, lineStringWkt);
-        assertXMLEqual(intersectsLineStringXmlPropertyOwsBoundingBox, getXmlFromMarshaller(
-                filterType));
+        assertXMLEqual(intersectsLineStringXmlPropertyOwsBoundingBox,
+                getXmlFromMarshaller(filterType));
     }
 
     @Test
@@ -2818,8 +2815,8 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegateLatLon.intersects(propName, multiPolygonWkt);
-        assertXMLEqual(intersectsMultiPolygonXmlPropertyOwsBoundingBox, getXmlFromMarshaller(
-                filterType));
+        assertXMLEqual(intersectsMultiPolygonXmlPropertyOwsBoundingBox,
+                getXmlFromMarshaller(filterType));
     }
 
     @Test
@@ -2828,8 +2825,8 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegateLatLon.intersects(propName, multiPointWkt);
-        assertXMLEqual(intersectsMultiPointXmlPropertyOwsBoundingBox, getXmlFromMarshaller(
-                filterType));
+        assertXMLEqual(intersectsMultiPointXmlPropertyOwsBoundingBox,
+                getXmlFromMarshaller(filterType));
     }
 
     @Test
@@ -2838,74 +2835,74 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegateLatLon.intersects(propName, multiLineStringWkt);
-        assertXMLEqual(intersectsMultiLineStringXmlPropertyOwsBoundingBox, getXmlFromMarshaller(
-                filterType));
+        assertXMLEqual(intersectsMultiLineStringXmlPropertyOwsBoundingBox,
+                getXmlFromMarshaller(filterType));
     }
 
     @Test
     public void testCrossesPropertyOwsBoundingBoxPolygon()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(crossesPolygonXmlPropertyOwsBoundingBox, getXmlProperty(
-                cswFilterDelegateLatLon,
-                CswConstants.BBOX_PROP,
-                CROSSES,
-                polygonWkt));
+        assertXMLEqual(crossesPolygonXmlPropertyOwsBoundingBox,
+                getXmlProperty(cswFilterDelegateLatLon,
+                        CswConstants.BBOX_PROP,
+                        CROSSES,
+                        polygonWkt));
     }
 
     @Test
     public void testCrossesPropertyOwsBoundingBoxPolygonPosList()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(crossesPolygonXmlPropertyOwsBoundingBoxPosList, getXmlProperty(
-                cswFilterDelegateLatLonPosList,
-                CswConstants.BBOX_PROP,
-                CROSSES,
-                polygonWkt));
+        assertXMLEqual(crossesPolygonXmlPropertyOwsBoundingBoxPosList,
+                getXmlProperty(cswFilterDelegateLatLonPosList,
+                        CswConstants.BBOX_PROP,
+                        CROSSES,
+                        polygonWkt));
     }
 
     @Test
     public void testWithinPropertyOwsBoundingBoxPolygon()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(withinPolygonXmlPropertyOwsBoundingBox, getXmlProperty(
-                cswFilterDelegateLatLon,
-                CswConstants.BBOX_PROP,
-                WITHIN,
-                polygonWkt));
+        assertXMLEqual(withinPolygonXmlPropertyOwsBoundingBox,
+                getXmlProperty(cswFilterDelegateLatLon,
+                        CswConstants.BBOX_PROP,
+                        WITHIN,
+                        polygonWkt));
     }
 
     @Test
     public void testWithinPropertyOwsBoundingBoxPolygonPosList()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(withinPolygonXmlPropertyOwsBoundingBoxPosList, getXmlProperty(
-                cswFilterDelegateLatLonPosList,
-                CswConstants.BBOX_PROP,
-                WITHIN,
-                polygonWkt));
+        assertXMLEqual(withinPolygonXmlPropertyOwsBoundingBoxPosList,
+                getXmlProperty(cswFilterDelegateLatLonPosList,
+                        CswConstants.BBOX_PROP,
+                        WITHIN,
+                        polygonWkt));
     }
 
     @Test
     public void testContainsPropertyOwsBoundingBoxPolygon()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(containsPolygonXmlPropertyOwsBoundingBox, getXmlProperty(
-                cswFilterDelegateLatLon,
-                CswConstants.BBOX_PROP,
-                CONTAINS,
-                polygonWkt));
+        assertXMLEqual(containsPolygonXmlPropertyOwsBoundingBox,
+                getXmlProperty(cswFilterDelegateLatLon,
+                        CswConstants.BBOX_PROP,
+                        CONTAINS,
+                        polygonWkt));
     }
 
     @Test
     public void testContainsPropertyOwsBoundingBoxPolygonPosList()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(containsPolygonXmlPropertyOwsBoundingBoxPosList, getXmlProperty(
-                cswFilterDelegateLatLonPosList,
-                CswConstants.BBOX_PROP,
-                CONTAINS,
-                polygonWkt));
+        assertXMLEqual(containsPolygonXmlPropertyOwsBoundingBoxPosList,
+                getXmlProperty(cswFilterDelegateLatLonPosList,
+                        CswConstants.BBOX_PROP,
+                        CONTAINS,
+                        polygonWkt));
     }
 
     @Test
@@ -2914,8 +2911,8 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
-                getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(CONTAINS), Arrays.asList(
-                        "Polygon")),
+                getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(CONTAINS),
+                        Arrays.asList("Polygon")),
                 initCswSourceConfiguration(CswAxisOrder.LAT_LON, false, CswConstants.CSW_TYPE));
 
         FilterType filterType = localCswFilterDelegate.within(propName, polygonWkt);
@@ -2935,88 +2932,88 @@ public class TestCswFilterDelegate {
     public void testDWithinPropertyOwsBoundingBoxPolygon()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(dwithinPolygonXmlPropertyOwsBoundingBox, getXmlProperty(
-                cswFilterDelegateLatLon,
-                CswConstants.BBOX_PROP,
-                D_WITHIN,
-                polygonWkt));
+        assertXMLEqual(dwithinPolygonXmlPropertyOwsBoundingBox,
+                getXmlProperty(cswFilterDelegateLatLon,
+                        CswConstants.BBOX_PROP,
+                        D_WITHIN,
+                        polygonWkt));
     }
 
     @Test
     public void testDWithinPropertyOwsBoundingBoxPolygonPosList()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(dwithinPolygonXmlPropertyOwsBoundingBoxPosList, getXmlProperty(
-                cswFilterDelegateLatLonPosList,
-                CswConstants.BBOX_PROP,
-                D_WITHIN,
-                polygonWkt));
+        assertXMLEqual(dwithinPolygonXmlPropertyOwsBoundingBoxPosList,
+                getXmlProperty(cswFilterDelegateLatLonPosList,
+                        CswConstants.BBOX_PROP,
+                        D_WITHIN,
+                        polygonWkt));
     }
 
     @Test
     public void testTouchesPropertyOwsBoundingBoxPolygon()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(touchesPolygonXmlPropertyOwsBoundingBox, getXmlProperty(
-                cswFilterDelegateLatLon,
-                CswConstants.BBOX_PROP,
-                TOUCHES,
-                polygonWkt));
+        assertXMLEqual(touchesPolygonXmlPropertyOwsBoundingBox,
+                getXmlProperty(cswFilterDelegateLatLon,
+                        CswConstants.BBOX_PROP,
+                        TOUCHES,
+                        polygonWkt));
     }
 
     @Test
     public void testTouchesPropertyOwsBoundingBoxPolygonPosList()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(touchesPolygonXmlPropertyOwsBoundingBoxPosList, getXmlProperty(
-                cswFilterDelegateLatLonPosList,
-                CswConstants.BBOX_PROP,
-                TOUCHES,
-                polygonWkt));
+        assertXMLEqual(touchesPolygonXmlPropertyOwsBoundingBoxPosList,
+                getXmlProperty(cswFilterDelegateLatLonPosList,
+                        CswConstants.BBOX_PROP,
+                        TOUCHES,
+                        polygonWkt));
     }
 
     @Test
     public void testOverlapsPropertyOwsBoundingBoxPolygon()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(overlapsPolygonXmlPropertyOwsBoundingBox, getXmlProperty(
-                cswFilterDelegateLatLon,
-                CswConstants.BBOX_PROP,
-                OVERLAPS,
-                polygonWkt));
+        assertXMLEqual(overlapsPolygonXmlPropertyOwsBoundingBox,
+                getXmlProperty(cswFilterDelegateLatLon,
+                        CswConstants.BBOX_PROP,
+                        OVERLAPS,
+                        polygonWkt));
     }
 
     @Test
     public void testOverlapsPropertyOwsBoundingBoxPolygonPosList()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(overlapsPolygonXmlPropertyOwsBoundingBoxPosList, getXmlProperty(
-                cswFilterDelegateLatLonPosList,
-                CswConstants.BBOX_PROP,
-                OVERLAPS,
-                polygonWkt));
+        assertXMLEqual(overlapsPolygonXmlPropertyOwsBoundingBoxPosList,
+                getXmlProperty(cswFilterDelegateLatLonPosList,
+                        CswConstants.BBOX_PROP,
+                        OVERLAPS,
+                        polygonWkt));
     }
 
     @Test
     public void testDisjointPropertyOwsBoundingBoxPolygon()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(disjointPolygonXmlPropertyOwsBoundingBox, getXmlProperty(
-                cswFilterDelegateLatLon,
-                CswConstants.BBOX_PROP,
-                DISJOINT,
-                polygonWkt));
+        assertXMLEqual(disjointPolygonXmlPropertyOwsBoundingBox,
+                getXmlProperty(cswFilterDelegateLatLon,
+                        CswConstants.BBOX_PROP,
+                        DISJOINT,
+                        polygonWkt));
     }
 
     @Test
     public void testDisjointPropertyOwsBoundingBoxPolygonPosList()
             throws JAXBException, SAXException, IOException {
 
-        assertXMLEqual(disjointPolygonXmlPropertyOwsBoundingBoxPosList, getXmlProperty(
-                cswFilterDelegateLatLonPosList,
-                CswConstants.BBOX_PROP,
-                DISJOINT,
-                polygonWkt));
+        assertXMLEqual(disjointPolygonXmlPropertyOwsBoundingBoxPosList,
+                getXmlProperty(cswFilterDelegateLatLonPosList,
+                        CswConstants.BBOX_PROP,
+                        DISJOINT,
+                        polygonWkt));
     }
 
     private String getXmlProperty(CswFilterDelegate localCswFilterDelegate, String propName,
@@ -3251,15 +3248,7 @@ public class TestCswFilterDelegate {
     }
 
     private enum ComparisonOperator {
-        PROPERTY_IS_BETWEEN,
-        PROPERTY_IS_EQUAL_TO,
-        PROPERTY_IS_NOT_EQUAL_TO,
-        PROPERTY_IS_NULL,
-        PROPERTY_IS_GREATER_THAN,
-        PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO,
-        PROPERTY_IS_LESS_THAN,
-        PROPERTY_IS_LESS_THAN_OR_EQUAL_TO,
-        PROPERTY_IS_LIKE;
+        PROPERTY_IS_BETWEEN, PROPERTY_IS_EQUAL_TO, PROPERTY_IS_NOT_EQUAL_TO, PROPERTY_IS_NULL, PROPERTY_IS_GREATER_THAN, PROPERTY_IS_GREATER_THAN_OR_EQUAL_TO, PROPERTY_IS_LESS_THAN, PROPERTY_IS_LESS_THAN_OR_EQUAL_TO, PROPERTY_IS_LIKE;
 
         @Override
         public String toString() {
@@ -3340,8 +3329,7 @@ public class TestCswFilterDelegate {
      * <PropertyName> elements of Filter strings.
      */
     private enum GeospatialPropertyName {
-        BOUNDING_BOX("ows", "BoundingBox"),
-        SPATIAL("dct", "Spatial");
+        BOUNDING_BOX("ows", "BoundingBox"), SPATIAL("dct", "Spatial");
 
         String namespace = "";
 
