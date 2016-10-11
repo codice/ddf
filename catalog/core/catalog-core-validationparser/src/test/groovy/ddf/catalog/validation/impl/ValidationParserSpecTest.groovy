@@ -1,11 +1,5 @@
 package ddf.catalog.validation.impl
 
-import static org.mockito.Mockito.when
-import static org.powermock.api.mockito.PowerMockito.mockStatic
-
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-
 import ddf.catalog.data.AttributeRegistry
 import ddf.catalog.data.DefaultAttributeValueRegistry
 import ddf.catalog.data.InjectableAttribute
@@ -26,6 +20,12 @@ import org.osgi.framework.ServiceRegistration
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.rule.PowerMockRule
 import spock.lang.Specification
+
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+
+import static org.mockito.Mockito.when
+import static org.powermock.api.mockito.PowerMockito.mockStatic
 
 @PrepareForTest(FrameworkUtil.class)
 class ValidationParserSpecTest extends Specification {
@@ -130,8 +130,8 @@ class ValidationParserSpecTest extends Specification {
         attributeRegistry.lookup(attribute1Name).isPresent()
         attributeRegistry.lookup(attribute2Name).isPresent()
 
-        and: "the two attribute validators are registered in the attribute validator registry"
-        attributeValidatorRegistry.getValidators(attribute1Name).size() == 2
+        and: "the four attribute validators are registered in the attribute validator registry"
+        attributeValidatorRegistry.getValidators(attribute1Name).size() == 4
 
         and: "the default values are registered in the default value registry"
         defaultAttributeValueRegistry.getDefaultValue(type2Name, attribute1Name).isPresent()
@@ -267,8 +267,8 @@ class ValidationParserSpecTest extends Specification {
         attributeRegistry.lookup(updatedAttribute1Name).isPresent()
         attributeRegistry.lookup(updatedAttribute2Name).isPresent()
 
-        and: "two new attribute validators are registered"
-        attributeValidatorRegistry.getValidators(updatedAttribute1Name).size() == 2
+        and: "four new attribute validators are registered"
+        attributeValidatorRegistry.getValidators(updatedAttribute1Name).size() == 4
 
         and: "two new default values are registered"
         defaultAttributeValueRegistry.getDefaultValue(updatedType2Name, updatedAttribute1Name).isPresent()
@@ -455,6 +455,12 @@ class ValidationParserSpecTest extends Specification {
             {
                 "validator": "pattern",
                 "arguments": ["(hi)+\\d"]
+            },
+            {
+                "validator": "iso3_country",
+            },
+            {
+                "validator": "iso3_countryignorecase",
             }
         ]
     },

@@ -68,6 +68,7 @@ import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.impl.validator.EnumerationValidator;
 import ddf.catalog.validation.impl.validator.FutureDateValidator;
+import ddf.catalog.validation.impl.validator.ISO3CountryCodeValidator;
 import ddf.catalog.validation.impl.validator.PastDateValidator;
 import ddf.catalog.validation.impl.validator.PatternValidator;
 import ddf.catalog.validation.impl.validator.RangeValidator;
@@ -328,6 +329,12 @@ public class ValidationParser implements ArtifactInstaller {
                 return new RangeValidator(min, max, epsilon);
             }
             return new RangeValidator(min, max);
+        }
+        case "iso3_country": {
+            return new ISO3CountryCodeValidator(false);
+        }
+        case "iso3_countryignorecase": {
+            return new ISO3CountryCodeValidator(true);
         }
         default:
             throw new IllegalStateException(
