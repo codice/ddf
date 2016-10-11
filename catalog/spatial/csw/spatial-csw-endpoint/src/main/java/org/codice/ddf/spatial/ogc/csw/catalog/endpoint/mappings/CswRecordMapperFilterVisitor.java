@@ -27,6 +27,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
+import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
@@ -190,17 +191,27 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         }
         AttributeType type =
                 attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+        LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
         if (type != null) {
-            type.getBinding()
-                    .cast(((Literal) filter.getExpression2()).getValue());
+            if (type.getBinding() == Short.class) {
+                typedExpression.setValue(Short.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Integer.class) {
+                typedExpression.setValue(Integer.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Long.class) {
+                typedExpression.setValue(Long.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Float.class) {
+                typedExpression.setValue(Float.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Double.class) {
+                typedExpression.setValue(Double.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Boolean.class) {
+                typedExpression.setValue(Boolean.valueOf((String) typedExpression.getValue()));
+            }
         }
 
         Expression expr1 = visit(filter.getExpression1(), extraData);
-        Expression expr2 = visit(filter.getExpression2(), expr1);
-        boolean matchCase = filter.isMatchingCase();
-        return ((Literal) (filter.getExpression2())).getValue() instanceof String ? getFactory(
-                extraData).equal(expr1, expr2, matchCase) : getFactory(extraData).equal(expr1,
-                expr2);
+        Expression expr2 = visit((Expression) typedExpression, expr1);
+        return getFactory(extraData).equal(expr1, expr2, filter.isMatchingCase());
     }
 
     @Override

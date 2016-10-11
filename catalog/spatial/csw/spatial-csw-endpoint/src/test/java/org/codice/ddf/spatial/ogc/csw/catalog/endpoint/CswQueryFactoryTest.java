@@ -203,7 +203,7 @@ public class CswQueryFactoryTest {
 
     private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
 
-    private static List<MetacardType> mockMetacardTypeList;
+    private static List<MetacardType> metacardTypeList;
 
     @org.junit.Before
     public void setUp()
@@ -212,10 +212,10 @@ public class CswQueryFactoryTest {
         filterBuilder = new GeotoolsFilterBuilder();
         FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
 
-        mockMetacardTypeList = new ArrayList<>();
-        //mockMetacardTypeList.add()
+        metacardTypeList = new ArrayList<>();
 
-        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, getCswMetacardType(), mockMetacardTypeList);
+        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, getCswMetacardType(),
+                metacardTypeList);
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
@@ -772,19 +772,25 @@ public class CswQueryFactoryTest {
     private String createDistanceBufferQuery(String comparison) {
         String query =
                 "      <ogc:Filter xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml\">"
-                        + "        <ogc:" + comparison + ">" + "          <ogc:PropertyName>"
-                        + SPATIAL_TEST_ATTRIBUTE + "</ogc:PropertyName>"
-                        + "          <gml:Polygon gml:id=\"Pl001\">" + "            <gml:exterior>"
-                        + "              <gml:LinearRing>"
-                        + "                <gml:pos>10 10</gml:pos>"
-                        + "                <gml:pos>10 25</gml:pos>"
-                        + "                <gml:pos>40 25</gml:pos>"
-                        + "                <gml:pos>40 10</gml:pos>"
-                        + "                <gml:pos>10 10</gml:pos>"
-                        + "              </gml:LinearRing>" + "            </gml:exterior>"
-                        + "          </gml:Polygon>" + "          <ogc:Distance units=\""
-                        + REL_GEO_UNITS + "\">" + REL_GEO_DISTANCE + "</ogc:Distance>"
-                        + "        </ogc:" + comparison + ">" + "      </ogc:Filter>";
+                        +
+                        "        <ogc:" + comparison + ">" +
+                        "          <ogc:PropertyName>" + SPATIAL_TEST_ATTRIBUTE
+                        + "</ogc:PropertyName>" +
+                        "          <gml:Polygon gml:id=\"Pl001\">" +
+                        "            <gml:exterior>" +
+                        "              <gml:LinearRing>" +
+                        "                <gml:pos>10 10</gml:pos>" +
+                        "                <gml:pos>10 25</gml:pos>" +
+                        "                <gml:pos>40 25</gml:pos>" +
+                        "                <gml:pos>40 10</gml:pos>" +
+                        "                <gml:pos>10 10</gml:pos>" +
+                        "              </gml:LinearRing>" +
+                        "            </gml:exterior>" +
+                        "          </gml:Polygon>" +
+                        "          <ogc:Distance units=\"" + REL_GEO_UNITS + "\">"
+                        + REL_GEO_DISTANCE + "</ogc:Distance>" +
+                        "        </ogc:" + comparison + ">" +
+                        "      </ogc:Filter>";
 
         return query;
     }
