@@ -2,12 +2,12 @@
   .customElement;
 
   overflow: auto;
-  padding: 10px 10px;
-  font-size: 2rem;
+  padding: @minimumSpacing @minimumSpacing;
+  font-size: @largeFontSize;
 
   .editor-properties {
     overflow: auto;
-    max-height: ~"calc(100% - 88px)";
+    max-height: ~"calc(100% - @{minimumButtonSize} - 2*@{minimumSpacing})";
     text-align: center;
 
     .property-label {
@@ -24,13 +24,13 @@
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
       color: grey;
-      font-weight: 700;
+      .is-bold();
     }
   }
 
   .editor-footer {
-    margin-top: 20px;
-    height: 44px;
+    margin-top: @minimumSpacing;
+    height: @minimumButtonSize;
     white-space: nowrap;
     .inlineFix;
 

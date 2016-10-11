@@ -8,7 +8,7 @@
     max-width: 200px;
     min-width: 100px;
     padding: 5px;
-    font-size: 11px;
+    font-size: @minimumFontSize;
     z-index: 1000;
     opacity: 0.8;
     -khtml-opacity: 0.8;
@@ -86,7 +86,7 @@ css rules for the infowindow
 .infoWindow #close {
     float: right;
     margin: 5px 2px;
-    font-size: small;
+    font-size: @minimumFontSize;
     color: gray;
     cursor: pointer;
 }

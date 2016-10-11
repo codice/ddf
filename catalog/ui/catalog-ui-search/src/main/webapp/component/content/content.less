@@ -1,8 +1,6 @@
 @{customElementNamespace}content {
-  @titleBarFontSize: 3rem;
-  @contentMenuHeight: 60px;
   @panelTwoSpacing: 20px;
-  @panelOneWidth: 420px;
+  @panelOneWidth: 26.25rem;
   @panelTwoWidth: 40%;
 
   .customElement;
@@ -13,11 +11,11 @@
 
   > .content-menu {
     width: 100%;
-    height: 60px;
+    height: 2*@minimumLineSize;
   }
 
   .content-content{
-    height: ~'calc(100% - @{contentMenuHeight})';
+    height: ~'calc(100% - 2*@{minimumLineSize})';
     .inlineBlockDisplay(div);
     .whiteSpaceFix;
     position: relative
@@ -75,7 +73,7 @@
         padding: 0px 10px;
         position: relative;
         left: @minimumButtonSize;
-        font-size: 2rem;
+        font-size: @largeFontSize;
       }
 
       > button {
@@ -84,7 +82,7 @@
         top: 0px;
         width: @minimumButtonSize;
         height: 100%;
-        font-size: @titleBarFontSize;
+        font-size: @largeFontSize;
       }
     }
 
@@ -95,9 +93,9 @@
   }
 }
 
-@media (max-width: @mediumScreenSize) {
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}content {
-    @panelOneWidth: 350px;
+    @panelOneWidth: 21.875rem;
 
     .content-panelOne {
       width: @panelOneWidth;

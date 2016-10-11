@@ -1,7 +1,7 @@
 @{customElementNamespace}alert-item {
   display: block;
   white-space: nowrap;
-  padding: 0px 40px;
+  padding: 0rem 2.5rem;
   position: relative;
   cursor: pointer;
 
@@ -18,20 +18,20 @@
     width: @minimumButtonSize;
     height: 100%;
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: 0rem;
+    top: 0rem;
   }
 
   .details-detail {
-    line-height: 30px;
-    height: 30px;
+    line-height: @minimumLineSize;
+    height: @minimumLineSize;
   }
 }
 
 @{customElementNamespace}alert-item-collection {
 
   @{customElementNamespace}alert-item + @{customElementNamespace}alert-item {
-    margin-top: 10px;
+    margin-top: @minimumSpacing;
   }
 
   .alert-empty {

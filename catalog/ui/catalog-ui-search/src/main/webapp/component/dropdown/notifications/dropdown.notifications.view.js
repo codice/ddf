@@ -25,16 +25,18 @@ define([
 
     return DropdownView.extend({
         template: template,
-        className: 'notifications',
+        className: 'is-notifications is-button',
         componentToShow: ComponentView,
         initializeComponentModel: function(){
             //override if you need more functionality
             this.modelForComponent = wreqr.reqres.request('notifications');
+            this.handleNotifications();
         },
         listenToComponent: function () {
-            this.listenTo(this.modelForComponent, 'add', this.render);
-            this.listenTo(this.modelForComponent, 'remove', this.render);
-            this.listenTo(this.modelForComponent, 'reset', this.render);
+            this.listenTo(this.modelForComponent, 'add remove reset', this.handleNotifications);
+        },
+        handleNotifications: function(){
+            this.$el.toggleClass('has-notifications', this.modelForComponent.length > 0);
         },
         serializeData: function () {
             return this.modelForComponent.toJSON();

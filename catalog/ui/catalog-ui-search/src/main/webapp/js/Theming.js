@@ -9,16 +9,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/*global require*/
+var $ = require('jquery');
+var user = require('component/singletons/user-instance.js');
+var preferences = user.get('user').get('preferences');
 
-@font-face {
-    font-family: 'Droid Sans';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Droid Sans'), local('DroidSans'), url(DroidSans.woff) format('woff');
-}
-@font-face {
-    font-family: 'Droid Sans';
-    font-style: normal;
-    font-weight: 700;
-    src: local('Droid Sans Bold'), local('DroidSans-Bold'), url(DroidSansBold.woff) format('woff');
-}
+preferences.on('change:fontSize', function(){
+    var fontSize = preferences.get('fontSize');
+    $('html').css('fontSize', fontSize + 'px');
+});

@@ -33,7 +33,7 @@ function namespacedEvent(event, view) {
 function updateDropzoneHeight(view) {
     var filesHeight = view.$el.find('.details-files').height();
     var elementHeight = view.$el.height();
-    view.$el.find('.details-dropzone').css('height', elementHeight - filesHeight - 64);
+    view.$el.find('.details-dropzone').css('height', 'calc('+elementHeight+'px - '+filesHeight+'px - 20px - 2.75rem' + ')');
 }
 
 module.exports = Marionette.LayoutView.extend({

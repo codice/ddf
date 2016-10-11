@@ -12,7 +12,7 @@
     transform: translateX(0%);
     transition: transform @coreTransitionTime linear;
     > * {
-      font-size: 2rem;
+      font-size: @largeFontSize;
     }
   }
 
@@ -26,7 +26,7 @@
   }
   span.subText {
     display: block;
-    font-size: 1.5rem;
+    font-size: @mediumFontSize;
   }
 
   .overwrite-dropzone {
@@ -66,12 +66,12 @@
     width: 100%;
     height: 100%;
     z-index: 1;
-    font-size: 2rem;
+    font-size: @largeFontSize;
     color: @text-color;
   }
 
   .progress-info {
-    font-size: 1.5rem;
+    font-size: @mediumFontSize;
   }
 
   .progress-bar {

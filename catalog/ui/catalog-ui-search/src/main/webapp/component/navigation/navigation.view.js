@@ -26,9 +26,11 @@ define([
     'component/dropdown/alerts/dropdown.alerts.view',
     'component/tasks/tasks.view',
     'component/help/help.view',
-    'component/dropdown/uploads/dropdown.uploads.view'
+    'component/dropdown/uploads/dropdown.uploads.view',
+    'component/user-settings/user-settings.view',
+    'component/singletons/slideout.view-instance.js'
 ], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, LoginForm, Notifications,
-             Alerts, Tasks, HelpView, Uploads) {
+             Alerts, Tasks, HelpView, Uploads, UserSettings, SlideoutViewInstance) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -46,6 +48,7 @@ define([
         events: {
             'click > .navigation-left > .navigation-home': 'navigateHome',
             'click > .navigation-right > .item-help': 'toggleHelp',
+            'click > .navigation-right > .item-user-settings': 'toggleUserSettings',
             'mousedown > .navigation-right > .item-help': 'preventPropagation'
         },
         ui: {
@@ -85,6 +88,10 @@ define([
         },
         toggleHelp: function(e){
             HelpView.toggleHints();
+        },
+        toggleUserSettings: function(){
+            SlideoutViewInstance.updateContent(new UserSettings());
+            SlideoutViewInstance.open();
         },
         preventPropagation: function(e){
             e.stopPropagation();

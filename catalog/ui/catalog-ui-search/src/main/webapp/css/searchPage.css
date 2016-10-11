@@ -1412,6 +1412,10 @@ a.pause:hover, a.pause:focus {
 .layerPickers .table > tfoot > tr > td {
     padding: 2px;
     vertical-align: middle;
+    max-width: 6.25rem;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .layerPickers tbody {

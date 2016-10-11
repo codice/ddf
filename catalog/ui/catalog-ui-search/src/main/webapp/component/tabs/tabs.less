@@ -1,12 +1,11 @@
 @{customElementNamespace}tabs {
-  @tabHeight: 44px;
 
   .customElement;
   .tabs-list {
     .inlineFix;
 
     z-index: @zIndexContent;
-    height: @tabHeight;
+    height: @minimumButtonSize;
     padding: 0px 50px;
     white-space: nowrap;
     overflow: visible;
@@ -17,6 +16,9 @@
     &.is-collapsed {
       .tabs-dropdown {
         display: inline-block;
+        vertical-align: top;
+        line-height: @minimumButtonSize;
+        height: @minimumButtonSize;
       }
     }
 
@@ -60,24 +62,26 @@
       display: none;
 
       &.is-active.is-merged {
-        display: inline;
+        display: inline-block;
       }
     }
 
     .tabs-dropdown {
       display: none;
       height: 100%;
-      padding: 10px;
+      padding: 0px 10px;
       border-bottom: 1px solid transparent;
 
       > span {
-        vertical-align: middle;
+        vertical-align: top;
+        line-height: @minimumButtonSize;
+        height: @minimumButtonSize;
       }
 
       &.has-activeTab {
 
         opacity: 1;
-        font-weight: bold;
+        .is-bold();
         border-bottom: 1px solid @text-color;
         .hint {
           display: none;
@@ -94,14 +98,15 @@
     }
 
     .tabs-tab {
-      padding: 10px 10px;
+      padding: 0px 10px;
+      line-height: @minimumButtonSize;
+      height: @minimumButtonSize;
       display: inline-block;
-      height: 100%;
       border-bottom: 1px solid transparent;
 
       &.is-active {
         opacity: 1;
-        font-weight: bold;
+        .is-bold();
         border-bottom: 1px solid @text-color;
       }
 
@@ -117,13 +122,13 @@
   }
 
   .tabs-content {
-    height: ~"calc(100% - @{tabHeight})";
+    height: ~"calc(100% - @{minimumButtonSize})";
     .boxShadowTop;
   }
 
 }
 
-@media (max-width: @mobileScreenSize) {
+.is-mobile-screen {
   @{customElementNamespace}tabs {
     .tabs-list {
 

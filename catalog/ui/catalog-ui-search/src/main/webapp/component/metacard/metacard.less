@@ -7,11 +7,11 @@
   }
 
   > .metacard-menu {
-    height: 60px;
+    height: 2*@minimumLineSize;
   }
 
   > .metacard-details {
-    height: ~'calc(100% - 60px)';
+    height: ~'calc(100% - 2*@{minimumLineSize})';
     white-space: nowrap;
   }
 
@@ -35,7 +35,7 @@
 
 }
 
-@media (max-width: @mediumScreenSize) {
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}metacard {
     > .metacard-menu,
     > .metacard-details {

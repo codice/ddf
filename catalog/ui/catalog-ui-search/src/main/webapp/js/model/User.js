@@ -139,7 +139,8 @@ define([
                 visualization: 'map',
                 columnHide: [],
                 columnOrder: ['title', 'created', 'modified', 'thumbnail'],
-                uploads: []
+                uploads: [],
+                fontSize: 16
             };
         },
         relations: [
@@ -180,6 +181,7 @@ define([
             this.listenTo(wreqr.vent, 'preferences:save', this.savePreferences);
             this.listenTo(this.get('alerts'), 'remove', this.handleRemove);
             this.listenTo(this, 'change:visualization', this.savePreferences);
+            this.listenTo(this, 'change:fontSize', this.savePreferences);
         },
         handleRemove: function(){
             this.savePreferences();

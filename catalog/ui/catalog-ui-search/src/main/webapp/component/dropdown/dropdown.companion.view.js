@@ -50,6 +50,7 @@ define([
         initialize: function(){
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
             this.listenForClose();
+            this.listenForReposition();
         },
         updateWidth: function(){
            // if (this.options.linkedView.matchWidth){
@@ -197,6 +198,14 @@ define([
             this.close();
             this.options.linkedView.$el.focus();
         },
+        listenForReposition: function(){
+            this.$el.on('repositionDropdown.'+CustomElements.getNamespace(), function(e){
+                this.updatePosition();
+            }.bind(this));
+        },
+        stopListeningForReposition: function(){
+            this.$el.off('repositionDropdown.'+CustomElements.getNamespace());
+        },
         listenForClose: function(){
             this.$el.on('closeDropdown.'+CustomElements.getNamespace(), function(e){
                 // stop from closing dropdowns higher in the dom
@@ -238,7 +247,8 @@ define([
         onDestroy: function(){
             this.stopListeningForClose();
             this.stopListeningForOutsideClick();
-            this.stopListeningForResize;
+            this.stopListeningForResize();
+            this.stopListeningForReposition();
         },
         handleMousedown: function(e){
             // stop from closing dropdowns higher in the dom

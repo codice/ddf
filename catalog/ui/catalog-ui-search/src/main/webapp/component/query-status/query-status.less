@@ -6,12 +6,12 @@
   height: 100%;
 
   .is-list > div {
-    height: 30px;
-    line-height: 30px;
+    height: @minimumLineSize;
+    line-height: @minimumLineSize;
   }
 
   .details {
-    font-weight: bolder;
+    .is-bold();
   }
 
   .status > div {
@@ -23,7 +23,7 @@
 
   .status-source {
     float: left;
-    font-weight: bolder;
+    .is-bold();
   }
 
   .status-result {

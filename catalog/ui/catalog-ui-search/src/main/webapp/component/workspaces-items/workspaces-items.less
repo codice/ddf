@@ -11,9 +11,9 @@
   }
 
   .home-items-header {
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 40px;
+    font-size: @minimumFontSize;
+    .is-bold();
+    line-height: @minimumButtonSize;
   }
 
   .header-menu {
@@ -28,7 +28,7 @@
   }
 }
 
-@media (max-width: @smallScreenSize) {
+ .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}workspaces-items {
     .home-items-center {
       max-width: ~'calc(100% - 0px)';

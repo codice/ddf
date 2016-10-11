@@ -5,7 +5,7 @@
 
   .editor-properties {
     overflow: auto;
-    max-height: ~"calc(100% - 88px)";
+    max-height: ~"calc(100% - 2*@{minimumButtonSize})";
     padding: 10px 10px;
   }
 
@@ -25,7 +25,7 @@
 
   .settings-label {
     color: grey;
-    font-weight: bold;
+    .is-bold();
     padding-left: 10px;
     line-height: @minimumButtonSize;
     height: @minimumButtonSize;
@@ -33,7 +33,7 @@
 
   .editor-footer {
     margin-top: 20px;
-    height: 44px;
+    height: @minimumButtonSize;
     white-space: nowrap;
     .inlineFix;
 
@@ -76,7 +76,7 @@
     }
 }
 
-@media (max-width: @smallScreenSize) {
+ .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}query-settings {
 
   }

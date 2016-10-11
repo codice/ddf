@@ -209,8 +209,8 @@ define([
                 var boundingRect = element.getBoundingClientRect();
                 $untoggleElementClone.css('height', boundingRect.height).css('width', boundingRect.width)
                     .css('top', boundingRect.top).css('left', boundingRect.left)
-                    .css('position', 'absolute').css('line-height', '60px')
-                    .css('text-align', 'center').css('font-size', '2rem')
+                    .css('position', 'absolute').css('line-height', '3.75rem')
+                    .css('text-align', 'center').css('font-size', '1.4rem')
                     .css('overflow', 'hidden')
                     .on('click', this.toggleHints.bind(this));
             }.bind(this));

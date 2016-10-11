@@ -49,7 +49,7 @@ define([
             defaults: function() {
                 return {
                     cql: "anyText ILIKE ''",
-                    title: 'Query Name',
+                    title: 'Search Name',
                     offsetTimeUnits: 'hours',
                     scheduleUnits: 'minutes',
                     timeType: 'modified',
@@ -624,8 +624,8 @@ define([
 
                 if (sources.length === 0){
                     announcement.announce({
-                        title: 'Query "'+ this.get('title') + '" cannot be run.',
-                        message: 'No sources are currently selected.  Edit the query and select at least one source.',
+                        title: 'Search "'+ this.get('title') + '" cannot be run.',
+                        message: 'No sources are currently selected.  Edit the search and select at least one source.',
                         type: 'warn'
                     });
                     return [];

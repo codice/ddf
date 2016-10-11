@@ -8,7 +8,7 @@
         width: 100%;
 
         .message {
-            font-size: 1.4em;
+            font-size: @mediumFontSize;
         }
 
         .full-width {
@@ -22,8 +22,10 @@
         }
 
         .col-md-3 {
+            overflow: hidden;
+            text-overflow: ellipsis;
             line-height: @minimumButtonSize;
-            height: @minimumButtonSize;
+            //height: @minimumButtonSize;
         }
     }
 }

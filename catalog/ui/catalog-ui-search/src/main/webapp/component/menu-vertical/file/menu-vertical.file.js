@@ -94,7 +94,7 @@ define([
             },
             {
                 type: 'action',
-                name: 'Run All Queries',
+                name: 'Run All Searches',
                 icon: 'play',
                 action: function(){
                     store.getCurrentQueries().forEach(function(query){
@@ -104,7 +104,7 @@ define([
             },
             {
                 type: 'action',
-                name: 'Cancel All Queries',
+                name: 'Cancel All Searches',
                 icon: 'stop',
                 action: function(){
                     store.getCurrentQueries().forEach(function(query){

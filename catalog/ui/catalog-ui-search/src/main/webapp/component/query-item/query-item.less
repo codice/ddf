@@ -15,7 +15,7 @@
   position: relative;
 
   .query-container {
-    height: 90px;
+    height: 3*@minimumLineSize;
     white-space: nowrap;
     overflow: visible;
     position: relative;
@@ -30,7 +30,7 @@
   }
 
   .details-title {
-    font-weight: bold;
+    .is-bold();
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -51,10 +51,10 @@
   }
 
   .query-details {
-    width: ~'calc(100% - 44px - 20px)';
-    margin: 0px 44px 0px 20px;
-    line-height: 30px;
-    height: 90px;
+    width: ~'calc(100% - @{minimumButtonSize} - 20px)';
+    margin: 0px @minimumButtonSize 0px 20px;
+    line-height: @minimumLineSize;
+    height: 3*@minimumLineSize;
   }
 
   .query-actions {
@@ -80,7 +80,7 @@
 
   .is-queryInteractions {
     height: 100%;
-    font-size: larger;
+    font-size: @minimumFontSize;
   }
 }
 

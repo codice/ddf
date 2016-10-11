@@ -1,18 +1,8 @@
 @{customElementNamespace}dropdown.is-alerts {
-
+  display: block;
   position: relative;
 
-  .number-of-notifications {
-    font-size: 0.5em;
-    font-weight: bold;
-    position: absolute;
-    top: -1em;
-    right: 0;
-    color: @text-color;
-  }
-
   .notification-icon {
-    width: 30px;
     position: relative;
     cursor: pointer;
   }
@@ -21,3 +11,8 @@
     text-align: right;
   }
 }
+
+@{customElementNamespace}dropdown.is-alerts.has-alerts {
+  opacity: 1;
+}
+

@@ -1,7 +1,6 @@
 @{customElementNamespace}content-title{
   .customElement;
   position: relative;
-  line-height: 24px;
 
   input,
   button {
@@ -15,7 +14,7 @@
     min-width: 1px;
     background: @navigation-background-color;
     border: none;
-    font-size: 18px;
+    font-size: @minimumFontSize;
     padding-top: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -31,7 +30,7 @@
   }
 
   button {
-    font-size: 16px;
+    font-size: @minimumFontSize;
     color: grey;
   }
   button:hover {

@@ -11,6 +11,7 @@
     white-space: nowrap;
     padding: 0px 10px;
     cursor: pointer;
+    overflow: hidden;
   }
 
   .interaction-icon {
@@ -37,7 +38,7 @@
   .download-cached {
     background: @positive-color;
     border-radius: @border-radius;
-    font-weight: bold;
+    .is-bold();
     padding: 5px;
     margin-left: 15px;
   }

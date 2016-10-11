@@ -4,13 +4,14 @@
   > .menu-title {
     display: inline-block;
     vertical-align: top;
-    line-height: 60px;
-    font-size: 2rem;
+    line-height: 2*@minimumLineSize;
+    font-size: @largeFontSize;
     white-space: nowrap;
-    font-weight: 500;
+    .is-bold();
   }
 
   > .title-seperator {
     padding: 0px 10px;
+    font-family: 'FontAwesome';
   }
 }

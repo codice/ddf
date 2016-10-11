@@ -10,11 +10,11 @@
 
   .resultSelector-list {
     overflow: auto;
-    height: ~'calc(100% - 110px)';
+    height: ~'calc(100% - 2*@{minimumButtonSize} - 10px)';
   }
 
   .resultSelector-result-example {
-    font-weight: bold;
+    .is-bold();
     color: grey;
     .boxShadowBottom;
   }
@@ -24,18 +24,16 @@
     text-align: center;
     white-space: nowrap;
     .inlineBlockDisplay(div);
+    height: @minimumButtonSize;
   }
 
-  .resultSelector-menu > div:last-of-type > span {
-    font-size: 2rem;
+  .resultSelector-menu-action > @{customElementNamespace}dropdown {
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
   }
 
-  .resultSelector-menu-action {
-    padding: 10px;
-  }
-
-  .resultSelector-menu-action-descriptor {
-    padding: 3px;
+  .resultSelector-menu-action + .resultSelector-menu-action {
+    margin-left: 1rem;
   }
 
 }
@@ -43,6 +41,6 @@
 @{customElementNamespace}result-selector.has-filter {
   .resultSelector-list {
     overflow: auto;
-    height: ~'calc(100% - 130px)';
+    height: ~'calc(100% - 2*@{minimumButtonSize} - 10px - 1.375*@{minimumFontSize})';
   }
 }

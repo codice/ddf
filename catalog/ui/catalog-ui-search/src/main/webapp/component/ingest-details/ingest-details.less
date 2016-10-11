@@ -10,7 +10,7 @@
     .details-dropzone {
         position: relative;
         .customElement;
-        font-size: 3rem;
+        font-size: @largeFontSize;
         border: 2px dashed @primary-color;
         cursor: pointer;
         transition: height @coreTransitionTime linear;
@@ -64,7 +64,7 @@
     .details-files {
         display: block;
         position: relative;
-        max-height: ~'calc(100% - 4*@{minimumButtonSize})';
+        max-height: ~'calc(100% - 3*@{minimumButtonSize} - 20px)';
         overflow: auto;
         margin-bottom: 10px;
         padding: 0px 20px;

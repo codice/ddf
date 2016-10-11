@@ -1,5 +1,4 @@
 @{customElementNamespace}lightbox {
-  @lightboxTitleBarFontSize: 3rem;
   @paddingVertical: 4px;
   @paddingHorizontal: 7px;
   @borderSize: 1px;
@@ -38,7 +37,7 @@
   .lightbox-title-bar {
     .vertical-borders(1px, @heavily-lighten-inherited-background-color);
     text-align: center;
-    font-size: @lightboxTitleBarFontSize;
+    font-size: @largeFontSize;
     min-height: @minimumButtonSize;
     line-height: @minimumButtonSize;
   }
@@ -55,17 +54,17 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: ~"calc(100% - 2*@{paddingHorizontal} - @{lightboxTitleBarFontSize} - 2*@{paddingHorizontal} - @{lightboxTitleBarFontSize})";
-    margin-left: ~"calc(2*@{paddingHorizontal} + @{lightboxTitleBarFontSize})";
+    max-width: ~"calc(100% - 2*@{paddingHorizontal} - @{largeFontSize} - 2*@{paddingHorizontal} - @{largeFontSize})";
+    margin-left: ~"calc(2*@{paddingHorizontal} + @{largeFontSize})";
   }
 
   .lightbox-content {
-    height: ~"calc(100% - 2*@{paddingVertical} - @{borderSize} - @{lightboxTitleBarFontSize} - 8px)";
+    height: ~"calc(100% - 2*@{paddingVertical} - @{borderSize} - @{largeFontSize} - 8px)";
     overflow: auto;
   }
 }
 
-@media (max-width: @mediumScreenSize) {
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}lightbox {
 
     .lightbox-container {
@@ -83,7 +82,7 @@
 
 }
 
-@media (max-width: @smallScreenSize) {
+ .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}lightbox {
 
     .lightbox-container {

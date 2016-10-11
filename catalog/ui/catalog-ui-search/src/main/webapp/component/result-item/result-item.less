@@ -34,7 +34,7 @@
 
     span {
       position: relative;
-      top: ~'calc(50% - 10px)';
+      top: ~'calc(50% - 0.625rem)';
     }
   }
 
@@ -69,7 +69,7 @@
   .result-container > .result-unsave:before,
   .result-container > .result-save:before {
     position: relative;
-    top: ~'calc(50% - 6px)';
+    top: ~'calc(50% - 0.47rem)';
   }
 
   span {
@@ -147,7 +147,7 @@
 
 }
 
-@media (max-width: @smallScreenSize) {
+ .is-small-screen, .is-mobile-screen {
     @{customElementNamespace}result-item {
       .result-container > .result-details .details-property {
         height: auto;

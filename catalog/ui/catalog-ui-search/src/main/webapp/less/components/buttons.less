@@ -12,13 +12,13 @@ button.is-primary {
 
 .button-mixin(@buttonColor) {
   background: @buttonColor;
-  font-size: 2rem;
+  font-size: @largeFontSize;
   padding: 0px;
-  line-height: 44px;
-  height: 44px;
+  line-height: @minimumButtonSize;
+  height: @minimumButtonSize;
   .resetIconLineHeight;
   span {
-    font-size: 2rem;
+    font-size: @largeFontSize;
   }
 
   &:hover {

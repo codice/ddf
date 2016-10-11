@@ -9,11 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window, parseFloat*/
-
-define([
-    'js/model/User'
-], function (User) {
-
-    return new User.Response();
-});
+/*global require*/
+var User = require('js/model/User');
+module.exports = new User.Response();

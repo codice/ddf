@@ -5,7 +5,7 @@
 
   .query-advanced-label {
     color: grey;
-    font-weight: bold;
+    .is-bold();
     padding: 10px;
     line-height: @minimumButtonSize;
     vertical-align: middle;
@@ -18,13 +18,13 @@
 
   .editor-properties {
     overflow: auto;
-    max-height: ~"calc(100% - 88px)";
+    max-height: ~"calc(100% - 2*@{minimumButtonSize})";
     padding: 10px 10px 0px 10px;
   }
 
   .editor-footer {
     margin-top: 20px;
-    height: 44px;
+    height: @minimumButtonSize;
     white-space: nowrap;
     .inlineFix;
 
@@ -70,7 +70,7 @@
   }
 }
 
-@media (max-width: @smallScreenSize) {
+ .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}query-advanced {
 
   }

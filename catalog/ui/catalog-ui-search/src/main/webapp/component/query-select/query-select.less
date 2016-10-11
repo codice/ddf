@@ -3,8 +3,8 @@
 
   .query-select-default {
     cursor: pointer;
-    line-height: 80px;
-    height: 80px;
+    line-height: 3*@minimumLineSize;
+    height: 3*@minimumLineSize;
     padding: 0px 20px;
     text-align: center;
   }
@@ -37,6 +37,6 @@
   }
 
   @{customElementNamespace}query-item.is-selected {
-    font-weight: bold;
+    .is-bold();
   }
 }

@@ -27,36 +27,6 @@ define([
         [
             {
                 type: 'action',
-                name: 'Map Preferences',
-                icon: 'cog',
-                shortcut: {
-                    specialKeys: [
-                        'Ctrl'
-                    ],
-                    keys: [
-                        'M'
-                    ]
-                },
-                action: function () {
-                    lightboxInstance.model.updateTitle('Map Preferences');
-                    lightboxInstance.model.open();
-                    lightboxInstance.lightboxContent.show(new PreferencesModalView());
-                }
-            },
-            {
-                type: 'action',
-                name: 'Alert Preferences',
-                icon: 'bell',
-                action: function () {
-                    lightboxInstance.model.updateTitle('Alert Preferences');
-                    lightboxInstance.model.open();
-                    lightboxInstance.lightboxContent.show(new AlertSettingsView());
-                }
-            }
-        ],
-        [
-            {
-                type: 'action',
                 name: 'Map',
                 icon: 'globe',
                 help: 'Switches the visualization to a map.',

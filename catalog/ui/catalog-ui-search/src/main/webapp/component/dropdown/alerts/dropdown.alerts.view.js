@@ -24,16 +24,18 @@ define([
 
     return DropdownView.extend({
         template: template,
-        className: 'is-alerts',
+        className: 'is-alerts is-button',
         componentToShow: ComponentView,
         initializeComponentModel: function(){
             //override if you need more functionality
             this.modelForComponent = user.get('user').get('preferences').get('alerts');
+            this.handleAlerts();
         },
         listenToComponent: function () {
-            this.listenTo(this.modelForComponent, 'add', this.render);
-            this.listenTo(this.modelForComponent, 'remove', this.render);
-            this.listenTo(this.modelForComponent, 'reset', this.render);
+            this.listenTo(this.modelForComponent, 'add remove reset', this.handleAlerts);
+        },
+        handleAlerts: function(){
+            this.$el.toggleClass('has-alerts', this.modelForComponent.length > 0);
         },
         serializeData: function () {
             return this.modelForComponent.toJSON();

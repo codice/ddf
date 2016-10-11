@@ -2,7 +2,7 @@
   display: table-row;
 
   td {
-    padding: 10px 20px;
+    padding: @minimumSpacing @mediumSpacing;
     white-space: nowrap;
     cursor: pointer;
   }
@@ -14,7 +14,7 @@
   td:not(.is-thumbnail)::after {
     display: block;
     content: attr(data-text);
-    font-weight: bold;
+    .is-bold();
     height: 1px;
     color: transparent;
     overflow: hidden;
@@ -22,7 +22,7 @@
   }
 
   a:hover {
-    font-weight: bold;
+    .is-bold();
     text-decoration: underline;
   }
 

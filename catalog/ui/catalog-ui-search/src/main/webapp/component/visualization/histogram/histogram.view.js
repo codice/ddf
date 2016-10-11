@@ -111,7 +111,7 @@ define([
         paper_bgcolor:'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: {
-            family: '"Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif',
+            family: '"Open Sans Light","Helvetica Neue",Helvetica,Arial,sans-serif',
             size: 18,
             color: 'white'
         },

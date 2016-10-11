@@ -11,7 +11,7 @@
   }
 
   .results-list {
-    height: ~'calc(100% - 110px)';
+    height: ~'calc(100% - 3*@{minimumLineSize} - 20px)';
   }
 
   > .results-empty {
@@ -32,13 +32,13 @@
   }
 }
 
-@media (max-width: @mediumScreenSize) {
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}results {
 
   }
 }
 
-@media (max-width: @smallScreenSize) {
+ .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}results {
 
   }

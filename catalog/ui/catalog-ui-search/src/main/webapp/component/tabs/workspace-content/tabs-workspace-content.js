@@ -21,9 +21,9 @@ define([
     var WorkspaceContentTabs = Tabs.extend({
         defaults: {
             tabs: {
-                'Queries': workspaceExploreView,
+                'Searches': workspaceExploreView,
                 'Results': resultsView,
-                'Saved Items': workspaceSavedView
+                'Bookmarks': workspaceSavedView
             }
         }
     });

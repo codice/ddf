@@ -37,17 +37,15 @@
     }
 
     .task-message {
-        font-weight: 100;
-        font-size: .8em;
+        font-size: @minimumFontSize;
         color: #DDD;
     }
 
     .task-time {
         display: table-cell;
         white-space: nowrap;
-        font-weight: 100;
         color: #DDD;
-        font-size: .9em;
+        font-size: @minimumFontSize;
     }
 
     .task-progress-text {
@@ -65,8 +63,8 @@
         position: relative;
         width: 330px;
         left: -15px;
-        font-size: 1.2em;
-        font-weight: 700;
+        font-size: @minimumFontSize;
+        .is-bold();
         padding-top: 10px;
         padding-bottom: 10px;
         background: #242424;

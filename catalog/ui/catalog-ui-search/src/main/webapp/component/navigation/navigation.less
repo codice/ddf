@@ -3,7 +3,7 @@
   background: @navigation-background-color;
   vertical-align: top;
   color: @text-color;
-  height: 60px;
+  height: 2*@minimumLineSize;
   overflow: hidden;
   white-space: nowrap;
   .vertical-borders(1px, @heavily-lighten-inherited-background-color);
@@ -13,9 +13,9 @@
   > .navigation-right {
     display: inline-block;
     vertical-align: top;
-    font-size: 2rem;
-    line-height: 60px;
-    height: 60px;
+    font-size: @largeFontSize;
+    line-height: 2*@minimumLineSize;
+    height: 2*@minimumLineSize;
   }
 
   > .navigation-right {
@@ -24,9 +24,9 @@
   }
 
   .navigation-home {
-    font-size: 14px;
+    font-size: @minimumFontSize;
     vertical-align: top;
-    line-height: 60px;
+    line-height: 2*@minimumLineSize;
     width: @minimumButtonSize;
     text-align: center;
     display: inline-block;
@@ -35,18 +35,21 @@
 
   .navigation-item {
     display: inline-block;
-    padding: 0 10px;
+    min-width: @minimumButtonSize;
+    height: 2*@minimumLineSize;
+    text-align: center;
   }
 
   .experimental {
     background: lighten(@warning-color, 15%);
-    font-weight: bold;
+    .is-bold();
     padding: 10px 20px;
     border-radius: 1px;
   }
 
   > .navigation-right .item-help,
-  > .navigation-right .item-ingest {
+  > .navigation-right .item-ingest,
+  > .navigation-right .item-user-settings {
     cursor: pointer;
     width: @minimumButtonSize;
     text-align: center;
@@ -57,6 +60,11 @@
     overflow-x: auto;
     overflow-y: hidden;
     text-overflow: ellipsis;
+  }
+
+  > .navigation-left,
+  > .navigation-middle {
+    float: left;
   }
 
 }

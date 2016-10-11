@@ -1,18 +1,18 @@
 @{customElementNamespace}content-toolbar {
   .customElement;
-  line-height: 30px;
+  line-height: @minimumLineSize;
   font-size: 0px;
 
   .toolbar-menu {
     display: inline-block;
     padding: 0px 10px;
     cursor: pointer;
-    height: 30px;
+    height: @minimumLineSize;
     vertical-align: top;
   }
 
   .toolbar-menu > span {
-    font-size: 14px;
+    font-size: @minimumFontSize;
   }
 
   .toolbar-menu:hover {

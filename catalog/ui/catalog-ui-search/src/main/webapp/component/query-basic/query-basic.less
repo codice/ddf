@@ -9,7 +9,7 @@
 
   .editor-properties {
     overflow: auto;
-    max-height: ~"calc(100% - 88px)";
+    max-height: ~"calc(100% - 2*@{minimumButtonSize})";
     padding: 10px 10px;
 
     .basic-time-before,
@@ -24,7 +24,7 @@
 
   .editor-footer {
     margin-top: 20px;
-    height: 44px;
+    height: @minimumButtonSize;
     white-space: nowrap;
     .inlineFix;
 
@@ -115,7 +115,7 @@
   }
 }
 
-@media (max-width: @smallScreenSize) {
+ .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}query-basic {
 
   }

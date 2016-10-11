@@ -44,12 +44,14 @@ define([
         onBeforeShow: function () {
             this.setupPersistance();
             this.setupExpiration();
-            this.turnOffEditing();
             this.handlePeristance();
             this.startListeningToRegions();
+            this.turnOnEditing();
         },
         startListeningToRegions: function(){
             this.listenTo(this.propertyPersistance.currentView.model, 'change:value', this.handlePeristance);
+            this.listenTo(this.propertyExpiration.currentView.model, 'change:value', this.save);
+            this.listenTo(this.propertyPersistance.currentView.model, 'change:value', this.save);
         },
         stopListeningToRegions: function(){
             this.stopListening(this.propertyPersistance.currentView.model);
@@ -121,27 +123,13 @@ define([
                 }
             });
         },
-        turnOffEditing: function () {
-            this.$el.removeClass('is-editing');
-            this.regionManager.forEach(function (region) {
-                if (region.currentView) {
-                    region.currentView.turnOffEditing();
-                }
-            });
-        },
-        cancel: function () {
-            this.stopListeningToRegions();
-            this.onBeforeShow();
-        },
         save: function () {
-            this.$el.removeClass('is-editing');
             var preferences = user.get('user').get('preferences');
             preferences.set({
                 alertPersistance: this.propertyPersistance.currentView.model.get('value'),
                 alertExpiration: this.propertyExpiration.currentView.model.get('value')[0]
             });
             preferences.savePreferences();
-            this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
         }
     });
 });

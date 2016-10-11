@@ -3,7 +3,7 @@
 
   .customElement;
   position: relative;
-  height: 60px;
+  height: 2*@minimumLineSize;
   white-space: nowrap;
 
   > .menu-logo {
@@ -26,7 +26,7 @@
 
   > .menu-content > .content-title,
   > .menu-content > .content-toolbar {
-    height: 30px;
+    height: @minimumLineSize;
     padding: 0px 10px;
   }
 
@@ -43,10 +43,10 @@
 
   > .menu-details > .details-item {
     display: inline-block;
-    height: 60px;
-    line-height: 60px;
+    height: 2*@minimumLineSize;
+    line-height: 2*@minimumLineSize;
     vertical-align: top;
-    font-size: 2rem;
+    font-size: @largeFontSize;
   }
 
 }

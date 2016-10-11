@@ -74,7 +74,7 @@ define([
             return {
                 amount: modelJSON.metacardIds.length,
                 when: Common.getMomentDate(modelJSON.when),
-                queryName: query ? query.get('title') : 'Unknown Query',
+                queryName: query ? query.get('title') : 'Unknown Search',
                 workspaceName: workspace ? workspace.get('title') : 'Unknown Workspace'
             }
         }

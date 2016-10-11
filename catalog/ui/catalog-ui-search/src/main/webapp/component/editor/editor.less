@@ -6,12 +6,12 @@
   .editor-properties {
     overflow: auto;
     padding: 10px 10px;
-    max-height: ~"calc(100% - 88px)";
+    max-height: ~"calc(100% - 2*@{minimumButtonSize})";
   }
 
   .editor-footer {
     margin-top: 20px;
-    height: 44px;
+    height: @minimumButtonSize;
     white-space: nowrap;
     .inlineFix;
 
@@ -48,7 +48,7 @@
   }
 }
 
-@media (max-width: @mediumScreenSize) {
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}editor {
     .editor-properties {
       max-height: none;
