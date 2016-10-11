@@ -21,10 +21,10 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.AttributeDescriptorComparator;
@@ -44,12 +44,13 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 
 /**
  * This class works in conjunction with XStream to convert a {@link Metacard} to XML according to
  * the GML 2.1.2 spec. It will also convert respective XML into a Metacard.
- *
  */
 public class GenericFeatureConverter extends AbstractFeatureConverter {
 
@@ -70,8 +71,7 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
     /**
      * Method to determine if this converter knows how to convert the specified Class.
      *
-     * @param clazz
-     *            the class to check
+     * @param clazz the class to check
      */
     @Override
     public boolean canConvert(Class clazz) {
@@ -82,13 +82,10 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
      * This method will convert a {@link Metacard} instance into xml that will validate against the
      * GML 2.1.2 AbstractFeatureType.
      *
-     * @param value
-     *            the {@link Metacard} to convert
-     * @param writer
-     *            the stream writer responsible for writing this xml doc
-     * @param context
-     *            a reference back to the Xstream marshalling context. Allows you to call
-     *            "convertAnother" which will lookup other registered converters.
+     * @param value   the {@link Metacard} to convert
+     * @param writer  the stream writer responsible for writing this xml doc
+     * @param context a reference back to the Xstream marshalling context. Allows you to call
+     *                "convertAnother" which will lookup other registered converters.
      */
     @Override
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
@@ -187,11 +184,9 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
     /**
      * This method will unmarshal an XML instance of a "gml:featureMember" to a {@link Metacard}.
      *
-     * @param hreader
-     *            the stream reader responsible for reading this xml doc
-     * @param context
-     *            a reference back to the Xstream unmarshalling context. Allows you to call
-     *            "convertAnother" which will lookup other registered converters.
+     * @param hreader the stream reader responsible for reading this xml doc
+     * @param context a reference back to the Xstream unmarshalling context. Allows you to call
+     *                "convertAnother" which will lookup other registered converters.
      */
     @Override
     public Object unmarshal(HierarchicalStreamReader hreader, UnmarshallingContext context) {
@@ -217,15 +212,16 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
         if (mc.getEffectiveDate() == null) {
             mc.setEffectiveDate(genericDate);
         }
-        if (mc.getCreatedDate() == null) {
-            mc.setCreatedDate(genericDate);
-        }
-        if (mc.getModifiedDate() == null) {
-            mc.setModifiedDate(genericDate);
-        }
-        if (StringUtils.isBlank(mc.getTitle())) {
-            mc.setTitle(fid);
-        }
+
+        ifAttributeSet(
+                mc.getAttribute(Core.CREATED),
+                attribute -> mc.setAttribute(new AttributeImpl(Core.CREATED, genericDate)));
+        ifAttributeSet(
+                mc.getAttribute(Core.MODIFIED),
+                attribute -> mc.setAttribute(new AttributeImpl(Core.MODIFIED, genericDate)));
+        ifAttributeSet(
+                mc.getAttribute(Core.TITLE),
+                attribute -> mc.setAttribute(new AttributeImpl(Core.MODIFIED, genericDate)));
 
         mc.setContentTypeName(metacardType.getName());
         try {
@@ -243,6 +239,12 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
 
     public void setSourceId(final String sourceId) {
         this.sourceId = sourceId;
+    }
+
+    private void ifAttributeSet(Attribute attribute, Consumer<Attribute> consumer) {
+        if (attribute != null && attribute.getValue() != null) {
+            consumer.accept(attribute);
+        }
     }
 
 }
