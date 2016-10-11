@@ -521,5 +521,10 @@
             <artifactId>catalog-core-metacardtype</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-metacardingest-network</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
