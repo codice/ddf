@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define,require*/
+/* global define*/
 define([
     'application',
     'underscore',
@@ -27,14 +27,10 @@ define([
     'templates/preferences/layer.list.handlebars',
     'templates/preferences/layerPicker.handlebars',
     'templates/preferences/preference.buttons.handlebars',
-    'component/singletons/user-instance',
-    'wreqr',
-    // load dependencies
-    'spectrum',
-    'jquerySortable'
+    'component/singletons/user-instance'
 ], function (Application, _, Marionette, Backbone, $, properties, maptype, Modal,
              preferencesModalTemplate, layerPrefsTabTemplate, layerListTemplate,
-             layerPickerTemplate, preferenceButtonsTemplate, user, wreqr) {
+             layerPickerTemplate, preferenceButtonsTemplate, user) {
     var PrefsModalView = Marionette.LayoutView.extend({
         setDefaultModel: function(){
             this.model = user.get('user>preferences');
@@ -83,114 +79,27 @@ define([
         initialize: function () {
         },
         onRender: function () {
-            var viewLayerModels = [];
-            this.model.each(function (layerModel) {
-                var clonedLayerModel = layerModel.clone();
-                clonedLayerModel.set('modelCid', layerModel.cid);
-                viewLayerModels.push(clonedLayerModel);
-            });
-            var MapLayerConstructor = user.get('user>preferences>mapLayers').constructor;
-            this.viewMapLayers = new MapLayerConstructor(viewLayerModels);
             // listen to any change on all models in collection.
-            this.listenTo(this.viewMapLayers, 'change', this.onEdit);
-            if (maptype.is3d()) {
-                require(['cesium', 'js/controllers/cesium.layerCollection.controller'], function(Cesium, CesiumLayersController){
-                    PrefsModalView.CesiumLayersController = CesiumLayersController.extend({
-                        showMap: function () {
-                            this.makeMap({
-                                element: this.options.element.el.querySelector('#layerPickerMap'),
-                                cesiumOptions: {
-                                    sceneMode: Cesium.SceneMode.SCENE3D,
-                                    animation: false,
-                                    geocoder: false,
-                                    navigationHelpButton: false,
-                                    fullscreenButton: false,
-                                    timeline: false,
-                                    homeButton: false,
-                                    sceneModePicker: false,
-                                    baseLayerPicker: false
-                                }
-                            });
-                        }
-                    });
-                    this.widgetController = new PrefsModalView.CesiumLayersController({
-                        collection: this.viewMapLayers,
-                        element: this
-                    });
-
-                    // HACK fix it
-                    this.layerPickers = new PrefsModalView.LayerPickerTable({
-                        childView: PrefsModalView.LayerPicker,
-                        collection: this.viewMapLayers,
-                        childViewOptions: { widgetController: this.widgetController }
-                    });
-                    this.layerButtons = new PrefsModalView.Buttons({ tabView: this });
-                    this.showLayerPickersAndLayerButtons();
-                }.bind(this));
-            } else if (maptype.is2d()) {
-                require(['js/controllers/ol.layerCollection.controller'], function(OpenLayersController){
-                    PrefsModalView.OpenLayersController = OpenLayersController.extend({
-                        showMap: function () {
-                            this.makeMap({
-                                element: this.options.element.el.querySelector('#layerPickerMap'),
-                                zoom: 2,
-                                controls: []
-                            });
-                        }
-                    });
-                    this.widgetController = new PrefsModalView.OpenLayersController({
-                        collection: this.viewMapLayers,
-                        element: this
-                    });
-
-                    // HACK fix it
-                    this.layerPickers = new PrefsModalView.LayerPickerTable({
-                        childView: PrefsModalView.LayerPicker,
-                        collection: this.viewMapLayers,
-                        childViewOptions: { widgetController: this.widgetController }
-                    });
-                    this.layerButtons = new PrefsModalView.Buttons({ tabView: this });
-                    this.showLayerPickersAndLayerButtons();
-                }.bind(this));
-            }
+            this.listenTo(this.model, 'change', this.save);
+            // HACK fix it
+            this.layerPickers = new PrefsModalView.LayerPickerTable({
+                childView: PrefsModalView.LayerPicker,
+                collection: this.model
+            });
+            this.layerButtons = new PrefsModalView.Buttons({ tabView: this });
+            this.showLayerPickersAndLayerButtons();
         },
         showLayerPickersAndLayerButtons: function(){
             this.layerPickersRegion.show(this.layerPickers);
             this.layerButtonsRegion.show(this.layerButtons);
-            this.widgetController.showMap('layerPickerMap');
-        },
-        onDestroy: function () {
-            this.viewMapLayers = null;
-            this.widgetController.destroy();
-        },
-        onEdit: function () {
-            if (!this.isEdited) {
-                this.layerButtons.ui.save.toggleClass('btn-default').toggleClass('btn-primary');
-                this.isEdited = true;
-            }
         },
         save: function () {
-            if (this.isEdited) {
-                var mapLayers = this.model;
-                this.viewMapLayers.each(function (viewLayer) {
-                    var layer = mapLayers.get(viewLayer.get('modelCid'));
-                    if (viewLayer.get('alpha') !== layer.get('alpha')) {
-                        layer.set('alpha', viewLayer.get('alpha'));
-                    }
-                    if (viewLayer.get('show') !== layer.get('show')) {
-                        layer.set('show', viewLayer.get('show'));
-                    }
-                });
-                this.model.sort();
-                this.model.savePreferences();
-                this.isEdited = false;
-                this.layerButtons.ui.save.toggleClass('btn-default').toggleClass('btn-primary');
-                wreqr.vent.trigger('preferencesModal:reorder:bigMap');
-            }
+            this.model.sort();
+            this.model.savePreferences();
+            this.layerButtons.ui.save.toggleClass('btn-default').toggleClass('btn-primary');
         },
         resetDefaults: function () {
-            this.onEdit();
-            this.viewMapLayers.each(function (viewLayer) {
+            this.model.each(function (viewLayer) {
                 var url = viewLayer.get('url');
                 var defaultConfig = _.find(properties.imageryProviders, function (layerObj) {
                     return url === layerObj.url;
@@ -198,7 +107,8 @@ define([
                 viewLayer.set('show', true);
                 viewLayer.set('alpha', defaultConfig.alpha);
             });
-            this.viewMapLayers.sort();
+            this.model.sort();
+            this.save();
         }
     });
     /*
@@ -240,19 +150,19 @@ define([
         className: 'layerPicker-row',
         ui: { range: 'input[type="range"]' },
         events: { 'sort': 'render' },
-        initialize: function (options) {
+        initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
-            this.widgetController = options.widgetController;
             this.$el.data('layerPicker', this);    // make model available to sortable.update()
             this.listenTo(this.model, 'change:show', this.changeShow);
         },
         onRender: function () {
             var layerBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
             this.modelBinder.bind(this.model, this.$el, layerBindings);
-            this.ui.range.prop('disabled', !this.model.get('show'));
+            this.changeShow();           
         },
-        changeShow: function (model) {
-            this.ui.range.prop('disabled', !model.get('show'));
+        changeShow: function () {
+            this.$el.toggleClass('is-disabled', !this.model.get('show'));
+            this.ui.range.prop('disabled', !this.model.get('show'));
         },
         onDestroy: function () {
             this.modelBinder.unbind();

@@ -36,8 +36,6 @@ var defaultColor = '#3c6dd5';
 
 var OpenLayerCollectionController = LayerCollectionController.extend({
     initialize: function() {
-        this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexLayers);
-
         // there is no automatic chaining of initialize.
         LayerCollectionController.prototype.initialize.apply(this, arguments);
     }

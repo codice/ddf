@@ -39,8 +39,6 @@ Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
 var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
 var CesiumLayerCollectionController = LayerCollectionController.extend({
     initialize: function() {
-        this.listenTo(wreqr.vent, 'preferencesModal:reorder:bigMap', this.reIndexLayers);
-
         // there is no automatic chaining of initialize.
         LayerCollectionController.prototype.initialize.apply(this, arguments);
     }
@@ -67,7 +65,8 @@ function createMap(insertionElement) {
             infoBox: false,
             //skyBox: false,
             //skyAtmosphere: false,
-            baseLayerPicker: false // Hide the base layer picker
+            baseLayerPicker: false, // Hide the base layer picker,
+            mapMode2D: 0
         }
     });
 
