@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -392,10 +393,11 @@ public class ConfigurationApplication implements SparkApplication {
     }
 
     private void stopImageryEndpoints(List<String> imageryEndpointsToStop) {
-        for (String endpoint : imageryEndpointsToStop) {
+        for (Iterator<String> iterator = imageryEndpointsToStop.iterator(); iterator.hasNext(); ) {
+            String endpoint = iterator.next();
             try {
                 httpProxy.stop(endpoint);
-                imageryEndpoints.remove(endpoint);
+                iterator.remove();
             } catch (Exception e) {
                 LOGGER.error("Unable to stop proxy endpoint: {}", endpoint, e);
             }
