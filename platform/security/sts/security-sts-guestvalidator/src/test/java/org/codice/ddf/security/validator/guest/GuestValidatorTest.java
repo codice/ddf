@@ -44,8 +44,6 @@ public class GuestValidatorTest {
 
     ReceivedToken receivedTokenIpv6;
 
-    ReceivedToken receivedTokenBadIp;
-
     GuestValidator validator;
 
     TokenValidatorParameters parameters;
@@ -69,9 +67,6 @@ public class GuestValidatorTest {
 
         GuestAuthenticationToken guestAuthenticationTokenIpv6Reachability =
                 new GuestAuthenticationToken("*", "0:0:0:0:0:0:0:1%4");
-
-        GuestAuthenticationToken guestAuthenticationTokenBadIp = new GuestAuthenticationToken("*",
-                "123.abc.45.def");
 
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
@@ -135,25 +130,12 @@ public class GuestValidatorTest {
                         BinarySecurityTokenType.class,
                         binarySecurityTokenTypeIpv6Reachability);
 
-        BinarySecurityTokenType binarySecurityTokenTypeBadIp = new BinarySecurityTokenType();
-        binarySecurityTokenTypeBadIp.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);
-        binarySecurityTokenTypeBadIp.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
-        binarySecurityTokenTypeBadIp.setId(GuestAuthenticationToken.BST_GUEST_LN);
-        binarySecurityTokenTypeBadIp.setValue(guestAuthenticationTokenBadIp.getEncodedCredentials());
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElementBadIp =
-                new JAXBElement<BinarySecurityTokenType>(new QName(
-                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-                        "BinarySecurityToken"),
-                        BinarySecurityTokenType.class,
-                        binarySecurityTokenTypeBadIp);
-
         receivedToken = new ReceivedToken(binarySecurityTokenElement);
         receivedAnyRealmToken = new ReceivedToken(binarySecurityTokenElementAnyRealm);
         receivedBadToken = new ReceivedToken(binarySecurityTokenElementBadToken);
         receivedTokenIpv6 = new ReceivedToken(binarySecurityTokenElementIpv6);
         receivedTokenIpv6Reachability =
                 new ReceivedToken(binarySecurityTokenElementIpv6Reachability);
-        receivedTokenBadIp = new ReceivedToken(binarySecurityTokenElementBadIp);
         parameters = new TokenValidatorParameters();
         parameters.setToken(receivedToken);
     }
@@ -213,17 +195,6 @@ public class GuestValidatorTest {
         TokenValidatorResponse response = validator.validateToken(params);
 
         assertEquals(ReceivedToken.STATE.VALID,
-                response.getToken()
-                        .getState());
-    }
-
-    @Test
-    public void testCanValidateBadIpToken() {
-        TokenValidatorParameters params = new TokenValidatorParameters();
-        params.setToken(receivedTokenBadIp);
-        TokenValidatorResponse response = validator.validateToken(params);
-
-        assertEquals(ReceivedToken.STATE.INVALID,
                 response.getToken()
                         .getState());
     }
