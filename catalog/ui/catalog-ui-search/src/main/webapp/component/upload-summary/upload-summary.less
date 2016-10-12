@@ -37,8 +37,20 @@
     .files-issues {
         opacity: 0;
         color: @warning-color;
-        transition: transform @coreTransitionTime linear;
+        transition: transform @coreTransitionTime linear, width @coreTransitionTime linear;
         transform: scale(0);
+        width: 0px;
+        overflow: hidden;
+        height: @minimumButtonSize;
+        line-height: @minimumButtonSize;
+        vertical-align: top;
+    }
+
+    .files-text {
+        display: inline-block;
+        height: @minimumButtonSize;
+        line-height: @minimumButtonSize;
+        vertical-align: top;
     }
 }
 
@@ -46,5 +58,20 @@
     .files-issues {
         opacity: .7;
         transform: scale(1);
+        width: 1rem;
+        text-align: center;
+    }
+}
+
+@{customElementNamespace}upload-summary.was-interrupted {
+    .info-percentage {
+        color: @warning-color;
+    }
+
+    .info-percentage::after {
+        opacity: .7;
+        content: " \f071 ";
+        font-family: 'FontAwesome';
+        color: @warning-color;
     }
 }

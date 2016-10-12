@@ -48,6 +48,7 @@ module.exports = Backbone.AssociatedModel.extend({
             issues: 0,
             sending: false,
             finished: false,
+            interrupted: false,
             sentAt: undefined
         };
     },
@@ -75,6 +76,7 @@ module.exports = Backbone.AssociatedModel.extend({
             this.options.dropzone.on('error', this.handleError.bind(this));
             this.options.dropzone.on('complete', this.handleComplete.bind(this));
         } else {
+            this.set('interrupted', this.get('interrupted') || !this.get('finished'));
             this.set('finished', true);
         }
     },

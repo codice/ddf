@@ -43,6 +43,7 @@ module.exports = Marionette.ItemView.extend({
         this.handleSuccess();
         this.handleIssues();
         this.handleFileInfo();
+        this.handleInterrupted();
     },
     handleFileInfo: function(){
         var amount = this.model.get('amount');
@@ -71,6 +72,9 @@ module.exports = Marionette.ItemView.extend({
     handleIssues: function(){
         var issues = this.model.get('issues');
         this.$el.toggleClass('has-issues', issues > 0);
+    },
+    handleInterrupted: function(){
+        this.$el.toggleClass('was-interrupted', this.model.get('interrupted'));
     },
     expandUpload: function(){
         wreqr.vent.trigger('router:navigate', {
