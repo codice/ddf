@@ -20,6 +20,21 @@ var updatePreferences = _.throttle(function(){
     wreqr.vent.trigger('preferences:save');
 }, 1000);
 
+function calculatePercentageDone(files){
+    if (files.length === 0){
+        return 100;
+    }
+    var totalBytes = files.reduce(function(total, file){
+        total += file.upload.total;
+        return total;
+    }, 0);
+    var bytesSent = files.reduce(function(total, file){
+        total += file.upload.bytesSent;
+        return total;
+    }, 0);
+    return 100*(bytesSent/totalBytes);
+}
+
 module.exports = Backbone.AssociatedModel.extend({
     options: undefined,
     defaults: function() {
@@ -91,9 +106,9 @@ module.exports = Backbone.AssociatedModel.extend({
             sending: true
         });
     },
-    handleTotalUploadProgress: function(percentage) {
+    handleTotalUploadProgress: function() {
         this.set({
-            percentage: percentage
+            percentage: calculatePercentageDone(this.options.dropzone.files)
         });
     },
     handleQueueComplete: function() {
