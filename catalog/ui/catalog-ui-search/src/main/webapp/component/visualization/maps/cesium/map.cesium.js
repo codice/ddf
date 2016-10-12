@@ -200,15 +200,11 @@ function getResultCenterPoint(result) {
 }
 
 function getDestinationForVisiblePan(rectangle, map) {
-    var destinationForZoom = map.camera.getRectangleCameraCoordinates(expandRectangle(rectangle));
-    var cartographicDestinationForZoom = Cesium.Cartographic.fromCartesian(destinationForZoom);
-    var height = map.camera._positionCartographic.height;
-    if (height < 0) {
-        height = Math.min(height, cartographicDestinationForZoom.height);
-    } else {
-        height = Math.max(height, cartographicDestinationForZoom.height);
+    var destinationForZoom = expandRectangle(rectangle);
+    if (map.scene.mode === Cesium.SceneMode.SCENE3D){
+        destinationForZoom = map.camera.getRectangleCameraCoordinates(destinationForZoom);
     }
-    return Cesium.Cartesian3.fromRadians(cartographicDestinationForZoom.longitude, cartographicDestinationForZoom.latitude, height);
+    return destinationForZoom;
 }
 
 function determineCesiumColor(color) {
