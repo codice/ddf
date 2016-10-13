@@ -19,41 +19,28 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.felix.utils.collections.MapToDictionary;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.util.Describable;
 
 /**
  * A {@link InputTransformer} that can be configured to parse any XML into a {@link Metacard}
- * It is configured through {@link XmlInputTransformer#setSaxEventHandlerConfiguration(List)} and {@link XmlInputTransformer#getMetacardType()}
+ * It is configured through {@link XmlInputTransformer#setSaxEventHandlerConfiguration(List)}}
  * {@inheritDoc}
  */
 public class XmlInputTransformer implements InputTransformer, Describable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlInputTransformer.class);
-
-    private Map<String, ServiceRegistration> metacardTypeServiceRegistrations = new HashMap<>();
 
     /*
      * The Describable attributes that can be used to describe this (specific configuration of) transformer
@@ -68,8 +55,6 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
     private String organization = "DEFAULT_ORGANIZATION";
 
-    private MetacardType metacardType;
-
     /*
      * List of all SaxEventHandlerFactories, used in creating the corresponding, properly configured SaxEventHandlerDelegate.
      * Set using its setter, generally through a blueprint.xml
@@ -82,6 +67,8 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      * Set using its setter, generally through a blueprint.xml
      */
     private List<String> saxEventHandlerConfiguration;
+
+    private MetacardTypeRegister dynamicMetacardTypeRegister;
 
     /**
      * Method to create a new {@link SaxEventHandlerDelegate}, configured to parse a metacard
@@ -102,7 +89,8 @@ public class XmlInputTransformer implements InputTransformer, Describable {
          * Pass all the new handlers to configure and create a new SaxEventHandlerDelegate and sets
          * the metacardType
          */
-        return new SaxEventHandlerDelegate(filteredSaxEventHandlers).setMetacardType(getMetacardType());
+        return new SaxEventHandlerDelegate(filteredSaxEventHandlers).setMetacardType(
+                dynamicMetacardTypeRegister.getMetacardType());
 
     }
 
@@ -202,8 +190,14 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      */
     public void setSaxEventHandlerConfiguration(List<String> saxEventHandlerConfiguration) {
         this.saxEventHandlerConfiguration = saxEventHandlerConfiguration;
+    }
 
-        setMetacardType();
+    public void setDynamicMetacardTypeRegister(MetacardTypeRegister metacardTypeRegister) {
+        this.dynamicMetacardTypeRegister = metacardTypeRegister;
+    }
+
+    public MetacardTypeRegister getDynamicMetacardTypeRegister() {
+        return dynamicMetacardTypeRegister;
     }
 
     @Override
@@ -249,103 +243,5 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
     public void setOrganization(String organization) {
         this.organization = organization;
-    }
-
-    /**
-     * Defines a {@link DynamicMetacardType} based on component Sax Event Handler Factories
-     * and what attributes they populate
-     *
-     * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
-     */
-
-    public void setMetacardType() {
-        Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
-
-        if (saxEventHandlerConfiguration != null && saxEventHandlerFactories != null) {
-            List<SaxEventHandlerFactory> filteredSaxEventHandlerFactories =
-                    saxEventHandlerFactories.stream()
-                            .filter(p -> saxEventHandlerConfiguration.contains(p.getId()))
-                            .collect(Collectors.toList());
-
-            for (SaxEventHandlerFactory factory : filteredSaxEventHandlerFactories) {
-                attributeDescriptors.addAll(factory.getSupportedAttributeDescriptors());
-            }
-        }
-        attributeDescriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-
-        DynamicMetacardType dynamicMetacardType = new DynamicMetacardType(attributeDescriptors, id);
-        registerMetacardType(dynamicMetacardType);
-        metacardType = dynamicMetacardType;
-    }
-
-    public MetacardType getMetacardType() {
-        if (metacardType == null) {
-            setMetacardType();
-        }
-
-        return metacardType;
-    }
-
-    private synchronized void registerMetacardType(MetacardType metacardType) {
-        unregisterMetacardType(metacardType);
-
-        Map<String, Object> serviceProperties = new HashMap<>();
-        serviceProperties.put("name", metacardType.getName());
-
-        ServiceRegistration serviceRegistration =
-                getContext().registerService(MetacardType.class.getName(),
-                        metacardType,
-                        new MapToDictionary(serviceProperties));
-
-        this.metacardTypeServiceRegistrations.put(metacardType.getName(), serviceRegistration);
-    }
-
-    private synchronized void unregisterMetacardType(MetacardType metacardType) {
-        if (metacardType == null) {
-            return;
-        }
-
-        ServiceRegistration serviceRegistration =
-                metacardTypeServiceRegistrations.get(metacardType.getName());
-        if (serviceRegistration != null) {
-            serviceRegistration.unregister();
-            metacardTypeServiceRegistrations.remove(metacardType.getName());
-        }
-    }
-
-    public BundleContext getContext() {
-        return FrameworkUtil.getBundle(this.getClass())
-                .getBundleContext();
-    }
-}
-
-class DynamicMetacardType implements MetacardType {
-
-    Set<AttributeDescriptor> attributeDescriptors;
-
-    String name;
-
-    public DynamicMetacardType(Set<AttributeDescriptor> attDesc, String name) {
-        this.attributeDescriptors = attDesc;
-        this.name = name + ".metacard";
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public Set<AttributeDescriptor> getAttributeDescriptors() {
-        return attributeDescriptors;
-    }
-
-    @Override
-    public AttributeDescriptor getAttributeDescriptor(String attributeName) {
-        return attributeDescriptors.stream()
-                .filter(p -> p.getName()
-                        .equals(attributeName))
-                .collect(Collectors.toList())
-                .get(0);
     }
 }
