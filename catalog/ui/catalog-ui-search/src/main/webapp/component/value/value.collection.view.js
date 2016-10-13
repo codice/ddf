@@ -49,8 +49,6 @@ define([
                 default:
                     var currentValue = this.children.map(function(childView){
                         return childView.getCurrentValue();
-                    }).filter(function(value){
-                        return Boolean(value);
                     });
                     currentValue.sort();
                     return JSON.stringify(currentValue) !== JSON.stringify(this.model.getInitialValue());
@@ -79,11 +77,6 @@ define([
                         property: propertyModel
                     }
                 }));
-            } else {
-                valueCollection.add({
-                        value: null,
-                        property: propertyModel
-                });
             }
             return new this({
                 collection: valueCollection,

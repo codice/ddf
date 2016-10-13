@@ -98,11 +98,7 @@ define([
             if (this.hasChanged()){
                 return {
                     attribute: this.model.getId(),
-                    values: this.model.getCalculatedType() !== 'date' ?
-                        this.getCurrentValue() :
-                        this.getCurrentValue().map(function(test){
-                            return (new Date(test)).toISOString();
-                        })
+                    values: this.getCurrentValue()
                 };
             } else {
                 return undefined;
