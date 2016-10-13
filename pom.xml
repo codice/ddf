@@ -159,6 +159,8 @@
         <solr.version>6.0.0</solr.version>
         <lucene.version>6.0.0</lucene.version>
         <spatial4j.version>0.6</spatial4j.version>
+        <spring-osgi.version>1.1.0</spring-osgi.version>
+        <felix.configadmin.version>1.8.8</felix.configadmin.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
