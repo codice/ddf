@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.spatial.geocoding.plugin;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
@@ -46,6 +45,8 @@ public class GeoCoderPlugin implements PreIngestPlugin {
 
     private int radiusInKm = 10;
 
+    private GeoCoder geoCoder;
+
     public GeoCoderPlugin(ServiceSelector<GeoCoder> geoCoderFactory) {
         if (geoCoderFactory == null) {
             throw new IllegalArgumentException(
@@ -62,35 +63,26 @@ public class GeoCoderPlugin implements PreIngestPlugin {
             return input;
         }
 
-        for (Metacard metacard : input.getMetacards()) {
-            Optional<String> wktLocation = Optional.ofNullable(metacard.getLocation());
+        geoCoder = geoCoderFactory.getService();
+        input.getMetacards()
+                .forEach(this::setCountryCode);
 
-            if (wktLocation.isPresent()) {
-                if (countryCodeNeeded(metacard)) {
-                    GeoCoder geocoder = geoCoderFactory.getService();
-
-                    if (geocoder != null) {
-                        Optional<String> alpha3CountryCode =
-                                geocoder.getCountryCode(wktLocation.get(), radiusInKm);
-
-                        if (alpha3CountryCode.isPresent()) {
-                            setCountryCodeAttribute(metacard, alpha3CountryCode.get());
-                            LOGGER.trace(
-                                    "Setting metacard country code to {} for metacard with id {}",
-                                    alpha3CountryCode.get(),
-                                    metacard.getId());
-                        }
-                    }
-                }
-            }
-        }
         return input;
     }
 
     @Override
     public UpdateRequest process(UpdateRequest input)
             throws PluginExecutionException, StopProcessingException {
-        // TODO: Implement when AdaptedMetacard updated to use taxonomy
+        if (input == null || input.getUpdates() == null) {
+            return input;
+        }
+
+        geoCoder = geoCoderFactory.getService();
+        input.getUpdates()
+                .stream()
+                .map(Map.Entry::getValue)
+                .forEach(this::setCountryCode);
+
         return input;
     }
 
@@ -118,11 +110,33 @@ public class GeoCoderPlugin implements PreIngestPlugin {
         return radiusInKm;
     }
 
-    private boolean countryCodeNeeded(Metacard metacard) {
-        return metacard.getAttribute(Location.COUNTRY_CODE) == null;
+    /**
+     * Sets the country code attribute of the {@param metacard} when the {@param metacard} has a
+     * location and there is not already a country code attribute. Does not update the country code
+     * if the country code attribute is already set.
+     *
+     * @param metacard
+     */
+    private void setCountryCode(Metacard metacard) {
+        Optional<String> wktLocation = Optional.ofNullable(metacard.getLocation());
+
+        if (geoCoder != null && wktLocation.isPresent() && !hasCountryCode(metacard)) {
+            Optional<String> alpha3CountryCode = geoCoder.getCountryCode(wktLocation.get(),
+                    radiusInKm);
+
+            geoCoder.getCountryCode(wktLocation.get(), radiusInKm)
+                    .ifPresent(countryCode -> {
+                        LOGGER.trace("Setting metacard country code to {} for metacard with id {}",
+                                alpha3CountryCode.get(),
+                                metacard.getId());
+
+                        metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE,
+                                alpha3CountryCode.get()));
+                    });
+        }
     }
 
-    private void setCountryCodeAttribute(Metacard metacard, Serializable countryCode) {
-        metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, countryCode));
+    private boolean hasCountryCode(Metacard metacard) {
+        return metacard.getAttribute(Location.COUNTRY_CODE) != null;
     }
 }

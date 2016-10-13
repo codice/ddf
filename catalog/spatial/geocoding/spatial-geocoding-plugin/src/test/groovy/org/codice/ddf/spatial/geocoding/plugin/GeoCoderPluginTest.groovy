@@ -13,15 +13,22 @@
  */
 package org.codice.ddf.spatial.geocoding.plugin
 
+import ddf.catalog.data.Attribute
 import ddf.catalog.data.Metacard
 import ddf.catalog.data.impl.AttributeImpl
 import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.data.types.Core
 import ddf.catalog.data.types.Location
 import ddf.catalog.operation.CreateRequest
+import ddf.catalog.operation.UpdateRequest
 import ddf.catalog.util.impl.ServiceSelector
 import org.codice.ddf.spatial.geocoder.GeoCoder
 import spock.lang.Specification
+
+import java.util.AbstractMap.SimpleEntry
+import java.util.Map.Entry
+
+import static org.mockito.Matchers.anyString
 
 class GeoCoderPluginTest extends Specification {
 
@@ -31,33 +38,15 @@ class GeoCoderPluginTest extends Specification {
 
     private CreateRequest createRequest
 
+    private UpdateRequest updateRequest
+
     private ServiceSelector<GeoCoder> geocoderFactory
-
-    private List<Metacard> metacards
-
-    private Metacard metacard
 
     private GeoCoderPlugin geoCoderPlugin;
 
     def setup() {
         createRequest = Mock(CreateRequest)
-    }
-
-    def 'test geo located metacard CreateRequest'() {
-        setup:
-        geoCoderPlugin = initGeoCoderPlugin(countryCode, false);
-
-        metacard = new MetacardImpl();
-        metacard.setAttribute(new AttributeImpl(Core.LOCATION, locationWKT))
-
-        metacards = Collections.singletonList(metacard)
-        createRequest.getMetacards() >> metacards
-
-        def response = geoCoderPlugin.process(createRequest)
-        def processedMetacard = response.getMetacards().get(0)
-
-        expect:
-        processedMetacard.getAttribute(Location.COUNTRY_CODE).getValue().equals(countryCode.get())
+        updateRequest = Mock(UpdateRequest)
     }
 
     def 'test null geoCoderFactory'() {
@@ -66,6 +55,148 @@ class GeoCoderPluginTest extends Specification {
 
         then:
         thrown(IllegalArgumentException)
+    }
+
+    def 'test geo located metacard CreateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false);
+        createRequest.getMetacards() >> getTestMetacards(new AttributeImpl(Core.LOCATION, locationWKT))
+
+        def response = geoCoderPlugin.process(createRequest)
+        def processedMetacard = response.getMetacards().get(0)
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE).getValue() == countryCode.get()
+    }
+
+    def 'test metacard already has country code CreateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false)
+        createRequest.getMetacards() >> getTestMetacards(new AttributeImpl(Location.COUNTRY_CODE, "USA"), new AttributeImpl(Core.LOCATION, locationWKT))
+
+        def response = geoCoderPlugin.process(createRequest)
+        def processedMetacard = response.getMetacards().get(0)
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE).getValue() == "USA"
+    }
+
+    def 'test metacard has no geography CreateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false)
+        createRequest.getMetacards() >> getTestMetacards()
+
+        def response = geoCoderPlugin.process(createRequest)
+        def processedMetacard = response.getMetacards().get(0)
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE) == null
+    }
+
+    def 'test no metacards CreateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false)
+        createRequest.getMetacards() >> null
+
+        def response = geoCoderPlugin.process(createRequest)
+
+        expect:
+        response.getMetacards() == null
+    }
+
+    def 'test no geocoder CreateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, true)
+        createRequest.getMetacards() >> getTestMetacards(new AttributeImpl(Core.LOCATION, locationWKT))
+
+        def response = geoCoderPlugin.process(createRequest)
+        def processedMetacard = response.getMetacards().get(0)
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE) == null
+    }
+
+    def 'test no valid country code CreateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(Optional.empty(), false)
+        createRequest.getMetacards() >> getTestMetacards(new AttributeImpl(Core.LOCATION, locationWKT))
+
+        def response = geoCoderPlugin.process(createRequest)
+        def processedMetacard = response.getMetacards().get(0)
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE) == null
+    }
+
+    def 'test geo located metacard UpdateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false);
+        updateRequest.getUpdates() >> getTestUpdates(new AttributeImpl(Core.LOCATION, locationWKT))
+
+        def response = geoCoderPlugin.process(updateRequest)
+        def processedMetacard = response.getUpdates().get(0).getValue()
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE).getValue() == countryCode.get()
+    }
+
+    def 'test metacard already has country code UpdateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false)
+        updateRequest.getUpdates() >> getTestUpdates(new AttributeImpl(Location.COUNTRY_CODE, "USA"), new AttributeImpl(Core.LOCATION, locationWKT))
+
+        def response = geoCoderPlugin.process(updateRequest)
+        def processedMetacard = response.getUpdates().get(0).getValue()
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE).getValue() == "USA"
+    }
+
+    def 'test metacard has no geography UpdateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false)
+        updateRequest.getUpdates() >> getTestUpdates()
+
+        def response = geoCoderPlugin.process(updateRequest)
+        def processedMetacard = response.getUpdates().get(0).getValue()
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE) == null
+    }
+
+    def 'test no metacards UpdateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false)
+        updateRequest.getUpdates() >> null
+
+        def response = geoCoderPlugin.process(updateRequest)
+
+        expect:
+        response.getUpdates() == null
+    }
+
+    def 'test no geocoder UpdateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, true)
+        updateRequest.getUpdates() >> getTestUpdates(new AttributeImpl(Core.LOCATION, locationWKT))
+
+        def response = geoCoderPlugin.process(updateRequest)
+        def processedMetacard = response.getUpdates().get(0).getValue()
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE) == null
+    }
+
+    def 'test no valid country code UpdateRequest'() {
+        setup:
+        geoCoderPlugin = initGeoCoderPlugin(Optional.empty(), false)
+        updateRequest.getUpdates() >> getTestUpdates(new AttributeImpl(Core.LOCATION, locationWKT))
+
+        def response = geoCoderPlugin.process(updateRequest)
+        def processedMetacard = response.getUpdates().get(0).getValue()
+
+        expect:
+        processedMetacard.getAttribute(Location.COUNTRY_CODE) == null
     }
 
     def 'test update configuration'() {
@@ -81,88 +212,8 @@ class GeoCoderPluginTest extends Specification {
         geoCoderPlugin.getRadius() == 15
     }
 
-    def 'test metacard already has country code'() {
-        setup:
-        metacard = new MetacardImpl();
-        metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, "USA"))
-        metacard.setAttribute(new AttributeImpl(Core.LOCATION, locationWKT))
-
-        geoCoderPlugin = initGeoCoderPlugin(countryCode, false)
-
-        metacards = Collections.singletonList(metacard)
-        createRequest.getMetacards() >> metacards
-
-        def response = geoCoderPlugin.process(createRequest)
-        def processedMetacard = response.getMetacards().get(0)
-
-        expect:
-        processedMetacard.getAttribute(Location.COUNTRY_CODE).getValue().equals("USA")
-    }
-
-    def 'test metacard has no geography'() {
-        setup:
-        metacard = new MetacardImpl();
-
-        geoCoderPlugin = initGeoCoderPlugin(countryCode, false)
-
-        metacards = Collections.singletonList(metacard)
-        createRequest.getMetacards() >> metacards
-
-        def response = geoCoderPlugin.process(createRequest)
-        def processedMetacard = response.getMetacards().get(0)
-
-        expect:
-        processedMetacard.getAttribute(Location.COUNTRY_CODE) == null
-    }
-
-    def 'test no metacards'() {
-        setup:
-        createRequest.getMetacards() >> null
-
-        geoCoderPlugin = initGeoCoderPlugin(countryCode, false)
-
-        def response = geoCoderPlugin.process(createRequest)
-
-        expect:
-        response.getMetacards() == null
-    }
-
-    def 'test no geocoder'() {
-        setup:
-        metacard = new MetacardImpl();
-        metacard.setAttribute(new AttributeImpl(Core.LOCATION, locationWKT))
-
-        geoCoderPlugin = initGeoCoderPlugin(countryCode, true)
-
-        metacards = Collections.singletonList(metacard)
-        createRequest.getMetacards() >> metacards
-
-        def response = geoCoderPlugin.process(createRequest)
-        def processedMetacard = response.getMetacards().get(0)
-
-        expect:
-        processedMetacard.getAttribute(Location.COUNTRY_CODE) == null
-    }
-
-    def 'test no valid country code'() {
-        setup:
-        metacard = new MetacardImpl();
-        metacard.setAttribute(new AttributeImpl(Core.LOCATION, locationWKT))
-
-        geoCoderPlugin = initGeoCoderPlugin(Optional.empty(), false)
-
-        metacards = Collections.singletonList(metacard)
-        createRequest.getMetacards() >> metacards
-
-        def response = geoCoderPlugin.process(createRequest)
-        def processedMetacard = response.getMetacards().get(0)
-
-        expect:
-        processedMetacard.getAttribute(Location.COUNTRY_CODE) == null
-    }
-
-    def initGeoCoderPlugin(Optional<String> countryCode, boolean overridDefaultGeocoder) {
-        GeoCoder geocoder = (overridDefaultGeocoder == true) ? null : Mock(GeoCoder) {
+    def initGeoCoderPlugin(Optional<String> countryCode, boolean overrideDefaultGeocoder) {
+        GeoCoder geocoder = (overrideDefaultGeocoder == true) ? null : Mock(GeoCoder) {
             getCountryCode(_ as String, _ as Integer) >> countryCode
         }
 
@@ -171,5 +222,30 @@ class GeoCoderPluginTest extends Specification {
         }
 
         return new GeoCoderPlugin(geocoderFactory)
+    }
+
+    def getTestUpdates(Attribute... attributes) {
+        def metacard = new MetacardImpl();
+
+        Arrays.stream(attributes).forEach{ attribute ->
+            metacard.setAttribute(attribute)
+        }
+
+        List<Entry<Serializable, Metacard>> updates = new ArrayList<Entry<Serializable, Metacard>>()
+        updates.add(new SimpleEntry<Serializable, Metacard>(anyString(), metacard));
+
+        return updates
+    }
+
+    def getTestMetacards(Attribute... attributes) {
+        def metacard = new MetacardImpl();
+
+        Arrays.stream(attributes).forEach{ attribute ->
+            metacard.setAttribute(attribute)
+        }
+
+        List<Metacard> metacards = Collections.singletonList(metacard)
+
+        return metacards
     }
 }
