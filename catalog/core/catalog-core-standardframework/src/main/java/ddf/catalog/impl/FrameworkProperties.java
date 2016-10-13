@@ -37,6 +37,7 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.PostResourcePlugin;
+import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
@@ -73,6 +74,8 @@ public class FrameworkProperties {
     private List<PreResourcePlugin> preResource = new ArrayList<>();
 
     private List<PostResourcePlugin> postResource = new ArrayList<>();
+
+    private List<PreAuthorizationPlugin> preAuthorizationPlugins = new ArrayList<>();
 
     private List<PolicyPlugin> policyPlugins = new ArrayList<>();
 
@@ -180,6 +183,14 @@ public class FrameworkProperties {
 
     public void setPostResource(List<PostResourcePlugin> postResource) {
         this.postResource = postResource;
+    }
+
+    public List<PreAuthorizationPlugin> getPreAuthorizationPlugins() {
+        return preAuthorizationPlugins;
+    }
+
+    public void setPreAuthorizationPlugins(List<PreAuthorizationPlugin> preAuthorizationPlugins) {
+        this.preAuthorizationPlugins = preAuthorizationPlugins;
     }
 
     public List<PolicyPlugin> getPolicyPlugins() {

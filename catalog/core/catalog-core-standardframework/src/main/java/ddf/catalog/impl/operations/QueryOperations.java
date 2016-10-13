@@ -52,6 +52,7 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostQueryPlugin;
+import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.ConnectedSource;
@@ -136,6 +137,7 @@ public class QueryOperations extends DescribableImpl {
         try {
             queryRequest = validateQueryRequest(queryRequest);
             queryRequest = getFanoutQuery(queryRequest, fanoutEnabled);
+            queryRequest = preProcessPreAuthorizationPlugins(queryRequest);
             queryRequest = populateQueryRequestPolicyMap(queryRequest);
             queryRequest = processPreQueryAccessPlugins(queryRequest);
             queryRequest = processPreQueryPlugins(queryRequest);
@@ -158,6 +160,7 @@ public class QueryOperations extends DescribableImpl {
             queryResponse = validateFixQueryResponse(queryResponse,
                     overrideFanoutRename,
                     fanoutEnabled);
+            queryResponse = postProcessPreAuthorizationPlugins(queryResponse);
             queryResponse = populateQueryResponsePolicyMap(queryResponse);
             queryResponse = processPostQueryAccessPlugins(queryResponse);
             queryResponse = processPostQueryPlugins(queryResponse);
@@ -307,8 +310,8 @@ public class QueryOperations extends DescribableImpl {
      * @return true if the list includes the local source's ID, false otherwise
      */
     boolean includesLocalSources(Set<String> sourceIds) {
-        return sourceIds != null && (sourceIds.contains(getId()) || sourceIds.contains(
-                "") || sourceIds.contains(null));
+        return sourceIds != null && (sourceIds.contains(getId()) || sourceIds.contains("")
+                || sourceIds.contains(null));
     }
 
     private QueryResponse processPostQueryPlugins(QueryResponse queryResponse)
@@ -390,6 +393,30 @@ public class QueryOperations extends DescribableImpl {
             }
         }
         return queryReq;
+    }
+
+    private QueryRequest preProcessPreAuthorizationPlugins(QueryRequest queryRequest)
+            throws FederationException {
+        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
+            try {
+                queryRequest = plugin.processPreQuery(queryRequest);
+            } catch (StopProcessingException e) {
+                throw new FederationException("Query could not be executed.", e);
+            }
+        }
+        return queryRequest;
+    }
+
+    private QueryResponse postProcessPreAuthorizationPlugins(QueryResponse queryResponse)
+            throws FederationException {
+        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
+            try {
+                queryResponse = plugin.processPostQuery(queryResponse);
+            } catch (StopProcessingException e) {
+                throw new FederationException("Query could not be executed.", e);
+            }
+        }
+        return queryResponse;
     }
 
     private QueryRequest populateQueryRequestPolicyMap(QueryRequest queryReq)

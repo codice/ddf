@@ -91,6 +91,12 @@
                             unbind-method="unbindPlugin" ref="postResourceSortedList"/>
     </reference-list>
 
+    <reference-list id="preAuthorizationPlugins" interface="ddf.catalog.plugin.PreAuthorizationPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preAuthSortedList"/>
+    </reference-list>
+
     <reference-list id="policyPlugins" interface="ddf.catalog.plugin.PolicyPlugin"
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
@@ -115,6 +121,7 @@
     <bean id="postFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
     <bean id="preResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
     <bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="preAuthSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
     <bean id="policySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
     <bean id="accessSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
 

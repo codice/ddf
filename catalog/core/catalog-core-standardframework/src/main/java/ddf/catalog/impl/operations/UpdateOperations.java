@@ -70,6 +70,7 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
+import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogStore;
@@ -145,6 +146,7 @@ public class UpdateOperations {
             updateRequest = setDefaultValues(updateRequest);
 
             updateRequest = populateMetacards(updateRequest);
+            updateRequest = processPreAuthorizationPlugins(updateRequest);
 
             updateRequest = populateUpdateRequestPolicyMap(updateRequest);
             updateRequest = processPreUpdateAccessPlugins(updateRequest);
@@ -240,7 +242,9 @@ public class UpdateOperations {
                     Metacard overrideMetacard = contentItem.getMetacard();
 
                     Metacard updatedMetacard = OverrideAttributesSupport.overrideMetacard(metacard,
-                            overrideMetacard, true, true);
+                            overrideMetacard,
+                            true,
+                            true);
 
                     updatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
                             String.valueOf(contentItem.getSize())));
@@ -565,6 +569,15 @@ public class UpdateOperations {
                 .put(Constants.OPERATION_TRANSACTION_KEY,
                         new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
                                 metacardMap.values()));
+        return updateRequest;
+    }
+
+    private UpdateRequest processPreAuthorizationPlugins(UpdateRequest updateRequest)
+            throws StopProcessingException {
+        Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
+        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
+            updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
+        }
         return updateRequest;
     }
 

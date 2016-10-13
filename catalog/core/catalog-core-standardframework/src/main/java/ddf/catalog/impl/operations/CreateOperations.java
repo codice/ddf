@@ -67,6 +67,7 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
+import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogStore;
@@ -79,7 +80,7 @@ import ddf.security.Subject;
 
 /**
  * Support class for create delegate operations for the {@code CatalogFrameworkImpl}.
- *
+ * <p>
  * This class contains two delegated methods and methods to support them. No
  * operations/support methods should be added to this class except in support of CFI
  * create operations.
@@ -144,13 +145,14 @@ public class CreateOperations {
         try {
             createRequest = injectAttributes(createRequest);
             createRequest = setDefaultValues(createRequest);
+            createRequest = processPreAuthorizationPlugins(createRequest);
             createRequest = updateCreateRequestPolicyMap(createRequest);
             createRequest = processPrecreateAccessPlugins(createRequest);
 
             createRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
-                            OperationTransaction.OperationType.CREATE,
-                            Collections.emptyList()));
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
+                                    Collections.emptyList()));
 
             createRequest = processPreIngestPlugins(createRequest);
             createRequest = validateCreateRequest(createRequest);
@@ -307,10 +309,11 @@ public class CreateOperations {
     }
 
     private void injectAttributes(Map<String, Metacard> metacardMap) {
-        for(Map.Entry<String, Metacard> entry : metacardMap.entrySet()) {
+        for (Map.Entry<String, Metacard> entry : metacardMap.entrySet()) {
             Metacard originalMetacard = entry.getValue();
-            metacardMap.put(entry.getKey(), opsMetacardSupport.applyInjectors(originalMetacard,
-                    frameworkProperties.getAttributeInjectors()));
+            metacardMap.put(entry.getKey(),
+                    opsMetacardSupport.applyInjectors(originalMetacard,
+                            frameworkProperties.getAttributeInjectors()));
         }
     }
 
@@ -584,6 +587,14 @@ public class CreateOperations {
         return createRequest;
     }
 
+    private CreateRequest processPreAuthorizationPlugins(CreateRequest createRequest)
+            throws StopProcessingException {
+        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
+            createRequest = plugin.processPreCreate(createRequest);
+        }
+        return createRequest;
+    }
+
     private CreateRequest updateCreateRequestPolicyMap(CreateRequest createRequest)
             throws StopProcessingException {
         Map<String, Serializable> unmodifiablePropertiesMap = Collections.unmodifiableMap(
@@ -639,10 +650,12 @@ public class CreateOperations {
                 Metacard overrideMetacard = contentItem.getMetacard();
 
                 Metacard updatedMetacard = OverrideAttributesSupport.overrideMetacard(metacard,
-                        overrideMetacard, true, true);
+                        overrideMetacard,
+                        true,
+                        true);
 
-                updatedMetacard.setAttribute(
-                        new AttributeImpl(Metacard.RESOURCE_URI, contentItem.getUri()));
+                updatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
+                        contentItem.getUri()));
                 updatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
                         String.valueOf(contentItem.getSize())));
 
@@ -681,8 +694,9 @@ public class CreateOperations {
     private CreateStorageRequest applyAttributeOverrides(CreateStorageRequest createStorageRequest,
             Map<String, Metacard> metacardMap) {
         // Get attributeOverrides, apply them and then remove them from the streamCreateRequest so they are not exposed to plugins
-        Map<String, String> attributeOverrideHeaders = (HashMap<String, String>) createStorageRequest.getProperties()
-                .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
+        Map<String, String> attributeOverrideHeaders =
+                (HashMap<String, String>) createStorageRequest.getProperties()
+                        .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
         applyAttributeOverridesToMetacardMap(attributeOverrideHeaders, metacardMap);
         createStorageRequest.getProperties()
                 .remove(Constants.ATTRIBUTE_OVERRIDES_KEY);

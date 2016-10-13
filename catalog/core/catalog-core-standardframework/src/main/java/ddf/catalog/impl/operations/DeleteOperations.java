@@ -60,6 +60,7 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
+import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogStore;
@@ -130,6 +131,7 @@ public class DeleteOperations {
 
         try {
             deleteRequest = populateMetacards(deleteRequest, fanoutTagBlacklist);
+            deleteRequest = preProcessPreAuthorizationPlugins(deleteRequest);
 
             deleteStorageRequest = new DeleteStorageRequestImpl(getDeleteMetacards(deleteRequest),
                     deleteRequest.getProperties());
@@ -148,8 +150,8 @@ public class DeleteOperations {
             deleteResponse = performLocalDelete(deleteRequest, deleteStorageRequest);
             deleteResponse = performRemoteDelete(deleteRequest, deleteResponse);
 
+            deleteResponse = postProcessPreAuthorizationPlugins(deleteResponse);
             deleteRequest = populateDeleteRequestPolicyMap(deleteRequest, deleteResponse);
-
             deleteResponse = processPostDeleteAccessPlugins(deleteResponse);
 
             // Post results to be available for pubsub
@@ -396,6 +398,22 @@ public class DeleteOperations {
                                 metacards));
         return deleteRequest;
 
+    }
+
+    private DeleteRequest preProcessPreAuthorizationPlugins(DeleteRequest deleteRequest)
+            throws StopProcessingException {
+        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
+            deleteRequest = plugin.processPreDelete(deleteRequest);
+        }
+        return deleteRequest;
+    }
+
+    private DeleteResponse postProcessPreAuthorizationPlugins(DeleteResponse deleteResponse)
+            throws StopProcessingException {
+        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
+            deleteResponse = plugin.processPostDelete(deleteResponse);
+        }
+        return deleteResponse;
     }
 
     private boolean blockDeleteMetacards(List<Metacard> metacards,
