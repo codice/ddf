@@ -117,6 +117,7 @@ module.exports = Backbone.AssociatedModel.extend({
         this.set({
             finished: true
         });
+        wreqr.vent.trigger('preferences:save');
     },
     handleUploadUpdate: function() {
         this.set({
@@ -143,6 +144,7 @@ module.exports = Backbone.AssociatedModel.extend({
     start: function() {
         if (this.options.dropzone) {
             wreqr.vent.trigger('uploads:add', this);
+            this.listenTo(this, 'change', updatePreferences);
             this.options.dropzone.options.autoProcessQueue = true;
             this.options.dropzone.processQueue();
             this.set({
