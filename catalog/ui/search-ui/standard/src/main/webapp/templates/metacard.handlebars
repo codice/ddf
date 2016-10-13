@@ -147,17 +147,17 @@
                                         <td>
                                             {{#each this}}
                                                 {{#isUrl this}}
-                                                    <a target='_blank' href='{{safeString this}}'>{{safeString this}}</a>
+                                                    <a target='_blank' href='{{this}}'>{{this}}</a>
                                                 {{/isUrl}}
                                             {{/each}}
                                         </td>
                                     {{else}}
                                         {{#isUrl this}}
                                             <td>
-                                                <a target='_blank' title="{{propertyTitle @key}}" href='{{safeString this}}'>{{safeString this}}</a>
+                                                <a target='_blank' title="{{propertyTitle @key}}" href='{{this}}'>{{this}}</a>
                                             </td>
                                         {{else}}
-                                            <td>{{safeString this}}</td>
+                                            <td>{{this}}</td>
                                         {{/isUrl}}
                                      {{/is}}
                                 {{/is}}
@@ -179,7 +179,7 @@
                         <tr>
                             <td>Content Type</td>
                             <td>
-                                {{safeString mappedType}}
+                                {{mappedType}}
                             </td>
                         </tr>
                     {{/if}}
