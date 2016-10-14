@@ -10,6 +10,7 @@ Version ${project.version}. Copyright (c) Codice Foundation
 :data-uri:
 :sectnums:
 :branding: DDF
+:download-url: https://github.com/codice/ddf/releases
 :adoc-include: ${project.build.directory}/doc-contents/_contents
 :title-logo: logo_ddf.png
 :adoc-include: ${project.build.directory}/doc-contents/_contents

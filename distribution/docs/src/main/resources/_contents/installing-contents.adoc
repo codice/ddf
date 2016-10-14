@@ -1,39 +1,37 @@
 
-=== Installing ${branding}
-
 [IMPORTANT]
 ====
 Although ${branding} can be installed by any user, it is recommended for security reasons to have a non-`root` user execute the ${branding} installation.
 ====
 
-==== Prerequisites
+=== Installation Prerequisites
 
-===== Directory Permissions
+These are the system/environment requirements to configure _prior_ to an installation.
 
-Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.
-
-====== Directory Permissions on Windows
-
-. Right-click on the file or directory noted below then select *Full Control → Administrators → System*.
-. Click *Properties → Security → Advanced* and select Creator Owner for `INSTALLATION_HOME` (e.g., `C:\ddf`).
-. Restrict access to sensitive files by ensuring that only *System* and *Administrators* have Full Control to the below files by right-clicking on the file or directory below then selecting *Properties → Security → Advanced*
-. Delete any other groups or users listed with access to `INSTALLATION_HOME/etc` and `INSTALLATION_HOME/deploy`.
+==== Java Requirements
 
 * Install/Upgrade to Java 8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
 ** The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] or later.
+** Java version must contain only number values.
 * Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
 * http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
 * The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
+** Replace `<JAVA_VERSION>` with the the version and build number installed.
 
 .Setting `JAVA_HOME` on *NIX
 ----
-JAVA_HOME=/usr/java/jdk1.8.0
+JAVA_HOME=/usr/java/jdk<JAVA_VERSION>
 export JAVA_HOME
 ----
 
 .Setting `JAVA_HOME` on Windows
 ----
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
+setx JAVA_HOME C:\Program Files\Java\jdk<JAVA_VERSION> /m
+----
+
+.Adding `JAVA_HOME` to `PATH` Environment Variable on Windows
+----
+setx PATH "%PATH%;%JAVA_HOME%\bin" /m
 ----
 
 .*NIX
@@ -43,9 +41,9 @@ Unlink `/usr/bin/java` if it is already linked to a previous version of the JRE:
 `unlink /usr/bin/java`
 ====
 
+.Verify that the `JAVA_HOME` was set correctly.
 [TIP]
 ====
-Verify that the `JAVA_HOME` was set correctly.
 
 .*NIX
 ----
@@ -60,85 +58,51 @@ echo %JAVA_HOME%
 
 * ${branding} installation zip file.
 * A web browser.
-* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include or change the following:
 
-.File Descriptor Limit
+.File Descriptor Limit on Linux
+[NOTE]
+====
+* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include:
+
 ----
 fs.file-max = 6815744
 ----
 
-.Restart
-[WARNING]
-====
-For the change to take effect, a restart is required.
-====
+* For the change to take effect, a restart is required.
 
-.Restart Command
+
+. *Nix Restart Command
 ----
 init 6
 ----
+====
 
-====== Directory Permissions on *NIX
-
-Protect the ${ddf-branding} from unauthorized access.
-
-. As root, change the owner and group of critical ${ddf-branding} directories to the `NON_ROOT_USER`.
-+
+.Check System Time
 [WARNING]
 ====
-A `NON_ROOT_USER` (e.g., ddf) is recommended for installation.
-====
-+
-[source, bash, linenums]
-----
-chown -R NON_ROOT_USER ${branding}_HOME ${branding}_HOME/etc ${branding}_HOME/data
-chgrp -R NON_ROOT_USER ${branding}_HOME/etc ${branding}_HOME/data
-chmod -R og-w ${branding}_HOME/etc ${branding}_HOME/data
-----
-+
-. Restrict access to sensitive files by ensuring that the only users with “group” permissions (e.g., ${ddf-branding-lowercase}-group) have access.
-. Execute the following command on the above files (examples assume `INSTALLATION_HOME` is `/opt/${branding-lowercase}`):
-+
-[source,bash]
-----
-chmod -R o /opt/${branding-lowercase}
-----
-+
-. As the the application owner (e.g., ${ddf-branding-lowercase} user), restrict access to sensitive files.
-+
-[source,bash,linenums]
-----
-chmod 640 /opt/${branding-lowercase}/etc
-chmod 640 /opt/${branding-lowercase}/deploy
-----
-
-[IMPORTANT]
-====
-The system administrator must restrict certain directories to ensure that the application (user) cannot access restricted directories on the system.
-For example the `NON_ROOT_USER` should only have read access to `/opt/${branding-lowercase}`.
+Prior to installing ${branding}, ensure the system time is accurate to prevent federation issues.
 ====
 
+=== Installing With the ${branding} Distribution Zip
 
-==== Deployment Guidelines
+To install the ${branding} distribution zip, perform the following:
 
-${branding} relies on the Directory Permissions of the host platform to protect the integrity of the ${branding} during operation.
-System administrators should perform the following steps when deploying bundles added to the ${branding}.
-
-. Prior to allowing a hot deployment, check the available storage space on the system to ensure the deployment will not exceed the available space.
-. Set maximum storage space on the `INSTALLATION_HOME/deploy` and `INSTALLATION_HOME/system` directories to restrict the amount of space used by deployments.
-. Do not assume the deployment is from a trusted source; verify its origination.
-. Use the source code to verify a deployment is required for ${branding} to prevent unnecessary/vulnerable deployments.
-
-==== Installing With the ${branding} Distribution Zip
-
-* After the prerequisites have been met, as a root user if for *NIX, change the current directory to the desired install location.
+. Download the ${ddf-branding} {download-url}[zip file].
+. After the prerequisites have been met, as a root user if for *NIX, change the current directory to the desired install location.
 This will be referred to as `<INSTALL_DIRECTORY>`.
-
-.*NIX Tip
-[TIP]
++
+.Windows Pathname Warning
+====
+Do not use spaces in directory or file names of the `<INSTALL_DIRECTORY>` path.
+====
++
+.Use a Non-root User on *NIX
+[NOTE]
+====
 It is recommended that the root user create a new install directory that can be owned by a non-root user (e.g., ${branding-lowercase}-user).
 The non-root user (e.g., ${branding-lowercase}-user) can now be used for the remaining installation instructions.
-
+====
++
 .Example: Create a Directory and Switch User on *NIX
 ----
 mkdir new_installation
@@ -146,149 +110,158 @@ chown ${branding-lowercase}-user:${branding-lowercase}-group new_installation
 
 su - ${branding-lowercase}-user
 ----
-
-* Change the current directory to location of zip file (${branding-lowercase}-X.Y.zip).
-
-.Example: Where the Zip File may be Located in *NIX
++
+.Example: Create a Directory on Windows and Switch User on Windows
+----
+mkdir new_installation
+icacls "new_installation" /grant ${branding-lowercase}-user(OI)(CI)F /T
+----
++
+. Change the current directory to the location of the zip file (${branding-lowercase}-${project.version}.zip).
++
+.*NIX (Example assumes ${branding} has been downloaded to a CD/DVD)
 ----
 cd /home/user/cdrom
 ----
-
++
 .Windows (Example assumes ${branding} has been downloaded to the D drive)
 ----
 cd D:\
 ----
-* Copy ${branding-lowercase}-X.Y.zip to <INSTALL_DIRECTORY>.
-
+. Copy ${branding-lowercase}-${project.version}.zip to <INSTALL_DIRECTORY>.
++
 .*NIX
 ----
-cp ${branding-lowercase}-X.Y.zip <INSTALL_DIRECTORY>
+cp ${branding-lowercase}-${project.version}.zip <INSTALL_DIRECTORY>
 ----
-
++
 .Windows
 ----
-copy ${branding-lowercase}-X.Y.zip <INSTALL_DIRECTORY>
+copy ${branding-lowercase}-${project.version}.zip <INSTALL_DIRECTORY>
 ----
-
-* Change the current directory to the desired install location.
-
++
+. Change the current directory to the desired install location.
++
 .*NIX or Windows
 ----
 cd <INSTALL_DIRECTORY>
 ----
-
-* The ${branding} zip is now located within the `<INSTALL_DIRECTORY>`. Unzip ${branding-lowercase}-X.Y.zip.
-
++
+. The ${branding} zip is now located within the `<INSTALL_DIRECTORY>`. Unzip ${branding-lowercase}-${project.version}.zip.
++
 .*NIX
 ----
-unzip ${branding-lowercase}-X.Y.zip
+unzip ${branding-lowercase}-${project.version}.zip
 ----
-
-.Example: Use Java to Unzip in Windows
++
+.Windows Zip Utility Warning
+[WARNING]
+====
+The default Windows zip utility will not work to unzip the distribution, use Java or a third party utility instead.
+====
++
+.Use Java to Unzip in Windows(Replace `<JAVA_VERSION>` with Current Version)
 ----
-"C:\Program Files\Java\jdk1.8.0\bin\jar.exe" xf ${branding-lowercase}-X.Y.zip
+"C:\Program Files\Java\jdk<JAVA_VERSION>\bin\jar.exe" xf ${branding-lowercase}-${project.version}.zip
 ----
-
-* Run ${branding} using the appropriate script.
-
-.*NIX
-----
-<INSTALL_DIRECTORY>/${branding-lowercase}-X.Y/bin/${branding-lowercase}
-----
-
-.Windows
-----
-<INSTALL_DIRECTORY>/${branding-lowercase}-X.Y/bin/${branding-lowercase}.bat
-----
-
-Execute the following command at the command line for status:
-
-.View Status
-----
-${branding-lowercase}${at-symbol}local>list
-----
-
-// Verify this step is still required.
-* If the ${branding} Standalone Solr Server will be installed later, an additional configuration step is required for the ${branding} kernel.
-Add the following lines to the bottom of the `<INSTALL_DIR>/etc/org.ops4j.pax.web.cfg` file:
-
++
+. If the ${branding} Standalone Solr Server will be installed later, an additional configuration step is required for the ${branding} kernel.
+Add the following lines to the bottom of the `<INSTALL_DIRECTORY>/etc/org.ops4j.pax.web.cfg` file:
++
 .Additional Configuration Step
 ----
 # Jetty Configuration
-`org.ops4j.pax.web.config.file=<KARAF.HOME>/etc/jetty.xml`
+`org.ops4j.pax.web.config.file=<KARAF_HOME>/etc/jetty.xml`
 ----
 
-* Run the ${branding} using the appropriate script.
+==== Deployment Guidelines
+
+${branding} relies on the Directory Permissions of the host platform to protect the integrity of the ${branding} during operation.
+System administrators MUST perform the following steps prior to deploying bundles added to the ${branding}.
+
+Within the `<INSTALL_DIRECTORY>`, a directory is created named ${branding-lowercase}-${project.version}.
+This directory will be referred in the documentation as `<${branding}_HOME>`.
+
+. Check the available storage space on the system to ensure the deployment will not exceed the available space.
+. Set maximum storage space on the `<${branding}_HOME>/deploy` and `<${branding}_HOME>/system` directories to restrict the amount of space used by deployments.
+. Do not assume the deployment is from a trusted source; verify its origination.
+
+==== Directory Permissions
+
+Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.
+
+===== Directory Permissions on Windows
+
+Set directory permissions to protect the ${branding} from unauthorized access.
+
+. Right-click on the file or directory noted below then select *Full Control -> Administrators -> System*.
+. Click *Properties -> Security -> Advanced* and select `Creator Owner` for `<${branding}_HOME>` (e.g., `C:\${branding-lowercase}`).
+. Restrict access to sensitive files by ensuring that only *System* and *Administrators* have Full Control to the below files by right-clicking on the file or directory below then selecting *Properties -> Security -> Advanced*
+. Delete any other groups or users listed with access to `<${branding}_HOME>/etc` and `<${branding}_HOME>/deploy`.
+
+===== Directory Permissions on *NIX
+
+Set directory permissions to protect the ${branding} from unauthorized access.
+
+* Change ownership of ${branding}_HOME
+** `chown -R ${branding-lowercase}-use <${branding}_HOME>`
+* Change group ownership on sub-directories
+** `chgrp -R ${branding}_GROUP <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/deploy`
+* Change group permissions
+** `chmod -R g-w <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/deploy`
+* Remove permissions for other users
+** `chmod -R o-rwx <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/deploy`
+
+
+[IMPORTANT]
+====
+The system administrator must restrict certain directories to ensure that the application (user) cannot access restricted directories on the system.
+For example the `${branding-lowercase}-user` should only have read access to `<${branding}_HOME>`.
+====
+
+==== Initial Startup
+
+Run the ${branding} using the appropriate script.
 
 .*NIX
 ----
-<INSTALL_DIRECTORY>/${branding-lowercase}-${project.version}/bin/${branding-lowercase}
+<${branding}_HOME/bin/${branding-lowercase}
 ----
 
 .Windows
 ----
-<INSTALL_DIRECTORY>/${branding-lowercase}-${project.version}/bin/${branding-lowercase}.bat
+<${branding}_HOME>/bin/${branding-lowercase}.bat
 ----
 
 The distribution takes a few moments to load depending on the hardware configuration.
-Execute the following command at the command line for status:
 
-.View Status
-----
-${branding}${at-symbol}local>list
-----
-The list of bundles should look similar to this:
-
-.${branding} List of Apps Installed
-----
-.${branding}${at-symbol}local>list
-START LEVEL 100 , List Threshold: 50
-   ID   State         Blueprint      Spring    Level  Name
-[ 111] [Active     ] [            ] [       ] [   80] Commons IO (2.1.0)
-[ 113] [Active     ] [Created     ] [       ] [   80] ${branding} :: Distribution :: Console Branding Plugin (${project.version})
-----
-
-.${branding} Application Installation Dependencies
-
-[WARNING]
+[TIP]
 ====
-If completing a non-standard installation, be aware that some applications depend on other ${branding} applications being installed.
-
-This hierarchy can be shown using the `app:tree` command
-
-[source]
-----
-${ddf-branding-lowercase}${at-symbol}local>app:tree
-+- opendj-embedded
-+- platform-app
-|   +- catalog-app
-|   |   +- search-ui-app
-|   |   |   +- spatial-app
-|   |   +- solr-app
-|   +- security-services-app
-|   |   +- admin-app
-----
-
+To run ${branding} as a service, see <<_starting_${branding-lowercase}_as_a_service>>.
 ====
 
-===== Verifying Installation
+==== Verifying Startup
 
 At this point, ${branding} should be configured and running with a Solr Catalog Provider.
 New features (endpoints, services, and sites) can be added as needed.
 
-Verification is achieved by checking that all of the ${branding} bundles are in an Active state (excluding fragment bundles which remain in a Resolved state).
+Verification is achieved by checking that all of the ${branding} bundles are in an *Active* state (excluding fragment bundles which remain in a *Resolved* state).
 
-The following command displays the status of all the ${branding} bundles:
+[NOTE]
+====
+It may take a few moments for all bundles to start so it may be necessary to wait a few minutes before verifying installation.
+====
+
+Execute the following command to display the status of all the ${branding} bundles:
 
 .View Status
 ----
-${branding-lowercase}${at-symbol}local>list  grep -i ${branding-lowercase}
+${branding-lowercase}${at-symbol}local>list | grep -i ${branding-lowercase}
 
 ----
 
 [WARNING]
 ====
-// This sentence is formatted unusually because of the double colons.
 Entries in the *Resolved* state are expected, they are OSGi bundle fragments.
 Bundle fragments are distinguished from other bundles in the command line console list by a field named `Hosts`, followed by a bundle number.
 Bundle fragments remain in the *Resolved* state and can never move to the *Active* state.
@@ -296,10 +269,12 @@ Bundle fragments remain in the *Resolved* state and can never move to the *Activ
 
 .Example: Bundle Fragment in the Command Line Console
 ----
-215 | Resolved |  80 | ${project.version}     | DDF :: Platform :: Security :: Session, Hosts: 90
+96 | Resolved |  80 | 2.10.0.SNAPSHOT | DDF :: Platform :: PaxWeb :: Jetty Config, Hosts: 90
 ----
 
-===== ${branding} Directory Contents after Installation and Initial Startup
+After successfully completing these steps, the ${branding} is ready to be configured.
+
+==== ${branding} Directory Contents after Installation and Initial Startup
 
 During ${branding} installation, the major directories and files shown in the table below are created, modified, or replaced in the destination directory.
 
@@ -311,15 +286,15 @@ During ${branding} installation, the major directories and files shown in the ta
 |Description
 
 |`bin`
-|Scripts to start and stop ${branding}
+|Scripts to start, stop, and connect to ${branding}.
 
 |`data`
 |The working directory of the system – installed bundles and their data
 
-|`data/log/${branding}.log`
+|`data/log/${branding-lowercase}.log`
 |Log file for ${branding}, logging all errors, warnings, and (optionally) debug statements. This log rolls up to 10 times, frequency based on a configurable setting (default=1 MB)
 
-|`data/log/ingest.log`
+|`data/log/ingest_error.log`
 |Log file for any ingest errors that occur within ${branding}.
 
 |`data/log/security.log`
@@ -353,5 +328,3 @@ During ${branding} installation, the major directories and files shown in the ta
 |Local bundle repository. Contains all of the JARs required by ${branding}, including third-party JARs.
 
 |===
-
-After successfully completing these steps, the ${branding} is ready to be configured.

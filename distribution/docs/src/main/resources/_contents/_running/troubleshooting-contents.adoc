@@ -12,8 +12,16 @@ If, after configuration, a ${branding} is not performing as expected, consult th
 |Issue
 |Solution
 
+|Unable to unzip distribution on Windows platform
+|The default Windows zip utility is not compatible with the ${branding} distribution zip file. Use Java or a third-party zip utility.
+
+|Unable to federate on Windows Platform
+|Windows default firewall is not compatible with ${branding}.
+
 |Ingesting more than 200,000 data files stored NFS shares may cause Java Heap Space error (Linux-only issue).
-|This is an NFS bug where it creates duplicate entries for some files when doing a file list.  Depend on the OS, some Linux machines can handle the bug better and able get a list of files but get an incorrect number of files. Others would have a Java Heap Space error because there are too many file to list.
+|This is an NFS bug where it creates duplicate entries for some files when doing a file list. Depending on the OS, some Linux machines can handle the bug better and able get a list of files but get an incorrect number of files. Others would have a Java Heap Space error because there are too many file to list.
+
+As a workaround, ingest files in batches smaller than 200,000.
 
 |Ingesting millions of complicated data into Solr can cause Java heap space error.
 |Complicated data has spatial types and large text.
