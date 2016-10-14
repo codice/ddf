@@ -393,7 +393,7 @@ public class ConfigurationApplication implements SparkApplication {
     }
 
     private void stopImageryEndpoints(List<String> imageryEndpointsToStop) {
-        for (Iterator<String> iterator = imageryEndpointsToStop.iterator(); iterator.hasNext(); ) {
+        for (Iterator<String> iterator = imageryEndpointsToStop.iterator(); iterator.hasNext();) {
             String endpoint = iterator.next();
             try {
                 httpProxy.stop(endpoint);

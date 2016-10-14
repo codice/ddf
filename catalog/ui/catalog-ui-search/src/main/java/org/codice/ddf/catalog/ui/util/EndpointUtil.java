@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.BadRequestException;
@@ -378,20 +379,41 @@ public class EndpointUtil {
         SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
-            return dateFormat.parse(value.toString()).toInstant();
+            return dateFormat.parse(value.toString())
+                    .toInstant();
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private Pattern boonDefault = Pattern.compile("[a-zA-Z]{3}\\s[a-zA-Z]{3}\\s\\d+\\s[0-9:]+\\s(\\w+\\s)?\\d+");
+    private Pattern iso8601 = Pattern.compile("\\d+-?\\d+-?\\d+T\\d+:?\\d+:?\\d+(Z|(\\+|-)\\d+:\\d+)");
     public Serializable parseDate(Serializable value) {
+        if (value == null) {
+            return null;
+        }
+
         if (value instanceof Date) {
             return ((Date) value).toInstant()
                     .toString();
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+        if (!(value instanceof String)) {
+            return null;
+        }
+
+        String svalue = String.valueOf(value);
+        SimpleDateFormat dateFormat = null;
+
+        if (boonDefault.matcher(svalue).matches()) {
+            dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
+        } else if (iso8601.matcher(svalue).matches()){
+            dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+        } else {
+            dateFormat = new SimpleDateFormat();
+        }
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         try {
             return dateFormat.parse(value.toString());
         } catch (ParseException e) {

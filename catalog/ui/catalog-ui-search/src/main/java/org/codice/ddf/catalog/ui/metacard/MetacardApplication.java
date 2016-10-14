@@ -40,6 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -130,7 +131,8 @@ public class MetacardApplication implements SparkApplication {
     public MetacardApplication(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
             EndpointUtil endpointUtil, Validator validator, WorkspaceTransformer transformer,
             ExperimentalEnumerationExtractor enumExtractor,
-            SubscriptionsPersistentStore subscriptions, List<MetacardType> types, Associated associated) {
+            SubscriptionsPersistentStore subscriptions, List<MetacardType> types,
+            Associated associated) {
         this.catalogFramework = catalogFramework;
         this.filterBuilder = filterBuilder;
         this.util = endpointUtil;
@@ -200,7 +202,7 @@ public class MetacardApplication implements SparkApplication {
         }, util::getJson);
 
         patch("/metacards", APPLICATION_JSON, (req, res) -> {
-            List<MetacardChanges> metacardChanges = JsonFactory.create()
+            List<MetacardChanges> metacardChanges = JsonFactory.createUseJSONDates()
                     .parser()
                     .parseList(MetacardChanges.class, req.body());
 
@@ -476,7 +478,8 @@ public class MetacardApplication implements SparkApplication {
         if (versionMetacard.getAttribute(MetacardVersion.ACTION)
                 .getValue()
                 .equals(MetacardVersion.Action.DELETED.getKey())) {
-            catalogFramework.create(new CreateStorageRequestImpl(Collections.singletonList(contentItem), id, new HashMap<>()));
+            catalogFramework.create(new CreateStorageRequestImpl(Collections.singletonList(
+                    contentItem), id, new HashMap<>()));
         } else {
             catalogFramework.update(new UpdateStorageRequestImpl(Collections.singletonList(
                     contentItem), id, new HashMap<>()));
@@ -514,38 +517,20 @@ public class MetacardApplication implements SparkApplication {
         for (MetacardChanges changeset : metacardChanges) {
             for (AttributeChange attributeChange : changeset.getAttributes()) {
                 for (String id : changeset.getIds()) {
+                    List<String> values = attributeChange.getValues();
                     Metacard result = results.get(id)
                             .getMetacard();
-                    boolean multivalued = getDescriptor(result,
-                            attributeChange.getAttribute()).isMultiValued();
 
-                    if (getDescriptor(result, attributeChange.getAttribute()).getType()
-                            .getAttributeFormat()
-                            .equals(AttributeType.AttributeFormat.DATE)) {
-                        Attribute attribute = result.getAttribute(attributeChange.getAttribute());
-                        if (multivalued) {
-
-                            result.setAttribute(new AttributeImpl(attributeChange.getAttribute(),
-                                    attribute.getValues()
-                                            .stream()
-                                            .map(util::parseDate)
-                                            .collect(Collectors.toList())));
-                        } else { // not multivalued
-                            result.setAttribute(new AttributeImpl(attributeChange.getAttribute(),
-                                    util.parseDate(attribute.getValue())));
-
-                        }
-                        continue;
+                    Function<Serializable, Serializable> mapFunc = Function.identity();
+                    if (isChangeTypeDate(attributeChange, result)) {
+                        mapFunc = mapFunc.andThen(util::parseDate);
                     }
 
-                    if (multivalued) {
-                        result.setAttribute(new AttributeImpl(attributeChange.getAttribute(),
-                                (List<Serializable>) new ArrayList<Serializable>(attributeChange.getValues())));
-                    } else {
-                        result.setAttribute(new AttributeImpl(attributeChange.getAttribute(),
-                                Collections.singletonList(attributeChange.getValues()
-                                        .get(0))));
-                    }
+                    result.setAttribute(new AttributeImpl(attributeChange.getAttribute(),
+                            values.stream()
+                                    .filter(Objects::nonNull)
+                                    .map(mapFunc)
+                                    .collect(Collectors.toList())));
                 }
             }
         }
@@ -556,6 +541,12 @@ public class MetacardApplication implements SparkApplication {
                 .collect(Collectors.toList());
         return catalogFramework.update(new UpdateRequestImpl(changedIds.toArray(new String[0]),
                 changedMetacards));
+    }
+
+    private boolean isChangeTypeDate(AttributeChange attributeChange, Metacard result) {
+        return getDescriptor(result, attributeChange.getAttribute()).getType()
+                .getAttributeFormat()
+                .equals(AttributeType.AttributeFormat.DATE);
     }
 
     private List<Result> getMetacardHistory(String id) throws Exception {
