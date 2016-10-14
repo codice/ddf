@@ -24,6 +24,35 @@ Run the following script from a console window to start the distribution and ope
 INSTALLATION_HOME/bin/${branding-lowercase}.bat
 ----
 
+==== Starting ${branding} as a Service
+
+Alternatively, to run ${branding} as a background service, run the `start` script:
+
+.*NIX
+----
+<${branding}_HOME/bin/start
+----
+
+.Windows
+----
+<${branding}_HOME>/bin/start.bat
+----
+
+[NOTE]
+====
+If console access is needed while running as a service, run the `client` script:
+
+.*NIX
+----
+<${branding}_HOME/bin/client
+----
+
+.Windows
+----
+<${branding}_HOME>/bin/client.bat
+----
+====
+
 ==== Stop ${branding}
 
 There are two options:
@@ -72,7 +101,7 @@ Because ${branding} is built on top of Apache Karaf, ${branding} can use the Kar
 .Within the ${branding} console
 ----
 ${branding-lowercase}${at-symbol}local> feature:install wrapper
-${branding-lowercase}${at-symbol}local> wrapper:install -s AUTO_START -n ${ddf-branding-lowercase}-d ${ddf-branding-lowercase}-D "${branding} Service"
+${branding-lowercase}${at-symbol}local> wrapper:install -s AUTO_START -n ${ddf-branding-lowercase} -d ${ddf-branding-lowercase} -D "${branding} Service"
 ----
 +
 . (Windows users skip to next step) (All *NIX) If ${branding} was installed to run as a non-root user (recommended,) edit `INSTALLATION_HOME/bin/${branding-lowercase}-service`.
