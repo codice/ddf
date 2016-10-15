@@ -23,7 +23,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -36,19 +35,16 @@ import ddf.security.policy.extension.PolicyExtension;
 
 public class WorkspacePolicyExtension implements PolicyExtension {
 
-    private Stream<KeyValuePermission> injectedPermissions() {
-        return ImmutableList.of(new KeyValuePermission("admin", ImmutableSet.of("admin")))
-                .stream();
-    }
+    private String systemUserAttribute = Constants.ROLES_CLAIM_URI;
 
-    private Map<String, String> keyMapping = ImmutableMap.of("admin",
-            Constants.ROLES_CLAIM_URI,
-            Core.METACARD_OWNER,
-            Constants.EMAIL_ADDRESS_CLAIM_URI,
-            SecurityAttributes.ACCESS_INDIVIDUALS,
-            Constants.EMAIL_ADDRESS_CLAIM_URI,
-            SecurityAttributes.ACCESS_GROUPS,
-            Constants.ROLES_CLAIM_URI);
+    private String systemUserAttributeValue = "admin";
+
+    // @formatter:off
+    private Map<String, String> keyMapping = ImmutableMap.of(
+            Core.METACARD_OWNER, Constants.EMAIL_ADDRESS_CLAIM_URI,
+            SecurityAttributes.ACCESS_INDIVIDUALS, Constants.EMAIL_ADDRESS_CLAIM_URI,
+            SecurityAttributes.ACCESS_GROUPS, Constants.ROLES_CLAIM_URI);
+    // @formatter:on
 
     private static Predicate<KeyValuePermission> byKeys(Set<String> keys) {
         return permission -> keys.contains(permission.getKey());
@@ -60,46 +56,63 @@ public class WorkspacePolicyExtension implements PolicyExtension {
                 permission.getValues());
     }
 
-    @Override
-    public KeyValueCollectionPermission isPermittedMatchAll(CollectionPermission subject,
-            KeyValueCollectionPermission match) {
-
-        List<KeyValuePermission> permissions = match.getPermissionList()
+    private static List<KeyValuePermission> getPermissions(
+            KeyValueCollectionPermission collection) {
+        return collection.getPermissionList()
                 .stream()
                 .filter(p -> p instanceof KeyValuePermission)
                 .map(p -> (KeyValuePermission) p)
                 .collect(Collectors.toList());
+    }
 
-        Stream<KeyValuePermission> stream = concat(injectedPermissions(), permissions.stream());
+    private Stream<KeyValuePermission> overrides() {
+        return Stream.of(new KeyValuePermission(systemUserAttribute, ImmutableSet.of(
+                systemUserAttributeValue)));
+    }
 
-        boolean matched = stream.filter(byKeys(keyMapping.keySet()))
-                .map(remapKeys(keyMapping))
-                .filter(subject::implies)
+    @Override
+    public KeyValueCollectionPermission isPermittedMatchAll(CollectionPermission subject,
+            KeyValueCollectionPermission match) {
+
+        List<KeyValuePermission> permissions = getPermissions(match);
+
+        Stream<KeyValuePermission> remapped = permissions.stream()
+                .filter(byKeys(keyMapping.keySet()))
+                .map(remapKeys(keyMapping));
+
+        boolean matched = concat(overrides(), remapped).filter(subject::implies)
                 .findFirst()
                 .isPresent();
 
+        if (!matched) {
+            return match;
+        }
+
         return new KeyValueCollectionPermission(match.getAction(),
                 permissions.stream()
-                        .filter(matched ? byKeys(keyMapping.keySet()).negate() : p -> true)
+                        .filter(byKeys(keyMapping.keySet()).negate())
                         .collect(Collectors.toList()));
     }
 
-    /**
-     * Extension policy for workspace security to achieve the following constraints.
-     * <p>
-     * - If roles and emails are set
-     * -   If either roles or emails can be implied, removed both
-     * - Otherwise, do nothing.
-     * <p>
-     * NOTE: no other permissions should be touched/removed.
-     *
-     * @param subject
-     * @param matchOne
-     * @return
-     */
     @Override
     public KeyValueCollectionPermission isPermittedMatchOne(CollectionPermission subject,
             KeyValueCollectionPermission matchOne) {
         return matchOne;
+    }
+
+    public String getSystemUserAttribute() {
+        return systemUserAttribute;
+    }
+
+    public void setSystemUserAttribute(String systemUserAttribute) {
+        this.systemUserAttribute = systemUserAttribute;
+    }
+
+    public String getSystemUserAttributeValue() {
+        return systemUserAttributeValue;
+    }
+
+    public void setSystemUserAttributeValue(String systemUserAttributeValue) {
+        this.systemUserAttributeValue = systemUserAttributeValue;
     }
 }

@@ -99,8 +99,17 @@
         </bean>
     </service>
 
+    <bean id="workspacePolicyExtension"
+          class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension">
+
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.security"
+                update-strategy="container-managed"/>
+    </bean>
+
+
     <service interface="ddf.security.policy.extension.PolicyExtension">
-        <bean class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension"/>
+        <ref component-id="workspacePolicyExtension"/>
     </service>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
@@ -173,9 +182,9 @@
         </argument>
     </bean>
 
-    <bean id="associated" class="org.codice.ddf.catalog.ui.metacard.associations.Associated" >
-        <argument ref="endpointUtil" />
-        <argument ref="catalogFramework" />
+    <bean id="associated" class="org.codice.ddf.catalog.ui.metacard.associations.Associated">
+        <argument ref="endpointUtil"/>
+        <argument ref="catalogFramework"/>
     </bean>
 
     <bean id="metacardApplication" class="org.codice.ddf.catalog.ui.metacard.MetacardApplication">
@@ -189,7 +198,7 @@
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
-        <argument ref="associated" />
+        <argument ref="associated"/>
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">

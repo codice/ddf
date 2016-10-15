@@ -15,12 +15,12 @@ package org.codice.ddf.catalog.ui.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.apache.shiro.authz.Permission;
 import org.junit.Before;
@@ -33,15 +33,17 @@ import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
-import ddf.security.policy.extension.PolicyExtension;
 
 public class WorkspacePolicyExtensionTest {
 
-    private static final Permission SYSTEM = makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
-            ImmutableSet.of("system@localhost"));
+    private static final Permission ADMIN_ROLE = makePermission(Constants.ROLES_CLAIM_URI,
+            ImmutableSet.of("admin"));
 
-    private static final Permission ADMIN = makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
+    private static final Permission ADMIN_EMAIL = makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
             ImmutableSet.of("admin@localhost"));
+
+    private static final Permission SYSTEM_ROLE = makePermission(Constants.ROLES_CLAIM_URI,
+            ImmutableSet.of("system"));
 
     private static final Set<String> VALUES = ImmutableSet.of("value1", "value2", "value3");
 
@@ -53,58 +55,66 @@ public class WorkspacePolicyExtensionTest {
     private static final Permission EMAILS = makePermission(SecurityAttributes.ACCESS_INDIVIDUALS,
             VALUES);
 
-    private PolicyExtension extension;
-
-    private CollectionPermission subject;
+    private WorkspacePolicyExtension extension;
 
     private KeyValueCollectionPermission match;
 
     @Before
     public void setUp() {
         extension = new WorkspacePolicyExtension();
-        subject = mock(CollectionPermission.class);
         match = mock(KeyValueCollectionPermission.class);
     }
 
+    private static CollectionPermission makeSubject(Predicate<KeyValuePermission> fn) {
+        return new CollectionPermission() {
+            @Override
+            public boolean implies(Permission p) {
+                return fn.test((KeyValuePermission) p);
+            }
+        };
+    }
+
+    private static CollectionPermission subjectFrom(List<Permission> ps) {
+        return makeSubject((KeyValuePermission p2) -> ps.stream()
+                .filter((p1) -> p1.equals(p2))
+                .findFirst()
+                .isPresent());
+    }
+
+    private static CollectionPermission subjectFrom(Permission p) {
+        return subjectFrom(ImmutableList.of(p));
+    }
+
     private static KeyValuePermission makePermission(String key, Set<String> values) {
-        KeyValuePermission permission = mock(KeyValuePermission.class);
-        doReturn(key).when(permission)
-                .getKey();
-        doReturn(values).when(permission)
-                .getValues();
-        return permission;
+        return new KeyValuePermission(key, values) {
+            @Override
+            public boolean equals(Object obj) {
+                KeyValuePermission permission = (KeyValuePermission) obj;
+                return permission.getKey()
+                        .equals(this.getKey()) && permission.getValues()
+                        .equals(this.getValues());
+            }
+
+            @Override
+            public int hashCode() {
+                return 0;
+            }
+        };
     }
 
     @Test
-    public void testIsPermittedMatchAllPassThrough() {
+    public void testShouldKeepAllWhenNoneImplied() {
         List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
 
         doReturn(before).when(match)
                 .getPermissionList();
+
+        CollectionPermission subject = makeSubject((p) -> false);
 
         List<Permission> after = extension.isPermittedMatchAll(subject, match)
                 .getPermissionList();
 
         assertThat(after, is(before));
-    }
-
-    @Test
-    public void testShouldRemoveRolesAndEmailsWhenSystem() {
-        List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
-
-        doReturn(before).when(match)
-                .getPermissionList();
-
-        doReturn(ImmutableList.of(SYSTEM)).when(subject)
-                .getPermissionList();
-
-        doReturn(true).when(subject)
-                .implies(any(Permission.class));
-
-        List<Permission> after = extension.isPermittedMatchAll(subject, match)
-                .getPermissionList();
-
-        assertThat(after, is(ImmutableList.of(RANDOM)));
     }
 
     @Test
@@ -114,11 +124,7 @@ public class WorkspacePolicyExtensionTest {
         doReturn(before).when(match)
                 .getPermissionList();
 
-        doReturn(ImmutableList.of(ADMIN)).when(subject)
-                .getPermissionList();
-
-        doReturn(true).when(subject)
-                .implies(any(Permission.class));
+        CollectionPermission subject = makeSubject((p) -> true);
 
         List<Permission> after = extension.isPermittedMatchAll(subject, match)
                 .getPermissionList();
@@ -127,22 +133,100 @@ public class WorkspacePolicyExtensionTest {
     }
 
     @Test
-    public void testShouldKeepRolesAndEmailsWhenNoneImplied() {
+    public void testShouldRemoveRolesAndEmailsWhenRoleImplied() {
         List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
 
         doReturn(before).when(match)
                 .getPermissionList();
 
-        doReturn(ImmutableList.of(ADMIN)).when(subject)
+        CollectionPermission subject = subjectFrom(makePermission(Constants.ROLES_CLAIM_URI,
+                VALUES));
+
+        List<Permission> after = extension.isPermittedMatchAll(subject, match)
                 .getPermissionList();
 
-        doReturn(false).when(subject)
-                .implies(any(Permission.class));
+        assertThat(after, is(ImmutableList.of(RANDOM)));
+    }
+
+    @Test
+    public void testShouldRemoveRolesAndEmailsWhenEmailImplied() {
+        List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
+
+        doReturn(before).when(match)
+                .getPermissionList();
+
+        CollectionPermission subject = subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
+                VALUES));
+
+        List<Permission> after = extension.isPermittedMatchAll(subject, match)
+                .getPermissionList();
+
+        assertThat(after, is(ImmutableList.of(RANDOM)));
+    }
+
+    @Test
+    public void testShouldIgnoreRandom() {
+        List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
+
+        doReturn(before).when(match)
+                .getPermissionList();
+
+        CollectionPermission subject = subjectFrom(RANDOM);
 
         List<Permission> after = extension.isPermittedMatchAll(subject, match)
                 .getPermissionList();
 
         assertThat(after, is(before));
+    }
+
+    @Test
+    public void testShouldRemoveRolesAndEmailsWhenAdmin() {
+        List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
+
+        doReturn(before).when(match)
+                .getPermissionList();
+
+        CollectionPermission subject = subjectFrom(ADMIN_ROLE);
+
+        List<Permission> after = extension.isPermittedMatchAll(subject, match)
+                .getPermissionList();
+
+        assertThat(after, is(ImmutableList.of(RANDOM)));
+    }
+
+    @Test
+    public void testShouldRemoveRolesAndEmailsWhenOverridden1() {
+        List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
+
+        doReturn(before).when(match)
+                .getPermissionList();
+
+        extension.setSystemUserAttribute(Constants.EMAIL_ADDRESS_CLAIM_URI);
+        extension.setSystemUserAttributeValue("admin@localhost");
+
+        CollectionPermission subject = subjectFrom(ADMIN_EMAIL);
+
+        List<Permission> after = extension.isPermittedMatchAll(subject, match)
+                .getPermissionList();
+
+        assertThat(after, is(ImmutableList.of(RANDOM)));
+    }
+
+    @Test
+    public void testShouldRemoveRolesAndEmailsWhenOverridden2() {
+        List<Permission> before = ImmutableList.of(RANDOM, ROLES, EMAILS);
+
+        doReturn(before).when(match)
+                .getPermissionList();
+
+        extension.setSystemUserAttributeValue("system");
+
+        CollectionPermission subject = subjectFrom(SYSTEM_ROLE);
+
+        List<Permission> after = extension.isPermittedMatchAll(subject, match)
+                .getPermissionList();
+
+        assertThat(after, is(ImmutableList.of(RANDOM)));
     }
 
 }
