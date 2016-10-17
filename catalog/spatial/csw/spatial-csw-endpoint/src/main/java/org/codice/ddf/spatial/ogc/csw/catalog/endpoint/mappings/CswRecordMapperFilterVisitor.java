@@ -177,9 +177,19 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     @Override
     public Object visit(PropertyIsBetween filter, Object extraData) {
         Expression expr = visit(filter.getExpression(), extraData);
-        Expression lower = visit(filter.getLowerBoundary(), expr);
-        Expression upper = visit(filter.getUpperBoundary(), expr);
-        return getFactory(extraData).between(expr, lower, upper);
+
+        AttributeType type =
+                attributeTypes.get(((PropertyName) filter.getExpression()).getPropertyName());
+
+        LiteralExpressionImpl typedLowerExpression =
+                (LiteralExpressionImpl) filter.getLowerBoundary();
+        setExpressionType(type, typedLowerExpression);
+
+        LiteralExpressionImpl typedUpperExpression =
+                (LiteralExpressionImpl) filter.getUpperBoundary();
+        setExpressionType(type, typedUpperExpression);
+
+        return getFactory(extraData).between(expr, typedLowerExpression, typedLowerExpression);
     }
 
     @Override
@@ -193,21 +203,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
 
         LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
-        if (type != null) {
-            if (type.getBinding() == Short.class) {
-                typedExpression.setValue(Short.valueOf((String) typedExpression.getValue()));
-            } else if (type.getBinding() == Integer.class) {
-                typedExpression.setValue(Integer.valueOf((String) typedExpression.getValue()));
-            } else if (type.getBinding() == Long.class) {
-                typedExpression.setValue(Long.valueOf((String) typedExpression.getValue()));
-            } else if (type.getBinding() == Float.class) {
-                typedExpression.setValue(Float.valueOf((String) typedExpression.getValue()));
-            } else if (type.getBinding() == Double.class) {
-                typedExpression.setValue(Double.valueOf((String) typedExpression.getValue()));
-            } else if (type.getBinding() == Boolean.class) {
-                typedExpression.setValue(Boolean.valueOf((String) typedExpression.getValue()));
-            }
-        }
+        setExpressionType(type, typedExpression);
 
         Expression expr1 = visit(filter.getExpression1(), extraData);
         Expression expr2 = visit((Expression) typedExpression, expr1);
@@ -216,10 +212,15 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     @Override
     public Object visit(PropertyIsNotEqualTo filter, Object extraData) {
+        AttributeType type =
+                attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+        LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+        setExpressionType(type, typedExpression);
+
         Expression expr1 = visit(filter.getExpression1(), extraData);
-        Expression expr2 = visit(filter.getExpression2(), expr1);
-        boolean matchCase = filter.isMatchingCase();
-        return getFactory(extraData).notEqual(expr1, expr2, matchCase);
+        Expression expr2 = visit((Expression) typedExpression, expr1);
+        return getFactory(extraData).equal(expr1, expr2, filter.isMatchingCase());
     }
 
     @Override
@@ -250,6 +251,14 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 Literal literal = getFactory(extraData).literal(period);
                 return getFactory(extraData).during(other, literal);
             }
+        } else {
+            AttributeType type =
+                    attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+            LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+            setExpressionType(type, typedExpression);
+
+            expr2 = visit((Expression) typedExpression, expr1);
         }
         return getFactory(extraData).greater(expr1, expr2);
     }
@@ -285,6 +294,14 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 return getFactory(extraData).during(other, literal);
             }
 
+        } else {
+            AttributeType type =
+                    attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+            LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+            setExpressionType(type, typedExpression);
+
+            expr2 = visit((Expression) typedExpression, expr1);
         }
         return getFactory(extraData).greaterOrEqual(expr1, expr2);
     }
@@ -297,6 +314,14 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         // work around since solr provider doesn't support lessthan on temporal (DDF-311)
         if (isTemporalQuery(expr1, expr2)) {
             return getFactory(extraData).before(expr1, expr2);
+        } else {
+            AttributeType type =
+                    attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+            LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+            setExpressionType(type, typedExpression);
+
+            expr2 = visit((Expression) typedExpression, expr1);
         }
         return getFactory(extraData).less(expr1, expr2);
     }
@@ -330,8 +355,34 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 Literal literal = getFactory(extraData).literal(orig);
                 return getFactory(extraData).before(other, literal);
             }
+        } else {
+            AttributeType type =
+                    attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+            LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+            setExpressionType(type, typedExpression);
+
+            expr2 = visit((Expression) typedExpression, expr1);
         }
         return getFactory(extraData).lessOrEqual(expr1, expr2);
+    }
+
+    private void setExpressionType(AttributeType type, LiteralExpressionImpl typedExpression) {
+        if (type != null) {
+            if (type.getBinding() == Short.class) {
+                typedExpression.setValue(Short.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Integer.class) {
+                typedExpression.setValue(Integer.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Long.class) {
+                typedExpression.setValue(Long.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Float.class) {
+                typedExpression.setValue(Float.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Double.class) {
+                typedExpression.setValue(Double.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Boolean.class) {
+                typedExpression.setValue(Boolean.valueOf((String) typedExpression.getValue()));
+            }
+        }
     }
 
     @Override
