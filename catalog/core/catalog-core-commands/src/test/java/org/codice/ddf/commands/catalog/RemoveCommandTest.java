@@ -19,12 +19,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,51 +30,33 @@ import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
-public class TestRemoveCommand {
+public class RemoveCommandTest extends ConsoleOutputCommon {
 
     private List<Metacard> metacardList = getMetacardList(5);
-
-    private static ConsoleOutput consoleOutput;
 
     @Before
     public void setup() {
         metacardList = getMetacardList(5);
-
-        consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws IOException {
-        consoleOutput.resetSystemOut();
-        consoleOutput.closeBuffer();
     }
 
     @Test
     public void testSingleItemList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
-
-        List<String> ids = new ArrayList<>();
-        ids.add(metacardList.get(0)
-                .getId());
-
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
             }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
         };
 
-        removeCommand.ids = ids;
+        List<String> ids = new ArrayList<>();
+        ids.add(metacardList.get(0)
+                .getId());
 
+        removeCommand.ids = ids;
         removeCommand.cache = true;
 
-        removeCommand.doExecute();
+        removeCommand.executeWithSubject();
 
         String[] idsArray = new String[ids.size()];
         idsArray = ids.toArray(idsArray);
@@ -86,6 +66,12 @@ public class TestRemoveCommand {
     @Test
     public void testMultipleItemList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
+        RemoveCommand removeCommand = new RemoveCommand() {
+            @Override
+            protected SolrCacheMBean getCacheProxy() {
+                return mbean;
+            }
+        };
 
         List<String> ids = new ArrayList<>();
         ids.add(metacardList.get(0)
@@ -95,23 +81,10 @@ public class TestRemoveCommand {
         ids.add(metacardList.get(2)
                 .getId());
 
-        RemoveCommand removeCommand = new RemoveCommand() {
-            @Override
-            protected SolrCacheMBean getCacheProxy() {
-                return mbean;
-            }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
-        };
-
         removeCommand.ids = ids;
-
         removeCommand.cache = true;
 
-        removeCommand.doExecute();
+        removeCommand.executeWithSubject();
 
         String[] idsArray = new String[ids.size()];
         idsArray = ids.toArray(idsArray);
@@ -127,44 +100,32 @@ public class TestRemoveCommand {
     @Test
     public void testNullList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
-
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
             }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
         };
 
         removeCommand.ids = null;
 
-        removeCommand.doExecute();
+        removeCommand.executeWithSubject();
 
         assertThat(consoleOutput.getOutput(), containsString("Nothing to remove."));
-
-        consoleOutput.reset();
     }
 
     private java.util.List<Metacard> getMetacardList(int amount) {
-
         List<Metacard> metacards = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
-
             String id = UUID.randomUUID()
                     .toString();
             MetacardImpl metacard = new MetacardImpl();
             metacard.setId(id);
 
             metacards.add(metacard);
-
         }
 
         return metacards;
     }
-
 }

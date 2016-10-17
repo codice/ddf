@@ -13,16 +13,17 @@
  */
 package org.codice.ddf.commands.catalog;
 
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 
-import ddf.catalog.util.Describable;
-
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "describe", description = "Provides a basic description of the Catalog implementation.")
 public class DescribeCommand extends CatalogCommands {
 
     @Override
     protected Object executeWithSubject() throws Exception {
-        Describable catalog = getCatalog();
+        CatalogFacade catalog = getCatalog();
 
         console.printf("%s=%s%n", "title", catalog.getTitle());
         console.printf("%s=%s%n", "description", catalog.getDescription());

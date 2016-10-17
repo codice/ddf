@@ -35,7 +35,6 @@ import ddf.catalog.util.Describable;
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public abstract class CatalogFacade implements Describable {
 

@@ -38,26 +38,25 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.impl.CatalogFrameworkImpl;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ValidationException;
 
-public class TestValidateCommand extends TestAbstractCommand {
+public class ValidateCommandTest {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
-    ValidateCommand command;
+    ValidateCommand validateCommand;
 
     MetacardValidator goodValidator;
 
     MetacardValidator badValidator;
 
-    CatalogFramework mockCatalog;
+    CatalogFramework mockCatalog = mock(CatalogFramework.class);
 
-    ValidatePrinter mockPrinter;
+    ValidatePrinter mockPrinter = mock(ValidatePrinter.class);
 
     @Before
     public void setup() throws Exception {
@@ -88,24 +87,20 @@ public class TestValidateCommand extends TestAbstractCommand {
         }).when(badValidator)
                 .validate(anyObject());
 
-        //mock out printer
-        mockPrinter = mock(ValidatePrinter.class);
-
         //mock out catalog
-        command = new ValidateCommand(mockPrinter);
-        mockCatalog = mock(CatalogFrameworkImpl.class);
-        command.setCatalog(mockCatalog);
+        validateCommand = new ValidateCommand(mockPrinter);
+        validateCommand.catalogFramework = mockCatalog;
     }
 
     //test having no validators
     @Test
     public void testNoValidators() throws Exception {
-        command.setPath(testFolder.getRoot()
-                .getAbsolutePath() + "aFileThatDoesntExist.xml");
-        command.execute();
+        validateCommand.path = testFolder.getRoot()
+                .getAbsolutePath() + "aFileThatDoesntExist.xml";
+        validateCommand.executeWithSubject();
 
-        command.setValidators(Collections.emptyList());
-        command.execute(); //execute with empty validators list
+        validateCommand.validators = Collections.emptyList();
+        validateCommand.executeWithSubject(); //execute with empty validators list
 
         verify(mockPrinter, times(2)).printError("No validators have been configured");
     }
@@ -113,24 +108,24 @@ public class TestValidateCommand extends TestAbstractCommand {
     //test invalid file
     @Test(expected = FileNotFoundException.class)
     public void testInvalidFile() throws Exception {
-        command.setPath(testFolder.getRoot()
-                .getAbsolutePath() + "aFileThatDoesntExist.xml");
-        command.setValidators(new ArrayList<>());
-        command.getValidators().add(goodValidator);
+        validateCommand.path = testFolder.getRoot()
+                .getAbsolutePath() + "aFileThatDoesntExist.xml";
+        validateCommand.validators = new ArrayList<>();
+        validateCommand.validators.add(goodValidator);
 
-        command.execute();
+        validateCommand.executeWithSubject();
     }
 
     //test a single valid file
     @Test
     public void testValidFile() throws Exception {
         File newFile = testFolder.newFile("temp.xml");
-        command.setPath(newFile.getAbsolutePath());
+        validateCommand.path = newFile.getAbsolutePath();
 
-        command.setValidators(new ArrayList<>());
-        command.getValidators().add(goodValidator);
+        validateCommand.validators = new ArrayList<>();
+        validateCommand.validators.add(goodValidator);
 
-        command.execute();
+        validateCommand.executeWithSubject();
         verify(mockPrinter).printSummary(0, 1); //0 errors, one message saying so
     }
 
@@ -138,25 +133,25 @@ public class TestValidateCommand extends TestAbstractCommand {
     @Test
     public void testValidFileFailedValidation() throws Exception {
         File newFile = testFolder.newFile("temp.xml");
-        command.setPath(newFile.getAbsolutePath());
+        validateCommand.path = newFile.getAbsolutePath();
 
-        command.setValidators(new ArrayList<>());
-        command.getValidators().add(badValidator);
+        validateCommand.validators = new ArrayList<>();
+        validateCommand.validators.add(badValidator);
 
-        command.execute();
+        validateCommand.executeWithSubject();
         verify(mockPrinter).printSummary(1, 1);
     }
 
     //test empty directory
     @Test
     public void testEmptyDirectory() throws Exception {
-        command.setPath(testFolder.getRoot()
-                .getAbsolutePath());
+        validateCommand.path = testFolder.getRoot()
+                .getAbsolutePath();
 
-        command.setValidators(new ArrayList<>());
-        command.getValidators().add(goodValidator);
+        validateCommand.validators = new ArrayList<>();
+        validateCommand.validators.add(goodValidator);
 
-        command.execute();
+        validateCommand.executeWithSubject();
         verify(mockPrinter).printSummary(0, 0);
     }
 
@@ -164,13 +159,13 @@ public class TestValidateCommand extends TestAbstractCommand {
     @Test
     public void testSingleFileDirectory() throws Exception {
         testFolder.newFile("temp.xml");
-        command.setPath(testFolder.getRoot()
-                .getAbsolutePath());
+        validateCommand.path = testFolder.getRoot()
+                .getAbsolutePath();
 
-        command.setValidators(new ArrayList<>());
-        command.getValidators().add(goodValidator);
+        validateCommand.validators = new ArrayList<>();
+        validateCommand.validators.add(goodValidator);
 
-        command.execute();
+        validateCommand.executeWithSubject();
         verify(mockPrinter).printSummary(0, 1);
     }
 
@@ -181,12 +176,12 @@ public class TestValidateCommand extends TestAbstractCommand {
         testFolder.newFile("temp2.xml");
         testFolder.newFile("temp3.xml");
         testFolder.newFile("temp4.xml");
-        command.setPath(testFolder.getRoot()
-                .getAbsolutePath());
-        command.setValidators(new ArrayList<>());
-        command.getValidators().add(goodValidator);
+        validateCommand.path = testFolder.getRoot()
+                .getAbsolutePath();
+        validateCommand.validators = new ArrayList<>();
+        validateCommand.validators.add(goodValidator);
 
-        command.execute();
+        validateCommand.executeWithSubject();
         verify(mockPrinter).printSummary(0, 4);
     }
 
@@ -197,14 +192,14 @@ public class TestValidateCommand extends TestAbstractCommand {
         testFolder.newFile("temp2.xml");
         testFolder.newFile("temp3.xml");
         testFolder.newFile("temp4.xml");
-        command.setPath(testFolder.getRoot()
-                .getAbsolutePath());
+        validateCommand.path = testFolder.getRoot()
+                .getAbsolutePath();
 
-        command.setValidators(new ArrayList<>());
-        command.getValidators().add(goodValidator);
-        command.getValidators().add(badValidator);
+        validateCommand.validators = new ArrayList<>();
+        validateCommand.validators.add(goodValidator);
+        validateCommand.validators.add(badValidator);
 
-        command.execute();
+        validateCommand.executeWithSubject();
         verify(mockPrinter).printSummary(4, 4);
     }
 
@@ -238,11 +233,11 @@ public class TestValidateCommand extends TestAbstractCommand {
     public void testQueryNoResults() throws Exception {
         setupEmptyCatalog();
 
-        command.setCqlQuery("title like 'fake'");
-        command.setValidators(new ArrayList<>());
-        command.getValidators().add(badValidator);
+        validateCommand.cqlFilter = "title like 'fake'";
+        validateCommand.validators = new ArrayList<>();
+        validateCommand.validators.add(badValidator);
 
-        command.execute();
+        validateCommand.executeWithSubject();
         verify(mockPrinter).printSummary(0, 0);
     }
 
@@ -251,11 +246,11 @@ public class TestValidateCommand extends TestAbstractCommand {
     public void testQueryWithResults() throws Exception {
         setupNonEmptyCatalog();
 
-        command.setCqlQuery("title like 'fake'");
-        command.setValidators(new ArrayList<>());
-        command.getValidators().add(badValidator);
+        validateCommand.cqlFilter = "title like 'fake'";
+        validateCommand.validators = new ArrayList<>();
+        validateCommand.validators.add(badValidator);
 
-        command.execute();
+        validateCommand.executeWithSubject();
         verify(mockPrinter).printSummary(1, 1);
     }
 }

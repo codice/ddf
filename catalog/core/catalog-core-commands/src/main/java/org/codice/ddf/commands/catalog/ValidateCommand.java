@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Completion;
 import org.apache.karaf.shell.api.action.Option;
@@ -37,10 +36,7 @@ import org.codice.ddf.commands.catalog.validation.ValidateExecutor;
 import org.codice.ddf.commands.catalog.validation.ValidatePrinter;
 import org.codice.ddf.commands.catalog.validation.ValidateReport;
 import org.codice.ddf.security.common.Security;
-import org.geotools.filter.text.cql2.CQL;
-import org.opengis.filter.Filter;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -53,36 +49,25 @@ import ddf.catalog.validation.MetacardValidator;
 /**
  * Custom Karaf command to validate XML files against services that implement MetacardValidator
  */
-@Command(scope = CatalogCommands.NAMESPACE, name = "validate", description = "Validates an XML file against all installed validators.")
 @Service
-public class ValidateCommand implements Action {
+@Command(scope = CatalogCommands.NAMESPACE, name = "validate", description = "Validates an XML file against all installed validators.")
+public class ValidateCommand extends CqlCommands {
 
     @Option(name = "--path", aliases = "-p", description = "The path to the file to be validated")
     @Completion(FileCompleter.class)
-    private String path;
-
-    @Option(name = "--cqlQuery", aliases = "-q", description =
-            "Search using CQL Filter expressions.\n" + "CQL Examples:\n"
-                    + "\tTextual:   catalog:validate --cqlQuery \"title like 'some text'\"\n"
-                    + "\tTemporal:  catalog:validate --cqlQuery \"modified before 2012-09-01T12:30:00Z\"\n"
-                    + "\tSpatial:   catalog:validate --cqlQuery \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
-                    + "\tComplex:   catalog:validate --cqlQuery \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
-    private String cqlQuery;
+    String path;
 
     @Option(name = "--recurse", aliases = "-r", description = "Allows for searching subdirectories "
             + "of the specified directory to be searched for metacards.")
-    private boolean recurse = false;
+    boolean recurse = false;
 
     @Option(name = "--include-extensions", multiValued = true, description =
             "List of file extensions to use in the path search. Leave blank for all "
                     + "file extensions to be included.")
-    private List<String> filteredExtensions;
+    List<String> filteredExtensions;
 
     @Reference
-    private List<MetacardValidator> validators;
-
-    @Reference
-    private CatalogFramework catalog;
+    List<MetacardValidator> validators;
 
     private ValidatePrinter printer;
 
@@ -90,12 +75,12 @@ public class ValidateCommand implements Action {
         printer = new ValidatePrinter();
     }
 
-    ValidateCommand(ValidatePrinter printer) {
+    public ValidateCommand(ValidatePrinter printer) {
         this.printer = printer;
     }
 
     @Override
-    public Object execute() throws Exception {
+    public Object executeWithSubject() throws Exception {
         int numMetacardsWithErrorsOrWarnings = 0;
         if (validators == null || validators.size() == 0) {
             printer.printError("No validators have been configured");
@@ -103,7 +88,7 @@ public class ValidateCommand implements Action {
             List<Metacard> metacards;
             if (path != null) {
                 metacards = createMetacardsFromFiles();
-            } else if (cqlQuery != null) {
+            } else if (hasFilter()) {
                 metacards = getMetacardsFromCatalog();
             } else {
                 printer.printError(
@@ -141,13 +126,11 @@ public class ValidateCommand implements Action {
     private List<Metacard> getMetacardsFromCatalog() throws Exception {
         List<Metacard> results = new ArrayList<>();
 
-        Filter cqlFilter = CQL.toFilter(cqlQuery);
-
-        QueryImpl query = new QueryImpl(cqlFilter);
+        QueryImpl query = new QueryImpl(getFilter());
         ThreadContext.bind(Security.getInstance()
                 .getSystemSubject());
 
-        SourceResponse response = catalog.query(new QueryRequestImpl(query));
+        SourceResponse response = getCatalog().query(new QueryRequestImpl(query));
         List<Result> resultList = response.getResults();
         if (resultList != null) {
             results.addAll(resultList.stream()
@@ -180,45 +163,5 @@ public class ValidateCommand implements Action {
         }
 
         return files;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getCqlQuery() {
-        return cqlQuery;
-    }
-
-    public void setCqlQuery(String cqlQuery) {
-        this.cqlQuery = cqlQuery;
-    }
-
-    public boolean isRecurse() {
-        return recurse;
-    }
-
-    public void setRecurse(boolean recurse) {
-        this.recurse = recurse;
-    }
-
-    public List<MetacardValidator> getValidators() {
-        return validators;
-    }
-
-    public void setValidators(List<MetacardValidator> validators) {
-        this.validators = validators;
-    }
-
-    public CatalogFramework getCatalog() {
-        return catalog;
-    }
-
-    public void setCatalog(CatalogFramework catalog) {
-        this.catalog = catalog;
     }
 }

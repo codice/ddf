@@ -15,23 +15,24 @@ package org.codice.ddf.commands.catalog;
 
 import java.util.Map;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 
-@Command(scope = CatalogCommands.NAMESPACE, name = "envlist", description = "(Deprecated) Provides a list of environment variables")
-public class EnvListCommand extends OsgiCommandSupport {
+@Service
+@Command(scope = CatalogCommands.NAMESPACE, name = "envlist", description = "(Deprecated) Provides a list of environment variables.")
+public class EnvListCommand extends CommandSupport {
 
     @Override
-    protected Object doExecute() throws Exception {
-
+    public Object execute() throws Exception {
         Map<String, String> env = System.getenv();
 
         for (Map.Entry<String, String> entry : env.entrySet()) {
-            System.out.printf("%s=%s%n", entry.getKey(), entry.getValue());
+            console.printf("%s=%s%n", entry.getKey(), entry.getValue());
         }
 
-        System.out.println("This command is deprecated and will be removed in DDF 3.0.");
-        System.out.println("Please use platform:envlist instead");
+        console.println();
+        console.println("This command is deprecated and will be removed in DDF 3.0.");
+        console.println("Please use platform:envlist instead");
 
         return null;
     }

@@ -345,22 +345,62 @@ For example, `help search` (see results of this command in the example below).
 ${branding-lowercase}${at-symbol}local>help search
 DESCRIPTION
         catalog:search
-        Searches records in the catalog provider.
+
+    Searches records in the Catalog Provider.
+
 SYNTAX
-        catalog:search [options] SEARCH_PHRASE [NUMBER_OF_ITEMS]
+        catalog:search [options] [SEARCH_PHRASE] [NUMBER_OF_ITEMS]
+
 ARGUMENTS
         SEARCH_PHRASE
-                Phrase to query the catalog provider.
+                Phrase to query the Catalog Provider. Will take precedence over --searchPhrase option.
+                (defaults to *)
         NUMBER_OF_ITEMS
                 Number of maximum records to display.
                 (defaults to -1)
+
 OPTIONS
+        --lastMinutes, -min, -minutes
+                Option to filter by the last N minutes. NOTE: Does not apply to CQL filters. Does not stack with other --lastXXXX options. Smaller --lastXXXX time units take precedence over larger time units.
+        --cache
+                Only search cached entries.
+        --searchPhrase, -phrase, -like
+                Option to filter by a specific phrase. NOTE: Does not apply to CQL filters. Does not stack with other --lastXXXX options. --lastXXXX options take precedence over this option.
+                (defaults to *)
+        --temporal, -t
+                Option to use temporal criteria to filter. The default is to use "keyword like * ".
+        --endDate, -end
+                Flag to specify a start date range to by which to filter. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.
+        --lastMonths, -m, -months
+                Option to filter by the last N months. NOTE: Does not apply to CQL filters. Does not stack with other --lastXXXX options. Smaller --lastXXXX time units take precedence over larger time units.
+        --temporalProperty, -tp
+                Option to select which temporal property by which to filter with --XXXDate and--lastXXXX options. Valid values include, but are not limited to, "modified", "created", "effective", and "expiration". Defaults to "created" if not specified or input not recognized.
+        --user, -u
+                Run command as a different user.
+        --lastWeeks, -w, -weeks
+                Option to filter by the last N weeks. NOTE: Does not apply to CQL filters. Does not stack with other --lastXXXX options. Smaller --lastXXXX time units take precedence over larger time units.
+        --cql, -cqlFilter
+                Option to filter by metacards that match a CQL Filter expression. It is recommended to use the search command (catalog:search) first to see which metacards will be filtered.
+
+                CQL Examples:
+                	Textual:   --cql "title like 'some text'"
+                	Temporal:  --cql "modified before 2012-09-01T12:30:00Z"
+                	Spatial:   --cql "DWITHIN(location, POINT (1 2) , 10, kilometers)"
+                	Complex:   --cql "title like 'some text' AND modified before 2012-09-01T12:30:00Z"
+        --lastDays, -d, -days
+                Option to filter by the last N days. NOTE: Does not apply to CQL filters. Does not stack with other --lastXXXX options. Smaller --lastXXXX time units take precedence over larger time units.
+        --lastHours, -h, -hours
+                Option to filter by the last N hours. NOTE: Does not apply to CQL filters. Does not stack with other --lastXXXX options. Smaller --lastXXXX time units take precedence over larger time units.
+        --startDate, -start
+                Flag to specify a start date range to by which to filter. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.
+        --caseSensitive, -case
+                Option to set the --searchPhrase to be case sensitive.
+        --provider, -p, -provider
+                Interacts with the provider directly instead of the framework.
         --help
                 Display this help message
-        case-sensitive, -c
-                Makes the search case sensitive
-        -p, -provider
-                Interacts with the provider directly instead of the framework.
+        --lastSeconds, -sec, -seconds
+                Option to filter by the last N seconds. NOTE: Does not apply to CQL filters. Does not stack with other --lastXXXX options. Smaller --lastXXXX time units take precedence over larger time units.
 
 ----
 
@@ -368,78 +408,56 @@ The `help` command provides a description of the provided command, along with th
 
 ===== `catalog:dump` Options
 
-The `catalog:dump` command was extended in ${branding} version 2.5.0 to provide selective export of metacards based on date ranges.
-The `--created-after` and `--created-before` options allow filtering on the date and time that the metacard was created, while `--modified-after` and `--modified-before` options allow filtering on the date and time that the metacard was last modified (which is the created date if no other modifications were made).
-These date ranges are exclusive (i.e., if the date and time match exactly, the metacard will not be included).
-The date filtering options (`--created-after`, `--created-before`, `--modified-after`, and `--modified-before`) can be used in any combination, with the export result including only metacards that match all of the provided conditions.
+The `catalog:dump` command provides selective export of metacards based on a filter.
+The `--cql` option, the `--startDate` and `--endDate` option, the `--lastXXX` options, and the `--searchPhrase` option, allow filtering on the metacard.
+These options are mutually exclusive in the order just listed.
 
-If no date filtering options are provided, created and modified dates are ignored, so that all metacards match.
-
-===== Date Syntax
-
-Supported dates are taken from the common subset of ISO8601, matching the datetime from the following syntax:
-----
-datetime          = time | date-opt-time
-time              = 'T' time-element [offset]
-date-opt-time     = date-element ['T' [time-element] [offset]]
-date-element      = std-date-element | ord-date-element | week-date-element
-std-date-element  = yyyy ['-' MM ['-' dd]]
-ord-date-element  = yyyy ['-' DDD]
-week-date-element = xxxx '-W' ww ['-' e]
-time-element      = HH [minute-element] | [fraction]
-minute-element    = ':' mm [second-element] | [fraction]
-second-element    = ':' ss [fraction]
-fraction          = ('.' | ',') digit+
-offset            = 'Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]]
-----
+If no filtering options are provided, all metacards will be dumped.
 
 ====== Examples
 
 ----
 ${branding-lowercase}${at-symbol}local>// Given we've ingested a few metacards
-${branding-lowercase}${at-symbol}local>catalog:latest
+${branding-lowercase}${at-symbol}local>catalog:latest 3
 #       ID                                Modified Date              Title
 1       a6e9ae09c792438e92a3c9d7452a449f  2014-06-13T09:56:18+10:00
 2       b4aced45103a400da42f3b319e58c3ed  2014-06-13T09:52:12+10:00
 3       a63ab22361e14cee9970f5284e8eb4e0  2014-06-13T09:49:36+10:00  myTitle
 
-${branding-lowercase}${at-symbol}local>// Filter out older files
-${branding-lowercase}${at-symbol}local>catalog:dump --created-after 2014-06-13T09:55:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+${branding-lowercase}${at-symbol}local>// CQL textural filter
+${branding-lowercase}${at-symbol}local>catalog:dump --cql "title like 'myTitle'" /dump/directory/path
  1 file(s) dumped in 0.015 seconds
 
-${branding-lowercase}${at-symbol}local>// Filter out new file
-${branding-lowercase}${at-symbol}local>catalog:dump --created-before 2014-06-13T09:55:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+${branding-lowercase}${at-symbol}local>// CQL temporal filter
+${branding-lowercase}${at-symbol}local>catalog:dump --cql "modified before 2012-09-01T12:30:00Z" /dump/directory/path
  2 file(s) dumped in 0.023 seconds
 
-${branding-lowercase}${at-symbol}local>// Choose middle file
-${branding-lowercase}${at-symbol}local>catalog:dump --created-after 2014-06-13T09:50:00+10:00 --created-before 2014-06-13T09:55:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+${branding-lowercase}${at-symbol}local>// CQL spatial filter
+${branding-lowercase}${at-symbol}local>catalog:dump --cql "DWITHIN(location, POINT (1 2) , 10, kilometers)" /dump/directory/path
  1 file(s) dumped in 0.020 seconds
 
-${branding-lowercase}${at-symbol}local>// Modified dates work the same way
-${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-13T09:55:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+${branding-lowercase}${at-symbol}local>// CQL complex filter
+${branding-lowercase}${at-symbol}local>catalog:dump --cql " title like 'some text' AND modified before 2012-09-01T12:30:00Z" /dump/directory/path
  1 file(s) dumped in 0.015 seconds
 
-${branding-lowercase}${at-symbol}local>// Can mix and match, most restrictive limits apply
-${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:45:00+10:00 --modified-before 2014-06-13T09:55:00+10:00 --created-before 2014-06-13T09:50:00+10:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+${branding-lowercase}${at-symbol}local>// modified between dates
+${branding-lowercase}${at-symbol}local>catalog:dump --temporalProperty modified --startDate 06-10-2014 --endDate 06-10-2014 /dump/directory/path
  1 file(s) dumped in 0.024 seconds
 
-${branding-lowercase}${at-symbol}local>// Can use UTC instead of (or in combination with) explicit timezone offset
-${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-13T09:55:00Z /home/bradh/${ddf-branding-lowercase}-catalog-dump
- 2 file(s) dumped in 0.020 seconds
-${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-12T23:55:00Z /home/bradh/${ddf-branding-lowercase}-catalog-dump
- 1 file(s) dumped in 0.015 seconds
-
-${branding-lowercase}${at-symbol}local>// Can leave off timezone, but default (local time on server) may not match what you expect!
-${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09:50:00 --modified-before 2014-06-13T09:55:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+${branding-lowercase}${at-symbol}local>// effective after date
+${branding-lowercase}${at-symbol}local>catalog:dump --temporalProperty effective --endDate 06-10-2014 /dump/directory/path
  1 file(s) dumped in 0.018 seconds
 
-${branding-lowercase}${at-symbol}local>// Can leave off trailing minutes / seconds
-${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-06-13T09 --modified-before 2014-06-13T09:55 /home/bradh/${ddf-branding-lowercase}-catalog-dump
+${branding-lowercase}${at-symbol}local>// created in last 10 seconds
+${branding-lowercase}${at-symbol}local>catalog:dump --temporalProperty created --lastSeconds 10 /dump/directory/path
  2 file(s) dumped in 0.024 seconds
 
-${branding-lowercase}${at-symbol}local>// Can use year and day number
-${branding-lowercase}${at-symbol}local>catalog:dump --modified-after 2014-164T09:50:00 /home/bradh/${ddf-branding-lowercase}-catalog-dump
- 2 file(s) dumped in 0.027 seconds
+${branding-lowercase}${at-symbol}local>// contains phrase
+${branding-lowercase}${at-symbol}local>catalog:dump --searchPhrase “MyTitle” /dump/directory/path
+ 2 file(s) dumped in 0.020 seconds
+${branding-lowercase}${at-symbol}local>catalog:dump --searchPhrase “MyTitle” --caseSensitive /dump/directory/path
+ 0 file(s) dumped in 0.0 seconds
+
 ----
 
 ===== Application Commands

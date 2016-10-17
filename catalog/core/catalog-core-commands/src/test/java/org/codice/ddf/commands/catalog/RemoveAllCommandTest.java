@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import static org.codice.ddf.commands.catalog.CommandSupport.ERROR_COLOR;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.isA;
@@ -25,8 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.commands.catalog.facade.Framework;
 import org.fusesource.jansi.Ansi;
 import org.junit.Test;
 
@@ -36,21 +35,20 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 
-public class TestRemoveAllCommand {
+public class RemoveAllCommandTest extends ConsoleOutputCommon {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
             .reset()
             .toString();
 
     static final String RED_CONSOLE_COLOR = Ansi.ansi()
-            .fg(Ansi.Color.RED)
+            .fg(ERROR_COLOR)
             .toString();
 
     /**
@@ -60,37 +58,17 @@ public class TestRemoveAllCommand {
      */
     @Test
     public void testBadBatchSize() throws Exception {
-
-        ConsoleOutput consoleOutput = new ConsoleOutput();
-
-        consoleOutput.interceptSystemOut();
-
         // given
-        RemoveAllCommand command = new RemoveAllCommand() {
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
-        };
-
+        RemoveAllCommand command = new RemoveAllCommand();
         command.batchSize = 0;
 
         // when
-        command.doExecute();
-
-        /* cleanup */
-        consoleOutput.resetSystemOut();
+        command.executeWithSubject();
 
         // then
-        try {
-            String message = String.format(RemoveAllCommand.BATCH_SIZE_ERROR_MESSAGE_FORMAT, 0);
-            String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
-            assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
-
-        } finally {
-            consoleOutput.closeBuffer();
-        }
-
+        String message = String.format(RemoveAllCommand.BATCH_SIZE_ERROR_MESSAGE_FORMAT, 0);
+        String expectedPrintOut = RED_CONSOLE_COLOR + message + DEFAULT_CONSOLE_COLOR;
+        assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
     }
 
     /**
@@ -99,46 +77,30 @@ public class TestRemoveAllCommand {
      * @throws Exception
      */
     @Test
-    public void testDoExecute() throws Exception {
+    public void testExecuteWithSubject() throws Exception {
+        // given
+        RemoveAllCommand removeAllCommand = new RemoveAllCommand();
+
         final CatalogFramework catalogFramework = mock(CatalogFramework.class);
 
         QueryResponse queryResponse = mock(QueryResponse.class);
-
         when(queryResponse.getResults()).thenReturn(getResultList(10));
-
         when(catalogFramework.query(isA(QueryRequest.class))).thenReturn(queryResponse);
 
         DeleteResponse deleteResponse = mock(DeleteResponse.class);
-
         when(deleteResponse.getDeletedMetacards()).thenReturn(getMetacardList(10));
-
         when(catalogFramework.delete(isA(DeleteRequest.class))).thenReturn(deleteResponse);
 
-        RemoveAllCommand removeAllCommand = new RemoveAllCommand() {
-            @Override
-            protected CatalogFacade getCatalog() throws InterruptedException {
-                return new Framework(catalogFramework);
-            }
-
-            @Override
-            protected FilterBuilder getFilterBuilder() throws InterruptedException {
-                return new GeotoolsFilterBuilder();
-            }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
-        };
-
+        removeAllCommand.catalogFramework = catalogFramework;
+        removeAllCommand.filterBuilder = new GeotoolsFilterBuilder();
         removeAllCommand.batchSize = 11;
-
         removeAllCommand.force = true;
 
-        removeAllCommand.doExecute();
+        // when
+        removeAllCommand.executeWithSubject();
 
+        // then
         verify(catalogFramework, times(1)).delete(isA(DeleteRequest.class));
-
     }
 
     /**
@@ -147,7 +109,8 @@ public class TestRemoveAllCommand {
      * @throws Exception
      */
     @Test
-    public void testdoExecuteWithCache() throws Exception {
+    public void testExecuteWithSubjectWithCache() throws Exception {
+        // given
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
         RemoveAllCommand removeAllCommand = new RemoveAllCommand() {
@@ -155,25 +118,18 @@ public class TestRemoveAllCommand {
             protected SolrCacheMBean getCacheProxy() {
                 return mbean;
             }
-
-            @Override
-            protected Object doExecute() throws Exception {
-                return executeWithSubject();
-            }
         };
-
         removeAllCommand.force = true;
-
         removeAllCommand.cache = true;
 
-        removeAllCommand.doExecute();
+        // when
+        removeAllCommand.executeWithSubject();
 
+        // then
         verify(mbean, times(1)).removeAll();
-
     }
 
     private java.util.List<Result> getResultList(int amount) {
-
         java.util.List<Result> results = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
@@ -191,7 +147,6 @@ public class TestRemoveAllCommand {
     }
 
     private java.util.List<Metacard> getMetacardList(int amount) {
-
         List<Metacard> metacards = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {

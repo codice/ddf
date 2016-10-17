@@ -16,9 +16,9 @@ package org.codice.ddf.commands.catalog;
 import java.io.Serializable;
 import java.util.Collection;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.fusesource.jansi.Ansi;
 import org.opengis.filter.Filter;
 
@@ -30,6 +30,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "inspect", description = "Provides the various fields of a metacard for inspection.")
 public class InspectCommand extends CatalogCommands {
 
@@ -38,21 +39,18 @@ public class InspectCommand extends CatalogCommands {
 
     @Override
     protected Object executeWithSubject() throws Exception {
-
         if (id == null) {
             return null;
         }
 
-        CatalogFacade catalog = getCatalog();
-
-        Filter filter = getFilterBuilder().attribute(Metacard.ID)
+        Filter filter = filterBuilder.attribute(Metacard.ID)
                 .is()
                 .equalTo()
                 .text(id);
 
         QueryImpl query = new QueryImpl(filter);
 
-        SourceResponse response = catalog.query(new QueryRequestImpl(query));
+        SourceResponse response = getCatalog().query(new QueryRequestImpl(query));
 
         String formatString = "%1$s%2$-30s%3$s: %4$-25s %n";
 
@@ -131,7 +129,6 @@ public class InspectCommand extends CatalogCommands {
         }
 
         return null;
-
     }
 
     /**
@@ -141,7 +138,6 @@ public class InspectCommand extends CatalogCommands {
      * @return
      */
     private String color(Object obj) {
-
         if (obj == null) {
             return defaultColor();
         }

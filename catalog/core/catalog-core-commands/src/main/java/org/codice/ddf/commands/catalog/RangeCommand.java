@@ -18,9 +18,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
@@ -28,17 +28,20 @@ import org.opengis.filter.sort.SortOrder;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 
-@Command(scope = CatalogCommands.NAMESPACE, name = "range", description = "Searches by the given range arguments (exclusively).")
+@Service
+@Command(scope = CatalogCommands.NAMESPACE, name = "range", description = "Searches by the given date range arguments (exclusively).")
 public class RangeCommand extends CatalogCommands {
 
     private static final int MAX_LENGTH = 40;
+
+    private static final int MAX_RESULTS = 30;
 
     private static final String ID = "ID ";
 
@@ -48,25 +51,24 @@ public class RangeCommand extends CatalogCommands {
 
     private static final String DATE_FORMAT = "MM-dd-yyyy";
 
-    @Argument(name = "ATTRIBUTE_NAME", description = "The attribute to query on.", index = 0, multiValued = false, required = true)
-    String attributeName = Metacard.MODIFIED;
+    @Argument(name = "ATTRIBUTE_NAME", description =
+            "The attribute to query on. Valid values are \"" + Core.MODIFIED + "\", \""
+                    + Core.CREATED + "\", \"" + Metacard.EFFECTIVE + "\", and" + " \""
+                    + Core.EXPIRATION + "\".", index = 0, multiValued = false, required = true)
+    String attributeName = Core.MODIFIED;
 
-    @Argument(name = "PARAMETER_1", description = "The first parameter can be a Date or an asterisk (*). Dates should be formatted as MM-dd-yyyy such as 01-23-2009.", index = 1, multiValued = false, required = true)
-    String parameter1 = null;
+    @Argument(name = "RANGE_BEGINNING", description = "The first parameter can be a Date or an asterisk (*). Dates should be formatted as MM-dd-yyyy such as 01-23-2009.", index = 1, multiValued = false, required = true)
+    String rangeBeginning = null;
 
-    @Argument(name = "PARAMETER_2", description = "The second parameter can be a Date or an asterisk (*). Dates should be formatted as MM-dd-yyyy such as 01-23-2009.", index = 2, multiValued = false, required = true)
-    String parameter2 = null;
+    @Argument(name = "RANGE_END", description = "The second parameter can be a Date or an asterisk (*). Dates should be formatted as MM-dd-yyyy such as 01-23-2009.", index = 2, multiValued = false, required = true)
+    String rangeEnd = null;
 
     @Override
     protected Object executeWithSubject() throws Exception {
-
         String formatString = "%1$-7s %2$-33s %3$-26s %4$-" + MAX_LENGTH + "s%n";
 
         console.printf(formatString, "", "", "", "");
         printHeaderMessage(String.format(formatString, NUMBER, ID, attributeName, TITLE));
-
-        CatalogFacade catalogProvider = getCatalog();
-        FilterBuilder builder = getFilterBuilder();
 
         Filter filter;
 
@@ -79,51 +81,51 @@ public class RangeCommand extends CatalogCommands {
 
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
-        if (WILDCARD.equals(parameter1) && WILDCARD.equals(parameter2)) {
-            filter = builder.attribute(attributeName)
+        if (WILDCARD.equals(rangeBeginning) && WILDCARD.equals(rangeEnd)) {
+            filter = filterBuilder.attribute(attributeName)
                     .before()
                     .date(endDate);
-        } else if (WILDCARD.equals(parameter1) && !WILDCARD.equals(parameter2)) {
+        } else if (WILDCARD.equals(rangeBeginning) && !WILDCARD.equals(rangeEnd)) {
             try {
-                endDate = formatter.parse(parameter2);
+                endDate = formatter.parse(rangeEnd);
             } catch (ParseException e) {
                 throw new InterruptedException(
-                        "Could not parse second parameter [" + parameter2 + "]");
+                        "Could not parse second parameter [" + rangeEnd + "]");
             }
-            filter = builder.attribute(attributeName)
+            filter = filterBuilder.attribute(attributeName)
                     .before()
                     .date(endDate);
-        } else if (!WILDCARD.equals(parameter1) && WILDCARD.equals(parameter2)) {
+        } else if (!WILDCARD.equals(rangeBeginning) && WILDCARD.equals(rangeEnd)) {
             try {
-                startDate = formatter.parse(parameter1);
+                startDate = formatter.parse(rangeBeginning);
             } catch (ParseException e) {
                 throw new InterruptedException(
-                        "Could not parse first parameter [" + parameter1 + "]");
+                        "Could not parse first parameter [" + rangeBeginning + "]");
             }
-            filter = builder.attribute(attributeName)
+            filter = filterBuilder.attribute(attributeName)
                     .during()
                     .dates(startDate, endDate);
         } else {
             try {
-                startDate = formatter.parse(parameter1);
-                endDate = formatter.parse(parameter2);
+                startDate = formatter.parse(rangeBeginning);
+                endDate = formatter.parse(rangeEnd);
             } catch (ParseException e) {
                 throw new InterruptedException("Could not parse date parameters.");
             }
-            filter = builder.attribute(attributeName)
+            filter = filterBuilder.attribute(attributeName)
                     .during()
                     .dates(startDate, endDate);
         }
 
         QueryImpl query = new QueryImpl(filter);
 
-        query.setPageSize(30);
+        query.setPageSize(MAX_RESULTS);
 
         query.setSortBy(new SortByImpl(attributeName, SortOrder.DESCENDING.name()));
 
         QueryRequest queryRequest = new QueryRequestImpl(query);
 
-        SourceResponse response = catalogProvider.query(queryRequest);
+        SourceResponse response = getCatalog().query(queryRequest);
 
         List<Result> results = response.getResults();
 
@@ -150,5 +152,4 @@ public class RangeCommand extends CatalogCommands {
 
         return null;
     }
-
 }

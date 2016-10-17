@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -33,17 +34,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.geotools.filter.text.cql2.CQL;
-import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-import org.opengis.filter.Filter;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -54,7 +52,6 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -63,16 +60,17 @@ import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.security.common.audit.SecurityLogger;
 
-@Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.\n\tDate filters are ANDed together, and are exclusive for range.\n\tISO8601 format includes YYYY-MM-dd, YYYY-MM-ddTHH, YYYY-MM-ddTHH:mm, YYYY-MM-ddTHH:mm:ss, YYY-MM-ddTHH:mm:ss.sss, THH:mm:sss. See documentation for full syntax and examples.")
-public class DumpCommand extends CatalogCommands {
+@Service
+@Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.")
+public class DumpCommand extends CqlCommands {
 
     public static final String FILE_PATH = "filePath";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpCommand.class);
 
-    private static List<MetacardTransformer> transformers = null;
-
     private static final String ZIP_COMPRESSION = "zipCompression";
+
+    private static List<MetacardTransformer> transformers = null;
 
     private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder().printZeroRarelyLast()
             .appendDays()
@@ -87,10 +85,6 @@ public class DumpCommand extends CatalogCommands {
             .appendSeconds()
             .appendSuffix(" second", " seconds")
             .toFormatter();
-
-    private QueryResponseTransformer zipCompression;
-
-    private Map<String, Serializable> zipArgs;
 
     @Argument(name = "Dump directory path", description = "Directory to export Metacards into. Paths are absolute and must be in quotes.  Files in directory will be overwritten if they already exist.", index = 0, multiValued = false, required = true)
     String dirPath = null;
@@ -110,43 +104,21 @@ public class DumpCommand extends CatalogCommands {
             "Extension"}, multiValued = false, description = "The file extension of the data files.")
     String fileExtension = null;
 
-    @Option(name = "--created-after", required = false, aliases = {
-            "-ca"}, multiValued = false, description = "Include only entries created after this date/time (ISO8601 format).")
-    String createdAfter = null;
-
-    @Option(name = "--created-before", required = false, aliases = {
-            "-cb"}, multiValued = false, description = "Include only entries created before this date/time (ISO8601 format).")
-    String createdBefore = null;
-
-    @Option(name = "--modified-after", required = false, aliases = {
-            "-ma"}, multiValued = false, description = "Include only entries modified after this date/time (ISO8601 format).")
-    String modifiedAfter = null;
-
-    @Option(name = "--modified-before", required = false, aliases = {
-            "-mb"}, multiValued = false, description = "Include only entries modified before this date/time (ISO8601 format)")
-    String modifiedBefore = null;
-
-    @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
-            "Search using CQL Filter expressions.\n" + "CQL Examples:\n"
-                    + "\tTextual:   search --cql \"title like 'some text'\"\n"
-                    + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
-                    + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
-                    + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
-    String cqlFilter = null;
-
-    @Option(name = "--multithreaded", required = false, aliases = {"-m", "Multithreaded"},
-            multiValued = false, description = "Number of threads to use when dumping. Setting "
-            + "this value too high for your system can cause performance degradation.")
+    @Option(name = "--multithreaded", required = false, aliases = {"-m",
+            "Multithreaded"}, multiValued = false, description =
+            "Number of threads to use when dumping. Setting "
+                    + "this value too high for your system can cause performance degradation.")
     int multithreaded = 20;
 
-    @Option(name = "--dirlevel", required = false, multiValued = false,
-            description = "Number of subdirectory levels to create.  Two characters from the ID "
+    @Option(name = "--dirlevel", required = false, multiValued = false, description =
+            "Number of subdirectory levels to create.  Two characters from the ID "
                     + "will be used to name each subdirectory level.")
     int dirLevel = 0;
 
-    @Option(name = "--include-content", required = false, aliases = {}, multiValued = false,
-            description = "Dump the entire catalog and local content into a zip file with the specified name using the default transformer.")
+    @Option(name = "--include-content", required = false, aliases = {}, multiValued = false, description = "Dump the entire Catalog and local content into a zip file with the specified name using the default transformer.")
     String zipFileName;
+
+    private Map<String, Serializable> zipArgs;
 
     @Override
     protected Object executeWithSubject() throws Exception {
@@ -176,94 +148,21 @@ public class DumpCommand extends CatalogCommands {
             }
         }
 
-        if(StringUtils.isNotBlank(zipFileName) && new File(dirPath + zipFileName).exists()) {
-            console.println("Cannot dump catalog.  Zip file " + zipFileName + " already exists.");
+        if (StringUtils.isNotBlank(zipFileName) && new File(dirPath + zipFileName).exists()) {
+            console.println("Cannot dump Catalog.  Zip file " + zipFileName + " already exists.");
             return null;
         }
 
         SecurityLogger.audit("Called catalog:dump command with path : {}", dirPath);
 
         CatalogFacade catalog = getCatalog();
-        FilterBuilder builder = getFilterBuilder();
-
-        Filter createdFilter = null;
-        if ((createdAfter != null) && (createdBefore != null)) {
-            DateTime createStartDateTime = DateTime.parse(createdAfter);
-            DateTime createEndDateTime = DateTime.parse(createdBefore);
-            createdFilter = builder.attribute(Metacard.CREATED)
-                    .is()
-                    .during()
-                    .dates(createStartDateTime.toDate(), createEndDateTime.toDate());
-        } else if (createdAfter != null) {
-            DateTime createStartDateTime = DateTime.parse(createdAfter);
-            createdFilter = builder.attribute(Metacard.CREATED)
-                    .is()
-                    .after()
-                    .date(createStartDateTime.toDate());
-        } else if (createdBefore != null) {
-            DateTime createEndDateTime = DateTime.parse(createdBefore);
-            createdFilter = builder.attribute(Metacard.CREATED)
-                    .is()
-                    .before()
-                    .date(createEndDateTime.toDate());
-        }
-
-        Filter modifiedFilter = null;
-        if ((modifiedAfter != null) && (modifiedBefore != null)) {
-            DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
-            DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED)
-                    .is()
-                    .during()
-                    .dates(modifiedStartDateTime.toDate(), modifiedEndDateTime.toDate());
-        } else if (modifiedAfter != null) {
-            DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED)
-                    .is()
-                    .after()
-                    .date(modifiedStartDateTime.toDate());
-        } else if (modifiedBefore != null) {
-            DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED)
-                    .is()
-                    .before()
-                    .date(modifiedEndDateTime.toDate());
-        }
-
-        Filter filter;
-        if ((createdFilter != null) && (modifiedFilter != null)) {
-            // Filter by both created and modified dates
-            filter = builder.allOf(createdFilter, modifiedFilter);
-        } else if (createdFilter != null) {
-            // Only filter by created date
-            filter = createdFilter;
-        } else if (modifiedFilter != null) {
-            // Only filter by modified date
-            filter = modifiedFilter;
-        } else {
-            // Don't filter by date range
-            filter = builder.attribute(Metacard.ID)
-                    .is()
-                    .like()
-                    .text(WILDCARD);
-        }
-
-        if (cqlFilter != null) {
-            filter = CQL.toFilter(cqlFilter);
-        }
 
         if (StringUtils.isNotBlank(zipFileName)) {
             zipArgs = new HashMap<>();
             zipArgs.put(FILE_PATH, dirPath + zipFileName);
         }
 
-        Filter metacardTagFilter = builder.attribute(Metacard.TAGS)
-                .is()
-                .like()
-                .text(WILDCARD);
-        Filter combinedFilter = builder.allOf(metacardTagFilter, filter);
-
-        QueryImpl query = new QueryImpl(combinedFilter);
+        QueryImpl query = new QueryImpl(getFilter());
         query.setRequestsTotalResultsCount(false);
         query.setPageSize(pageSize);
 
@@ -291,13 +190,17 @@ public class DumpCommand extends CatalogCommands {
             response = catalog.query(new QueryRequestImpl(query, props));
 
             if (StringUtils.isNotBlank(zipFileName)) {
-                zipCompression = getZipCompression();
-                if (zipCompression != null) {
-                    zipCompression.transform(response, zipArgs);
-                    Long resultSize = (long) response.getResults()
-                            .size();
-                    printStatus(resultCount.addAndGet(resultSize));
-                } else {
+                try {
+                    Optional<QueryResponseTransformer> zipCompression = getZipCompression();
+
+                    if (zipCompression.isPresent()) {
+                        zipCompression.get()
+                                .transform(response, zipArgs);
+                        Long resultSize = (long) response.getResults()
+                                .size();
+                        printStatus(resultCount.addAndGet(resultSize));
+                    }
+                } catch (InvalidSyntaxException e) {
                     LOGGER.info("No Zip Transformer found.  Unable export metacards to a zip file.");
                 }
             } else if (multithreaded > 1) {
@@ -359,7 +262,6 @@ public class DumpCommand extends CatalogCommands {
 
     private void exportMetacard(File dumpLocation, Metacard metacard)
             throws IOException, CatalogTransformerException {
-
         if (SERIALIZED_OBJECT_ID.matches(transformerId)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getOutputFile(
                     dumpLocation,
@@ -409,8 +311,6 @@ public class DumpCommand extends CatalogCommands {
     }
 
     private List<MetacardTransformer> getTransformers() {
-
-        BundleContext bundleContext = getBundleContext();
         ServiceReference[] refs = null;
         try {
             refs = bundleContext.getAllServiceReferences(MetacardTransformer.class.getName(),
@@ -431,19 +331,8 @@ public class DumpCommand extends CatalogCommands {
         return metacardTransformerList;
     }
 
-    private QueryResponseTransformer getZipCompression() {
-        List<QueryResponseTransformer> queryResponseTransformerList = null;
-        try {
-            queryResponseTransformerList = getAllServices(QueryResponseTransformer.class,
-                    "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
-        } catch (InvalidSyntaxException e) {
-            LOGGER.info("Unable to get transformer id={}", ZIP_COMPRESSION, e);
-        }
-
-        if (queryResponseTransformerList != null && queryResponseTransformerList.size() > 0) {
-            return queryResponseTransformerList.get(0);
-        }
-
-        return null;
+    private Optional<QueryResponseTransformer> getZipCompression() throws InvalidSyntaxException {
+        return getServiceByFilter(QueryResponseTransformer.class,
+                "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_COMPRESSION + ")" + ")");
     }
 }

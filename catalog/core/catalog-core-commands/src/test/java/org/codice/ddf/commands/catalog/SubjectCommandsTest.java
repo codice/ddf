@@ -22,14 +22,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
-import org.apache.felix.service.command.CommandSession;
+import org.apache.karaf.shell.api.console.Session;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.security.common.Security;
 import org.junit.Before;
@@ -43,7 +41,7 @@ import ddf.security.Subject;
 import ddf.security.service.SecurityServiceException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestSubjectCommands {
+public class SubjectCommandsTest extends ConsoleOutputCommon {
 
     private static final String ERROR = "Error!";
 
@@ -54,15 +52,13 @@ public class TestSubjectCommands {
     private static final String PASSWORD = "password";
 
     @Mock
-    private Security security;
-
-    @Mock
-    CommandSession session;
+    Session session;
 
     @Mock
     Subject subject;
 
-    private ByteArrayOutputStream console = new ByteArrayOutputStream();
+    @Mock
+    private Security security;
 
     private SubjectCommandsUnderTest subjectCommands;
 
@@ -72,10 +68,10 @@ public class TestSubjectCommands {
     }
 
     @Test
-    public void doExecute() throws Exception {
+    public void execute() throws Exception {
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::executeCommand);
 
-        Object result = subjectCommands.doExecute();
+        Object result = subjectCommands.execute();
 
         assertThat(result, is(SUCCESS));
     }
@@ -88,10 +84,10 @@ public class TestSubjectCommands {
         when(security.getSubject(USERNAME, PASSWORD)).thenReturn(subject);
         when(subject.execute(any(Callable.class))).thenAnswer(this::executeCommand);
 
-        Object result = subjectCommands.doExecute();
+        Object result = subjectCommands.execute();
 
         assertThat(result, is(SUCCESS));
-        assertThat(console.toString(), containsString("Password for " + USERNAME));
+        assertThat(consoleOutput.getOutput(), containsString("Password for " + USERNAME));
         verify(security).getSubject(USERNAME, PASSWORD);
     }
 
@@ -102,9 +98,9 @@ public class TestSubjectCommands {
         when(session.getKeyboard()).thenReturn(new ByteArrayInputStream(PASSWORD.getBytes()));
         when(security.getSubject(USERNAME, PASSWORD)).thenReturn(null);
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
-        assertThat(console.toString(), containsString("Invalid username/password"));
+        assertThat(consoleOutput.getOutput(), containsString("Invalid username/password"));
         verify(security).getSubject(USERNAME, PASSWORD);
     }
 
@@ -116,9 +112,9 @@ public class TestSubjectCommands {
         when(session.getKeyboard()).thenReturn(keyboard);
         when(keyboard.read()).thenThrow(new IOException());
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
-        assertThat(console.toString(), containsString("Failed to read password"));
+        assertThat(consoleOutput.getOutput(), containsString("Failed to read password"));
     }
 
     @Test
@@ -130,10 +126,10 @@ public class TestSubjectCommands {
         when(subject.execute(any(Callable.class))).thenThrow(new ExecutionException(new IllegalStateException(
                 ERROR)));
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
         verify(security).getSubject(USERNAME, PASSWORD);
-        assertThat(console.toString(), containsString(ERROR));
+        assertThat(consoleOutput.getOutput(), containsString(ERROR));
     }
 
     @Test
@@ -142,9 +138,9 @@ public class TestSubjectCommands {
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new SecurityServiceException(
                 ERROR));
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
-        assertThat(console.toString(), containsString(ERROR));
+        assertThat(consoleOutput.getOutput(), containsString(ERROR));
     }
 
     @Test
@@ -153,9 +149,9 @@ public class TestSubjectCommands {
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new InvocationTargetException(
                 new IllegalStateException(ERROR)));
 
-        subjectCommands.doExecute();
+        subjectCommands.execute();
 
-        assertThat(console.toString(), containsString(ERROR));
+        assertThat(consoleOutput.getOutput(), containsString(ERROR));
     }
 
     private Object executeCommand(InvocationOnMock invocationOnMock) throws Exception {
@@ -166,8 +162,7 @@ public class TestSubjectCommands {
 
         SubjectCommandsUnderTest() {
             super(security);
-            this.session = TestSubjectCommands.this.session;
-            this.console = new PrintStream(TestSubjectCommands.this.console);
+            this.session = SubjectCommandsTest.this.session;
         }
 
         @Override

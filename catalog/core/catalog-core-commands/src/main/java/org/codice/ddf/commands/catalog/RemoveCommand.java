@@ -14,7 +14,6 @@
 package org.codice.ddf.commands.catalog;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,12 +21,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.geotools.filter.text.cql2.CQL;
-import org.opengis.filter.Filter;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.operation.DeleteResponse;
@@ -39,29 +37,25 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 /**
  * Deletes records by ID.
  */
-@Command(scope = CatalogCommands.NAMESPACE, name = "remove", description = "Deletes a record from the Catalog.")
-public class RemoveCommand extends CatalogCommands {
+@Service
+@Command(scope = CatalogCommands.NAMESPACE, name = "remove", description = "Deletes records from the Catalog.")
+public class RemoveCommand extends CqlCommands {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveCommand.class);
 
-    @Argument(name = "IDs", description = "The id(s) of the document(s) (space delimited) to be deleted.", index = 0, multiValued = true, required = false)
-    List<String> ids = null;
+    private static final String IDS_LIST_ARGUMENT_NAME = "IDs";
 
-    @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
-            "Remove Metacards that match a CQL Filter expressions. It is recommended to use the search command first to see which metacards will be removed.\n"
-                    + "CQL Examples:\n" + "\tTextual:   search --cql \"title like 'some text'\"\n"
-                    + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
-                    + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
-                    + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
-    String cqlFilter = null;
+    @Argument(name = IDS_LIST_ARGUMENT_NAME, description = "The id(s) of the document(s) by which to filter.", index = 0, multiValued = true, required = false)
+    List<String> ids = null;
 
     @Option(name = "--cache", required = false, multiValued = false, description = "Only remove cached entries.")
     boolean cache = false;
 
     @Override
     protected Object executeWithSubject() throws Exception {
-        if (CollectionUtils.isEmpty(ids) && cqlFilter == null) {
-            printErrorMessage("Nothing to remove.");
+        if (CollectionUtils.isEmpty(ids) && !hasFilter()) {
+            printErrorMessage("Nothing to remove. Either the " + IDS_LIST_ARGUMENT_NAME
+                    + " argument or another filter must be specified. Please, use the catalog:removeall command if the goal is to delete all records from the Catalog.");
             return null;
         }
 
@@ -70,11 +64,9 @@ public class RemoveCommand extends CatalogCommands {
         } else {
             return executeRemoveFromStore();
         }
-
     }
 
     private Object executeRemoveFromCache() throws Exception {
-
         String[] idsArray = new String[ids.size()];
         idsArray = ids.toArray(idsArray);
         getCacheProxy().removeById(idsArray);
@@ -91,10 +83,8 @@ public class RemoveCommand extends CatalogCommands {
     private Object executeRemoveFromStore() throws Exception {
         CatalogFacade catalogProvider = getCatalog();
 
-        if (cqlFilter != null) {
-            Filter filter = CQL.toFilter(cqlFilter);
-
-            QueryImpl query = new QueryImpl(filter);
+        if (hasFilter()) {
+            QueryImpl query = new QueryImpl(getFilter());
 
             query.setRequestsTotalResultsCount(true);
             query.setPageSize(-1);
@@ -105,28 +95,30 @@ public class RemoveCommand extends CatalogCommands {
             SourceResponse queryResponse = catalogProvider.query(new QueryRequestImpl(query,
                     properties));
 
-            if (queryResponse.getResults()
-                    .isEmpty()) {
-                printErrorMessage("No records found using CQL expression.");
-                return null;
-            }
-
-            List<String> tmpIds = new ArrayList<>();
-            if (ids != null) {
-                tmpIds.addAll(ids);
-            }
-            tmpIds.addAll(queryResponse.getResults()
+            final List<String> idsFromFilteredQuery = queryResponse.getResults()
                     .stream()
                     .map(result -> result.getMetacard()
                             .getId())
-                    .collect(Collectors.toList()));
-            ids = tmpIds;
+                    .collect(Collectors.toList());
+
+            if (ids == null) {
+                ids = idsFromFilteredQuery;
+            } else {
+                ids = ids.stream()
+                        .filter(id -> idsFromFilteredQuery.contains(id))
+                        .collect(Collectors.toList());
+            }
         }
 
-        printSuccessMessage("Found " + ids.size() + " metacards to remove.");
+        final int numberOfMetacardsToRemove = ids.size();
+        if (numberOfMetacardsToRemove > 0) {
+            printSuccessMessage("Found " + numberOfMetacardsToRemove + " metacards to remove.");
+        } else {
+            printErrorMessage("No records found meeting filter criteria.");
+            return null;
+        }
 
-        DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[ids.size()]));
-
+        DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[numberOfMetacardsToRemove]));
         DeleteResponse response = catalogProvider.delete(request);
 
         if (response.getDeletedMetacards()

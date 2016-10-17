@@ -15,11 +15,12 @@ package org.codice.ddf.commands.catalog.validation;
 
 import java.util.List;
 
-
 public class ValidateReportEntry {
 
     private String validatorName;
+
     private List<String> errors;
+
     private List<String> warnings;
 
     public ValidateReportEntry(String validatorName, List<String> errors, List<String> warnings) {

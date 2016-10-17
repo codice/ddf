@@ -17,7 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ValidateReport {
+
     private String id;
+
     private List<ValidateReportEntry> entries = new ArrayList<>();
 
     public ValidateReport(String id) {

@@ -18,7 +18,9 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.console.Session;
 import org.apache.shiro.subject.ExecutionException;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.common.Security;
@@ -39,8 +41,11 @@ public abstract class SubjectCommands extends CommandSupport {
     private final Security security;
 
     @Option(name = "--user", required = false, aliases = {
-            "-u"}, multiValued = false, description = "Run command as a different user")
+            "-u"}, multiValued = false, description = "Run command as a different user.")
     protected String user = null;
+
+    @Reference
+    Session session;
 
     protected SubjectCommands() {
         this(Security.getInstance());
@@ -73,7 +78,7 @@ public abstract class SubjectCommands extends CommandSupport {
      * @throws Exception                 if any other unexpected exception occurred
      */
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() throws Exception {
 
         try {
             if (isNotBlank(user)) {

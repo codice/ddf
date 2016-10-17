@@ -39,7 +39,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.geotools.filter.text.cql2.CQL;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -57,34 +56,21 @@ import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 
-public class TestSeedCommand extends TestAbstractCommand {
+public class SeedCommandTest extends CommandCatalogFrameworkCommon {
+
     private SeedCommand seedCommand;
 
-    private ConsoleOutput consoleOutput;
-
-    private CatalogFramework framework;
+    private CatalogFramework catalogFramework;
 
     @Before
     public void setUp() throws Exception {
-        consoleOutput = new ConsoleOutput();
-        consoleOutput.interceptSystemOut();
-
-        seedCommand = new SeedCommand();
-
-        framework = mock(CatalogFramework.class);
-
-        doReturn(mockResourceResponse()).when(framework)
+        catalogFramework = mock(CatalogFramework.class);
+        doReturn(mockResourceResponse()).when(catalogFramework)
                 .getResource(any(ResourceRequest.class), anyString());
 
-        seedCommand.framework = framework;
-
+        seedCommand = new SeedCommand();
+        seedCommand.catalogFramework = catalogFramework;
         seedCommand.filterBuilder = new GeotoolsFilterBuilder();
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        consoleOutput.resetSystemOut();
-        consoleOutput.closeBuffer();
     }
 
     @Test
@@ -117,7 +103,7 @@ public class TestSeedCommand extends TestAbstractCommand {
     @Test
     public void testCql() throws Exception {
         final String cql = "modified AFTER 2016-07-21T00:00:00Z";
-        seedCommand.cql = cql;
+        seedCommand.cqlFilter = cql;
 
         mockQueryResponse(1, new String[0], new boolean[0]);
 
@@ -150,7 +136,7 @@ public class TestSeedCommand extends TestAbstractCommand {
         seedCommand.executeWithSubject();
 
         ArgumentCaptor<QueryRequest> queryCaptor = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(framework).query(queryCaptor.capture());
+        verify(catalogFramework).query(queryCaptor.capture());
 
         QueryRequest request = queryCaptor.getValue();
         queryRequestAssertions.accept(request);
@@ -171,7 +157,7 @@ public class TestSeedCommand extends TestAbstractCommand {
             verifyResourceRequest(resourceRequests.get(1), id2);
         }, siteNames -> assertThat(siteNames, is(newArrayList(id1, id2))));
 
-        verify(framework, times(1)).query(any(QueryRequest.class));
+        verify(catalogFramework, times(1)).query(any(QueryRequest.class));
     }
 
     @Test
@@ -194,7 +180,7 @@ public class TestSeedCommand extends TestAbstractCommand {
             verifyResourceRequest(resourceRequests.get(2), id3);
         }, siteNames -> assertThat(siteNames, is(newArrayList(id1, id2, id3))));
 
-        verify(framework, times(2)).query(any(QueryRequest.class));
+        verify(catalogFramework, times(2)).query(any(QueryRequest.class));
     }
 
     @Test
@@ -216,7 +202,7 @@ public class TestSeedCommand extends TestAbstractCommand {
             verifyResourceRequest(resourceRequests.get(2), id1);
         }, siteNames -> assertThat(siteNames, is(newArrayList(id1, id2, id1))));
 
-        verify(framework, times(2)).query(any(QueryRequest.class));
+        verify(catalogFramework, times(2)).query(any(QueryRequest.class));
     }
 
     private void runCommandAndVerifyResourceRequests(int expectedResourceRequests,
@@ -227,7 +213,7 @@ public class TestSeedCommand extends TestAbstractCommand {
         ArgumentCaptor<ResourceRequest> resourceRequestCaptor = ArgumentCaptor.forClass(
                 ResourceRequest.class);
         ArgumentCaptor<String> siteNameCaptor = ArgumentCaptor.forClass(String.class);
-        verify(framework,
+        verify(catalogFramework,
                 times(expectedResourceRequests)).getResource(resourceRequestCaptor.capture(),
                 siteNameCaptor.capture());
 
@@ -254,32 +240,19 @@ public class TestSeedCommand extends TestAbstractCommand {
 
         QueryResponse response = mock(QueryResponse.class);
         when(response.getResults()).thenReturn(results);
-        doReturn(response).when(framework)
+        doReturn(response).when(catalogFramework)
                 .query(argThat(is(queryWithStartIndex(request -> request.getQuery()
                         .getStartIndex() < stopReturningResultsAtIndex))));
 
         QueryResponse noResults = mock(QueryResponse.class);
         when(noResults.getResults()).thenReturn(Collections.emptyList());
-        doReturn(noResults).when(framework)
+        doReturn(noResults).when(catalogFramework)
                 .query(argThat(is(queryWithStartIndex(request -> request.getQuery()
                         .getStartIndex() >= stopReturningResultsAtIndex))));
     }
 
     private QueryWithStartIndex queryWithStartIndex(Predicate<QueryRequest> test) {
         return new QueryWithStartIndex(test);
-    }
-
-    private class QueryWithStartIndex extends ArgumentMatcher<QueryRequest> {
-        private final Predicate<QueryRequest> test;
-
-        private QueryWithStartIndex(Predicate<QueryRequest> test) {
-            this.test = test;
-        }
-
-        @Override
-        public boolean matches(Object o) {
-            return test.test((QueryRequest) o);
-        }
     }
 
     private void verifyResourceRequest(ResourceRequest request, String expectedAttributeValue) {
@@ -298,5 +271,18 @@ public class TestSeedCommand extends TestAbstractCommand {
         ResourceResponse mockResponse = mock(ResourceResponse.class);
         when(mockResponse.getResource()).thenReturn(mockResource);
         return mockResponse;
+    }
+
+    private class QueryWithStartIndex extends ArgumentMatcher<QueryRequest> {
+        private final Predicate<QueryRequest> test;
+
+        private QueryWithStartIndex(Predicate<QueryRequest> test) {
+            this.test = test;
+        }
+
+        @Override
+        public boolean matches(Object o) {
+            return test.test((QueryRequest) o);
+        }
     }
 }

@@ -11,43 +11,33 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+
 package org.codice.ddf.commands.catalog;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 
-/**
- * Class is used to intercept System.out to verify what has been written to the PrintStream by
- * various Commands.
- */
-public class ConsoleOutput {
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
-    private ByteArrayOutputStream buffer;
+public class ConsoleOutputCommon {
 
-    private PrintStream realSystemOut;
+    protected static ConsoleOutput consoleOutput;
 
-    public void interceptSystemOut() {
-        this.realSystemOut = System.out;
-
-        this.buffer = new ByteArrayOutputStream();
-
-        System.setOut(new PrintStream(this.buffer));
+    @BeforeClass
+    public static void setUpConsoleOutput() {
+        consoleOutput = new ConsoleOutput();
+        consoleOutput.interceptSystemOut();
     }
 
-    public void closeBuffer() throws IOException {
-        buffer.close();
+    @After
+    public void resetConsoleOutput() {
+        consoleOutput.reset();
     }
 
-    public String getOutput() {
-        return buffer.toString();
-    }
-
-    public void resetSystemOut() {
-        System.setOut(realSystemOut);
-    }
-
-    public void reset() {
-        buffer.reset();
+    @AfterClass
+    public static void closeConsoleOutput() throws IOException {
+        consoleOutput.resetSystemOut();
+        consoleOutput.closeBuffer();
     }
 }
