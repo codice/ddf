@@ -41,7 +41,7 @@ define([
 
             var prevUrl = decodeURI($.url().param('prevurl'));
 
-            document.cookie = "JSESSIONID=;path=/;domain=;expires=Thu, 01 Jan 1970 00:00:00 GMT;secure";
+            document.cookie = "JSESSIONID=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;secure";
 
             $.ajax({
                 type: "GET",
