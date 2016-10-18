@@ -28,6 +28,8 @@ import org.jcodec.api.JCodecException;
 import org.jcodec.containers.mps.MTSUtils.StreamType;
 import org.jcodec.containers.mps.psi.PMTSection;
 import org.jcodec.containers.mps.psi.PMTSection.PMTStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.taktik.mpegts.MTSPacket;
 import org.taktik.mpegts.PATSection;
 import org.taktik.mpegts.sources.MTSSource;
@@ -40,6 +42,9 @@ import com.google.common.io.ByteSource;
  * This class is for extracting arbitrary metadata (as raw bytes) from an MPEG transport stream.
  */
 public class MpegTransportStreamMetadataExtractor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            MpegTransportStreamMetadataExtractor.class);
+
     private final ByteSource byteSource;
 
     private final Set<Integer> programMapTablePacketIdDirectory = new HashSet<>();
@@ -106,17 +111,29 @@ public class MpegTransportStreamMetadataExtractor {
 
         source.reset();
 
-        MTSPacket transportStreamPacket;
+        MTSValidPacketIterator packetIterator = new MTSValidPacketIterator(source);
+        MTSPacket transportStreamPacket = packetIterator.getNextValidPacket();
 
-        while ((transportStreamPacket = source.nextPacket()) != null) {
-            final int packetId = transportStreamPacket.getPid();
-
-            if (isElementaryStreamPacket(packetId)) {
-                handleElementaryStreamPacket(transportStreamPacket, packetId, callback);
+        try {
+            if (transportStreamPacket != null) {
+                LOGGER.debug("First valid packet found after {} failures",
+                        packetIterator.getPacketsFailed());
             }
-        }
+            while (transportStreamPacket != null) {
+                final int packetId = transportStreamPacket.getPid();
 
-        handleLastPacketOfEachStream(callback);
+                if (isElementaryStreamPacket(packetId)) {
+                    handleElementaryStreamPacket(transportStreamPacket, packetId, callback);
+                }
+
+                transportStreamPacket = packetIterator.getNextValidPacket();
+            }
+        } finally {
+            LOGGER.debug("Mpegts Packet Processing Complete: Total Processed {}, Total Failed: {}",
+                    packetIterator.getPacketsProcessed(),
+                    packetIterator.getPacketsFailed());
+            handleLastPacketOfEachStream(callback);
+        }
     }
 
     private void getProgramSpecificInformation(final MTSSource source) throws Exception {
