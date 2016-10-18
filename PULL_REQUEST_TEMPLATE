@@ -1,5 +1,16 @@
 #### What does this PR do?
-#### Who is reviewing it (please choose AT LEAST two reviewers that need to approve the PR before it can get merged; if a component team is listed, at least one of its members needs to approve)?
+#### Who is reviewing it (please choose AT LEAST two reviewers that need to approve the PR before it can get merged)?
+#### Select at least one member from relevant component team(s) from below (at least one component team member needs to approve the PR).
+[Build](https://github.com/orgs/codice/teams/build)
+[Docs](https://github.com/orgs/codice/teams/docs)
+[UI](https://github.com/orgs/codice/teams/ui)
+[Security](https://github.com/orgs/codice/teams/security)
+[Continuous Integration](https://github.com/orgs/codice/teams/continuous-integration)
+[Solr](https://github.com/orgs/codice/teams/solr)
+[IO](https://github.com/orgs/codice/teams/IO)
+[OGC](https://github.com/orgs/codice/teams/OGC)
+[Data](https://github.com/orgs/codice/teams/data)
+[Core APIs](https://github.com/orgs/codice/teams/core-apis)
 #### Choose 2 committers to review/merge the PR (please choose ONLY two committers from below, delete the rest).
 @beyelerb
 @coyotesqrl
@@ -14,13 +25,13 @@
 @pklinef
 @shaundmorris
 @stustison
-#### How should this be tested?
+#### How should this be tested? (List steps with links to updated documentation)
 #### Any background context you want to provide?
 #### What are the relevant tickets?
 [](https://codice.atlassian.net/browse/)
 #### Screenshots (if appropriate)
 #### Checklist:
 - [ ] Documentation Updated
-	- [ ] Change log Updated
+- [ ] Change Log Updated
 - [ ] Update / Add Unit Tests
 - [ ] Update / Add Integration Tests
