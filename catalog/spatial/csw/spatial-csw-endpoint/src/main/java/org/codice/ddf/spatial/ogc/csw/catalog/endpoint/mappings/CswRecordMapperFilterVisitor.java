@@ -189,7 +189,9 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 (LiteralExpressionImpl) filter.getUpperBoundary();
         setExpressionType(type, typedUpperExpression);
 
-        return getFactory(extraData).between(expr, typedLowerExpression, typedLowerExpression);
+        Expression lower = visit((Expression) typedLowerExpression, expr);
+        Expression upper = visit((Expression) typedUpperExpression, expr);
+        return getFactory(extraData).between(expr, lower, upper);
     }
 
     @Override
@@ -220,7 +222,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
         Expression expr1 = visit(filter.getExpression1(), extraData);
         Expression expr2 = visit((Expression) typedExpression, expr1);
-        return getFactory(extraData).equal(expr1, expr2, filter.isMatchingCase());
+        return getFactory(extraData).notEqual(expr1, expr2, filter.isMatchingCase());
     }
 
     @Override
