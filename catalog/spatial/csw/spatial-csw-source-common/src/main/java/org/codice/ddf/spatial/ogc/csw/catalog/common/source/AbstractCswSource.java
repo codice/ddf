@@ -115,7 +115,6 @@ import ddf.security.Subject;
 import ddf.security.common.util.Security;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
-
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
@@ -427,8 +426,8 @@ public abstract class AbstractCswSource extends MaskableImpl
         consumerMap.put(CONNECTION_TIMEOUT_PROPERTY,
                 value -> cswSourceConfiguration.setConnectionTimeout((Integer) value));
 
-        consumerMap.put(RECEIVE_TIMEOUT_PROPERTY, value -> cswSourceConfiguration.setReceiveTimeout(
-                (Integer) value));
+        consumerMap.put(RECEIVE_TIMEOUT_PROPERTY,
+                value -> cswSourceConfiguration.setReceiveTimeout((Integer) value));
 
         consumerMap.put(OUTPUT_SCHEMA_PROPERTY,
                 value -> setConsumerOutputSchemaProperty((String) value));
@@ -911,7 +910,8 @@ public abstract class AbstractCswSource extends MaskableImpl
             String metacardId = serializableId.toString();
 
             LOGGER.debug("Retrieving resource for ID : {}", metacardId);
-            Csw csw = factory.getClient();
+            Csw csw =
+                    factory.getClientForSubject((Subject) requestProperties.get(SecurityConstants.SECURITY_SUBJECT));
             GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
             getRecordByIdRequest.setService(CswConstants.CSW);
             getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
@@ -922,9 +922,10 @@ public abstract class AbstractCswSource extends MaskableImpl
             long requestedBytesToSkip = 0;
             if (requestProperties.containsKey(CswConstants.BYTES_TO_SKIP)) {
                 requestedBytesToSkip = (Long) requestProperties.get(CswConstants.BYTES_TO_SKIP);
-                rangeValue = String.format("%s%s-", CswConstants.BYTES_EQUAL, requestProperties.get(
-                        CswConstants.BYTES_TO_SKIP)
-                        .toString());
+                rangeValue = String.format("%s%s-",
+                        CswConstants.BYTES_EQUAL,
+                        requestProperties.get(CswConstants.BYTES_TO_SKIP)
+                                .toString());
                 LOGGER.debug("Range: {}", rangeValue);
             }
             CswRecordCollection recordCollection;
@@ -1620,8 +1621,8 @@ public abstract class AbstractCswSource extends MaskableImpl
             msg = CSW_SERVER_ERROR + " Source '" + sourceId + "' with URL '"
                     + cswSourceConfiguration.getCswUrl() + "': " + cause;
         } else if (cause instanceof ConnectException) {
-            msg = CSW_SERVER_ERROR + " Source '" + sourceId + "' may not be running.\n" +
-                    ce.getMessage();
+            msg = CSW_SERVER_ERROR + " Source '" + sourceId + "' may not be running.\n"
+                    + ce.getMessage();
         } else {
             msg = CSW_SERVER_ERROR + " Source '" + sourceId + "'\n" + ce;
         }
@@ -1663,9 +1664,8 @@ public abstract class AbstractCswSource extends MaskableImpl
             DomainType getRecordByIdOutputSchemas = getParameter(getRecordByIdOp,
                     CswConstants.OUTPUT_SCHEMA_PARAMETER);
             if (getRecordByIdOutputSchemas != null && getRecordByIdOutputSchemas.getValue() != null
-                    &&
-                    getRecordByIdOutputSchemas.getValue()
-                            .contains(OCTET_STREAM_OUTPUT_SCHEMA)) {
+                    && getRecordByIdOutputSchemas.getValue()
+                    .contains(OCTET_STREAM_OUTPUT_SCHEMA)) {
                 return true;
             }
         }
