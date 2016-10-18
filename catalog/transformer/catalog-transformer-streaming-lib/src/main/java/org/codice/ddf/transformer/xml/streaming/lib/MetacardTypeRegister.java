@@ -13,14 +13,15 @@
  */
 package org.codice.ddf.transformer.xml.streaming.lib;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.felix.utils.collections.MapToDictionary;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.osgi.framework.ServiceRegistration;
 
@@ -81,13 +82,13 @@ public class MetacardTypeRegister extends SortedServiceList {
     private synchronized void registerMetacardType(MetacardType metacardType) {
         unregisterMetacardType(metacardType);
 
-        Map<String, Object> serviceProperties = new HashMap<>();
+        Dictionary serviceProperties = new Hashtable();
         serviceProperties.put("name", metacardType.getName());
 
         ServiceRegistration serviceRegistration =
                 getContext().registerService(MetacardType.class.getName(),
                         metacardType,
-                        new MapToDictionary(serviceProperties));
+                        serviceProperties);
 
         this.metacardTypeServiceRegistrations.put(metacardType.getName(), serviceRegistration);
     }

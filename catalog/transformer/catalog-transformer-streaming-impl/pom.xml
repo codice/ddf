@@ -80,11 +80,6 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.utils</artifactId>
-            <version>1.2.0</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -102,14 +97,9 @@
                             gml-v_3_1_1-schema,
                             jaxb2-basics-runtime,
                             catalog-transformer-streaming-lib,
-                            platform-util,
-                            org.apache.felix.utils
+                            platform-util
                         </Embed-Dependency>
-                        <Export-Package/>
-                        <Import-Package>
-                            !org.apache.felix.utils.collections,
-                            *
-                        </Import-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
