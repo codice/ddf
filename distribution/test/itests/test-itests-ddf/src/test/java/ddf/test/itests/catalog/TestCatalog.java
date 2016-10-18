@@ -720,6 +720,42 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testCswNumericalQuery() throws IOException {
+        //ingest test record
+        String id = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/testNumerical.xml");
+
+        //query for it by the numerical query
+        String numericalQuery = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                + "<GetRecords resultType=\"results\"\n"
+                + "            outputFormat=\"application/xml\"\n"
+                + "            outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "            startPosition=\"1\"\n" + "            maxRecords=\"10\"\n"
+                + "            service=\"CSW\"\n" + "            version=\"2.0.2\"\n"
+                + "            xmlns=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "            xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "            xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
+                + "  <Query typeNames=\"csw:Record\">\n"
+                + "    <ElementSetName>full</ElementSetName>\n"
+                + "    <Constraint version=\"1.1.0\">\n" + "      <ogc:Filter>\n"
+                + "        <ogc:PropertyIsEqualTo wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\" matchCase=\"true\">\n"
+                + "          <ogc:PropertyName>media.width-pixels</ogc:PropertyName>\n"
+                + "          <ogc:Literal>12</ogc:Literal>\n" + "        </ogc:PropertyIsEqualTo>\n"
+                + "      </ogc:Filter>\n" + "    </Constraint>\n" + "  </Query>\n"
+                + "</GetRecords>\n";
+
+        given().header(HttpHeaders.CONTENT_TYPE,
+                MediaType.APPLICATION_XML)
+                .body(numericalQuery)
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned='1']"));
+
+        deleteMetacard(id);
+    }
+
+    @Test
     public void testGetRecordById() throws IOException, XPathExpressionException {
         final Response firstResponse = ingestCswRecord();
         final Response secondResponse = ingestCswRecord();

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml"
+          gml:id="3775f8b4ae50451fa1d2520d47ca5171">
+    <type>pdf</type>
+    <source>ddf.distribution</source>
+    <string name="contact.creator-name">
+        <value>Jessica Johnson</value>
+    </string>
+    <string name="checksum">
+        <value>b0e9968e</value>
+    </string>
+    <string name="datatype">
+        <value>Document</value>
+    </string>
+    <base64Binary name="thumbnail">
+        <value>
+            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
+        </value>
+    </base64Binary>
+    <string name="title">
+        <value>sample.pdf</value>
+    </string>
+    <dateTime name="metacard.created">
+        <value>2016-10-17T23:07:46.394+00:00</value>
+    </dateTime>
+    <string name="media.type">
+        <value>application/pdf</value>
+    </string>
+    <string name="resource-download-url">
+        <value>
+            https://localhost:8993/services/catalog/sources/ddf.distribution/3775f8b4ae50451fa1d2520d47ca5171?transform=resource
+        </value>
+    </string>
+    <string name="metacard-tags">
+        <value>resource</value>
+        <value>VALID</value>
+    </string>
+    <dateTime name="created">
+        <value>2014-08-12T23:50:40.000+00:00</value>
+    </dateTime>
+    <dateTime name="modified">
+        <value>2014-08-12T23:53:12.000+00:00</value>
+    </dateTime>
+    <dateTime name="metacard.modified">
+        <value>2016-10-17T23:07:46.394+00:00</value>
+    </dateTime>
+    <string name="resource-uri">
+        <value>content:3775f8b4ae50451fa1d2520d47ca5171</value>
+    </string>
+    <string name="checksum-algorithm">
+        <value>Adler32</value>
+    </string>
+    <string name="resource-size">
+        <value>677046</value>
+    </string>
+    <int name="media.width-pixels">
+        <value>12</value>
+    </int>
+</metacard>
