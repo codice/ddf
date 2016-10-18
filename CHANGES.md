@@ -77,6 +77,7 @@ replace with next unreleased version
 - [DDF-2150](https://codice.atlassian.net/browse/DDF-2150) Windows attribute .cfg files do not get parsed properly in AbstractExpansion
 - [DDF-2090](https://codice.atlassian.net/browse/DDF-2090) GeoJSON input transformer doesn't handle multiple values correctly
 - [DDF-2339](https://codice.atlassian.net/browse/DDF-2339) Fix typo in CSW Metatype Metacard Mappings
+- [DDF-2538](https://codice.atlassian.net/browse/DDF-2538) Updated metacard.handlebars template to properly escape strings
 	- [Jira view of all issues resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.10.0%20ORDER%20BY%20resolutiondate)
 	in this version.
 
