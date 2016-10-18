@@ -20,10 +20,10 @@
     {{/if}}
     <div class="controls">
         <div class="btn-group card-style-toggle" data-toggle="buttons">
-            <label class="btn btn-xs">
+            <label class="btn btn-xs {{#if defaultValue}}active{{/if}}">
                 <input type="radio" name="{{id}}" id="{{id}}" value="true" {{#defaultValue}}{{#.}}checked="checked"{{/.}}{{/defaultValue}}>On</i>
             </label>
-            <label class="btn btn-xs">
+            <label class="btn btn-xs {{#unless defaultValue}}active{{/unless}}">
                 <input type="radio" name="{{id}}" id="{{id}}Off" value="false">Off</i>
             </label>
         </div>

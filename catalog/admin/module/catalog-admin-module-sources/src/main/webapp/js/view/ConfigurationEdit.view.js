@@ -151,15 +151,39 @@ define([
     ConfigurationEditView.ConfigurationItem = Marionette.ItemView.extend({
         template: 'configuration.configurationItem',
         events: {
-            'change input': 'updateModel'
+            'change input': 'updateModel',
+            'change select': 'updateModel'
         },
         /**
          * Save all values properties into the sourceModal
          */
         serializeData: function () {
+            var modelJSON = this.model.toJSON();
             var value = this.options.configuration.get('properties').get(this.model.get('id'));
-            return _.extend(this.model.toJSON(), {
-                defaultValue: value || this.model.get('defaultValue')
+
+            if (modelJSON.type === 11) {
+                if (value !== undefined) {
+                    if (Array.isArray(value)) {
+                        value = value[0] === 'true';
+                    } else if (typeof value === 'string') {
+                        value = value === 'true';
+                    }
+                } else {
+                    value = this.model.get('defaultValue')[0] === 'true';
+                }
+            } else {
+                value = value || this.model.get('defaultValue');
+            }
+
+            return _.extend(modelJSON, {
+                defaultValue: value,
+                options: modelJSON.optionLabels.map(function(optionLabel, index){
+                    return {
+                        label: optionLabel,
+                        value: modelJSON.optionValues[index],
+                        selected: modelJSON.optionValues[index] === value
+                    };
+                })
             });
         },
         updateModel: function (e) {
