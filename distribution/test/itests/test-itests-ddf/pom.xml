@@ -24,7 +24,56 @@
     <artifactId>test-itests-ddf</artifactId>
     <name>DDF :: Integration :: Test</name>
     <dependencies>
-
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>ddf</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <!-- If we don't exlude transitives here,
+                    we end up polluting the classpath with every transitive
+                    dependency of every dependency in the entire codebase.
+                    This can cause unpredictable behavior in things like XML clients. -->
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${org.slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.tinybundles</groupId>
+            <artifactId>tinybundles</artifactId>
+        </dependency>
+        <!-- Start of dependencies for pax exam karaf container -->
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-aether</artifactId>
+        </dependency>
+        <!-- End of pax exam dependencies -->
+        <dependency>
+            <groupId>ddf.catalog</groupId>
+            <artifactId>ftp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.registry</groupId>
+            <artifactId>registry-federation-admin-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -62,7 +111,6 @@
             <artifactId>commons-net</artifactId>
             <version>3.5</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.platform.migration</groupId>
             <artifactId>platform-migration</artifactId>
@@ -138,7 +186,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.8.1</version>
                 <configuration>
-                    <argLine>${argLine} -Djava.awt.headless=true -noverify -Dddf.version=${project.version}</argLine>
+                    <argLine>${argLine} -Djava.awt.headless=true -noverify
+                        -Dddf.version=${project.version}
+                    </argLine>
                 </configuration>
             </plugin>
         </plugins>
