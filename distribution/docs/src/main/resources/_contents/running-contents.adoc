@@ -372,7 +372,7 @@ OPTIONS
         --searchPhrase, -phrase, -like
                 Option to filter by a specific phrase. NOTE: Does not apply to CQL filters. Does not stack with other --lastXXXX options. --lastXXXX options take precedence over this option.
                 (defaults to *)
-        --temporal, -t
+        --temporal, -dt
                 Option to use temporal criteria to filter. The default is to use "keyword like * ".
         --endDate, -end
                 Flag to specify a start date range to by which to filter. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.

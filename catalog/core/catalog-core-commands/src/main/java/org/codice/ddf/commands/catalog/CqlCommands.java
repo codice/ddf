@@ -66,7 +66,7 @@ public abstract class CqlCommands extends CatalogCommands {
     String cqlFilter = null;
 
     @Option(name = "--temporal", required = false, aliases = {
-            "-t"}, multiValued = false, description =
+            "-dt"}, multiValued = false, description =
             "Option to use temporal criteria to filter. The default is to use \"keyword like "
                     + WILDCARD + " \".")
     boolean isUseTemporal = false;
