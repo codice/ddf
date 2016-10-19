@@ -805,18 +805,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 .all().assertThat().body(assertion[0], assertion);
         // @formatter:on
 
-        // Start metacard validation plugin; this will add on [validation-warnings = null] AND [validation-errors = null]
-        // filter to query
-        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
-
         // Assert that response is the same as without the plugin
         // @formatter:off
         given().contentType(ContentType.XML).body(query).when().post(CSW_PATH.getUrl()).then().log()
                 .all().assertThat().body(assertion[0], assertion);
         // @formatter:on
-
-        // Turn off plugin to not interfere with other tests
-        getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
     }
 
     @Test
