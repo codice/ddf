@@ -34,6 +34,14 @@ import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This factory helps construct clients for secure restful communication.
+ * For now, the getForSubject methods should only be used to support DDF<->DDF interop, because:
+ * <ol>
+ *     <li>We do not yet support the open standard for REST security, SAML ECP.</li>
+ *     <li>Most non-DDF systems do not know how to handle SAML assertions in the auth header.</li>
+ * </ol>
+ */
 public class SecureCxfClientFactory<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecureCxfClientFactory.class);
