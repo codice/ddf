@@ -913,7 +913,8 @@ public abstract class AbstractCswSource extends MaskableImpl
             String metacardId = serializableId.toString();
 
             LOGGER.debug("Retrieving resource for ID : {}", metacardId);
-            Csw csw = factory.getClient();
+            Csw csw =
+                    factory.getClientForSubject((Subject) requestProperties.get(SecurityConstants.SECURITY_SUBJECT));
             GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
             getRecordByIdRequest.setService(CswConstants.CSW);
             getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
@@ -1637,8 +1638,8 @@ public abstract class AbstractCswSource extends MaskableImpl
             msg = CSW_SERVER_ERROR + " Source '" + sourceId + "' with URL '"
                     + cswSourceConfiguration.getCswUrl() + "': " + cause;
         } else if (cause instanceof ConnectException) {
-            msg = CSW_SERVER_ERROR + " Source '" + sourceId + "' may not be running.\n" +
-                    ce.getMessage();
+            msg = CSW_SERVER_ERROR + " Source '" + sourceId + "' may not be running.\n"
+                    + ce.getMessage();
         } else {
             msg = CSW_SERVER_ERROR + " Source '" + sourceId + "'\n" + ce;
         }
@@ -1680,9 +1681,8 @@ public abstract class AbstractCswSource extends MaskableImpl
             DomainType getRecordByIdOutputSchemas = getParameter(getRecordByIdOp,
                     CswConstants.OUTPUT_SCHEMA_PARAMETER);
             if (getRecordByIdOutputSchemas != null && getRecordByIdOutputSchemas.getValue() != null
-                    &&
-                    getRecordByIdOutputSchemas.getValue()
-                            .contains(OCTET_STREAM_OUTPUT_SCHEMA)) {
+                    && getRecordByIdOutputSchemas.getValue()
+                    .contains(OCTET_STREAM_OUTPUT_SCHEMA)) {
                 return true;
             }
         }
