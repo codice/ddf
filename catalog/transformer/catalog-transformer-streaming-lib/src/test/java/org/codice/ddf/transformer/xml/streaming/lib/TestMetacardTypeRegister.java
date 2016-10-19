@@ -19,7 +19,6 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -53,8 +52,6 @@ public class TestMetacardTypeRegister {
                 return mock(BundleContext.class);
             }
         };
-        metacardTypeRegister.setSaxEventHandlerConfiguration(Collections.emptyList());
-        metacardTypeRegister.setSaxEventHandlerFactories(mockFactories);
     }
 
     @Test

@@ -39,11 +39,6 @@
     <bean id="dynamicMetacardTypeRegister"
           class="org.codice.ddf.transformer.xml.streaming.lib.MetacardTypeRegister">
         <property name="id" value=""/>
-        <property name="saxEventHandlerFactories" ref="saxEventHandlerFactoriesList"/>
-        <property name="saxEventHandlerConfiguration">
-            <list>
-            </list>
-        </property>
     </bean>
 
     <cm:managed-service-factory id="XmlInputTransformerFactory"

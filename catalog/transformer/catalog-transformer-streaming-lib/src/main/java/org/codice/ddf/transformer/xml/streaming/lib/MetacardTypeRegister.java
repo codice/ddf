@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.transformer.xml.streaming.lib;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +21,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.osgi.framework.ServiceRegistration;
@@ -34,19 +34,19 @@ public class MetacardTypeRegister extends SortedServiceList {
 
     private Map<String, ServiceRegistration> metacardTypeServiceRegistrations = new HashMap<>();
 
-    private List<SaxEventHandlerFactory> saxEventHandlerFactories;
-
-    private List<String> saxEventHandlerConfiguration;
+    private List<SaxEventHandlerFactory> saxEventHandlerFactories = new ArrayList<>();
 
     private DynamicMetacardType metacardType;
 
     private String id = "DEFAULT_ID";
 
     public void bind(SaxEventHandlerFactory saxEventHandlerFactory) {
+        saxEventHandlerFactories.add(saxEventHandlerFactory);
         setMetacardType();
     }
 
     public void unbind(SaxEventHandlerFactory saxEventHandlerFactory) {
+        saxEventHandlerFactories.remove(saxEventHandlerFactory);
         setMetacardType();
     }
 
@@ -59,7 +59,7 @@ public class MetacardTypeRegister extends SortedServiceList {
     public void setMetacardType() {
         Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
-        if (saxEventHandlerConfiguration != null && saxEventHandlerFactories != null) {
+        if (saxEventHandlerFactories != null) {
             for (SaxEventHandlerFactory factory : saxEventHandlerFactories) {
                 attributeDescriptors.addAll(factory.getSupportedAttributeDescriptors());
             }
@@ -106,26 +106,6 @@ public class MetacardTypeRegister extends SortedServiceList {
         }
     }
 
-    /**
-     * Setter to set the list of all {@link SaxEventHandlerFactory}s. Usually called from a blueprint,
-     * and the blueprint will keep the factories updated
-     *
-     * @param saxEventHandlerFactories a list of all SaxEventHandlerFactories (usually a list of all
-     *                                 factories that are available as services)
-     */
-    public void setSaxEventHandlerFactories(List<SaxEventHandlerFactory> saxEventHandlerFactories) {
-        this.saxEventHandlerFactories = saxEventHandlerFactories;
-    }
-
-    /**
-     * Setter to set the configuration of SaxEventHandlers used to parse metacards
-     *
-     * @param saxEventHandlerConfiguration a list of SaxEventHandlerFactory ids
-     */
-    public void setSaxEventHandlerConfiguration(List<String> saxEventHandlerConfiguration) {
-        this.saxEventHandlerConfiguration = saxEventHandlerConfiguration;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
@@ -155,9 +135,8 @@ class DynamicMetacardType implements MetacardType {
     @Override
     public AttributeDescriptor getAttributeDescriptor(String attributeName) {
         return attributeDescriptors.stream()
-                .filter(p -> p.getName()
-                        .equals(attributeName))
-                .collect(Collectors.toList())
-                .get(0);
+                .filter(p -> p.getName().equals(attributeName))
+                .findFirst()
+                .orElse(null);
     }
 }
