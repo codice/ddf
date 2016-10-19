@@ -37,8 +37,8 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,8 +51,8 @@ public final class ContextualEvaluator {
 
     private static final String CASE_SENSITIVE_FIELD_NAME = "cs_Resource";
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(ContextualEvaluator.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(ContextualEvaluator.class);
 
     private static final String DEFAULT_XPATH_1 =
             "/*[local-name()=\"Resource\"]/*" + "[local-name() != \"identifier\" and "
@@ -83,7 +83,6 @@ public final class ContextualEvaluator {
     public static boolean evaluate(ContextualEvaluationCriteria cec)
             throws IOException, ParseException {
         String methodName = "evaluate";
-        LOGGER.entry(methodName);
 
         Directory index = cec.getIndex();
         String searchPhrase = cec.getCriteria();
@@ -99,14 +98,12 @@ public final class ContextualEvaluator {
                 String indexableText = getIndexableText(fullDocument, textPaths);
                 if (indexableText != null && !indexableText.isEmpty()) {
                     LOGGER.trace("Found element/attribute for textPaths");
-                    LOGGER.exit(methodName + " - returning true");
                     return true;
                 }
             }
 
             LOGGER.trace(
                     "No search phrase specified and could not find element/attribute based on textPaths");
-            LOGGER.exit(methodName + " - returning false");
             return false;
         }
 
@@ -140,13 +137,11 @@ public final class ContextualEvaluator {
         TopDocs topDocs = searcher.search(q, hitsPerPage);
 
         // c. display results
-        LOGGER.debug("Found " + topDocs.totalHits + " hits.");
+        LOGGER.debug("Found {} hits.", topDocs.totalHits);
 
         // searcher can only be closed when there
         // is no need to access the documents any more.
         searcher.close();
-
-        LOGGER.exit(methodName);
 
         return topDocs.totalHits > 0;
     }
@@ -182,7 +177,6 @@ public final class ContextualEvaluator {
      */
     public static Directory buildIndex(String fullDocument) throws IOException {
         String methodName = "buildIndex (DEFAULT)";
-        LOGGER.entry(methodName);
 
         return buildIndex(fullDocument, DEFAULT_XPATH_SELECTORS);
     }
@@ -200,7 +194,6 @@ public final class ContextualEvaluator {
     public static Directory buildIndex(String fullDocument, String[] xpathSelectors)
             throws IOException {
         String methodName = "buildIndex";
-        LOGGER.entry(methodName);
 
         // LOGGER.debug( XPathHelper.xmlToString( fullDocument ) );
 
@@ -245,8 +238,6 @@ public final class ContextualEvaluator {
         addDoc(csIndexWriter, CASE_SENSITIVE_FIELD_NAME, indexableText);
         csIndexWriter.close();
 
-        LOGGER.exit(methodName);
-
         return index;
     }
 
@@ -279,11 +270,9 @@ public final class ContextualEvaluator {
      */
     private static String getIndexableText(String document, String[] xpathSelectors) {
         String methodName = "getIndexableText";
-        LOGGER.entry(methodName);
-
         List<String> indexedText = new ArrayList<String>();
 
-        LOGGER.debug("xpathSelectors.size = " + xpathSelectors.length);
+        LOGGER.debug("xpathSelectors.size = {}", xpathSelectors.length);
 
         StringBuilder sbuilder = new StringBuilder();
 
@@ -306,15 +295,15 @@ public final class ContextualEvaluator {
             XPathHelper xHelper = new XPathHelper(document);
 
             for (String xpath : xpathSelectors) {
-                LOGGER.debug("Processing xpath selector:\n" + xpath);
+                LOGGER.debug("Processing xpath selector: {}", xpath);
                 NodeList nodeList = (NodeList) xHelper.evaluate(xpath, XPathConstants.NODESET);
-                LOGGER.debug("nodeList length = " + nodeList.getLength());
+                LOGGER.debug("nodeList length = {}", nodeList.getLength());
 
                 for (int i = 0; i < nodeList.getLength(); i++) {
                     Node node = nodeList.item(i);
                     if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
                         Attr attribute = (Attr) node;
-                        LOGGER.debug("Adding text [" + attribute.getNodeValue() + "]");
+                        LOGGER.debug("Adding text [{}]", attribute.getNodeValue());
 
                         sbuilder.append(attribute.getNodeValue() + " ");
 
@@ -337,15 +326,13 @@ public final class ContextualEvaluator {
                 }
             }
         } catch (XPathExpressionException e1) {
-            LOGGER.catching(e1);
+            LOGGER.debug("Unable to evaluate XPath", e1);
         }
 
         // Append all of the Text nodes' values to the single indexable text string
         for (String text : indexedText) {
             sbuilder.append(text);
         }
-
-        LOGGER.exit(methodName);
 
         return sbuilder.toString();
     }

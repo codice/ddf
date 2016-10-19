@@ -22,8 +22,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleReference;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 /**
  * DDF namespace resolver loads all registered NamespaceMap interfaces and builds two HashMaps: one
@@ -34,8 +34,8 @@ import org.slf4j.ext.XLogger;
  * @author Hugh Rodgers
  */
 public class NamespaceResolver implements NamespaceContext {
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(NamespaceResolver.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(NamespaceResolver.class);
 
     protected ArrayList<NamespaceContext> namespaceContexts;
 
@@ -63,7 +63,7 @@ public class NamespaceResolver implements NamespaceContext {
      */
     public String getNamespaceURI(String prefix) {
         String methodName = "getNamespaceURI";
-        LOGGER.trace("ENTERING: " + methodName);
+        LOGGER.trace("ENTERING: {}", methodName);
 
         getNamespaceContexts();
 
@@ -76,7 +76,7 @@ public class NamespaceResolver implements NamespaceContext {
             }
         }
 
-        LOGGER.trace("EXITING: " + methodName + "    (namespaceUri = " + namespaceUri + ")");
+        LOGGER.trace("EXITING: {}    (namespaceUri = {})", methodName, namespaceUri);
 
         return namespaceUri;
     }
@@ -91,7 +91,7 @@ public class NamespaceResolver implements NamespaceContext {
      */
     public String getPrefix(String namespace) {
         String methodName = "getPrefix";
-        LOGGER.trace("ENTERING: " + methodName + ",   namespace = " + namespace);
+        LOGGER.trace("ENTERING: {},   namespace = {}", methodName, namespace);
 
         getNamespaceContexts();
 
@@ -104,7 +104,7 @@ public class NamespaceResolver implements NamespaceContext {
             }
         }
 
-        LOGGER.trace("EXITING: " + methodName + "    (prefix = " + prefix + ")");
+        LOGGER.trace("EXITING: {}    (prefix = {})", methodName, prefix);
 
         return prefix;
     }
@@ -135,7 +135,7 @@ public class NamespaceResolver implements NamespaceContext {
             try {
                 // Retrieve all of the namespace mappings from the OSGi Service Registry
                 refs = bundleContext.getServiceReferences(NamespaceContext.class.getName(), null);
-                LOGGER.debug("num NamespaceContexts service refs found = " + refs.length);
+                LOGGER.debug("num NamespaceContexts service refs found = {}", refs.length);
             } catch (InvalidSyntaxException e) {
                 LOGGER.debug("Invalid NamespaceContext syntax", e);
             }

@@ -19,12 +19,12 @@ import java.util.Map;
 
 import javax.xml.namespace.NamespaceContext;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 public class NamespaceMapImpl implements NamespaceContext {
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(NamespaceMapImpl.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(NamespaceMapImpl.class);
 
     private Map<String, String> allNamespaceUris;
 

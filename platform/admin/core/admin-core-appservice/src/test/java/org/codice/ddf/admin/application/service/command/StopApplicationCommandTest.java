@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StopApplicationCommandTest {
-    private Logger logger = LoggerFactory.getLogger(AddApplicationCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddApplicationCommand.class);
 
     private static final String APP_NAME = "TestApp";
 

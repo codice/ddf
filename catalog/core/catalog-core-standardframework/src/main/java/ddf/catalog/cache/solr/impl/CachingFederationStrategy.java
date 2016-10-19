@@ -115,7 +115,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private static final int DEFAULT_MAX_START_INDEX = 50000;
 
-    private static Logger logger = LoggerFactory.getLogger(CachingFederationStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CachingFederationStrategy.class);
 
     private final SolrCache cache;
 
@@ -197,10 +197,10 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     private QueryResponse sourceFederate(List<Source> sources, final QueryRequest queryRequest) {
-        if (logger.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             for (Source source : sources) {
                 if (source != null) {
-                    logger.debug("source to query: {}", source.getId());
+                    LOGGER.debug("source to query: {}", source.getId());
                 }
             }
         }
@@ -232,7 +232,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         for (final Source source : sources) {
             if (source != null) {
                 if (!futures.containsValue(source)) {
-                    logger.debug("running query on source: {}", source.getId());
+                    LOGGER.debug("running query on source: {}", source.getId());
 
                     QueryRequest sourceQueryRequest = modifiedQueryRequest;
                     try {
@@ -241,11 +241,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                                 sourceQueryRequest = service.process(source,
                                         sourceQueryRequest);
                             } catch (PluginExecutionException e) {
-                                logger.info("Error executing PreFederatedQueryPlugin", e);
+                                LOGGER.info("Error executing PreFederatedQueryPlugin", e);
                             }
                         }
                     } catch (StopProcessingException e) {
-                        logger.info("Plugin stopped processing", e);
+                        LOGGER.info("Plugin stopped processing", e);
                     }
 
                     if (source instanceof CatalogProvider && SystemInfo.getSiteName()
@@ -261,7 +261,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     futures.put(queryCompletion.submit(new CallableSourceResponse(source,
                             sourceQueryRequest)), source);
                 } else {
-                    logger.info("Duplicate source found with name {}. Ignoring second one.",
+                    LOGGER.info("Duplicate source found with name {}. Ignoring second one.",
                             source.getId());
                 }
             }
@@ -288,10 +288,10 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         QueryResponse queryResponse = null;
         if (offset > 1 && sources.size() > 1) {
             queryResponse = offsetResults;
-            logger.debug("returning offsetResults");
+            LOGGER.debug("returning offsetResults");
         } else {
             queryResponse = queryResponseQueue;
-            logger.debug("returning returnResults: {}", queryResponse);
+            LOGGER.debug("returning returnResults: {}", queryResponse);
         }
 
         try {
@@ -299,14 +299,14 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 try {
                     queryResponse = service.process(queryResponse);
                 } catch (PluginExecutionException e) {
-                    logger.info("Error executing PostFederatedQueryPlugin", e);
+                    LOGGER.info("Error executing PostFederatedQueryPlugin", e);
                 }
             }
         } catch (StopProcessingException e) {
-            logger.info("Plugin stopped processing", e);
+            LOGGER.info("Plugin stopped processing", e);
         }
 
-        logger.debug("returning Query Results: {}", queryResponse);
+        LOGGER.debug("returning Query Results: {}", queryResponse);
         return queryResponse;
     }
 
@@ -321,12 +321,12 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             final int modifiedOffset = 1;
             int modifiedPageSize = computeModifiedPageSize(offset, pageSize);
 
-            logger.debug("Creating new query for federated sources to query each source from {} "
+            LOGGER.debug("Creating new query for federated sources to query each source from {} "
                     + "to {}.", modifiedOffset, modifiedPageSize);
-            logger.debug("original offset: {}", offset);
-            logger.debug("original page size: {}", pageSize);
-            logger.debug("modified offset: {}", modifiedOffset);
-            logger.debug("modified page size: {}", modifiedPageSize);
+            LOGGER.debug("original offset: {}", offset);
+            LOGGER.debug("original page size: {}", pageSize);
+            LOGGER.debug("modified offset: {}", modifiedOffset);
+            LOGGER.debug("modified page size: {}", modifiedPageSize);
 
             /**
              * Federated sources always query from offset of 1. When all query results are received
@@ -361,7 +361,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     @Override
     public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
 
-        logger.debug("Post ingest processing of UpdateResponse.");
+        LOGGER.debug("Post ingest processing of UpdateResponse.");
         if (!isCacheRemoteIngests() && !Requests.isLocal(input.getRequest())) {
             return input;
         }
@@ -380,9 +380,9 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             metacards.add(update.getNewMetacard());
         }
 
-        logger.debug("Updating metacard(s) in cache.");
+        LOGGER.debug("Updating metacard(s) in cache.");
         cache.create(metacards);
-        logger.debug("Updating metacard(s) in cache complete.");
+        LOGGER.debug("Updating metacard(s) in cache complete.");
 
         return input;
     }
@@ -390,7 +390,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
 
-        logger.debug("Post ingest processing of DeleteResponse.");
+        LOGGER.debug("Post ingest processing of DeleteResponse.");
         if (!isCacheRemoteIngests() && !Requests.isLocal(input.getRequest())) {
             return input;
         }
@@ -402,9 +402,9 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             return input;
         }
 
-        logger.debug("Deleting metacard(s) in cache.");
+        LOGGER.debug("Deleting metacard(s) in cache.");
         cache.delete(input.getRequest());
-        logger.debug("Deletion of metacard(s) in cache complete.");
+        LOGGER.debug("Deletion of metacard(s) in cache complete.");
 
         return input;
     }
@@ -430,7 +430,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         if (maxStartIndex > 0) {
             this.maxStartIndex = maxStartIndex;
         } else {
-            logger.debug("Invalid max start index input. Reset to default value: {}",
+            LOGGER.debug("Invalid max start index input. Reset to default value: {}",
                     this.maxStartIndex);
         }
     }
@@ -504,7 +504,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 queryResultIndex++;
             }
 
-            logger.debug("Closing Queue and setting the total count");
+            LOGGER.debug("Closing Queue and setting the total count");
             offsetResultQueue.setHits(originalResults.getHits());
             offsetResultQueue.closeResultQueue();
         }
@@ -555,7 +555,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                             try {
                                 cacheBulkProcessor.add(sourceResponse.getResults());
                             } catch (Throwable throwable) {
-                                logger.warn("Unable to add results for bulk processing", throwable);
+                                LOGGER.warn("Unable to add results for bulk processing", throwable);
                             }
                         }
                     });

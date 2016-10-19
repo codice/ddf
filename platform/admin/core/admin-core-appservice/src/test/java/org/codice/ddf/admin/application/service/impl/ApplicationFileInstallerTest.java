@@ -54,7 +54,7 @@ public class ApplicationFileInstallerTest {
     private static final String INSTALL_IOEX =
             "Got an error when trying to read the incoming application.";
 
-    private Logger logger = LoggerFactory.getLogger(ApplicationFileInstaller.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationFileInstaller.class);
 
     private Appender mockAppender;
 

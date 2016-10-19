@@ -175,7 +175,7 @@ public class ContentResourceReader implements ResourceReader {
                     ReadStorageResponse readResponse = storage.read(readRequest);
                     ContentItem contentItem = readResponse.getContentItem();
                     String fileName = contentItem.getFilename();
-                    LOGGER.debug("resource name: " + fileName);
+                    LOGGER.debug("resource name: {}", fileName);
                     InputStream is = contentItem.getInputStream();
                     response =
                             new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is),

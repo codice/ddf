@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationImpl implements Application, Comparable<Application> {
 
-    private Logger logger = LoggerFactory.getLogger(ApplicationImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationImpl.class);
 
     private Set<Feature> features;
 
@@ -64,17 +64,19 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     public ApplicationImpl(Repository repo) {
         location = repo.getURI();
         try {
-            String[] parts = repo.getName().split("-[0-9]");
-            if (parts.length != 0){
+            String[] parts = repo.getName()
+                    .split("-[0-9]");
+            if (parts.length != 0) {
                 name = parts[0];
-                version = repo.getName().substring(name.length()+1);
+                version = repo.getName()
+                        .substring(name.length() + 1);
             } else {
                 name = repo.getName();
                 version = "0.0.0";
             }
             features = new HashSet<>(Arrays.asList(repo.getFeatures()));
         } catch (Exception e) {
-            logger.warn(
+            LOGGER.warn(
                     "Error occured while trying to parse information for application. Application created but may have missing information.");
             features = new HashSet<>();
         }
@@ -108,12 +110,10 @@ public class ApplicationImpl implements Application, Comparable<Application> {
         }
 
         if (mainFeature == null) {
-            logger.debug(
-                    "Could not determine main feature in {}, using defaults. Each application "
-                            + "should have 1 feature with the same name as the repository or 1 auto"
-                            + " install feature. This Application will take no action when started"
-                            + " or stopped.",
-                    name);
+            LOGGER.debug("Could not determine main feature in {}, using defaults. Each application "
+                    + "should have 1 feature with the same name as the repository or 1 auto"
+                    + " install feature. This Application will take no action when started"
+                    + " or stopped.", name);
         }
     }
 

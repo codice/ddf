@@ -53,7 +53,7 @@ public class WebSSOFilterTest {
 
     @Test
     public void testInit() throws ServletException {
-        Logger logger = (Logger) LoggerFactory.getLogger(WebSSOFilter.class);
+        final Logger logger = (Logger) LoggerFactory.getLogger(WebSSOFilter.class);
         logger.setLevel(Level.DEBUG);
 
         AuthenticationHandler handler = mock(AuthenticationHandler.class);

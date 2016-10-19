@@ -74,30 +74,6 @@ import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 
 public class ApplicationServiceBeanTest {
-    private ApplicationService testAppService;
-
-    private ConfigurationAdminExt testConfigAdminExt;
-
-    private ApplicationNode testNode1;
-
-    private ApplicationNode testNode2;
-
-    private ApplicationNode testNode3;
-
-    private Application testApp;
-
-    private ApplicationStatus testStatus;
-
-    private Set<ApplicationNode> nodeSet;
-
-    private Set<ApplicationNode> childrenSet;
-
-    private BundleContext bundleContext;
-
-    private MBeanServer mBeanServer;
-
-    private ObjectName objectName;
-
     private static final String TEST_FEATURE_DESCRIPTION =
             "Mock Feature for ApplicationServiceBean tests";
 
@@ -128,7 +104,31 @@ public class ApplicationServiceBeanTest {
     private static final String GET_SERV_ASE =
             "There was an error while trying to access the application";
 
-    private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
+
+    private ApplicationService testAppService;
+
+    private ConfigurationAdminExt testConfigAdminExt;
+
+    private ApplicationNode testNode1;
+
+    private ApplicationNode testNode2;
+
+    private ApplicationNode testNode3;
+
+    private Application testApp;
+
+    private ApplicationStatus testStatus;
+
+    private Set<ApplicationNode> nodeSet;
+
+    private Set<ApplicationNode> childrenSet;
+
+    private BundleContext bundleContext;
+
+    private MBeanServer mBeanServer;
+
+    private ObjectName objectName;
 
     @Before
     public void setUp() throws Exception {

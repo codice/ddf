@@ -19,8 +19,8 @@ import java.util.Map;
 
 import javax.xml.namespace.NamespaceContext;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.util.NamespaceMapImpl;
 import ddf.util.NamespaceResolver;
@@ -28,8 +28,8 @@ import ddf.util.NamespaceResolver;
 public class MockNamespaceResolver extends NamespaceResolver {
     private static final Map<String, String> DEFAULT_NAMESPACE_MAP = new HashMap<String, String>();
 
-    private static XLogger logger =
-            new XLogger(LoggerFactory.getLogger(MockNamespaceResolver.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(MockNamespaceResolver.class);
 
     static {
         DEFAULT_NAMESPACE_MAP.put("ns1", "http://metadata.abc.com/mdr/ns/ns1/2.0/");
@@ -43,7 +43,7 @@ public class MockNamespaceResolver extends NamespaceResolver {
     }
 
     public MockNamespaceResolver(Map<String, String> namespaces) {
-        logger.debug("MockNamespaceResolver constructor");
+        LOGGER.debug("MockNamespaceResolver constructor");
 
         namespaceContexts = new ArrayList<NamespaceContext>();
         namespaceContexts.add(new NamespaceMapImpl(namespaces));
@@ -51,7 +51,7 @@ public class MockNamespaceResolver extends NamespaceResolver {
 
     public String getNamespaceURI(String prefix) {
         String methodName = "getNamespaceURI";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace("ENTERING: {}", methodName);
 
         String namespaceUri = null;
 
@@ -62,14 +62,14 @@ public class MockNamespaceResolver extends NamespaceResolver {
             }
         }
 
-        logger.trace("EXITING: " + methodName + "    (namespaceUri = " + namespaceUri + ")");
+        LOGGER.trace("EXITING: {}    (namespaceUri = {} )", methodName, namespaceUri);
 
         return namespaceUri;
     }
 
     public String getPrefix(String namespace) {
         String methodName = "getPrefix";
-        logger.trace("ENTERING: " + methodName + ",   namespace = " + namespace);
+        LOGGER.trace("ENTERING: {}   namespace = {}", methodName, namespace);
 
         String prefix = null;
 
@@ -80,7 +80,7 @@ public class MockNamespaceResolver extends NamespaceResolver {
             }
         }
 
-        logger.trace("EXITING: " + methodName + "    (prefix = " + prefix + ")");
+        LOGGER.trace("EXITING: {}    (prefix = {} )", methodName, prefix);
 
         return prefix;
     }

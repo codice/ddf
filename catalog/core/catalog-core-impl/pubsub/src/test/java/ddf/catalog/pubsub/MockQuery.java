@@ -39,8 +39,8 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -61,7 +61,7 @@ import ddf.measure.Distance.LinearUnit;
 public class MockQuery implements FederatedSource, Query {
     public static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(MockQuery.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockQuery.class);
 
     // PLACEHOLDER for security
     private Subject user;

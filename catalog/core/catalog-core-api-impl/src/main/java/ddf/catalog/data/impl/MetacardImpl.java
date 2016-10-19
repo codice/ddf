@@ -552,7 +552,7 @@ public class MetacardImpl implements Metacard {
 
         if (attribute == null) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Attribute " + attributeName + " was not found, returning null");
+                LOGGER.debug("Attribute {} was not found, returning null", attributeName);
             }
             return null;
         }

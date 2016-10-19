@@ -23,8 +23,8 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -36,8 +36,7 @@ import ddf.catalog.operation.SourceResponse;
 
 public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements QueryResponse {
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(QueryResponseImpl.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryResponseImpl.class);
 
     protected static final Result POISON_PILL_RESULT = new POISON_PILL_RESULT();
 
@@ -54,8 +53,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     /**
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest)
      *
-     * @param request
-     *            the request
+     * @param request the request
      */
     public QueryResponseImpl(QueryRequest request) {
         this(request, new HashMap<String, Serializable>());
@@ -65,8 +63,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest) and and a ${@link Map} of
      * properties
      *
-     * @param request
-     *            the request
+     * @param request    the request
      * @param properties
      */
     public QueryResponseImpl(QueryRequest request, Map<String, Serializable> properties) {
@@ -77,10 +74,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest) and and a ${@link List} of
      * results
      *
-     * @param request
-     *            the request
-     * @param results
-     *            the results
+     * @param request the request
+     * @param results the results
      */
     public QueryResponseImpl(QueryRequest request, List<Result> results, long totalHits) {
         this(request, results, true, totalHits, null);
@@ -90,12 +85,9 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest), a ${@link List} of
      * results, a closeResultQueue indicator, and a number of hits to return
      *
-     * @param request
-     *            the request
-     * @param results
-     *            the results
-     * @param hits
-     *            the hits
+     * @param request the request
+     * @param results the results
+     * @param hits    the hits
      */
     public QueryResponseImpl(QueryRequest request, List<Result> results, boolean closeResultQueue,
             long hits) {
@@ -107,14 +99,10 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
      * results, a closeResultQueue indicator, a number of hits to return, and a ${@link Map} of
      * properties
      *
-     * @param request
-     *            the request
-     * @param results
-     *            the results
-     * @param hits
-     *            the hits
-     * @param properties
-     *            the properties
+     * @param request    the request
+     * @param results    the results
+     * @param hits       the hits
+     * @param properties the properties
      */
     public QueryResponseImpl(QueryRequest request, List<Result> results, boolean closeResultQueue,
             long hits, Map<String, Serializable> properties) {
@@ -199,10 +187,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     /**
      * Adds a ${@link Result} to this QueryResponse, and specifies whether or not to close the queue
      *
-     * @param result
-     *            the result
-     * @param closeQueue
-     *            the indicator for closing of the queue
+     * @param result     the result
+     * @param closeQueue the indicator for closing of the queue
      */
     public void addResult(Result result, boolean closeQueue) {
         if (result != null) {
@@ -226,10 +212,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
      * Adds a ${@link List} of ${@link Result}s to this QueryResponse, and specifies whether or not
      * to close the queue
      *
-     * @param results
-     *            the results
-     * @param closeQueue
-     *            the indicator for closing of the queue
+     * @param results    the results
+     * @param closeQueue the indicator for closing of the queue
      */
     public void addResults(List<Result> results, boolean closeQueue) {
         if (results != null) {

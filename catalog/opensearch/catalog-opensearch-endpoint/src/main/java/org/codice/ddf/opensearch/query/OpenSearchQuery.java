@@ -46,8 +46,8 @@ import org.parboiled.errors.ParseError;
 import org.parboiled.errors.ParsingException;
 import org.parboiled.parserunners.RecoveringParseRunner;
 import org.parboiled.support.ParsingResult;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -64,8 +64,8 @@ public class OpenSearchQuery implements Query {
     // TODO remove this and only use filterbuilder
     public static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(OpenSearchQuery.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(OpenSearchQuery.class);
 
     private final FilterBuilder filterBuilder;
 
@@ -107,7 +107,6 @@ public class OpenSearchQuery implements Query {
     public OpenSearchQuery(Subject user, Integer startIndex, Integer count, String sortField,
             String sortOrderIn, long maxTimeout, FilterBuilder filterBuilder) {
         String methodName = "OpenSearchQuery constructor";
-        LOGGER.entry(methodName);
 
         this.user = user;
         this.startIndex = startIndex;
@@ -122,7 +121,6 @@ public class OpenSearchQuery implements Query {
         } else if ("desc".equalsIgnoreCase(sortOrderIn)) {
             sortOrder = SortOrder.DESCENDING;
         } else {
-            LOGGER.exit(methodName);
             throw new IllegalArgumentException(
                     "Incorrect sort order received, must be 'asc' or 'desc'");
         }
@@ -136,7 +134,6 @@ public class OpenSearchQuery implements Query {
             // Constants.SORT_POLICY_VALUE_TEMPORAL, this.sortOrder );
             this.sortBy = FILTER_FACTORY.sort(Result.TEMPORAL, sortOrder);
         } else {
-            LOGGER.exit(methodName);
             throw new IllegalArgumentException(
                     "Incorrect sort field received, must be 'relevance' or 'date'");
         }
@@ -144,14 +141,10 @@ public class OpenSearchQuery implements Query {
         this.maxTimeout = maxTimeout;
         this.filters = new ArrayList<Filter>();
         this.siteIds = new HashSet<String>();
-
-        LOGGER.exit(methodName);
     }
 
     public void addContextualFilter(String searchTerm, String selectors) throws ParsingException {
         String methodName = "addContextualFilter";
-        LOGGER.entry(methodName);
-
         Filter filter = null;
         KeywordFilterGenerator keywordFilterGenerator = new KeywordFilterGenerator(filterBuilder);
 
@@ -172,8 +165,6 @@ public class OpenSearchQuery implements Query {
         if (filter != null) {
             filters.add(filter);
         }
-
-        LOGGER.exit(methodName);
     }
 
     private String generateParsingError(ParsingResult<ASTNode> result) {
@@ -275,7 +266,6 @@ public class OpenSearchQuery implements Query {
 
     public void addTemporalFilter(String dateStart, String dateEnd, String dateOffset) {
         String methodName = "addTemporalFilter";
-        LOGGER.entry(methodName);
 
         TemporalFilter temporalFilter = null;
 
@@ -291,13 +281,10 @@ public class OpenSearchQuery implements Query {
         }
 
         addTemporalFilter(temporalFilter);
-
-        LOGGER.exit(methodName);
     }
 
     public void addTemporalFilter(TemporalFilter temporalFilter) {
         String methodName = "addTemporalFilter";
-        LOGGER.entry(methodName);
 
         if (temporalFilter != null) {
             // t1.start < timeType instance < t1.end
@@ -312,8 +299,6 @@ public class OpenSearchQuery implements Query {
             LOGGER.debug("Adding temporal filter");
             filters.add(filter);
         }
-
-        LOGGER.exit(methodName);
     }
 
     public void addGeometrySpatialFilter(String geometryWkt) {
@@ -406,7 +391,7 @@ public class OpenSearchQuery implements Query {
         Filter filter = getFilter();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("filter being visited: " + filter);
+            LOGGER.debug("filter being visited: {}", filter);
         }
 
         if (filter != null) {
@@ -420,7 +405,7 @@ public class OpenSearchQuery implements Query {
     public boolean evaluate(Object object) {
         Filter filter = getFilter();
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("filter being evaluated: " + filter);
+            LOGGER.debug("filter being evaluated: {}", filter);
         }
 
         if (filter != null) {

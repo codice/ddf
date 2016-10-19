@@ -21,13 +21,13 @@ import org.geotools.geometry.jts.spatialschema.geometry.primitive.PrimitiveFacto
 import org.geotools.geometry.text.WKTParser;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.geometry.Geometry;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.vividsolutions.jts.io.WKTReader;
 
 public class SpatialFilter {
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(SpatialFilter.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpatialFilter.class);
 
     protected String geometryWkt;
 

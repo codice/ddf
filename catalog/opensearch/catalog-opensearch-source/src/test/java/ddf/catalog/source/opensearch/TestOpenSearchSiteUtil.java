@@ -333,13 +333,13 @@ public class TestOpenSearchSiteUtil {
         double lon = 15;
         double radius = 200000;
         double[] bbox = OpenSearchSiteUtil.createBBoxFromPointRadius(lon, lat, radius);
-        LOGGER.info("minX = " + bbox[0]);
+        LOGGER.info("minX = {}", bbox[0]);
         assertEquals(3.3531, bbox[0], 0.0001);
-        LOGGER.info("minY = " + bbox[1]);
+        LOGGER.info("minY = {}", bbox[1]);
         assertEquals(28.2034, bbox[1], 0.0001);
-        LOGGER.info("maxX = " + bbox[2]);
+        LOGGER.info("maxX = {}", bbox[2]);
         assertEquals(26.6468, bbox[2], 0.0001);
-        LOGGER.info("maxY = " + bbox[3]);
+        LOGGER.info("maxY = {}", bbox[3]);
         assertEquals(31.7965, bbox[3], 0.0001);
     }
 

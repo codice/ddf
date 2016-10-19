@@ -45,7 +45,7 @@ import ddf.catalog.operation.ResourceResponse;
 
 public class ReliableResourceInputStreamTest {
 
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(
+    private static final Logger LOGGER = LoggerFactory.getLogger(
             ReliableResourceInputStreamTest.class);
 
     private static final int THRESHOLD = 1024; // 1 KB

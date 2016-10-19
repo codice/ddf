@@ -33,16 +33,12 @@ import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class StatusApplicationCommandTest {
 
     private static final String TEST_APP_NAME = "TestApp";
 
     private static final String TEST_FEATURE_NAME = "TestFeature";
-
-    private Logger logger = LoggerFactory.getLogger(StatusApplicationCommand.class);
 
     private ApplicationService testAppService;
 

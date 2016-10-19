@@ -41,8 +41,6 @@ public class AddApplicationCommandTest {
     private static final String APPLICATION_SERVICE_NOT_FOUND =
             "ApplicationService not found";
 
-    private Logger logger = LoggerFactory.getLogger(AddApplicationCommand.class);
-
     /**
      * Tests the {@link AddApplicationCommand} class and its contained methods
      *

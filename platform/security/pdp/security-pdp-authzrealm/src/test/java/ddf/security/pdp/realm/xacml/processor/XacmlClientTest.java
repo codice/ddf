@@ -197,10 +197,10 @@ public class XacmlClientTest {
                     .getDecision(), DecisionType.PERMIT);
 
             // Cleanup
-            LOGGER.debug("Deleting directory: " + destDir);
+            LOGGER.debug("Deleting directory: {}", destDir);
             FileUtils.deleteDirectory(destDir);
         } else {
-            LOGGER.debug("Could not create directory: " + destDir);
+            LOGGER.debug("Could not create directory: {}", destDir);
         }
     }
 

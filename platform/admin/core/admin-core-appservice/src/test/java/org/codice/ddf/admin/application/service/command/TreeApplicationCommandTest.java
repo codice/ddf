@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TreeApplicationCommandTest {
-    private Logger logger = LoggerFactory.getLogger(TreeApplicationCommand.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TreeApplicationCommand.class);
 
     /**
      * Tests the {@link TreeApplicationCommand} class and its associated methods

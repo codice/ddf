@@ -153,7 +153,7 @@ public class ReuterSolrImport implements Runnable {
             // Get elapsed time in seconds
             float elapsedTimeSec = elapsedTimeMillis / 1000F;
             LOGGER.info(Float.toString(elapsedTimeSec) + " seconds");
-            LOGGER.info("records/sec = " + 21578F / elapsedTimeSec);
+            LOGGER.info("records/sec = {}", 21578F / elapsedTimeSec);
 
             LOGGER.info("Done!");
         }

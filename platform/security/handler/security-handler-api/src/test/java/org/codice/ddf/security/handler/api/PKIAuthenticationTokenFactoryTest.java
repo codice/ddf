@@ -49,7 +49,7 @@ public class PKIAuthenticationTokenFactoryTest extends TestCase {
         factory.init();
 
         PKIAuthenticationToken token = factory.getTokenFromString(ENCODED_CERT, true);
-        LOGGER.info("Token: " + token.toString());
+        LOGGER.info("Token: {}", token.toString());
   */
     }
 

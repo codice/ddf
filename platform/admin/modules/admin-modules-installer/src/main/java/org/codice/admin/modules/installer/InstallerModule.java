@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InstallerModule implements AdminModule {
 
-    private Logger logger = LoggerFactory.getLogger(InstallerModule.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InstallerModule.class);
 
     @Override
     public String getName() {
@@ -42,7 +42,7 @@ public class InstallerModule implements AdminModule {
         try {
             return new URI("js/modules/Installer.module.js");
         } catch (URISyntaxException e) {
-            logger.debug("Must set the JS location to a valid URI.", e);
+            LOGGER.debug("Must set the JS location to a valid URI.", e);
         }
         return null;
     }

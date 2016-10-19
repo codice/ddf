@@ -58,9 +58,9 @@ public class DownloadManager implements Runnable {
                     .getContentType();
             String fileExtension = allTypes.forName(mimeType)
                     .getExtension();
-            LOGGER.debug("downloading product from: " + url.toString());
-            LOGGER.debug("mimetype is: " + mimeType);
-            LOGGER.debug("File Extension is: " + fileExtension);
+            LOGGER.debug("downloading product from: {}", url.toString());
+            LOGGER.debug("mimetype is: {}", mimeType);
+            LOGGER.debug("File Extension is: {}", fileExtension);
             try (FileOutputStream fileOutputStream = new FileOutputStream(
                     outputFileName + fileExtension)) {
                 fileOutputStream.getChannel()

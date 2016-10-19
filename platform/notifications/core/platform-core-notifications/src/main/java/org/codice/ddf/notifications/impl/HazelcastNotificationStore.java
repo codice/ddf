@@ -135,7 +135,7 @@ public class HazelcastNotificationStore implements NotificationStore {
     public void putNotification(Map<String, String> notification) {
         notificationsCache.put(notification.get(PersistentNotification.NOTIFICATION_KEY_UUID),
                 notification);
-        LOGGER.debug("Successfully cached notification for user = " + notification.get(
+        LOGGER.debug("Successfully cached notification for user = {}", notification.get(
                 PersistentNotification.NOTIFICATION_KEY_USER_ID));
     }
 

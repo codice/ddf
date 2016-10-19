@@ -55,14 +55,14 @@ public class PolicyTest {
 
     private static final String WSDL_LOCATION = "/wsdl/w3c_example.wsdl";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PolicyTest.class);
+
     private static BundleContext mockContext;
 
     private static Bundle mockBundle;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
-    private Logger logger = LoggerFactory.getLogger(PolicyTest.class);
 
     @BeforeClass
     public static void setup() {
@@ -105,7 +105,7 @@ public class PolicyTest {
             FilePolicyLoader loader = new FilePolicyLoader(mockContext, POLICY_LOCATION);
             assertNotNull(loader.getPolicy());
         } catch (Exception e) {
-            logger.error("Exception while loading policy: ", e);
+            LOGGER.error("Exception while loading policy: ", e);
             fail("Exception while loading policy: " + e.getMessage());
 
         }
@@ -127,7 +127,7 @@ public class PolicyTest {
             assertFalse(doc.isEqualNode(policyLoader.getPolicy()));
 
         } catch (Exception e) {
-            logger.error("Exception while combining policy: ", e);
+            LOGGER.error("Exception while combining policy: ", e);
             fail("Exception while combining policy " + e.getMessage());
 
         }

@@ -82,14 +82,14 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
                 }
             }
 
-            LOGGER.debug("Found a matching QueryResponseTransformer for [" + transformerId + "]");
+            LOGGER.debug("Found a matching QueryResponseTransformer for [{}]", transformerId);
             QueryResponseTransformer transformer = matches.get(0);
             SourceResponse srcResp = in.getBody(SourceResponse.class);
             if (null != srcResp) {
                 binaryContent = transformer.transform(srcResp, arguments);
             }
         } else {
-            LOGGER.debug("Did not find an QueryResponseTransformer for [" + transformerId + "]");
+            LOGGER.debug("Did not find an QueryResponseTransformer for [{}]", transformerId);
             throw new CatalogTransformerException(
                     "Did not find an QueryResponseTransformer for [" + transformerId + "]");
         }

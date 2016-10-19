@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * Application module class
  */
 public class ApplicationModule implements AdminModule {
-    private Logger logger = LoggerFactory.getLogger(ApplicationModule.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationModule.class);
 
     @Override
     public String getName() {
@@ -41,7 +41,7 @@ public class ApplicationModule implements AdminModule {
         try {
             return new URI("js/modules/Application.module.js");
         } catch (URISyntaxException e) {
-            logger.debug("Must set the JS location to a valid URI.", e);
+            LOGGER.debug("Must set the JS location to a valid URI.", e);
         }
         return null;
     }

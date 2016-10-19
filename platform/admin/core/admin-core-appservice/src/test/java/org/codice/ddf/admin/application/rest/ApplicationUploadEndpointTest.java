@@ -70,8 +70,6 @@ public class ApplicationUploadEndpointTest {
 
     private static final String USING_DEFAULT = "Filename not found, using default.";
 
-    private Logger logger = LoggerFactory.getLogger(ApplicationUploadEndpoint.class);
-
     private ApplicationService testAppService;
 
     private MultipartBody testMultipartBody;

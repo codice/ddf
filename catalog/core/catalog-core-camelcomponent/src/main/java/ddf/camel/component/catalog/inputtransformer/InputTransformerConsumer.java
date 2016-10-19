@@ -53,8 +53,7 @@ public class InputTransformerConsumer extends TransformerConsumer implements Inp
     public InputTransformerConsumer(CatalogEndpoint endpoint, Processor processor) {
         super(InputTransformer.class, endpoint, processor);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("INSIDE InputTransformerConsumer constructor for "
-                    + endpoint.getTransformerId());
+            LOGGER.debug("INSIDE InputTransformerConsumer constructor for {}", endpoint.getTransformerId());
         }
     }
 

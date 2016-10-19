@@ -32,8 +32,8 @@ import java.util.concurrent.TimeoutException;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -74,8 +74,8 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
     protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
             SortOrder.DESCENDING);
 
-    private static XLogger logger =
-            new XLogger(LoggerFactory.getLogger(SortedFederationStrategy.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(SortedFederationStrategy.class);
 
     /**
      * Instantiates a {@code SortedFederationStrategy} with the provided {@link ExecutorService}.
@@ -121,7 +121,6 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
         @Override
         public void run() {
             String methodName = "run";
-            logger.entry(methodName);
 
             SortBy sortBy = query.getSortBy();
             // Prepare the Comparators that we will use
@@ -133,8 +132,8 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                 SortOrder sortOrder = (sortBy.getSortOrder() == null) ?
                         SortOrder.DESCENDING :
                         sortBy.getSortOrder();
-                logger.debug("Sorting by type: " + sortType);
-                logger.debug("Sorting by Order: " + sortBy.getSortOrder());
+                LOGGER.debug("Sorting by type: {}", sortType);
+                LOGGER.debug("Sorting by Order: {}", sortBy.getSortOrder());
 
                 // Temporal searches are currently sorted by the effective time
                 if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
@@ -161,19 +160,19 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                             entry.getValue()
                                     .get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
-                    logger.info(
+                    LOGGER.info(
                             "Couldn't get results from completed federated query on site with ShortName {}",
                             site.getId(), e);
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 } catch (ExecutionException e) {
-                    logger.info("Couldn't get results from completed federated query on site {}",
+                    LOGGER.info("Couldn't get results from completed federated query on site {}",
                             site.getId(), e);
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Adding exception to response.");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Adding exception to response.");
                     }
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 } catch (TimeoutException e) {
-                    logger.info("search timed out: {} on site {}", new Date(), site.getId());
+                    LOGGER.info("search timed out: {} on site {}", new Date(), site.getId());
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 }
                 if (sourceResponse != null) {
@@ -196,7 +195,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                         if (object != null && object instanceof Long) {
                             newSourceProperties.put(QueryResponse.ELAPSED_TIME, (Long) object);
                             originalSourceProperties.remove(QueryResponse.ELAPSED_TIME);
-                            logger.debug(
+                            LOGGER.debug(
                                     "Setting the ellapsedTime responseProperty to {} for source {}",
                                     object,
                                     site.getId());
@@ -209,7 +208,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                         returnProperties.putAll(originalSourceProperties);
                     }
                     returnProperties.put(site.getId(), (Serializable) newSourceProperties);
-                    logger.debug("Setting the query responseProperties for site {}", site.getId());
+                    LOGGER.debug("Setting the query responseProperties for site {}", site.getId());
 
                     // Add a List of siteIds so endpoints know what sites got queried
                     Serializable siteListObject = returnProperties.get(QueryResponse.SITE_LIST);
@@ -224,7 +223,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
 
                 }
             }
-            logger.debug("all sites finished returning results: " + resultList.size());
+            LOGGER.debug("all sites finished returning results: {}", resultList.size());
 
             Collections.sort(resultList, coreComparator);
 

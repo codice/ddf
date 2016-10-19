@@ -24,8 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
@@ -37,8 +37,8 @@ import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 
 public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin {
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(
-            SourceConfigurationAdminPlugin.class));
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SourceConfigurationAdminPlugin.class);
 
     private CatalogFramework catalogFramework;
 
@@ -65,12 +65,9 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
      * parameter. The configurationDataMap that is passed into this function is unmodifiable and is
      * passed in to simply expose what information already exists.
      *
-     * @param configurationPid
-     *            service.pid for the ConfigurationAdmin configuration
-     * @param configurationDataMap
-     *            map of what properties have already been added to the configuration in question
-     * @param bundleContext
-     *            used to retrieve list of services
+     * @param configurationPid     service.pid for the ConfigurationAdmin configuration
+     * @param configurationDataMap map of what properties have already been added to the configuration in question
+     * @param bundleContext        used to retrieve list of services
      * @return Map defining additional properties to add to the configuration
      */
     @Override

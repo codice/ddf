@@ -45,8 +45,8 @@ import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.google.common.collect.Sets;
 
@@ -117,8 +117,7 @@ public class ConfigurationAdminExt {
         }
     };
 
-    private final XLogger logger =
-            new XLogger(LoggerFactory.getLogger(ConfigurationAdminExt.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminExt.class);
 
     private final ConfigurationAdmin configurationAdmin;
 
@@ -169,9 +168,9 @@ public class ConfigurationAdminExt {
                     return configs[0];
                 }
             } catch (InvalidSyntaxException ise) {
-                logger.info("Invalid LDAP filter", ise);
+                LOGGER.info("Invalid LDAP filter", ise);
             } catch (IOException ioe) {
-                logger.info("Unable to retrieve list of configurations.", ioe);
+                LOGGER.info("Unable to retrieve list of configurations.", ioe);
             }
         }
 
@@ -266,10 +265,10 @@ public class ConfigurationAdminExt {
 
             serviceList.addAll(serviceFactoryList);
         } catch (IOException e) {
-            logger.warn("Unable to obtain list of Configuration objects from ConfigurationAdmin.",
+            LOGGER.warn("Unable to obtain list of Configuration objects from ConfigurationAdmin.",
                     e);
         } catch (InvalidSyntaxException e) {
-            logger.info("Provided LDAP filter is incorrect: {}", serviceFilter, e);
+            LOGGER.info("Provided LDAP filter is incorrect: {}", serviceFilter, e);
         }
 
         if (serviceList != null) {
@@ -689,7 +688,8 @@ public class ConfigurationAdminExt {
         KeyValueCollectionPermission serviceToCheck = new KeyValueCollectionPermission(
                 "view-service.pid",
                 new KeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
-        return SecurityUtils.getSubject().isPermitted(serviceToCheck);
+        return SecurityUtils.getSubject()
+                .isPermitted(serviceToCheck);
     }
 
     /**

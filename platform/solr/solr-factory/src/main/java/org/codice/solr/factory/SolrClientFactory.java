@@ -273,7 +273,7 @@ public class SolrClientFactory {
             return response.getCoreStatus(coreName)
                     .get("instanceDir") != null;
         } catch (Exception e) {
-            LOGGER.debug("Exception getting " + coreName + " core status", e);
+            LOGGER.debug("Exception getting {} core status", coreName, e);
             return false;
         }
     }

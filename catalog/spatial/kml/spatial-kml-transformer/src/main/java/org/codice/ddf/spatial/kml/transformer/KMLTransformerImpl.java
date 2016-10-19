@@ -267,7 +267,7 @@ public class KMLTransformerImpl implements KMLTransformer {
                 LOGGER.info("bad url passed in, using request url for kml href.", e);
                 urlToMetacard = incomingRestUriAbsolutePathString;
             }
-            LOGGER.debug("REST URL: " + urlToMetacard);
+            LOGGER.debug("REST URL: {}", urlToMetacard);
         }
 
         return performDefaultTransformation(entry, incomingRestUriAbsolutePathString);
@@ -425,7 +425,6 @@ public class KMLTransformerImpl implements KMLTransformer {
 
             String transformedKmlString = marshalKml(kml);
 
-            // logger.debug("transformed kml metacard: " + transformedKmlString);
             InputStream kmlInputStream = new ByteArrayInputStream(transformedKmlString.getBytes(
                     StandardCharsets.UTF_8));
 
@@ -450,7 +449,7 @@ public class KMLTransformerImpl implements KMLTransformer {
                 .toString();
 
         String restUriAbsolutePath = (String) arguments.get("url");
-        LOGGER.debug("rest string url arg: " + restUriAbsolutePath);
+        LOGGER.debug("rest string url arg: {}", restUriAbsolutePath);
 
         // Transform Metacards to KML
         Document kmlDoc = KmlFactory.createDocument();
@@ -484,9 +483,7 @@ public class KMLTransformerImpl implements KMLTransformer {
                         .size() + CLOSE_PARENTHESIS);
 
         String transformedKml = marshalKml(kmlResult);
-
-        // logger.debug("transformed kml: " + transformedKml);
-
+        
         InputStream kmlInputStream = new ByteArrayInputStream(transformedKml.getBytes(
                 StandardCharsets.UTF_8));
         LOGGER.trace("EXITING: ResponseQueue transform");

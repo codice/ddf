@@ -402,7 +402,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     }
 
     /**
-     * Added additional logging to the security logger.
+     * Added additional logging to the security LOGGER.
      */
     @Override
     public boolean login() throws LoginException {
