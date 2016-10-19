@@ -40,12 +40,12 @@ public class MetacardTypeRegister extends SortedServiceList {
 
     private String id = "DEFAULT_ID";
 
-    public void bind(SaxEventHandlerFactory saxEventHandlerFactory) {
+    public synchronized void bind(SaxEventHandlerFactory saxEventHandlerFactory) {
         saxEventHandlerFactories.add(saxEventHandlerFactory);
         setMetacardType();
     }
 
-    public void unbind(SaxEventHandlerFactory saxEventHandlerFactory) {
+    public synchronized void unbind(SaxEventHandlerFactory saxEventHandlerFactory) {
         saxEventHandlerFactories.remove(saxEventHandlerFactory);
         setMetacardType();
     }
@@ -56,7 +56,7 @@ public class MetacardTypeRegister extends SortedServiceList {
      *
      * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
      */
-    public void setMetacardType() {
+    private synchronized void setMetacardType() {
         Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
         if (saxEventHandlerFactories != null) {
@@ -106,7 +106,7 @@ public class MetacardTypeRegister extends SortedServiceList {
         }
     }
 
-    public void setId(String id) {
+    public synchronized void setId(String id) {
         this.id = id;
     }
 }
