@@ -13,8 +13,8 @@
  */
 package ddf.catalog.filter.proxy.builder;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ExpressionBuilder;
@@ -22,8 +22,8 @@ import ddf.catalog.filter.ExpressionBuilder;
 public final class GeotoolsAttributeBuilder extends GeotoolsExpressionBuilder
         implements AttributeBuilder {
 
-    private static XLogger logger =
-            new XLogger(LoggerFactory.getLogger(GeotoolsAttributeBuilder.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(GeotoolsAttributeBuilder.class);
 
     GeotoolsAttributeBuilder(String attribute) {
         setAttribute(attribute);
@@ -37,7 +37,7 @@ public final class GeotoolsAttributeBuilder extends GeotoolsExpressionBuilder
      */
     @Override
     public ExpressionBuilder is() {
-        logger.debug("is: operator:" + getOperator() + ", attribute:" + getAttribute());
+        LOGGER.debug("is: operator: {}, attribute: {}", getOperator(), getAttribute());
         return this;
     }
 

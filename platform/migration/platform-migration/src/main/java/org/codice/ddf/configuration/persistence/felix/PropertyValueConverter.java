@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 abstract class PropertyValueConverter {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(PropertyValueConverter.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(PropertyValueConverter.class);
 
     private static final String SINGLE_VALUE_REGEX = "(\"[^\"]*\")";
 

@@ -24,8 +24,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.source.Source;
 
@@ -41,8 +41,7 @@ import ddf.catalog.source.Source;
  */
 public class SourcePollerRunner implements Runnable {
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(SourcePollerRunner.class);
 
     private List<Source> sources;
 

@@ -142,7 +142,7 @@ public class ContentItemImpl implements ContentItem {
         try {
             this.mimeType = new MimeType(this.mimeTypeRawData);
         } catch (MimeTypeParseException e) {
-            LOGGER.debug("Unable to create MimeType from raw data " + mimeTypeRawData);
+            LOGGER.debug("Unable to create MimeType from raw data {}", mimeTypeRawData);
         }
         try {
             if (StringUtils.isNotBlank(this.qualifier)) {

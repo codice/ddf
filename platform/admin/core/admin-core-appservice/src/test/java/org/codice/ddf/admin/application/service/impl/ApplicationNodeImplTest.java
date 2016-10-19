@@ -50,7 +50,7 @@ public class ApplicationNodeImplTest {
 
     private static final String FEATURES_FILE_NAME = "test-features-with-main-feature.xml";
 
-    private Logger logger = LoggerFactory.getLogger(ApplicationNodeImplTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationNodeImplTest.class);
 
     /**
      * Tests the 'getters' to make sure that they return the correct values
@@ -166,7 +166,7 @@ public class ApplicationNodeImplTest {
 
             assertEquals(testApp.hashCode(), testNode.hashCode());
         } catch (Exception e) {
-            logger.info("Exception: ", e);
+            LOGGER.info("Exception: ", e);
             fail();
         }
     }

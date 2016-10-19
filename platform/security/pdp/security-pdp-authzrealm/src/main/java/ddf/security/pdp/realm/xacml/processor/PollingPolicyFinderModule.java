@@ -68,7 +68,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
                     getXmlFileFilter());
             observer.addListener(this);
             monitor.addObserver(observer);
-            LOGGER.debug("Monitoring directory: " + directoryToMonitor);
+            LOGGER.debug("Monitoring directory: {}", directoryToMonitor);
         }
     }
 
@@ -146,7 +146,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             String directoryPath = observer.getDirectory()
                     .getCanonicalPath();
-            LOGGER.trace("starting to check directory for xacml policy update(s) " + directoryPath);
+            LOGGER.trace("starting to check directory for xacml policy update(s) {}", directoryPath);
 
             if (!xacmlPolicyDirectories.isEmpty() && isXacmlPoliciesDirectoryEmpty(
                     xacmlPolicyDirectories.iterator()
@@ -160,8 +160,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onStop(FileAlterationObserver observer) {
         try {
-            LOGGER.trace("Done checking directory " + observer.getDirectory()
-                    .getCanonicalPath());
+            LOGGER.trace("Done checking directory {}", observer.getDirectory().getCanonicalPath());
         } catch (IOException e) {
             LOGGER.info(e.getMessage(), e);
         }

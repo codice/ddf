@@ -61,8 +61,8 @@ import org.opengis.filter.expression.Literal;
 import org.opengis.geometry.Geometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.temporal.Period;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -72,8 +72,8 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.TemporalFilter;
 
 public class OpenSearchQueryTest {
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(OpenSearchQueryTest.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(OpenSearchQueryTest.class);
 
     private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
@@ -304,7 +304,7 @@ public class OpenSearchQueryTest {
                 0,
                 FILTER_BUILDER);
 
-        LOGGER.info("Testing filter: " + inputKeywordPhrase);
+        LOGGER.info("Testing filter: {}", inputKeywordPhrase);
         osq.addContextualFilter(inputKeywordPhrase, null);
 
         assertEquals("Incorrect Filter was produced for input filter string: " + inputKeywordPhrase
@@ -340,7 +340,7 @@ public class OpenSearchQueryTest {
 
         LikeFilterImpl likeFilter = (LikeFilterImpl) filters.get(0);
         String extractedSearchTerm = likeFilter.getLiteral();
-        LOGGER.debug("extractedSearchTerm = [" + extractedSearchTerm + "]");
+        LOGGER.debug("extractedSearchTerm = [{}]", extractedSearchTerm);
         assertEquals(searchTerm, extractedSearchTerm);
     }
 
@@ -603,7 +603,7 @@ public class OpenSearchQueryTest {
         String latLon = "0,10,0,30,20,30,20,10,0,10";
         PolygonSpatialFilter term = new PolygonSpatialFilter(latLon);
         String geometryWkt = term.getGeometryWkt();
-        LOGGER.debug("geometryWkt = " + geometryWkt);
+        LOGGER.debug("geometryWkt = {}", geometryWkt);
 
         assertEquals(expectedGeometryWkt, geometryWkt);
     }
@@ -617,7 +617,7 @@ public class OpenSearchQueryTest {
         String bboxCorners = "0,10,20,30";
         BBoxSpatialFilter term = new BBoxSpatialFilter(bboxCorners);
         String geometryWkt = term.getGeometryWkt();
-        LOGGER.debug("geometryWkt = " + geometryWkt);
+        LOGGER.debug("geometryWkt = {}", geometryWkt);
 
         assertEquals(expectedGeometryWkt, geometryWkt);
     }
@@ -668,16 +668,14 @@ public class OpenSearchQueryTest {
         double[] lowerCornerCoords = bbox.getEnvelope()
                 .getLowerCorner()
                 .getCoordinate();
-        LOGGER.debug("lowerCornerCoords:  [0] = " + lowerCornerCoords[0] + ",   [1] = "
-                + lowerCornerCoords[1]);
+        LOGGER.debug("lowerCornerCoords:  [0] = {},   [1] = {}", lowerCornerCoords[0], lowerCornerCoords[1]);
         assertEquals(Double.parseDouble(expectedCoords[0]), lowerCornerCoords[0], DOUBLE_DELTA);
         assertEquals(Double.parseDouble(expectedCoords[1]), lowerCornerCoords[1], DOUBLE_DELTA);
 
         double[] upperCornerCoords = bbox.getEnvelope()
                 .getUpperCorner()
                 .getCoordinate();
-        LOGGER.debug("upperCornerCoords:  [0] = " + upperCornerCoords[0] + ",   [1] = "
-                + upperCornerCoords[1]);
+        LOGGER.debug("upperCornerCoords:  [0] = {},   [1] = {}", upperCornerCoords[0], upperCornerCoords[1]);
         assertEquals(Double.parseDouble(expectedCoords[2]), upperCornerCoords[0], DOUBLE_DELTA);
         assertEquals(Double.parseDouble(expectedCoords[3]), upperCornerCoords[1], DOUBLE_DELTA);
     }
@@ -722,10 +720,10 @@ public class OpenSearchQueryTest {
         double[] coords = point.getCentroid()
                 .getCoordinate();
 
-        LOGGER.debug("coords[0] = " + coords[0] + ",   coords[1] = " + coords[1]);
+        LOGGER.debug("coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
         assertEquals(Double.parseDouble(lon), coords[0], DOUBLE_DELTA);
         assertEquals(Double.parseDouble(lat), coords[1], DOUBLE_DELTA);
-        LOGGER.debug("dwithinFilter.getDistance() = " + dwithinFilter.getDistance());
+        LOGGER.debug("dwithinFilter.getDistance() = {}", dwithinFilter.getDistance());
         assertEquals(Double.parseDouble(radius), dwithinFilter.getDistance(), DOUBLE_DELTA);
     }
 
@@ -777,7 +775,7 @@ public class OpenSearchQueryTest {
                 .getCoordinates();
         int i = 0;
         for (Coordinate coord : coords) {
-            LOGGER.debug("coord " + (i + 1) + ": x = " + coord.x + ",   y = " + coord.y);
+            LOGGER.debug("coord {}: x = {},   y = {}", (i + 1), coord.x, coord.y);
             int index = i * 2 + 1;
             assertEquals(Double.parseDouble(expectedCoords[index - 1]), coord.x, DOUBLE_DELTA);
             assertEquals(Double.parseDouble(expectedCoords[index]), coord.y, DOUBLE_DELTA);
@@ -932,7 +930,7 @@ public class OpenSearchQueryTest {
         assertTrue(geometry2.intersects(geometry));
         double[] coords = geometry.getCentroid()
                 .getCoordinate();
-        LOGGER.debug("coords[0] = " + coords[0] + ",   coords[1] = " + coords[1]);
+        LOGGER.debug("coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
     }
 
     @Test
@@ -951,7 +949,7 @@ public class OpenSearchQueryTest {
         assertNotNull(crs);
         double[] coords = geometry.getCentroid()
                 .getCoordinate();
-        LOGGER.debug("coords[0] = " + coords[0] + ",   coords[1] = " + coords[1]);
+        LOGGER.debug("coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
 
         // String geometryWkt2 = "POINT( 10 20 )";
         String geometryWkt2 = "POLYGON(( 10 15, 10 25, 15 25, 15 15, 10 15 ))";
@@ -963,7 +961,7 @@ public class OpenSearchQueryTest {
         Geometry geometry2 = parser2.parse(geometryWkt2);
         double[] coords2 = geometry2.getCentroid()
                 .getCoordinate();
-        LOGGER.debug("coords[0] = " + coords2[0] + ",   coords[1] = " + coords2[1]);
+        LOGGER.debug("coords[0] = {},   coords[1] = {}", coords2[0], coords2[1]);
 
         // This fails - why?
         assertTrue(geometry.contains(geometry2));
@@ -988,13 +986,13 @@ public class OpenSearchQueryTest {
         calendar.add(Calendar.DAY_OF_YEAR, -1);
         Date start = calendar.getTime();
         String startDate = dateFormatter.format(start);
-        LOGGER.debug("startDate = " + startDate);
+        LOGGER.debug("startDate = {}", startDate);
 
         // set calendar time in future to create end date for temporal filter's criteria
         calendar.add(Calendar.DAY_OF_YEAR, +3);
         Date end = calendar.getTime();
         String endDate = dateFormatter.format(end);
-        LOGGER.debug("endDate = " + endDate);
+        LOGGER.debug("endDate = {}", endDate);
 
         // Test date between start and end dates
         Filter filter = filterFactory.between(filterFactory.literal(dateInRange),
@@ -1006,7 +1004,7 @@ public class OpenSearchQueryTest {
         LOGGER.debug(transform.transform(filter));
 
         boolean result = filter.evaluate(null);
-        LOGGER.debug("result = " + result);
+        LOGGER.debug("result = {}", result);
         assertTrue(result);
 
         // Test date that is after end date
@@ -1020,7 +1018,7 @@ public class OpenSearchQueryTest {
         LOGGER.debug(transform.transform(filter));
 
         result = filter.evaluate(null);
-        LOGGER.debug("result = " + result);
+        LOGGER.debug("result = {}", result);
         assertFalse(result);
 
         // Test date that is before start date
@@ -1034,7 +1032,7 @@ public class OpenSearchQueryTest {
         LOGGER.debug(transform.transform(filter));
 
         result = filter.evaluate(null);
-        LOGGER.debug("result = " + result);
+        LOGGER.debug("result = {}", result);
         assertFalse(result);
 
         // Test date that is equal to start date
@@ -1044,7 +1042,7 @@ public class OpenSearchQueryTest {
         LOGGER.debug(transform.transform(filter));
 
         result = filter.evaluate(null);
-        LOGGER.debug("result = " + result);
+        LOGGER.debug("result = {}", result);
         assertTrue(result);
 
         // Test date that is equal to end date
@@ -1054,7 +1052,7 @@ public class OpenSearchQueryTest {
         LOGGER.debug(transform.transform(filter));
 
         result = filter.evaluate(null);
-        LOGGER.debug("result = " + result);
+        LOGGER.debug("result = {}", result);
         assertTrue(result);
     }
 
@@ -1129,7 +1127,7 @@ public class OpenSearchQueryTest {
         // filter.accept(vv, null) ;
         // vv.getMap();
         boolean result = filter.evaluate(input);
-        LOGGER.debug("result = " + result);
+        LOGGER.debug("result = {}", result);
         // filters.add( filter );
     }
 
@@ -1161,11 +1159,11 @@ public class OpenSearchQueryTest {
         LikeFilterImpl likeFilter = (LikeFilterImpl) filter;
 
         AttributeExpressionImpl expression = (AttributeExpressionImpl) likeFilter.getExpression();
-        LOGGER.debug("propertyName = " + expression.getPropertyName());
+        LOGGER.debug("propertyName = {}", expression.getPropertyName());
         assertEquals(expectedPropertyName, expression.getPropertyName());
 
         String extractedSearchTerm = likeFilter.getLiteral();
-        LOGGER.debug("extractedSearchTerm = [" + extractedSearchTerm + "]");
+        LOGGER.debug("extractedSearchTerm = [{}]", extractedSearchTerm);
         assertEquals(expectedSearchTerm, extractedSearchTerm);
 
     }
@@ -1215,8 +1213,8 @@ public class OpenSearchQueryTest {
         if (reformatDates) {
             String formattedStartDate = reformatDate(start);
             String formattedEndDate = reformatDate(end);
-            LOGGER.debug("startDate = " + formattedStartDate);
-            LOGGER.debug("endDate = " + formattedEndDate);
+            LOGGER.debug("startDate = {}", formattedStartDate);
+            LOGGER.debug("endDate = {}", formattedEndDate);
 
             assertEquals(expectedStartDate, formattedStartDate);
             assertEquals(expectedEndDate, formattedEndDate);
@@ -1252,11 +1250,11 @@ public class OpenSearchQueryTest {
 
         LikeFilterImpl likeFilter = (LikeFilterImpl) filter;
         AttributeExpressionImpl expression = (AttributeExpressionImpl) likeFilter.getExpression();
-        LOGGER.debug("propertyName = " + expression.getPropertyName());
+        LOGGER.debug("propertyName = {}", expression.getPropertyName());
         assertEquals(expectedPropertyName, expression.getPropertyName());
 
         String pattern = likeFilter.getLiteral();
-        LOGGER.debug("value to search for = " + pattern);
+        LOGGER.debug("value to search for = {}", pattern);
         assertEquals(expectedValue, pattern);
     }
 
@@ -1267,11 +1265,11 @@ public class OpenSearchQueryTest {
         IsEqualsToImpl equalsFilter = (IsEqualsToImpl) filter;
         AttributeExpressionImpl expression1 =
                 (AttributeExpressionImpl) equalsFilter.getExpression1();
-        LOGGER.debug("propertyName = " + expression1.getPropertyName());
+        LOGGER.debug("propertyName = {}", expression1.getPropertyName());
         assertEquals(expectedPropertyName, expression1.getPropertyName());
 
         LiteralExpressionImpl expression2 = (LiteralExpressionImpl) equalsFilter.getExpression2();
-        LOGGER.debug("version to search for = " + expression2.getValue());
+        LOGGER.debug("version to search for = {}", expression2.getValue());
         assertEquals(expectedValue, expression2.getValue());
     }
 
@@ -1292,14 +1290,14 @@ public class OpenSearchQueryTest {
         sb.insert(formattedDate.length() - 2, ":");
         formattedDate = sb.toString();
 
-        LOGGER.debug("formattedDate = " + formattedDate);
+        LOGGER.debug("formattedDate = {}", formattedDate);
 
         return formattedDate;
     }
 
     private void printFilterStatusMap(HashMap<String, FilterStatus> map) {
         for (String key : map.keySet()) {
-            LOGGER.debug("key = " + key);
+            LOGGER.debug("key = {}", key);
             FilterStatus fs = (FilterStatus) map.get(key);
             LOGGER.debug(fs.toString());
         }

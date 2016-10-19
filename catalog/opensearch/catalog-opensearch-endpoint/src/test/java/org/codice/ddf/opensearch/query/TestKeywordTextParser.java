@@ -43,16 +43,15 @@ import org.parboiled.parserunners.ReportingParseRunner;
 import org.parboiled.parserunners.TracingParseRunner;
 import org.parboiled.support.ParseTreeUtils;
 import org.parboiled.support.ParsingResult;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
 public class TestKeywordTextParser {
     // private static final Logger LOGGER = Logger.getLogger(TestKeywordTextParser.class);
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(OpenSearchQueryTest.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchQueryTest.class);
 
     @Rule
     public MethodRule watchman = new TestWatchman() {
@@ -141,7 +140,7 @@ public class TestKeywordTextParser {
             KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
             ParsingResult<?> result = new ReportingParseRunner(parser.inputPhrase()).run(input);
-            LOGGER.debug("input = " + input + "\t\t=====>result matched = " + result.matched);
+            LOGGER.debug("input = {}\t\t=====>result matched = {}", input, result.matched);
             assertEquals(
                     "Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result) + "]",
                     0,
@@ -192,7 +191,7 @@ public class TestKeywordTextParser {
 
             ParsingResult<?> result = new ReportingParseRunner(parser.inputPhrase()).run(input);
 
-            LOGGER.debug("input = " + input + "\t\t=====>result matched = " + result.matched);
+            LOGGER.debug("input = {}\t\t=====>result matched = {}", input, result.matched);
 
             assertThat("[" + input + "] should have failed.",
                     result.parseErrors.size(),

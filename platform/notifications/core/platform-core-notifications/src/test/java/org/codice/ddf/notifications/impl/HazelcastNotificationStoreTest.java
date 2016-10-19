@@ -209,7 +209,7 @@ public class HazelcastNotificationStoreTest {
             // Query for specific user's notifications and verify only they are returned
             List<Map<String, String>> notifications = store.getNotifications("user2");
             assertNotNull(notifications);
-            LOGGER.info("notifications.size() = " + notifications.size());
+            LOGGER.info("notifications.size() = {}", notifications.size());
             assertTrue(notifications.size() == numNotificationsPerUser);
             for (Map<String, String> n : notifications) {
                 LOGGER.info("notification = {}", n);
@@ -222,7 +222,7 @@ public class HazelcastNotificationStoreTest {
             // Get all notifications
             notifications = store.getNotifications();
             assertNotNull(notifications);
-            LOGGER.info("notifications.size() = " + notifications.size());
+            LOGGER.info("notifications.size() = {}", notifications.size());
             assertTrue(notifications.size() == (userIds.length * numNotificationsPerUser));
             for (Map<String, String> n : notifications) {
                 LOGGER.info("notification = {}", n);

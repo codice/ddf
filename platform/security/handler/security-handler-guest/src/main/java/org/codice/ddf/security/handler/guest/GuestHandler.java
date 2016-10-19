@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * must be present in the user store for this handler to work correctly.
  */
 public class GuestHandler implements AuthenticationHandler {
-    public static final Logger LOGGER = LoggerFactory.getLogger(GuestHandler.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(GuestHandler.class.getName());
 
     /**
      * Guest type to use when configuring context policy.

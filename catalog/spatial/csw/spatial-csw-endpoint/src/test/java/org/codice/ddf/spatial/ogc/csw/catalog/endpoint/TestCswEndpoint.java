@@ -1524,7 +1524,7 @@ public class TestCswEndpoint {
 
             marshaller.marshal(wrappedResponse, sw);
 
-            LOGGER.info("\nResponse\n" + sw.toString() + "\n\n");
+            LOGGER.info("Response: {}", sw.toString());
 
         } catch (JAXBException e) {
             fail("Could not marshall message, Error: " + e.getMessage());
@@ -1548,7 +1548,7 @@ public class TestCswEndpoint {
 
             marshaller.marshal(wrappedResponse, sw);
 
-            LOGGER.info("\nResponse\n" + sw.toString() + "\n\n");
+            LOGGER.info("Response: {}", sw.toString());
 
         } catch (JAXBException e) {
             fail("Could not marshal message, Error: " + e.getMessage());

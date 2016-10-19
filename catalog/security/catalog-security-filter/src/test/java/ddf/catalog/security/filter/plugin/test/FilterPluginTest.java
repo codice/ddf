@@ -323,7 +323,7 @@ public class FilterPluginTest {
     }
 
     private void verifyFilterResponse(QueryResponse response) {
-        LOGGER.info("Filtered with " + response.getResults()
+        LOGGER.info("Filtered with {}", response.getResults()
                 .size() + " out of 5 original.");
         LOGGER.info("Checking Results");
         Assert.assertEquals(4,

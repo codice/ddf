@@ -82,7 +82,7 @@ public abstract class AbstractIntegrationTest {
 
     public static final String CSW_REQUEST_RESOURCE_PATH = "/csw/request";
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
     protected static final String LOG_CONFIG_PID = AdminConfig.LOG_CONFIG_PID;
 

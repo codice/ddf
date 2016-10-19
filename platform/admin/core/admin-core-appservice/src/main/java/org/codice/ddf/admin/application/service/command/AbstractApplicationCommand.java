@@ -33,7 +33,7 @@ public abstract class AbstractApplicationCommand implements Action {
 
     protected PrintStream console = System.out;
 
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public Object execute() throws Exception {

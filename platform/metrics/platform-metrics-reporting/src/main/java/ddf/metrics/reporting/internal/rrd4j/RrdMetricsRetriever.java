@@ -943,7 +943,6 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         try {
             FetchData fetchData = fetchRequest.fetchData();
             LOGGER.trace("************  {}: {}  **************", dsType, dataType);
-            // LOGGER.trace(fetchData.dump());
 
             int rrdStep = RRD_STEP; // in seconds
             long[] timestamps = fetchData.getTimestamps();
@@ -962,7 +961,6 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             LOGGER.trace("adjustedValues.length = {}", adjustedValues.length);
 
             for (int i = 0; i < adjustedValues.length; i++) {
-                // LOGGER.trace("adjustedValue[{}] = {}", i, adjustedValues[i]);
                 if (adjustedValues[i] > metricsMaxThreshold) {
                     LOGGER.trace("Value [{}] is an OUTLIER", adjustedValues[i]);
                 }

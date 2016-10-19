@@ -33,8 +33,8 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.geometry.Geometry;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -55,8 +55,8 @@ class GeotoolsBuilder {
     // match units assigned elsewhere throughout DDF
     private static final String METERS = UomOgcMapping.METRE.name();
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(GeotoolsBuilder.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(GeotoolsBuilder.class);
 
     private static WKTReader reader = new WKTReader();
 
@@ -97,8 +97,7 @@ class GeotoolsBuilder {
 
     protected Filter build() {
 
-        LOGGER.debug("BUILDING attribute = " + attribute + ", operator = " + operator + ", value = "
-                + value + ", secondaryValue = " + secondaryValue + "\n");
+        LOGGER.debug("BUILDING attribute = {}, operator = {}, value = {}, secondaryValue = {}", attribute, operator, value, secondaryValue);
 
         Filter filter = null;
         String wkt = null;
@@ -301,7 +300,7 @@ class GeotoolsBuilder {
      *            the operator to set
      */
     protected void setOperator(Operator operator) {
-        LOGGER.debug("setting operator to " + operator);
+        LOGGER.debug("setting operator to {}", operator);
         this.operator = operator;
     }
 

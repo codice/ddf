@@ -18,9 +18,9 @@ import java.security.KeyStoreException;
 
 public final class SecurityConstants {
     /**
-     * String used to retrieve the security logger in each class that wishes to
+     * String used to retrieve the security LOGGER in each class that wishes to
      * log to the security log. Guarantees that all classes use the same
-     * security logger.
+     * security LOGGER.
      */
     public static final String SECURITY_LOGGER = "securityLogger";
 

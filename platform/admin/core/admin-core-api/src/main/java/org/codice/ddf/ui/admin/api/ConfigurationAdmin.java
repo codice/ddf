@@ -44,8 +44,8 @@ import org.json.simple.parser.ParseException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.metatype.AttributeDefinition;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.github.drapostolos.typeparser.TypeParser;
 
@@ -68,8 +68,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private static final String SERVICE_FACTORYPID = "service.factoryPid";
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(ConfigurationAdmin.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdmin.class);
 
     private final org.osgi.service.cm.ConfigurationAdmin configurationAdmin;
 
@@ -219,8 +218,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     /**
-     * @see ConfigurationAdminMBean#createFactoryConfigurationForLocation(java.lang.String,
-     * java.lang.String)
+     * @see ConfigurationAdminMBean#createFactoryConfigurationForLocation(java.lang.String, * java.lang.String)
      */
     public String createFactoryConfigurationForLocation(String factoryPid, String location)
             throws IOException {
@@ -385,8 +383,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     /**
-     * @see ConfigurationAdminMBean#updateForLocation(java.lang.String, java.lang.String,
-     * java.util.Map)
+     * @see ConfigurationAdminMBean#updateForLocation(java.lang.String, java.lang.String, * java.util.Map)
      */
     public void updateForLocation(final String pid, String location,
             Map<String, Object> configurationTable) throws IOException {

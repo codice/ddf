@@ -198,7 +198,7 @@ public class WebSSOTokenValidator implements TokenValidator {
      * @throws TicketValidationException
      */
     public Assertion validate(String ticket, String service) throws TicketValidationException {
-        LOGGER.trace("CAS Server URL = " + casServerUrl);
+        LOGGER.trace("CAS Server URL = {}", casServerUrl);
 
         Cas20ProxyTicketValidator casValidator =
                 new Cas20ProxyTicketValidator(casServerUrl.getResolvedString());

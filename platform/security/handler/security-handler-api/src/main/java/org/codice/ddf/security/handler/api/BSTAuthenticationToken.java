@@ -188,7 +188,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         String binarySecurityToken = writer.toString();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Binary Security Token: " + binarySecurityToken);
+            LOGGER.debug("Binary Security Token: {}", binarySecurityToken);
         }
 
         return binarySecurityToken;

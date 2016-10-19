@@ -139,8 +139,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final int EVENT_UPDATE_WAIT_INTERVAL = 200;
 
-    private static boolean fatalError = false;
-
     private static final int XML_RECORD_INDEX = 1;
 
     private static final int GEOJSON_RECORD_INDEX = 0;
@@ -165,9 +163,17 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final DynamicPort RESTITO_STUB_SERVER_PORT = new DynamicPort(6);
 
+    public static final DynamicUrl RESTITO_STUB_SERVER = new DynamicUrl("https://localhost:",
+            RESTITO_STUB_SERVER_PORT,
+            SUBSCRIBER);
+
     private static final Path PRODUCT_CACHE = Paths.get("data", "Product_Cache");
 
     private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(7);
+
+    public static final DynamicUrl CSW_STUB_SERVER_PATH = new DynamicUrl(INSECURE_ROOT,
+            CSW_STUB_SERVER_PORT,
+            "/services/csw");
 
     private static final int NO_RETRIES = 0;
 
@@ -180,26 +186,6 @@ public class TestFederation extends AbstractIntegrationTest {
     private static final String ACTIVITES_STARTED_MESSAGE = "started";
 
     private static final int DOWNLOAD_SIZE = 6;
-
-    public static final DynamicUrl CSW_STUB_SERVER_PATH = new DynamicUrl(INSECURE_ROOT,
-            CSW_STUB_SERVER_PORT,
-            "/services/csw");
-
-    private static String[] metacardIds = new String[2];
-
-    private List<String> metacardsToDelete = new ArrayList<>();
-
-    private List<String> resourcesToDelete = new ArrayList<>();
-
-    private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
-
-    public static final DynamicUrl RESTITO_STUB_SERVER = new DynamicUrl("https://localhost:",
-            RESTITO_STUB_SERVER_PORT,
-            SUBSCRIBER);
-
-    private static StubServer server;
-
-    private static FederatedCswMockServer cswServer;
 
     private static final String NOTIFICATIONS_CHANNEL = "/ddf/notifications/**";
 
@@ -222,14 +208,34 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final int MAX_DOWNLOAD_RETRY_ATTEMPTS = 3;
 
+    private static boolean fatalError = false;
+
+    private static String[] metacardIds = new String[2];
+
+    private static StubServer server;
+
+    private static FederatedCswMockServer cswServer;
+
+    @Rule
+    public TestName testName = new TestName();
+
+    private List<String> metacardsToDelete = new ArrayList<>();
+
+    private List<String> resourcesToDelete = new ArrayList<>();
+
+    private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
+
     private CometDClient cometDClient;
 
     private CometDClient adminCometDClient;
 
     private CometDClient localhostCometDClient;
 
-    @Rule
-    public TestName testName = new TestName();
+    public static String getSimpleXml(String uri) {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + getFileContent(
+                XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard",
+                ImmutableMap.of("uri", uri));
+    }
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -916,7 +922,7 @@ public class TestFederation extends AbstractIntegrationTest {
         try {
             setupConnectedSources();
         } catch (IOException e) {
-            LOGGER.error("Couldn't create connected sources: {}", e.searchMessages());
+            logger.error("Couldn't create connected sources: {}", e.searchMessages());
         }
         */
 
@@ -2549,12 +2555,6 @@ public class TestFederation extends AbstractIntegrationTest {
     @Override
     protected Option[] configureCustom() {
         return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
-    }
-
-    public static String getSimpleXml(String uri) {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + getFileContent(
-                XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard",
-                ImmutableMap.of("uri", uri));
     }
 
 }

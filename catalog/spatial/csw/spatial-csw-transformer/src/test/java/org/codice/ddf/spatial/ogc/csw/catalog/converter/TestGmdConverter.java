@@ -135,7 +135,7 @@ public class TestGmdConverter {
         String xml = convert(metacard, true);
         Diff diff = new Diff(compareString, xml);
 
-        LOGGER.info("diff:\n" + diff.toString());
+        LOGGER.info("diff: {}", diff.toString());
         System.out.println(xml);
         System.out.println(compareString);
         assertThat(diff.identical(), is(true));

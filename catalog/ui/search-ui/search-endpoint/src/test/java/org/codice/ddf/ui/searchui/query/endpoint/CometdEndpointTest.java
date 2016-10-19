@@ -88,7 +88,7 @@ public class CometdEndpointTest {
         when(bayeuxServer.createChannelIfAbsent(Mockito.anyString())).thenAnswer(new Answer<MarkedReference<ServerChannel>>() {
             public MarkedReference<ServerChannel> answer(InvocationOnMock invokation) {
                 String channelName = invokation.getArguments()[0].toString();
-                LOGGER.debug("Channel Name: " + channelName);
+                LOGGER.debug("Channel Name: {}", channelName);
 
                 if (null == channelName) {
                     return null;

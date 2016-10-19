@@ -166,7 +166,7 @@ public class XPathHelperTest {
 
             XPathHelper xHelper = new XPathHelper(xmlString);
             String title = (String) xHelper.evaluate("//ns1:title", new MockNamespaceResolver());
-            LOGGER.debug("testXPathHelper_NoTitle() - title = [" + title + "]");
+            LOGGER.debug("testXPathHelper_NoTitle() - title = [{}]", title);
             assertNotNull(title);
             assertTrue(title.length() == 0);
         } catch (XPathExpressionException e1) {

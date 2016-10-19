@@ -232,7 +232,7 @@ public class SvrlReport implements SchematronReport {
 
         List<Node> warningAssertions = getAllAssertMessages(WARNING_FLAG_ATTR_TEXT);
         for (Node warning : warningAssertions) {
-            LOGGER.debug("warning(from assertions) = " + warning.getFirstChild()
+            LOGGER.debug("warning(from assertions) = {}", warning.getFirstChild()
                     .getTextContent());
             warnings.add(warning.getFirstChild()
                     .getTextContent());
@@ -240,7 +240,7 @@ public class SvrlReport implements SchematronReport {
 
         List<Node> warningReports = getAllReportMessages(WARNING_FLAG_ATTR_TEXT);
         for (Node warning : warningReports) {
-            LOGGER.debug("warning(from reports) = " + warning.getFirstChild()
+            LOGGER.debug("warning(from reports) = {}", warning.getFirstChild()
                     .getTextContent());
             warnings.add(warning.getFirstChild()
                     .getTextContent());

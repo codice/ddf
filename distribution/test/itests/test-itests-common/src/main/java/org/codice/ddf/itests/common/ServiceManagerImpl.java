@@ -71,7 +71,7 @@ import com.google.common.collect.Sets;
 import com.jayway.restassured.response.Response;
 
 public class ServiceManagerImpl implements ServiceManager {
-    public static final Logger LOGGER = LoggerFactory.getLogger(ServiceManagerImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManagerImpl.class);
 
     private static final int CONFIG_UPDATE_WAIT_INTERVAL_MILLIS = 5;
 

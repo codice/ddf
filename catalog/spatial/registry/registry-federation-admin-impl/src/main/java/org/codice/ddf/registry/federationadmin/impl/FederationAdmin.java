@@ -573,7 +573,7 @@ public class FederationAdmin implements FederationAdminMBean {
         try {
             objectName = new ObjectName(FederationAdminMBean.OBJECT_NAME);
         } catch (MalformedObjectNameException e) {
-            LOGGER.info("Exception while creating object name: " + FederationAdminMBean.OBJECT_NAME,
+            LOGGER.info("Exception while creating object name: {}", FederationAdminMBean.OBJECT_NAME,
                     e);
         }
 

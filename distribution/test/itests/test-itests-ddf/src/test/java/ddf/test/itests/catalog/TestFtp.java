@@ -446,7 +446,7 @@ public class TestFtp extends AbstractIntegrationTest {
         String[] replies = ftpClient.getReplyStrings();
         if (replies != null && replies.length > 0) {
             for (String aReply : replies) {
-                LOGGER.info("Server response: " + aReply);
+                LOGGER.info("Server response: {}", aReply);
             }
         }
     }

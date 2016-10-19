@@ -42,7 +42,7 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
 
     private static final int DEFAULT_PAGE_SIZE = 10;
 
-    private static Logger logger = LoggerFactory.getLogger(ProductCacheDirListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductCacheDirListener.class);
 
     private IMap<String, ReliableResource> map;
 
@@ -65,7 +65,7 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
 
     @Override
     public void setHazelcastInstance(HazelcastInstance hc) {
-        logger.debug("Setting hazelcast instance");
+        LOGGER.trace("Setting hazelcast instance");
         synchronized (this) {
             this.map = hc.getMap(PRODUCT_CACHE_NAME);
         }
@@ -78,7 +78,7 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
         if (value.getClass()
                 .isAssignableFrom(ReliableResource.class)) {
             ReliableResource resource = (ReliableResource) value;
-            logger.debug("entry added event triggered: {}", resource.getKey());
+            LOGGER.debug("entry added event triggered: {}", resource.getKey());
 
             long currentCacheDirSize = cacheDirSize.addAndGet(resource.getSize());
             if (maxDirSizeBytes > 0 && maxDirSizeBytes < currentCacheDirSize) {
@@ -108,7 +108,7 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
         if (value.getClass()
                 .isAssignableFrom(ReliableResource.class)) {
             ReliableResource resource = (ReliableResource) value;
-            logger.debug("entry removed event triggered: {}", resource.getKey());
+            LOGGER.debug("entry removed event triggered: {}", resource.getKey());
             if (manuallyEvictedEntries.contains(resource.getKey())) {
                 manuallyEvictedEntries.remove(resource.getKey());
             } else {
@@ -119,7 +119,7 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
 
     @Override
     public void entryUpdated(EntryEvent<K, V> event) {
-        logger.debug("entry updated event triggered");
+        LOGGER.debug("entry updated event triggered");
     }
 
     @Override
@@ -128,13 +128,13 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
         if (value.getClass()
                 .isAssignableFrom(ReliableResource.class)) {
             ReliableResource resource = (ReliableResource) value;
-            logger.debug("entry evicted event triggered: {}", resource.getKey());
+            LOGGER.debug("entry evicted event triggered: {}", resource.getKey());
             cacheDirSize.addAndGet(-resource.getSize());
         }
     }
 
     private void deleteFromCache(IMap<String, ReliableResource> cacheMap, ReliableResource rr) {
-        logger.debug("entry being deleted: {}", rr.getKey());
+        LOGGER.debug("entry being deleted: {}", rr.getKey());
         manuallyEvictedEntries.add(rr.getKey());
 
         // delete form cache
@@ -145,7 +145,7 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
         if (cachedFile.exists()) {
             boolean success = cachedFile.delete();
             if (!success) {
-                logger.info("Could not delete file {}", cachedFile.getAbsolutePath());
+                LOGGER.info("Could not delete file {}", cachedFile.getAbsolutePath());
             }
         }
         cacheDirSize.addAndGet(-rr.getSize());

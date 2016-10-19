@@ -662,9 +662,9 @@ public class UpdateOperations {
 
             LOGGER.debug(
                     "While rewriting the query, did not get a metacardId corresponding to every attribute.");
-            LOGGER.debug("Original Update By attribute was: " + attributeName);
+            LOGGER.debug("Original Update By attribute was: {}", attributeName);
             LOGGER.debug(
-                    "Metacards unable to get Metacard ID from are: " + updateRequest.getUpdates()
+                    "Metacards unable to get Metacard ID from are: {}", updateRequest.getUpdates()
                             .stream()
                             .map(Map.Entry::getKey)
                             .map(Object::toString)

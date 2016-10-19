@@ -151,12 +151,12 @@ public class ApplicationServiceImplTest {
     private static final String APP_STATUS_EX =
             "Encountered an error while trying to determine status of application";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceImplTest.class);
+
     private static Repository noMainFeatureRepo1, noMainFeatureRepo2, mainFeatureRepo,
             mainFeatureRepo2;
 
     private static List<BundleStateService> bundleStateServices;
-
-    private Logger logger = LoggerFactory.getLogger(ApplicationServiceImplTest.class);
 
     private BundleContext bundleContext;
 
@@ -2437,20 +2437,21 @@ public class ApplicationServiceImplTest {
     private FeaturesService createMockFeaturesService(Set<Repository> repos,
             Set<Feature> notInstalledFeatures, Set<BundleInfo> inactiveBundles) throws Exception {
 
-        if (logger.isTraceEnabled()) {
+        if (LOGGER.isTraceEnabled()) {
             for (Repository repo : repos) {
                 for (Feature feature : repo.getFeatures()) {
-                    logger.trace("Repo Feature: " + feature);
-                    logger.trace("Repo Feature name/version: " + feature.getName() + "/"
-                            + feature.getVersion());
+                    LOGGER.trace("Repo Feature: {}", feature);
+                    LOGGER.trace("Repo Feature name/version: {}/{}",
+                            feature.getName(),
+                            feature.getVersion());
 
-                    logger.trace("Dependencies: ");
+                    LOGGER.trace("Dependencies: ");
 
                     for (Dependency depFeature : feature.getDependencies()) {
-                        logger.trace("Dependency Feature: " + depFeature);
-                        logger.trace(
-                                "Dependency Feature name/version: " + depFeature.getName() + "/"
-                                        + depFeature.getVersion());
+                        LOGGER.trace("Dependency Feature: {}", depFeature);
+                        LOGGER.trace("Dependency Feature name/version: {}/{}",
+                                depFeature.getName(),
+                                depFeature.getVersion());
                     }
                 }
             }

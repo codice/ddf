@@ -51,7 +51,7 @@ import ddf.catalog.impl.filter.TemporalFilter;
 public class TwitterFilterVisitor extends DefaultFilterVisitor {
     private static final String ONLY_AND_MSG = "Twitter only supports AND operations for non-contextual criteria.";
 
-    private static Logger logger = LoggerFactory.getLogger(TwitterFilterVisitor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitterFilterVisitor.class);
 
     private List<Filter> filters;
 
@@ -81,12 +81,12 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
     public Object visit(Not filter, Object data) {
         Object newData;
         NestedTypes parentNest = currentNest;
-        logger.trace("ENTERING: NOT filter");
+        LOGGER.trace("ENTERING: NOT filter");
         currentNest = NestedTypes.NOT;
         filters.add(filter);
         newData = super.visit(filter, data);
         currentNest = parentNest;
-        logger.trace("EXITING: NOT filter");
+        LOGGER.trace("EXITING: NOT filter");
 
         return newData;
     }
@@ -95,12 +95,12 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
     public Object visit(Or filter, Object data) {
         Object newData;
         NestedTypes parentNest = currentNest;
-        logger.trace("ENTERING: OR filter");
+        LOGGER.trace("ENTERING: OR filter");
         currentNest = NestedTypes.OR;
         filters.add(filter);
         newData = super.visit(filter, data);
         currentNest = parentNest;
-        logger.trace("EXITING: OR filter");
+        LOGGER.trace("EXITING: OR filter");
 
         return newData;
     }
@@ -109,12 +109,12 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
     public Object visit(And filter, Object data) {
         Object newData;
         NestedTypes parentNest = currentNest;
-        logger.trace("ENTERING: AND filter");
+        LOGGER.trace("ENTERING: AND filter");
         currentNest = NestedTypes.AND;
         filters.add(filter);
         newData = super.visit(filter, data);
         currentNest = parentNest;
-        logger.trace("EXITING: AND filter");
+        LOGGER.trace("EXITING: AND filter");
 
         return newData;
     }
@@ -124,7 +124,7 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(DWithin filter, Object data) {
-        logger.trace("ENTERING: DWithin filter");
+        LOGGER.trace("ENTERING: DWithin filter");
         if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
@@ -141,8 +141,8 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
                     .getCoordinate();
             double distance = filter.getDistance();
 
-            logger.debug("point: coords[0] = " + coords.x + ",   coords[1] = " + coords.y);
-            logger.debug("radius = " + distance);
+            LOGGER.debug("point: coords[0] = {},   coords[1] = {}", coords.x, coords.y);
+            LOGGER.debug("radius = {}", distance);
 
             longitude = coords.x;
             latitude = coords.y;
@@ -152,10 +152,10 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
 
             filters.add(filter);
         } else {
-            logger.warn(ONLY_AND_MSG);
+            LOGGER.warn(ONLY_AND_MSG);
         }
 
-        logger.trace("EXITING: DWithin filter");
+        LOGGER.trace("EXITING: DWithin filter");
 
         return super.visit(filter, data);
     }
@@ -165,7 +165,7 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(Contains filter, Object data) {
-        logger.trace("ENTERING: Contains filter");
+        LOGGER.trace("ENTERING: Contains filter");
         if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
@@ -203,13 +203,13 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
 
                 filters.add(filter);
             } else {
-                logger.warn("Only POLYGON geometry WKT for Contains filter is supported");
+                LOGGER.warn("Only POLYGON geometry WKT for Contains filter is supported");
             }
         } else {
-            logger.warn(ONLY_AND_MSG);
+            LOGGER.warn(ONLY_AND_MSG);
         }
 
-        logger.trace("EXITING: Contains filter");
+        LOGGER.trace("EXITING: Contains filter");
 
         return super.visit(filter, data);
     }
@@ -219,7 +219,7 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(Intersects filter, Object data) {
-        logger.trace("ENTERING: Intersects filter");
+        LOGGER.trace("ENTERING: Intersects filter");
         if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
@@ -256,13 +256,13 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
 
                 filters.add(filter);
             } else {
-                logger.warn("Only POLYGON geometry WKT for Intersects filter is supported");
+                LOGGER.warn("Only POLYGON geometry WKT for Intersects filter is supported");
             }
         } else {
-            logger.warn(ONLY_AND_MSG);
+            LOGGER.warn(ONLY_AND_MSG);
         }
 
-        logger.trace("EXITING: Intersects filter");
+        LOGGER.trace("EXITING: Intersects filter");
 
         return super.visit(filter, data);
     }
@@ -272,13 +272,13 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(TOverlaps filter, Object data) {
-        logger.trace("ENTERING: TOverlaps filter");
+        LOGGER.trace("ENTERING: TOverlaps filter");
         if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             handleTemporal(filter);
         } else {
-            logger.warn(ONLY_AND_MSG);
+            LOGGER.warn(ONLY_AND_MSG);
         }
-        logger.trace("EXITING: TOverlaps filter");
+        LOGGER.trace("EXITING: TOverlaps filter");
 
         return super.visit(filter, data);
     }
@@ -288,13 +288,13 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(During filter, Object data) {
-        logger.trace("ENTERING: TOverlaps filter");
+        LOGGER.trace("ENTERING: TOverlaps filter");
         if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             handleTemporal(filter);
         } else {
-            logger.warn(ONLY_AND_MSG);
+            LOGGER.warn(ONLY_AND_MSG);
         }
-        logger.trace("EXITING: TOverlaps filter");
+        LOGGER.trace("EXITING: TOverlaps filter");
 
         return super.visit(filter, data);
     }
@@ -302,7 +302,7 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
     private void handleTemporal(BinaryTemporalOperator filter) {
 
         Literal literalWrapper = (Literal) filter.getExpression2();
-        logger.trace("literalWrapper.getValue() = " + literalWrapper.getValue());
+        LOGGER.debug("literalWrapper.getValue() = {}", literalWrapper.getValue());
 
         Object literal = literalWrapper.evaluate(null);
         if (literal instanceof Period) {
@@ -340,11 +340,11 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(PropertyIsEqualTo filter, Object data) {
-        logger.trace("ENTERING: PropertyIsEqualTo filter");
+        LOGGER.trace("ENTERING: PropertyIsEqualTo filter");
 
         filters.add(filter);
 
-        logger.trace("EXITING: PropertyIsEqualTo filter");
+        LOGGER.trace("EXITING: PropertyIsEqualTo filter");
 
         return super.visit(filter, data);
     }
@@ -354,7 +354,7 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(PropertyIsLike filter, Object data) {
-        logger.trace("ENTERING: PropertyIsLike filter");
+        LOGGER.trace("ENTERING: PropertyIsLike filter");
 
         if (currentNest != NestedTypes.NOT) {
 
@@ -362,10 +362,10 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
 
             AttributeExpressionImpl expression = (AttributeExpressionImpl) likeFilter.getExpression();
             String selectors = expression.getPropertyName();
-            logger.debug("selectors = " + selectors);
+            LOGGER.debug("selectors = {}", selectors);
 
             String searchPhrase = likeFilter.getLiteral();
-            logger.debug("searchPhrase = [" + searchPhrase + "]");
+            LOGGER.debug("searchPhrase = [{}]", searchPhrase);
             if (contextualSearch != null) {
                 contextualSearch.setSearchPhrase(
                         contextualSearch.getSearchPhrase() + " " + currentNest.toString() + " "
@@ -376,29 +376,29 @@ public class TwitterFilterVisitor extends DefaultFilterVisitor {
             }
         }
 
-        logger.trace("EXITING: PropertyIsLike filter");
+        LOGGER.trace("EXITING: PropertyIsLike filter");
 
         return super.visit(filter, data);
     }
 
     @Override
     public Object visit(PropertyName expression, Object data) {
-        logger.trace("ENTERING: PropertyName expression");
+        LOGGER.trace("ENTERING: PropertyName expression");
 
         // countOccurrence( expression );
 
-        logger.trace("EXITING: PropertyName expression");
+        LOGGER.trace("EXITING: PropertyName expression");
 
         return data;
     }
 
     @Override
     public Object visit(Literal expression, Object data) {
-        logger.trace("ENTERING: Literal expression");
+        LOGGER.trace("ENTERING: Literal expression");
 
         // countOccurrence( expression );
 
-        logger.trace("EXITING: Literal expression");
+        LOGGER.trace("EXITING: Literal expression");
 
         return data;
     }

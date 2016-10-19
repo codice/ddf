@@ -64,15 +64,15 @@ public class CatalogComponent extends DefaultComponent {
             throws CatalogTransformerException {
         LOGGER.debug("ENTERING: createEndpoint");
 
-        LOGGER.debug("uri = " + uri + ",  remaining = " + remaining);
-        LOGGER.debug("parameters = " + parameters);
+        LOGGER.debug("uri = {},  remaining = {}", uri, remaining);
+        LOGGER.debug("parameters = {}", parameters);
 
         String contextPath = remaining;
         String transformerId = getAndRemoveParameter(parameters, ID_PARAMETER, String.class);
 
         String mimeType = getAndRemoveParameter(parameters, MIME_TYPE_PARAMETER, String.class);
 
-        LOGGER.debug("transformerId = " + transformerId);
+        LOGGER.debug("transformerId = {}", transformerId);
 
         Endpoint endpoint = new CatalogEndpoint(uri,
                 this,

@@ -49,7 +49,7 @@ import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
 
 class SortedQueryMonitor implements Runnable {
-    private static Logger logger = LoggerFactory.getLogger(SortedQueryMonitor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortedQueryMonitor.class);
 
     private CachingFederationStrategy cachingFederationStrategy;
 
@@ -91,8 +91,8 @@ class SortedQueryMonitor implements Runnable {
             String sortType = sortingProp.getPropertyName();
             SortOrder sortOrder =
                     (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING : sortBy.getSortOrder();
-            logger.debug("Sorting type: {}", sortType);
-            logger.debug("Sorting order: {}", sortBy.getSortOrder());
+            LOGGER.debug("Sorting type: {}", sortType);
+            LOGGER.debug("Sorting order: {}", sortBy.getSortOrder());
 
             // Temporal searches are currently sorted by the effective time
             if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
@@ -135,7 +135,7 @@ class SortedQueryMonitor implements Runnable {
                 SourceResponse sourceResponse = future.get();
 
                 if (sourceResponse == null) {
-                    logger.debug("Source {} returned null response", sourceId);
+                    LOGGER.debug("Source {} returned null response", sourceId);
                     processingDetails.add(new ProcessingDetailsImpl(sourceId,
                             new NullPointerException()));
                 } else {
@@ -150,7 +150,7 @@ class SortedQueryMonitor implements Runnable {
             } catch (InterruptedException e) {
                 if (source != null) {
                     // First, add interrupted processing detail for this source
-                    logger.debug("Search interrupted for {}", source.getId());
+                    LOGGER.debug("Search interrupted for {}", source.getId());
                     processingDetails.add(new ProcessingDetailsImpl(source.getId(), e));
                 }
 
@@ -158,7 +158,7 @@ class SortedQueryMonitor implements Runnable {
                 interruptRemainingSources(processingDetails, e);
                 break;
             } catch (ExecutionException e) {
-                logger.info("Couldn't get results from completed federated query. {}, {}",
+                LOGGER.info("Couldn't get results from completed federated query. {}, {}",
                         sourceId,
                         Exceptions.getFullMessage(e),
                         e);
@@ -167,7 +167,7 @@ class SortedQueryMonitor implements Runnable {
             }
         }
         returnProperties.put("hitsPerSource", hitsPerSource);
-        logger.debug("All sources finished returning results: {}", resultList.size());
+        LOGGER.debug("All sources finished returning results: {}", resultList.size());
 
         returnResults.setHits(totalHits);
         if (CachingFederationStrategy.INDEX_QUERY_MODE.equals(request.getPropertyValue(
@@ -193,7 +193,7 @@ class SortedQueryMonitor implements Runnable {
     private void timeoutRemainingSources(Set<ProcessingDetails> processingDetails) {
         for (Source expiredSource : futures.values()) {
             if (expiredSource != null) {
-                logger.info("Search timed out for {}", expiredSource.getId());
+                LOGGER.info("Search timed out for {}", expiredSource.getId());
                 processingDetails.add(new ProcessingDetailsImpl(expiredSource.getId(),
                         new TimeoutException()));
             }
@@ -204,7 +204,7 @@ class SortedQueryMonitor implements Runnable {
             InterruptedException interruptedException) {
         for (Source interruptedSource : futures.values()) {
             if (interruptedSource != null) {
-                logger.info("Search interrupted for {}", interruptedSource.getId());
+                LOGGER.info("Search interrupted for {}", interruptedSource.getId());
                 processingDetails.add(new ProcessingDetailsImpl(interruptedSource.getId(),
                         interruptedException));
             }

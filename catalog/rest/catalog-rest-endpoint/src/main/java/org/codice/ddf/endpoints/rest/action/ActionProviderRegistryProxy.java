@@ -104,7 +104,7 @@ public class ActionProviderRegistryProxy {
 
     public void unbind(ServiceReference<MetacardTransformer> reference) {
 
-        LOGGER.info("Service unregistered [" + reference + "]");
+        LOGGER.info("Service unregistered [{}]", reference);
 
         ServiceRegistration actionProviderRegistration = actionProviderRegistry.remove(reference);
 

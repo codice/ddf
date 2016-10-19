@@ -30,12 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ListApplicationCommandTest {
-    private Logger logger = LoggerFactory.getLogger(ListApplicationCommand.class);
-
     private ApplicationStatus testStatus;
 
     private Application testApp;

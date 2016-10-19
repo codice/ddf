@@ -425,7 +425,7 @@ public class MetricsEndpoint {
             @QueryParam("dateOffset") String dateOffset,
             @QueryParam("summaryInterval") String summaryInterval, @Context UriInfo uriInfo)
             throws MetricsEndpointException {
-        LOGGER.debug("ENTERING: getMetricsReport  -  outputFormat = " + outputFormat);
+        LOGGER.debug("ENTERING: getMetricsReport  -  outputFormat = {}", outputFormat);
         LOGGER.debug("request url: {}", uriInfo.getRequestUri());
         LOGGER.debug("startDate = {},     endDate = {}", startDate, endDate);
         LOGGER.debug("dateOffset = {}", dateOffset);

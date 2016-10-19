@@ -136,8 +136,7 @@ public class CometdEndpoint {
                         ServerMessage message) {
 
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("canHandshake ServerSession: " + session
-                                + "\ncanHandshake ServerMessage: " + message);
+                        LOGGER.debug("canHandshake ServerSession: {}   canHandshake ServerMessage: {}", session, message);
                     }
 
                     notificationController.registerUserSession(session, message);

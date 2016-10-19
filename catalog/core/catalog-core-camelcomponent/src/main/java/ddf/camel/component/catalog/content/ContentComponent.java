@@ -53,8 +53,8 @@ public class ContentComponent extends DefaultComponent {
             throws Exception {
         LOGGER.trace("ENTERING: createEndpoint");
 
-        LOGGER.debug("uri = " + uri + ",  remaining = " + remaining);
-        LOGGER.debug("parameters = " + parameters);
+        LOGGER.debug("uri = {},  remaining = {}", uri, remaining);
+        LOGGER.debug("parameters = {}", parameters);
 
         Endpoint endpoint = new ContentEndpoint(uri, this);
 

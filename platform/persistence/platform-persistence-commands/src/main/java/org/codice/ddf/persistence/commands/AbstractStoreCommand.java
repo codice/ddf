@@ -29,20 +29,18 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractStoreCommand extends OsgiCommandSupport {
 
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     protected PersistentStore persistentStore;
 
     protected PrintStream console = System.out;
 
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Option(name = "Persistence Type", aliases = {"-t", "--type"}, required = true,
-            description = "Type of entry in the persistence store to perform the current operation on.\nOptions: attributes, preferences, metacard, saved_query, notification, activity, or workspace",
-            multiValued = false)
+    @Option(name = "Persistence Type", aliases = {"-t",
+            "--type"}, required = true, description = "Type of entry in the persistence store to perform the current operation on.\nOptions: attributes, preferences, metacard, saved_query, notification, activity, or workspace", multiValued = false)
     protected String type;
 
-    @Option(name = "CQL", aliases = {"-c", "--cql"}, required = false,
-            description = "OGC CQL statement to query the persistence store. Not specifying returns all entries. More information on CQL is available at: http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html",
-            multiValued = false)
+    @Option(name = "CQL", aliases = {"-c",
+            "--cql"}, required = false, description = "OGC CQL statement to query the persistence store. Not specifying returns all entries. More information on CQL is available at: http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html", multiValued = false)
     protected String cql;
 
     @Override

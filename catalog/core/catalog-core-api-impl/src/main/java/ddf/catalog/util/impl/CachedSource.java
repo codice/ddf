@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.operation.QueryRequest;
@@ -46,7 +46,7 @@ public class CachedSource implements Source {
 
     private static final String ORGANIZATION = "organization";
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(CachedSource.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(CachedSource.class);
 
     private Source source;
 
@@ -154,10 +154,10 @@ public class CachedSource implements Source {
      */
     public void checkStatus() {
         try {
-            logger.debug("Checking Source [{}] with id [{}] availability.", source, source.getId());
+            LOGGER.debug("Checking Source [{}] with id [{}] availability.", source, source.getId());
 
             if (source.isAvailable()) {
-                logger.debug("Source [{}] with id [{}] is available.  " + "Updating cached values.",
+                LOGGER.debug("Source [{}] with id [{}] is available.  Updating cached values.",
                         source,
                         source.getId());
                 setContentTypes(source.getContentTypes());
@@ -168,15 +168,15 @@ public class CachedSource implements Source {
                 setVersion(source.getVersion());
                 setSourceStatus(SourceStatus.AVAILABLE);
             } else {
-                logger.debug(
-                        "Source [{}] with id [{}] is not available.  " + "Clearing cached values",
+                LOGGER.debug(
+                        "Source [{}] with id [{}] is not available. Clearing cached values",
                         source,
                         source.getId());
                 setSourceStatus(SourceStatus.UNAVAILABLE);
                 clearContentTypes();
             }
         } catch (Exception e) {
-            logger.debug("Failed to check Source [{}] with id [{}]] availability.  "
+            LOGGER.debug("Failed to check Source [{}] with id [{}]] availability.  "
                     + "Clearing cached values.", source, source.getId());
             setSourceStatus(SourceStatus.UNAVAILABLE);
             clearContentTypes();

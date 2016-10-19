@@ -224,7 +224,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         SourceMetric sourceMetric = metrics.get(mapKey);
 
         if (sourceMetric == null) {
-            LOGGER.debug("sourceMetric is null for " + mapKey + " - creating metric now");
+            LOGGER.debug("sourceMetric is null for {} - creating metric now", mapKey);
             // Loop through list of all sources until find the sourceId whose metric is being
             // updated
             boolean created = createMetric(catalogProviders, sourceId);
@@ -236,15 +236,15 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
         // If this metric already exists, then just update its MBean
         if (sourceMetric != null) {
-            LOGGER.debug("CASE 1: Metric already exists for " + mapKey);
+            LOGGER.debug("CASE 1: Metric already exists for {}", mapKey);
             if (sourceMetric.isHistogram()) {
                 Histogram metric = (Histogram) sourceMetric.getMetric();
                 LOGGER.debug(
-                        "Updating histogram metric " + name + " by amount of " + incrementAmount);
+                        "Updating histogram metric {} by amount of {}", name, incrementAmount);
                 metric.update(incrementAmount);
             } else {
                 Meter metric = (Meter) sourceMetric.getMetric();
-                LOGGER.debug("Updating metric " + name + " by amount of " + incrementAmount);
+                LOGGER.debug("Updating metric {} by amount of {}", name, incrementAmount);
                 metric.mark(incrementAmount);
             }
             return;
@@ -255,14 +255,13 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         for (Source source : sources) {
             if (source.getId()
                     .equals(sourceId)) {
-                LOGGER.debug("Found sourceId = " + sourceId + " in sources list");
+                LOGGER.debug("Found sourceId = {} in sources list", sourceId);
                 if (sourceToSourceIdMap.containsKey(source)) {
                     // Source's ID must have changed since it is in this map but not in the metrics
                     // map
                     // Delete SourceMetrics for Source's "old" sourceId
                     String oldSourceId = sourceToSourceIdMap.get(source);
-                    LOGGER.debug("CASE 2: source " + sourceId + " exists but has oldSourceId = "
-                            + oldSourceId);
+                    LOGGER.debug("CASE 2: source {} exists but has oldSourceId = {}", sourceId, oldSourceId);
                     deleteMetric(oldSourceId, QUERIES_TOTAL_RESULTS_SCOPE);
                     deleteMetric(oldSourceId, QUERIES_SCOPE);
                     deleteMetric(oldSourceId, EXCEPTIONS_SCOPE);
@@ -281,7 +280,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
                     // happen if sourceId = null when Source originally created and then its metric
                     // needs updating because client, e.g., SortedFederationStrategy, knows the
                     // Source exists.)
-                    LOGGER.debug("CASE 3: New source " + sourceId + " detected - creating metrics");
+                    LOGGER.debug("CASE 3: New source {} detected - creating metrics", sourceId);
                     createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
                     createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
                     createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
@@ -292,7 +291,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
             }
         }
 
-        LOGGER.debug("Did not find source " + sourceId + " in Sources - cannot create metrics");
+        LOGGER.debug("Did not find source {} in Sources - cannot create metrics", sourceId);
 
         return false;
     }
@@ -395,11 +394,10 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
                 RrdJmxCollector collector = createCounterMetricsCollector(sourceId, mbeanName);
                 metrics.put(key, new SourceMetric(meter, collector));
             } else {
-                LOGGER.debug("Metric " + key + " not created because unknown metric type " + type
-                        + " specified.");
+                LOGGER.debug("Metric {} not created because unknown metric type {} specified.", key, type);
             }
         } else {
-            LOGGER.debug("Metric " + key + " already exists - not creating again");
+            LOGGER.debug("Metric {} already exists - not creating again", key);
         }
     }
 
@@ -481,13 +479,13 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
             newSourceIdBuilder.append(StringUtils.capitalize(part));
         }
         String rrdPath = "source" + newSourceIdBuilder.toString() + collectorName;
-        LOGGER.debug("BEFORE: rrdPath = " + rrdPath);
+        LOGGER.debug("BEFORE: rrdPath = {}", rrdPath);
 
         // Sterilize RRD path name by removing any non-alphanumeric characters - this would confuse
         // the
         // URL being generated for this RRD path in the Metrics tab of Admin console.
         rrdPath = rrdPath.replaceAll(ALPHA_NUMERIC_REGEX, "");
-        LOGGER.debug("AFTER: rrdPath = " + rrdPath);
+        LOGGER.debug("AFTER: rrdPath = {}", rrdPath);
 
         return rrdPath;
     }
@@ -506,7 +504,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
             deleteCollector(sourceId, mbeanName);
             metrics.remove(key);
         } else {
-            LOGGER.debug("Did not remove metric " + key + " because it was not in metrics map");
+            LOGGER.debug("Did not remove metric {} because it was not in metrics map", key);
         }
     }
 
@@ -519,8 +517,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     private void deleteCollector(String sourceId, String metricName) {
         String mapKey = sourceId + "." + metricName;
         SourceMetric sourceMetric = metrics.get(mapKey);
-        LOGGER.debug("Deleting " + metricName + " ddf.metrics.collector.JmxCollector for source "
-                + sourceId);
+        LOGGER.debug("Deleting {} ddf.metrics.collector.JmxCollector for source {}", metricName, sourceId);
         sourceMetric.getCollector()
                 .destroy();
         metrics.remove(mapKey);
