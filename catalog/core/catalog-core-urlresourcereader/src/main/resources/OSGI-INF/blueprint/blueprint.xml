@@ -30,7 +30,7 @@
         </set>
       </property>
   </bean>
-  
+
   <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
   <service ref="urlReader" interface="ddf.catalog.resource.ResourceReader">
@@ -39,5 +39,5 @@
       <entry key="id" value="URLResourceReader"/>
     </service-properties>
   </service>
-  
+
 </blueprint>
