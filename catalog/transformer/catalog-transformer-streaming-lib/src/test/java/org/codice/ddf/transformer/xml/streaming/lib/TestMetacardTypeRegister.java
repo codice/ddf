@@ -19,15 +19,12 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import java.util.List;
 import java.util.Set;
 
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
-
-import com.google.common.collect.ImmutableList;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.impl.BasicTypes;
@@ -44,7 +41,6 @@ public class TestMetacardTypeRegister {
         mockFactory = mock(SaxEventHandlerFactory.class);
         doReturn(BasicTypes.BASIC_METACARD.getAttributeDescriptors()).when(mockFactory)
                 .getSupportedAttributeDescriptors();
-        List mockFactories = ImmutableList.of(mockFactory);
 
         metacardTypeRegister = new MetacardTypeRegister() {
             @Override
@@ -61,17 +57,6 @@ public class TestMetacardTypeRegister {
         Set<AttributeDescriptor> results = metacardTypeRegister.getMetacardType()
                 .getAttributeDescriptors();
 
-        assertThat(results.size(),
-                is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()
-                        .size()));
-
-        boolean adMatch = true;
-        for (AttributeDescriptor ad : results) {
-            if (!BasicTypes.BASIC_METACARD.getAttributeDescriptors()
-                    .contains(ad)) {
-                adMatch = false;
-            }
-        }
-        assertThat(adMatch, is(true));
+        assertThat(results, is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
     }
 }
