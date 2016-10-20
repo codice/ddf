@@ -78,7 +78,9 @@ import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
 import ddf.catalog.content.operation.ContentMetadataExtractor;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
@@ -92,6 +94,8 @@ public class TikaInputTransformer implements InputTransformer {
 
     private Map<ServiceReference, ContentMetadataExtractor> contentMetadataExtractors =
             Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
+
+    private MetacardType metacardType = null;
 
     public void addContentMetadataExtractors(
             ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
@@ -112,7 +116,10 @@ public class TikaInputTransformer implements InputTransformer {
         contentMetadataExtractors.remove(contentMetadataExtractorRef);
     }
 
-    public TikaInputTransformer(BundleContext bundleContext) {
+    public TikaInputTransformer(BundleContext bundleContext, MetacardType metacardType) {
+
+        this.metacardType = metacardType;
+
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
         try {
@@ -199,16 +206,20 @@ public class TikaInputTransformer implements InputTransformer {
                         .map(ContentMetadataExtractor::getMetacardAttributes)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toSet());
+                MetacardTypeImpl extendedMetacardType = new MetacardTypeImpl(metacardType.getName(),
+                        metacardType,
+                        attributes);
 
-                metacard = MetacardCreator.createEnhancedMetacard(metadata,
+                metacard = MetacardCreator.createMetacard(metadata,
                         id,
                         metadataText,
-                        attributes);
+                        extendedMetacardType);
+
                 for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
                     contentMetadataExtractor.process(plainText, metacard);
                 }
             } else {
-                metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataText);
+                metacard = MetacardCreator.createMetacard(metadata, id, metadataText, metacardType);
             }
 
             String metacardContentType = metacard.getContentTypeName();

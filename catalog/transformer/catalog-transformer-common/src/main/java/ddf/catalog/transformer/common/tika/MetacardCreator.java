@@ -14,7 +14,6 @@
 package ddf.catalog.transformer.common.tika;
 
 import java.util.Date;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.metadata.Metadata;
@@ -22,13 +21,10 @@ import org.apache.tika.metadata.TikaCoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
 
 /**
  * Creates {@link Metacard}s from Tika {@link Metadata} objects.
@@ -37,42 +33,16 @@ public class MetacardCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardCreator.class);
 
     /**
-     * A convenience method for creating a new {@link Metacard} of type
-     * {@link BasicTypes#BASIC_METACARD} from a {@link Metadata} object.
-     *
-     * @param metadata    the {@code Metadata} object containing the metadata relevant to the
-     *                    metacard, must not be null
-     * @param id          the value for the {@link Metacard#ID} attribute that should be set in the
-     *                    generated {@code Metacard}, may be null
-     * @param metadataXml the XML for the {@link Metacard#METADATA} attribute that should be set in
-     *                    the generated {@code Metacard}, may be null
+     * @param metadata     the {@code Metadata} object containing the metadata relevant to the
+     *                     metacard, must not be null
+     * @param id           the value for the {@link Metacard#ID} attribute that should be set in the
+     *                     generated {@code Metacard}, may be null
+     * @param metadataXml  the XML for the {@link Metacard#METADATA} attribute that should be set in
+     *                     the generated {@code Metacard}, may be null
+     * @param metacardType The {@link MetacardType} for the created metacard
      * @return a new {@code Metacard}
      */
-    public static Metacard createBasicMetacard(final Metadata metadata, final String id,
-            final String metadataXml) {
-        return createMetacard(metadata, id, metadataXml, BasicTypes.BASIC_METACARD);
-    }
-
-    /**
-     * @param metadata           the {@code Metadata} object containing the metadata relevant to the
-     *                           metacard, must not be null
-     * @param id                 the value for the {@link Metacard#ID} attribute that should be set in the
-     *                           generated {@code Metacard}, may be null
-     * @param metadataXml        the XML for the {@link Metacard#METADATA} attribute that should be set in
-     *                           the generated {@code Metacard}, may be null
-     * @param extendedAttributes the extra attributes (on top of those already present in
-     *                           {@link BasicTypes#BASIC_METACARD}) that will be available in the metacard
-     * @return a new {@code Metacard}
-     */
-    public static Metacard createEnhancedMetacard(final Metadata metadata, final String id,
-            final String metadataXml, final Set<AttributeDescriptor> extendedAttributes) {
-        MetacardTypeImpl metacardType = new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
-                BasicTypes.BASIC_METACARD,
-                extendedAttributes);
-        return createMetacard(metadata, id, metadataXml, metacardType);
-    }
-
-    private static Metacard createMetacard(final Metadata metadata, final String id,
+    public static Metacard createMetacard(final Metadata metadata, final String id,
             final String metadataXml, MetacardType metacardType) {
         final Metacard metacard = new MetacardImpl(metacardType);
 

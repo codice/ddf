@@ -26,6 +26,7 @@ import static junit.framework.Assert.assertNotNull;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.TimeZone;
@@ -42,18 +43,28 @@ import com.google.common.collect.ImmutableSet;
 import ddf.catalog.content.operation.ContentMetadataExtractor;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
 public class TikaInputTransformerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformerTest.class);
 
+    private static final String COMMON_METACARDTYPE = "common";
+
     @Test
     public void testRegisterService() {
         BundleContext mockBundleContext = mock(BundleContext.class);
-        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(mockBundleContext);
+        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(mockBundleContext,
+                getCommonMetacardType());
         verify(mockBundleContext).registerService(eq(InputTransformer.class),
                 eq(tikaInputTransformer),
                 any(Hashtable.class));
@@ -87,7 +98,8 @@ public class TikaInputTransformerTest {
                                 BasicTypes.OBJECT_TYPE));
         when(cme.getMetacardAttributes()).thenReturn(attributeDescriptors);
 
-        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx) {
+        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx,
+                getCommonMetacardType()) {
             @Override
             Bundle getBundle() {
                 return bundleMock;
@@ -97,7 +109,7 @@ public class TikaInputTransformerTest {
         Metacard metacard = tikaInputTransformer.transform(stream);
 
         assertThat(metacard.getMetacardType()
-                .getName(), is(BasicTypes.BASIC_METACARD.getName()));
+                .getName(), is(COMMON_METACARDTYPE));
         int matchedAttrs = (int) metacard.getMetacardType()
                 .getAttributeDescriptors()
                 .stream()
@@ -135,7 +147,8 @@ public class TikaInputTransformerTest {
                                 BasicTypes.OBJECT_TYPE));
         when(cme.getMetacardAttributes()).thenReturn(attributeDescriptors);
 
-        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx) {
+        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx,
+                getCommonMetacardType()) {
             @Override
             Bundle getBundle() {
                 return bundleMock;
@@ -146,7 +159,7 @@ public class TikaInputTransformerTest {
         Metacard metacard = tikaInputTransformer.transform(stream);
 
         assertThat(metacard.getMetacardType()
-                .getName(), is(BasicTypes.BASIC_METACARD.getName()));
+                .getName(), is(COMMON_METACARDTYPE));
         int matchedAttrs = (int) metacard.getMetacardType()
                 .getAttributeDescriptors()
                 .stream()
@@ -544,8 +557,19 @@ public class TikaInputTransformerTest {
     }
 
     private Metacard transform(InputStream stream) throws Exception {
-        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(null);
+        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(null,
+                getCommonMetacardType());
         Metacard metacard = tikaInputTransformer.transform(stream);
         return metacard;
     }
+
+    private static MetacardType getCommonMetacardType() {
+        return new MetacardTypeImpl(COMMON_METACARDTYPE,
+                Arrays.asList(new ValidationAttributes(),
+                        new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new AssociationsAttributes()));
+    }
+
 }
