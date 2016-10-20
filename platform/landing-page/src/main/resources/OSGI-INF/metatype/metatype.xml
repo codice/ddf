@@ -36,7 +36,7 @@
                 default=""
                 />
         <AD
-                description="Announcements that will be displayed on the landing page."
+                description="Announcements that will be displayed on the landing page. You can prefix the announcement with a date in the form mm/dd/yy."
                 name="Announcements" id="announcements" required="true" type="String"
                 cardinality="100"
                 />
