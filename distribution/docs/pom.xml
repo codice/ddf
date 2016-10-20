@@ -23,6 +23,7 @@
     <name>DDF DOCS</name>
     <properties>
         <skipTests>true</skipTests>
+        <ddf.version>${project.version}</ddf.version>
     </properties>
     <build>
         <plugins>
