@@ -106,7 +106,7 @@ class OperationsStorageSupportTest extends Specification {
         HashMap<String, Path> contentPaths = [a: path1, b: path2, c: path3]
 
         when:
-        opsStorage.commitAndCleanup(null, null, contentPaths)
+        opsStorage.commitAndCleanup(null, contentPaths)
 
         then:
         1 * path1.toFile() >> Mock(File)
@@ -115,7 +115,7 @@ class OperationsStorageSupportTest extends Specification {
         contentPaths.isEmpty()
     }
 
-    def 'commit and cleanup happy path, no historian key present'() {
+    def 'commit and cleanup happy path'() {
         setup:
         def path1 = Mock(Path)
         HashMap<String, Path> contentPaths = [a: path1]
@@ -126,20 +126,17 @@ class OperationsStorageSupportTest extends Specification {
         sourceOperations.getStorage() >> storageProvider
 
         when:
-        opsStorage.commitAndCleanup(request, Optional.ofNullable(null), contentPaths)
+        opsStorage.commitAndCleanup(request, contentPaths)
 
         then:
         1 * storageProvider.commit(request)
-
-        then:
-        0 * historian.commit(_)
 
         then:
         1 * path1.toFile() >> Mock(File)
         contentPaths.isEmpty()
     }
 
-    def 'commit and cleanup happy path, with historian key'() {
+    def 'commit and cleanup storage exception'() {
         setup:
         def path1 = Mock(Path)
         HashMap<String, Path> contentPaths = [a: path1]
@@ -150,31 +147,7 @@ class OperationsStorageSupportTest extends Specification {
         sourceOperations.getStorage() >> storageProvider
 
         when:
-        opsStorage.commitAndCleanup(request, Optional.of('abc'), contentPaths)
-
-        then:
-        1 * storageProvider.commit(request)
-
-        then:
-        1 * historian.commit('abc')
-
-        then:
-        1 * path1.toFile() >> Mock(File)
-        contentPaths.isEmpty()
-    }
-
-    def 'commit and cleanup storage exception, no historian key present'() {
-        setup:
-        def path1 = Mock(Path)
-        HashMap<String, Path> contentPaths = [a: path1]
-        def request = Mock(StorageRequest)
-
-        and:
-        def storageProvider = Mock(StorageProvider)
-        sourceOperations.getStorage() >> storageProvider
-
-        when:
-        opsStorage.commitAndCleanup(request, Optional.ofNullable(null), contentPaths)
+        opsStorage.commitAndCleanup(request, contentPaths)
 
         then:
         1 * storageProvider.commit(request) >> { throw new StorageException('exception')}
@@ -183,14 +156,11 @@ class OperationsStorageSupportTest extends Specification {
         1 * storageProvider.rollback(request)
 
         then:
-        0 * historian.rollback(_)
-
-        then:
         1 * path1.toFile() >> Mock(File)
         contentPaths.isEmpty()
     }
 
-    def 'commit and cleanup storage exception, with historian key'() {
+    def 'commit and cleanup two storage exceptions'() {
         setup:
         def path1 = Mock(Path)
         HashMap<String, Path> contentPaths = [a: path1]
@@ -201,70 +171,13 @@ class OperationsStorageSupportTest extends Specification {
         sourceOperations.getStorage() >> storageProvider
 
         when:
-        opsStorage.commitAndCleanup(request, Optional.of('abc'), contentPaths)
-
-        then:
-        1 * storageProvider.commit(request) >> { throw new StorageException('exception')}
-
-        then:
-        1 * storageProvider.rollback(request)
-
-        then:
-        1 * historian.rollback('abc')
-
-        then:
-        1 * path1.toFile() >> Mock(File)
-        contentPaths.isEmpty()
-    }
-
-    def 'commit and cleanup two storage exceptions, no historian key present'() {
-        setup:
-        def path1 = Mock(Path)
-        HashMap<String, Path> contentPaths = [a: path1]
-        def request = Mock(StorageRequest)
-
-        and:
-        def storageProvider = Mock(StorageProvider)
-        sourceOperations.getStorage() >> storageProvider
-
-        when:
-        opsStorage.commitAndCleanup(request, Optional.ofNullable(null), contentPaths)
+        opsStorage.commitAndCleanup(request, contentPaths)
 
         then:
         1 * storageProvider.commit(request) >> { throw new StorageException('exception')}
 
         then:
         1 * storageProvider.rollback(request) >> { throw new StorageException('exception')}
-
-        then:
-        0 * historian.rollback(_)
-
-        then:
-        1 * path1.toFile() >> Mock(File)
-        contentPaths.isEmpty()
-    }
-
-    def 'commit and cleanup two storage exceptions, with historian key'() {
-        setup:
-        def path1 = Mock(Path)
-        HashMap<String, Path> contentPaths = [a: path1]
-        def request = Mock(StorageRequest)
-
-        and:
-        def storageProvider = Mock(StorageProvider)
-        sourceOperations.getStorage() >> storageProvider
-
-        when:
-        opsStorage.commitAndCleanup(request, Optional.of('abc'), contentPaths)
-
-        then:
-        1 * storageProvider.commit(request) >> { throw new StorageException('exception')}
-
-        then:
-        1 * storageProvider.rollback(request) >> { throw new StorageException('exception')}
-
-        then: 'Still rollback the historian'
-        1 * historian.rollback('abc')
 
         then:
         1 * path1.toFile() >> Mock(File)

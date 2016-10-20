@@ -304,7 +304,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
     }
 
     public void setVersionResourceUri(URI uri) {
-        setVersionResourceUri(uri.toString());
+        setVersionResourceUri(uri == null ? "" : uri.toString());
     }
 
     public String getVersionOfId() {

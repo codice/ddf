@@ -365,11 +365,11 @@ public class Historian {
             Map.Entry<String, List<ContentItem>> entry, Map<String, Metacard> versionedMetacards) {
         return entry.getValue()
                 .stream()
-                .map(content -> CreateContentItem(content, versionedMetacards))
+                .map(content -> createContentItem(content, versionedMetacards))
                 .collect(Collectors.toList());
     }
 
-    private ContentItemImpl CreateContentItem(ContentItem content,
+    private ContentItemImpl createContentItem(ContentItem content,
             Map<String, Metacard> versionedMetacards) {
         long size = 0;
         try {

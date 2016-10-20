@@ -16,7 +16,6 @@ package ddf.catalog.impl.operations;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.apache.commons.collections.CollectionUtils;
