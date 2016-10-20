@@ -180,6 +180,7 @@ public class TwitterSource implements FederatedSource {
 
     private Metacard getMetacard(Status status) {
         MetacardImpl metacard = new MetacardImpl();
+        metacard.setSourceId(id);
         metacard.setId(String.valueOf(status.getId()));
         metacard.setTitle(status.getText());
         metacard.setMetadata("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
