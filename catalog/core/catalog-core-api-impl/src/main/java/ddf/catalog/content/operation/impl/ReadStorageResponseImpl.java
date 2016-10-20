@@ -16,20 +16,31 @@ package ddf.catalog.content.operation.impl;
 import java.io.Serializable;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.ReadStorageRequest;
 import ddf.catalog.content.operation.ReadStorageResponse;
 import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.operation.impl.ResponseImpl;
 
-public class ReadStorageResponseImpl extends ResponseImpl<ReadStorageRequest> implements
-        ReadStorageResponse {
+public class ReadStorageResponseImpl extends ResponseImpl<ReadStorageRequest>
+        implements ReadStorageResponse {
     private ContentItem contentItem;
+
+    /**
+     * Instantiates an empty, new ResponseImpl
+     *
+     * @param request the original request
+     */
+    public ReadStorageResponseImpl(ReadStorageRequest request) {
+        super(request, null);
+    }
 
     /**
      * Instantiates a new ResponseImpl
      *
-     * @param request    - the original request
+     * @param request the original request
      * @param properties
      */
     public ReadStorageResponseImpl(ReadStorageRequest request,
@@ -40,16 +51,16 @@ public class ReadStorageResponseImpl extends ResponseImpl<ReadStorageRequest> im
     /**
      * Instantiates a new ResponseImpl
      *
-     * @param request    - the original request
+     * @param request the original request
      * @param contentItem
      */
-    public ReadStorageResponseImpl(ReadStorageRequest request,
-            ContentItem contentItem) {
+    public ReadStorageResponseImpl(ReadStorageRequest request, ContentItem contentItem) {
         super(request, null);
         this.contentItem = contentItem;
     }
 
     @Override
+    @Nullable
     public ContentItem getContentItem() {
         return contentItem;
     }

@@ -142,6 +142,10 @@ public class FileSystemStorageProvider implements StorageProvider {
     public ReadStorageResponse read(ReadStorageRequest readRequest) throws StorageException {
         LOGGER.trace("ENTERING: read");
 
+        if (readRequest.getResourceUri() == null) {
+            return new ReadStorageResponseImpl(readRequest);
+        }
+
         URI uri = readRequest.getResourceUri();
         ContentItem returnItem = readContent(uri);
         return new ReadStorageResponseImpl(readRequest, returnItem);
