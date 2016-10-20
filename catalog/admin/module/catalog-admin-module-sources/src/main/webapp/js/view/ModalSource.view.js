@@ -99,24 +99,9 @@ define([
             this.$el.attr('aria-hidden', "true");
             this.renderNameField();
             this.renderTypeDropdown();
-            this.initRadioButtonUI(properties);
             if (!_.isNull(this.model)) {
                 this.rebind(properties);
             }
-        },
-        initRadioButtonUI: function (boundModel) {
-            var $radios = this.$el.find('input[type=radio]');
-            var view = this;
-
-            _.each($radios, function (radio) {
-                var $radio = view.$(radio);
-                var $label = $radio.closest('label.btn');
-                if (boundModel.get($radio.attr('name')) === $radio.attr('value')) {
-                    $label.addClass('active');
-                } else {
-                    $label.removeClass('active');
-                }
-            });
         },
         /**
          * Renders editable name field.
@@ -332,7 +317,6 @@ define([
                 var properties = config.get('properties');
                 view.checkName(view.$('.sourceName').find('input').val().trim());
                 view.renderDetails(config);
-                view.initRadioButtonUI(properties);
                 view.rebind(properties);
             }
             view.$el.trigger('shown.bs.modal');

@@ -30,8 +30,8 @@
             {{/is}}
             {{#isnt optionValues.length 0}}
                 <select id="{{id}}" name="{{id}}" class="form-control input-sm">
-                    {{#each optionLabels}}
-                        <option value="{{lookup ../optionValues @index}}" {{#is @index 0}}selected="selected" {{/is}}>{{.}}</option>
+                    {{#each options}}
+                        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
                     {{/each}}
                 </select>
             {{/isnt}}
