@@ -126,7 +126,7 @@
         <dependency>
             <groupId>ddf.test.thirdparty</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>${ddf.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

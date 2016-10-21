@@ -62,7 +62,7 @@
         <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>spock-shaded</artifactId>
-            <version>${ddf.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
