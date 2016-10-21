@@ -32,3 +32,6 @@ mvn clean test -DkeepRuntimeFolder=true
 ```
 
 The runtime folder used during the test will be available under `target/exam/<GUID>`.  It is possible to rerun the instance and verify that all bundles (excluding the test probe) are installed and working properly.  You can also inspect the logs under `target/exam/<GUID>/data/logs`.
+
+## Adjusting the Log Level
+By default, itests are run at a log level of `warn` for increased performance. If you want to change the logging level, use the flag `-DitestLoggingLevel=<level>`. Valid levels are defined by the [SLF4J API](http://www.slf4j.org/api/org/apache/commons/logging/Log.html).
