@@ -286,17 +286,11 @@ public class RegistryPackageTypeHelper {
      */
     public <T extends RegistryObjectType> List<T> getAssociatedObjects(
             RegistryPackageType registryPackage, String id, Class<T> type) {
-        if (StringUtils.isEmpty(id)) {
-            return Collections.emptyList();
-        }
-        Set<String> targetObjectIds = getAssociationTargetObjectIds(registryPackage, id);
-        if (CollectionUtils.isEmpty(targetObjectIds)) {
+        if (StringUtils.isEmpty(id) || registryPackage == null) {
             return Collections.emptyList();
         }
 
-        return getObjectsFromRegistryObjectList(registryPackage, type).stream()
-                .filter(isAssociatedObject(targetObjectIds))
-                .collect(Collectors.toList());
+        return getAssociatedObjects(registryPackage.getRegistryObjectList(), id, type);
     }
 
     /**
@@ -346,20 +340,6 @@ public class RegistryPackageTypeHelper {
 
     private Predicate<RegistryObjectType> isAssociatedObject(Set<String> associatedIds) {
         return p -> associatedIds.contains(p.getId());
-    }
-
-    private Set<String> getAssociationTargetObjectIds(RegistryPackageType registryPackage,
-            String sourceId) {
-        Set<String> targetObjectIds = new HashSet<>();
-
-        if (registryPackage == null) {
-            return targetObjectIds;
-        }
-
-        if (registryPackage.isSetRegistryObjectList()) {
-            targetObjectIds = getAssociationTargetObjectIds(registryPackage.getRegistryObjectList(), sourceId);
-        }
-        return targetObjectIds;
     }
 
     private Set<String> getAssociationTargetObjectIds(RegistryObjectListType registryObjectList,
