@@ -13,13 +13,13 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static com.jayway.restassured.RestAssured.given;
-import static ddf.test.itests.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.boon.json.JsonFactory;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,8 +46,6 @@ import com.jayway.restassured.specification.ResponseSpecification;
 
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
-import ddf.common.test.BeforeExam;
-import ddf.test.itests.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -74,6 +74,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
             getServiceManager().startFeature(true, "catalog-ui");
+            getServiceManager().startFeature(true, "ddf-itest-dependencies");
             getServiceManager().waitForHttpEndpoint(API_PATH.getUrl());
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
@@ -278,8 +279,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     @Test
     public void testWorkspaceQueries() {
-        Map<String, Object> query = ImmutableMap.<String, Object>builder()
-                .put(Core.TITLE, "title")
+        Map<String, Object> query = ImmutableMap.<String, Object>builder().put(Core.TITLE, "title")
                 .put(QUERY_CQL, "query")
                 .put(QUERY_ENTERPRISE, true)
                 .build();
@@ -299,8 +299,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     @Test
     public void testWorkspaceQueriesWithSpecificSources() {
-        Map<String, Object> query = ImmutableMap.<String, Object>builder()
-                .put(Core.TITLE, "title")
+        Map<String, Object> query = ImmutableMap.<String, Object>builder().put(Core.TITLE, "title")
                 .put(QUERY_CQL, "query")
                 .put("src", ImmutableList.of("source a", "source b"))
                 .build();
