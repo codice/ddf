@@ -731,16 +731,16 @@ All bundles are then packaged into the KAR archive.
 	            same feature twice.
 	            Refer to Karaf forum posting at http://karaf.922171.n3.nabble.com/Duplicate-feature-repository-entry-using-archive-kar-to-build-deployable-applications-td3650850.html
 	            -->
-	            <resourcesDir>${project.build.directory}/doesNotExist</resourcesDir>
+	            <resourcesDir>${variable-prefix}project.build.directory}/doesNotExist</resourcesDir>
 
 	            <!--
 	            Location of the features.xml file. If it references properties that need to be filtered, e.g., ${project.version}, it will need to be
 	            filtered by the maven-resources-plugin.
 	            -->
-	            <featuresFile><basedir>/target/classes/features.xml</featuresFile>
+	            <featuresFile>${variable-prefix}basedir}/target/classes/features.xml</featuresFile>
 
-	            <!-- Name of the kar file (.kar extension added by default). If not specified, defaults to ${project.build.finalName} -->
-	            <finalName>${ddf-branding-lowercase}-ifis-${project.version}</finalName>
+	            <!-- Name of the kar file (.kar extension added by default). If not specified, defaults to ${variable-prefix}project.build.finalName} -->
+	            <finalName>${branding-lowercase}-ifis-${project.version}</finalName>
 	        </configuration>
 	    </execution>
     </executions>
@@ -790,7 +790,7 @@ This example demonstrates a plugin that allows the ${branding} to use the Admin 
 +
 [source,java,linenums]
 ----
-import org.codice.${ddf-branding-lowercase}.admin.application.plugin.AbstractApplicationPlugin;
+import org.codice.ddf.admin.application.plugin.AbstractApplicationPlugin;
 
 public class SourcesPlugin extends AbstractApplicationPlugin {
     /**
