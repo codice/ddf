@@ -1,0 +1,30 @@
+@{customElementNamespace}user {
+    .customElement;
+    overflow: auto;
+
+    button {
+        width: 100%;
+    }
+
+    .user-info {
+        padding: @mediumSpacing;
+        overflow: auto;
+        max-height: ~'calc(100% - @{minimumButtonSize} - @{minimumDividerSize})';
+        text-align: center;
+
+        div + div {
+            margin-top: @mediumSpacing;
+        }
+    }
+
+    input + input {
+        margin-top: @mediumSpacing;
+    }
+
+    input {
+        width: 100%;
+        text-align: center;
+    }
+
+
+}

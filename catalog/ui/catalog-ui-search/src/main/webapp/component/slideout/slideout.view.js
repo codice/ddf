@@ -17,6 +17,7 @@ var Marionette = require('marionette');
 var template = require('./slideout.hbs');
 var CustomElements = require('js/CustomElements');
 var $ = require('jquery');
+var router = require('component/router/router');
 
 var componentName = 'slideout';
 
@@ -24,7 +25,8 @@ module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register(componentName),
     events: {
-        'click': 'handleOutsideClick'
+        'click': 'handleOutsideClick',
+        'keydown': 'handleSpecialKeys'
     },
     regions: {
         'slideoutContent': '.slideout-content'
@@ -32,9 +34,14 @@ module.exports = Marionette.LayoutView.extend({
     initialize: function() {
         $('body').append(this.el);
         this.listenForClose();
+        this.listenForEscape();
+        this.listenTo(router, 'change', this.close);
+    },
+    listenForEscape: function() {
+        $(window).on('keydown.'+CustomElements.getNamespace()+componentName, this.handleSpecialKeys.bind(this));
     },
     listenForClose: function() {
-        this.$el.on(CustomElements.getNamespace() + 'close-' + componentName, function() {
+        this.$el.on('closeSlideout.' + CustomElements.getNamespace(), function() {
             this.close();
         }.bind(this));
     },
@@ -42,14 +49,30 @@ module.exports = Marionette.LayoutView.extend({
         this.$el.toggleClass('is-open', true);
     },
     handleOutsideClick: function(event) {
-        if (event.target === this.el) {
+        if (event.target === this.el.children[0]) {
             this.close();
         }
     },
     close: function() {
         this.$el.toggleClass('is-open', false);
+        $('html').toggleClass('blur-content', false);
     },
-    updateContent: function(view){
+    updateContent: function(view) {
         this.slideoutContent.show(view);
+    },
+    handleSpecialKeys: function(event) {
+        var code = event.keyCode;
+        if (event.charCode && code == 0)
+            code = event.charCode;
+        switch (code) {
+            case 27:
+                // Escape
+                event.preventDefault();
+                this.handleEscape();
+                break;
+        }
+    },
+    handleEscape: function() {
+        this.close();
     }
 });

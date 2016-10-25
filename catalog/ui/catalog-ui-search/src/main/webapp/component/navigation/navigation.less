@@ -1,5 +1,6 @@
 @{customElementNamespace}navigation {
   .customElement;
+  position: relative;
   background: @navigation-background-color;
   vertical-align: top;
   color: @text-color;
@@ -18,53 +19,21 @@
     height: 2*@minimumLineSize;
   }
 
+  > .navigation-left {
+    width: @minimumButtonSize;
+  }
+
   > .navigation-right {
-    float: right;
-    padding: 0px 20px;
-  }
-
-  .navigation-home {
-    font-size: @minimumFontSize;
-    vertical-align: top;
-    line-height: 2*@minimumLineSize;
-    width: @minimumButtonSize;
-    text-align: center;
-    display: inline-block;
-    cursor: pointer;
-  }
-
-  .navigation-item {
-    display: inline-block;
-    min-width: @minimumButtonSize;
-    height: 2*@minimumLineSize;
-    text-align: center;
-  }
-
-  .experimental {
-    background: lighten(@warning-color, 15%);
-    .is-bold();
-    padding: 10px 20px;
-    border-radius: 1px;
-  }
-
-  > .navigation-right .item-help,
-  > .navigation-right .item-ingest,
-  > .navigation-right .item-user-settings {
-    cursor: pointer;
-    width: @minimumButtonSize;
-    text-align: center;
+    position: absolute;
+    right: 0px;
+    max-width: 7*@minimumButtonSize;
   }
 
   > .navigation-middle {
-    max-width: ~'calc(100% - 450px)';
+    width: ~'calc(100% - 8*@{minimumButtonSize})';
     overflow-x: auto;
     overflow-y: hidden;
     text-overflow: ellipsis;
-  }
-
-  > .navigation-left,
-  > .navigation-middle {
-    float: left;
   }
 
 }

@@ -84,8 +84,6 @@ define([
     //load all modules
     Application.App.addInitializer(function () {
         require([
-            'js/module/Notification.module',
-            'js/module/Tasks.module',
             'js/router'
         ], function(){
             setTimeout(function(){

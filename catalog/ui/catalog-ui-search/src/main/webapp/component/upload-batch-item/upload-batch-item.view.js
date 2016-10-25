@@ -54,14 +54,18 @@ define([
             this.$el.toggleClass('is-finished', finished);
         },
         removeModel: function() {
-            this.model.collection.remove(this.model);
-            user.get('user').get('preferences').savePreferences();
+            this.$el.toggleClass('is-destroyed', true);
+            setTimeout(function(){
+                this.model.collection.remove(this.model);
+                user.get('user').get('preferences').savePreferences();
+            }.bind(this), 250);
         },
         stopUpload: function() {
             this.model.cancel();
         },
         expandUpload: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+            this.$el.trigger('closeSlideout.' + CustomElements.getNamespace());
             wreqr.vent.trigger('router:navigate', {
                 fragment: 'uploads/' + this.model.id,
                 options: {

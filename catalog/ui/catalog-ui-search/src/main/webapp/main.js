@@ -23,6 +23,7 @@ require([
     'properties',
     'handlebars/dist/handlebars',
     'component/announcement',
+    'js/requestAnimationFramePolyfill',
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
     'cesium.css',
@@ -88,7 +89,7 @@ require([
     };
     //$(window).trigger('resize');
     $(document).ready(function () {
-        document.title = properties.branding;
+        document.title = properties.branding + ' ' + properties.product;
     });
     // Actually start up the application.
     app.App.start({});

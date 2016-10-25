@@ -1,9 +1,11 @@
 @{customElementNamespace}alert-item {
+  overflow: hidden;
   display: block;
   white-space: nowrap;
-  padding: 0rem 2.5rem;
   position: relative;
   cursor: pointer;
+  height: 4*@minimumButtonSize;
+  animation: new-alert-item @coreTransitionTime 1 ease-in-out;
 
   .alert-details,
   .alert-delete {
@@ -11,7 +13,7 @@
   }
 
   .alert-details {
-    padding-right: @minimumButtonSize;
+    width: ~'calc(100% - @{minimumButtonSize})';
   }
 
   .alert-delete {
@@ -23,9 +25,33 @@
   }
 
   .details-detail {
-    line-height: @minimumLineSize;
-    height: @minimumLineSize;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    text-align: center;
+    background: @lighten-inherited-background-color;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0rem @minimumSpacing;
   }
+
+  .details-time {
+    background: none;
+    padding: 0rem @minimumSpacing;
+    text-align: right;
+    > span:first-of-type {
+      position: absolute;
+      left: @minimumSpacing;
+      height: inherit;
+      line-height: inherit;
+    }
+  }
+}
+
+@{customElementNamespace}alert-item.is-destroyed {
+  height: 0px !important;
+  margin: 0px !important;
+  transition: height @coreTransitionTime linear, margin @coreTransitionTime linear;
+  overflow: hidden;
 }
 
 @{customElementNamespace}alert-item-collection {
@@ -40,3 +66,12 @@
     text-align: center;
   }
 }
+
+@keyframes new-alert-item{
+        0% {
+            height: 0px;
+        }
+        100% {
+            height: 4*@minimumButtonSize;
+        }
+    }

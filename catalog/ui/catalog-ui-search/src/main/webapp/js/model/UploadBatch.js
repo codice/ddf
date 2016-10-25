@@ -143,14 +143,17 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     start: function() {
         if (this.options.dropzone) {
+            this.set({
+                sending: true,
+                sentAt: Date.now() //- Math.random() * 14 * 86400000
+            });
             wreqr.vent.trigger('uploads:add', this);
             this.listenTo(this, 'change', updatePreferences);
             this.options.dropzone.options.autoProcessQueue = true;
             this.options.dropzone.processQueue();
-            this.set({
-                sending: true,
-                sentAt: Date.now()
-            });
         }
+    },
+    getTimeComparator: function(){
+        return this.get('sentAt');
     }
 });

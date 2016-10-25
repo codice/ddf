@@ -1,0 +1,36 @@
+@{customElementNamespace}navigation-right {
+    .customElement;
+    white-space: nowrap;
+    overflow: hidden;
+
+    .navigation-item {
+        display: inline-block;
+        width: @minimumButtonSize;
+        height: 100%;
+        text-align: center;
+        vertical-align: top;
+    }
+
+    .navigation-item.item-user {
+        max-width: 4*@minimumButtonSize;
+        width: auto;
+        padding: 0px @mediumSpacing 0px 0px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+}
+
+@{customElementNamespace}navigation-right.is-guest {
+
+    .user-unique {
+        display: none;
+    }
+}
+
+@{customElementNamespace}navigation-right:not(.is-guest) {
+
+    .user-guest {
+        display: none;
+    }
+}

@@ -124,7 +124,7 @@ define([
                             var metacardIds = queryClone.get('result').get('results').map(function (result) {
                                 return result.get('metacard').get('properties').get('id');
                             });
-                            var when = (new Date(Date.now())).toISOString();
+                            var when = Date.now();
                             if (metacardIds.length > 0) {
                                 wreqr.vent.trigger('alerts:add', {
                                     queryId: queryId,

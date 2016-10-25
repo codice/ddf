@@ -165,6 +165,7 @@ define([
                 case 27:
                     // Escape
                     event.preventDefault();
+                    event.stopPropagation();
                     this.handleEscape();
                     break;
                 case 38:

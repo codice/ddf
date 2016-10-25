@@ -27,6 +27,9 @@ define([
             if (!this.id){
                 this.set('id', Common.generateUUID());
             }
+        },
+        getTimeComparator: function(){
+            return this.get('when');
         }
     });
 });

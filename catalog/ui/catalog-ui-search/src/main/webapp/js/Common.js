@@ -104,6 +104,11 @@ define([
             });
             return requestDetails;
         },
+        executeAfterRepaint: function(callback){
+            window.requestAnimationFrame(function(){
+                window.requestAnimationFrame(callback);
+            });
+        },
         escapeHTML: function(value){
             return $("<div>").text(value).html();
         },

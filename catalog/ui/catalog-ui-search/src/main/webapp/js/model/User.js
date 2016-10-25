@@ -20,8 +20,9 @@ define([
     './Alert',
     'js/Common',
     'js/model/UploadBatch',
+    'component/announcement',
     'backboneassociations'
-], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch) {
+], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement) {
     'use strict';
 
     var User = {};
@@ -167,19 +168,12 @@ define([
             }
         ],
         initialize: function(){
-            if (!this.get('alertPersistance')) {
-                this.get('alerts').reset();
-            } else {
-                var expiredAlerts = this.get('alerts').filter(function(alert){
-                        var recievedAt = (new Date(alert.get('when'))).getTime();
-                        return ((Date.now() - recievedAt) > this.get('alertExpiration'));
-                }.bind(this));
-                this.get('alerts').remove(expiredAlerts);
-            }
+            this.handleAlertPersistance();
             this.listenTo(wreqr.vent, 'alerts:add', this.addAlert);
             this.listenTo(wreqr.vent, 'uploads:add', this.addUpload);
             this.listenTo(wreqr.vent, 'preferences:save', this.savePreferences);
-            this.listenTo(this.get('alerts'), 'remove', this.handleRemove);
+            this.listenTo(this.get('alerts'), 'remove', this.savePreferences);
+            this.listenTo(this.get('uploads'), 'remove', this.savePreferences);
             this.listenTo(this, 'change:visualization', this.savePreferences);
             this.listenTo(this, 'change:fontSize', this.savePreferences);
         },
@@ -199,12 +193,44 @@ define([
                 window.localStorage.setItem('preferences', JSON.stringify(this.toJSON()));
             } else {
                 this.save(this.attributes, {
-                    drop: true
+                    drop: true,
+                    customErrorHandling: true,
+                    error: function(){
+                        announcement.announce({
+                            title: 'Issue Authorizing Request',
+                            message: 'You appear to have been logged out.  Please sign in again.',
+                            type: 'error'
+                        });
+                    }.bind(this)
                 });
             }
         },
         resetBlacklist: function(){
             this.set('resultBlacklist', []);
+        },
+        handleAlertPersistance: function(){
+            if (!this.get('alertPersistance')) {
+                this.get('alerts').reset();
+                this.get('uploads').reset();
+            } else {
+                var expiration = this.get('alertExpiration');
+                this.removeExpiredAlerts(expiration);
+                this.removeExpiredUploads(expiration);
+            }
+        },
+        removeExpiredAlerts: function(expiration){
+            var expiredAlerts = this.get('alerts').filter(function(alert){
+                var recievedAt = alert.getTimeComparator();
+                return ((Date.now() - recievedAt) > expiration);
+            });
+            this.get('alerts').remove(expiredAlerts);
+        },
+        removeExpiredUploads: function(expiration){
+            var expiredUploads = this.get('uploads').filter(function(upload){
+                var recievedAt = upload.getTimeComparator();
+                return ((Date.now() - recievedAt) > expiration);
+            });
+            this.get('uploads').remove(expiredUploads);
         },
         parse: function(data, options){
             if (options && options.drop) {
@@ -248,7 +274,11 @@ define([
         ],
         initialize: function () {
             this.set('user', new User.Model());
+            this.listenTo(this, 'sync', this.handleSync);
             this.fetch();
+        },
+        handleSync: function(){
+            this.get('user').get('preferences').handleAlertPersistance();
         },
         getGuestPreferences: function () {
             try {

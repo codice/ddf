@@ -50,11 +50,15 @@ define([
             }
         },
         removeModel: function(){
-            this.model.collection.remove(this.model);
-            user.get('user').get('preferences').savePreferences();
+            this.$el.toggleClass('is-destroyed', true);
+            setTimeout(function(){
+                this.model.collection.remove(this.model);
+                user.get('user').get('preferences').savePreferences();
+            }.bind(this), 250);
         },
         expandAlert: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+            this.$el.trigger('closeSlideout.' + CustomElements.getNamespace());
             wreqr.vent.trigger('router:navigate', {
                 fragment: 'alerts/'+this.model.id,
                 options: {
@@ -76,7 +80,7 @@ define([
                 when: Common.getMomentDate(modelJSON.when),
                 queryName: query ? query.get('title') : 'Unknown Search',
                 workspaceName: workspace ? workspace.get('title') : 'Unknown Workspace'
-            }
+            };
         }
     });
 });

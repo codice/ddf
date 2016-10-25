@@ -1,33 +1,43 @@
 @{customElementNamespace}slideout {
-    overflow: hidden;
     display: block;
-    position: absolute;
+    position: fixed;
     z-index: @zIndexSlideout;
     left: 100%;
     top: 0%;
     width: 100%;
     height: 100%;
-    transform: translateX(0%);
-    transform-style: preserve-3d;
-    transition: transform @coreTransitionTime ease-in-out;
+
+    > .slideout-cover {
+        position: fixed;
+        z-index: @zIndexSlideout;
+        left: 100%;
+        top: 0%;
+        width: 100%;
+        height: 100%;
+        transform: translateX(0%);
+    }
 
     > .slideout-content {
         background: @navigation-background-color;
-        position: absolute;
+        position: fixed;
         z-index: @zIndexSlideout;
-        left: 0%;
+        left: 100%;
         top: ~'calc(2*@{minimumLineSize})';
         width: @minimumScreenSize;
         height: ~'calc(100% - 2*@{minimumLineSize})';
-        transition: left @coreTransitionTime ease-in-out;
+        transition: transform @coreTransitionTime ease-in-out;
+        transform: translateX(0%);
     }
 
 }
 
 @{customElementNamespace}slideout.is-open {
-    transform: translateX(-100%);
+    left: 0%;
 
+    > .slideout-cover {
+        transform: translateX(-100%);
+    }
     > .slideout-content {
-        left: ~'calc(100% - @{minimumScreenSize})';
+       transform: translateX(-100%);
     }
 }

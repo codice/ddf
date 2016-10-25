@@ -26,6 +26,7 @@ define(function (require) {
     var _ = require('underscore');
 
     var properties = {
+        product: 'Catalog',
         canvasThumbnailScaleFactor : 10,
         slidingAnimationDuration : 150,
 

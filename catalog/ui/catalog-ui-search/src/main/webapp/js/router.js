@@ -34,10 +34,18 @@ define([
     'component/singletons/user-instance',
     'component/upload/upload',
     'component/upload/upload.view',
+    'component/navigator/navigator.view',
+    'component/singletons/slideout.left.view-instance.js',
     'js/jquery.whenAll'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
-            recentInstance, RecentView, IngestView, router, user, uploadInstance, UploadView) {
+            recentInstance, RecentView, IngestView, router, user, uploadInstance, UploadView,
+            NavigatorView, SlideoutLeftViewInstance) {
+
+    function toggleNavigator() {
+        SlideoutLeftViewInstance.updateContent(new NavigatorView());
+        SlideoutLeftViewInstance.open();
+    }
 
     function hideViews() {
         Application.App.workspaceRegion.$el.addClass("is-hidden");
@@ -117,18 +125,14 @@ define([
                         Application.App.workspaceRegion.$el.removeClass('is-hidden');
                         this.updateRoute(name, path, args);
                     } else {
+                        toggleNavigator();
                         this.listenTo(ConfirmationView.generateConfirmation({
-                                prompt: 'Either the workspace has been deleted or you no longer have permission to access it. ',
-                                yes: 'Go to Workspaces home screen'
+                                prompt: 'Either the workspace has been deleted or you no longer have permission to access it.  ' +
+                                'Please use the left navigation to go somewhere else.',
+                                yes: 'Okay'
                             }),
                             'change:choice',
                             function(){
-                                wreqr.vent.trigger('router:navigate', {
-                                    fragment: 'workspaces',
-                                    options: {
-                                        trigger: true
-                                    }
-                                });
                             });
                     }
                     break;
@@ -150,19 +154,15 @@ define([
                     });
                     $.whenAll.apply(this, queryForMetacard.startSearch()).always(function(){
                         if (queryForMetacard.get('result').get('results').length === 0) {
+                            toggleNavigator();
                             self.listenTo(ConfirmationView.generateConfirmation({
                                     prompt: 'Metacard(s) unable to be found.  ' +
-                                        'This could be do to unavailable sources, deletion of the metacard, or lack of permissions to view the metacard.',
-                                    yes: 'Go to Workspaces home screen'
+                                        'This could be do to unavailable sources, deletion of the metacard, or lack of permissions to view the metacard.  ' +
+                                        'Please use the left navigation to go somewhere else.',
+                                    yes: 'Okay.'
                                 }),
                                 'change:choice',
                                 function(){
-                                    wreqr.vent.trigger('router:navigate', {
-                                        fragment: 'workspaces',
-                                        options: {
-                                            trigger: true
-                                        }
-                                    });
                                 });
                         } else {
                             metacardInstance.set({
@@ -181,18 +181,13 @@ define([
                     var alertId = args[0];
                     var alert = user.get('user').get('preferences').get('alerts').get(alertId);
                     if (!alert) {
+                        toggleNavigator();
                         self.listenTo(ConfirmationView.generateConfirmation({
-                                prompt: 'Alert unable to be found.  ',
-                                yes: 'Go to Workspaces home screen'
+                                prompt: 'Alert unable to be found.  Please use the left navigation to go somewhere else.',
+                                yes: 'Okay'
                             }),
                             'change:choice',
                             function () {
-                                wreqr.vent.trigger('router:navigate', {
-                                    fragment: 'workspaces',
-                                    options: {
-                                        trigger: true
-                                    }
-                                });
                             });
                     } else {
                         queryForMetacards = new Query.Model({
@@ -231,18 +226,13 @@ define([
                     var uploadId = args[0];
                     var upload = user.get('user').get('preferences').get('uploads').get(uploadId);
                     if (!upload) {
+                        toggleNavigator();
                         self.listenTo(ConfirmationView.generateConfirmation({
-                                prompt: 'Upload unable to be found.  ',
-                                yes: 'Go to Workspaces home screen'
+                                prompt: 'Upload unable to be found.  Please use the left navigation to go somewhere else.',
+                                yes: 'Okay'
                             }),
                             'change:choice',
                             function () {
-                                wreqr.vent.trigger('router:navigate', {
-                                    fragment: 'workspaces',
-                                    options: {
-                                        trigger: true
-                                    }
-                                });
                             });
                     } else {
                         queryForMetacards = new Query.Model({

@@ -11,7 +11,11 @@
  *
  **/
  --}}
-<div class="alert-details">
+<div class="alert-details is-medium-font">
+    <div class="details-time details-detail">
+        <span class="fa fa-search"></span>
+        <span>{{when}}</span>
+    </div>
     <div class="details-workspace details-detail">
         {{workspaceName}}
     </div>
@@ -20,9 +24,6 @@
     </div>
     <div class="details-amount details-detail">
         {{amount}} new items found
-    </div>
-    <div class="details-time details-detail">
-        {{when}}
     </div>
 </div>
 <button class="alert-delete is-negative">

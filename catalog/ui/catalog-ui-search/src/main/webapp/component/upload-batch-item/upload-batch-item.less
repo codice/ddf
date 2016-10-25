@@ -5,6 +5,7 @@
   height: 3*@minimumButtonSize;
   overflow: hidden;
   cursor: pointer;
+  animation: new-upload-batch-item @coreTransitionTime 1 ease-in-out;
 
   .upload-details,
   .upload-actions {
@@ -12,16 +13,21 @@
   }
 
   .upload-details {
-    max-width: 420px;
-    min-width: 300px;
-    width: 10vw;
-    padding-right: @minimumButtonSize;
+    width: ~'calc(100% - @{minimumButtonSize})';
   }
 
   .details-date {
+    padding: 0rem @minimumSpacing;
     height: @minimumButtonSize;
     line-height: @minimumButtonSize;
-    text-align: center;
+    text-align: right;
+    position: relative;
+    > span:first-of-type {
+      position: absolute;
+      left: @minimumSpacing;
+      height: inherit;
+      line-height: inherit;
+    }
   }
 
   .details-summary {
@@ -57,6 +63,12 @@
   }
 }
 
+@{customElementNamespace}upload-batch-item.is-destroyed {
+  height: 0px !important;
+  margin: 0px !important;
+  transition: height @coreTransitionTime linear, margin @coreTransitionTime linear;
+}
+
 @{customElementNamespace}upload-batch-item-collection {
 
   @{customElementNamespace}upload-batch-item + @{customElementNamespace}upload-batch-item {
@@ -69,3 +81,12 @@
     text-align: center;
   }
 }
+
+@keyframes new-upload-batch-item{
+        0% {
+            height: 0px;
+        }
+        100% {
+            height: 3*@minimumButtonSize;
+        }
+    }
