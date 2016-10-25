@@ -24,8 +24,10 @@ define([
         },
         getEnums: function(){
             $.when.apply(this, this.metacardDefinitions.map(function(metacardDefinition){
-                return $.get( '/search/catalog/internal/enumerations/'+metacardDefinition);
-            })).always(function(){
+                return $.get( '/search/catalog/internal/enumerations/metacardtype/'+metacardDefinition);
+            }).concat([
+                $.get( '/search/catalog/internal/enumerations/attribute/datatype') // always retrieve (for match type dropdown)
+            ])).always(function(){
                 _.forEach(arguments, function(response){
                     _.extend(this.enums, response[0]);
                 }.bind(this));

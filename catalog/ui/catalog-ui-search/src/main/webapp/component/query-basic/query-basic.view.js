@@ -39,7 +39,8 @@ define([
             typesFound[CQLUtils.getProperty(subfilter)] = true;
         });
         typesFound = Object.keys(typesFound);
-        return typesFound.length === 1 && (typesFound[0] === 'metadata-content-type');
+        return (typesFound.length === 2) && (typesFound.indexOf('metadata-content-type') >= 0) && 
+            (typesFound.indexOf('datatype') >=0);
     }
 
     function isAnyDate(filter){
@@ -152,9 +153,9 @@ define([
         setupTypeSpecific: function(){
             var currentValue = [];
             if (this.filter['metadata-content-type']){
-                currentValue = this.filter['metadata-content-type'].map(function(subfilter){
+                currentValue = _.uniq(this.filter['metadata-content-type'].map(function(subfilter){
                     return subfilter.value;
-                });
+                }));
             }
             this.basicTypeSpecific.show(new PropertyView({
                 model: new Property({
@@ -171,7 +172,12 @@ define([
                             }
                         });
                         return enumArray;
-                    }, []),
+                    }, metacardDefinitions.enums.datatype.map(function(value){
+                       return {
+                            label: value,
+                            value: value
+                       };
+                    })),
                     value: [currentValue],
                     id: 'Types'
                 })
@@ -519,7 +525,9 @@ define([
                     type: 'OR',
                     filters: typesSpecific.map(function(specificType){
                         return CQLUtils.generateFilter('=', 'metadata-content-type', specificType);
-                    })
+                    }).concat(typesSpecific.map(function(specificType){
+                        return CQLUtils.generateFilter('=', 'datatype', specificType);
+                    }))
                 };
                 filters.push(typeFilter)
             }
