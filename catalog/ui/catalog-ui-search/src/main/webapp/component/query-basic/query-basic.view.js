@@ -33,6 +33,14 @@ define([
              QuerySrcView, PropertyView, Property, cql, metacardDefinitions, sources,
             CQLUtils, QuerySettingsView) {
 
+    function isNested(filter){
+        var nested = false;
+        filter.filters.forEach(function(subfilter){
+            nested = nested || subfilter.filters;
+        });
+        return nested;
+    }
+
     function isTypeLimiter(filter){
         var typesFound = {};
         filter.filters.forEach(function(subfilter){
@@ -72,14 +80,14 @@ define([
                        }).length === 0) {
                        propertyValueMap[CQLUtils.getProperty(filter)].push(filter);
                    }
-               } else if (isAnyDate(filter)) {
+               } else if (!isNested(filter) && isAnyDate(filter)) {
                    propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || [];
                    if (propertyValueMap['anyDate'].filter(function(existingFilter){
                            return existingFilter.type === filter.filters[0].type;
                        }).length === 0) {
                        propertyValueMap['anyDate'].push(filter.filters[0]);
                    }
-               } else if (isTypeLimiter(filter)){
+               } else if (!isNested(filter) && isTypeLimiter(filter)){
                    propertyValueMap[CQLUtils.getProperty(filter.filters[0])] = propertyValueMap[CQLUtils.getProperty(filter.filters[0])] || [];
                    filter.filters.forEach(function(subfilter){
                        propertyValueMap[CQLUtils.getProperty(filter.filters[0])].push(subfilter);
