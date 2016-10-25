@@ -412,8 +412,13 @@ public class MetacardApplication implements SparkApplication {
             return ImmutableMap.of("message", "Successfully deleted.");
         }, util::getJson);
 
-        get("/enumerations/:type", APPLICATION_JSON, (req, res) -> {
+        get("/enumerations/metacardtype/:type", APPLICATION_JSON, (req, res) -> {
             return util.getJson(enumExtractor.getEnumerations(req.params(":type")));
+        });
+
+        get("/enumerations/attribute/:attribute", APPLICATION_JSON, (req, res) -> {
+            return util.getJson(enumExtractor.getAttributeEnumerations(req.params(":attribute")));
+
         });
 
         after((req, res) -> {

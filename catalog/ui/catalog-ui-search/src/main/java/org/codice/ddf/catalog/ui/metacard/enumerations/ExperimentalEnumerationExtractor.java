@@ -46,6 +46,28 @@ public class ExperimentalEnumerationExtractor {
         this.metacardTypes = metacardTypes;
     }
 
+    public Map<String, Set<String>> getAttributeEnumerations(String attribute) {
+        return attributeValidatorRegistry.getValidators(attribute)
+                .stream()
+                .map(av -> av.validate(new AttributeImpl(attribute, (Serializable) null)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(avr -> !avr.getSuggestedValues()
+                        .isEmpty())
+                .map(avr -> avr.getAttributeValidationViolations()
+                        .stream()
+                        .map(ValidationViolation::getAttributes)
+                        .flatMap(Set::stream)
+                        .distinct()
+                        .collect(Collectors.toMap(o -> o, o -> avr.getSuggestedValues())))
+                .reduce((m1, m2) -> {
+                    m2.entrySet()
+                            .forEach(e -> m1.merge(e.getKey(), e.getValue(), Sets::union));
+                    return m1;
+                })
+                .orElseGet(HashMap::new);
+    }
+
     public Map<String, Set<String>> getEnumerations(@Nullable String metacardType) {
         if (isBlank(metacardType)) {
             metacardType = BasicTypes.BASIC_METACARD.getName();
