@@ -16,15 +16,22 @@ define([
     'marionette',
     'backbone',
     'wreqr',
-    './map-actions.hbs'
-], function (_, Marionette, Backbone, wreqr, template) {
+    './map-actions.hbs',
+    'js/CustomElements'
+], function (_, Marionette, Backbone, wreqr, template, CustomElements) {
     "use strict";
 
     var mapActionsView = Marionette.ItemView.extend({
         template: template,
-
+        tagName: CustomElements.register('map-actions'),
         events: {
             'click .overlay-link': 'overlayImage'
+        },
+        initialize: function(){
+            this.handleEmpty();
+        },
+        handleEmpty: function(){
+            this.$el.toggleClass('is-empty', this.getMapActions().length === 0);
         },
 
         serializeData: function () {

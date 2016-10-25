@@ -48,7 +48,7 @@ define([
             }
         },
         onRender: function () {
-            this.mapActions.show(new MapActions({ model: this.model }));
+            this.mapActions.show(new MapActions({ model: this.model }), {replaceElement: true});
         }
     });
 });
