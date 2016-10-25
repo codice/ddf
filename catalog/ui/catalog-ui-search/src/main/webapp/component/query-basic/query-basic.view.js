@@ -44,17 +44,19 @@ define([
     }
 
     function isAnyDate(filter){
-        var propertiesToCheck = ['created','modified','effective'];
+        var propertiesToCheck = ['created','modified','effective', 'metacard.created', 'metacard.modified'];
         var typesFound = {};
-        if (filter.filters.length === 3){
+        var valuesFound = {};
+        if (filter.filters.length === propertiesToCheck.length){
             filter.filters.forEach(function(subfilter){
                 typesFound[subfilter.type] = true;
+                valuesFound[subfilter.value] = true;
                 var indexOfType = propertiesToCheck.indexOf(CQLUtils.getProperty(subfilter));
                 if (indexOfType >= 0){
                     propertiesToCheck.splice(indexOfType, 1);
                 }
             });
-            return propertiesToCheck.length === 0 && Object.keys(typesFound).length === 1;
+            return propertiesToCheck.length === 0 && Object.keys(typesFound).length === 1 && Object.keys(valuesFound).length === 1;
         }
         return false;
     }
@@ -254,18 +256,8 @@ define([
         setupTimeBefore: function(){
             var currentBefore = '';
             var currentAfter = '';
-            var propertyToCheck;
             if (this.filter.anyDate) {
-                propertyToCheck = 'anyDate'
-            } else if (this.filter.created) {
-                propertyToCheck = 'created';
-            } else if (this.filter.modified) {
-                propertyToCheck = 'modified'
-            } else if (this.filter.effective) {
-                propertyToCheck = 'effective';
-            }
-            if (propertyToCheck) {
-                this.filter[propertyToCheck].forEach(function(subfilter){
+                this.filter.anyDate.forEach(function(subfilter){
                     if (subfilter.type === 'BEFORE'){
                         currentBefore = subfilter.value;
                     } else {
@@ -285,18 +277,8 @@ define([
         setupTimeAfter: function(){
             var currentBefore = '';
             var currentAfter = '';
-            var propertyToCheck;
             if (this.filter.anyDate) {
-                propertyToCheck = 'anyDate'
-            } else if (this.filter.created) {
-                propertyToCheck = 'created';
-            } else if (this.filter.modified) {
-                propertyToCheck = 'modified'
-            } else if (this.filter.effective) {
-                propertyToCheck = 'effective';
-            }
-            if (propertyToCheck) {
-                this.filter[propertyToCheck].forEach(function(subfilter){
+                this.filter.anyDate.forEach(function(subfilter){
                     if (subfilter.type === 'BEFORE'){
                         currentBefore = subfilter.value;
                     } else {
@@ -316,18 +298,8 @@ define([
         setupTimeBetween: function(){
             var currentBefore = '';
             var currentAfter = '';
-            var propertyToCheck;
             if (this.filter.anyDate) {
-                propertyToCheck = 'anyDate'
-            } else if (this.filter.created) {
-                propertyToCheck = 'created';
-            } else if (this.filter.modified) {
-                propertyToCheck = 'modified'
-            } else if (this.filter.effective) {
-                propertyToCheck = 'effective';
-            }
-            if (propertyToCheck) {
-                this.filter[propertyToCheck].forEach(function(subfilter){
+                this.filter.anyDate.forEach(function(subfilter){
                     if (subfilter.type === 'BEFORE'){
                         currentBefore = subfilter.value;
                     } else {
@@ -354,20 +326,10 @@ define([
         },
         setupTimeInput: function(){
             var currentValue = 'any';
-            var propertyToCheck;
             if (this.filter.anyDate) {
-                propertyToCheck = 'anyDate'
-            } else if (this.filter.created) {
-                propertyToCheck = 'created';
-            } else if (this.filter.modified) {
-                propertyToCheck = 'modified'
-            } else if (this.filter.effective) {
-                propertyToCheck = 'effective';
-            }
-            if (propertyToCheck) {
-                if (this.filter[propertyToCheck].length > 1) {
+                if (this.filter.anyDate.length > 1) {
                     currentValue = 'between'
-                } else if(this.filter[propertyToCheck][0].type === 'AFTER') {
+                } else if(this.filter.anyDate[0].type === 'AFTER') {
                     currentValue = 'after'
                 } else {
                     currentValue = 'before'
@@ -381,11 +343,11 @@ define([
                         label: 'Any',
                         value: 'any'
                     },{
-                        label: 'Before',
-                        value: 'before'
-                    },{
                         label: 'After',
                         value: 'after'
+                    },{
+                        label: 'Before',
+                        value: 'before'
                     }, {
                         label: 'Between',
                         value: 'between'
@@ -494,7 +456,9 @@ define([
                     filters: [
                         CQLUtils.generateFilter('BEFORE', 'created', timeBefore),
                         CQLUtils.generateFilter('BEFORE', 'modified', timeBefore),
-                        CQLUtils.generateFilter('BEFORE', 'effective', timeBefore)
+                        CQLUtils.generateFilter('BEFORE', 'effective', timeBefore),
+                        CQLUtils.generateFilter('BEFORE', 'metacard.created', timeBefore),
+                        CQLUtils.generateFilter('BEFORE', 'metacard.modified', timeBefore)
                     ]
                 };
                 filters.push(timeFilter);
@@ -505,7 +469,9 @@ define([
                     filters: [
                         CQLUtils.generateFilter('AFTER', 'created', timeAfter),
                         CQLUtils.generateFilter('AFTER', 'modified', timeAfter),
-                        CQLUtils.generateFilter('AFTER', 'effective', timeAfter)
+                        CQLUtils.generateFilter('AFTER', 'effective', timeAfter),
+                        CQLUtils.generateFilter('AFTER', 'metacard.created', timeAfter),
+                        CQLUtils.generateFilter('AFTER', 'metacard.modified', timeAfter)
                     ]
                 };
                 filters.push(timeFilter);
