@@ -14,8 +14,9 @@ define([
     'underscore',
     'backbone',
     'poller',
-    'properties'
-], function (_, Backbone, poller, properties) {
+    'properties',
+    'jquery'
+], function (_, Backbone, poller, properties, $) {
     "use strict";
 
     var Types = Backbone.Collection.extend({
@@ -62,6 +63,7 @@ define([
             poller.get(this, {
                 delay: properties.sourcePollInterval
             }).start();
+            this.determineLocalCatalog();
             this.fetch({async: false});
         },
         types: function () {
@@ -70,7 +72,13 @@ define([
         parse: function(response) {
             this._types.set(computeTypes(response));
             return response;
-        }
+        },
+        determineLocalCatalog: function(){
+            $.get('/search/catalog/internal/localcatalogid').then(function(data){
+                this.localCatalog = data['local-catalog-id'];
+            }.bind(this));
+        },
+        localCatalog: 'local'
     });
 
 });

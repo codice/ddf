@@ -549,7 +549,7 @@ define([
 
                 switch (data.federation) {
                     case 'local':
-                        data.src = ["local"];
+                        data.src = [Sources.localCatalog];
                         break;
                     case 'enterprise':
                         data.src = _.pluck(Sources.where({'available': true}), 'id');
