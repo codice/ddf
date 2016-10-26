@@ -26,8 +26,6 @@ define([
     // Load non attached libs and plugins
     'bootstrap',
     'backboneassociations',
-    'backbonecometd',
-    'jquerycometd',
     'modelbinder',
     'collectionbinder',
     'datepicker',

@@ -17,11 +17,8 @@ define([
     'wreqr',
     'underscore',
     'backbone',
-    '../menu-vertical',
-    'component/lightbox/lightbox.view.instance',
-    'component/ingest/ingest.view',
-    'js/view/ingest/IngestModal.view'
-], function (wreqr, _, Backbone, Vertical, lightboxInstance, IngestView, IngestModalView) {
+    '../menu-vertical'
+], function (wreqr, _, Backbone, Vertical, lightboxInstance) {
 
     var definition = [
         [

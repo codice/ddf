@@ -66,9 +66,7 @@ module.exports = {
         alias: {
             bootstrap: 'bootstrap/dist/js/bootstrap.min',
             bootstrapselect: 'bootstrap-select/dist/js/bootstrap-select.min',
-            cometd$: 'cometd/org/cometd',
             bootstrapDatepicker: 'eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
-            jquerycometd: 'cometd/jquery/jquery.cometd',
             perfectscrollbar: 'perfect-scrollbar/min/perfect-scrollbar.min',
             spin: 'spin.js/spin',
             q: 'q/q',
@@ -76,7 +74,6 @@ module.exports = {
             spectrum: 'spectrum/spectrum',
             // backbone
             backboneassociations: 'backbone-associations',
-            backbonecometd: 'backbone-cometd/backbone.cometd.extension',
             backboneundo: 'Backbone.Undo.js/Backbone.Undo',
             poller: 'backbone-poller/backbone.poller',
             underscore: 'lodash',
@@ -87,7 +84,6 @@ module.exports = {
             collectionbinder: 'backbone.modelbinder/Backbone.CollectionBinder',
             // application
             application: 'js/application',
-            cometdinit: 'js/cometd',
             direction: 'js/direction',
             webglcheck: 'js/webglcheck',
             twodcheck: 'js/2dmapcheck',
