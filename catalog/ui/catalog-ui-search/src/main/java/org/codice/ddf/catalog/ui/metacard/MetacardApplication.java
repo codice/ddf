@@ -418,7 +418,10 @@ public class MetacardApplication implements SparkApplication {
 
         get("/enumerations/attribute/:attribute", APPLICATION_JSON, (req, res) -> {
             return util.getJson(enumExtractor.getAttributeEnumerations(req.params(":attribute")));
+        });
 
+        get("/localcatalogid", (req, res) -> {
+            return String.format("{\"%s\":\"%s\"}", "local-catalog-id", catalogFramework.getId());
         });
 
         after((req, res) -> {
