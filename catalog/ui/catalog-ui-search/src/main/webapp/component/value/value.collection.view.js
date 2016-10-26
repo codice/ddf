@@ -77,6 +77,11 @@ define([
                         property: propertyModel
                     }
                 }));
+            } else if (!propertyModel.get('multivalued')) {
+                valueCollection.add({
+                        value: null,
+                        property: propertyModel
+                });
             }
             return new this({
                 collection: valueCollection,
