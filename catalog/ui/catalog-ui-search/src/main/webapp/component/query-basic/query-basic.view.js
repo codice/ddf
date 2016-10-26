@@ -71,6 +71,7 @@ define([
 
     function translateFilterToBasicMap(filter){
         var propertyValueMap = {};
+        var downConversion = false;
         if (filter.filters){
             filter.filters.forEach(function(filter){
                if (!filter.filters){
@@ -92,13 +93,18 @@ define([
                    filter.filters.forEach(function(subfilter){
                        propertyValueMap[CQLUtils.getProperty(filter.filters[0])].push(subfilter);
                    });
+               } else {
+                   downConversion = true;
                }
             });
         } else {
             propertyValueMap[CQLUtils.getProperty(filter)] = propertyValueMap[CQLUtils.getProperty(filter)] || [];
             propertyValueMap[CQLUtils.getProperty(filter)].push(filter);
         }
-        return propertyValueMap;
+        return {
+            propertyValueMap: propertyValueMap,
+            downConversion: downConversion
+        };
     }
 
     return Marionette.LayoutView.extend({
@@ -130,7 +136,9 @@ define([
         },
         filter: undefined,
         onBeforeShow: function(){
-            this.filter = translateFilterToBasicMap(cql.simplify(cql.read(this.model.get('cql'))));
+            var translationToBasicMap = translateFilterToBasicMap(cql.simplify(cql.read(this.model.get('cql'))));
+            this.filter = translationToBasicMap.propertyValueMap;
+            this.handleDownConversion(translationToBasicMap.downConversion);
             this.setupSettings();
             this.setupTextInput();
             this.setupTextMatchInput();
@@ -425,6 +433,9 @@ define([
                 this.onBeforeShow();
             }
         },
+        handleDownConversion: function(downConversion){
+            this.$el.toggleClass('is-down-converted', downConversion);
+        },  
         save: function(){
             this.$el.removeClass('is-editing');
             this.basicSettings.currentView.saveToModel();
