@@ -17,9 +17,8 @@ define([
     'poller',
     'underscore',
     'js/model/Workspace',
-    'js/model/Selected',
     'component/content/content'
-], function ($, Backbone, poller, _, Workspace, Selected, Content) {
+], function ($, Backbone, poller, _, Workspace, Content) {
 
     return new (Backbone.Model.extend({
         initialize: function () {
@@ -43,7 +42,6 @@ define([
                 }
             }.bind(this);
 
-            this.set('selected', new Selected());
             this.listenTo(this.get('workspaces'), 'remove', function(){
                 var currentWorkspace = this.getCurrentWorkspace();
                 if (currentWorkspace && !this.get("workspaces").get(currentWorkspace)){

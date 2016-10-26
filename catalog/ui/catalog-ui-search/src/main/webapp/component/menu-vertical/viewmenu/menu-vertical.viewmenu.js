@@ -18,10 +18,9 @@ define([
     'backbone',
     '../menu-vertical',
     'component/lightbox/lightbox.view.instance',
-    'js/view/preferences/PreferencesModal.view',
     'component/alert-settings/alert-settings.view',
     'component/singletons/user-instance'
-], function (_, Backbone, Vertical, lightboxInstance, PreferencesModalView, AlertSettingsView, user) {
+], function (_, Backbone, Vertical, lightboxInstance, AlertSettingsView, user) {
 
     var definition = [
         [

@@ -17,7 +17,6 @@ define([
     'underscore',
     'properties',
     'js/model/Metacard',
-    'js/view/Progress.view',
     'wreqr',
     './location-old.hbs',
     'maptype',
@@ -26,7 +25,7 @@ define([
     './location-old',
     'js/CQLUtils',
     'bootstrapselect'
-], function ($, Backbone, Marionette, _, properties, MetaCard, Progress, wreqr, template, maptype,
+], function ($, Backbone, Marionette, _, properties, MetaCard, wreqr, template, maptype,
              store, CustomElements, LocationOldModel, CQLUtils) {
 
     return Marionette.ItemView.extend({

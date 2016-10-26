@@ -1,0 +1,31 @@
+.ui-multiselect-menu {
+    background: @dropdown-background-color;
+}
+
+.ui-helper-reset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    line-height: @minimumButtonSize;
+    text-decoration: none;
+    list-style: none;
+}
+
+.ui-multiselect > span::after {
+    margin-left: @minimumSpacing;
+    content: "\f0d7";
+    font: normal normal normal 14px/1 FontAwesome;
+}
+
+.ui-multiselect > .ui-icon-triangle-1-s {
+    display: none;
+}
+
+div.multiselect label.ui-state-hover, div.multiselect label.ui-state-active {
+    background: @lighten-inherited-background-color;
+}
+
+div.multiselect label.ui-state-hover>span {
+    background: none;
+}

@@ -67,11 +67,9 @@ module.exports = {
             bootstrap: 'bootstrap/dist/js/bootstrap.min',
             bootstrapselect: 'bootstrap-select/dist/js/bootstrap-select.min',
             bootstrapDatepicker: 'eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
-            perfectscrollbar: 'perfect-scrollbar/min/perfect-scrollbar.min',
             spin: 'spin.js/spin',
             q: 'q/q',
             strapdown: 'strapdown/v/0.2',
-            spectrum: 'spectrum/spectrum',
             // backbone
             backboneassociations: 'backbone-associations',
             backboneundo: 'Backbone.Undo.js/Backbone.Undo',
@@ -88,7 +86,6 @@ module.exports = {
             webglcheck: 'js/webglcheck',
             twodcheck: 'js/2dmapcheck',
             maptype: 'js/maptype',
-            spinnerConfig: 'js/spinnerConfig',
             wreqr: 'js/wreqr',
             properties: 'properties',
             // jquery

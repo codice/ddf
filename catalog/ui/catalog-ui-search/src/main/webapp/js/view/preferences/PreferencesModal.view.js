@@ -21,14 +21,13 @@ define([
     'jquery',
     'properties',
     'maptype',
-    'js/view/Modal',
     'templates/preferences/preferences.modal.handlebars',
     'templates/preferences/layer.preferences.tab.handlebars',
     'templates/preferences/layer.list.handlebars',
     'templates/preferences/layerPicker.handlebars',
     'templates/preferences/preference.buttons.handlebars',
     'component/singletons/user-instance'
-], function (Application, _, Marionette, Backbone, $, properties, maptype, Modal,
+], function (Application, _, Marionette, Backbone, $, properties, maptype,
              preferencesModalTemplate, layerPrefsTabTemplate, layerListTemplate,
              layerPickerTemplate, preferenceButtonsTemplate, user) {
     var PrefsModalView = Marionette.LayoutView.extend({

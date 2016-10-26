@@ -21,22 +21,19 @@ define([
     // Templates
     'templates/header.layout.handlebars',
     'templates/footer.layout.handlebars',
-    'js/controllers/Modal.controller',
-    'js/controllers/SystemUsage.controller',
     // Load non attached libs and plugins
     'bootstrap',
     'backboneassociations',
     'modelbinder',
     'collectionbinder',
     'datepicker',
-    'datepickerOverride',
     'multiselect',
     'multiselectfilter'
-], function ($, _, Marionette, Backbone, properties, maptype, header, footer, ModalController, SystemUsageController) {
+], function ($, _, Marionette, Backbone, properties, maptype, header, footer) {
     var Application = {};
     Application.App = new Marionette.Application();
     Application.AppModel = new Backbone.Model(properties);
-    Application.Controllers = { modalController: new ModalController({ application: Application.App }) };
+    Application.Controllers = { };
     // Set up the main regions that will be available at the Application level.
     Application.App.addRegions({
         loadingRegion: '#loading',
@@ -88,11 +85,6 @@ define([
                 Application.App.loadingRegion.$el.removeClass('is-open');
             }, 0);
         });
-    });
-
-    // show System Notification Banner
-    Application.App.addInitializer(function () {
-        new SystemUsageController();
     });
 
 
