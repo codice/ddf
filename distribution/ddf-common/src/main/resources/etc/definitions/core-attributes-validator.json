@@ -18,6 +18,12 @@
           "Document"
         ]
       }
+    ],
+    "location.country-code":
+    [
+      {
+        "validator": "iso3_countryignorecase"
+      }
     ]
   }
 }

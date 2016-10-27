@@ -1730,6 +1730,11 @@ The `validator` key must have a value of one of the following:
  * `arguments`: (unlimited) [list of strings: each argument is one case-sensitive, valid enumeration value]
   - `enumerationignorecase`
   * `arguments`: (unlimited) [list of strings: each argument is one case-insensitive, valid enumeration value]
+ - `iso3_country` (validates that a String is a valid ISO 3166-1 alpha-3 country code)
+  * `arguments`: (0) [NO ARGUMENTS]
+ - `iso3_countryignorecase` (validates that a String is a valid case-insensitive ISO 3166-1 alpha-3 country code)
+  * `arguments`: (0) [NO ARGUMENTS]
+  * NOTE: This is installed for the `location.country-code` attribute by default. In order to validate the `location.country-code` attribute with case sensitivity, the `iso3_country` validator must be manually installed.
 
 Examples:
 [source, json]
@@ -1780,6 +1785,11 @@ Examples:
             {
                 "validator": "enumerationignorecase",
                 "arguments": ["Document", "Image", "Video"]
+            }
+        ],
+        "location.country-code": [
+            {
+                "validator": "iso3_country"
             }
         ]
     }
