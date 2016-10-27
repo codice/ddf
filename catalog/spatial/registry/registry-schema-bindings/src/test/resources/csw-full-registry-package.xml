@@ -13,6 +13,7 @@
  **/
 -->
 <!-- This Registry Package is a realistic example. It is used to test the converters from the top level  -->
+<!-- Added associations so this can also be used to test the RegistryPackageTypeHelper getAssociatedObjects methods -->
 <rim:RegistryPackage id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" home="https://somehost:someport"
                      objectType="urn:registry:federation:node"
                      xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
@@ -392,21 +393,47 @@
 
         <!-- An organization or person associated with the 'registry.node' will be set as the overall metacards organization and contact. If there is more than one organization or person associated
         with the registry.node the first assocaition will be used. If no association is made to the registry.node the first organization or contact found will be used-->
-        <rim:Association id="urn:assoication:1" associationType="RelatedTo"
-                         sourceObject="urn:registry:node" targetObject="urn:contact:id0"/>
-        <rim:Association id="urn:assoication:2" associationType="RelatedTo"
-                         sourceObject="urn:registry:node" targetObject="urn:organization:id0"/>
-        <rim:Association id="urn:assoication:3" associationType="RelatedTo"
-                         sourceObject="urn:contact:person1"
+        <rim:Association id="urn:association:1" associationType="RelatedTo"
+                         sourceObject="urn:registry:node"
+                         targetObject="urn:contact:id0"/>
+        <rim:Association id="urn:association:2" associationType="RelatedTo"
+                         sourceObject="urn:registry:node"
+                         targetObject="urn:organization:id0"/>
+        <rim:Association id="urn:association:3" associationType="RelatedTo"
+                         sourceObject="urn:contact:id1"
                          targetObject="urn:content:collection:id0"/>
-        <rim:Association id="urn:assoication:4" associationType="RelatedTo"
+        <rim:Association id="urn:association:4" associationType="RelatedTo"
                          sourceObject="urn:contact:person2"
                          targetObject="urn:content:collection:id1"/>
-        <rim:Association id="urn:assoication:5" associationType="RelatedTo"
-                         sourceObject="urn:organization:id1" targetObject="urn:service:id0"/>
-        <rim:Association id="urn:assoication:6" associationType="RelatedTo"
+        <rim:Association id="urn:association:5" associationType="RelatedTo"
+                         sourceObject="urn:organization:id1"
+                         targetObject="urn:service:id0"/>
+        <rim:Association id="urn:association:6" associationType="RelatedTo"
                          sourceObject="urn:organization:id0"
                          targetObject="urn:content:collection:id0"/>
+        <rim:Association id="urn:association:7" associationType="RelatedTo"
+                         sourceObject="urn:service:id0"
+                         targetObject="urn:organization:id0"/>
+        <rim:Association id="urn:association:8" associationType="RelatedTo"
+                         sourceObject="urn:service:id0"
+                         targetObject="urn:contact:id1"/>
+        <rim:Association id="urn:association:9" associationType="RelatedTo"
+                         sourceObject="urn:registry:federation:method:csw"
+                         targetObject="urn:contact:id1"/>
+        <rim:Association id="urn:association:10" associationType="RelatedTo"
+                         sourceObject="urn:registry:federation:method:csw"
+                         targetObject="urn:contact:id2"/>
+        <rim:Association id="urn:association:11" associationType="RelatedTo"
+                         sourceObject="urn:registry:federation:node"
+                         targetObject="urn:organization:id0"/>
+        <rim:Association id="urn:association:12" associationType="RelatedTo"
+                         sourceObject="urn:registry:federation:node"
+                         targetObject="urn:contact:id1"/>
+        <rim:Association id="urn:association:13" associationType="RelatedTo"
+                         sourceObject="urn:registry:federation:node"
+                         targetObject="urn:contact:id2"/>
+
+
 
     </rim:RegistryObjectList>
 </rim:RegistryPackage>
