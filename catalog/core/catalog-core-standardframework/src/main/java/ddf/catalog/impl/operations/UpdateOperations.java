@@ -194,7 +194,7 @@ public class UpdateOperations {
                 .size());
         UpdateResponse updateResponse = null;
         UpdateStorageRequest updateStorageRequest = null;
-        UpdateStorageResponse updateStorageResponse;
+        UpdateStorageResponse updateStorageResponse = null;
 
         streamUpdateRequest = opsStorageSupport.prepareStorageRequest(streamUpdateRequest,
                 streamUpdateRequest::getContentItems);
@@ -223,7 +223,6 @@ public class UpdateOperations {
                             .update(updateStorageRequest);
                     updateStorageResponse.getProperties()
                             .put(CONTENT_PATHS, tmpContentPaths);
-                    updateStorageResponse = historian.version(streamUpdateRequest, updateStorageResponse);
                 } catch (StorageException e) {
                     throw new IngestException(
                             "Could not store content items. Removed created metacards.",
@@ -256,7 +255,9 @@ public class UpdateOperations {
                             .collect(Collectors.toList()), String.class),
                             new ArrayList<>(metacardMap.values()));
             updateRequest.setProperties(streamUpdateRequest.getProperties());
+            historian.setSkipFlag(updateRequest);
             updateResponse = update(updateRequest);
+            historian.version(streamUpdateRequest, updateStorageResponse, updateResponse);
         } catch (Exception e) {
             if (updateStorageRequest != null) {
                 try {

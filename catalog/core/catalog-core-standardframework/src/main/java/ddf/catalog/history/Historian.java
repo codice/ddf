@@ -133,11 +133,11 @@ public class Historian {
      * @param streamUpdateRequest   Needed to pass {@link MetacardVersion#SKIP_VERSIONING}
      *                              flag into downstream update
      * @param updateStorageResponse Versions this response's updated items
-     * @return The transaction key for using with {@link Historian#commit(String)} and
+     * @return the update response originally passed in
      * @throws IOException
      */
     public UpdateStorageResponse version(UpdateStorageRequest streamUpdateRequest,
-            UpdateStorageResponse updateStorageResponse)
+            UpdateStorageResponse updateStorageResponse, UpdateResponse updateResponse)
             throws UnsupportedQueryException, SourceUnavailableException, IngestException {
         if (doSkip(updateStorageResponse)) {
             return updateStorageResponse;
@@ -151,7 +151,7 @@ public class Historian {
 
         Map<String, Metacard> versionMetacards = getVersionMetacards(metacards.values(),
                 Action.VERSIONED_CONTENT,
-                (Subject) streamUpdateRequest.getProperties()
+                (Subject) updateResponse.getProperties()
                         .get(SecurityConstants.SECURITY_SUBJECT));
 
         CreateStorageResponse createStorageResponse = versionContentItems(oldContent,
@@ -244,6 +244,12 @@ public class Historian {
 
     public void setFilterBuilder(FilterBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
+    }
+
+    public void setSkipFlag(@Nullable Operation op) {
+        Optional.ofNullable(op)
+                .map(Operation::getProperties)
+                .ifPresent(p -> p.put(SKIP_VERSIONING, true));
     }
 
     private List<String> fromStorageRequests(Collection<ReadStorageRequest> requests) {
@@ -422,12 +428,6 @@ public class Historian {
                 .map(Operation::getProperties)
                 .orElse(Collections.emptyMap())
                 .getOrDefault(SKIP_VERSIONING, false));
-    }
-
-    private void setSkipFlag(@Nullable Operation op) {
-        Optional.ofNullable(op)
-                .map(Operation::getProperties)
-                .ifPresent(p -> p.put(SKIP_VERSIONING, true));
     }
 
     private CreateResponse storeVersionMetacards(Map<String, Metacard> versionMetacards) {
