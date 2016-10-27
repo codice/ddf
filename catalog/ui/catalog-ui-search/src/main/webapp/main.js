@@ -28,7 +28,8 @@ require([
     'js/ApplicationHelpers',
     'cesium.css',
     'js/MediaQueries',
-    'js/Theming'
+    'js/Theming',
+    'js/Autocomplete'
 ], function (_, $, Backbone, Marionette, MarionetteRegion, app, properties, hbs, announcement) {
 
     $(window.document).ajaxError(function (event, jqxhr, settings, throwError) {
