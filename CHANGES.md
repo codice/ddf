@@ -85,6 +85,7 @@ replace with next unreleased version
 
 ### BUG FIXES
 
+- [DDF-2557](https://codice.atlassian.net/browse/DDF-2557) CSW (and possibly other sources) fail to resolve the default URIs
 - [DDF-2506](https://codice.atlassian.net/browse/DDF-2506): Sorting by distance can take minutes.
 - [DDF-2459](https://codice.atlassian.net/browse/DDF-2459): Content directory monitor stops finding new files, requiring administrators to refresh configuration settings to trigger updates
 - [DDF-2480](https://codice.atlassian.net/browse/DDF-2480): Search UI upload dialog cannot be re-opened if closed when file upload in progress
