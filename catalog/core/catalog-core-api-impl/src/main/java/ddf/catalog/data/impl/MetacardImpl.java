@@ -26,7 +26,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -110,7 +113,7 @@ public class MetacardImpl implements Metacard {
          * serialized object is maintained. For instance, if a null check is added in the
          * constructor, the same check should be added in the readObject() method.
          */
-        map = new HashMap<String, Attribute>();
+        map = new HashMap<>();
         if (type != null) {
             this.type = type;
         } else {
@@ -158,13 +161,20 @@ public class MetacardImpl implements Metacard {
                     MetacardType.class.getName() + " instance should not be null.");
         }
         map = new HashMap<>();
-        for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
-            Attribute metacardAttribute = metacard.getAttribute(descriptor.getName());
-            if (metacardAttribute == null || metacardAttribute.getValue() == null) {
-                continue;
-            }
-            map.put(descriptor.getName(), metacardAttribute);
+
+        if (metacard.getSourceId() != null) {
+            setSourceId(metacard.getSourceId());
         }
+
+        map = metacard.getMetacardType()
+                .getAttributeDescriptors()
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(attributeDescriptor -> attributeDescriptor.getName() != null)
+                .filter(attributeDescriptor -> metacard.getAttribute(attributeDescriptor.getName())
+                        != null)
+                .map(AttributeDescriptor::getName)
+                .collect(Collectors.toMap(Function.identity(), metacard::getAttribute));
     }
 
     @Override
@@ -555,9 +565,9 @@ public class MetacardImpl implements Metacard {
 
         Attribute attribute = getAttribute(attributeName);
 
-        if (attribute == null) {
+        if (attribute == null || attribute.getValue() == null) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Attribute {} was not found, returning null", attributeName);
+                LOGGER.debug("Attribute {} was not found or value was missing.  Returning null.", attributeName);
             }
             return null;
         }
@@ -816,7 +826,7 @@ public class MetacardImpl implements Metacard {
          */
         stream.defaultReadObject();
 
-        map = new HashMap<String, Attribute>();
+        map = new HashMap<>();
 
         wrappedMetacard = null;
 
