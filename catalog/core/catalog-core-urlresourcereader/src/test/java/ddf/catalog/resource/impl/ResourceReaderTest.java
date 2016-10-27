@@ -693,18 +693,18 @@ public class ResourceReaderTest {
     public void testSetRedirect() throws Exception {
         URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
         WebClient client = resourceReader.getWebClient(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH
-                + JPEG_FILE_NAME_1);
+                + JPEG_FILE_NAME_1, new HashMap<>());
         assertFalse(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
 
         resourceReader.setFollowRedirects(true);
         client = resourceReader.getWebClient(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH
-                + JPEG_FILE_NAME_1);
+                + JPEG_FILE_NAME_1, new HashMap<>());
         assertTrue(WebClient.getConfig(client).getHttpConduit().getClient()
                 .isAutoRedirect());
 
         resourceReader.setFollowRedirects(false);
         client = resourceReader.getWebClient(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH
-                + JPEG_FILE_NAME_1);
+                + JPEG_FILE_NAME_1, new HashMap<>());
         assertFalse(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
     }
 
@@ -801,7 +801,7 @@ public class ResourceReaderTest {
         }
 
         @Override
-        protected WebClient getWebClient(String uri) {
+        protected WebClient getWebClient(String uri, Map<String, Serializable> properties) {
             return mockWebClient;
         }
     }
