@@ -75,8 +75,6 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 
 /**
  * Support class for create delegate operations for the {@code CatalogFrameworkImpl}.
@@ -200,6 +198,18 @@ public class CreateOperations {
         return createResponse;
     }
 
+    /**
+     * Creates a storage item.
+     * <br/>
+     * The request Subject is not available until the UpdateResponse from the metacard update is
+     * returned.
+     *
+     * @param streamCreateRequest The request containing items to create
+     * @param fanoutTagBlacklist  Disallowed tags when fanout mode is enabled
+     * @return The response containing the created Storage Items
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     */
     public CreateResponse create(CreateStorageRequest streamCreateRequest,
             List<String> fanoutTagBlacklist) throws IngestException, SourceUnavailableException {
         Optional<String> historianTransactionKey = Optional.empty();
@@ -217,7 +227,6 @@ public class CreateOperations {
 
         // Operation populates the metacardMap, contentItems, and tmpContentPaths
         opsMetacardSupport.generateMetacardAndContentItems(streamCreateRequest.getContentItems(),
-                (Subject) streamCreateRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
                 metacardMap,
                 contentItems,
                 tmpContentPaths);

@@ -78,8 +78,6 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 
 /**
  * Support class for update delegate operations for the {@code CatalogFrameworkImpl}.
@@ -185,6 +183,17 @@ public class UpdateOperations {
                 .orElseGet(HashMap::new);
     }
 
+    /**
+     * Updates an existing storage item.
+     * <p>
+     * The request Subject is not available until the UpdateResponse from the metacard update is
+     * returned.
+     *
+     * @param streamUpdateRequest The request containing items to update
+     * @return The response containing the updated Storage Items
+     * @throws IngestException
+     * @throws SourceUnavailableException
+     */
     public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
             throws IngestException, SourceUnavailableException {
         Optional<String> historianTransactionKey = Optional.empty();
@@ -202,7 +211,6 @@ public class UpdateOperations {
 
         // Operation populates the metacardMap, contentItems, and tmpContentPaths
         opsMetacardSupport.generateMetacardAndContentItems(streamUpdateRequest.getContentItems(),
-                (Subject) streamUpdateRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
                 metacardMap,
                 contentItems,
                 tmpContentPaths);
@@ -663,8 +671,8 @@ public class UpdateOperations {
             LOGGER.debug(
                     "While rewriting the query, did not get a metacardId corresponding to every attribute.");
             LOGGER.debug("Original Update By attribute was: {}", attributeName);
-            LOGGER.debug(
-                    "Metacards unable to get Metacard ID from are: {}", updateRequest.getUpdates()
+            LOGGER.debug("Metacards unable to get Metacard ID from are: {}",
+                    updateRequest.getUpdates()
                             .stream()
                             .map(Map.Entry::getKey)
                             .map(Object::toString)
