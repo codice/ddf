@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.2">
-<meta name="author" content="Version 2.9.2. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.9.3. Copyright (c) Codice Foundation">
 <title>Managing DDF</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400">
 <style>
@@ -506,7 +506,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Managing DDF</h1>
 <div class="details">
-<span id="author" class="author">Version 2.9.2. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.9.3. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1012,13 +1012,13 @@ Add the following lines to the bottom of the <code>&lt;INSTALL_DIR&gt;/etc/org.o
 <div class="listingblock">
 <div class="title">*NIX</div>
 <div class="content">
-<pre>&lt;INSTALL_DIRECTORY&gt;/ddf-2.9.2/bin/ddf</pre>
+<pre>&lt;INSTALL_DIRECTORY&gt;/ddf-2.9.3/bin/ddf</pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Windows</div>
 <div class="content">
-<pre>&lt;INSTALL_DIRECTORY&gt;/ddf-2.9.2/bin/ddf.bat</pre>
+<pre>&lt;INSTALL_DIRECTORY&gt;/ddf-2.9.3/bin/ddf.bat</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1041,7 +1041,7 @@ Execute the following command at the command line for status:</p>
 START LEVEL 100 , List Threshold: 50
    ID   State         Blueprint      Spring    Level  Name
 [ 111] [Active     ] [            ] [       ] [   80] Commons IO (2.1.0)
-[ 113] [Active     ] [Created     ] [       ] [   80] DDF :: Distribution :: Console Branding Plugin (2.9.2)</pre>
+[ 113] [Active     ] [Created     ] [       ] [   80] DDF :: Distribution :: Console Branding Plugin (2.9.3)</pre>
 </div>
 </div>
 <div class="admonitionblock warning">
@@ -1112,7 +1112,7 @@ Bundle fragments remain in the <strong>Resolved</strong> state and can never mov
 <div class="listingblock">
 <div class="title">Example: Bundle Fragment in the Command Line Console</div>
 <div class="content">
-<pre>215 | Resolved |  80 | 2.9.2     | DDF :: Platform :: Security :: Session, Hosts: 90</pre>
+<pre>215 | Resolved |  80 | 2.9.3     | DDF :: Platform :: Security :: Session, Hosts: 90</pre>
 </div>
 </div>
 </div>
@@ -1385,6 +1385,16 @@ Proceed with caution!</p>
 </td>
 </tr>
 </table>
+</div>
+<div class="sect5">
+<h6 id="_configuring_admin_poller_source_types"><a class="anchor" href="#_configuring_admin_poller_source_types"></a>Configuring Admin Poller Source Types</h6>
+<div class="paragraph">
+<p>Configurable source types can be adjusted by including or excluding the FactoryPid of the ManagedServiceFactory
+producing the source. By default all FactoryPids including the words <strong>source</strong> or <strong>service</strong> are included.
+If this produces undesirable results, patterns can be added via the Admin Poller Service to include
+or exclude specific FactoryPids. The system must be restarted for changes to take effect. Patterns
+are case senstive and can be exact matches or use * as a wildcard.</p>
+</div>
 </div>
 </div>
 <div class="sect4">
@@ -1709,20 +1719,20 @@ Rather, OSGi assigns a universally unique identifier (UUID) when the DDF item wa
 <div class="listingblock">
 <div class="content">
 <pre>State         Version            Name                                     Repository                           Description
-[installed  ] [2.9.2  ] security-handler-api                     security-services-app-2.9.2 API for authentication handlers for web applications.
-[installed  ] [2.9.2  ] security-core                            security-services-app-2.9.2 DDF Security Core
-[uninstalled] [2.9.2  ] security-expansion                       security-services-app-2.9.2 DDF Security Expansion
-[uninstalled] [2.9.2  ] security-cas-client                      security-services-app-2.9.2 DDF Security CAS Client.
-[uninstalled] [2.9.2  ] security-cas-tokenvalidator              security-services-app-2.9.2 DDF Security CAS Validator for the STS.
-[uninstalled] [2.9.2  ] security-cas-cxfservletfilter            security-services-app-2.9.2 DDF Security CAS Servlet Filter for CXF.
-[installed  ] [2.9.2  ] security-pdp-authz                       security-services-app-2.9.2 DDF Security PDP.
-[uninstalled] [2.9.2  ] security-pep-serviceauthz                security-services-app-2.9.2 DDF Security PEP Service AuthZ
-[uninstalled] [2.9.2  ] security-expansion-user-attributes       security-services-app-2.9.2 DDF Security Expansion User Attributes Expansion
-[uninstalled] [2.9.2  ] security-expansion-metacard-attributes   security-services-app-2.9.2 DDF Security Expansion Metacard Attributes Expansion
-[installed  ] [2.9.2  ] security-sts-server                      security-services-app-2.9.2 DDF Security STS.
-[installed  ] [2.9.2  ] security-sts-realm                       security-services-app-2.9.2 DDF Security STS Realm.
-[uninstalled] [2.9.2  ] security-sts-ldaplogin                   security-services-app-2.9.2 DDF Security STS JAAS LDAP Login.
-[uninstalled] [2.9.2  ] security-sts-ldapclaimshandler           security-services-app-2.9.2 Retrieves claims attributes from an LDAP store.</pre>
+[installed  ] [2.9.3  ] security-handler-api                     security-services-app-2.9.3 API for authentication handlers for web applications.
+[installed  ] [2.9.3  ] security-core                            security-services-app-2.9.3 DDF Security Core
+[uninstalled] [2.9.3  ] security-expansion                       security-services-app-2.9.3 DDF Security Expansion
+[uninstalled] [2.9.3  ] security-cas-client                      security-services-app-2.9.3 DDF Security CAS Client.
+[uninstalled] [2.9.3  ] security-cas-tokenvalidator              security-services-app-2.9.3 DDF Security CAS Validator for the STS.
+[uninstalled] [2.9.3  ] security-cas-cxfservletfilter            security-services-app-2.9.3 DDF Security CAS Servlet Filter for CXF.
+[installed  ] [2.9.3  ] security-pdp-authz                       security-services-app-2.9.3 DDF Security PDP.
+[uninstalled] [2.9.3  ] security-pep-serviceauthz                security-services-app-2.9.3 DDF Security PEP Service AuthZ
+[uninstalled] [2.9.3  ] security-expansion-user-attributes       security-services-app-2.9.3 DDF Security Expansion User Attributes Expansion
+[uninstalled] [2.9.3  ] security-expansion-metacard-attributes   security-services-app-2.9.3 DDF Security Expansion Metacard Attributes Expansion
+[installed  ] [2.9.3  ] security-sts-server                      security-services-app-2.9.3 DDF Security STS.
+[installed  ] [2.9.3  ] security-sts-realm                       security-services-app-2.9.3 DDF Security STS Realm.
+[uninstalled] [2.9.3  ] security-sts-ldaplogin                   security-services-app-2.9.3 DDF Security STS JAAS LDAP Login.
+[uninstalled] [2.9.3  ] security-sts-ldapclaimshandler           security-services-app-2.9.3 Retrieves claims attributes from an LDAP store.</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -1754,11 +1764,11 @@ Rather, OSGi assigns a universally unique identifier (UUID) when the DDF item wa
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  		   Description
-[installed  ] [2.9.2         ] ddf-core                      ddf-2.9.2
-[uninstalled] [2.9.2         ] ddf-sts                       ddf-2.9.2
-[installed  ] [2.9.2         ] ddf-security-common           ddf-2.9.2
-[installed  ] [2.9.2         ] ddf-resource-impl             ddf-2.9.2
-[installed  ] [2.9.2         ] ddf-source-dummy              ddf-2.9.2</pre>
+[installed  ] [2.9.3         ] ddf-core                      ddf-2.9.3
+[uninstalled] [2.9.3         ] ddf-sts                       ddf-2.9.3
+[installed  ] [2.9.3         ] ddf-security-common           ddf-2.9.3
+[installed  ] [2.9.3         ] ddf-resource-impl             ddf-2.9.3
+[installed  ] [2.9.3         ] ddf-source-dummy              ddf-2.9.3</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -1794,11 +1804,11 @@ Rather, OSGi assigns a universally unique identifier (UUID) when the DDF item wa
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  Description
-[installed  ] [2.9.2         ] ddf-core                      ddf-2.9.2
-[uninstalled] [2.9.2         ] ddf-sts                       ddf-2.9.2
-[installed  ] [2.9.2         ] ddf-security-common           ddf-2.9.2
-[installed  ] [2.9.2         ] ddf-resource-impl             ddf-2.9.2
-[uninstalled] [2.9.2         ] ddf-source-dummy              ddf-2.9.2</pre>
+[installed  ] [2.9.3         ] ddf-core                      ddf-2.9.3
+[uninstalled] [2.9.3         ] ddf-sts                       ddf-2.9.3
+[installed  ] [2.9.3         ] ddf-security-common           ddf-2.9.3
+[installed  ] [2.9.3         ] ddf-resource-impl             ddf-2.9.3
+[uninstalled] [2.9.3         ] ddf-source-dummy              ddf-2.9.3</pre>
 </div>
 </div>
 </div>
@@ -1992,7 +2002,7 @@ These properties can be manually set by editing this file or set via the initial
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The version of DDF that is running.
 </p><p class="tableblock">This value should not be changed from the factory default.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.9.2</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.9.3</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
 <tr>
@@ -2909,7 +2919,7 @@ If the hostname was left as <code>localhost</code> or the hostname was changed a
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;DDF_HOME&gt;</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The path to the unzipped DDF distribution</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/opt/ddf/ddf-2.9.2</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/opt/ddf/ddf-2.9.3</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">alias</p></td>
@@ -9688,6 +9698,9 @@ This is the most popular format for access logs and can be parsed by many web se
 <p>The LogViewer displays the most recent 500 log messages by default, but will grow to a maximum of 5000 messages.</p>
 </div>
 <div class="paragraph">
+<p>The top left button labeled LIVE/PAUSED will toggle live retrieval of incoming logs from the backend.</p>
+</div>
+<div class="paragraph">
 <p>Log events can be filtered by:</p>
 </div>
 <div class="ulist">
@@ -9717,6 +9730,21 @@ This is the most popular format for access logs and can be parsed by many web se
 </li>
 </ul>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The LogViewer settings don&#8217;t change any of the underlying logging settings, only which messages are displayed.
+It does not affect the logs generated or events captured by the system logger.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="admonitionblock warning">
 <table>
 <tr>
@@ -9729,22 +9757,10 @@ This is the most popular format for access logs and can be parsed by many web se
 The volume of messages logged will exceed the polling rate, and incoming logs may be missed.</p>
 </div>
 <div class="paragraph">
-<p>The actual logs being polled by the LogViewer can still be accessed at <code>&lt;INSTALL_HOME&gt;/data/log</code></p>
+<p>Logs may also be missed by the LogViewer if polling is paused for an extended period of time.</p>
 </div>
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
 <div class="paragraph">
-<p>The LogViewer settings don&#8217;t change any of the underlying logging settings, only which messages are displayed.
-It does not affect the logs generated or events captured by the system logger.</p>
+<p>The actual logs being polled by the LogViewer can still be accessed at <code>&lt;INSTALL_HOME&gt;/data/log</code></p>
 </div>
 </td>
 </tr>
@@ -9898,7 +9914,7 @@ It does not affect the logs generated or events captured by the system logger.</
 <h2 id="_managing_ddf_admin"><a class="anchor" href="#_managing_ddf_admin"></a>2. Managing DDF Admin</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.2</span></p>
+<p><span class="small">Version: 2.9.3</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Admin Application contains components that are responsible for the installation and configuration DDF applications.</p>
@@ -10463,7 +10479,7 @@ localhost=localhost,group,admin,manager,viewer,system-admin</code></pre>
 <h2 id="_managing_ddf_catalog"><a class="anchor" href="#_managing_ddf_catalog"></a>3. Managing DDF Catalog</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.2</span></p>
+<p><span class="small">Version: 2.9.3</span></p>
 </div>
 <div class="sect2">
 <h3 id="_installing_ddf_catalog"><a class="anchor" href="#_installing_ddf_catalog"></a>3.1. Installing DDF Catalog</h3>
@@ -10542,8 +10558,8 @@ localhost=localhost,group,admin,manager,viewer,system-admin</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Set threshold for running marshalling in parallel</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#catalog_duplicate_validator">Catalog Duplicate Validator</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ddf.catalog.metacard.duplication.DuplicationValidator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#catalog_duplicate_validator">Catalog Metacard Duplicate Validator</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.codice.ddf.validator.metacard.duplication.DuplicationValidator</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Configure rules to check for duplicate data</p></td>
 </tr>
 </tbody>
@@ -10978,7 +10994,7 @@ The X value will be the value that is placed within the security attribute on th
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 20. <a id="catalog_duplicate_validator"></a>Catalog Duplicate Validator</caption>
+<caption class="title">Table 20. <a id="catalog_duplicate_validator"></a>Catalog Metacard Duplicate Validator</caption>
 <colgroup>
 <col style="width: 14%;">
 <col style="width: 14%;">
@@ -11024,7 +11040,7 @@ The X value will be the value that is placed within the security attribute on th
 <h2 id="_managing_ddf_geowebcache"><a class="anchor" href="#_managing_ddf_geowebcache"></a>4. Managing DDF GeoWebCache</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.2</span></p>
+<p><span class="small">Version: 2.9.3</span></p>
 </div>
 <div class="paragraph">
 <p>DDF GeoWebCache enables a server providing a tile cache and tile service aggregation.
@@ -11285,7 +11301,7 @@ GeoWebCache also provides a user interface for previewing, truncating, or seedin
 <h2 id="_managing_ddf_platform"><a class="anchor" href="#_managing_ddf_platform"></a>5. Managing DDF Platform</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.2</span></p>
+<p><span class="small">Version: 2.9.3</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Platform application is considered to be a core application of the distribution.
@@ -11392,7 +11408,7 @@ The Command Scheduler included in the Platform application should be for the con
 <h2 id="_managing_ddf_registry"><a class="anchor" href="#_managing_ddf_registry"></a>6. Managing DDF Registry</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.2</span></p>
+<p><span class="small">Version: 2.9.3</span></p>
 </div>
 <div class="paragraph">
 <p>DDF Registry contains the base registry components, plugins, sources and interfaces needed for DDF to function as a registry connecting multiple nodes.</p>
@@ -12262,7 +12278,7 @@ The Command Scheduler included in the Platform application should be for the con
 <h2 id="_managing_ddf_security"><a class="anchor" href="#_managing_ddf_security"></a>7. Managing DDF Security</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.2</span></p>
+<p><span class="small">Version: 2.9.3</span></p>
 </div>
 <div class="paragraph">
 <p>The Security application provides authentication, authorization, and auditing services for the DDF.
@@ -13246,7 +13262,7 @@ They comprise both a framework that developers and integrators can extend and a 
 <h2 id="_managing_ddf_solr"><a class="anchor" href="#_managing_ddf_solr"></a>8. Managing DDF Solr</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.2</span></p>
+<p><span class="small">Version: 2.9.3</span></p>
 </div>
 <div class="paragraph">
 <p>The Solr Catalog Provider (SCP) is an implementation of the <code>CatalogProvider</code> interface using <a href="http://lucene.apache.org/solr/">Apache Solr</a> as a data store.</p>
@@ -13800,7 +13816,7 @@ The backup files acquired from the previous section will be used to restore data
 <h2 id="_managing_ddf_spatial"><a class="anchor" href="#_managing_ddf_spatial"></a>9. Managing DDF Spatial</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.2</span></p>
+<p><span class="small">Version: 2.9.3</span></p>
 </div>
 <div class="paragraph">
 <p>The DDF Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.</p>
@@ -13962,7 +13978,7 @@ feature:install &lt;Application's main feature&gt;</pre>
 <div class="listingblock">
 <div class="title">Example</div>
 <div class="content">
-<pre>ddf@local&gt;feature:repo-add mvn:ddf.catalog/catalog-app/2.9.2/xml/features
+<pre>ddf@local&gt;feature:repo-add mvn:ddf.catalog/catalog-app/2.9.3/xml/features
 ddf@local&gt;feature:install catalog-app</pre>
 </div>
 </div>
@@ -14074,7 +14090,7 @@ DDF distribution. You may specify an absolute path if you want the index to be l
 <h2 id="_managing_ddf_search_ui"><a class="anchor" href="#_managing_ddf_search_ui"></a>10. Managing DDF Search UI</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="small">Version: 2.9.2</span></p>
+<p><span class="small">Version: 2.9.3</span></p>
 </div>
 <div class="paragraph">
 <p>The Standard Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.</p>
@@ -14349,8 +14365,13 @@ Admin Console.</p>
  -TMS (TileMapService),<br>
  -GE (GoogleEarth),<br>
  Examples:<br>
- -{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}<br>
- -{"type" "WMT" "url" "http://example.com" "layer" "layer1" "style" "default" "tileMatrixSetID" "tileSetId"}</p></td>
+ -{"type" "OSM" "url" "http://example.osm.org" "fileExtension" "png" "alpha" 0.3 }<br>
+ -{"type" "AGM" "url" "http://example.agm.org"}<br>
+ -{"type" "BM" "url" "https://example.bm.org" "key" "API KEY"}<br>
+ -{"type" "WMS" "url" "http://example.wms.org" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}<br>
+ -{"type" "WMT" "url" "http://example.wmt.org" "layer" "layer1" "style" "default" "tileMatrixSetID" "tileSetId"}<br>
+ -{"type" "TMS" "url" "http://example.tms.org/tms/1.0.0/ne:ne@EPSG:900913@png/{z}/{x}/{y}.png"}<br>
+ -{"type" "GE" "url" "http://example.ge.org" "channel" "10008"}</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
 </tr>
 <tr>
@@ -14486,7 +14507,7 @@ In these command URLs, <code>metacard_cache</code> is the name of the Solr query
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-08-28 21:24:08 -07:00
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2016-10-26 20:03:27 -07:00
 </div>
 </div>
 </body>
