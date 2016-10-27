@@ -63,6 +63,7 @@ replace with next unreleased version
 
 ### BUG FIXES
 
+- [DDF-2547](https://codice.atlassian.net/browse/DDF-2547) Product download fails when using basic auth on a source connected to a non DDF endpoint
 - [DDF-2557](https://codice.atlassian.net/browse/DDF-2557) CSW (and possibly other sources) fail to resolve the default URIs
 - [DDF-2224](https://codice.atlassian.net/browse/DDF-2224) DDF does not work in offline mode
 - [DDF-2506](https://codice.atlassian.net/browse/DDF-2506) Sorting by distance can take minutes on large indexes
