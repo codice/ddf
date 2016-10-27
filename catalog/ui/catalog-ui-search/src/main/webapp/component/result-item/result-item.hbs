@@ -15,21 +15,34 @@
      data-query-id="{{metacard.queryId}}">
     <div class="result-indicator" data-help="Signifies which searches this result has been found in.">
     </div>
+    <div class="result-type" data-help="Indicates the type of result 
+    (workspace, resource, history, deleted)">
+        <span class="fa fa-history"></span>
+        <span class="fa fa-book"></span>
+        <span class="fa fa-file"></span>
+        <span class="fa fa-trash"></span>
+    </div>
     <div class="result-details">
+        <div class="detail-title details-property is-bold" data-help="title">
+            <span>
+                {{metacard.properties.title}}
+            </span>
+        </div>
         {{#if metacard.properties.thumbnail}}
         <div class="detail-thumbnail details-property" data-help="thumbnail">
                 <img src="{{metacard.properties.thumbnail}}">
         </div>
         {{/if}}
-        <div class="detail-title details-property" data-help="title">
+        <div class="detail-lastModified details-property" data-help="modified">
             <span>
-                {{metacard.properties.title}}
+                {{niceDiff}}
             </span>
         </div>
         <div class="detail-source details-property" data-help="source">
             {{#if local}}
                 <span class="fa fa-home">
                 </span>
+                <span>local</span>
             {{else}}
                 <span class="fa fa-cloud">
                 </span>
@@ -37,11 +50,6 @@
                     {{metacard.properties.source-id}}
                 </span>
             {{/if}}
-        </div>
-        <div class="detail-lastModified details-property" data-help="modified">
-            <span>
-                {{niceDiff}}
-            </span>
         </div>
         {{#each customDetail}}
             <div class="detail-custom details-property" data-help="{{this.label}}">

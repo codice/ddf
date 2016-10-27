@@ -56,7 +56,7 @@
 
 @{customElementNamespace}upload-summary.has-issues {
     .files-issues {
-        opacity: .7;
+        opacity: @minimumOpacity;
         transform: scale(1);
         width: 1rem;
         text-align: center;
@@ -69,7 +69,7 @@
     }
 
     .info-percentage::after {
-        opacity: .7;
+        opacity: @minimumOpacity;
         content: " \f071 ";
         font-family: 'FontAwesome';
         color: @warning-color;

@@ -60,6 +60,7 @@ define([
                 throw 'Selection interface has not been provided';
             }
             this.checkDisplayType();
+            this.checkTags();
             this.checkIfSaved();
             this.checkIsInWorkspace();
             this.checkIfBlacklisted();
@@ -89,6 +90,7 @@ define([
             this.onBeforeShow();
             this.checkDisplayType();
             this.checkIfSaved();
+            this.checkTags();
             this.checkIsInWorkspace();
             this.checkIfBlacklisted();
         },
@@ -180,6 +182,13 @@ define([
                     this.$el.addClass('is-grid').removeClass('is-list');
                     break;
             }
+        },
+        checkTags: function(){
+            var tags = this.model.get('metacard').get('properties').get('metacard-tags');
+            this.$el.toggleClass('is-workspace', tags.indexOf('workspace') >= 0);
+            this.$el.toggleClass('is-resource', tags.indexOf('resource') >= 0);
+            this.$el.toggleClass('is-revision', tags.indexOf('revision') >= 0);
+            this.$el.toggleClass('is-deleted', tags.indexOf('deleted') >= 0);
         },
         handleSave: function(e){
             e.preventDefault();

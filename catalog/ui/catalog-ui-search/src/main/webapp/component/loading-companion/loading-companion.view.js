@@ -36,7 +36,7 @@ define([
             this.render();
             $('body').append(this.el);
             this.$el.animate({
-                opacity: .5
+                opacity: .6
             }, 500, function(){
                 this.shown = true;
                 this.$el.trigger('shown.'+this.cid);

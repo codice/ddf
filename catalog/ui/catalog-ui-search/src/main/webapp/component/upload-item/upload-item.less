@@ -192,7 +192,7 @@
 
 @{customElementNamespace}upload-item.checking-validation {
     .success-validate {
-        opacity: .7;
+        opacity: @minimumOpacity;
         transform: scale(1);
     }
 }   
@@ -200,7 +200,7 @@
 @{customElementNamespace}upload-item.has-validation-issues {
 
     .success-issues {
-        opacity: .7;
+        opacity: @minimumOpacity;
         transform: scale(1) translateX(100%);
     }
 }

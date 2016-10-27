@@ -7,7 +7,7 @@
   font-size: 0px;
 
   button {
-    opacity: .5;
+    opacity: @minimumOpacity;
     min-width: @minimumButtonSize;
     min-height: @minimumButtonSize;
     border: 1px solid transparent;
@@ -39,7 +39,7 @@
 
 @{customElementNamespace}radio.is-editing:hover {
   button.is-selected {
-    opacity: .5;
+    opacity: @minimumOpacity;
   }
 
   button:hover {

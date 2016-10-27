@@ -35,7 +35,7 @@
       background: @background-color;
       min-width: @minimumButtonSize;
       position: static !important;
-      opacity: .5;
+      opacity: @minimumOpacity;
       padding: 10px !important;
     }
 
@@ -116,7 +116,7 @@
   .btn-group:hover {
     label,
     label.active {
-      opacity: .5;
+      opacity: @minimumOpacity;
     }
 
     label:hover,

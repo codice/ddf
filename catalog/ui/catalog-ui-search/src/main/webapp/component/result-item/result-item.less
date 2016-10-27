@@ -10,18 +10,35 @@
   }
 
   .result-container > .result-details {
-    width: ~'calc(100% - @{minimumButtonSize} - @{minimumButtonSize} - 20px - 20px - 30px)';
-    margin: 0 74px 0 20px;
+    width: ~'calc(100% - 2*@{minimumButtonSize} - @{mediumSpacing} - 2*@{minimumSpacing} - 30px)';
+    margin-left: @mediumSpacing;
     height: 100%;
-    padding: 0 10px;
+    padding: 0 @minimumSpacing;
   }
 
   .result-container > .result-indicator {
     position: absolute;
     left: 0px;
     top: 0px;
-    width: 20px;
+    width: .5*@minimumSpacing;
     height: 100%;
+  }
+
+   .result-container > .result-type {
+     opacity: @minimumOpacity;
+    position: absolute;
+    left: .5*@minimumSpacing;
+    top: 0px;
+    text-align: center;
+    height: 100%;
+    line-height: @minimumLineSize;
+    padding: 0px .5*@minimumSpacing;
+
+    span {
+      position: relative;
+      line-height: @minimumLineSize;
+      //top: ~'calc(50% - 0.625rem)';
+    }
   }
 
   .result-container > .result-validation {
@@ -89,6 +106,10 @@
     line-height: @minimumLineSize;
   }
 
+  .result-container > .result-details .details-property:not(:first-of-type) {
+    opacity: @minimumOpacity;
+  }
+
   .result-container > .result-validation .resultError {
     color: @negative-color !important;
   }
@@ -98,6 +119,10 @@
   }
 
   .result-container > .result-details .detail-thumbnail {
+    display: none;
+  }
+
+  .result-container > .result-type > span {
     display: none;
   }
 }
@@ -124,10 +149,8 @@
 }
 
 @{customElementNamespace}result-item.is-grid {
-
-
-
   .result-container > .result-details .detail-thumbnail {
+    opacity: 1;
     display: block;
     height: auto;
     padding: 10px 0px;
@@ -136,6 +159,31 @@
       max-width: 100%;
       max-height: 120px;
     }
+  }
+}
+
+@{customElementNamespace}result-item.is-workspace {
+
+  .result-container > .result-type > .fa-book {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}result-item.is-resource {
+  .result-container > .result-type > .fa-file {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}result-item.is-revision {
+  .result-container > .result-type > .fa-history {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}result-item.is-deleted {
+  .result-container > .result-type > .fa-trash {
+    display: inline-block;
   }
 }
 
