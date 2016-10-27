@@ -77,6 +77,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     protected static final String UTF8_ENCODING = "UTF-8";
 
+    protected static final String EXT_PREFIX = "ext.";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureConverter.class);
 
     private final Set<String> basicAttributeNames = getBasicAttributeNames();
@@ -124,7 +126,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     public void setMetacardType(MetacardType metacardType) {
         this.metacardType = metacardType;
-        this.prefix = metacardType.getName() + ".";
+        this.prefix = EXT_PREFIX + metacardType.getName() + ".";
     }
 
     public void setCoordinateOrder(String coordinateOrder) {
@@ -142,7 +144,6 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     protected Metacard createMetacardFromFeature(HierarchicalStreamReader hreader,
             MetacardType metacardType) {
-        String propertyPrefix = metacardType.getName() + ".";
         StringWriter metadataWriter = new StringWriter();
         HierarchicalStreamReader reader = copyXml(hreader, metadataWriter);
         MetacardImpl mc = new MetacardImpl(metacardType);
@@ -151,7 +152,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
-            String featureProperty = propertyPrefix + reader.getNodeName();
+            String featureProperty = prefix + reader.getNodeName();
             AttributeDescriptor attributeDescriptor = metacardType.getAttributeDescriptor(
                     featureProperty);
 

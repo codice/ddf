@@ -42,6 +42,12 @@ import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.DateTimeAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.ValidationAttributes;
 
 public class FeatureMetacardType extends MetacardTypeImpl {
 
@@ -49,13 +55,13 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureMetacardType.class);
 
-    private transient List<String> properties = new ArrayList<String>();
+    private transient List<String> properties = new ArrayList<>();
 
-    private transient List<String> textualProperties = new ArrayList<String>();
+    private transient List<String> textualProperties = new ArrayList<>();
 
-    private transient List<String> gmlProperties = new ArrayList<String>();
+    private transient List<String> gmlProperties = new ArrayList<>();
 
-    private transient List<String> temporalProperties = new ArrayList<String>();
+    private transient List<String> temporalProperties = new ArrayList<>();
 
     private transient QName featureType;
 
@@ -65,15 +71,17 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
     private transient String gmlNamespace;
 
+    private static final String EXT_PREFIX = "ext.";
+
     public FeatureMetacardType(XmlSchema schema, final QName featureType,
             List<String> nonQueryableProperties, String gmlNamespace) {
         super(featureType.getLocalPart(), (Set<AttributeDescriptor>) null);
 
-        addBasicMetacardAttributeDescriptors();
+        addAllDescriptors();
 
         this.featureType = featureType;
         this.nonQueryableProperties = nonQueryableProperties;
-        this.propertyPrefix = getName() + ".";
+        this.propertyPrefix = EXT_PREFIX + getName() + ".";
         this.gmlNamespace = gmlNamespace;
         if (schema != null) {
             processXmlSchema(schema);
@@ -81,6 +89,36 @@ public class FeatureMetacardType extends MetacardTypeImpl {
             throw new IllegalArgumentException(
                     "FeatureTypeMetacard cannot be created with a null Schema.");
         }
+    }
+
+    /**
+     * we don't want to expose these in a query interface ie wfs endpoint, so we need to create new
+     * attributes for each and set them to stored = false note: indexed is being used to determine
+     * whether or not to query certain wfs fields so it did not seem appropriate to hide those
+     * fields from the endpoint schema
+     */
+    private void addDescriptors(Set<AttributeDescriptor> attrDescriptors) {
+        for (AttributeDescriptor descriptor : attrDescriptors) {
+            AttributeDescriptorImpl basicAttributeDescriptor = (AttributeDescriptorImpl) descriptor;
+            AttributeDescriptor attributeDescriptor = new AttributeDescriptorImpl(
+                    basicAttributeDescriptor.getName(),
+                    false,
+                    false,
+                    basicAttributeDescriptor.isTokenized(),
+                    basicAttributeDescriptor.isMultiValued(),
+                    basicAttributeDescriptor.getType());
+            descriptors.add(attributeDescriptor);
+        }
+    }
+
+    private void addAllDescriptors() {
+        addDescriptors(new CoreAttributes().getAttributeDescriptors());
+        addDescriptors(new ContactAttributes().getAttributeDescriptors());
+        addDescriptors(new LocationAttributes().getAttributeDescriptors());
+        addDescriptors(new MediaAttributes().getAttributeDescriptors());
+        addDescriptors(new DateTimeAttributes().getAttributeDescriptors());
+        addDescriptors(new ValidationAttributes().getAttributeDescriptors());
+        addDescriptors(new MediaAttributes().getAttributeDescriptors());
     }
 
     public String getName() {
@@ -97,28 +135,6 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
     public QName getFeatureType() {
         return featureType;
-    }
-
-    /**
-     * we don't want to expose these in a query interface ie wfs endpoint, so we need to create new
-     * attributes for each and set them to stored = false note: indexed is being used to determine
-     * whether or not to query certain wfs fields so it did not seem appropriate to hide those
-     * fields from the endpoint schema
-     */
-    private void addBasicMetacardAttributeDescriptors() {
-
-        for (AttributeDescriptor ad : BasicTypes.BASIC_METACARD.getAttributeDescriptors()) {
-            AttributeDescriptorImpl basicAttributeDescriptor = (AttributeDescriptorImpl) ad;
-            AttributeDescriptor attributeDescriptor = new AttributeDescriptorImpl(
-                    basicAttributeDescriptor.getName(),
-                    false,
-                    false,
-                    basicAttributeDescriptor.isTokenized(),
-                    basicAttributeDescriptor.isMultiValued(),
-                    basicAttributeDescriptor.getType());
-            descriptors.add(attributeDescriptor);
-        }
-
     }
 
     private void processXmlSchema(XmlSchema schema) {
@@ -147,8 +163,8 @@ public class FeatureMetacardType extends MetacardTypeImpl {
                     processXmlSchemaParticle(complexType.getParticle());
                 } else {
                     if (complexType.getContentModel() instanceof XmlSchemaComplexContent) {
-                        XmlSchemaContent content =
-                                ((XmlSchemaComplexContent) complexType.getContentModel()).getContent();
+                        XmlSchemaContent content = complexType.getContentModel()
+                                .getContent();
                         if (content instanceof XmlSchemaComplexContentExtension) {
                             XmlSchemaComplexContentExtension extension =
                                     (XmlSchemaComplexContentExtension) content;
@@ -190,7 +206,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
         AttributeType<?> attributeType = toBasicType(qName);
 
         if (attributeType != null) {
-            boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1 ? true : false;
+            boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
             descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name,
                     name,
                     isQueryable(name) /* indexed */,
@@ -218,7 +234,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
             LOGGER.debug("Adding temporal property: {}", propertyPrefix + name);
             temporalProperties.add(propertyPrefix + name);
 
-            boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1 ? true : false;
+            boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
             descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name,
                     name,
                     isQueryable(name) /* indexed */,
@@ -237,7 +253,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
             LOGGER.debug("Adding geo property: {}", propertyPrefix + name);
             gmlProperties.add(propertyPrefix + name);
 
-            boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1 ? true : false;
+            boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
             descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name,
                     name,
                     isQueryable(name) /* indexed */,

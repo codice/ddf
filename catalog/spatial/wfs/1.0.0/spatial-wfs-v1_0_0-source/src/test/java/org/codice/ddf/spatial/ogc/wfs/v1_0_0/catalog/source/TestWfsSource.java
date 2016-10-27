@@ -48,7 +48,6 @@ import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeR
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs10;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
@@ -60,6 +59,7 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.Query;
@@ -70,6 +70,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
+
 import ogc.schema.opengis.filter.v_1_0_0.BinaryLogicOpType;
 import ogc.schema.opengis.filter.v_1_0_0.LogicOpsType;
 import ogc.schema.opengis.filter.v_1_0_0.PropertyIsLikeType;
@@ -150,19 +151,14 @@ public class TestWfsSource {
 
     private static final String LITERAL = "literal";
 
-    private static byte[] resultsByteArray;
+    private static final String EXT_PREFIX = "ext.";
 
-    private static final Comparator<QueryType> QUERY_TYPE_COMPARATOR = new Comparator<QueryType>() {
-
-        public int compare(QueryType queryType1, QueryType queryType2) {
-
-            String typeName1 = queryType1.getTypeName()
-                    .getLocalPart();
-            String typeName2 = queryType2.getTypeName()
-                    .getLocalPart();
-            return typeName1.compareTo(typeName2);
-        }
-
+    private static final Comparator<QueryType> QUERY_TYPE_COMPARATOR = (queryType1, queryType2) -> {
+        String typeName1 = queryType1.getTypeName()
+                .getLocalPart();
+        String typeName2 = queryType2.getTypeName()
+                .getLocalPart();
+        return typeName1.compareTo(typeName2);
     };
 
     private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
@@ -174,9 +170,6 @@ public class TestWfsSource {
     private WfsFeatureCollection mockFeatureCollection = mock(WfsFeatureCollection.class);
 
     private BundleContext mockContext = mock(BundleContext.class);
-
-    private FeatureCollectionMessageBodyReaderWfs10 mockReader = mock(
-            FeatureCollectionMessageBodyReaderWfs10.class);
 
     private List<QName> sampleFeatures;
 
@@ -227,7 +220,7 @@ public class TestWfsSource {
         when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenReturn(
                 xmlSchema);
 
-        sampleFeatures = new ArrayList<QName>();
+        sampleFeatures = new ArrayList<>();
         mockCapabilites.setFeatureTypeList(new FeatureTypeListType());
         if (numFeatures != null) {
             for (int ii = 0; ii < numFeatures; ii++) {
@@ -985,7 +978,8 @@ public class TestWfsSource {
     public void testQueryTwoFeaturesOneInvalid()
             throws UnsupportedQueryException, WfsException, SecurityServiceException {
         setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
-        Filter orderPersonFilter = builder.attribute(sampleFeatures.get(0) + "." + ORDER_PERSON)
+        Filter orderPersonFilter = builder.attribute(
+                EXT_PREFIX + sampleFeatures.get(0) + "." + ORDER_PERSON)
                 .is()
                 .like()
                 .text(LITERAL);
@@ -1042,7 +1036,7 @@ public class TestWfsSource {
     public void testQueryTwoFeaturesWithMixedPropertyNames()
             throws UnsupportedQueryException, WfsException, SecurityServiceException {
         setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
-        Filter orderPersonFilter = builder.attribute(sampleFeatures.get(0)
+        Filter orderPersonFilter = builder.attribute(EXT_PREFIX + sampleFeatures.get(0)
                 .getLocalPart() + "." + ORDER_PERSON)
                 .is()
                 .like()
@@ -1053,7 +1047,7 @@ public class TestWfsSource {
                 .text(sampleFeatures.get(0)
                         .getLocalPart());
         Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Fitler));
-        Filter orderDogFilter = builder.attribute(sampleFeatures.get(1)
+        Filter orderDogFilter = builder.attribute(EXT_PREFIX + sampleFeatures.get(1)
                 .getLocalPart() + "." + ORDER_DOG)
                 .is()
                 .like()
@@ -1120,7 +1114,7 @@ public class TestWfsSource {
             throws UnsupportedQueryException, WfsException, SecurityServiceException {
         setUp(NO_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
 
-        QueryImpl idQuery = new QueryImpl(builder.attribute(Metacard.ID)
+        QueryImpl idQuery = new QueryImpl(builder.attribute(Core.ID)
                 .is()
                 .text(ORDER_PERSON));
 
@@ -1151,10 +1145,10 @@ public class TestWfsSource {
             throws UnsupportedQueryException, WfsException, SecurityServiceException {
         setUp(NO_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
 
-        Filter idFilter1 = builder.attribute(Metacard.ID)
+        Filter idFilter1 = builder.attribute(Core.ID)
                 .is()
                 .text(ORDER_PERSON);
-        Filter idFilter2 = builder.attribute(Metacard.ID)
+        Filter idFilter2 = builder.attribute(Core.ID)
                 .is()
                 .text(ORDER_DOG);
 
@@ -1203,7 +1197,7 @@ public class TestWfsSource {
             throws UnsupportedQueryException, WfsException, SecurityServiceException {
         setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
 
-        Filter idFilter = builder.attribute(Metacard.ID)
+        Filter idFilter = builder.attribute(Core.ID)
                 .is()
                 .text(ORDER_PERSON);
         Filter propertyIsLikeFilter = builder.attribute(Metacard.ANY_TEXT)

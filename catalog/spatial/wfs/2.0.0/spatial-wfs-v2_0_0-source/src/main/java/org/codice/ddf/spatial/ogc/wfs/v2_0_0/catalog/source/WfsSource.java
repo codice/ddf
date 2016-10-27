@@ -109,6 +109,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
+
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
 import net.opengis.filter.v_2_0_0.SortByType;
@@ -518,10 +519,23 @@ public class WfsSource extends MaskableImpl
 
             LOGGER.debug("ftName: {}", ftSimpleName);
             try {
-                XmlSchema schema = wfs.describeFeatureType(new DescribeFeatureTypeRequest(
-                        featureTypeType.getName()));
+                XmlSchema schema =
+                        wfs.describeFeatureType(new DescribeFeatureTypeRequest(featureTypeType.getName()));
 
-                if ((schema != null)) {
+                if (schema == null) {
+                    // Some WFS 2.0.0 DescribeFeatureRequests return inconsistent results when
+                    // the `:` character is encoded in the URL, ie Prefix:SomeFeature is encoded to
+                    // Prefix%3ASomeFeature. To avoid this issue, we will make a call without the prefix
+                    // if the previous call does not work.
+                    schema = wfs.describeFeatureType(new DescribeFeatureTypeRequest(new QName(
+                            featureTypeType.getName()
+                                    .getNamespaceURI(),
+                            featureTypeType.getName()
+                                    .getLocalPart(),
+                            "")));
+                }
+
+                if (schema != null) {
                     // Update local map with enough info to create actual MetacardType registrations
                     // later
                     MetacardTypeRegistration registration = createFeatureMetacardTypeRegistration(
@@ -548,7 +562,6 @@ public class WfsSource extends MaskableImpl
                 LOGGER.debug(handleWebApplicationException(wae), wae);
             }
         }
-
 
         registerFeatureMetacardTypes(mcTypeRegs);
 
@@ -801,12 +814,11 @@ public class WfsSource extends MaskableImpl
                             .getLocalPart();
                 } else {
                     typeName = filterDelegateEntry.getKey()
-                            .getPrefix() +
-                            ":" + filterDelegateEntry.getKey()
+                            .getPrefix() + ":" + filterDelegateEntry.getKey()
                             .getLocalPart();
                 }
 
-                if(StringUtils.isNotBlank(srsName)) {
+                if (StringUtils.isNotBlank(srsName)) {
                     wfsQuery.setSrsName(srsName);
                 }
 
@@ -1034,7 +1046,8 @@ public class WfsSource extends MaskableImpl
                 MetadataTransformer transformer = (MetadataTransformer) context.getService(refs[0]);
                 return transformer.transform(mc);
             } catch (CatalogTransformerException e) {
-                LOGGER.debug("Transformation Failed for transformer: {}. Returning original metacard",
+                LOGGER.debug(
+                        "Transformation Failed for transformer: {}. Returning original metacard",
                         transformerId,
                         e);
                 return mc;
@@ -1269,8 +1282,8 @@ public class WfsSource extends MaskableImpl
             msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' with URL '" + getWfsUrl() + "': "
                     + ce.getMessage();
         } else if (cause instanceof ConnectException) {
-            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' may not be running.\n" +
-                    ce.getMessage();
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' may not be running.\n"
+                    + ce.getMessage();
         } else {
             msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'\n" + ce;
         }
