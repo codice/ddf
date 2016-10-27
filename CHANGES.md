@@ -62,6 +62,7 @@ replace with next unreleased version
 
 ### BUG FIXES
 
+- [DDF-2557](https://codice.atlassian.net/browse/DDF-2557) CSW (and possibly other sources) fail to resolve the default URIs
 - [DDF-2224](https://codice.atlassian.net/browse/DDF-2224) DDF does not work in offline mode
 - [DDF-2506](https://codice.atlassian.net/browse/DDF-2506) Sorting by distance can take minutes on large indexes
 - [DDF-2459](https://codice.atlassian.net/browse/DDF-2459) Content directory monitor stops finding new files, requiring administrators to refresh configuration settings to trigger updates
