@@ -42,7 +42,6 @@ ddf.catalog.filter.proxy.builder
 ddf.catalog.history
 ddf.catalog.impl
 ddf.catalog.impl.filter
-ddf.catalog.metacard.duplication
 ddf.catalog.metacard.validation
 ddf.catalog.metacard.versioning
 ddf.catalog.metrics
@@ -448,6 +447,7 @@ org.codice.ddf.ui.searchui.query.service
 org.codice.ddf.ui.searchui.query.solr
 org.codice.ddf.ui.searchui.simple.properties
 org.codice.ddf.ui.searchui.standard.properties
+org.codice.ddf.validator.metacard.duplication
 org.codice.proxy.http
 org.codice.solr.factory
 org.codice.solr.query
