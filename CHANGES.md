@@ -86,7 +86,7 @@ replace with next unreleased version
 	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20ddf-2.10.0%20AND%20fixVersion%20!%3D%20ddf-2.10.0%20ORDER%20BY%20priority) affecting this version.
 
 ## 2.9.3
-	Release Date: `unreleased`
+	Release Date: `2016-10-27`
 
 ### NOTES
 
