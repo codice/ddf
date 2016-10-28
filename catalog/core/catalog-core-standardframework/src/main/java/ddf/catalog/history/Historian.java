@@ -188,17 +188,20 @@ public class Historian {
                                 .get(SecurityConstants.SECURITY_SUBJECT)))
                 .collect(Collectors.toList());
 
-        CreateResponse createResponse =
-                executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(
-                        versionedMetacards)));
 
-        Map<String, Metacard> versionedMap = createResponse.getCreatedMetacards()
-                .stream()
+        Map<String, Metacard> versionedMap = versionedMetacards.stream()
                 .collect(Collectors.toMap(m -> (String) m.getAttribute(MetacardVersion.VERSION_OF_ID)
                         .getValue(), Function.identity()));
 
         CreateStorageResponse createStorageResponse = versionContentItems(contentItems,
                 versionedMap);
+        if (createStorageResponse != null) {
+            setResourceUriForContent(/*Mutable*/ versionedMap, createStorageResponse);
+        }
+
+        CreateResponse createResponse =
+                executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(
+                        versionedMetacards)));
 
         List<Metacard> deletedMetacards = versionedMap.keySet()
                 .stream()
