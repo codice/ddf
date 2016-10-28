@@ -17,10 +17,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ddf.security.common.util.Security;
 
 /**
  * Runs the ServiceManager methods as the system subject
@@ -38,14 +37,11 @@ public class ServiceManagerProxy implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        Subject subject = org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
+        Subject subject =
+                org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getInstance()
+                        .getSystemSubject());
         return subject.execute(() -> {
-            try {
-                return method.invoke(serviceManager, args);
-            } catch (Exception e) {
-                LOGGER.error("Unable to run method {} as system subject", method.getName());
-                return null;
-            }
+            return method.invoke(serviceManager, args);
         });
     }
 }
