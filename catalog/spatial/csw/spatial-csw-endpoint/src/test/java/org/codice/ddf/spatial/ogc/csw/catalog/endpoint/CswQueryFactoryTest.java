@@ -203,13 +203,19 @@ public class CswQueryFactoryTest {
 
     private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
 
+    private static List<MetacardType> metacardTypeList;
+
     @org.junit.Before
     public void setUp()
             throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
             FederationException, ParseException, IngestException {
         filterBuilder = new GeotoolsFilterBuilder();
         FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
-        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, getCswMetacardType());
+
+        metacardTypeList = new ArrayList<>();
+
+        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, getCswMetacardType(),
+                metacardTypeList);
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
@@ -320,8 +326,8 @@ public class CswQueryFactoryTest {
         assertThat(frameworkQuery.getFilter(), instanceOf(PropertyIsLike.class));
         PropertyIsLike like = (PropertyIsLike) frameworkQuery.getFilter();
         assertThat(like.getLiteral(), is(CQL_CONTEXTUAL_PATTERN));
-        assertThat(((AttributeExpressionImpl) like.getExpression()).getPropertyName(), is(
-                CQL_FRAMEWORK_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) like.getExpression()).getPropertyName(),
+                is(CQL_FRAMEWORK_TEST_ATTRIBUTE));
     }
 
     @Test
@@ -577,7 +583,8 @@ public class CswQueryFactoryTest {
             throws CswException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
 
-        String[] cqlTextValues = new String[] {CswConstants.CSW_NO_PREFIX_CREATED, CQL_BEFORE, TIMESTAMP};
+        String[] cqlTextValues =
+                new String[] {CswConstants.CSW_NO_PREFIX_CREATED, CQL_BEFORE, TIMESTAMP};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Core.CREATED, cqlText, new Class[] {Before.class});
     }
@@ -682,8 +689,8 @@ public class CswQueryFactoryTest {
         N spatial = (N) frameworkQuery.getFilter();
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
-                SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
+                is(SPATIAL_TEST_ATTRIBUTE));
     }
 
     /**
@@ -723,8 +730,8 @@ public class CswQueryFactoryTest {
         N spatial = (N) frameworkQuery.getFilter();
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
-                SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
+                is(SPATIAL_TEST_ATTRIBUTE));
 
         assertThat(spatial.getDistanceUnits(), is(UomOgcMapping.METRE.name()));
         assertThat(spatial.getDistance(), is(EXPECTED_GEO_DISTANCE));
@@ -854,8 +861,8 @@ public class CswQueryFactoryTest {
         N spatial = (N) frameworkQuery.getFilter();
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
-                SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
+                is(SPATIAL_TEST_ATTRIBUTE));
     }
 
     /**
@@ -897,8 +904,8 @@ public class CswQueryFactoryTest {
         N spatial = (N) frameworkQuery.getFilter();
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
-                SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
+                is(SPATIAL_TEST_ATTRIBUTE));
     }
 
     /**
@@ -940,8 +947,8 @@ public class CswQueryFactoryTest {
         N spatial = (N) frameworkQuery.getFilter();
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
-                SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
+                is(SPATIAL_TEST_ATTRIBUTE));
     }
 
     /**
@@ -966,8 +973,8 @@ public class CswQueryFactoryTest {
         assertThat(filter, instanceOf(clz));
 
         N temporal = (N) filter;
-        assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(), is(
-                expectedAttr));
+        assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(),
+                is(expectedAttr));
     }
 
     /**
@@ -1062,8 +1069,8 @@ public class CswQueryFactoryTest {
             assertThat(frameworkQuery.getFilter(), instanceOf(classes[0]));
             temporal = (N) frameworkQuery.getFilter();
         }
-        assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(), is(
-                expectedAttr));
+        assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(),
+                is(expectedAttr));
     }
 
     /**

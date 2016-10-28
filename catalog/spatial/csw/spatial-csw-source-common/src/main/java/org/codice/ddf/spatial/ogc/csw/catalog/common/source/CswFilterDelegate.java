@@ -144,7 +144,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     convertDateToIso8601Format(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -155,8 +155,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName, Integer.valueOf(
-                    literal), false);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    Integer.valueOf(literal),
+                    true);
         } else {
             return new FilterType();
         }
@@ -169,7 +170,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     Short.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -182,7 +183,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     Long.valueOf(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -195,7 +196,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     new Float(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -208,7 +209,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
                     new Double(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -219,8 +220,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName, Boolean.valueOf(
-                    literal), false);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    Boolean.valueOf(literal),
+                    true);
         } else {
             return new FilterType();
         }
@@ -247,7 +249,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     this.convertDateToIso8601Format(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -258,8 +260,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName, Integer.valueOf(
-                    literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    Integer.valueOf(literal),
+                    true);
         } else {
             return new FilterType();
         }
@@ -270,8 +273,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName, Short.valueOf(
-                    literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    Short.valueOf(literal),
+                    true);
         } else {
             return new FilterType();
         }
@@ -282,8 +286,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName, Long.valueOf(
-                    literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    Long.valueOf(literal),
+                    true);
         } else {
             return new FilterType();
         }
@@ -296,7 +301,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     new Float(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -309,7 +314,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
                     new Double(literal),
-                    false);
+                    true);
         } else {
             return new FilterType();
         }
@@ -320,8 +325,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName, Boolean.valueOf(
-                    literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    Boolean.valueOf(literal),
+                    true);
         } else {
             return new FilterType();
         }
