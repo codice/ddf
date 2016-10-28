@@ -46,6 +46,7 @@ define([
         },
         initialize: function(){
             this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
+            this.listenTo(this, 'change:locationType', this.handleLocationType);
             this.listenTo(this, 'change:bbox', this.setBboxLatLon);
             this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon);
             this.listenTo(this, 'change:usngbb', this.setBboxUsng);
@@ -157,6 +158,16 @@ define([
         setRadiusUsng: function () {
             var result = converter.USNGtoLL(this.get('usng'), true);
             this.set(result);
+        },
+        handleLocationType: function(){
+            if (this.get('locationType') === 'latlon') {
+                this.set({
+                    north: this.get('mapNorth'),
+                    south: this.get('mapSouth'),
+                    east: this.get('mapEast'),
+                    west: this.get('mapWest')
+                });
+            }
         }
     });
 });

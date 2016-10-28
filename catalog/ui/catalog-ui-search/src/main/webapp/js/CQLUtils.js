@@ -76,13 +76,23 @@ define([
             }
         },
         bboxToCQLPolygon: function (model) {
-            return [
-                model.west + ' ' + model.south,
-                model.west + ' ' + model.north,
-                model.east + ' ' + model.north,
-                model.east + ' ' + model.south,
-                model.west + ' ' + model.south
-            ];
+            if (model.locationType === 'usng'){
+                return [
+                    model.mapWest + ' ' + model.mapSouth,
+                    model.mapWest + ' ' + model.mapNorth,
+                    model.mapEast + ' ' + model.mapNorth,
+                    model.mapEast + ' ' + model.mapSouth,
+                    model.mapWest + ' ' + model.mapSouth
+                ];
+            } else {
+                return [
+                    model.west + ' ' + model.south,
+                    model.west + ' ' + model.north,
+                    model.east + ' ' + model.north,
+                    model.east + ' ' + model.south,
+                    model.west + ' ' + model.south
+                ];
+            }
         },
         polygonToCQLPolygon: function (model) {
             var cqlPolygon = model.map(function (point) {
