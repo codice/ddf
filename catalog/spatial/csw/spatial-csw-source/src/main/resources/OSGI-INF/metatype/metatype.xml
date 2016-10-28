@@ -133,7 +133,7 @@
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
             required="false" type="String"/>
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
-            required="false" type="String"/>
+            required="false" type="Password"/>
     </OCD>
 
     <OCD name="GMD CSW ISO Federated Source" id="Gmd_Csw_Federated_Source"
