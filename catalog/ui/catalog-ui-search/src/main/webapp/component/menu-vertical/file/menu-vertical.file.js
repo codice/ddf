@@ -116,18 +116,6 @@ define([
         [
             {
                 type: 'action',
-                name: 'Restore Archived Items',
-                icon: 'history',
-                action: function () {
-                    lightboxInstance.model.updateTitle('Restore Archived Items');
-                    lightboxInstance.model.open();
-                    lightboxInstance.lightboxContent.show(new MetacardRestore());
-                }
-            }
-        ],
-        [
-            {
-                type: 'action',
                 name: 'Share',
                 icon: 'users',
                 action: function () {
