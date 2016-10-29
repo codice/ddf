@@ -179,19 +179,12 @@ public class Historian {
         Map<String, List<ContentItem>> contentItems = getContentItems(deleteResponse);
         Action action = contentItems.isEmpty() ? Action.DELETED : Action.DELETED_CONTENT;
 
-        List<Metacard> versionedMetacards = deleteResponse.getDeletedMetacards()
-                .stream()
-                .map(mc -> new MetacardVersionImpl(mc,
+        Map<String, Metacard> versionedMap =
+                getVersionMetacards(deleteResponse.getDeletedMetacards(),
                         action,
                         (Subject) deleteResponse.getRequest()
                                 .getProperties()
-                                .get(SecurityConstants.SECURITY_SUBJECT)))
-                .collect(Collectors.toList());
-
-
-        Map<String, Metacard> versionedMap = versionedMetacards.stream()
-                .collect(Collectors.toMap(m -> (String) m.getAttribute(MetacardVersion.VERSION_OF_ID)
-                        .getValue(), Function.identity()));
+                                .get(SecurityConstants.SECURITY_SUBJECT));
 
         CreateStorageResponse createStorageResponse = versionContentItems(contentItems,
                 versionedMap);
@@ -200,8 +193,8 @@ public class Historian {
         }
 
         CreateResponse createResponse =
-                executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(
-                        versionedMetacards)));
+                executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(new ArrayList<>(
+                        versionedMap.values()))));
 
         List<Metacard> deletedMetacards = versionedMap.keySet()
                 .stream()
