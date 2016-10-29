@@ -1,3 +1,39 @@
-@{customElementNamespace}tabs.is-metacard {
-  
+@{customElementNamespace}tabs.is-metacard.is-workspace {
+}
+
+@{customElementNamespace}tabs.is-metacard.is-resource {
+}
+
+@{customElementNamespace}tabs.is-metacard.is-revision {
+
+    > .tabs-list {
+        [data-id=History],
+        [data-id=Actions],
+        [data-id=Overwrite],
+        [data-id=Archive] {
+            display: none !important;
+        }
+    }
+}
+
+@{customElementNamespace}tabs.is-metacard.is-deleted {
+     > .tabs-list {
+        [data-id=History],
+        [data-id=Actions],
+        [data-id=Overwrite],
+        [data-id=Archive] {
+            display: none !important;
+        }
+    }
+}
+
+@{customElementNamespace}tabs.is-metacard.is-workspace {
+     > .tabs-list {
+        [data-id=History],
+        [data-id=Actions],
+        [data-id=Overwrite],
+        [data-id=Archive] {
+            display: none !important;
+        }
+    }
 }

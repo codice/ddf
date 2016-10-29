@@ -22,10 +22,11 @@ define([
     'js/CustomElements',
     'component/router/router',
     'component/navigation/metacard/navigation.metacard.view',
-    'component/tabs/expanded-metacard/tabs.expanded-metacard.view',
-    'component/metacard-visual/metacard-visual.view'
+    'component/tabs/metacard/tabs-metacard.view',
+    'component/metacard-visual/metacard-visual.view',
+    'component/metacard/metacard'
 ], function (wreqr, Marionette, _, $, template, CustomElements, router, NavigationView,
-            MetacardTabularView, MetacardVisualView) {
+            MetacardTabularView, MetacardVisualView, metacardInstance) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -54,7 +55,9 @@ define([
         },
         onBeforeShow: function(){
             this.metacardMenu.show(new NavigationView());
-            this.detailsTabular.show(new MetacardTabularView());
+            this.detailsTabular.show(new MetacardTabularView({
+                selectionInterface: metacardInstance
+            }));
             this.detailsVisual.show(new MetacardVisualView());
         }
     });

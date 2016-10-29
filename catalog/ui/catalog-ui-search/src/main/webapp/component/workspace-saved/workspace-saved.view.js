@@ -47,14 +47,21 @@ define([
             if (!isEmpty) {
                 var query = new Query.Model({
                     cql: cql.write({
-                        type: 'OR',
-                        filters: store.getCurrentWorkspace().get('metacards').map(function (id) {
-                            return {
-                                type: '=',
-                                value: id,
-                                property: '"id"'
-                            };
-                        })
+                        type: 'AND',
+                        filters: [{
+                            type: 'OR',
+                            filters: store.getCurrentWorkspace().get('metacards').map(function (id) {
+                                return {
+                                    type: '=',
+                                    value: id,
+                                    property: '"id"'
+                                };
+                            })
+                        }, {
+                            type: 'ILIKE',
+                            value: '*',
+                            property: '"metacard-tags"'
+                        }]
                     })
                 });
                 $.whenAll.apply(this, query.startSearch()).always(function () {

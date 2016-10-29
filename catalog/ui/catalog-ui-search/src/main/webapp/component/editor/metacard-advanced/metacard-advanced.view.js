@@ -29,18 +29,18 @@ define([
     return EditorView.extend({
         className: 'is-metacard-advanced',
         setDefaultModel: function(){
-            this.model = this.selectionInterface.getSelectedResults().first();
+            this.model = this.selectionInterface.getSelectedResults();
         },
         selectionInterface: store,
         initialize: function(options){
             this.selectionInterface = options.selectionInterface || this.selectionInterface;
             EditorView.prototype.initialize.call(this, options);
-            this.listenTo(this.model.get('metacard').get('properties'), 'change', this.onBeforeShow);
+            this.listenTo(this.model.first().get('metacard').get('properties'), 'change', this.onBeforeShow);
         },
         onBeforeShow: function() {
             this.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(
-                [this.model.get('propertyTypes')],
-                [this.model.get('metacard>properties').toJSON()]));
+                [this.model.first().get('propertyTypes')],
+                [this.model.first().get('metacard>properties').toJSON()]));
             this.editorProperties.currentView.turnOnLimitedWidth();
             this.editorProperties.currentView.$el.addClass("is-list");
 
@@ -49,7 +49,7 @@ define([
         getValidation: function(){
             var self = this;
             self.editorProperties.currentView.clearValidation();
-            $.get('/search/catalog/internal/metacard/'+this.model.get('metacard').id+'/attribute/validation').then(function(response){
+            $.get('/search/catalog/internal/metacard/'+this.model.first().get('metacard').id+'/attribute/validation').then(function(response){
                 if (!self.isDestroyed && self.editorProperties.currentView){
                     self.editorProperties.currentView.updateValidation(response);
                 }
@@ -66,7 +66,7 @@ define([
             if (editorJSON.length > 0){
                 var payload = [
                     {
-                        ids: [this.model.get('metacard').get('id')],
+                        ids: [this.model.first().get('metacard').get('id')],
                         attributes: editorJSON
                     }
                 ];
@@ -85,12 +85,12 @@ define([
                                 return attrMap;
                             }, attributeMap);
                         }, {});
-                        self.model.get('metacard').get('properties').set(attributeMap);
+                        self.model.first().get('metacard').get('properties').set(attributeMap);
                         store.get('workspaces').forEach(function(workspace){
                             workspace.get('queries').forEach(function(query){
                                 if (query.get('result')) {
                                     query.get('result').get('results').forEach(function(result){
-                                        if (result.get('metacard').get('properties').get('id') ===  self.model.get('metacard').get('properties').get('id')){
+                                        if (result.get('metacard').get('properties').get('id') ===  self.model.first().get('metacard').get('properties').get('id')){
                                             result.get('metacard').get('properties').set(attributeMap);
                                         }
                                     });
@@ -98,7 +98,7 @@ define([
                             });
                         });
                         alertInstance.get('currentResult').get('results').forEach(function(result){
-                            if (result.get('metacard').get('properties').get('id') ===  self.model.get('metacard').get('properties').get('id')){
+                            if (result.get('metacard').get('properties').get('id') ===  self.model.first().get('metacard').get('properties').get('id')){
                                 result.get('metacard').get('properties').set(attributeMap);
                             }
                         });

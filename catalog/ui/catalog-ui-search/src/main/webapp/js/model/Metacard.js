@@ -478,6 +478,18 @@ define([
             initialize: function(){
                 this.refreshData = _.throttle(this.refreshData, 200);
             },
+            isWorkspace: function(){
+                return this.get('metacard').get('properties').get('metacard-tags').indexOf('workspace') >= 0;
+            },
+            isResource: function(){
+                return this.get('metacard').get('properties').get('metacard-tags').indexOf('resource') >= 0;
+            },
+            isRevision: function(){
+                return this.get('metacard').get('properties').get('metacard-tags').indexOf('revision') >= 0;
+            },
+            isDeleted: function(){
+                return this.get('metacard').get('properties').get('metacard-tags').indexOf('deleted') >= 0;
+            },
             refreshData: function(){
                 //let solr flush
                 setTimeout(function() {

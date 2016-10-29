@@ -184,11 +184,10 @@ define([
             }
         },
         checkTags: function(){
-            var tags = this.model.get('metacard').get('properties').get('metacard-tags');
-            this.$el.toggleClass('is-workspace', tags.indexOf('workspace') >= 0);
-            this.$el.toggleClass('is-resource', tags.indexOf('resource') >= 0);
-            this.$el.toggleClass('is-revision', tags.indexOf('revision') >= 0);
-            this.$el.toggleClass('is-deleted', tags.indexOf('deleted') >= 0);
+            this.$el.toggleClass('is-workspace', this.model.isWorkspace());
+            this.$el.toggleClass('is-resource', this.model.isResource());
+            this.$el.toggleClass('is-revision', this.model.isRevision());
+            this.$el.toggleClass('is-deleted', this.model.isDeleted());
         },
         handleSave: function(e){
             e.preventDefault();

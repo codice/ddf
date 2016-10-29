@@ -31,7 +31,8 @@
 
   .interaction-save,
   .interaction-unsave,
-  .interaction-show {
+  .interaction-show,
+  .interaction-share {
     display: none;
   }
 
@@ -80,6 +81,14 @@
   }
 
   .interaction-hide {
+    display: none;
+  }
+}
+
+@{customElementNamespace}metacard-interactions.is-deleted,
+@{customElementNamespace}metacard-interactions.is-workspace,
+@{customElementNamespace}metacard-interactions.is-revision {
+  .interaction-download {
     display: none;
   }
 }

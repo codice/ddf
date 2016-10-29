@@ -34,19 +34,45 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
+            this.determineAvailableContent();
             TabsView.prototype.initialize.call(this);
-            var debounceDetermineContent = _.debounce(this.determineContent, 200);
+            var debounceDetermineContent = _.debounce(this.handleMetacardChange, 200);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'update',debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'add', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'reset', debounceDetermineContent);
         },
+        handleMetacardChange: function(){
+            this.determineAvailableContent();
+            this.determineContent();
+        },
+        determineContentFromType: function(){
+            var activeTabName = this.model.get('activeTab');
+            var result = this.selectionInterface.getSelectedResults().first();
+            if (result.isRevision() && ['History', 'Actions', 'Overwrite', 'Archive'].indexOf(activeTabName) >= 0){
+                this.model.set('activeTab', 'Summary');
+            } else if (result.isDeleted() && ['History', 'Actions', 'Overwrite', 'Archive'].indexOf(activeTabName) >= 0){
+                this.model.set('activeTab', 'Summary');
+            } else if (result.isWorkspace() && ['History', 'Actions', 'Overwrite', 'Archive'].indexOf(activeTabName) >= 0){
+                this.model.set('activeTab', 'Summary');
+            }
+            var activeTab = this.model.getActiveView();
+            this.tabsContent.show(new activeTab({
+                selectionInterface: this.selectionInterface
+            }));
+        },
         determineContent: function(){
             if (this.selectionInterface.getSelectedResults().length === 1) {
-                var activeTab = this.model.getActiveView();
-                this.tabsContent.show(new activeTab({
-                    selectionInterface: this.selectionInterface
-                }));
+                this.determineContentFromType();
+            }
+        },
+        determineAvailableContent: function(){
+            if (this.selectionInterface.getSelectedResults().length === 1) {
+                var result = this.selectionInterface.getSelectedResults().first();
+                this.$el.toggleClass('is-workspace', result.isWorkspace());
+                this.$el.toggleClass('is-resource', result.isResource());
+                this.$el.toggleClass('is-revision', result.isRevision());
+                this.$el.toggleClass('is-deleted', result.isDeleted());
             }
         }
     });

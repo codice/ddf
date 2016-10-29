@@ -1,9 +1,9 @@
 @{customElementNamespace}metacard-archive {
 
-  button.is-negative {
+  button.is-negative,
+  button.is-positive {
     width: 100%;
     height: auto;
-    margin-top: 10px;
   }
 
   span.mainText {
@@ -12,5 +12,20 @@
   span.subText {
     display: block;
     font-size: @mediumFontSize;
+  }
+  
+  .restore {
+    display: none;
+  }
+}
+
+@{customElementNamespace}metacard-archive.is-deleted {
+
+  .archive {
+    display: none;
+  }
+
+  .restore {
+    display: block;
   }
 }

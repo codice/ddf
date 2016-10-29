@@ -51,6 +51,7 @@ module.exports = Marionette.LayoutView.extend({
         if (!options.model) {
             this.setDefaultModel();
         }
+        this.handleType();
         this.getAssociations();
         this.setupListeners();
     },
@@ -186,5 +187,11 @@ module.exports = Marionette.LayoutView.extend({
             parent: this.model.get('metacard').id,
             child: this.model.get('metacard').id
         });
+    },
+    handleType: function(){
+        this.$el.toggleClass('is-workspace', this.model.isWorkspace());
+        this.$el.toggleClass('is-resource', this.model.isResource());
+        this.$el.toggleClass('is-revision', this.model.isRevision());
+        this.$el.toggleClass('is-deleted', this.model.isDeleted());
     }
 });

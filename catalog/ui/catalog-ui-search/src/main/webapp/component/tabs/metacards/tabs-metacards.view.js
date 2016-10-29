@@ -22,7 +22,25 @@ define([
     'js/store'
 ], function (Marionette, _, $, TabsView, MetacardsTabsModel, store) {
 
+    function getTypes(results){
+        var types = {};
+        results.forEach(function(result){
+            var tags = result.get('metacard').get('properties').get('metacard-tags');
+            if (result.isWorkspace()){
+                types.workspace = true;
+            } else if (result.isResource()){
+                types.resource = true;
+            } else if (result.isRevision()){
+                types.revision = true;
+            } else if (result.isDeleted()) {
+                types.deleted = true;
+            }
+        });
+        return Object.keys(types);
+    }
+
     var MetacardsTabsView = TabsView.extend({
+        className: 'is-metacards',
         setDefaultModel: function(){
             this.model = new MetacardsTabsModel();
         },
@@ -32,19 +50,44 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
+            this.determineAvailableContent();
             TabsView.prototype.initialize.call(this)
-            var debounceDetermineContent = _.debounce(this.determineContent, 200);
+            var debounceDetermineContent = _.debounce(this.handleMetacardChange, 200);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'update',debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'add', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'reset', debounceDetermineContent);
         },
+        handleMetacardChange: function(){
+            this.determineAvailableContent();
+            this.determineContent();
+        },
+        determineContentFromType: function(){
+            var activeTabName = this.model.get('activeTab');
+            var types = getTypes(this.selectionInterface.getSelectedResults());
+            if (types.indexOf('revision') >= 0 && ['Archive'].indexOf(activeTabName) >= 0){
+                this.model.set('activeTab', 'Details');
+            } else if (types.indexOf('deleted') >= 0 && types.length > 1 && ['Archive'].indexOf(activeTabName) >= 0){
+                this.model.set('activeTab', 'Details');
+            }
+            var activeTab = this.model.getActiveView();
+            this.tabsContent.show(new activeTab({
+                selectionInterface: this.selectionInterface
+            }));
+        },
         determineContent: function(){
             if (this.selectionInterface.getSelectedResults().length > 1) {
-                var activeTab = this.model.getActiveView();
-                this.tabsContent.show(new activeTab({
-                    selectionInterface: this.selectionInterface
-                }));
+                this.determineContentFromType();
+            }
+        },
+        determineAvailableContent: function(){
+            if (this.selectionInterface.getSelectedResults().length > 1) {
+                var types = getTypes(this.selectionInterface.getSelectedResults());
+                this.$el.toggleClass('is-mixed', types.length > 1);
+                this.$el.toggleClass('is-workspace', types.indexOf('workspace') >= 0);
+                this.$el.toggleClass('is-resource', types.indexOf('resource') >= 0);
+                this.$el.toggleClass('is-revision', types.indexOf('revision') >= 0);
+                this.$el.toggleClass('is-deleted', types.indexOf('deleted') >= 0);
             }
         }
     });

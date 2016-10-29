@@ -53,6 +53,7 @@ define([
             this.listenTo(user.get('user').get('preferences'), 'change:resultBlacklist', this.checkIfBlacklisted);
         },
         onRender: function(){
+            this.checkTypes();
             this.checkIfSaved();
             this.checkIsInWorkspace();
             this.checkIfMultiple();
@@ -154,6 +155,26 @@ define([
                 }
             });
             this.$el.toggleClass('is-blacklisted', isBlacklisted);
+        },
+        checkTypes: function(){
+            var types = {};
+            this.model.forEach(function(result){
+                var tags = result.get('metacard').get('properties').get('metacard-tags');
+                if (result.isWorkspace()){
+                    types.workspace = true;
+                } else if (result.isResource()){
+                    types.resource = true;
+                } else if (result.isRevision()){
+                    types.revision = true;
+                } else if (result.isDeleted()) {
+                    types.deleted = true;
+                }
+            });
+            this.$el.toggleClass('is-mixed', Object.keys(types).length > 1);
+            this.$el.toggleClass('is-workspace', types.workspace !== undefined);
+            this.$el.toggleClass('is-resource', types.resource !== undefined);
+            this.$el.toggleClass('is-revision', types.revision !== undefined);
+            this.$el.toggleClass('is-deleted', types.deleted !== undefined);
         },
         serializeData: function(){
             var currentWorkspace = store.getCurrentWorkspace();

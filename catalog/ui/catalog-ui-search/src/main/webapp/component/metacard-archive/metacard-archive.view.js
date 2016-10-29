@@ -21,11 +21,13 @@ define([
     'js/CustomElements',
     'js/store',
     'component/loading/loading.view',
-    'component/confirmation/confirmation.view'
-], function (Marionette, _, $, template, CustomElements, store, LoadingView, ConfirmationView) {
+    'component/confirmation/confirmation.view',
+    'js/ResultUtils',
+    'js/jquery.whenAll'
+], function(Marionette, _, $, template, CustomElements, store, LoadingView, ConfirmationView, ResultUtils) {
 
     return Marionette.ItemView.extend({
-        setDefaultModel: function () {
+        setDefaultModel: function() {
             this.model = this.selectionInterface.getSelectedResults();
         },
         template: template,
@@ -34,33 +36,50 @@ define([
             'all': 'render'
         },
         events: {
-            'click button': 'archive'
+            'click button.archive': 'handleArchive',
+            'click button.restore': 'handleRestore'
         },
         ui: {},
         selectionInterface: store,
-        initialize: function(options){
+        initialize: function(options) {
             this.selectionInterface = options.selectionInterface || this.selectionInterface;
             if (!options.model) {
                 this.setDefaultModel();
             }
+            this.handleTypes();
         },
-        archive: function () {
+        handleTypes: function() {
+            var types = {};
+            this.model.forEach(function(result) {
+                var tags = result.get('metacard').get('properties').get('metacard-tags');
+                if (result.isWorkspace()) {
+                    types.workspace = true;
+                } else if (result.isResource()) {
+                    types.resource = true;
+                } else if (result.isRevision()) {
+                    types.revision = true;
+                } else if (result.isDeleted()) {
+                    types.deleted = true;
+                }
+            });
+            this.$el.toggleClass('is-mixed', Object.keys(types).length > 1);
+            this.$el.toggleClass('is-workspace', types.workspace !== undefined);
+            this.$el.toggleClass('is-resource', types.resource !== undefined);
+            this.$el.toggleClass('is-revision', types.revision !== undefined);
+            this.$el.toggleClass('is-deleted', types.deleted !== undefined);
+        },
+        handleArchive: function() {
             var self = this;
-            var payload;
-            if (this.model.length){
-                payload = JSON.stringify(self.model.map(function(result){
-                    return result.get('metacard').get('id');
-                }));
-            } else {
-                payload = JSON.stringify([this.model.get('metacard').get('id')]);
-            }
+            var payload = JSON.stringify(self.model.map(function(result) {
+                return result.get('metacard').get('id');
+            }));
             this.listenTo(ConfirmationView.generateConfirmation({
                     prompt: 'Are you sure you want to archive this metacard?  Doing so will remove it from future search results.',
                     no: 'Cancel',
                     yes: 'Archive'
                 }),
                 'change:choice',
-                function (confirmation) {
+                function(confirmation) {
                     if (confirmation.get('choice')) {
                         var loadingView = new LoadingView();
                         $.ajax({
@@ -68,8 +87,34 @@ define([
                             type: 'DELETE',
                             data: payload,
                             contentType: 'application/json'
-                        }).always(function (response) {
-                            setTimeout(function () {  //let solr flush
+                        }).always(function(response) {
+                            setTimeout(function() { //let solr flush
+                                loadingView.remove();
+                            }, 1000);
+                        });
+                    }
+                });
+        },
+        handleRestore: function() {
+            var self = this;
+            this.listenTo(ConfirmationView.generateConfirmation({
+                    prompt: 'Are you sure you want to archive this metacard?  Doing so will remove it from future search results.',
+                    no: 'Cancel',
+                    yes: 'Archive'
+                }),
+                'change:choice',
+                function(confirmation) {
+                    if (confirmation.get('choice')) {
+                        var loadingView = new LoadingView();
+                        $.whenAll.apply(this, this.model.map(function(result) {
+                            return $.get('/search/catalog/internal/history/' +
+                                result.get('metacard').get('properties').get('metacard.deleted.id') +
+                                '/revert/' +
+                                result.get('metacard').get('properties').get('metacard.deleted.version')).then(function(response) {
+                                    ResultUtils.refreshResult(result);
+                            });
+                        })).always(function(response) {
+                            setTimeout(function() { //let solr flush
                                 loadingView.remove();
                             }, 1000);
                         });
