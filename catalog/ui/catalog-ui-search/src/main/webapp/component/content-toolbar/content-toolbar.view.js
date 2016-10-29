@@ -49,21 +49,11 @@ define([
                     return this.el.querySelector('.menu-edit');
                 }.bind(this),
                 'edit');
-            this._toolsMenu = MenuView.getNewToolsMenu(this.model,
-                function () {
-                    return this.el.querySelector('.menu-tools');
-                }.bind(this),
-                'tools');
             this._viewMenu = MenuView.getNewViewMenu(this.model,
                 function () {
                     return this.el.querySelector('.menu-view');
                 }.bind(this),
                 'view');
-            this._helpMenu = MenuView.getNewHelpMenu(this.model,
-                function () {
-                    return this.el.querySelector('.menu-help');
-                }.bind(this),
-                'help');
         },
         firstRender: true,
         onRender: function(){

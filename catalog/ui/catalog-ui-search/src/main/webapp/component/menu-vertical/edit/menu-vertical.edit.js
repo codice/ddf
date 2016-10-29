@@ -15,37 +15,15 @@
 /*global define*/
 define([
     'underscore',
-    'wreqr',
     'backbone',
     '../menu-vertical',
     'component/lightbox/lightbox.view.instance',
     'component/ingest/ingest.view',
     'component/singletons/user-instance'
-], function (_, wreqr, Backbone, Vertical, lightboxInstance, IngestView, user) {
+], function (_, Backbone, Vertical, lightboxInstance, IngestView, user) {
 
     var definition = [
         [
-            {
-                type: 'action',
-                name: 'Recent Uploads',
-                icon: 'wrench',
-                shortcut: {
-                    specialKeys: [
-                        'Ctrl'
-                    ],
-                    keys: [
-                        'R'
-                    ]
-                },
-                action: function () {
-                    wreqr.vent.trigger('router:navigate', {
-                        fragment: 'recent',
-                        options: {
-                            trigger: true
-                        }
-                    });
-                }
-            },
             {
                 type: 'action',
                 name: 'Reset Blacklist',

@@ -31,7 +31,6 @@ module.exports = Marionette.ItemView.extend({
         'click .choice-previous-workspace': 'handlePreviousWorkspace',
         'click .choice-previous-metacard': 'handlePreviousMetacard',
         'click .choice-upload': 'handleUpload',
-        'click .choice-recent': 'handleRecent',
         'click': 'closeSlideout'
     },
     initialize: function(){
@@ -64,14 +63,6 @@ module.exports = Marionette.ItemView.extend({
     handleUpload: function() {
         wreqr.vent.trigger('router:navigate', {
             fragment: 'ingest',
-            options: {
-                trigger: true
-            }
-        });
-    },
-    handleRecent: function() {
-        wreqr.vent.trigger('router:navigate', {
-            fragment: 'recent',
             options: {
                 trigger: true
             }
