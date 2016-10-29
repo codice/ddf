@@ -44,11 +44,6 @@ define([
                     return this.el.querySelector('.menu-file');
                 }.bind(this),
                 'file');
-            this._editMenu = MenuView.getNewEditMenu(this.model,
-                function () {
-                    return this.el.querySelector('.menu-edit');
-                }.bind(this),
-                'edit');
         },
         firstRender: true,
         onRender: function(){

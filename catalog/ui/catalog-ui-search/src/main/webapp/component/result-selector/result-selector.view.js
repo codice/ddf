@@ -39,11 +39,11 @@ define([
         var blackListCQL = {
             filters: [
                 {
-                    filters: user.get('user').get('preferences').get('resultBlacklist').map(function(id){
+                    filters: user.get('user').get('preferences').get('resultBlacklist').map(function(blacklistItem){
                         return {
                             property: '"id"',
                             type: '!=',
-                            value: id
+                            value: blacklistItem.id
                         };
                     }),
                     type: 'AND'
@@ -92,7 +92,8 @@ define([
             //metacardDefinitions.addMetacardTypes(this.model.get('result').get('metacard-types'));
         },
         startListeningToBlacklist: function(){
-            this.listenTo(user.get('user').get('preferences'), 'change:resultBlacklist', this.onBeforeShow);
+            this.listenTo(user.get('user').get('preferences').get('resultBlacklist'),
+             'add remove update reset', this.onBeforeShow);
         },
         startListeningToResult: function(){
             this.listenTo(this.model.get('result'), 'sync', this.onBeforeShow);

@@ -50,7 +50,8 @@ define([
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
             }
-            this.listenTo(user.get('user').get('preferences'), 'change:resultBlacklist', this.checkIfBlacklisted);
+            this.listenTo(user.get('user').get('preferences').get('resultBlacklist'), 
+                'add remove update reset', this.checkIfBlacklisted);
         },
         onRender: function(){
             this.checkTypes();
@@ -84,18 +85,20 @@ define([
         },
         handleHide: function(){
             var preferences = user.get('user').get('preferences');
-            var ids = this.model.map(function(result){
-                return result.get('metacard').get('properties').get('id');
-            });
-            preferences.set('resultBlacklist', _.union(preferences.get('resultBlacklist'), ids));
+            preferences.get('resultBlacklist').add(this.model.map(function(result){
+                return {
+                    id: result.get('metacard').get('properties').get('id'),
+                    title: result.get('metacard').get('properties').get('title')
+                };
+            }));
             preferences.savePreferences();
         },
         handleShow: function(){
             var preferences = user.get('user').get('preferences');
-            var ids = this.model.map(function(result){
+            preferences.get('resultBlacklist').remove(this.model.map(function(result){
                 return result.get('metacard').get('properties').get('id');
-            });
-            preferences.set('resultBlacklist', _.difference(preferences.get('resultBlacklist'), ids));
+            }));
+            preferences.savePreferences();
         },
         handleExpand: function(){
             var id = this.model.first().get('metacard').get('properties').get('id');
@@ -150,7 +153,7 @@ define([
             });
             var isBlacklisted = false;
             ids.forEach(function(id){
-                if (blacklist.indexOf(id) !== -1){
+                if (blacklist.get(id) !== undefined){
                     isBlacklisted = true;
                 }
             });

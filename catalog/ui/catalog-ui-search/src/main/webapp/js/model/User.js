@@ -21,8 +21,9 @@ define([
     'js/Common',
     'js/model/UploadBatch',
     'component/announcement',
+    'component/blacklist-item/blacklist-item',
     'backboneassociations'
-], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement) {
+], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem) {
     'use strict';
 
     var User = {};
@@ -165,6 +166,11 @@ define([
                 type: Backbone.Many,
                 key: 'uploads',
                 relatedModel: UploadBatch
+            },
+            {
+                type: Backbone.Many,
+                key: 'resultBlacklist',
+                relatedModel: BlackListItem
             }
         ],
         initialize: function(){
