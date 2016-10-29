@@ -19,6 +19,7 @@ var CustomElements = require('js/CustomElements');
 var ThemeSettings = require('component/theme-settings/theme-settings.view');
 var AlertSettings = require('component/alert-settings/alert-settings.view');
 var MapSettings = require('js/view/preferences/PreferencesModal.view');
+var VisualizationSettings = require('component/visualization-selector/visualization-selector.view');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -29,6 +30,7 @@ module.exports = Marionette.LayoutView.extend({
         'click > .user-settings-navigation .choice-theme': 'handleNavigateToTheme',
         'click > .user-settings-navigation .choice-alerts': 'handleNavigateToAlerts',
         'click > .user-settings-navigation .choice-map': 'handleNavigateToMap',
+        'click > .user-settings-navigation .choice-visualization': 'handleNavigateToVisualization',
         'click > .user-settings-content > .content-header .header-back': 'handleBack'
     },
     regions: {
@@ -44,6 +46,9 @@ module.exports = Marionette.LayoutView.extend({
     },
     handleNavigate: function(){
         this.$el.toggleClass('is-navigated', true);
+    },
+    handleNavigateToVisualization: function(){
+        this.settingsContent.show(new VisualizationSettings());
     },
     handleNavigateToMap: function(){
         this.settingsContent.show(new MapSettings());

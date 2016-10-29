@@ -48,6 +48,12 @@ define([
         },
         onBeforeShow: function(){
             switch(getActiveVisualization()){
+                case '2dmap':
+                    this.showOpenlayers();
+                    break;
+                case '3dmap':
+                    this.showCesium();
+                    break;
                 case 'map':
                     this.showMap();
                     break;
