@@ -1,7 +1,6 @@
 @{customElementNamespace}user-settings {
   .customElement;
   overflow: hidden;
-  overflow-y: auto;
   padding: 0rem 0rem;
   .inlineBlockDisplay(div);
   white-space: nowrap;
@@ -47,6 +46,15 @@
       line-height: @minimumButtonSize;
       height: @minimumButtonSize;
     }
+  }
+
+  > .user-settings-content > .content-settings {
+    max-height: ~'calc(100% - @{minimumButtonSize} - 2*@{largeSpacing})';
+    overflow: auto;
+  }
+
+  > .user-settings-navigation {
+    overflow: auto;
   }
 
 }
