@@ -23,6 +23,7 @@ var UserView = require('component/user/user.view');
 var SlideoutViewInstance = require('component/singletons/slideout.view-instance.js');
 var SlideoutRightViewInstance = require('component/singletons/slideout.right.view-instance.js');
 var user = require('component/singletons/user-instance');
+var notifications = require('component/singletons/user-notifications');
 
 module.exports = Marionette.ItemView.extend({
     template: template,
@@ -37,6 +38,8 @@ module.exports = Marionette.ItemView.extend({
     },
     onRender: function(){
         this.handleUser();
+        this.handleUnseenNotifications();
+        this.listenTo(notifications, 'change add remove reset update', this.handleUnseenNotifications);
     },
     handleUser: function(){
         this.$el.toggleClass('is-guest', this.model.get('user').isGuestUser());
@@ -55,6 +58,9 @@ module.exports = Marionette.ItemView.extend({
     toggleUser: function(){
         SlideoutRightViewInstance.updateContent(new UserView());
         SlideoutRightViewInstance.open();
+    },
+    handleUnseenNotifications: function(){
+        this.$el.toggleClass('has-unseen-notifications', notifications.hasUnseen());
     },
     preventPropagation: function(e) {
         e.stopPropagation();

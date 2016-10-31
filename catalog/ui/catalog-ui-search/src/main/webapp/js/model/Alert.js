@@ -18,6 +18,7 @@ define([
 
     return Backbone.AssociatedModel.extend({
         defaults: {
+            unseen: true,
             queryId: undefined,
             workspaceId: undefined,
             when: undefined,

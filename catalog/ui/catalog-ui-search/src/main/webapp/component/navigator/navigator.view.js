@@ -34,7 +34,6 @@ module.exports = Marionette.ItemView.extend({
         'click': 'closeSlideout'
     },
     initialize: function(){
-        this.listenTo(router, 'change', this.handleRoute);
     },
     handleWorkspaces: function(){
         wreqr.vent.trigger('router:navigate', {
@@ -67,9 +66,6 @@ module.exports = Marionette.ItemView.extend({
                 trigger: true
             }
         });
-    },
-    handleRoute: function(){
-        this.render();
     },
     closeSlideout: function() {
         this.$el.trigger('closeSlideout.' + CustomElements.getNamespace());

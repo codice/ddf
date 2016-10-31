@@ -26,5 +26,15 @@ module.exports = new (Backbone.Collection.extend({
     },
     comparator: function(model){
         return -model.getTimeComparator();
+    },
+    hasUnseen: function(){
+        return this.some(function(notification){
+            return notification.get('unseen');
+        });
+    },
+    setSeen: function(){
+        this.forEach(function(notification){
+            notification.set('unseen', false);
+        });
     }
 }))();

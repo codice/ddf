@@ -56,6 +56,7 @@ module.exports = Marionette.LayoutView.extend({
     close: function() {
         this.$el.toggleClass('is-open', false);
         $('html').toggleClass('blur-content', false);
+        this.slideoutContent.empty();
     },
     updateContent: function(view) {
         this.slideoutContent.show(view);

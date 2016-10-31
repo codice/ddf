@@ -107,5 +107,9 @@ module.exports = Marionette.LayoutView.extend({
         }), {
             replaceElement: true
         });
+    },
+    onDestroy: function(){
+        userNotifications.setSeen();
+        user.get('user').get('preferences').savePreferences();
     }
 });

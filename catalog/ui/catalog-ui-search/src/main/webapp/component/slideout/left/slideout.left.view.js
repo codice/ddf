@@ -27,5 +27,6 @@ module.exports = SlideoutView.extend({
         this.$el.toggleClass('is-open', false);
         $('html').toggleClass('has-slideout-left', false);
         $('html').toggleClass('blur-content', false);
+        this.slideoutContent.empty();
     }
 });

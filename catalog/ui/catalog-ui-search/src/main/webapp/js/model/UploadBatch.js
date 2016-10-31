@@ -39,6 +39,7 @@ module.exports = Backbone.AssociatedModel.extend({
     options: undefined,
     defaults: function() {
         return {
+            unseen: true,
             uploads: [],
             percentage: 0,
             errors: 0,

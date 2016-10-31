@@ -19,6 +19,11 @@
         text-overflow: ellipsis;
     }
 
+    .item-alerts {
+        transition: transform 4*@coreTransitionTime ease-in-out;
+        transform: scale(1);
+    }
+
 }
 
 @{customElementNamespace}navigation-right.is-guest {
@@ -33,4 +38,25 @@
     .user-guest {
         display: none;
     }
+}
+
+@{customElementNamespace}navigation-right.has-unseen-notifications {
+
+    .item-alerts {
+        opacity: 1;
+        animation: navigation-right-unseen-notifications 4*@coreTransitionTime 5 alternate ease-in-out;
+        transform: scale(1.2);
+    }
+
+}
+
+@keyframes navigation-right-unseen-notifications{
+        0% {
+            opacity: @minimumOpacity;
+            transform: scale(1);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1.2);
+        }
 }
