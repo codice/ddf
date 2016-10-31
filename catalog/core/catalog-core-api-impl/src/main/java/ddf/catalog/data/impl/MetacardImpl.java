@@ -174,7 +174,7 @@ public class MetacardImpl implements Metacard {
                 .filter(attributeDescriptor -> metacard.getAttribute(attributeDescriptor.getName())
                         != null)
                 .map(AttributeDescriptor::getName)
-                .collect(Collectors.toMap(Function.identity(), metacard::getAttribute));
+                .collect(Collectors.toConcurrentMap(Function.identity(), metacard::getAttribute));
     }
 
     @Override
