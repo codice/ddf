@@ -265,10 +265,10 @@
                 update-strategy="container-managed"/>
 
         <argument
-                value="The workspace '%[attribute=title]' (id: %[attribute=id]) contains up to %[hitCount] query hits."/>
-        <argument value="%[attribute=title] (id: %[attribute=id]): workspace query notice"/>
+                value="The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/search/catalog/#workspaces/%[attribute=id]."/>
+        <argument value="Workspace '%[attribute=title]' notification"/>
         <argument value="donotreply@test.com"/>
-        <argument value="connexta-com.mail.protection.outlook.com"/>
+        <argument value="localhost"/>
         <argument>
             <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.ListMetacardFormatter">
                 <argument>
@@ -285,12 +285,13 @@
     </bean>
 
     <bean id="workspaceQueryService"
-          class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService">
+          class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryServiceImpl" destroy-method="destroy">
 
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"
                 update-strategy="container-managed"/>
-
+        <property name="queryTimeoutMinutes" value="5" />
+        <property name="cronString" value="0 0 0 * * ?" />
         <argument>
             <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.QueryUpdateSubscriberList">
                 <argument>
@@ -312,9 +313,10 @@
                 <argument ref="filterBuilder"/>
             </bean>
         </argument>
+
     </bean>
 
     <service ref="workspaceQueryService"
-             interface="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"/>
+             interface="org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService"/>
 
 </blueprint>

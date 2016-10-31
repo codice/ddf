@@ -208,11 +208,6 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
         return "'" + value + "'";
     }
 
-    private boolean isEmail(Map.Entry<String, Object> entry) {
-        return entry.getKey()
-                .equals(EMAIL_PROPERTY);
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public Set<String> getSubscriptions(String email) {

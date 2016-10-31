@@ -17,11 +17,11 @@ import java.util.Set;
 
 public interface SubscriptionsPersistentStore {
 
-    public static final String SUBSCRIPTIONS_TYPE = "subscriptions";
+    String SUBSCRIPTIONS_TYPE = "subscriptions";
 
     /**
      * Associate a set of email addresses with an ID. Adding an email that is already
-     * assoicated with an ID is a no-op.
+     * associated with an ID is a no-op.
      *
      * @param id     must be non-null and non-blank
      * @param emails must be non-null and elements must be non-blank

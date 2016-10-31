@@ -41,6 +41,8 @@ public class EmailNotifier implements QueryUpdateSubscriber {
 
     private static final String SMTP_HOST_PROPERTY = "mail.smtp.host";
 
+    private static final String SMTP_AUTH_PROPERTY = "mail.smtp.auth";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailNotifier.class);
 
     private final MetacardFormatter metacardFormatter;
@@ -91,6 +93,7 @@ public class EmailNotifier implements QueryUpdateSubscriber {
     @SuppressWarnings("unused")
     public void setMailHost(String mailHost) {
         notBlank(mailHost, "mailHost must be non-blank");
+        LOGGER.debug("Setting mailHost : {}", mailHost);
         this.mailHost = mailHost.trim();
     }
 
@@ -102,6 +105,7 @@ public class EmailNotifier implements QueryUpdateSubscriber {
     @SuppressWarnings("unused")
     public void setBodyTemplate(String bodyTemplate) {
         notNull(bodyTemplate, "bodyTemplate must be non-null");
+        LOGGER.debug("Setting bodyTemplate : {}", bodyTemplate);
         this.bodyTemplate = bodyTemplate;
     }
 
@@ -113,6 +117,7 @@ public class EmailNotifier implements QueryUpdateSubscriber {
     @SuppressWarnings("unused")
     public void setSubjectTemplate(String subjectTemplate) {
         notNull(subjectTemplate, "subjectTemplate must be non-null");
+        LOGGER.debug("Setting subjectTemplate : {}", subjectTemplate);
         this.subjectTemplate = subjectTemplate;
     }
 
@@ -124,16 +129,15 @@ public class EmailNotifier implements QueryUpdateSubscriber {
     @SuppressWarnings("unused")
     public void setFromEmail(String fromEmail) {
         notBlank(fromEmail, "fromEmail must be non-blank");
+        LOGGER.debug("Setting fromEmail : {}", fromEmail);
         this.fromEmail = fromEmail.trim();
     }
 
     @Override
     public void notify(Map<String, Pair<WorkspaceMetacardImpl, Long>> workspaceMetacardMap) {
         notNull(workspaceMetacardMap, "workspaceMetacardMap must be non-null");
-
         workspaceMetacardMap.values()
                 .forEach(pair -> sendEmailsForWorkspace(pair.getLeft(), pair.getRight()));
-
     }
 
     private void sendEmailsForWorkspace(WorkspaceMetacardImpl workspaceMetacard, Long hitCount) {
@@ -163,6 +167,8 @@ public class EmailNotifier implements QueryUpdateSubscriber {
 
             mimeMessage.setText(emailBody);
 
+            LOGGER.debug("Attempting to send email to mailHost : {}", mailHost);
+
             Transport.send(mimeMessage);
 
         } catch (MessagingException e) {
@@ -175,6 +181,7 @@ public class EmailNotifier implements QueryUpdateSubscriber {
         Properties properties = System.getProperties();
 
         properties.setProperty(SMTP_HOST_PROPERTY, mailHost);
+        properties.setProperty(SMTP_AUTH_PROPERTY, "false");
 
         return properties;
     }

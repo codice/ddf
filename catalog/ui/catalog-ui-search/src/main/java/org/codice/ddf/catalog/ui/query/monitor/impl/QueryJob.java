@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,16 +13,15 @@
  */
 package org.codice.ddf.catalog.ui.query.monitor.impl;
 
-import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.SchedulerContext;
+import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,31 +37,18 @@ public class QueryJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        LOGGER.trace("Calling execute");
         LOCK.lock();
         try {
-            getWorkspaceQueryService().ifPresent(WorkspaceQueryService::run);
+            SchedulerContext schedulerContext = jobExecutionContext.getScheduler()
+                    .getContext();
+            WorkspaceQueryService workspaceQueryService =
+                    (WorkspaceQueryService) schedulerContext.get(WorkspaceQueryServiceImpl.JOB_IDENTITY);
+            workspaceQueryService.run();
+        } catch (SchedulerException e) {
+            LOGGER.warn("Could not get Scheduler Context.  The job will not run", e);
         } finally {
             LOCK.unlock();
         }
     }
-
-    @Override
-    public String toString() {
-        return "QueryJob{}";
-    }
-
-    private Bundle getBundle() {
-        return FrameworkUtil.getBundle(getClass());
-    }
-
-    private Optional<WorkspaceQueryService> getWorkspaceQueryService() {
-        BundleContext bundleContext = getBundle().getBundleContext();
-        if (bundleContext == null) {
-            LOGGER.warn("unable to get the bundle context");
-            return Optional.empty();
-        }
-        return Optional.of(bundleContext.getService(bundleContext.getServiceReference(
-                WorkspaceQueryService.class)));
-    }
-
 }

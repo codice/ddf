@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,7 +15,9 @@ package org.codice.ddf.catalog.ui.query.monitor.impl;
 
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -46,13 +48,14 @@ import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.QueryUpdateSubscriber;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
+import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
-import org.codice.ddf.catalog.ui.query.monitor.impl.quartz.CronString;
 import org.codice.ddf.security.common.Security;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
+import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -72,17 +75,13 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.Subject;
 
-public class WorkspaceQueryService {
+public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
 
     public static final String JOB_IDENTITY = "WorkspaceQueryServiceJob";
 
-    public static final long DEFAULT_QUERY_TIMEOUT_MINUTES = 5;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceQueryServiceImpl.class);
 
     private static final String UNKNOWN_SOURCE = "unknown";
-
-    private static final String DEFAULT_CRON_STRING = "0 0 0 * * ?";
 
     private static final String TRIGGER_NAME = "WorkspaceQueryTrigger";
 
@@ -101,7 +100,7 @@ public class WorkspaceQueryService {
 
     private FilterService filterService;
 
-    private long queryTimeoutMinutes = DEFAULT_QUERY_TIMEOUT_MINUTES;
+    private long queryTimeoutMinutes;
 
     private JobDetail jobDetail;
 
@@ -116,7 +115,7 @@ public class WorkspaceQueryService {
      * @param securityService       must be non-null
      * @param filterService         must be non-null
      */
-    public WorkspaceQueryService(QueryUpdateSubscriber queryUpdateSubscriber,
+    public WorkspaceQueryServiceImpl(QueryUpdateSubscriber queryUpdateSubscriber,
             WorkspaceService workspaceService, CatalogFramework catalogFramework,
             FilterBuilder filterBuilder, Supplier<Optional<Scheduler>> schedulerSupplier,
             SecurityService securityService, FilterService filterService)
@@ -141,15 +140,14 @@ public class WorkspaceQueryService {
 
         if (schedulerOptional.isPresent()) {
             scheduler = schedulerOptional.get();
+            scheduler.getContext()
+                    .put(JOB_IDENTITY, this);
             jobDetail = newJob(QueryJob.class).withIdentity(JOB_IDENTITY)
                     .build();
-            scheduler.scheduleJob(jobDetail,
-                    new CronString(DEFAULT_CRON_STRING, TRIGGER_NAME).get());
             scheduler.start();
         } else {
             LOGGER.warn("unable to get a quartz scheduler object, email notifications will not run");
         }
-
     }
 
     /**
@@ -158,11 +156,20 @@ public class WorkspaceQueryService {
     @SuppressWarnings("unused")
     public void setCronString(String cronString) {
         notNull(cronString, "cronString must be non-null");
+        notNull(scheduler, "scheduler must be non-null");
+        notNull(jobDetail, "jobDetail must be non-null");
+
         try {
             scheduler.deleteJob(jobDetail.getKey());
-            scheduler.scheduleJob(jobDetail, new CronString(cronString, TRIGGER_NAME).get());
+            LOGGER.debug("Scheduling job {}", jobDetail);
+            CronTrigger trigger = newTrigger().withIdentity(TRIGGER_NAME)
+                    .startNow()
+                    .withSchedule(cronSchedule(cronString))
+                    .build();
+            scheduler.scheduleJob(jobDetail, trigger);
+            LOGGER.debug("Setting cron string : {}", cronString);
         } catch (SchedulerException e) {
-            LOGGER.warn("unable to set the cron string: cron=[{}]", cronString, e);
+            LOGGER.warn("Unable to update scheduler with cron string: cron=[{}]", cronString, e);
         }
     }
 
@@ -172,6 +179,7 @@ public class WorkspaceQueryService {
     @SuppressWarnings("unused")
     public void setQueryTimeoutMinutes(Long queryTimeoutMinutes) {
         notNull(queryTimeoutMinutes, "queryTimeoutMinutes must be non-null");
+        LOGGER.debug("Setting queryTimeOutMinutes : {}", queryTimeoutMinutes);
         this.queryTimeoutMinutes = queryTimeoutMinutes;
     }
 
@@ -179,11 +187,19 @@ public class WorkspaceQueryService {
         this.subject = subject;
     }
 
+    public void destroy() {
+        LOGGER.trace("Shutting down");
+        try {
+            scheduler.shutdown();
+        } catch (SchedulerException e) {
+            LOGGER.warn("Unable to shut down scheduler", e);
+        }
+    }
+
     /**
      * Main entry point, should be called by a scheduler.
      */
     public void run() {
-
         Security.runAsAdmin(() -> {
 
             Subject runSubject = subject != null ?
@@ -193,7 +209,7 @@ public class WorkspaceQueryService {
 
             return runSubject.execute(() -> {
 
-                LOGGER.debug("running workspace query service");
+                LOGGER.trace("running workspace query service");
 
                 Map<String, Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>>> queryMetacards =
                         workspaceService.getQueryMetacards();
@@ -248,7 +264,6 @@ public class WorkspaceQueryService {
 
     private List<WorkspaceTask> createWorkspaceTasks(
             Map<String, Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>>> queryMetacards) {
-
         List<WorkspaceTask> workspaceTasks = new ArrayList<>();
 
         for (Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>> workspaceQueryPair : queryMetacards.values()) {
@@ -269,12 +284,10 @@ public class WorkspaceQueryService {
             List<QueryMetacardImpl> queryMetacards) {
         final Map<String, List<QueryMetacardImpl>> groupedBySource = new HashMap<>();
         for (QueryMetacardImpl queryMetacard : queryMetacards) {
-
             List<String> sources = queryMetacard.getSources();
-
             if (!sources.isEmpty()) {
-                sources.forEach(sourceId -> groupedBySource.compute(sourceId,
-                        addToList(queryMetacard)));
+                sources.forEach(sourceId -> groupedBySource.compute(sourceId, addToList(
+                        queryMetacard)));
             } else {
                 groupedBySource.compute(UNKNOWN_SOURCE, addToList(queryMetacard));
             }
@@ -296,9 +309,7 @@ public class WorkspaceQueryService {
 
     private List<QueryRequest> getQueryRequests(
             Stream<List<QueryMetacardImpl>> queriesGroupedBySource) {
-
         final Filter modifiedFilter = filterService.getModifiedDateFilter(getOneDayBack());
-
         return queriesGroupedBySource.map(this::queryMetacardsToFilters)
                 .map(filterBuilder::anyOf)
                 .map(filter -> filterBuilder.allOf(modifiedFilter, filter))
@@ -338,20 +349,6 @@ public class WorkspaceQueryService {
     private Date getOneDayBack() {
         return Date.from(Instant.now()
                 .minus(1, ChronoUnit.DAYS));
-    }
-
-    @Override
-    public String toString() {
-        return "WorkspaceQueryService{" +
-                "queryUpdateSubscriber=" + queryUpdateSubscriber +
-                ", workspaceService=" + workspaceService +
-                ", catalogFramework=" + catalogFramework +
-                ", filterBuilder=" + filterBuilder +
-                ", scheduler=" + scheduler +
-                ", securityService=" + securityService +
-                ", filterService=" + filterService +
-                ", queryTimeoutMinutes=" + queryTimeoutMinutes +
-                '}';
     }
 
     private class QueryTask extends RecursiveTask<Long> {

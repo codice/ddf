@@ -21,15 +21,15 @@
 
         <AD description="Set the subject line template."
             name="Subject" id="subjectTemplate" required="true" type="String"
-            default="[%[workspaceId]] workspace query notice"/>
+            default="Workspace '%[attribute=title]' notification"/>
 
         <AD description="Set the body template."
             name="Body" id="bodyTemplate" required="true" type="String"
-            default="The workspace '%[workspaceId]' contains up to %[hitCount] query hits."/>
+            default="The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/search/catalog/#workspaces/%[attribute=id]."/>
 
         <AD description="Set the hostname of the mail server."
             name="Mail Server" id="mailHost" required="true" type="String"
-            default="connexta-com.mail.protection.outlook.com"/>
+            default="localhost"/>
 
         <AD description="Set the 'from' email address."
             name="From Address" id="fromEmail" required="true" type="String"

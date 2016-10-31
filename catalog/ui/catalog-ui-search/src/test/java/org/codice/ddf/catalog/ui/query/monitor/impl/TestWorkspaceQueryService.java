@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -53,7 +53,6 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.Or;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.Trigger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
@@ -80,7 +79,6 @@ public class TestWorkspaceQueryService {
         CatalogFramework catalogFramework = mock(CatalogFramework.class);
         FilterBuilder filterBuilder = mock(FilterBuilder.class);
         Supplier<Optional<Scheduler>> schedulerSupplier = Optional::empty;
-        Supplier<Trigger> triggerSupplier = () -> null;
         SecurityService securityService = new SecurityService() {
             @Override
             public Subject getSystemSubject() {
@@ -99,7 +97,7 @@ public class TestWorkspaceQueryService {
         when(filterBuilder.anyOf(Mockito.any(Filter.class))).thenReturn(mock(Or.class));
         when(filterBuilder.allOf(Mockito.<Filter>anyVararg())).thenReturn(mock(And.class));
 
-        WorkspaceQueryService workspaceQueryService = new WorkspaceQueryService(
+        WorkspaceQueryServiceImpl workspaceQueryServiceImpl = new WorkspaceQueryServiceImpl(
                 queryUpdateSubscriber,
                 workspaceService,
                 catalogFramework,
@@ -131,10 +129,9 @@ public class TestWorkspaceQueryService {
 
         Map<String, Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>>> queryMetacards =
                 Collections.singletonMap(id2.getValue()
-                                .toString(),
-                        new ImmutablePair<>(workspaceMetacard,
-                                Arrays.asList(queryMetacardWithSource,
-                                        queryMetacardWithoutSource)));
+                                .toString(), new ImmutablePair<>(workspaceMetacard, Arrays.asList(
+                                queryMetacardWithSource,
+                                queryMetacardWithoutSource)));
 
         when(workspaceService.getQueryMetacards()).thenReturn(queryMetacards);
 
@@ -147,7 +144,7 @@ public class TestWorkspaceQueryService {
 
         when(catalogFramework.query(any())).thenReturn(queryResponse);
 
-        workspaceQueryService.setSubject(new Subject() {
+        workspaceQueryServiceImpl.setSubject(new Subject() {
             @Override
             public boolean isGuest() {
                 return false;
@@ -321,7 +318,9 @@ public class TestWorkspaceQueryService {
             }
         });
 
-        workspaceQueryService.run();
+        workspaceQueryServiceImpl.setCronString("0 0 0 * * ?");
+        workspaceQueryServiceImpl.setQueryTimeoutMinutes(5L);
+        workspaceQueryServiceImpl.run();
 
         ArgumentCaptor<Map> argumentCaptor = ArgumentCaptor.forClass(Map.class);
         verify(queryUpdateSubscriber).notify(argumentCaptor.capture());
