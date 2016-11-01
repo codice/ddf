@@ -1,8 +1,7 @@
 @activeColor: #18BC9C;
-@highlightColor : lighten(@activeColor, 35);
+@highlightColor: lighten(@activeColor, 35);
 
-
-table.align-middle{
+table.align-middle {
   td {
     vertical-align: middle !important;
   }
@@ -17,14 +16,14 @@ table.align-middle{
       background-color: @highlightColor;
     }
 
-    tr:nth-child(odd) > td{
+    tr:nth-child(odd) > td {
       .configurationSelect {
         border: none;
         background-color: #f9f9f9;
       }
     }
 
-    tr:nth-child(even) > td{
+    tr:nth-child(even) > td {
       .configurationSelect {
         border: none;
         background-color: white;
@@ -43,7 +42,8 @@ table.align-middle{
     width: 100%;
   }
   .error-text {
-    display: none;
+    color: red;
+    display: block;
   }
   .control-group {
     [class*='col-md-'] {
@@ -98,7 +98,7 @@ table.align-middle{
 }
 
 .newLink {
-  text-decoration: none!important;
+  text-decoration: none !important;
   width: 100%;
   font-weight: 700;
 }

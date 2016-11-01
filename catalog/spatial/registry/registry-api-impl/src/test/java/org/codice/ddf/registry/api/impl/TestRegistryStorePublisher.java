@@ -146,7 +146,6 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
     public void testRegistryPublishFailed() throws Exception {
         RegistryStoreImpl mockRegistryStoreImpl = mock(RegistryStoreImpl.class);
         when(mockRegistryStoreImpl.getRegistryId()).thenReturn("registryId");
-        when(mockRegistryStoreImpl.getRemoteName()).thenReturn("remoteName");
         when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
 
         registryStorePublisher.registryPublish(mockRegistryStoreImpl, PUBLISH);
@@ -172,7 +171,6 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
     public void testRegistryUnpublishFailed() throws Exception {
         RegistryStoreImpl mockRegistryStoreImpl = mock(RegistryStoreImpl.class);
         when(mockRegistryStoreImpl.getRegistryId()).thenReturn("registryId");
-        when(mockRegistryStoreImpl.getRemoteName()).thenReturn("remoteName");
         when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
 
         registryStorePublisher.registryPublish(mockRegistryStoreImpl, UNPUBLISH);

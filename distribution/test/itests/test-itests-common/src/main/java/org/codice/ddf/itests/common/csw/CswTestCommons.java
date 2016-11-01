@@ -73,8 +73,7 @@ public class CswTestCommons {
         Map<String, Object> cswSourceProperties = new HashMap<>();
         cswSourceProperties.putAll(serviceManager.getMetatypeDefaults(CSW_REGISTRY_STORE_SYMBOLIC_NAME, CSW_REGISTRY_STORE_FACTORY_PID));
         cswSourceProperties.put("id", sourceId);
-        cswSourceProperties.put("cswUrl", cswUrl);
-        cswSourceProperties.put("pollInterval", 1);
+        cswSourceProperties.put("registryUrl", cswUrl);
         return cswSourceProperties;
     }
 

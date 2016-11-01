@@ -150,8 +150,9 @@ public class RegistryStorePublisher implements EventHandler {
 
                 if (registryIdentityMetacardOpt.isPresent()) {
                     Metacard registryIdentityMetacard = registryIdentityMetacardOpt.get();
-                    String localRegistryId = RegistryUtility.getRegistryId(registryIdentityMetacard);
-                    if(localRegistryId == null){
+                    String localRegistryId =
+                            RegistryUtility.getRegistryId(registryIdentityMetacard);
+                    if (localRegistryId == null) {
                         throw new EventException();
                     }
                     Security.runAsAdminWithException(() -> {
@@ -169,7 +170,7 @@ public class RegistryStorePublisher implements EventHandler {
             } catch (Exception e) {
                 LOGGER.debug("Failed to {} registry configuration to {}",
                         publish,
-                        ((RegistryStoreImpl) registryStore).getRemoteName());
+                        ((RegistryStoreImpl) registryStore).getId());
             }
         }, 3, TimeUnit.SECONDS);
     }
@@ -190,7 +191,6 @@ public class RegistryStorePublisher implements EventHandler {
         }
         String pid = event.getProperty(Constants.SERVICE_PID)
                 .toString();
-
 
         Boolean previousAutoPush = registryStoreMap.get(pid);
 

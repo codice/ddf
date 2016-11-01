@@ -26,7 +26,10 @@
     <div class="controls">
         {{#if optionValues}}
             {{#is optionValues.length 0}}
-                <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}" class="{{id}} metatype form-control input-sm" name="{{id}}" id="{{id}}" {{#is id "cswUrl"}}placeholder="https://hostname.here:port#/services/csw"{{/is}} value="{{#defaultValue}}{{.}}{{/defaultValue}}">
+                <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}"
+                       class="{{id}} metatype form-control input-sm" name="{{id}}" id="{{id}}"
+                       {{#is id "cswUrl"}}placeholder="https://hostname.here:port#/services/csw"{{/is}}
+                       value="{{#defaultValue}}{{.}}{{/defaultValue}}">
             {{/is}}
             {{#isnt optionValues.length 0}}
                 <select id="{{id}}" name="{{id}}" class="form-control input-sm">
@@ -36,9 +39,13 @@
                 </select>
             {{/isnt}}
         {{else}}
-            <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}" class="{{id}} metatype form-control input-sm" name="{{id}}" id="{{id}}" {{#is id "cswUrl"}}placeholder="https://hostname.here:port#/services/csw"{{/is}} value="{{#defaultValue}}{{.}}{{/defaultValue}}">
+            <input type="{{#is type 1}}text{{/is}}{{#is type 5}}text{{/is}}{{#is type 6}}text{{/is}}{{#is type 7}}text{{/is}}{{#is type 8}}text{{/is}}{{#is type 9}}text{{/is}}{{#is type 10}}text{{/is}}{{#is type 12}}password{{/is}}{{#is type 2}}number{{/is}}{{#is type 3}}number{{/is}}{{#is type 4}}number{{/is}}"
+                   class="{{id}} metatype form-control input-sm" name="{{id}}" id="{{id}}"
+                   {{#is id "cswUrl"}}placeholder="https://hostname.here:port#/services/csw"{{/is}}
+                   value="{{#defaultValue}}{{.}}{{/defaultValue}}">
         {{/if}}
 
     {{/isnt}}
 </div> <!-- controls -->
+    <p class='error-text help-block col-md-12'></p>
 </div>
