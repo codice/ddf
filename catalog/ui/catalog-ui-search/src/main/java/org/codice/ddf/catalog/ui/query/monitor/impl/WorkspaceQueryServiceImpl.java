@@ -286,8 +286,8 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
         for (QueryMetacardImpl queryMetacard : queryMetacards) {
             List<String> sources = queryMetacard.getSources();
             if (!sources.isEmpty()) {
-                sources.forEach(sourceId -> groupedBySource.compute(sourceId, addToList(
-                        queryMetacard)));
+                sources.forEach(sourceId -> groupedBySource.compute(sourceId,
+                        addToList(queryMetacard)));
             } else {
                 groupedBySource.compute(UNKNOWN_SOURCE, addToList(queryMetacard));
             }

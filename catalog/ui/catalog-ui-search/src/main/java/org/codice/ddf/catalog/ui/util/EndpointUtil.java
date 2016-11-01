@@ -17,7 +17,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -35,7 +34,6 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
 import org.boon.json.JsonFactory;
@@ -45,7 +43,6 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -329,8 +326,12 @@ public class EndpointUtil {
         }
     }
 
-    private Pattern boonDefault = Pattern.compile("[a-zA-Z]{3}\\s[a-zA-Z]{3}\\s\\d+\\s[0-9:]+\\s(\\w+\\s)?\\d+");
-    private Pattern iso8601 = Pattern.compile("\\d+-?\\d+-?\\d+T\\d+:?\\d+:?\\d+(Z|(\\+|-)\\d+:\\d+)");
+    private Pattern boonDefault = Pattern.compile(
+            "[a-zA-Z]{3}\\s[a-zA-Z]{3}\\s\\d+\\s[0-9:]+\\s(\\w+\\s)?\\d+");
+
+    private Pattern iso8601 = Pattern.compile(
+            "\\d+-?\\d+-?\\d+T\\d+:?\\d+:?\\d+(Z|(\\+|-)\\d+:\\d+)");
+
     public Serializable parseDate(Serializable value) {
         if (value == null) {
             return null;
@@ -348,9 +349,11 @@ public class EndpointUtil {
         String svalue = String.valueOf(value);
         SimpleDateFormat dateFormat = null;
 
-        if (boonDefault.matcher(svalue).matches()) {
+        if (boonDefault.matcher(svalue)
+                .matches()) {
             dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
-        } else if (iso8601.matcher(svalue).matches()){
+        } else if (iso8601.matcher(svalue)
+                .matches()) {
             dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
         } else {
             dateFormat = new SimpleDateFormat();
