@@ -52,6 +52,7 @@ import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Or;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerContext;
 import org.quartz.SchedulerException;
 
 import ddf.catalog.CatalogFramework;
@@ -78,7 +79,9 @@ public class TestWorkspaceQueryService {
         WorkspaceService workspaceService = mock(WorkspaceService.class);
         CatalogFramework catalogFramework = mock(CatalogFramework.class);
         FilterBuilder filterBuilder = mock(FilterBuilder.class);
-        Supplier<Optional<Scheduler>> schedulerSupplier = Optional::empty;
+        Scheduler scheduler = mock(Scheduler.class);
+        when(scheduler.getContext()).thenReturn(mock(SchedulerContext.class));
+        Supplier<Optional<Scheduler>> schedulerSupplier = () -> Optional.of(scheduler);
         SecurityService securityService = new SecurityService() {
             @Override
             public Subject getSystemSubject() {
@@ -129,9 +132,10 @@ public class TestWorkspaceQueryService {
 
         Map<String, Pair<WorkspaceMetacardImpl, List<QueryMetacardImpl>>> queryMetacards =
                 Collections.singletonMap(id2.getValue()
-                                .toString(), new ImmutablePair<>(workspaceMetacard, Arrays.asList(
-                                queryMetacardWithSource,
-                                queryMetacardWithoutSource)));
+                                .toString(),
+                        new ImmutablePair<>(workspaceMetacard,
+                                Arrays.asList(queryMetacardWithSource,
+                                        queryMetacardWithoutSource)));
 
         when(workspaceService.getQueryMetacards()).thenReturn(queryMetacards);
 
