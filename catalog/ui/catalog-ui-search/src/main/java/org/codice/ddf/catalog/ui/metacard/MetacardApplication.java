@@ -499,7 +499,7 @@ public class MetacardApplication implements SparkApplication {
             LOGGER.debug("Could not find the deleted metacard marker to delete", e);
         }
 
-        if (response == null || response.getResults()
+        if (response == null || response.getResults() == null || response.getResults()
                 .size() != 1) {
             LOGGER.debug("There should have been one deleted metacard marker");
             return;

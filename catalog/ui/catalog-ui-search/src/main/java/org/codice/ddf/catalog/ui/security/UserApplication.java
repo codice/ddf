@@ -17,6 +17,7 @@ import static org.boon.HTTP.APPLICATION_JSON;
 import static spark.Spark.get;
 import static spark.Spark.put;
 
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +92,7 @@ public class UserApplication implements SparkApplication {
 
                 return JsonFactory.create()
                         .parser()
-                        .parseMap(new String(json));
+                        .parseMap(new String(json, Charset.defaultCharset()));
             }
         } catch (PersistenceException e) {
             LOGGER.info(
