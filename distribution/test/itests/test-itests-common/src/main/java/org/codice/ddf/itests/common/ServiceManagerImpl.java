@@ -65,21 +65,20 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.osgi.util.OsgiStringUtils;
 
 import com.google.common.collect.Sets;
 import com.jayway.restassured.response.Response;
 
 public class ServiceManagerImpl implements ServiceManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManagerImpl.class);
-
-    private static final int CONFIG_UPDATE_WAIT_INTERVAL_MILLIS = 5;
-
     public static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
     public static final long FEATURES_AND_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
     public static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManagerImpl.class);
+
+    private static final int CONFIG_UPDATE_WAIT_INTERVAL_MILLIS = 5;
 
     private final MetaTypeService metatype;
 
@@ -92,19 +91,22 @@ public class ServiceManagerImpl implements ServiceManager {
         this.adminConfig = adminConfig;
     }
 
+    @Override
     public BundleContext getBundleContext() {
-        return FrameworkUtil.getBundle(this.getClass())
+        return FrameworkUtil.getBundle(getClass())
                 .getBundleContext();
     }
 
+    @Override
     public void createManagedService(String factoryPid, Map<String, Object> properties)
             throws IOException {
 
-        final Configuration sourceConfig = adminConfig.createFactoryConfiguration(factoryPid, null);
+        Configuration sourceConfig = adminConfig.createFactoryConfiguration(factoryPid, null);
 
         startManagedService(sourceConfig, properties);
     }
 
+    @Override
     public void startManagedService(String servicePid, Map<String, Object> properties)
             throws IOException {
         Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
@@ -112,10 +114,11 @@ public class ServiceManagerImpl implements ServiceManager {
         startManagedService(sourceConfig, properties);
     }
 
+    @Override
     public void stopManagedService(String servicePid) throws IOException {
         Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
-        ServiceConfigurationListener listener =
-                new ServiceConfigurationListener(sourceConfig.getPid());
+        ServiceManagerImpl.ServiceConfigurationListener listener =
+                new ServiceManagerImpl.ServiceConfigurationListener(sourceConfig.getPid());
 
         adminConfig.getDdfConfigAdmin()
                 .delete(sourceConfig.getPid());
@@ -123,8 +126,8 @@ public class ServiceManagerImpl implements ServiceManager {
 
     private void startManagedService(Configuration sourceConfig, Map<String, Object> properties)
             throws IOException {
-        ServiceConfigurationListener listener =
-                new ServiceConfigurationListener(sourceConfig.getPid());
+        ServiceManagerImpl.ServiceConfigurationListener listener =
+                new ServiceManagerImpl.ServiceConfigurationListener(sourceConfig.getPid());
 
         getBundleContext().registerService(ConfigurationListener.class.getName(), listener, null);
 
@@ -185,6 +188,7 @@ public class ServiceManagerImpl implements ServiceManager {
         } while (!serviceStarted);
     }
 
+    @Override
     public void startFeature(boolean wait, String... featureNames) throws Exception {
         for (String featureName : featureNames) {
             FeatureState state = getFeaturesService().getState(featureName);
@@ -203,6 +207,7 @@ public class ServiceManagerImpl implements ServiceManager {
         }
     }
 
+    @Override
     public void stopFeature(boolean wait, String... featureNames) throws Exception {
         for (String featureName : featureNames) {
             getFeaturesService().uninstallFeature(featureName, EnumSet.of(NoAutoRefreshBundles));
@@ -224,7 +229,7 @@ public class ServiceManagerImpl implements ServiceManager {
         long timeoutLimit = System.currentTimeMillis() + FEATURES_AND_BUNDLES_TIMEOUT;
         while (!ready) {
             ServiceReference<FeaturesService> featuresServiceRef =
-                    FrameworkUtil.getBundle(this.getClass())
+                    FrameworkUtil.getBundle(getClass())
                             .getBundleContext()
                             .getServiceReference(FeaturesService.class);
             try {
@@ -257,6 +262,7 @@ public class ServiceManagerImpl implements ServiceManager {
         return getBundleContext().getService(applicationServiceRef);
     }
 
+    @Override
     public void restartBundles(String... bundleSymbolicNames) throws BundleException {
         LOGGER.debug("Restarting bundles {}", bundleSymbolicNames);
 
@@ -288,6 +294,7 @@ public class ServiceManagerImpl implements ServiceManager {
         return bundlesToRestart;
     }
 
+    @Override
     public void stopBundle(String bundleSymbolicName) throws BundleException {
         for (Bundle bundle : getBundleContext().getBundles()) {
             if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
@@ -296,6 +303,7 @@ public class ServiceManagerImpl implements ServiceManager {
         }
     }
 
+    @Override
     public void startBundle(String bundleSymbolicName) throws BundleException {
         for (Bundle bundle : getBundleContext().getBundles()) {
             if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
@@ -304,6 +312,7 @@ public class ServiceManagerImpl implements ServiceManager {
         }
     }
 
+    @Override
     public void waitForRequiredApps(String... appNames) throws InterruptedException {
         ApplicationService appService = getApplicationService();
         if (appNames.length > 0) {
@@ -319,10 +328,12 @@ public class ServiceManagerImpl implements ServiceManager {
         }
     }
 
+    @Override
     public void waitForAllBundles() throws InterruptedException {
         waitForRequiredBundles("");
     }
 
+    @Override
     public void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
         boolean ready = false;
         if (bundleService == null) {
@@ -371,11 +382,12 @@ public class ServiceManagerImpl implements ServiceManager {
         }
     }
 
+    @Override
     public void waitForBundleUninstall(String... bundleSymbolicNames) {
         Set<String> symbolicNamesSet = Sets.newHashSet(bundleSymbolicNames);
         LOGGER.info("Waiting for bundles {} to be uninstalled...", symbolicNamesSet);
 
-        final List<Long> bundleIds = Arrays.stream(getBundleContext().getBundles())
+        List<Long> bundleIds = Arrays.stream(getBundleContext().getBundles())
                 .filter(b -> symbolicNamesSet.contains(b.getSymbolicName()))
                 .map(Bundle::getBundleId)
                 .collect(Collectors.toList());
@@ -390,6 +402,7 @@ public class ServiceManagerImpl implements ServiceManager {
         LOGGER.info("Bundles {} uninstalled", symbolicNamesSet);
     }
 
+    @Override
     public void waitForFeature(String featureName, Predicate<FeatureState> predicate)
             throws Exception {
         boolean ready = false;
@@ -415,7 +428,7 @@ public class ServiceManagerImpl implements ServiceManager {
             if (!ready) {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     printInactiveBundles();
-                    fail(String.format("Feature did not change to State [" + predicate.toString()
+                    fail(String.format("Feature did not change to State [" + predicate
                                     + "] within %d minutes.",
                             TimeUnit.MILLISECONDS.toMinutes(FEATURES_AND_BUNDLES_TIMEOUT)));
                 }
@@ -427,6 +440,7 @@ public class ServiceManagerImpl implements ServiceManager {
         }
     }
 
+    @Override
     public void waitForHttpEndpoint(String path) throws InterruptedException {
         LOGGER.info("Waiting for {}", path);
 
@@ -451,6 +465,7 @@ public class ServiceManagerImpl implements ServiceManager {
         LOGGER.info("{} ready.", path);
     }
 
+    @Override
     public void waitForSourcesToBeAvailable(String restPath, String... sources)
             throws InterruptedException {
         String path = restPath + "sources";
@@ -491,6 +506,7 @@ public class ServiceManagerImpl implements ServiceManager {
         LOGGER.info("Sources at {} ready.", path);
     }
 
+    @Override
     public void waitForAllConfigurations() throws InterruptedException {
         long timeoutLimit = System.currentTimeMillis() + HTTP_ENDPOINT_TIMEOUT;
         String ddfHome = System.getProperty("ddf.home");
@@ -514,6 +530,7 @@ public class ServiceManagerImpl implements ServiceManager {
         }
     }
 
+    @Override
     public Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
         Map<String, Object> properties = new HashMap<>();
         ObjectClassDefinition bundleMetatype = getObjectClassDefinition(symbolicName, factoryPid);
@@ -592,6 +609,7 @@ public class ServiceManagerImpl implements ServiceManager {
         return null;
     }
 
+    @Override
     public void printInactiveBundles() {
         LOGGER.info("Listing inactive bundles");
 
@@ -612,39 +630,43 @@ public class ServiceManagerImpl implements ServiceManager {
                 headerString.append(" ]");
                 LOGGER.info("{} | {} | {} | {}",
                         bundle.getSymbolicName(),
-                        bundle.getVersion()
-                                .toString(),
-                        OsgiStringUtils.bundleStateAsString(bundle),
-                        headerString.toString());
+                        bundle.getVersion(),
+                        bundle.getState(),
+                        headerString);
             }
         }
     }
 
+    @Override
     public <S> ServiceReference<S> getServiceReference(Class<S> aClass) {
         return getBundleContext().getServiceReference(aClass);
     }
 
+    @Override
     public <S> Collection<ServiceReference<S>> getServiceReferences(Class<S> aClass, String s)
             throws InvalidSyntaxException {
         return getBundleContext().getServiceReferences(aClass, s);
     }
 
+    @Override
     public <S> S getService(ServiceReference<S> serviceReference) {
-        WaitCondition.expect("Service to be available: " + serviceReference.toString()).within(2,
+        WaitCondition.expect("Service to be available: " + serviceReference)
+                .within(2,
                 TimeUnit.MINUTES)
                 .until(() -> getBundleContext().getService(serviceReference), notNullValue());
         return getBundleContext().getService(serviceReference);
     }
 
+    @Override
     public <S> S getService(Class<S> aClass) {
         return getService(getBundleContext().getServiceReference(aClass));
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {
 
-        private boolean updated = false;
+        private final String pid;
 
-        private String pid;
+        private boolean updated;
 
         public ServiceConfigurationListener(String pid) {
             this.pid = pid;
