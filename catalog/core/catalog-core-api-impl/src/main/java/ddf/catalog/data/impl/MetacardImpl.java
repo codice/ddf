@@ -26,10 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -166,15 +163,13 @@ public class MetacardImpl implements Metacard {
             setSourceId(metacard.getSourceId());
         }
 
-        map = metacard.getMetacardType()
-                .getAttributeDescriptors()
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(attributeDescriptor -> attributeDescriptor.getName() != null)
-                .filter(attributeDescriptor -> metacard.getAttribute(attributeDescriptor.getName())
-                        != null)
-                .map(AttributeDescriptor::getName)
-                .collect(Collectors.toConcurrentMap(Function.identity(), metacard::getAttribute));
+        map = new HashMap<>();
+        for (AttributeDescriptor attribute : metacard.getMetacardType()
+                .getAttributeDescriptors()) {
+            if(attribute != null && attribute.getName() != null) {
+                map.put(attribute.getName(), metacard.getAttribute(attribute.getName()));
+            }
+        }
     }
 
     @Override
