@@ -260,63 +260,6 @@ public class EndpointUtil {
                 .findFirst();
     }
 
-    public List<Metacard> getRecentMetacards(int pageSize, int pageNumber, String emailAddress,
-            long daysBack)
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        pageSize = pageSize == 0 ? DEFAULT_PAGE_SIZE : pageSize;
-        pageNumber = pageNumber == 0 ? 1 : pageNumber;
-        if (pageNumber <= 0) {
-            throw new BadRequestException(
-                    "Page Number cannot be less than or equal to 0. (pageNumber= " + pageNumber
-                            + " )");
-        }
-
-        // TODO (RCZ) - Replace these with the actual constants once DDF-PR-868 is in
-
-        Filter user = filterBuilder.attribute(MetacardVersion.EDITED_BY)
-                .is()
-                .equalTo()
-                .text(emailAddress);
-
-        Filter time = filterBuilder.attribute(MetacardVersion.VERSIONED_ON)
-                .is()
-                .after()
-                .date(Date.from(Instant.now()
-                        .minus(daysBack, ChronoUnit.DAYS)));
-
-        Filter createdAction = filterBuilder.attribute(MetacardVersion.ACTION)
-                .is()
-                .equalTo()
-                .text(MetacardVersion.Action.CREATED.getKey());
-        Filter createdContentAction = filterBuilder.attribute(MetacardVersion.ACTION)
-                .is()
-                .equalTo()
-                .text(MetacardVersion.Action.CREATED_CONTENT.getKey());
-        Filter created = filterBuilder.anyOf(createdAction, createdContentAction);
-
-        Filter tags = filterBuilder.attribute(Metacard.TAGS)
-                .is()
-                .like()
-                .text(MetacardVersion.VERSION_TAG);
-
-        Filter filter = filterBuilder.allOf(user, time, created, tags);
-
-        Map<String, Serializable> properties = new HashMap<>();
-        int startIndex = 1 + ((pageNumber - 1) * pageSize);
-        QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
-                filter,
-                startIndex,
-                pageSize,
-                SortBy.NATURAL_ORDER,
-                false,
-                TimeUnit.SECONDS.toMillis(10)), properties));
-
-        return queryResponse.getResults()
-                .stream()
-                .map(Result::getMetacard)
-                .collect(Collectors.toList());
-    }
-
     public Map<String, Object> getMetacardMap(Metacard metacard) {
         Set<AttributeDescriptor> attributeDescriptors = metacard.getMetacardType()
                 .getAttributeDescriptors();

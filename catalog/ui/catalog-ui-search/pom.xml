@@ -98,6 +98,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
@@ -142,6 +146,11 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>versioning-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>versioning-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -192,6 +201,11 @@
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util-unavailableurls</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -239,6 +253,7 @@
                             proxy-camel-route,
                             catalog-core-api-impl;scope=!test,
                             platform-util,
+                            platform-util-unavailableurls,
                             versioning-common,
                             spark-core,
                             gt-cql,
@@ -249,7 +264,8 @@
                             c3p0,
                             terracotta-toolkit-runtime-ee,
                             ehcache-terracotta,
-                            ehcache
+                            ehcache,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Web-ContextPath>/search/catalog</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>

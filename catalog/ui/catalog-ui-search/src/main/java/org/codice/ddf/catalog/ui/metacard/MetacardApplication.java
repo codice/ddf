@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.ExecutionException;
 import org.boon.json.JsonFactory;
 import org.codice.ddf.catalog.ui.metacard.associations.Associated;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
@@ -58,6 +60,7 @@ import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
@@ -71,8 +74,9 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
+import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
-import ddf.catalog.data.Attribute;
+import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
@@ -96,6 +100,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.Subject;
 import ddf.security.SubjectUtils;
 import spark.servlet.SparkApplication;
 
@@ -107,8 +112,12 @@ public class MetacardApplication implements SparkApplication {
             "Workspace is either restricted or not found.";
 
     private static final Set<MetacardVersion.Action> CONTENT_ACTIONS = ImmutableSet.of(
-            MetacardVersion.Action.CREATED_CONTENT,
-            MetacardVersion.Action.UPDATED_CONTENT);
+            MetacardVersion.Action.VERSIONED_CONTENT,
+            MetacardVersion.Action.DELETED_CONTENT);
+
+    private static final Set<MetacardVersion.Action> DELETE_ACTIONS = ImmutableSet.of(
+            MetacardVersion.Action.DELETED,
+            MetacardVersion.Action.DELETED_CONTENT);
 
     private final CatalogFramework catalogFramework;
 
@@ -217,37 +226,6 @@ public class MetacardApplication implements SparkApplication {
             return req.body();
         });
 
-        /**
-         * query parameter: pageNumber  - Which page of results to get      - default 1
-         * query parameter: pageSize    - How many results to get per page  - default 250
-         * query parameter: daysBack    - How many days back to search      - default 7
-         */
-        get("/metacards/recent", (req, res) -> {
-            int pageSize = 250;
-            int pageNumber = 1;
-            int daysBack = 7;
-            if (req.queryParams("pageSize") != null) {
-                pageSize = Integer.parseInt(req.queryParams("pageSize"));
-            }
-            if (req.queryParams("pageNumber") != null) {
-                pageNumber = Integer.parseInt(req.queryParams("pageNumber"));
-            }
-            if (req.queryParams("pageNumber") != null) {
-                daysBack = Integer.parseInt(req.queryParams("daysBack"));
-            }
-
-            List<Metacard> results = util.getRecentMetacards(pageSize,
-                    pageNumber,
-                    SubjectUtils.getEmailAddress(SecurityUtils.getSubject()),
-                    daysBack);
-
-            return util.getJson(results.stream()
-                    .map(mc -> mc.getAttribute(MetacardVersion.VERSION_OF_ID))
-                    .filter(Objects::nonNull)
-                    .map(Attribute::getValue)
-                    .collect(Collectors.toList()));
-        });
-
         put("/validate/attribute/:attribute", TEXT_PLAIN, (req, res) -> {
             String attribute = req.params(":attribute");
             String value = req.body();
@@ -258,8 +236,9 @@ public class MetacardApplication implements SparkApplication {
         get("/history/:id", (req, res) -> {
             String id = req.params(":id");
             List<Result> queryResponse = getMetacardHistory(id);
-            if (queryResponse == null || queryResponse.isEmpty()) {
-                throw new NotFoundException("Could not find metacard with id: " + id);
+            if (queryResponse.isEmpty()) {
+                res.status(204);
+                return "[]";
             }
             List<HistoryResponse> response = queryResponse.stream()
                     .map(Result::getMetacard)
@@ -287,14 +266,13 @@ public class MetacardApplication implements SparkApplication {
             Optional<Metacard> contentVersion = queryResponse.stream()
                     .map(Result::getMetacard)
                     .filter(mc ->
-                            getVersionedOnDate(mc).isBefore(getVersionedOnDate(versionMetacard))
+                            getVersionedOnDate(mc).isAfter(getVersionedOnDate(versionMetacard))
                                     || getVersionedOnDate(mc).equals(getVersionedOnDate(
                                     versionMetacard)))
                     .filter(mc -> CONTENT_ACTIONS.contains(MetacardVersion.Action.ofMetacard(mc)))
                     .sorted(Comparator.comparing((Metacard mc) -> util.parseToDate(mc.getAttribute(
                             MetacardVersion.VERSIONED_ON)
-                            .getValue()))
-                            .reversed())
+                            .getValue())))
                     .findFirst();
 
             if (!contentVersion.isPresent()) {
@@ -303,7 +281,7 @@ public class MetacardApplication implements SparkApplication {
             } else {
                 revertContentandMetacard(contentVersion.get(), versionMetacard, id);
             }
-            return util.metacardToJson(MetacardVersion.toMetacard(versionMetacard, types));
+            return util.metacardToJson(MetacardVersionImpl.toMetacard(versionMetacard, types));
         });
 
         get("/associations/:id", (req, res) -> {
@@ -451,11 +429,10 @@ public class MetacardApplication implements SparkApplication {
 
     private void revertMetacard(Metacard versionMetacard, String id)
             throws SourceUnavailableException, IngestException {
-        Metacard revertMetacard = MetacardVersion.toMetacard(versionMetacard, types);
+        Metacard revertMetacard = MetacardVersionImpl.toMetacard(versionMetacard, types);
         if (versionMetacard.getAttribute(MetacardVersion.ACTION)
                 .getValue()
                 .equals(MetacardVersion.Action.DELETED.getKey())) {
-            /* can't revert to a deleted.. right now */
             catalogFramework.create(new CreateRequestImpl(revertMetacard));
         } else {
             catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
@@ -465,7 +442,8 @@ public class MetacardApplication implements SparkApplication {
     private void revertContentandMetacard(Metacard latestContent, Metacard versionMetacard,
             String id)
             throws SourceUnavailableException, IngestException, ResourceNotFoundException,
-            IOException, ResourceNotSupportedException {
+            IOException, ResourceNotSupportedException, FederationException,
+            UnsupportedQueryException {
         Map<String, Serializable> properties = new HashMap<>();
         properties.put("no-default-tags", true);
         ResourceResponse latestResource = catalogFramework.getLocalResource(new ResourceRequestById(
@@ -481,22 +459,77 @@ public class MetacardApplication implements SparkApplication {
                         .getName(),
                 latestResource.getResource()
                         .getSize(),
-                MetacardVersion.toMetacard(versionMetacard, types));
-        //// TODO (RCZ) - if no worky, make sure set resource-uri to null on content item
-        if (versionMetacard.getAttribute(MetacardVersion.ACTION)
-                .getValue()
-                .equals(MetacardVersion.Action.DELETED.getKey())) {
+                MetacardVersionImpl.toMetacard(versionMetacard, types));
+
+        // Try to delete the "deleted metacard" marker first.
+        if (DELETE_ACTIONS.contains(MetacardVersion.Action.fromKey((String) versionMetacard.getAttribute(
+                MetacardVersion.ACTION)
+                .getValue()))) {
+            // TODO (RCZ) - Semantics for failing the delete? want to still let the recreate happen?
+            attemptDeleteDeletedMetacard(id);
             catalogFramework.create(new CreateStorageRequestImpl(Collections.singletonList(
                     contentItem), id, new HashMap<>()));
+
         } else {
             catalogFramework.update(new UpdateStorageRequestImpl(Collections.singletonList(
                     contentItem), id, new HashMap<>()));
         }
 
-        // Probably don't need this if the actual metacard gets put back in correctly in the update
         //        if (latestContent != versionMetacard) {
         //            revertMetacard(versionMetacard, id);
         //        }
+    }
+
+    private void attemptDeleteDeletedMetacard(String id)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        Filter tags = filterBuilder.attribute(Metacard.TAGS)
+                .is()
+                .like()
+                .text(DeletedMetacard.DELETED_TAG);
+        Filter deletion = filterBuilder.attribute(DeletedMetacard.DELETION_OF_ID)
+                .is()
+                .like()
+                .text(id);
+        Filter filter = filterBuilder.allOf(tags, deletion);
+
+        QueryResponse response = null;
+        try {
+            response = catalogFramework.query(new QueryRequestImpl(new QueryImpl(filter), false));
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+            LOGGER.debug("Could not find the deleted metacard marker to delete", e);
+        }
+
+        if (response.getResults()
+                .size() != 1) {
+            LOGGER.debug("There should have been one deleted metacard marker");
+            return;
+        }
+        final QueryResponse _response = response;
+        try {
+            executeAsSystem(() -> catalogFramework.delete(new DeleteRequestImpl(_response.getResults()
+                    .get(0)
+                    .getMetacard()
+                    .getId())));
+        } catch (ExecutionException e) {
+            LOGGER.debug("Could not delete the deleted metacard marker", e);
+        }
+
+    }
+
+    /**
+     * Caution should be used with this, as it elevates the permissions to the System user.
+     *
+     * @param func What to execute as the System
+     * @param <T>  Generic return type of func
+     * @return result of the callable func
+     */
+    private <T> T executeAsSystem(Callable<T> func) {
+        Subject systemSubject = Security.runAsAdmin(() -> Security.getInstance()
+                .getSystemSubject());
+        if (systemSubject == null) {
+            throw new RuntimeException("Could not get systemSubject to version metacards.");
+        }
+        return systemSubject.execute(func);
     }
 
     private Instant getVersionedOnDate(Metacard mc) {
