@@ -49,7 +49,7 @@ import ddf.catalog.filter.FilterBuilder;
 public class CometdEndpoint extends CometDServlet {
     private static final long serialVersionUID = 1L;
 
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(CometdEndpoint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpoint.class);
 
     private final transient FilterBuilder filterBuilder;
 
