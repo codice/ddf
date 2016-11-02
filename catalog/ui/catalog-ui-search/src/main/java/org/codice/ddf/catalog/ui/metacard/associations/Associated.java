@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.metacard.associations;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,8 +69,10 @@ public class Associated {
 
     public Collection<Edge> getAssociations(String metacardId)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        Map<String, Metacard> metacardMap = query(forRootAndParents(metacardId));
-
+        Map<String, Metacard> metacardMap = query(withAnytag(forRootAndParents(metacardId)));
+        if (metacardMap.isEmpty()) {
+            return Collections.emptyList();
+        }
         Metacard root = metacardMap.get(metacardId);
         Collection<Metacard> parents = metacardMap.values()
                 .stream()
@@ -77,7 +80,7 @@ public class Associated {
                         .equals(metacardId))
                 .collect(Collectors.toList());
 
-        Map<String, Metacard> childMetacardMap = query(forChildAssociations(root));
+        Map<String, Metacard> childMetacardMap = query(withAnytag(forChildAssociations(root)));
 
         Collection<Edge> parentEdges = createParentEdges(parents, root);
         Collection<Edge> childrenEdges = createChildEdges(childMetacardMap.values(), root);
@@ -207,6 +210,16 @@ public class Associated {
 
         return util.getFilterBuilder()
                 .anyOf(root, parents);
+    }
+
+    private Filter withAnytag(Filter filter) {
+        return util.getFilterBuilder()
+                .allOf(filter,
+                        util.getFilterBuilder()
+                                .attribute(Metacard.TAGS)
+                                .is()
+                                .like()
+                                .text("*"));
     }
 
     private Filter forChildAssociations(Metacard metacard) {
