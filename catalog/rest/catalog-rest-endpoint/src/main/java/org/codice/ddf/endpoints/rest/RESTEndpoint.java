@@ -577,7 +577,7 @@ public class RESTEndpoint implements RESTService {
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
             } catch (DataUsageLimitExceededException e) {
                 String exceptionMessage = "Unable to process request. Data usage limit exceeded: ";
-                LOGGER.info(exceptionMessage, e);
+                LOGGER.debug(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.REQUEST_ENTITY_TOO_LARGE);
                 // The catalog framework will throw this if any of the transformers blow up.
                 // We need to catch this exception here or else execution will return to CXF and
