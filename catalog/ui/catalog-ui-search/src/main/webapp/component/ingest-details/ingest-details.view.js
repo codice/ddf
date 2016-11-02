@@ -136,7 +136,7 @@ module.exports = Marionette.LayoutView.extend({
         updateDropzoneHeight(this);
         this.listenToResize();
         Common.cancelRepaintForTimeframe(this.dropzoneAnimationRequestDetails);
-        this.dropzoneAnimationRequestDetails = Common.repaintForTimeframe(500, updateDropzoneHeight.bind(this, this));
+        this.dropzoneAnimationRequestDetails = Common.repaintForTimeframe(2000, updateDropzoneHeight.bind(this, this));
     },
     listenToResize: function() {
         $(window).off(namespacedEvent('resize', this)).on(namespacedEvent('resize', this), this.updateDropzoneHeight.bind(this));
