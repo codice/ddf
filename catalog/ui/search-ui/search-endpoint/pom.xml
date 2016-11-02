@@ -225,9 +225,6 @@
                             platform-util
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Web-ContextPath>/search/cometd</Web-ContextPath>
-                        <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800
-                        </Spring-Context>
                         <!-- Package uses conflict if we do not embed this -->
                         <Private-Package>
                             org.codice.ddf.ui.searchui.query.*,
