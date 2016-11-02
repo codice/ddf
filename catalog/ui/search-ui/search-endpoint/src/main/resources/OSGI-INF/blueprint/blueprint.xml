@@ -19,9 +19,6 @@
 
     <ext:property-placeholder/>
 
-    <bean id="comet" class="org.cometd.server.CometDServlet">
-    </bean>
-
     <bean id="searchThreadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
         <argument value="${org.codice.ddf.system.threadPoolSize}"/>
@@ -37,20 +34,20 @@
     <reference-list id="requestHandlerList" interface="ddf.security.service.TokenRequestHandler"
                     availability="optional"/>
 
-    <reference-list id="actionProviders" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.*)"/>
+    <reference-list id="actionProviders" interface="ddf.action.ActionProvider"
+                    filter="(id=catalog.data.metacard.*)"/>
 
-    <reference-list id="actionsProviders" interface="ddf.action.MultiActionProvider" filter="(id=catalog.data.metacard.*)"/>
+    <reference-list id="actionsProviders" interface="ddf.action.MultiActionProvider"
+                    filter="(id=catalog.data.metacard.*)"/>
 
     <bean id="actionRegistry" class="org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl">
         <argument ref="actionProviders"/>
         <argument ref="actionsProviders"/>
     </bean>
 
-    <bean class="org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint" init-method="init"
-          destroy-method="destroy">
+    <bean class="org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint" id="cometdEndpoint" destroy-method="destroy">
         <cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.endpoint"
                                update-strategy="container-managed"/>
-        <argument ref="comet"/>
         <argument ref="catalog"/>
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
@@ -61,8 +58,14 @@
         <argument ref="searchThreadPool"/>
     </bean>
 
-
-
-
+    <service interface="javax.servlet.Servlet" ref="cometdEndpoint">
+        <service-properties>
+            <entry key="alias" value="/search/cometd"/>
+            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
+            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
+            <entry key="load-on-startup" value="1"/>
+            <entry key="async-supported" value="true"/>
+        </service-properties>
+    </service>
 
 </blueprint>

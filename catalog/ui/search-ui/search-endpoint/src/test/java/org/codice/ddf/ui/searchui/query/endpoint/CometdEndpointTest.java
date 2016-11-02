@@ -16,12 +16,15 @@ package org.codice.ddf.ui.searchui.query.endpoint;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.concurrent.Executors;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
@@ -36,7 +39,6 @@ import org.cometd.bayeux.server.ServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.BayeuxServerImpl;
-import org.cometd.server.CometDServlet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,6 +66,8 @@ public class CometdEndpointTest {
     private ServerSession mockServerSession = mock(ServerSession.class);
 
     private ServerMessage mockServerMessage = mock(ServerMessage.class);
+
+    private ServletConfig servletConfig = mock(ServletConfig.class);
 
     /**
      * @throws java.lang.Exception
@@ -125,21 +129,21 @@ public class CometdEndpointTest {
                 .getSecurityPolicy();
 
         // Associate the BayeuxServer with a CometdServlet
-        CometDServlet cometdServlet = mock(CometDServlet.class);
         ServletContext servletContext = mock(ServletContext.class);
-        when(cometdServlet.getServletContext()).thenReturn(servletContext);
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
         when(servletContext.getAttribute(BayeuxServer.ATTRIBUTE)).thenReturn(bayeuxServer);
 
         // Create the CometdEndpoint, passing in the mocked CometdServlet
-        cometdEndpoint = new CometdEndpoint(cometdServlet,
-                mock(CatalogFramework.class),
+        cometdEndpoint = spy(new CometdEndpoint(mock(CatalogFramework.class),
                 mock(FilterBuilder.class),
                 mock(FilterAdapter.class),
                 mock(PersistentStore.class),
                 mock(BundleContext.class),
                 mock(EventAdmin.class),
                 new ActionRegistryImpl(Collections.EMPTY_LIST, Collections.EMPTY_LIST),
-                Executors.newSingleThreadExecutor());
+                Executors.newSingleThreadExecutor()));
+        doNothing().when(cometdEndpoint)
+                .init();
     }
 
     /**
@@ -153,14 +157,14 @@ public class CometdEndpointTest {
      * Test method that verifies the {@link org.cometd.bayeux.server.SecurityPolicy#canHandshake(BayeuxServer, ServerSession, ServerMessage)}
      * method of the custom {@link org.cometd.bayeux.server.SecurityPolicy}
      * associated with the {@link org.cometd.bayeux.server.BayeuxServer} created
-     * by the {@link CometdEndpoint} registers users with the 
+     * by the {@link CometdEndpoint} registers users with the
      * {@link org.codice.ddf.ui.searchui.query.controller.NotificationController}.
      *
      * @throws ServletException
      */
     @Test
     public void testCanHandshakeRegistersUserWithNotificationController() throws ServletException {
-        cometdEndpoint.init();
+        cometdEndpoint.init(servletConfig);
         SecurityPolicy securityPolicy = bayeuxServer.getSecurityPolicy();
         assertNotNull("BayeuxServer's SecurityPolicy is null", securityPolicy);
 
