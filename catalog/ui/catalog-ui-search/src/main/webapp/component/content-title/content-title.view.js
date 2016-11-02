@@ -27,7 +27,9 @@ define([
             this.model = store.get('content');
         },
         events: {
-            'change input': 'updateWorkspaceName'
+            'change input': 'updateWorkspaceName',
+            'keyup input': 'updateWorkspaceName',
+            'keydown input': 'updateWorkspaceName'
         },
         template: template,
         tagName: CustomElements.register('content-title'),
@@ -35,9 +37,21 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            this.listenTo(this.model, 'change:currentWorkspace', this.render);
+            this.listenTo(this.model, 'change:currentWorkspace', this.handleChange);
         },
         onRender: function(){
+        },
+        handleChange: function(){
+            this.updateInput();
+        },
+        updateInput: function(){
+            if (this.model.get('currentWorkspace')) {
+                var input = this.$el.find('input');
+                var currentTitle = this.model.get('currentWorkspace').get('title');
+                if (input.val() !== currentTitle){
+                    input.val(currentTitle);
+                }
+            }
         },
         updateWorkspaceName: function(e){
             this.model.get('currentWorkspace').set('title', e.currentTarget.value);

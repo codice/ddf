@@ -63,68 +63,6 @@ define([
                         }
                     });
                 }
-            },
-            {
-                type: 'action',
-                name: 'Move to Trash',
-                icon: 'trash-o',
-                shortcut: {
-                    specialKeys: [
-                        'Ctrl'
-                    ],
-                    keys: [
-                        'D'
-                    ]
-                },
-                action: function(){
-                    var loadingview = new LoadingView();
-                    store.getCurrentWorkspace().once('sync', function(){
-                        wreqr.vent.trigger('router:navigate', {
-                            fragment: 'workspaces',
-                            options: {
-                                trigger: true
-                            }
-                        });
-                        loadingview.remove();
-                    });
-                    store.getCurrentWorkspace().destroy({
-                        wait: true
-                    });
-                }
-            },
-            {
-                type: 'action',
-                name: 'Run All Searches',
-                icon: 'play',
-                action: function(){
-                    store.getCurrentQueries().forEach(function(query){
-                        query.startSearch();
-                    });
-                }
-            },
-            {
-                type: 'action',
-                name: 'Cancel All Searches',
-                icon: 'stop',
-                action: function(){
-                    store.getCurrentQueries().forEach(function(query){
-                        query.cancelCurrentSearches();
-                    });
-                }
-            }
-        ],
-        [
-            {
-                type: 'action',
-                name: 'Share',
-                icon: 'users',
-                action: function () {
-                    lightboxInstance.model.updateTitle('Workspace Sharing');
-                    lightboxInstance.model.open();
-                    lightboxInstance.lightboxContent.show(new WorkspaceSharing({
-                        model: store.getCurrentWorkspace()
-                    }));
-                }
             }
         ]
     ];

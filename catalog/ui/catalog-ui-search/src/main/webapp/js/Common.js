@@ -105,7 +105,7 @@ define([
             return requestDetails;
         },
         executeAfterRepaint: function(callback){
-            window.requestAnimationFrame(function(){
+            return window.requestAnimationFrame(function(){
                 window.requestAnimationFrame(callback);
             });
         },

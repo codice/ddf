@@ -1,53 +1,35 @@
 @{customElementNamespace}workspace-menu {
-    @menuDetailsWidth: 300px;
-
   .customElement;
+  overflow: hidden;
   position: relative;
   height: 2*@minimumLineSize;
   white-space: nowrap;
 
-  > .menu-logo {
-    width: @minimumButtonSize;
-  }
-
-  > .menu-details {
-    float: right;
-    padding: 0px 20px;
-  }
-
-  > .menu-logo,
-  > .menu-content,
-  > .menu-details {
-    display: inline-block;
-    vertical-align: top;
+  > .content-title {
     height: 100%;
-    white-space: nowrap;
-  }
-
-  > .menu-content > .content-title,
-  > .menu-content > .content-toolbar {
-    height: @minimumLineSize;
-    padding: 0px 10px;
-  }
-
-  > .menu-content > .content-title {
     overflow: hidden;
+    text-overflow: ellipsis;
+    width: auto;
+    max-width: ~'calc(100% - @{minimumButtonSize})';
+    transition: width @coreTransitionTime ease-out;
   }
 
-  > .menu-details > .details-buttons {
-    height: 35px;
+  > .content-interactions {
+    width: @minimumButtonSize;
+    height: 100%;
+    text-align: center;
   }
 
-  > .menu-details > .details-tasks {
-    padding: 0 15px;
-  }
-
-  > .menu-details > .details-item {
+  > div {
     display: inline-block;
-    height: 2*@minimumLineSize;
-    line-height: 2*@minimumLineSize;
     vertical-align: top;
-    font-size: @largeFontSize;
   }
 
+}
+
+@{customElementNamespace}workspace-menu.is-blank {
+
+  > .content-title {
+    min-width: 11.25rem;
+  }
 }

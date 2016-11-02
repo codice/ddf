@@ -39,6 +39,9 @@ define([
             'change': 'render'
         },
         events: {
+            'click .interaction-save': 'handleSave',
+            'click .interaction-run': 'handleRun',
+            'click .interaction-stop': 'handleStop',
             'click .interaction-subscribe': 'handleSubscribe',
             'click .interaction-unsubscribe': 'handleUnsubscribe',
             'click .interaction-new-tab': 'handleNewTab',
@@ -55,6 +58,19 @@ define([
         },
         checkIfSubscribed: function() {
             this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
+        },
+        handleSave: function(){
+            this.model.save();
+        },
+        handleRun: function(){
+            this.model.get('queries').forEach(function(query){
+                query.startSearch();
+            });
+        },
+        handleStop: function(){
+            this.model.get('queries').forEach(function(query){
+                query.cancelCurrentSearches();
+            });
         },
         handleSubscribe: function() {
             this.model.subscribe();

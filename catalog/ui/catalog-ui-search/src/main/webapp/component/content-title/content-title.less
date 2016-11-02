@@ -2,19 +2,17 @@
   .customElement;
   position: relative;
 
-  input,
-  button {
+  input {
     display: inline-block;
     vertical-align: top;
     height: ~'calc(100% - 2px)';
-    margin-top: 2px;
   }
 
   input {
     min-width: 1px;
     background: @navigation-background-color;
     border: none;
-    font-size: @minimumFontSize;
+    font-size: @largeFontSize;
     padding-top: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -27,13 +25,5 @@
     outline-style: solid;
     outline-width: 1px;
     outline-color: grey;
-  }
-
-  button {
-    font-size: @minimumFontSize;
-    color: grey;
-  }
-  button:hover {
-    color: shade(grey, 20%);
   }
 }

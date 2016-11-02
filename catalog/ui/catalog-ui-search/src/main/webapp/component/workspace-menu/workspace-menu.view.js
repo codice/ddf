@@ -20,39 +20,67 @@ define([
     './workspace-menu.hbs',
     'js/CustomElements',
     'component/content-title/content-title.view',
-    'component/content-toolbar/content-toolbar.view',
-    'wreqr'
-], function (Marionette, _, $, template, CustomElements, TitleView, ToolbarView, wreqr) {
+    'component/dropdown/dropdown',
+    'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
+    'js/store',
+    'js/Common',
+    'component/singletons/user-instance'
+], function (Marionette, _, $, template, CustomElements, TitleView, DropdownModel, 
+    WorkspaceInteractionsView, store, Common, user) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
-            //override
+            this.model = store.get('content');
         },
         template: template,
         tagName: CustomElements.register('workspace-menu'),
-        events: {
-            'click .menu-logo': 'navigateHome'
-        },
         regions: {
             title: '.content-title',
-            toolbar: '.content-toolbar'
+            workspaceInteractions: '.content-interactions'
         },
         initialize: function (options) {
             if (options.model === undefined){
                 this.setDefaultModel();
             }
+            this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceInteractions);
+            this.listenTo(this.model, 'change:currentWorkspace', this.handleWorkspaceChange);
+            this.listenTo(user.get('user').get('preferences'), 'change:fontSize', this.handleFontChange);
         },
         onBeforeShow: function(){
             this.title.show(new TitleView());
-            this.toolbar.show(new ToolbarView());
+            this.updateWorkspaceInteractions();
         },
-        navigateHome: function(){
-            wreqr.vent.trigger('router:navigate', {
-                fragment: 'workspaces',
-                options: {
-                    trigger: true
-                }
-            });
+        updateWorkspaceInteractions: function(workspace) {
+            if (workspace && workspace.changed.currentWorkspace) {
+                this.workspaceInteractions.show(new WorkspaceInteractionsView({
+                    model: new DropdownModel(),
+                    modelForComponent: this.model.get('currentWorkspace')
+                }));
+            }
+        },
+        animationFrameId: undefined,
+        fontAnimationFrameId: undefined,
+        handleWorkspaceChange: function(workspace){
+            if (workspace && ((workspace.changed.title !== undefined) ||
+             workspace.changed.currentWorkspace)) {
+                this.handleTitle();
+            }
+        },
+        handleFontChange: function(){
+            window.cancelAnimationFrame(this.fontAnimationFrameId);
+            this.fontAnimationFrameId = Common.repaintForTimeframe(300, this.handleTitle.bind(this));
+        },
+        handleTitle: function(){
+            this.$el.toggleClass('is-blank', this.$el.find('input').val() === '');
+            var clientWidth = this.$el.find('input')[0].clientWidth;
+            var scrollWidth = this.$el.find('input')[0].scrollWidth;
+            if (scrollWidth > clientWidth){
+                this.$el.find('> .content-title').css('width', scrollWidth);
+            } else {
+                this.$el.find('> .content-title').css('width', clientWidth - 100);
+                window.cancelAnimationFrame(this.animationFrameId);
+                this.animationFrameId = Common.executeAfterRepaint(this.handleTitle.bind(this));
+            }
         }
     });
 });
