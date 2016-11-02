@@ -45,7 +45,9 @@ import org.opengis.filter.sort.SortBy;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
@@ -64,15 +66,22 @@ public class EndpointUtil {
 
     private final FilterBuilder filterBuilder;
 
+    private final List<InjectableAttribute> injectableAttributes;
+
+    private final AttributeRegistry attributeRegistry;
+
     private static final int DEFAULT_PAGE_SIZE = 10;
 
     private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     public EndpointUtil(List<MetacardType> metacardTypes, CatalogFramework catalogFramework,
-            FilterBuilder filterBuilder) {
+            FilterBuilder filterBuilder, List<InjectableAttribute> injectableAttributes,
+            AttributeRegistry attributeRegistry) {
         this.metacardTypes = metacardTypes;
         this.catalogFramework = catalogFramework;
         this.filterBuilder = filterBuilder;
+        this.injectableAttributes = injectableAttributes;
+        this.attributeRegistry = attributeRegistry;
     }
 
     public Metacard getMetacard(String id)
@@ -165,6 +174,8 @@ public class EndpointUtil {
         return results;
     }
 
+    // TODO (RCZ) - This method could do with some immutable/persistant objects
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getMetacardTypeMap() {
         Map<String, Object> resultTypes = new HashMap<>();
         for (MetacardType metacardType : metacardTypes) {
@@ -181,6 +192,30 @@ public class EndpointUtil {
             }
             resultTypes.put(metacardType.getName(), attributes);
         }
+        for (InjectableAttribute attribute : injectableAttributes) {
+            Optional<AttributeDescriptor> lookup = attributeRegistry.lookup(attribute.attribute());
+            if (!lookup.isPresent()) {
+                continue;
+            }
+
+            AttributeDescriptor descriptor = lookup.get();
+            Map<String, Object> attributeProperties = new HashMap<>();
+            attributeProperties.put("type",
+                    descriptor.getType()
+                            .getAttributeFormat()
+                            .name());
+            attributeProperties.put("multivalued", descriptor.isMultiValued());
+            attributeProperties.put("id", descriptor.getName());
+            Set<String> types = attribute.metacardTypes()
+                    .isEmpty() ? resultTypes.keySet() : attribute.metacardTypes();
+            for (String type : types) {
+                Map<String, Object> attributes = (Map) resultTypes.getOrDefault(type,
+                        new HashMap<String, Object>());
+                attributes.put(attribute.attribute(), attributeProperties);
+                resultTypes.put(type, attributes);
+            }
+        }
+
         return resultTypes;
     }
 

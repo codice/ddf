@@ -124,6 +124,8 @@
     <reference-list id="metacardMultiActionProviders" interface="ddf.action.MultiActionProvider"
                     filter="(id=catalog.data.metacard.*)"/>
 
+    <reference-list id="injectableAttributes" interface="ddf.catalog.data.InjectableAttribute" availability="optional"/>
+
     <bean id="metacardActionRegistry" class="org.codice.ddf.catalog.ui.MetacardActionRegistry">
         <argument ref="metacardActionProviders"/>
         <argument ref="metacardMultiActionProviders"/>
@@ -140,6 +142,10 @@
         <argument ref="filterBuilder"/>
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType"/>
+        </argument>
+        <argument ref="injectableAttributes"/>
+        <argument>
+            <reference interface="ddf.catalog.data.AttributeRegistry" availability="optional"/>
         </argument>
     </bean>
 
@@ -285,13 +291,14 @@
     </bean>
 
     <bean id="workspaceQueryService"
-          class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryServiceImpl" destroy-method="destroy">
+          class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryServiceImpl"
+          destroy-method="destroy">
 
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"
                 update-strategy="container-managed"/>
-        <property name="queryTimeoutMinutes" value="5" />
-        <property name="cronString" value="0 0 0 * * ?" />
+        <property name="queryTimeoutMinutes" value="5"/>
+        <property name="cronString" value="0 0 0 * * ?"/>
         <argument>
             <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.QueryUpdateSubscriberList">
                 <argument>
