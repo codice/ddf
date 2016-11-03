@@ -64,7 +64,10 @@ public class UserApplication implements SparkApplication {
         PersistentItem item = new PersistentItem();
         item.addIdProperty(username);
         item.addProperty("user", username);
-        item.addProperty("preferences_json", "_bin", Base64.getEncoder().encodeToString(json.getBytes()));
+        item.addProperty("preferences_json",
+                "_bin",
+                Base64.getEncoder()
+                        .encodeToString(json.getBytes(Charset.defaultCharset())));
 
         try {
             persistentStore.add(PersistentStore.PREFERENCES_TYPE, item);
@@ -93,7 +96,8 @@ public class UserApplication implements SparkApplication {
 
                 return JsonFactory.create()
                         .parser()
-                        .parseMap(Base64.getDecoder().decode(json));
+                        .parseMap(Base64.getDecoder()
+                                .decode(json));
             }
         } catch (PersistenceException e) {
             LOGGER.info(
