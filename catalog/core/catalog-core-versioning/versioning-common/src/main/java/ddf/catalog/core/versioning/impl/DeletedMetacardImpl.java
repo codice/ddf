@@ -15,6 +15,7 @@ package ddf.catalog.core.versioning.impl;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,14 +69,21 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
 
     public DeletedMetacardImpl(String deletionOfId, String deletedBy, String lastVersionId,
             Metacard metacardBeingDeleted) {
-        super(metacardBeingDeleted, new MetacardTypeImpl(PREFIX,
-                getDeletedMetacardType(),
-                metacardBeingDeleted.getMetacardType()
-                        .getAttributeDescriptors()));
+        super(metacardBeingDeleted,
+                new MetacardTypeImpl(PREFIX,
+                        getDeletedMetacardType(),
+                        metacardBeingDeleted.getMetacardType()
+                                .getAttributeDescriptors()));
         this.setDeletionOfId(deletionOfId);
         this.setDeletedBy(deletedBy);
         this.setLastVersionId(lastVersionId);
         this.setTags(ImmutableSet.of(DELETED_TAG));
+
+        if (this.getId() == null || "".equals(this.getId())) {
+            this.setId(UUID.randomUUID()
+                    .toString()
+                    .replace("-", ""));
+        }
     }
 
     public static MetacardType getDeletedMetacardType() {
