@@ -89,7 +89,7 @@ public class PersistentItem extends HashMap<String, Object> {
         addProperty(name, DATE_SUFFIX, value);
     }
 
-    public void addBinaryProperty(String name, String value) {
+    public void addProperty(String name, byte[] value) {
         addProperty(name, BINARY_SUFFIX, value);
     }
 
