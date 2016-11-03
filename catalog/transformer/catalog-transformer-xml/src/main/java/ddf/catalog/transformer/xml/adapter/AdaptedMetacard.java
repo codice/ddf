@@ -189,7 +189,7 @@ public class AdaptedMetacard implements Metacard {
         if (Metacard.ID.equals(name)) {
             return this.id;
         }
-        for (Attribute attribute : Arrays.asList((attributes.toArray(new Attribute[attributes.size()])))) {
+        for (Attribute attribute : Arrays.asList((attributes.toArray(new Attribute[0])))) {
             if (attribute != null && !StringUtils.isEmpty(attribute.getName())) {
                 if (name.equals(attribute.getName())) {
                     return attribute;
