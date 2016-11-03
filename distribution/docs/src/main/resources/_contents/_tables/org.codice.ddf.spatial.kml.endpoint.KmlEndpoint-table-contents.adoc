@@ -1,0 +1,62 @@
+.[[org.codice.ddf.spatial.kml.endpoint.KmlEndpoint]]Spatial KML Endpoint
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Style Document
+|styleUrl
+|String
+|KML Document containing custom styling. This will be served up by the KmlEndpoint. (e.g. file:///path/to/kml/style/doc.kml)
+|
+|false
+
+|Icons Location
+|iconLoc
+|String
+|Location of icons for the KML endpoint
+|
+|false
+
+|Description
+|description
+|String
+|Description of this NetworkLink. Enter a short description of what this NetworkLink provides.
+|
+|false
+
+|Web Site
+|webSite
+|String
+|URL of the web site to be displayed in the description.
+|
+|false
+
+|Logo
+|logo
+|String
+|URL to the logo to be displayed in the description.
+|
+|false
+
+|Visible By Default
+|visibleByDefault
+|Boolean
+|Check if the source NetworkLinks should be visible by default.
+|false
+|false
+
+|Max Number of Results
+|maxResults
+|Integer
+|The maximum number of results that should be returned from each layer.
+|100
+|false
+
+|===
+

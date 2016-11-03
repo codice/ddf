@@ -1,0 +1,27 @@
+.[[org.codice.ddf.ui.search.standard.endpoint]]Search UI Endpoint
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Disable Cache
+|cacheDisabled
+|Boolean
+|Disables use of cache.
+|false
+|false
+
+| Disable Normalization
+| normalizationDisabled
+| Boolean
+| Disables relevance and distance normalization.
+| false
+| false
+
+|===
+

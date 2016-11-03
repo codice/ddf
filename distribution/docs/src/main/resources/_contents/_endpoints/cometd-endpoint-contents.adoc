@@ -1,0 +1,535 @@
+
+==== CometD Endpoint
+
+The http://cometd.org[CometD] endpoint enables asychronous search capabilties.
+The CometD protocol is used to execute searches, retrieve results, and receive notifications.
+
+For an example of using CometD within a webapp see: `distribution/sdk/sample-cometd/`
+
+===== Installing CometD Endpoint
+
+The CometD Endpoint is installed by default with a standard installation in the ${ddf-ui} application.
+
+===== Configuring CometD Endpoint
+
+Configure the CometD endpoint from the ${admin-console}:
+
+. Navigate to the *${admin-console}*.
+. Select *${ddf-ui}* application.
+. Select *Configuration* tab.
+
+include::{adoc-include}/_tables/org.codice.ddf.ui.search.standard.endpoint-table-contents.adoc[]
+
+===== Using CometD Endpoint
+
+.CometD Endpoint URL
+----
+${secure_url}/search/cometd
+----
+
+====== CometD Queries
+
+Queries can be executed over CometD using the `/service/query` channel.
+Query messages are JSON-formatted and use CQL alongside several other parameters.
+
+.Query Parameters
+[cols="1m,3,1", options="header"]
+|===
+|Parameter Name
+|Description
+|Required
+
+|src
+|Comma-delimited list of federated sites to search over
+|No
+
+|cql
+|CQL query. See http://www.opengeospatial.org/standards/cat[OpenGIS® Catalogue Services Specification] for more information about CQL.
+|Yes
+
+|sort
+|Sort Type
+
+The format for the sort options is `<Sort Field>:<Sort Order>`, where `<Sort Order>` can be either `asc` or `desc`.
+|No
+
+|id
+|Query ID (Must be a unique ID, such as a UUID). This determines the channel that the query results will be returned on.
+|Yes
+
+|count
+|Number of entries to return in the response. Default is 10.
+|No
+
+|start
+|Specifies the number of the first result that should be returned.
+|No
+
+|timeout
+|Time (in milliseconds) to wait for response.
+|No
+
+|===
+
+Before a query is published the client should subscribe to the channel that will be passed in to the `id` field in order to receive query results once the query is executed.
+
+For example if the following id was generated `3b19bc9c-2155-4ca6-bae8-65a9c8e373f6`, the client should subscribe to `/3b19bc9c-2155-4ca6-bae8-65a9c8e373f6`
+
+Then the following example query could be executed:
+
+.`/service/query`
+[source,json]
+----
+{
+  "src": "${branding-lowercase}.distribution",
+  "cql":"(\"anyText\" ILIKE 'foo')",
+  "id":"3b19bc9c-2155-4ca6-bae8-65a9c8e373f6",
+  "sort":"asc"
+}
+----
+
+This would return any results matching the text `foo` on the `/3b19bc9c-2155-4ca6-bae8-65a9c8e373f6` channel
+
+====== Query Request Examples
+
+.Enterprise Contextual Query
+[source,json,linenums]
+----
+"data": {
+  "count": 250,
+  "format": "geojson",
+  "id": "4303ba5d-21af-4878-9a4c-808e80052e6c",
+  "cql": "anyText LIKE '*'",
+  "start": 1
+}
+----
+
+.Multiple Site Temporal Absolute Query
+[source,json,linenums]
+----
+"data": {
+  "count": 250,
+  "format": "geojson",
+  "id": "4303ba5d-21af-4878-9a4c-808e80052e6c",
+  "cql": "modified DURING 2014-09-01T00:00:00Z/2014-09-30T00:00:00Z",
+  "src": "${branding}-OS,${branding-lowercase}.distribution",
+  "start": 1
+}
+----
+
+.Enterprise Spatial Bounding Box Query
+[source,json,linenums]
+----
+"data": {
+  "count": 250,
+  "format": "geojson",
+  "id": "4303ba5d-21af-4878-9a4c-808e80052e6c",
+  "cql": "INTERSECTS(anyGeo, POLYGON ((-112.7786 32.2159, -112.7786 45.6441, -83.7297 45.6441, -83.7297 32.2159, -112.7786 32.2159)))",
+  "start": 1
+}
+----
+
+====== Query Response Channel
+
+The query responses are returned on the `/<id>` channel, which should be subscribed to in order to retrieve the results.
+Replace `<id>` with the id that was used in the request.
+The <<_asynchronous_search_subscribing, Subscribing to Notifications>> section details how to subscribe to a CometD channel.
+
+The response is returned as a data map that contains an internal map with the following keys:
+
+.Query Response Message Format
+[cols="1m,3,1" options="header"]
+|===
+|Map Key
+|Description
+|Value Type
+
+|id
+|ID that corresponds to the request.
+|String
+
+|hits
+|Total number of query hits that were found by the server. Depending on the 'count' in the request, not all of the results may be returned.
+|Integer >= 0
+
+|results
+|Array of metacard results, formatted as defined by the GeoJSON Metacard Transformer.
+|Array of Maps
+
+|results/metacard/is-resource-local
+|A property indicating whether a metacard's associated resource is cached.
+|Boolean
+
+|results/metacard/actions
+|An array of actions that applies to each metacard, injected into each metacard containing an id, title, description, and url.
+|Array of Maps
+
+|status
+|Array of status for each source queried.
+|Array
+
+|status.state
+|Specifies the state of the query: SUCCEEDED, FAILED, ACTIVE.
+|String
+
+|status.elapsed
+|Time in milliseconds that it took for the source to complete the request.
+|Integer >= 0
+
+|status.hits
+|Number of records that were found on the source that matched the query
+|Integer >= 0
+
+|status.id
+|ID of the federated source
+|String
+
+|status.results
+|Number of results that were returned in this response from the source
+|Integer >= 0
+
+|types
+|A Map mapping a metacard-type's name to a map about that metacard-type. Only metacard-types represented by the metacards returned in the query are represented. The Map defining a particular `metacard-type` maps the fields supported by that `metacardtype` to the datatype for that particular field.
+|Map of Maps
+
+|===
+
+====== Query Response Examples
+
+.Example Query Response
+[source,json,xml]
+----
+{
+   "data": {
+      "hits": 1,
+      "metacard-types": {
+         "ddf.metacard": {...}
+      },
+      "id": "6f0e04e9-acd1-4935-b9dd-c83e770a36d5",
+      "results": [
+         {
+            "metacard": {
+               "is-resource-local": false,
+               "cached": "2016-07-13T19:22:18.220+0000",
+               "geometry": {
+                  "coordinates": [
+                     -84.415337,
+                     42.729925
+                  ],
+                  "type": "Point"
+               },
+               "type": "Feature",
+               "actions": [...],
+               "properties": {
+                  "thumbnail": "...",
+                  "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><metadata>...</metadata>",
+                  "resource-size": "362417",
+                  "created": "2010-06-10T12:07:26.000+0000",
+                  "resource-uri": "content:faade630a2a247468ca9a9b57303b437",
+                  "metacard-tags": [
+                     "resource"
+                  ],
+                  "checksum-algorithm": "Adler32",
+                  "metadata-content-type": "image/jpeg",
+                  "metacard-type": "ddf.metacard",
+                  "resource-download-url": "${secure_url}services/catalog/sources/ddf.distribution/faade630a2a247468ca9a9b57303b437?transform=resource",
+                  "title": "example.jpg",
+                  "source-id": "ddf.distribution",
+                  "effective": "2016-07-13T19:22:06.966+0000",
+                  "point-of-contact": "",
+                  "checksum": "dc7337c5",
+                  "modified": "2010-06-10T12:07:26.000+0000",
+                  "id": "faade630a2a247468ca9a9b57303b437"
+               }
+            }
+         }
+      ],
+      "status": [
+         {
+            "hits": 1,
+            "elapsed": 453,
+            "reasons": [],
+            "id": "ddf.distribution",
+            "state": "SUCCEEDED",
+            "results": 1
+         }
+      ],
+      "successful": true
+   },
+   "channel": "/6f0e04e9-acd1-4935-b9dd-c83e770a36d5"
+},
+{
+   "successful": true
+},
+{
+   "channel": "/service/query",
+   "id": "142",
+   "successful": true
+}
+----
+
+====== CometD Notifications
+
+Notifications are messages that are sent to clients to inform them of some significant event happening.
+Clients must subscribe to a notification channel to receive these messages.
+
+Notifications are published by the server on several notification channels depending on the type.
+
+* subscribing to `/${branding-lowercase}/notifications/**` will cause the client to receive all notifications.
+* subscribing to `/${branding-lowercase}/notifications/catalog/downloads` will cause the client to only receive notifications of downloads.
+
+====== Using CometD Notifications
+
+[NOTE]
+====
+The ${branding} Search UI serves as a reference implementation of how clients can use notifications.
+====
+
+Notifications are currently being utilized in the Catalog application for resource retrieval.
+When a user initiates a resource retrieval, the channel `/ddf/notification/catalog/downloads` is opened, where notifications indicating the progress of that resource download are sent.
+Any client interested in receiving these progress notifications must subscribe to that channel.
+
+${branding} starts downloading the resource to the client that requested it, a notification with a status of "Started" will be broadcast.
+If the resource download fails, a notification with a status of "Failed" will be broadcast.
+Or, if the resource download is being attempted again after a failure, "Retry" will be broadcast.
+When a notification is received, ${branding} Search UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.
+Behind the scenes, the ${branding} Search UI invokes the REST endpoint to retrieve a resource.
+
+In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.
+This allows the CometD server to know which subscriber is interested in the notification.
+For example, `\http://${branding}_HOST:8181/services/catalog/sources/${branding-lowercase}.distribution/2f5db9e5131444279a1293c541c106cd?
+  transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55` notifications contain the following information:
+
+.[[_notification_contents]]Notification Contents
+[cols="1m,3,1" options="header"]
+|===
+|Property Name
+|Description
+|Always Included with Notification
+
+|application
+|Name of the application that caused the notification to be sent.
+|Yes
+
+|id
+|ID of the notification "thread" – Notifications about the same event should use the same id to allow clients to filter out notifications that may be outdated.
+|Yes
+
+|title
+|Resource/file name for resource retrieval.
+|Yes
+
+|message
+|Human-readable message containing status details.
+|Yes
+
+|timestamp
+|Timestamp in milliseconds when notification was sent.
+|Yes
+
+|session
+|CometD Session ID or unique User ID.
+|Yes
+
+|===
+
+.Example: Notification Message
+[source,json,linenums]
+----
+"data": {
+	"application": "Downloads",
+	"title": "Product retrieval successful",
+	"message": "The requested product was retrieved successfully
+		and is available for download.",
+	"id": "27ec3222af1144ff827a351b1962a236",
+	"timestamp": "1403734355420",
+	"user": "admin"
+}
+----
+
+====== Receive Notifications
+
+* If interested in retrieve resource notifications, a client must subscribe to the CometD channel `/ddf/notification/catalog/downloads`.
+* If interested in all notification types, a client must subscribe to the CometD channel `/ddf/notification/**`
+* A client will only receive notifications for resources they have requested.
+* Standard UI is subscribed to all notifications of interest to that user/browser session: `/ddf/notification/**`
+* See <<_notification_contents,Notification Contents>> for the data that a notification contains.
+
+====== Notification Events
+
+Notifications are messages sent to clients to inform them of a significant event happening.
+Clients must subscribe to a notification channel to receive these messages.
+
+====== Persistence of Notifications
+
+Notifications are persisted between sessions, however due to the nature of CometD communications, they will not be visible at first connection/subscription to ``/${ddf-branding-lowercase}/notifications/**``.
+
+In order to retrieve notifications that were persisted or may have occurred since the previous session a client simply must publish an empty json message, `{}` to `/${ddf-branding-lowercase}/notifications`.
+This will return all existing notifications to the user.
+
+====== Notification Operations Channel
+
+Notification Operations are commands that change the behavior of future notifications.
+A notification operation is performed by publishing a list of commands to the CometD endpoint at `/notification/action`
+
+.Operation Format
+[cols="1m,2,1" options="header"]
+|===
+|Map Key
+|Description
+|Value Type
+
+|action
+|Type of action to request. +
+If a client publishes with the `remove` action, it dismisses the notification and makes it unavailable again when notifications are retrieved. "remove" is currently only used action.
+|String
+
+|id
+|ID of the notification to which the action relates
+|String
+
+|===
+
+.Example: Notification Operation Request
+[source,json,linenums]
+----
+"data": [ {
+	"action": "remove",
+ 	"id": "27ec3222af1144ff827a351b1962a236"
+} ]
+----
+
+====== Activity Events Channel
+
+To receive all activity updates, follow the instructions at <<asynchronous_search_subscribing, Subscribing to Notifications>> and subscribe to `/ddf/activities/**`
+
+Activity update messages follow a specific format when they are published to the activities channel.
+These messages contain a data map that encapsulates the activity information.
+
+.CometD Activity Format
+[cols="1m,3,1" options="header"]
+|===
+|Property
+|Description
+|Value Type
+
+|category
+|Category of the activity
+|String
+
+|id
+|ID that uniquely identifies the activity that sent out the update. Not required
+to be unique per update.
+|String
+
+|message
+|User-readable message that explains the current activity status
+|String
+
+|operations
+|Map of operations that can be performed on this activity. +
+If the value is a URL, the client should invoke the URL as a result of the user invoking the activity operation.
+
+If the value is not a URL, the client should send a message back to the server on the same topic with the operation name.
+
+Note: the ${ddf-branding} UI will interpret several values with special icons: +
+
+* `cancel` +
+* `download` +
+* `remove`
+
+|JSON Map
+
+|progress
+|Percentage value of activity completion
+|String (Integer between 0 - 100 followed by a %)
+
+|status
+|Enumerated value that displays the current state of the activity
+|String
++
+* `STARTED` +
+* `RUNNING` +
+* `COMPLETED` +
+* `STOPPED` +
+* `PAUSED` +
+* `FAILED`
+
+|timestamp
+|Time that the activity update was sent
+|Date-Time
+
+|title
+|User-readable title for the activity update
+|String
+
+|subject
+|User who started the activity
+|String
+
+|bytes
+|Number of bytes the activity consumed (upload or download)
+|Positive Integer
+
+|session
+|The session ID of the user/subject
+|String
+
+|Custom Value
+|Additional keys can be inserted by the component sending the activity notification
+|Any JSON Type
+
+|===
+
+.Example: Activity update with custom 'bytes' field
+[source,json,linenums]
+----
+data: {
+  "category": "Product Retrieval",
+  "id": "a62f6666-fc41-4a19-91f1-485e73a564b5",
+  "message": "The requested product is being retrieved. Standby.",
+  "operations": {
+    "cancel" : true
+  },
+  "progress": "45",
+  "status": "RUNNING",
+  "timestamp": "1403801920875",
+  "title": "Product downloading",
+  "user": "admin",
+  "bytes": 635084800
+}
+----
+
+====== Activity Operations Channel
+
+Different operations can be performed on activities through the `/service/action` channel.
+
+.CometD Activity Format
+[cols="1m,2,1,2" options="header"]
+|===
+|Map Key
+|Description
+|Value Type
+
+|action
+|The requested action. This value is based on the operations map that comes in from an activity event.
+|String
+
+* "cancel" +
+* "download" +
+* "remove"
+
+|id
+|ID of the activity to which the requested operation relates
+|String
+
+|===
+
+.Example: Activity Operation Request Message
+[source,json,linenums]
+----
+"data": [ {
+	"action":"cancel",
+ 	"id":"a62f6666-fc41-4a19-91f1-485e73a564b5"
+} ]
+----

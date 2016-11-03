@@ -1,0 +1,46 @@
+
+.Endpoints
+[ditaa, catalog_architecture_endpoints, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |c369Endpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                +-------------------+                       |
+|                |cDEF               |                       |
+|                | Storage Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+Endpoints act as a proxy between the client and the <<_catalog_framework, Catalog Framework.>>
+
+Endpoints expose the Catalog Framework to clients using protocols and formats that the clients understand.
+
+Endpoint interface formats/protocols can include a variety of formats, including (but not limited to):
+
+* SOAP Web services
+* RESTful services
+* JMS
+* JSON
+* OpenSearch
+
+The endpoint may transform a client request into a compatible Catalog format and then transform the response into a compatible client format.
+Endpoints may use Transformers to perform these transformations.
+This allows an endpoint to interact with Source(s) that have different interfaces.
+For example, an OpenSearch Endpoint can send a query to the Catalog Framework, which could then query a federated source that has no OpenSearch interface.
+
+Endpoints are meant to be the only client-accessible components in the Catalog.
+
