@@ -13,11 +13,9 @@
  **/
 package org.codice.ddf.ui.searchui.query.endpoint;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
 
-import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import org.codice.ddf.persistence.PersistentStore;
@@ -45,54 +43,39 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 
 /**
- * The CometdEndpoint binds the SearchService and the CometdServlet together. 
+ * The CometdEndpoint binds the SearchService and the CometdServlet together.
  * This is where the asynchronous endpoint is initially started.
  */
-public class CometdEndpoint {
+public class CometdEndpoint extends CometDServlet {
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpoint.class);
 
-    private final CometDServlet cometdServlet;
+    private final transient FilterBuilder filterBuilder;
 
-    private final FilterBuilder filterBuilder;
+    private transient BayeuxServer bayeuxServer;
 
-    BayeuxServer bayeuxServer;
+    transient NotificationController notificationController;
 
-    NotificationController notificationController;
+    private transient ActivityController activityController;
 
-    ActivityController activityController;
+    private transient SearchService searchService;
 
-    SearchService searchService;
+    private transient PersistentStore persistentStore;
 
-    UserService userService;
-
-    WorkspaceService workspaceService;
-
-    PersistentStore persistentStore;
-
-    private SearchController searchController;
-
-    private ServerAnnotationProcessor cometdAnnotationProcessor;
-
-    private BundleContext bundleContext;
+    private transient SearchController searchController;
 
     /**
      * Create a new CometdEndpoint
      *
-     * @param cometdServlet
-     *            - CometdServlet to bind to the SearchService. This field must not be null.
-     * @param framework
-     *            - CatalogFramework to use for query requests
-     * @param filterBuilder
-     *            - FilterBuilder for the SearchService to use
+     * @param framework     - CatalogFramework to use for query requests
+     * @param filterBuilder - FilterBuilder for the SearchService to use
      */
-    public CometdEndpoint(CometDServlet cometdServlet, CatalogFramework framework,
-            FilterBuilder filterBuilder, FilterAdapter filterAdapter,
-            PersistentStore persistentStore, BundleContext bundleContext, EventAdmin eventAdmin,
-            ActionRegistry actionRegistry, ExecutorService executorService) {
+    public CometdEndpoint(CatalogFramework framework, FilterBuilder filterBuilder,
+            FilterAdapter filterAdapter, PersistentStore persistentStore,
+            BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry,
+            ExecutorService executorService) {
         LOGGER.trace("Constructing Cometd Endpoint");
-        this.bundleContext = bundleContext;
-        this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
         this.searchController = new SearchController(framework,
                 actionRegistry,
@@ -105,22 +88,20 @@ public class CometdEndpoint {
         this.activityController = new ActivityController(persistentStore,
                 bundleContext,
                 eventAdmin);
+
         LOGGER.trace("Exiting CometdEndpoint constructor. ");
     }
 
-    public void init() throws ServletException {
-        Dictionary<String, String> properties = new Hashtable<>();
-        properties.put("alias", "/search/cometd");
-        properties.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none");
-        properties.put("org.eclipse.jetty.servlet.SessionPath", "/");
-        properties.put("load-on-startup", "1");
-        properties.put("async-supported", "true");
-        bundleContext.registerService(Servlet.class, cometdServlet, properties);
-        bayeuxServer = (BayeuxServer) cometdServlet.getServletContext()
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+
+        bayeuxServer = (BayeuxServer) config.getServletContext()
                 .getAttribute(BayeuxServer.ATTRIBUTE);
 
         if (bayeuxServer != null) {
-            cometdAnnotationProcessor = new ServerAnnotationProcessor(bayeuxServer);
+            ServerAnnotationProcessor cometdAnnotationProcessor = new ServerAnnotationProcessor(
+                    bayeuxServer);
 
             //TODO: don't do this, we need some sort of policy
             bayeuxServer.setSecurityPolicy(new DefaultSecurityPolicy() {
@@ -160,8 +141,8 @@ public class CometdEndpoint {
 
             searchController.setBayeuxServer(bayeuxServer);
             searchService = new SearchService(filterBuilder, searchController);
-            userService = new UserService(persistentStore);
-            workspaceService = new WorkspaceService(persistentStore);
+            UserService userService = new UserService(persistentStore);
+            WorkspaceService workspaceService = new WorkspaceService(persistentStore);
             cometdAnnotationProcessor.process(userService);
             cometdAnnotationProcessor.process(workspaceService);
             cometdAnnotationProcessor.process(searchService);
