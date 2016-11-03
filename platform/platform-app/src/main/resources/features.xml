@@ -726,6 +726,12 @@
         <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
     </feature>
 
+    <feature name="platform-country-local" install="manual" version="${project.version}"
+             description="Service to convert country codes into various formats by performing a local lookup.">
+        <bundle>mvn:ddf.platform.country/platform-country-converter-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.country/platform-country-converter-local/${project.version}</bundle>
+    </feature>
+
     <feature name="action-core-api" install="manual" version="${project.version}"
              description="DDF Action API">
         <bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>

@@ -1,0 +1,21 @@
+==== Country Code Converter
+
+In the Platform Application, you have the option to install a feature called `platform-country-local`.
+This feature provides an OSGi service to convert country codes into various formats by performing a local lookup.
+
+This feature works by loading in a static properties file containing the FIPS 10-4 to ISO 3166-1 alpha 3 country code mappings and builds multi maps from the mappings to perform the conversions. The mappings file can be found at: ${branding-lowercase}.home/etc/fipsToIso.properties and should only be modified in the case the mappings would ever change. If the country code mappings file needs to be modified, it's required to restart the feature's bundle in order for the service to pick up on the new changes.
+The mappings file contains each mapping in the following format, where the country on the left side of the equals sign is FIPS 10-4 and the country or countries on the right side of the equals sign is ISO 3166-1 alpha 3, and a new line separating each mapping:
+
+* If there is a single FIPS 10-4 country that maps to a single ISO 3166-1 alpha 3 country: AB=ABC
+
+* If there is a single FIPS 10-4 country that maps to multiple ISO 3166-1 alpha 3 countries: ZZ=ZZZ,YYY
+
+===== Installing Country Code Converter
+
+The Country Code Converter is not installed by default with a standard installation.
+To install:
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-platform}* application.
+. Select the *Features* tab.
+. Install the `platform-country-local` feature.
