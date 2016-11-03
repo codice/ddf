@@ -14,35 +14,21 @@
 package ddf.camel.component.catalog.content;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.WatchEvent;
+import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
-import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.impl.DefaultProducer;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
-
 import ddf.catalog.Constants;
-import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.content.data.impl.ContentItemImpl;
-import ddf.catalog.content.operation.CreateStorageRequest;
-import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolutionException;
 
 public class ContentProducer extends DefaultProducer {
     public static final int KB = 1024;
@@ -53,7 +39,13 @@ public class ContentProducer extends DefaultProducer {
 
     private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 1 * MB;
 
+    private final FileSystemPersistenceProvider fileIdMap = new FileSystemPersistenceProvider(
+            "processed");
+
     private ContentEndpoint endpoint;
+
+    ContentProducerDataAccessObject contentProducerDataAccessObject =
+            new ContentProducerDataAccessObject();
 
     /**
      * Constructs the {@link org.apache.camel.Producer} for the custom Camel ContentComponent. This producer would
@@ -65,13 +57,13 @@ public class ContentProducer extends DefaultProducer {
         super(endpoint);
         this.endpoint = endpoint;
 
-        LOGGER.debug("INSIDE: ContentProducer constructor");
+        LOGGER.trace("INSIDE: ContentProducer constructor");
     }
 
     @Override
     public void process(Exchange exchange)
             throws ContentComponentException, SourceUnavailableException, IngestException {
-        LOGGER.debug("ENTERING: process");
+        LOGGER.trace("ENTERING: process");
 
         if (!exchange.getPattern()
                 .equals(ExchangePattern.InOnly)) {
@@ -79,99 +71,37 @@ public class ContentProducer extends DefaultProducer {
         }
 
         Message in = exchange.getIn();
-        Object body = in.getBody();
-        File ingestedFile;
 
-        if (body instanceof GenericFile) {
-            GenericFile<File> genericFile = (GenericFile<File>) body;
-            ingestedFile = genericFile.getFile();
-        } else {
-            throw new ContentComponentException(
-                    "Unable to cast message body to Camel GenericFile, so unable to process ingested file");
-        }
+        Map<String, Object> headers = exchange.getIn()
+                .getHeaders();
+
+        boolean storeRefKey = headers.containsKey(Constants.STORE_REFERENCE_KEY);
+
+        File ingestedFile = contentProducerDataAccessObject.getFileUsingRefKey(storeRefKey, in);
+
+        WatchEvent.Kind<Path> eventType = contentProducerDataAccessObject.getEventType(storeRefKey,
+                in);
 
         if (ingestedFile == null) {
-            LOGGER.debug("EXITING: process - ingestedFile is NULL");
+            LOGGER.trace("EXITING: process - ingestedFile is NULL");
             return;
         }
 
-        String fileExtension = FilenameUtils.getExtension(ingestedFile.getAbsolutePath());
+        String mimeType = contentProducerDataAccessObject.getMimeType(endpoint, ingestedFile);
 
-        String mimeType;
-        MimeTypeMapper mimeTypeMapper = endpoint.getComponent()
-                .getMimeTypeMapper();
-        if (mimeTypeMapper != null) {
-            try (InputStream inputStream = Files.asByteSource(ingestedFile)
-                    .openStream()) {
-                if (fileExtension.equals("xml")) {
-                    mimeType = mimeTypeMapper.guessMimeType(inputStream, fileExtension);
-                } else {
-                    mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
-                }
+        LOGGER.trace("Preparing content item for mimeType = {}", mimeType);
 
-            } catch (MimeTypeResolutionException | IOException e) {
-                throw new ContentComponentException(e);
-            }
-        } else {
-            LOGGER.info("Did not find a MimeTypeMapper service");
-            throw new ContentComponentException(
-                    "Unable to find a mime type for the ingested file " + ingestedFile.getName());
+        if (StringUtils.isEmpty(mimeType)) {
+            mimeType = "application/octet-stream";
         }
 
-        LOGGER.debug("Preparing content item for mimeType = {}", mimeType);
+        contentProducerDataAccessObject.createContentItem(fileIdMap,
+                endpoint,
+                ingestedFile,
+                eventType,
+                mimeType,
+                headers);
 
-        if (StringUtils.isNotEmpty(mimeType)) {
-            ContentItem newItem;
-            newItem = new ContentItemImpl(Files.asByteSource(ingestedFile),
-                    mimeType,
-                    ingestedFile.getName(),
-                    null);
-
-            LOGGER.debug("Creating content item.");
-
-            CreateStorageRequest createRequest =
-                    new CreateStorageRequestImpl(Collections.singletonList(newItem), null);
-
-            String attributeOverrideHeaders = (String) exchange.getIn()
-                    .getHeaders().get(Constants.ATTRIBUTE_OVERRIDES_KEY);
-            createRequest.getProperties().put(Constants.ATTRIBUTE_OVERRIDES_KEY, createAttributeOverrideMapFromHeaders(attributeOverrideHeaders));
-
-            CreateResponse createResponse = endpoint.getComponent()
-                    .getCatalogFramework()
-                    .create(createRequest);
-            if (createResponse != null) {
-                List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
-
-                if (LOGGER.isDebugEnabled()) {
-                    for (Metacard metacard : createdMetacards) {
-                        LOGGER.debug("content item created with id = {}", metacard.getId());
-                    }
-                }
-            }
-        } else {
-            LOGGER.debug("mimeType is NULL");
-            throw new ContentComponentException(
-                    "Unable to determine mime type for the file " + ingestedFile.getName());
-        }
-
-        LOGGER.debug("EXITING: process");
+        LOGGER.trace("EXITING: process");
     }
-
-    private HashMap<String, String> createAttributeOverrideMapFromHeaders(
-            String attributeOverrideHeaders) {
-
-        HashMap<String, String> attributeOverrideMap = null;
-        if (StringUtils.isNotBlank(attributeOverrideHeaders)) {
-            attributeOverrideMap = new HashMap<>();
-            String[] attribute = attributeOverrideHeaders.split(",");
-            for (String string : attribute) {
-                String[] keyValuePair = string.split("=");
-                if (keyValuePair.length == 2) {
-                    attributeOverrideMap.put(keyValuePair[0], keyValuePair[1]);
-                }
-            }
-        }
-        return attributeOverrideMap;
-    }
-
 }

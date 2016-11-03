@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.content.monitor;
 
 import static org.codice.ddf.security.common.Security.runAsAdmin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +49,18 @@ import net.jodah.failsafe.RetryPolicy;
 public class ContentDirectoryMonitor implements DirectoryMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
 
+    private static final Logger INGEST_LOGGER =
+            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
+
     private String monitoredDirectory = null;
 
-    private boolean copyIngestedFiles = false;
+    private String processingMechanism = DELETE;
+
+    public static final String DELETE = "delete";
+
+    public static final String MOVE = "move";
+
+    public static final String IN_PLACE = "in_place";
 
     private final CamelContext camelContext;
 
@@ -109,13 +119,13 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         if (routeCollection != null) {
             try {
                 // This stops the route before trying to remove it
-                LOGGER.debug("Removing {} routes", routeCollection.size());
+                LOGGER.trace("Removing {} routes", routeCollection.size());
                 camelContext.removeRouteDefinitions(routeCollection);
             } catch (Exception e) {
                 LOGGER.debug("Unable to remove Camel routes from Content Directory Monitor", e);
             }
         } else {
-            LOGGER.debug("No routes to remove before configuring a new route");
+            LOGGER.trace("No routes to remove before configuring a new route");
         }
 
         runAsAdmin(this::configure);
@@ -138,21 +148,22 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      * is shared across all Content Directory Monitors.
      */
     public void destroy(int code) {
-        List<RouteDefinition> routeDefinitions = camelContext.getRouteDefinitions();
+        List<RouteDefinition> routeDefinitions =
+                new ArrayList<>(camelContext.getRouteDefinitions());
         for (RouteDefinition routeDef : routeDefinitions) {
             try {
                 String routeId = routeDef.getId();
                 if (isMyRoute(routeId)) {
-                    LOGGER.debug("Stopping route with ID = {} and path {}",
+                    LOGGER.trace("Stopping route with ID = {} and path {}",
                             routeId,
                             monitoredDirectory);
                     camelContext.stopRoute(routeId);
                     boolean status = camelContext.removeRoute(routeId);
-                    LOGGER.debug("Status of removing route {} is {}", routeId, status);
+                    LOGGER.trace("Status of removing route {} is {}", routeId, status);
                     camelContext.removeRouteDefinition(routeDef);
                 }
             } catch (Exception e) {
-                LOGGER.warn("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
+                LOGGER.debug("Unable to stop Camel route with route ID = {}", routeDef.getId(), e);
             }
         }
     }
@@ -167,7 +178,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     public void updateCallback(Map<String, Object> properties) {
         if (properties != null) {
             setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
-            setCopyIngestedFiles((Boolean) properties.get("copyIngestedFiles"));
+            setProcessingMechanism((String) properties.get("processingMechanism"));
             String[] parameterArray = (String[]) properties.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
             if (parameterArray != null) {
                 setAttributeOverrides(Arrays.asList(parameterArray));
@@ -184,10 +195,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     /**
-     * @param copyIngestedFiles - flag to copy ingested files
+     * @param processingMechanism - what to do with the files after ingest
      */
-    public void setCopyIngestedFiles(boolean copyIngestedFiles) {
-        this.copyIngestedFiles = copyIngestedFiles;
+    public void setProcessingMechanism(String processingMechanism) {
+        this.processingMechanism = processingMechanism;
     }
 
     /**
@@ -207,17 +218,16 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         automatically start after a system shutdown.
      */
     private void attemptAddRoutes() {
-        LOGGER.debug("Attempting to add routes for content directory monitor watching {}",
+        LOGGER.trace("Attempting to add routes for content directory monitor watching {}",
                 monitoredDirectory);
-        RouteBuilder routeBuilder = createRouteBuilder();
         try {
+            RouteBuilder routeBuilder = createRouteBuilder();
             verifyContentCamelComponentIsAvailable();
             camelContext.addRoutes(routeBuilder);
             setRouteCollection(routeBuilder);
         } catch (Exception e) {
-            LOGGER.warn("{} {}",
-                    "Unable to configure Camel route.",
-                    "This content directory monitor will be unusable.");
+            LOGGER.info("Unable to configure Camel route.", e);
+            INGEST_LOGGER.warn("Unable to configure Camel route.", e);
         } finally {
             if (LOGGER.isDebugEnabled()) {
                 dumpCamelContext("after attemptAddRoutes()");
@@ -232,10 +242,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         Failsafe.with(new RetryPolicy().retryWhen(null)
                 .withMaxRetries(maxRetries)
                 .withDelay(delayBetweenRetries, TimeUnit.SECONDS))
-            .withFallback(() -> {
-                throw new IllegalStateException("Could not get Camel component 'content'");
-            })
-            .get(() -> camelContext.getComponent("content"));
+                .withFallback(() -> {
+                    throw new IllegalStateException("Could not get Camel component 'content'");
+                })
+                .get(() -> camelContext.getComponent("content"));
     }
 
     /*
@@ -263,13 +273,20 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 // Configure the camel route to ignore changing file (larger files that are in the process of being copied)
                 // Set the readLockTimeout to continuously poll the directory so long as the directory monitor exists
                 // Set the readLockCheckInterval to check every 5 seconds
-                String inbox = "file:" + monitoredDirectory + "?moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval=5000";
-                if (copyIngestedFiles) {
-                    inbox += "&move=.ingested";
-                } else {
+                String inbox = "file:" + monitoredDirectory
+                        + "?recursive=true&moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval=5000";
+                switch (processingMechanism) {
+                case DELETE:
                     inbox += "&delete=true";
+                    break;
+                case MOVE:
+                    inbox += "&move=.ingested";
+                    break;
+                case IN_PLACE:
+                    inbox = "durable:" + monitoredDirectory;
+                    break;
                 }
-                LOGGER.debug("inbox = {}", inbox);
+                LOGGER.trace("inbox = {}", inbox);
 
                 RouteDefinition routeDefinition = from(inbox);
 
@@ -279,6 +296,11 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                             .collect(Collectors.joining(","));
                     routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY,
                             simple(attributeOverrideString));
+                }
+                if (IN_PLACE.equals(processingMechanism)) {
+                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY,
+                            simple(String.valueOf(IN_PLACE.equals(processingMechanism)),
+                                    Boolean.class));
                 }
 
                 LOGGER.trace("About to process scheme content:framework");

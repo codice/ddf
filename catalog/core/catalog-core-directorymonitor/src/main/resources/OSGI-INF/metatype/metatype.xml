@@ -21,14 +21,19 @@
             name="Directory Path" id="monitoredDirectoryPath" required="true"
             type="String" default=""/>
 
-        <AD description="Optional: Copy the ingested files into a backup directory under the monitored directory named /.ingested  -  NOTE: this will double the amount of disk space required for ingested files in this monitored directory if its Processing Directive includes storing the file in the DDF Content Repository."
-            name="Copy Files to Backup Directory" id="copyIngestedFiles" required="false"
-            type="Boolean" default="false"/>
+        <AD description="Choose what happens to the content item after it is ingested. Delete will remove the original file after storing it in the content store. Move will store the item in the content store, and a copy under ./ingested, then remove the original file. (NOTE: this will double the amount of disk space used.) Monitor in place will index the file and serve it from its original location."
+            name="Processing Mechanism" id="processingMechanism" required="false"
+            type="String" default="in_place">
+            <Option label="Delete" value="delete"/>
+            <Option label="Move" value="move"/>
+            <Option
+                    label="Monitor in place" value="in_place"/>
+        </AD>
 
-        <AD description="Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the content monitor.  If an attribute is specified here, it will overwrite the metacard's attribute that was created from the content directory.   The format should be 'key=value'."
+        <AD description="Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the content monitor.  If an attribute is specified here, it will overwrite the metacard's attribute that was created from the content directory.   The format should be 'key=value'. To specify multiple values for a key, add each value as a separate Key-Value pair."
             name="Attribute Overrides" id="attributeOverrides" required="false" type="String"
             cardinality="100"
-            default="" />
+            default=""/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"

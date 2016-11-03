@@ -41,8 +41,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import net.jodah.failsafe.Failsafe;
@@ -50,8 +48,6 @@ import net.jodah.failsafe.RetryPolicy;
 
 @RunWith(JUnit4.class)
 public class ContentDirectoryMonitorTest extends CamelTestSupport {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitorTest.class);
-
     private static final String PROTOCOL = "file://";
 
     private static final String DUMMY_DATA = "Dummy data in a text file. ";
@@ -69,31 +65,35 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private CamelContext camelContext;
 
+    private ContentDirectoryMonitor monitor;
+
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setup() throws Exception {
         monitoredDirectory = temporaryFolder.newFolder("inbox");
-        monitoredDirectoryPath = monitoredDirectory.getAbsolutePath();
+        monitoredDirectoryPath = monitoredDirectory.getCanonicalPath();
 
         camelContext = super.createCamelContext();
         camelContext.start();
 
         MockComponent contentComponent = new MockComponent();
         camelContext.addComponent("content", contentComponent);
+
+        monitor = createContentDirectoryMonitor();
     }
 
     @After
     public void destroy() throws Exception {
+        monitor.destroy(0);
         camelContext.stop();
     }
 
     @Test
     public void testRouteCreationWithoutContentComponent() throws Exception {
         camelContext.removeComponent("content");
-        ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
-        submitConfigOptions(monitor, monitoredDirectoryPath, false);
+        submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.DELETE);
         assertThat("The content directory monitor should not have any route definitions",
                 monitor.getRouteDefinitions(),
                 empty());
@@ -104,29 +104,32 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     @Test
     public void testRouteCreationWithCopyIngestedFiles() throws Exception {
-        testRouteCreationWithGivenCopyStatus(true);
+        testRouteCreationWithGivenCopyStatus(ContentDirectoryMonitor.MOVE);
     }
 
     @Test
     public void testRouteCreationWithoutCopyIngestedFiles() throws Exception {
-        testRouteCreationWithGivenCopyStatus(false);
+        testRouteCreationWithGivenCopyStatus(ContentDirectoryMonitor.DELETE);
     }
 
-    private void testRouteCreationWithGivenCopyStatus(boolean copyIngestedFiles) throws Exception {
-        ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
-        submitConfigOptions(monitor, monitoredDirectoryPath, copyIngestedFiles);
+    @Test
+    public void testRouteCreationWithKeepIngestedFiles() throws Exception {
+        testRouteCreationWithGivenCopyStatus(ContentDirectoryMonitor.IN_PLACE);
+    }
+
+    private void testRouteCreationWithGivenCopyStatus(String processingMechanism) throws Exception {
+        submitConfigOptions(monitor, monitoredDirectoryPath, processingMechanism);
         assertThat("The content directory monitor should only have one route definition",
                 monitor.getRouteDefinitions(),
                 hasSize(1));
         RouteDefinition routeDefinition = monitor.getRouteDefinitions()
                 .get(0);
-        verifyRoute(routeDefinition, monitoredDirectoryPath, copyIngestedFiles);
+        verifyRoute(routeDefinition, monitoredDirectoryPath, processingMechanism);
     }
 
     @Test
     public void testMoveFile() throws Exception {
-        ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
-        submitConfigOptions(monitor, monitoredDirectoryPath, true);
+        submitConfigOptions(monitor, monitoredDirectoryPath, ContentDirectoryMonitor.MOVE);
         doAndVerifyFileMove(monitoredDirectory, monitoredDirectory, "input1.txt");
     }
 
@@ -135,12 +138,14 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         File monitoredDirectory1 = temporaryFolder.newFolder("inbox1");
         File monitoredDirectory2 = temporaryFolder.newFolder("inbox2");
 
-        ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
-
-        submitConfigOptions(monitor, monitoredDirectory1.getAbsolutePath(), true);
+        submitConfigOptions(monitor,
+                monitoredDirectory1.getCanonicalPath(),
+                ContentDirectoryMonitor.MOVE);
         doAndVerifyFileMove(monitoredDirectory1, monitoredDirectory1, "input1.txt");
 
-        submitConfigOptions(monitor, monitoredDirectory2.getAbsolutePath(), true);
+        submitConfigOptions(monitor,
+                monitoredDirectory2.getCanonicalPath(),
+                ContentDirectoryMonitor.MOVE);
         doAndVerifyFileMove(monitoredDirectory2, monitoredDirectory2, "input2.txt");
 
         doAndVerifyFileDidNotMove(monitoredDirectory1, monitoredDirectory2, "input3.txt");
@@ -154,8 +159,12 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         ContentDirectoryMonitor monitor1 = createContentDirectoryMonitor();
         ContentDirectoryMonitor monitor2 = createContentDirectoryMonitor();
 
-        submitConfigOptions(monitor1, monitoredDirectory1.getAbsolutePath(), true);
-        submitConfigOptions(monitor2, monitoredDirectory2.getAbsolutePath(), true);
+        submitConfigOptions(monitor1,
+                monitoredDirectory1.getCanonicalPath(),
+                ContentDirectoryMonitor.MOVE);
+        submitConfigOptions(monitor2,
+                monitoredDirectory2.getCanonicalPath(),
+                ContentDirectoryMonitor.MOVE);
 
         doAndVerifyFileMove(monitoredDirectory1, monitoredDirectory1, "input1.txt");
         doAndVerifyFileMove(monitoredDirectory2, monitoredDirectory2, "input2.txt");
@@ -164,7 +173,10 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     @Test
     public void testDirectoryMonitorWithParameters() throws Exception {
         ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
-        submitConfigOptions(monitor, monitoredDirectoryPath, true, ATTRIBUTE_OVERRIDES);
+        submitConfigOptions(monitor,
+                monitoredDirectoryPath,
+                ContentDirectoryMonitor.MOVE,
+                ATTRIBUTE_OVERRIDES);
         RouteDefinition routeDefinition = camelContext.getRouteDefinitions()
                 .get(0);
         assertThat(routeDefinition.toString(),
@@ -174,8 +186,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     @Test
     public void testRouteCreationMissingMonitoredDirectory() throws Exception {
-        ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
-        submitConfigOptions(monitor, "", true);
+        submitConfigOptions(monitor, "", ContentDirectoryMonitor.MOVE);
         assertThat("Camel context should not have any route definitions",
                 camelContext.getRouteDefinitions(),
                 empty());
@@ -189,11 +200,11 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         doFileMove(destinationFolder, inputFileName);
         Failsafe.with(new RetryPolicy().retryWhen(false)
                 .withMaxRetries(MAX_CHECKS_FOR_FILE_COPY)
-                .withDelay(1, TimeUnit.SECONDS))
-            .withFallback(() -> {
-                throw new RuntimeException("File did not get moved in time");
-            })
-            .get(() -> verifyFileMovedToIngestedDirectory(monitoredFolder, inputFileName));
+                .withDelay(5, TimeUnit.SECONDS))
+                .withFallback(() -> {
+                    throw new RuntimeException("File did not get moved in time");
+                })
+                .get(() -> verifyFileMovedToIngestedDirectory(monitoredFolder, inputFileName));
 
         assertThat("File SHOULD have been moved to the /.ingested directory",
                 verifyFileMovedToIngestedDirectory(monitoredFolder, inputFileName),
@@ -211,7 +222,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private void doFileMove(File destinationFolder, String inputFileName) throws Exception {
         FileUtils.writeStringToFile(new File(destinationFolder, inputFileName), DUMMY_DATA);
-        template.sendBodyAndHeader(PROTOCOL + destinationFolder.getAbsolutePath(),
+        template.sendBodyAndHeader(PROTOCOL + destinationFolder.getCanonicalPath(),
                 DUMMY_DATA,
                 Exchange.FILE_NAME,
                 inputFileName);
@@ -219,44 +230,49 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private boolean verifyFileMovedToIngestedDirectory(File monitoredFolder, String fileName)
             throws Exception {
-        File target = new File(monitoredFolder.getAbsolutePath() + "/.ingested/" + fileName);
+        File target = new File(monitoredFolder.getCanonicalPath() + "/.ingested/" + fileName);
         return target.exists();
     }
 
     private void verifyRoute(RouteDefinition routeDefinition, String monitoredDirectory,
-            boolean copyIngestedFiles) {
+            String processingMechanism) {
         List<FromDefinition> fromDefinitions = routeDefinition.getInputs();
         assertThat(fromDefinitions.size(), is(1));
         String uri = fromDefinitions.get(0)
                 .getUri();
 
-        LOGGER.debug("uri = {}", uri);
-
-        String expectedUri = "file:" + monitoredDirectory + "?moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval=5000";
-        if (copyIngestedFiles) {
-            expectedUri += "&move=.ingested";
-        } else {
+        String expectedUri = "file:" + monitoredDirectory
+                + "?recursive=true&moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval=5000";
+        if (ContentDirectoryMonitor.DELETE.equals(processingMechanism)) {
             expectedUri += "&delete=true";
+        } else if (ContentDirectoryMonitor.MOVE.equals(processingMechanism)) {
+            expectedUri += "&move=.ingested";
+        } else if (ContentDirectoryMonitor.IN_PLACE.equals(processingMechanism)) {
+            expectedUri = "durable:" + monitoredDirectory;
         }
 
         assertThat(uri, equalTo(expectedUri));
         List<ProcessorDefinition<?>> processorDefinitions = routeDefinition.getOutputs();
-        assertThat(processorDefinitions.size(), is(2));
+        if (ContentDirectoryMonitor.IN_PLACE.equals(processingMechanism)) {
+            assertThat(processorDefinitions.size(), is(3));
+        } else {
+            assertThat(processorDefinitions.size(), is(2));
+        }
     }
 
     private void submitConfigOptions(ContentDirectoryMonitor monitor, String monitoredDirectory,
-            boolean copyIngestedFiles) throws Exception {
+            String processingMechanism) throws Exception {
         Map<String, Object> properties = new HashMap<>();
         properties.put("monitoredDirectoryPath", monitoredDirectory);
-        properties.put("copyIngestedFiles", copyIngestedFiles);
+        properties.put("processingMechanism", processingMechanism);
         monitor.updateCallback(properties);
     }
 
     private void submitConfigOptions(ContentDirectoryMonitor monitor, String monitoredDirectory,
-            boolean copyIngestedFiles, List<String> attributeOverrides) throws Exception {
+            String processingMechanism, List<String> attributeOverrides) throws Exception {
         Map<String, Object> properties = new HashMap<>();
         properties.put("monitoredDirectoryPath", monitoredDirectory);
-        properties.put("copyIngestedFiles", copyIngestedFiles);
+        properties.put("processingMechanism", processingMechanism);
         properties.put("attributeOverrides", attributeOverrides.toArray());
         monitor.updateCallback(properties);
     }

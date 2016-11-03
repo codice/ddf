@@ -189,6 +189,11 @@
             <artifactId>boon</artifactId>
             <version>0.33</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-directorymonitor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
