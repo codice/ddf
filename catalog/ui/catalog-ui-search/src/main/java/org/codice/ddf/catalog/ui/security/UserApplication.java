@@ -91,13 +91,12 @@ public class UserApplication implements SparkApplication {
             List<Map<String, Object>> preferencesList =
                     persistentStore.get(PersistentStore.PREFERENCES_TYPE, filter);
             if (preferencesList.size() == 1) {
-                String json = (String) preferencesList.get(0)
+                byte[] json = (byte[]) preferencesList.get(0)
                         .get("preferences_json_bin");
 
                 return JsonFactory.create()
                         .parser()
-                        .parseMap(Base64.getDecoder()
-                                .decode(json));
+                        .parseMap(new String(json, Charset.defaultCharset()));
             }
         } catch (PersistenceException e) {
             LOGGER.info(
