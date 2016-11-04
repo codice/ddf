@@ -16,7 +16,10 @@ package org.codice.ddf.platform.util;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -40,9 +43,20 @@ import org.w3c.dom.Node;
  */
 public class XMLUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtils.class);
+
     protected static volatile XMLInputFactory xmlInputFactory;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtils.class);
+    private static void initializeXMLInputFactory() {
+        if (xmlInputFactory == null) {
+            xmlInputFactory = XMLInputFactory.newInstance();
+        }
+        xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD,
+                Boolean.FALSE); // This disables DTDs entirely for that factory
+        xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+    }
 
     /**
      * Formats XML into a String
@@ -55,7 +69,6 @@ public class XMLUtils {
         Writer buffer = new StringWriter();
         Result streamResult = new StreamResult(buffer);
         transformation(sourceXml, transformProperties, streamResult);
-
         return buffer.toString();
     }
 
@@ -124,28 +137,61 @@ public class XMLUtils {
      */
     public static String getRootNamespace(String xml) {
 
-        String rootNamespace = null;
-
         if (xml == null) {
             return null;
         }
 
-        initializeXMLInputFactory();
+        ProcessingResult<String> result = new ProcessingResult();
+        return processElements(xml, result, (xmlStreamReader) -> {
+            result.setValue(xmlStreamReader.getNamespaceURI());
+            result.done();
+        });
+    }
 
+    public static boolean hasNamespace(String xml, String namespace) {
+        List<String> ns = new ArrayList<>();
+        ProcessingResult<Boolean> result = new ProcessingResult();
+        processElements(xml, result, (xmlStreamReader) -> {
+            result.setValue(xmlStreamReader.getNamespaceURI()
+                    .equals(namespace));
+            ns.add(xmlStreamReader.getNamespaceURI());
+            LOGGER.warn(xmlStreamReader.getNamespaceURI());
+            //result.done();
+
+        });
+
+        int x = 8;
+        return false;
+    }
+
+    /**
+     *
+     * @param xml   The XML to process
+     * @param result    Instance of processing result
+     * @param processElementFunction    Function that accepts an instance of XMLStreamReader
+     *                                  and updates the processing result
+     * @param <T> The type that of the processing result's value
+     * @return Processing results's value
+     */
+    public static <T> T processElements(String xml, ProcessingResult<T> result,
+            Consumer<XMLStreamReader> processElementFunction) {
+
+        initializeXMLInputFactory();
         XMLStreamReader xmlStreamReader = null;
 
         try (StringReader strReader = new StringReader(xml)) {
             xmlStreamReader = xmlInputFactory.createXMLStreamReader(strReader);
-
             while (xmlStreamReader.hasNext()) {
                 int event = xmlStreamReader.next();
                 if (event == XMLStreamConstants.START_ELEMENT) {
-                    rootNamespace = xmlStreamReader.getNamespaceURI();
-                    return rootNamespace;
+                    processElementFunction.accept(xmlStreamReader);
+                    if (result.isDone) {
+                        break;
+                    }
                 }
             }
         } catch (XMLStreamException e) {
-            LOGGER.debug("Unable to parse root namespace from XML", e);
+            LOGGER.debug(XMLUtils.class.getSimpleName() + " is unable to parse XML", e);
         } finally {
             if (xmlStreamReader != null) {
                 try {
@@ -156,19 +202,7 @@ public class XMLUtils {
             }
         }
 
-        return rootNamespace;
-    }
-
-    protected static synchronized void initializeXMLInputFactory() {
-        if (xmlInputFactory == null) {
-            xmlInputFactory = XMLInputFactory.newInstance();
-            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
-                    Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
-                    Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
-            xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
-        }
+        return result.getValue();
     }
 
     private static void transformation(Source sourceXml, TransformerProperties transformProperties,
@@ -195,4 +229,41 @@ public class XMLUtils {
                     .setContextClassLoader(tccl);
         }
     }
+
+    // This class is used with the processElements method. Pass a function and an instance of
+    // ProcessingResult into the processElements method. Inside the function, set
+    // use setResult to the return value and call done() to stop processing the XML document.
+    public static class ProcessingResult<T> {
+        boolean isDone = false;
+
+        T value;
+
+        public ProcessingResult(T value) {
+            this.value = value;
+        }
+
+        public ProcessingResult() {
+        }
+
+        public T getValue() {
+            return value;
+        }
+
+        public void setValue(T value) {
+            this.value = value;
+        }
+
+        public boolean isDone() {
+            return isDone;
+        }
+
+        public void setDone(boolean done) {
+            isDone = done;
+        }
+
+        public void done() {
+            setDone(true);
+        }
+    }
+
 }
