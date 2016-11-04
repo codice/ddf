@@ -421,7 +421,11 @@ define([
         });
 
         MetaCard.Properties = Backbone.AssociatedModel.extend({
-
+            defaults: function() {
+                return {
+                    'metacard-tags': ['resource']
+               }
+           }
         });
 
         MetaCard.Action = Backbone.AssociatedModel.extend({
