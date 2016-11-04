@@ -13,7 +13,9 @@
  */
 package org.codice.ddf.platform.util;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -52,6 +54,11 @@ public class XMLUtilsTest {
 
     private static final String XML_WITH_NAMESPACE =
             "<?xml version=\"1.0\"?><dog:Dog xmlns:dog=\"doggy-namespace\"></dog:Dog>";
+
+    private static final String XML_MULTIPLE_NODES =
+            "<bookstore>\n" + "  <book category=\"children\">\n"
+                    + "    <title>Harry Potter</title>\n" + "    <author>J K. Rowling</author>\n"
+                    + "    <year>2005</year>\n" + "    <price>29.99</price>\n" + "  </book>";
 
     @Test
     public void testFormatSource() throws ParserConfigurationException, IOException, SAXException {
@@ -115,6 +122,32 @@ public class XMLUtilsTest {
     @Test
     public void testGetRootNamespace() {
         assert "doggy-namespace".equals(XMLUtils.getRootNamespace(XML_WITH_NAMESPACE));
+    }
+
+    @Test
+    public void testProcessElementException() {
+
+        XMLUtils.ProcessingResult<Object> result = new XMLUtils.ProcessingResult<>(new Object());
+        assertThat(result.getValue(), is(notNullValue()));
+        XMLUtils.processElements("", result, (x) -> {
+        });
+        assertThat("Processing result should be null if an exception was thrown",
+                result.getValue(),
+                is(nullValue()));
+    }
+
+    @Test
+    public void testProcessingStop() {
+        XMLUtils.ProcessingResult<Integer> result = new XMLUtils.ProcessingResult<>(0);
+        assertThat("Expected processing result to default to 'not done'",
+                result.isDone(),
+                is(false));
+        XMLUtils.processElements(XML_MULTIPLE_NODES, result, (xmlStreamReader) -> {
+            result.setValue(result.getValue() + 1);
+            result.done();
+        });
+
+        assertThat("Expected result value to be 1", result.getValue(), equalTo(1));
     }
 
     private TransformerProperties setTransformerProperties() {

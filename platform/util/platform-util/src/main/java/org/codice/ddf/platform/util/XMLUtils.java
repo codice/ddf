@@ -16,8 +16,6 @@ package org.codice.ddf.platform.util;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
@@ -148,22 +146,6 @@ public class XMLUtils {
         });
     }
 
-    public static boolean hasNamespace(String xml, String namespace) {
-        List<String> ns = new ArrayList<>();
-        ProcessingResult<Boolean> result = new ProcessingResult();
-        processElements(xml, result, (xmlStreamReader) -> {
-            result.setValue(xmlStreamReader.getNamespaceURI()
-                    .equals(namespace));
-            ns.add(xmlStreamReader.getNamespaceURI());
-            LOGGER.warn(xmlStreamReader.getNamespaceURI());
-            //result.done();
-
-        });
-
-        int x = 8;
-        return false;
-    }
-
     /**
      *
      * @param xml   The XML to process
@@ -191,6 +173,7 @@ public class XMLUtils {
                 }
             }
         } catch (XMLStreamException e) {
+            result.setValue(null);
             LOGGER.debug(XMLUtils.class.getSimpleName() + " is unable to parse XML", e);
         } finally {
             if (xmlStreamReader != null) {
