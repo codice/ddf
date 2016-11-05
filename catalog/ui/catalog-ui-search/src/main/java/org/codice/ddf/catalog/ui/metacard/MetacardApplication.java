@@ -76,6 +76,7 @@ import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
+import ddf.catalog.core.versioning.MetacardVersion.Action;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -111,13 +112,11 @@ public class MetacardApplication implements SparkApplication {
     private static final String UPDATE_ERROR_MESSAGE =
             "Workspace is either restricted or not found.";
 
-    private static final Set<MetacardVersion.Action> CONTENT_ACTIONS = ImmutableSet.of(
-            MetacardVersion.Action.VERSIONED_CONTENT,
-            MetacardVersion.Action.DELETED_CONTENT);
+    private static final Set<Action> CONTENT_ACTIONS = ImmutableSet.of(Action.VERSIONED_CONTENT,
+            Action.DELETED_CONTENT);
 
-    private static final Set<MetacardVersion.Action> DELETE_ACTIONS = ImmutableSet.of(
-            MetacardVersion.Action.DELETED,
-            MetacardVersion.Action.DELETED_CONTENT);
+    private static final Set<Action> DELETE_ACTIONS = ImmutableSet.of(Action.DELETED,
+            Action.DELETED_CONTENT);
 
     private final CatalogFramework catalogFramework;
 
@@ -269,7 +268,7 @@ public class MetacardApplication implements SparkApplication {
                             getVersionedOnDate(mc).isAfter(getVersionedOnDate(versionMetacard))
                                     || getVersionedOnDate(mc).equals(getVersionedOnDate(
                                     versionMetacard)))
-                    .filter(mc -> CONTENT_ACTIONS.contains(MetacardVersion.Action.ofMetacard(mc)))
+                    .filter(mc -> CONTENT_ACTIONS.contains(Action.ofMetacard(mc)))
                     .sorted(Comparator.comparing((Metacard mc) -> util.parseToDate(mc.getAttribute(
                             MetacardVersion.VERSIONED_ON)
                             .getValue())))
@@ -438,9 +437,11 @@ public class MetacardApplication implements SparkApplication {
     private void revertMetacard(Metacard versionMetacard, String id)
             throws SourceUnavailableException, IngestException {
         Metacard revertMetacard = MetacardVersionImpl.toMetacard(versionMetacard, types);
-        if (versionMetacard.getAttribute(MetacardVersion.ACTION)
-                .getValue()
-                .equals(MetacardVersion.Action.DELETED.getKey())) {
+        Action action = Action.fromKey((String) versionMetacard.getAttribute(MetacardVersion.ACTION)
+                .getValue());
+
+        // Only deleted; deleted_content will have already made metacard so we just want to update
+        if (action.equals(Action.DELETED)) {
             catalogFramework.create(new CreateRequestImpl(revertMetacard));
         } else {
             catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
@@ -470,22 +471,20 @@ public class MetacardApplication implements SparkApplication {
                 MetacardVersionImpl.toMetacard(versionMetacard, types));
 
         // Try to delete the "deleted metacard" marker first.
-        if (DELETE_ACTIONS.contains(MetacardVersion.Action.fromKey((String) versionMetacard.getAttribute(
-                MetacardVersion.ACTION)
-                .getValue()))) {
+        Action action = Action.fromKey((String) versionMetacard.getAttribute(MetacardVersion.ACTION)
+                .getValue());
+        if (DELETE_ACTIONS.contains(action)) {
             // TODO (RCZ) - Semantics for failing the delete? want to still let the recreate happen?
             attemptDeleteDeletedMetacard(id);
             catalogFramework.create(new CreateStorageRequestImpl(Collections.singletonList(
                     contentItem), id, new HashMap<>()));
-
         } else {
             catalogFramework.update(new UpdateStorageRequestImpl(Collections.singletonList(
                     contentItem), id, new HashMap<>()));
+
         }
 
-        //        if (latestContent != versionMetacard) {
-        //            revertMetacard(versionMetacard, id);
-        //        }
+        revertMetacard(versionMetacard, id);
     }
 
     private void attemptDeleteDeletedMetacard(String id)
