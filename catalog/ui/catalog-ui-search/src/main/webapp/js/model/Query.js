@@ -25,13 +25,29 @@ define([
         'js/Common',
         'js/CacheSourceSelector',
         'component/announcement',
+        'js/CQLUtils',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common, CacheSourceSelector, announcement) {
+    function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common, CacheSourceSelector, announcement,
+            CQLUtils) {
         "use strict";
         var Query = {};
 
         var converter = new usngs.Converter();
+
+        function limitToDeleted(cqlString){
+            return CQLUtils.transformFilterToCQL({
+                type: 'AND',
+                filters: [
+                    CQLUtils.transformCQLToFilter(cqlString), 
+                    {
+                        property: '"metacard-tags"',
+                        type: "ILIKE",
+                        value: 'deleted'
+                    }
+                ]
+            });
+        }
 
         Query.Model = Backbone.AssociatedModel.extend({
             relations: [
@@ -564,7 +580,7 @@ define([
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
 
-            startSearch: function () {
+            startSearch: function (forDeleted) {
                 this.cancelCurrentSearches();
 
                 var data = Common.duplicate(this.buildSearchData());
@@ -635,6 +651,7 @@ define([
                 sources.unshift("cache");
                    
                 var cqlString = data.cql;
+                cqlString = forDeleted ? limitToDeleted(cqlString) : cqlString;
                 this.currentSearches = sources.map(function (src) {
                     data.src = src;
 

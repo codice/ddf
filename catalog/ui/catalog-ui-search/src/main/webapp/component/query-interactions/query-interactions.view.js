@@ -35,6 +35,7 @@ define([
             'click .interaction-stop': 'handleCancel',
             'click .interaction-delete': 'handleDelete',
             'click .interaction-duplicate': 'handleDuplicate',
+            'click .interaction-deleted': 'handleDeleted',
             'click': 'handleClick'
         },
         ui: {
@@ -51,6 +52,9 @@ define([
         },
         handleDelete: function(){
             this.model.collection.remove(this.model);
+        },
+        handleDeleted: function(){
+            this.model.startSearch(true);
         },
         handleDuplicate: function(){
             if (this.model.collection.canAddQuery()){

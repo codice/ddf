@@ -113,6 +113,9 @@ define([
         transformFilterToCQL: function(filter){
             return this.sanitizeGeometryCql("(" + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ")");
         },
+        transformCQLToFilter: function(cqlString){
+            return cql.simplify(cql.read(cqlString));
+        },
         isPointRadiusFilter: function(filter){
             return filter.value && filter.value.value && filter.value.value.indexOf('POINT') >= 0;
         }
