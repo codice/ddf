@@ -67,6 +67,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletConfig;
@@ -100,13 +101,14 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
     private static final Logger LOG =
             LoggerFactory.getLogger(HttpProxyCamelHttpTransportServlet.class);
 
+    private final Map<String, HttpConsumer> consumers =
+            new ConcurrentHashMap<String, HttpConsumer>();
+
     private transient CamelContext camelContext;
 
     private transient HttpRegistry httpRegistry;
 
     private boolean ignoreDuplicateServletName;
-
-    private Map<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
 
     public HttpProxyCamelHttpTransportServlet(CamelContext camelContext) {
         this.camelContext = camelContext;
@@ -142,7 +144,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
             CamelServlet existing = httpRegistry.getCamelServlet(name);
             if (existing != null) {
                 String msg = "Duplicate ServetName detected: " + name + ". Existing: " + existing
-                        + " This: " + this.toString()
+                        + " This: " + this
                         + ". Its advised to use unique ServletName per Camel application.";
                 // always log so people can see it easier
                 if (isIgnoreDuplicateServletName()) {
@@ -171,7 +173,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
     }
 
     @Override
-    protected void service(HttpServletRequest oldRequest, HttpServletResponse response)
+    protected void doService(HttpServletRequest oldRequest, HttpServletResponse response)
             throws ServletException, IOException {
 
         //Wrap request and clean the query String
@@ -311,6 +313,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
         return (ServletEndpoint) consumer.getEndpoint();
     }
 
+    @Override
     protected HttpConsumer resolve(HttpServletRequest request) {
         String path = request.getPathInfo();
         log.trace("Request path is: {}", path);
@@ -322,8 +325,9 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
             log.debug("Consumer Keys: {}",
                     Arrays.toString(consumers.keySet()
                             .toArray()));
-            for (Map.Entry<String, HttpConsumer> entry : consumers.entrySet()) {
-                if ((entry.getValue()).getEndpoint()
+            for (Entry<String, HttpConsumer> entry : consumers.entrySet()) {
+                if (entry.getValue()
+                        .getEndpoint()
                         .isMatchOnUriPrefix() && path.startsWith(entry.getKey())) {
                     answer = consumers.get(entry.getKey());
                     break;
@@ -370,7 +374,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
         // path is like: "/example1/something/0/thing.html"
         // or is like: "/example1"
         // endpointName is: "example1"
-        String endpointName = (StringUtils.indexOf(path, "/", 1) != StringUtils.INDEX_NOT_FOUND) ?
+        String endpointName = StringUtils.indexOf(path, "/", 1) != StringUtils.INDEX_NOT_FOUND ?
                 StringUtils.substring(path, 0, StringUtils.indexOf(path, "/", 1)) :
                 path;
         endpointName = StringUtils.remove(endpointName, "/");
