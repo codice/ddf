@@ -510,6 +510,7 @@
         <module>resourcemanagement</module>
         <module>ftp</module>
         <module>validator</module>
+        <module>confluence</module>
     </modules>
     <build>
         <plugins>
