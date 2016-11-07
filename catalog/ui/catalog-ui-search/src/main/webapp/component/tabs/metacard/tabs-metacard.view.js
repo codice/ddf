@@ -41,6 +41,7 @@ define([
             this.listenTo(this.selectionInterface.getSelectedResults(), 'add', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'reset', debounceDetermineContent);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'refreshdata', debounceDetermineContent);
         },
         handleMetacardChange: function(){
             this.determineAvailableContent();
@@ -51,7 +52,7 @@ define([
             var result = this.selectionInterface.getSelectedResults().first();
             if (result.isRevision() && ['History', 'Actions', 'Overwrite', 'Archive'].indexOf(activeTabName) >= 0){
                 this.model.set('activeTab', 'Summary');
-            } else if (result.isDeleted() && ['History', 'Actions', 'Overwrite', 'Archive'].indexOf(activeTabName) >= 0){
+            } else if (result.isDeleted() && ['History', 'Actions', 'Overwrite'].indexOf(activeTabName) >= 0){
                 this.model.set('activeTab', 'Summary');
             } else if (result.isWorkspace() && ['History', 'Actions', 'Overwrite', 'Archive'].indexOf(activeTabName) >= 0){
                 this.model.set('activeTab', 'Summary');

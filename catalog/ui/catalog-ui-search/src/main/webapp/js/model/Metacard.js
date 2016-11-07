@@ -500,9 +500,19 @@ define([
                     var req = {
                         count: 1,
                         cql: CQLUtils.transformFilterToCQL({
-                            type: '=', 
-                            property: '"id"', 
-                            value: this.get('metacard').id
+                            type: 'AND', 
+                            filters: [
+                                {
+                                    type: '=', 
+                                    property: '"id"', 
+                                    value: this.get('metacard').id
+                                },
+                                {
+                                    type: 'ILIKE', 
+                                    property: '"metacard-tags"', 
+                                    value: '*'
+                                }
+                            ]
                         }),
                         id: '0',
                         sort: 'modified:desc',
@@ -519,6 +529,7 @@ define([
                 var queryId = this.get('metacard').get('queryId');
                 var color = this.get('metacard').get('color');
                 _.forEach(response.results, function (result) {
+                    delete result.relevance;
                     result.propertyTypes = response.types[result.metacard.properties['metacard-type']];
                     result.metacardType = result.metacard.properties['metacard-type'];
                     result.metacard.id = result.metacard.properties.id;
@@ -533,6 +544,7 @@ define([
                     }
                 });
                 this.set(response.results[0]);
+                this.trigger('refreshdata');
             }
         });
 

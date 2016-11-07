@@ -74,7 +74,7 @@ define([
                 return result.get('metacard').get('id');
             }));
             this.listenTo(ConfirmationView.generateConfirmation({
-                    prompt: 'Are you sure you want to archive this metacard?  Doing so will remove it from future search results.',
+                    prompt: 'Are you sure you want to archive?  Doing so will remove the item(s) future search results.',
                     no: 'Cancel',
                     yes: 'Archive'
                 }),
@@ -88,19 +88,20 @@ define([
                             data: payload,
                             contentType: 'application/json'
                         }).always(function(response) {
+                            this.refreshResults();
                             setTimeout(function() { //let solr flush
                                 loadingView.remove();
-                            }, 1000);
-                        });
+                            }, 2000);
+                        }.bind(this));
                     }
-                });
+                }.bind(this));
         },
         handleRestore: function() {
             var self = this;
             this.listenTo(ConfirmationView.generateConfirmation({
-                    prompt: 'Are you sure you want to archive this metacard?  Doing so will remove it from future search results.',
+                    prompt: 'Are you sure you want to restore?  Doing so will include the item(s) in future search results.',
                     no: 'Cancel',
-                    yes: 'Archive'
+                    yes: 'Restore'
                 }),
                 'change:choice',
                 function(confirmation) {
@@ -111,15 +112,20 @@ define([
                                 result.get('metacard').get('properties').get('metacard.deleted.id') +
                                 '/revert/' +
                                 result.get('metacard').get('properties').get('metacard.deleted.version')).then(function(response) {
-                                    ResultUtils.refreshResult(result);
-                            });
-                        })).always(function(response) {
+                                    this.refreshResults();
+                            }.bind(this));
+                        }.bind(this))).always(function(response) {
                             setTimeout(function() { //let solr flush
                                 loadingView.remove();
-                            }, 1000);
+                            }, 2000);
                         });
                     }
-                });
+                }.bind(this));
+        },
+        refreshResults: function(){
+            this.model.forEach(function(result){
+                ResultUtils.refreshResult(result);
+            });
         }
     });
 });

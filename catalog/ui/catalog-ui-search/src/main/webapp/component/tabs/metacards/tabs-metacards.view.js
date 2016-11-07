@@ -57,6 +57,7 @@ define([
             this.listenTo(this.selectionInterface.getSelectedResults(), 'add', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'reset', debounceDetermineContent);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'refreshdata', debounceDetermineContent);
         },
         handleMetacardChange: function(){
             this.determineAvailableContent();
