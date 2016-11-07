@@ -50,6 +50,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGenericXmlLib {
@@ -59,7 +60,8 @@ public class TestGenericXmlLib {
     @Before
     public void setup() {
         mockMetacardTypeRegister = mock(MetacardTypeRegister.class);
-        doReturn(BasicTypes.BASIC_METACARD).when(mockMetacardTypeRegister).getMetacardType();
+        doReturn(BasicTypes.BASIC_METACARD).when(mockMetacardTypeRegister)
+                .getMetacardType();
     }
 
     @Test
@@ -308,8 +310,7 @@ public class TestGenericXmlLib {
                 false,
                 false,
                 BasicTypes.STRING_TYPE));
-        DynamicMetacardType dynamicMetacardType = new DynamicMetacardType(attributeDescriptors,
-                "Foo");
+        MetacardTypeImpl dynamicMetacardType = new MetacardTypeImpl("Foo.metacard", attributeDescriptors);
         assertThat(dynamicMetacardType.getName(), is("Foo.metacard"));
         assertThat(dynamicMetacardType.getAttributeDescriptor(Metacard.TITLE), is(notNullValue()));
         assertThat(dynamicMetacardType.getAttributeDescriptors()

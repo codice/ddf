@@ -49,25 +49,4 @@ public class SampleMetacardType extends MetacardTypeImpl {
     public SampleMetacardType() {
         super(NAME, DESCRIPTORS);
     }
-
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public Set<AttributeDescriptor> getAttributeDescriptors() {
-        return DESCRIPTORS;
-    }
-
-    @Override
-    public AttributeDescriptor getAttributeDescriptor(String name) {
-        for (AttributeDescriptor attributeDescriptor : DESCRIPTORS) {
-            if (attributeDescriptor.getName()
-                    .equals(name)) {
-                return attributeDescriptor;
-            }
-        }
-        return null;
-    }
 }

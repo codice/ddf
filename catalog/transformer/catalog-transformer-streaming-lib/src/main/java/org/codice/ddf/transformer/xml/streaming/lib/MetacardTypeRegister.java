@@ -23,20 +23,24 @@ import java.util.Map;
 import java.util.Set;
 
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.util.impl.SortedServiceList;
 
-public class MetacardTypeRegister extends SortedServiceList {
+public class MetacardTypeRegister {
 
     private Map<String, ServiceRegistration> metacardTypeServiceRegistrations = new HashMap<>();
 
     private List<SaxEventHandlerFactory> saxEventHandlerFactories = new ArrayList<>();
 
-    private DynamicMetacardType metacardType;
+    private MetacardTypeImpl metacardType;
 
     private String id = "DEFAULT_ID";
 
@@ -51,7 +55,7 @@ public class MetacardTypeRegister extends SortedServiceList {
     }
 
     /**
-     * Defines a {@link DynamicMetacardType} based on component Sax Event Handler Factories
+     * Defines a {@link MetacardTypeImpl} based on component Sax Event Handler Factories
      * and what attributes they populate
      *
      * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
@@ -59,14 +63,12 @@ public class MetacardTypeRegister extends SortedServiceList {
     private synchronized void setMetacardType() {
         Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
-        if (saxEventHandlerFactories != null) {
-            for (SaxEventHandlerFactory factory : saxEventHandlerFactories) {
-                attributeDescriptors.addAll(factory.getSupportedAttributeDescriptors());
-            }
+        for (SaxEventHandlerFactory factory : saxEventHandlerFactories) {
+            attributeDescriptors.addAll(factory.getSupportedAttributeDescriptors());
         }
         attributeDescriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
 
-        DynamicMetacardType dynamicMetacardType = new DynamicMetacardType(attributeDescriptors, id);
+        MetacardTypeImpl dynamicMetacardType = new MetacardTypeImpl(id, attributeDescriptors);
         registerMetacardType(dynamicMetacardType);
         metacardType = dynamicMetacardType;
     }
@@ -109,34 +111,12 @@ public class MetacardTypeRegister extends SortedServiceList {
     public synchronized void setId(String id) {
         this.id = id;
     }
-}
 
-class DynamicMetacardType implements MetacardType {
-
-    Set<AttributeDescriptor> attributeDescriptors;
-
-    String name;
-
-    public DynamicMetacardType(Set<AttributeDescriptor> attDesc, String name) {
-        this.attributeDescriptors = attDesc;
-        this.name = name + ".metacard";
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public Set<AttributeDescriptor> getAttributeDescriptors() {
-        return attributeDescriptors;
-    }
-
-    @Override
-    public AttributeDescriptor getAttributeDescriptor(String attributeName) {
-        return attributeDescriptors.stream()
-                .filter(p -> p.getName().equals(attributeName))
-                .findFirst()
-                .orElse(null);
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(SortedServiceList.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 }
