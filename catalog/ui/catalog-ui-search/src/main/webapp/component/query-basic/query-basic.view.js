@@ -509,9 +509,9 @@ define([
                 var typeFilter = {
                     type: 'OR',
                     filters: typesSpecific.map(function(specificType){
-                        return CQLUtils.generateFilter('=', 'metadata-content-type', specificType);
+                        return CQLUtils.generateFilter('ILIKE', 'metadata-content-type', specificType);
                     }).concat(typesSpecific.map(function(specificType){
-                        return CQLUtils.generateFilter('=', 'datatype', specificType);
+                        return CQLUtils.generateFilter('ILIKE', 'datatype', specificType);
                     }))
                 };
                 filters.push(typeFilter)
